@@ -26,7 +26,7 @@ jobs:
         run: ~/.elan/bin/lake -Kenv=dev exe cache get || true
 
       - name: Build project
-        run: ~/.elan/bin/lake -Kenv=dev build «TestingLowerBounds
+        run: ~/.elan/bin/lake -Kenv=dev build TestingLowerBounds
 
       - name: Cache mathlib docs
         uses: actions/cache@v3
@@ -38,7 +38,7 @@ jobs:
             .lake/build/doc/Std
             .lake/build/doc/Mathlib
             .lake/build/doc/declarations
-            !.lake/build/doc/declarations/declaration-data-«TestingLowerBounds*
+            !.lake/build/doc/declarations/declaration-data-TestingLowerBounds*
           key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
           restore-keys: |
             MathlibDoc-
