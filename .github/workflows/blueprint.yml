@@ -44,7 +44,7 @@ jobs:
             MathlibDoc-
 
       - name: Build documentation
-        run: ~/.elan/bin/lake -Kenv=dev build «TestingLowerBounds:docs
+        run: ~/.elan/bin/lake -Kenv=dev build TestingLowerBounds:docs
 
       - name: Build blueprint and copy to `docs/blueprint`
         uses: xu-cheng/texlive-action@v2
