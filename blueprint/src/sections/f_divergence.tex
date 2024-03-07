@@ -70,7 +70,7 @@ Computation.
   For finite measures $\mu$ and $\nu$ with $\mu(\mathcal X) = \nu(\mathcal X)$, for all $a \in \mathbb{R}$, $D_{f + a(x - 1)}(\mu, \nu) = D_{f}(\mu, \nu)$.
 \end{lemma}
 
-This means that we can always choose $f'(1) = 0$ if we want (and $f$ is differentiable at $1$).
+This means that we can always choose $f \ge 0$ and $f'(1) = 0$ if we want (and $f$ is differentiable at $1$).
 
 \begin{proof}
 \uses{lem:fDiv_add, lem:fDiv_mul, lem:fDiv_linear}
@@ -144,6 +144,34 @@ TODO
 \end{lemma}
 
 \begin{proof}
+\end{proof}
+
+\begin{corollary}
+  \label{cor:fDiv_prod_right}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\xi$ be a measure on $\mathcal Y$.
+  Then $D_f(\mu \times \xi, \nu \times \xi) = D_f(\mu, \nu)$.
+\end{corollary}
+
+\begin{proof}
+\uses{thm:fDiv_compProd_right}
+Apply Lemma~\ref{thm:fDiv_compProd_right} with $\kappa$ the constant kernel with value $\xi$.
+\end{proof}
+
+\begin{theorem}[Conditioning increases f-divergence]
+  \label{thm:fDiv_comp_le_condFDiv}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  Let $\mu$ be a measure on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels.
+  Then $D_f(\kappa \circ \mu, \eta \circ \mu) \le D_f(\kappa, \eta \mid \mu)$
+\end{theorem}
+
+\begin{proof}
+\uses{thm:fDiv_fst_le, lem:fDiv_compProd_left}
+By definition, $\kappa \circ \mu$ is the marginal of $\mu \otimes \kappa$ (a measure on $\mathcal X \times \mathcal Y$) on $\mathcal Y$. Hence by Theorem~\ref{thm:fDiv_fst_le}, $D_f(\kappa \circ \mu, \eta \circ \mu) \le D_f(\mu \otimes \kappa, \mu \otimes \eta)$. This is equal to $D_f(\kappa, \eta \mid \mu)$ by Lemma~\ref{lem:fDiv_compProd_left}.
 \end{proof}
 
 \begin{theorem}[Data-processing]
