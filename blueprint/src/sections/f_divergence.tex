@@ -82,7 +82,7 @@ TODO
 
 \section{Data-processing inequality}
 
-\begin{theorem}[Monotonicity]
+\begin{theorem}[Marginals]
   \label{thm:fDiv_fst_le}
   %\lean{}
   %\leanok
@@ -119,4 +119,16 @@ TODO
 \begin{proof}
 \uses{thm:fDiv_fst_le, thm:fDiv_compProd_right}
 By definition, $\kappa \circ \mu$ is the marginal of $\mu \otimes \kappa$ (a measure on $\mathcal X \times \mathcal Y$) on $\mathcal Y$. Hence by Theorem~\ref{thm:fDiv_fst_le}, $D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \kappa)$. Then the latter is equal to $D_f(\mu, \nu)$ by Lemma~\ref{thm:fDiv_compProd_right}.
+\end{proof}
+
+\begin{corollary}
+  \label{cor:data_proc_event}
+  %\lean{}
+  %\leanok
+  \uses{thm:fDiv_data_proc}
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $E$ be an event. Let $\mu_E$ and $\nu_E$ be the two Bernoulli distributions with respective means $\mu(E)$ and $\nu(E)$. Then $D_f(\mu, \nu) \ge D_f(\mu_E, \nu_E)$.
+\end{corollary}
+
+\begin{proof}
+Use the deterministic kernel $\kappa : \mathcal X \rightsquigarrow \{0, 1\}$ with $\kappa(x) = \delta_1 \mathbb{I}\{x \in E\} + \delta_0 \mathbb{I}\{x \notin E\}$ in Theorem~\ref{thm:fDiv_data_proc}.
 \end{proof}

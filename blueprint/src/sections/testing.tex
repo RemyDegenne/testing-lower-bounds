@@ -12,4 +12,17 @@
 \end{lemma}
 
 \begin{proof}
+\uses{lem:renyi_data_proc_event}
+Let $\mu_E$ and $\nu_E$ be the two Bernoulli distributions with respective means $\mu(E)$ and $\nu(E)$.
+By Lemma~\ref{lem:renyi_data_proc_event}, $R_\alpha(\mu, \nu) \ge R_\alpha(\mu_E, \nu_E)$. That divergence is
+\begin{align*}
+R_\alpha(\mu_E, \nu_E)
+&= \frac{1}{\alpha - 1}\log \left(\mu(E)^\alpha \nu(E)^{1 - \alpha}
+	+ \mu(E^c)^\alpha \nu(E^c)^{1 - \alpha}\right)
+\\
+&\ge \frac{1}{\alpha - 1}\log \left((\max\{\mu(E), \nu(E^c)\})^\alpha \times 1^{1 - \alpha}
+	+ 1^\alpha \times (\max\{\mu(E), \nu(E^c)\})^{1 - \alpha}\right)
+\\
+&\ge \frac{1}{\alpha - 1}\log \left(2 (\max\{\mu(E), \nu(E^c)\})^{\min\{\alpha, 1-\alpha\}}\right) \: .
+\end{align*}
 \end{proof}
