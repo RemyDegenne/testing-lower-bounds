@@ -54,3 +54,29 @@ The function $x \mapsto \frac{1}{\alpha - 1}\log (1 + (\alpha - 1)x)$ is non-dec
 By Lemma~\ref{lem:renyi_eq_log_fDiv}, $R_\alpha(\mu, \nu) = \frac{1}{\alpha - 1} \log (1 + (\alpha - 1) D_f(\nu, \mu))$ for $f : x \mapsto \frac{1}{\alpha - 1}(x^{\alpha} - \alpha x + \alpha - 1)$.
 By Corollary~\ref{cor:data_proc_event}, $D_f(\mu, \nu) \ge D_f(\mu_E, \nu_E)$, hence $R_\alpha(\mu, \nu) \ge R_\alpha(\mu_E, \nu_E)$.
 \end{proof}
+
+\begin{theorem}[Tensorization]
+  \label{thm:renyi_prod}
+  %\lean{}
+  %\leanok
+  \uses{def:Renyi}
+  Let $I$ be a countable index set (TODO: is countable ok? replace by finite if not). Let $(\mu_i)_{i \in I}, (\nu_i)_{i \in I}$ be measures on measurable spaces $(\mathcal X_i)_{i \in I}$.
+  Then $R_\alpha (\prod_{i \in I} \mu_i, \prod_{i \in I} \nu_i) = \sum_{i \in I} R_\alpha(\mu_i, \nu_i)$.
+\end{theorem}
+
+\begin{proof}
+\end{proof}
+
+\begin{corollary}
+  \label{lem:renyi_prod_n}
+  %\lean{}
+  %\leanok
+  \uses{def:Renyi}
+  Let $\mu, \nu$ be two measures on $\mathcal X$. Let $n \in \mathbb{N}$ and write $\mu^{\otimes n}$ for the product measure on $\mathbb{R}^n$ of $n$ times $\mu$.
+  Then $R_\alpha(\mu^{\otimes n}, \nu^{\otimes n}) = n R_\alpha(\mu, \nu)$.
+\end{corollary}
+
+\begin{proof}
+\uses{thm:renyi_prod}
+Apply Theorem~\ref{thm:renyi_prod}.
+\end{proof}
