@@ -26,3 +26,19 @@ R_\alpha(\mu_E, \nu_E)
 &\ge \frac{1}{\alpha - 1}\log \left(2 (\max\{\mu(E), \nu(E^c)\})^{\min\{\alpha, 1-\alpha\}}\right) \: .
 \end{align*}
 \end{proof}
+
+\begin{corollary}
+  \label{cor:testing_bound_renyi_n}
+  %\lean{}
+  %\leanok
+  \uses{def:Renyi}
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and $E$ and event of $\mathcal X^n$. Let $\alpha \in (0,1)$. Then
+  \begin{align*}
+  \min\{\alpha, 1 - \alpha\} \log\frac{1}{\max\{\mu^{\otimes n}(E), \nu^{\otimes n}(E^c)\}} \le (1 - \alpha) n R_{\alpha}(\mu, \nu)  + \log 2 \: .
+  \end{align*}
+\end{corollary}
+
+\begin{proof}
+\uses{lem:renyi_data_proc_event, lem:renyi_prod_n}
+Use Lemma~\ref{lem:renyi_prod_n} in Lemma~\ref{lem:testing_bound_renyi}.
+\end{proof}
