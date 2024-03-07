@@ -29,12 +29,13 @@ Unfold the definitions.
   \label{thm:renyi_data_proc}
   %\lean{}
   %\leanok
-  \uses{def:Renyi, thm:fDiv_data_proc}
+  \uses{def:Renyi}
   Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
   Then $R_\alpha(\kappa \circ \mu, \kappa \circ \nu) \le R_\alpha(\mu, \nu)$.
 \end{theorem}
 
 \begin{proof}
+\uses{thm:fDiv_data_proc, lem:renyi_eq_log_fDiv}
 By Lemma~\ref{lem:renyi_eq_log_fDiv}, $R_\alpha(\mu, \nu) = \frac{1}{\alpha - 1} \log (1 + (\alpha - 1) D_f(\nu, \mu))$ for $f : x \mapsto \frac{1}{\alpha - 1}(x^{\alpha} - \alpha x + \alpha - 1)$.
 The function $x \mapsto \frac{1}{\alpha - 1}\log (1 + (\alpha - 1)x)$ is non-decreasing and $D_f$ satisfies the DPI (Theorem~\ref{thm:fDiv_data_proc}), hence we get the DPI for $R_\alpha$.
 \end{proof}
@@ -43,12 +44,13 @@ The function $x \mapsto \frac{1}{\alpha - 1}\log (1 + (\alpha - 1)x)$ is non-dec
   \label{lem:renyi_data_proc_event}
   %\lean{}
   %\leanok
-  \uses{cor:data_proc_event}
+  \uses{def:Renyi}
   Let $\mu, \nu$ be two measures on $\mathcal X$ and let $E$ be an event. Let $\mu_E$ and $\nu_E$ be the two Bernoulli distributions with respective means $\mu(E)$ and $\nu(E)$.
   Then $R_\alpha(\mu, \nu) \ge R_\alpha(\mu_E, \nu_E)$.
 \end{lemma}
 
 \begin{proof}
+\uses{cor:data_proc_event, lem:renyi_eq_log_fDiv}
 By Lemma~\ref{lem:renyi_eq_log_fDiv}, $R_\alpha(\mu, \nu) = \frac{1}{\alpha - 1} \log (1 + (\alpha - 1) D_f(\nu, \mu))$ for $f : x \mapsto \frac{1}{\alpha - 1}(x^{\alpha} - \alpha x + \alpha - 1)$.
 By Corollary~\ref{cor:data_proc_event}, $D_f(\mu, \nu) \ge D_f(\mu_E, \nu_E)$, hence $R_\alpha(\mu, \nu) \ge R_\alpha(\mu_E, \nu_E)$.
 \end{proof}
