@@ -1,0 +1,81 @@
+\chapter{f-divergences}
+
+\section{Definition and basic properties}
+
+\begin{definition}[f-divergence]
+  \label{def:fDiv}
+  %\lean{}
+  %\leanok
+  %\uses{}
+  Let $f : \mathbb{R} \to \mathbb{R}$ and let $\mu, \nu$ be two measures on a measurable space $\mathcal X$. The f-divergence between $\mu$ and $\nu$ is
+  \begin{align*}
+  D_f(\mu, \nu) = \nu\left[x \mapsto f\left(\frac{d \mu}{d \nu}(x)\right)\right]
+  \end{align*}
+  if $x \mapsto f\left(\frac{d \mu}{d \nu}(x)\right)$ is $\nu$-integrable and $+\infty$ otherwise.
+\end{definition}
+
+\begin{lemma}
+  \label{lem:fDiv_add}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  $D_{f + g}(\mu, \nu) = D_f(\mu, \nu) + D_g(\mu, \nu)$.
+\end{lemma}
+
+\begin{proof}
+Linearity of the integral.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:fDiv_self}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  If $f(1) = 0$ then $D_{f}(\mu, \mu) = 0$.
+\end{lemma}
+
+\begin{proof}
+$\frac{d \mu}{d \mu}(x) = 1$ almost everywhere and $f(1) = 0$.
+\end{proof}
+
+
+\section{Data-processing inequality}
+
+\begin{theorem}[Monotonicity]
+  \label{thm:fDiv_fst_le}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  Let $\mu$ and $\nu$ be two measures on $\mathcal X \times \mathcal Y$, and $\mu_X, \nu_X$ be their marginals on $\mathcal X$.
+  Then $D_f(\mu_X, \nu_X) \le D_f(\mu, \nu)$.
+  Similarly, for $\mu_Y, \nu_Y$ be the marginals on $\mathcal Y$, $D_f(\mu_Y, \nu_Y) \le D_f(\mu, \nu)$.
+\end{theorem}
+
+\begin{proof}
+\end{proof}
+
+\begin{lemma}[Composition-product with a kernel]
+  \label{thm:fDiv_compProd}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
+  Then $D_f(\mu \otimes \kappa, \nu \otimes \kappa) = D_f(\mu, \nu)$.
+\end{lemma}
+
+\begin{proof}
+\end{proof}
+
+\begin{theorem}[Data-processing]
+  \label{thm:fDiv_data_proc}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
+  Then $D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu, \nu)$.
+\end{theorem}
+
+\begin{proof}
+\uses{thm:fDiv_fst_le, thm:fDiv_compProd}
+By definition, $\kappa \circ \mu$ is the projection of $\mu \otimes \kappa$ (a measure on $\mathcal X \times \mathcal Y$) onto $\mathcal Y$. Hence by Theorem~\ref{thm:fDiv_fst_le}, $D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \kappa)$. Then the latter is equal to $D_f(\mu, \nu)$ by Lemma~\ref{thm:fDiv_compProd}.
+\end{proof}
