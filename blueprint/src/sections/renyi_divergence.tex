@@ -38,7 +38,7 @@ Since Rényi divergences are monotone transfomations of f-divergences, every ine
 
 \begin{proof}
 \uses{thm:fDiv_data_proc, lem:renyi_eq_log_fDiv}
-By Lemma~\ref{lem:renyi_eq_log_fDiv}, $R_\alpha(\mu, \nu) = \frac{1}{\alpha - 1} \log (1 + (\alpha - 1) D_f(\nu, \mu))$ for $f : x \mapsto \frac{1}{\alpha - 1}(x^{\alpha} - \alpha x + \alpha - 1)$.
+By Lemma~\ref{lem:renyi_eq_log_fDiv}, $R_\alpha(\mu, \nu) = \frac{1}{\alpha - 1} \log (1 + (\alpha - 1) D_f(\nu, \mu))$ for $f : x \mapsto \frac{1}{\alpha - 1}(x^{\alpha} - 1)$.
 The function $x \mapsto \frac{1}{\alpha - 1}\log (1 + (\alpha - 1)x)$ is non-decreasing and $D_f$ satisfies the DPI (Theorem~\ref{thm:fDiv_data_proc}), hence we get the DPI for $R_\alpha$.
 \end{proof}
 
@@ -53,7 +53,7 @@ The function $x \mapsto \frac{1}{\alpha - 1}\log (1 + (\alpha - 1)x)$ is non-dec
 
 \begin{proof}
 \uses{cor:data_proc_event, lem:renyi_eq_log_fDiv}
-By Lemma~\ref{lem:renyi_eq_log_fDiv}, $R_\alpha(\mu, \nu) = \frac{1}{\alpha - 1} \log (1 + (\alpha - 1) D_f(\nu, \mu))$ for $f : x \mapsto \frac{1}{\alpha - 1}(x^{\alpha} - \alpha x + \alpha - 1)$.
+By Lemma~\ref{lem:renyi_eq_log_fDiv}, $R_\alpha(\mu, \nu) = \frac{1}{\alpha - 1} \log (1 + (\alpha - 1) D_f(\nu, \mu))$ for $f : x \mapsto \frac{1}{\alpha - 1}(x^{\alpha} - 1)$.
 By Corollary~\ref{cor:data_proc_event}, $D_f(\mu, \nu) \ge D_f(\mu_E, \nu_E)$, hence $R_\alpha(\mu, \nu) \ge R_\alpha(\mu_E, \nu_E)$.
 \end{proof}
 
