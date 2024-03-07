@@ -125,10 +125,11 @@ By definition, $\kappa \circ \mu$ is the marginal of $\mu \otimes \kappa$ (a mea
   \label{cor:data_proc_event}
   %\lean{}
   %\leanok
-  \uses{thm:fDiv_data_proc}
+  \uses{def:fDiv}
   Let $\mu, \nu$ be two measures on $\mathcal X$ and let $E$ be an event. Let $\mu_E$ and $\nu_E$ be the two Bernoulli distributions with respective means $\mu(E)$ and $\nu(E)$. Then $D_f(\mu, \nu) \ge D_f(\mu_E, \nu_E)$.
 \end{corollary}
 
 \begin{proof}
+\uses{thm:fDiv_data_proc}
 Use the deterministic kernel $\kappa : \mathcal X \rightsquigarrow \{0, 1\}$ with $\kappa(x) = \delta_1 \mathbb{I}\{x \in E\} + \delta_0 \mathbb{I}\{x \notin E\}$ in Theorem~\ref{thm:fDiv_data_proc}.
 \end{proof}
