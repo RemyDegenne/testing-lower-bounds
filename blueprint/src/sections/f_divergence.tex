@@ -38,6 +38,47 @@ Linearity of the integral.
 $\frac{d \mu}{d \mu}(x) = 1$ almost everywhere and $f(1) = 0$.
 \end{proof}
 
+\section{Conditional f-divergence}
+
+\begin{lemma}
+  \label{lem:measurable_fDiv}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  Let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels from $\mathcal X$ to $\mathcal Y$. Then $x \mapsto D_f(\kappa(x), \eta(x))$ is measurable.
+\end{lemma}
+
+\begin{proof}
+\end{proof}
+
+\begin{definition}[Conditional f-divergence]
+  \label{def:condFDiv}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv, lem:measurable_fDiv}
+  Let $f : \mathbb{R} \to \mathbb{R}$, $\mu$ a measure on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ two Markov kernels from $\mathcal X$ to $\mathcal Y$. The conditional f-divergence between $\kappa$ and $\eta$ with respect to $\mu$ is
+  \begin{align*}
+  D_f(\kappa, \eta \mid \mu) = \mu\left[x \mapsto D_f(\kappa(x), \eta(x))\right] \: .
+  \end{align*}
+\end{definition}
+
+\begin{lemma}
+  \label{lem:fDiv_compProd_left}
+  %\lean{}
+  %\leanok
+  \uses{def:condFDiv}
+  Let $\mu$ be a measure on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels.
+  Then $D_f(\mu \otimes \kappa, \mu \otimes \eta) = D_f(\kappa, \eta \mid \mu)$.
+\end{lemma}
+
+\begin{proof}
+\uses{lem:rnDeriv_compProd}
+\begin{align*}
+D_f(\mu \otimes \kappa, \mu \otimes \eta)
+&= (\mu \otimes \kappa)\left[ x \mapsto \frac{d (\mu \otimes \kappa)}{d (\mu \otimes \eta)}(x) \right]
+\end{align*}
+TODO
+\end{proof}
 
 \section{Data-processing inequality}
 
@@ -55,7 +96,7 @@ $\frac{d \mu}{d \mu}(x) = 1$ almost everywhere and $f(1) = 0$.
 \end{proof}
 
 \begin{lemma}[Composition-product with a kernel]
-  \label{thm:fDiv_compProd}
+  \label{thm:fDiv_compProd_right}
   %\lean{}
   %\leanok
   \uses{def:fDiv}
@@ -76,6 +117,6 @@ $\frac{d \mu}{d \mu}(x) = 1$ almost everywhere and $f(1) = 0$.
 \end{theorem}
 
 \begin{proof}
-\uses{thm:fDiv_fst_le, thm:fDiv_compProd}
-By definition, $\kappa \circ \mu$ is the projection of $\mu \otimes \kappa$ (a measure on $\mathcal X \times \mathcal Y$) onto $\mathcal Y$. Hence by Theorem~\ref{thm:fDiv_fst_le}, $D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \kappa)$. Then the latter is equal to $D_f(\mu, \nu)$ by Lemma~\ref{thm:fDiv_compProd}.
+\uses{thm:fDiv_fst_le, thm:fDiv_compProd_right}
+By definition, $\kappa \circ \mu$ is the marginal of $\mu \otimes \kappa$ (a measure on $\mathcal X \times \mathcal Y$) on $\mathcal Y$. Hence by Theorem~\ref{thm:fDiv_fst_le}, $D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \kappa)$. Then the latter is equal to $D_f(\mu, \nu)$ by Lemma~\ref{thm:fDiv_compProd_right}.
 \end{proof}
