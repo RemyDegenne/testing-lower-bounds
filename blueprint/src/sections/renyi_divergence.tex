@@ -16,7 +16,7 @@
   %\lean{}
   %\leanok
   \uses{def:fDiv, def:Renyi}
-  $R_\alpha(\mu, \nu) = \frac{1}{\alpha - 1} \log (1 + (\alpha - 1) D_f(\nu, \mu))$ for $f : x \mapsto \frac{1}{\alpha - 1}(x^{\alpha} - \alpha x + \alpha - 1)$. It is thus a monotone transformation of a f-divergence.
+  $R_\alpha(\mu, \nu) = \frac{1}{\alpha - 1} \log (1 + (\alpha - 1) D_f(\nu, \mu))$ for $f : x \mapsto \frac{1}{\alpha - 1}(x^{\alpha} - 1)$, which is convex with $f(1)=0$. It is thus a monotone transformation of a f-divergence.
 
   TODO: use this for the definition?
 \end{lemma}
@@ -72,7 +72,7 @@ By Corollary~\ref{cor:data_proc_event}, $D_f(\mu, \nu) \ge D_f(\mu_E, \nu_E)$, h
   %\lean{}
   %\leanok
   \uses{def:Renyi}
-  Let $\mu, \nu$ be two measures on $\mathcal X$. Let $n \in \mathbb{N}$ and write $\mu^{\otimes n}$ for the product measure on $\mathbb{R}^n$ of $n$ times $\mu$.
+  Let $\mu, \nu$ be two measures on $\mathcal X$. Let $n \in \mathbb{N}$ and write $\mu^{\otimes n}$ for the product measure on $\mathcal X^n$ of $n$ times $\mu$.
   Then $R_\alpha(\mu^{\otimes n}, \nu^{\otimes n}) = n R_\alpha(\mu, \nu)$.
 \end{corollary}
 

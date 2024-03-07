@@ -38,6 +38,45 @@ Linearity of the integral.
 $\frac{d \mu}{d \mu}(x) = 1$ almost everywhere and $f(1) = 0$.
 \end{proof}
 
+\begin{lemma}
+  \label{lem:fDiv_mul}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  For all $a \in \mathbb{R}$, $D_{a f}(\mu, \nu) = a D_{f}(\mu, \nu)$.
+\end{lemma}
+
+\begin{proof}
+Linearity of the integral.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:fDiv_linear}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  For finite measures $\mu$ and $\nu$ with $\mu(\mathcal X) = \nu(\mathcal X)$, $D_{x - 1}(\mu, \nu) = 0$.
+\end{lemma}
+
+\begin{proof}
+Computation.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:fDiv_add_linear}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  For finite measures $\mu$ and $\nu$ with $\mu(\mathcal X) = \nu(\mathcal X)$, for all $a \in \mathbb{R}$, $D_{f + a(x - 1)}(\mu, \nu) = D_{f}(\mu, \nu)$.
+\end{lemma}
+
+This means that we can always choose $f'(1) = 0$ if we want (and $f$ is differentiable at $1$).
+
+\begin{proof}
+\uses{lem:fDiv_add, lem:fDiv_mul, lem:fDiv_linear}
+Linearity (Lemmas~\ref{lem:fDiv_add} and~\ref{lem:fDiv_mul}), then Lemma~\ref{lem:fDiv_linear}.
+\end{proof}
+
 \section{Conditional f-divergence}
 
 \begin{lemma}
