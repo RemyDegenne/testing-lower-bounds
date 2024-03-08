@@ -40,6 +40,24 @@ Since $\KL$ is an f-divergence, every inequality for f-divergences can be transl
 \end{theorem}
 
 \begin{proof}
+\uses{lem:rnDeriv_compProd}
+Use Lemma~\ref{lem:rnDeriv_compProd} and Corollary~\ref{cor:rnDeriv_value} in a computation:
+\begin{align*}
+\KL(\mu \otimes \kappa, \nu \otimes \eta)
+&= \int_p \log \frac{d(\mu \otimes \kappa)}{d(\nu \otimes \eta)}(p) \partial (\mu \otimes \kappa)
+\\
+&= \int_x \int_y\log \left(\frac{d\mu}{d \nu}(x)\frac{d\kappa}{d \eta}(x,y)\right) \partial \kappa(x) \partial\mu
+\\
+&= \int_x \int_y\log \left(\frac{d\mu}{d \nu}(x)\right) + \log \left(\frac{d\kappa}{d \eta}(x,y)\right) \partial \kappa(x) \partial\mu
+\\
+&= \int_x \log \left(\frac{d\mu}{d \nu}(x)\right)\partial\mu + \int_y\log \left(\frac{d\kappa}{d \eta}(x,y)\right) \partial \kappa(x) \partial\mu
+\\
+&= \int_x \log \left(\frac{d\mu}{d \nu}(x)\right)\partial\mu + \int_y\log \left(\frac{d\kappa(x)}{d \eta(x)}(y)\right) \partial \kappa(x) \partial\mu
+\\
+&= \KL(\mu, \nu) + \KL(\kappa, \eta \mid \mu)
+\: .
+\end{align*}
+
 \end{proof}
 
 \begin{theorem}[Chain rule, product version]
