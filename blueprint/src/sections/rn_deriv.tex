@@ -1,13 +1,39 @@
 \chapter{Radon-Nikodym derivatives and disintegration}
 
-Recall that for $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ two Markov kernels, $\frac{d \kappa}{d \eta}$ is a measurable function $\mathcal X \times \mathcal Y \to \mathbb{R}$ with $\kappa = \frac{d \kappa}{d \eta} \cdot \eta + \kappa_{\perp \eta}$, where for all $x$, $\kappa_{\perp \eta}(x) \perp \eta(x)$.
+Recall that for $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ two finite kernels, $\frac{d \kappa}{d \eta}$ is a measurable function $\mathcal X \times \mathcal Y \to \mathbb{R}$ with $\kappa = \frac{d \kappa}{d \eta} \cdot \eta + \kappa_{\perp \eta}$, where for all $x$, $\kappa_{\perp \eta}(x) \perp \eta(x)$.
+
+\begin{lemma}
+  \label{lem:rnDeriv_unique}
+  %\lean{}
+  %\leanok
+  %\uses{}
+  Let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels. If for some $f$ and $\xi$, $\kappa = f \cdot \eta + \xi$ with $\xi(x) \perp \eta(x)$ for all $x$, then for all $x$, $f(x, y) = \frac{d \kappa(x)}{d \eta(x)}(y)$ for $\eta(x)$-almost all $y \in \mathcal Y$.
+\end{lemma}
+
+\begin{proof}
+Let $f$ and $\xi$ be such that $\kappa = f \cdot \eta + \xi$ with $\xi(x) \perp \eta(x)$ for all $x$. Then for all $x \in \mathcal X$, $\kappa(x) = f(x, \cdot) \cdot \eta(x) + \xi(x)$ with $\xi(x) \perp \eta(x)$. By the uniqueness result for the Radon-Nikodym derivative of measures, $f(x, \cdot) = \frac{d \kappa(x)}{d \eta(x)}$ almost everywhere.
+\end{proof}
+
+\begin{corollary}
+  \label{cor:rnDeriv_value}
+  %\lean{}
+  %\leanok
+  %\uses{}
+  For all $x \in \mathcal X$, for $\eta(x)$-almost all $y \in \mathcal Y$, $\frac{d \kappa}{d \eta}(x, y) = \frac{d \kappa(x)}{d \eta(x)}(y)$.
+\end{corollary}
+
+\begin{proof}
+\uses{lem:rnDeriv_unique}
+Apply Lemma~\ref{lem:rnDeriv_unique}.
+\end{proof}
+
 
 \begin{lemma}
   \label{lem:rnDeriv_compProd}
   %\lean{}
   %\leanok
   %\uses{}
-  Let $\mu$ be a measure on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels with $\kappa(x) \ll \eta(x)$ for $\mu$-almost all $x$. Then for $\mu$-almost all $x$, for $\eta(x)$-almost all $y$, $\frac{d (\mu \otimes \kappa)}{d (\mu \otimes \eta)}(x,y) = \frac{d \kappa}{d \eta}(x,y)$.
+  Let $\mu$ be a measure on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels with $\kappa(x) \ll \eta(x)$ for $\mu$-almost all $x$. Then for $\mu$-almost all $x$, for $\eta(x)$-almost all $y$, $\frac{d (\mu \otimes \kappa)}{d (\mu \otimes \eta)}(x,y) = \frac{d \kappa}{d \eta}(x,y)$.
 \end{lemma}
 
 \begin{proof}
