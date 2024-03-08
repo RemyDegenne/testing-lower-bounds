@@ -25,6 +25,30 @@
 Unfold the definitions.
 \end{proof}
 
+\begin{lemma}
+  \label{lem:renyi_symm}
+  %\lean{}
+  %\leanok
+  \uses{def:Renyi}
+  For $\alpha \in (0, 1)$, $(1 - \alpha) R_\alpha(\mu, \nu) = \alpha R_{1 - \alpha}(\nu, \mu)$.
+\end{lemma}
+
+\begin{proof}
+Unfold the definitions.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:renyi_cgf}
+  %\lean{}
+  %\leanok
+  \uses{def:Renyi}
+  The cumulant generating function of $\log\frac{d\mu}{d\nu}$ under $\nu$ is $\alpha \mapsto (\alpha - 1) R_\alpha(\mu, \nu)$.
+\end{lemma}
+
+\begin{proof}
+Unfold the definitions.
+\end{proof}
+
 \begin{definition}[Conditional Rényi divergence]
   \label{def:condRenyi}
   %\lean{}
@@ -110,7 +134,7 @@ By Corollary~\ref{cor:data_proc_event}, $D_f(\mu, \nu) \ge D_f(\mu_E, \nu_E)$, h
 Apply Theorem~\ref{thm:renyi_chain_rule} to constant kernels.
 \end{proof}
 
-\begin{theorem}[Tensorization]
+\begin{theorem}[Tensorization - finite product]
   \label{thm:renyi_prod}
   %\lean{}
   %\leanok
@@ -136,4 +160,17 @@ Induction over the finite index set, using Corollary~\ref{cor:renyi_prod_two}.
 \begin{proof}
 \uses{thm:renyi_prod}
 Apply Theorem~\ref{thm:renyi_prod}.
+\end{proof}
+
+\begin{theorem}[Tensorization - countable product]
+  \label{thm:renyi_prod_countable}
+  %\lean{}
+  %\leanok
+  \uses{def:Renyi}
+  Let $I$ be a countable index set. Let $(\mu_i)_{i \in I}, (\nu_i)_{i \in I}$ be measures on measurable spaces $(\mathcal X_i)_{i \in I}$.
+  Then $R_\alpha (\prod_{i \in I} \mu_i, \prod_{i \in I} \nu_i) = \sum_{i \in I} R_\alpha(\mu_i, \nu_i)$.
+\end{theorem}
+
+\begin{proof}
+\uses{thm:renyi_prod}
 \end{proof}

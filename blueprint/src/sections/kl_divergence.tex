@@ -24,7 +24,11 @@
 Simple computation.
 \end{proof}
 
+\section{Properties inherited from f-divergences}
+
 Since $\KL$ is an f-divergence, every inequality for f-divergences can be translated to $\KL$.
+
+\section{Chain rule and tensorization}
 
 \begin{theorem}[Chain rule, kernel version]
   \label{thm:kl_chain_rule}
@@ -51,3 +55,47 @@ Since $\KL$ is an f-divergence, every inequality for f-divergences can be transl
 \uses{thm:kl_chain_rule}
 Write $\mu = \mu_X \otimes \mu_{Y|X}$ and $\nu = \nu_X \otimes \nu_{Y|X}$, then use Theorem~\ref{thm:kl_chain_rule}.
 \end{proof}
+
+\section{Change of measure}
+
+\begin{lemma}
+  \label{lem:llr_change_measure}
+  %\lean{}
+  %\leanok
+  %\uses{}
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $E$ be an event on $\mathcal X$. Let $\beta \in \mathbb{R}$. Then
+  \begin{align*}
+  \nu(E) e^{\beta} \ge \mu(E) - \mu\left\{ \log\frac{d \mu}{d \nu} > \beta \right\} \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}
+\begin{align*}
+\nu(E)
+&\ge \mu\left[\mathbb{I}(E) e^{- \log\frac{d \mu}{d \nu} }\right]
+\\
+&\ge \mu\left[\mathbb{I}\left(E \cap \left\{\log\frac{d \mu}{d \nu} \le \beta\right\}\right) e^{- \log\frac{d \mu}{d \nu} }\right]
+\\
+&\ge e^{- \beta}\mu\left(E \cap \left\{\log\frac{d \mu}{d \nu} \le \beta\right\}\right)
+\\
+&\ge e^{- \beta}\left( \mu(E) - \mu\left\{ \log\frac{d \mu}{d \nu} > \beta \right\} \right)
+\: .
+\end{align*}
+\end{proof}
+
+\begin{corollary}
+  \label{cor:kl_change_measure}
+  %\lean{}
+  %\leanok
+  \uses{def:KL}
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $E$ be an event on $\mathcal X$. Let $\beta \in \mathbb{R}$. Then
+  \begin{align*}
+  \nu(E) e^{\KL(\mu, \nu) + \beta} \ge \mu(E) - \mu\left\{ \log\frac{d \mu}{d \nu} - \KL(\mu, \nu) > \beta \right\} \: .
+  \end{align*}
+\end{corollary}
+
+\begin{proof}
+\uses{lem:llr_change_measure}
+Use Lemma~\ref{lem:llr_change_measure} with the choice $\KL(\mu, \nu) + \beta$ for $\beta$.
+\end{proof}
+
