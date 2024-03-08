@@ -111,12 +111,22 @@ Linearity (Lemmas~\ref{lem:fDiv_add} and~\ref{lem:fDiv_mul}), then Lemma~\ref{le
 \end{lemma}
 
 \begin{proof}
-\uses{lem:rnDeriv_compProd}
+\uses{lem:rnDeriv_compProd, cor:rnDeriv_value}
+By Lemma~\ref{lem:rnDeriv_compProd} and Corollary~\ref{cor:rnDeriv_value},
 \begin{align*}
 D_f(\mu \otimes \kappa, \mu \otimes \eta)
-&= (\mu \otimes \kappa)\left[ x \mapsto \frac{d (\mu \otimes \kappa)}{d (\mu \otimes \eta)}(x) \right]
+&= \int_{p} f\left(\frac{d (\mu \otimes \kappa)}{d (\mu \otimes \eta)}(p)\right) \partial(\mu \otimes \kappa)
+\\
+&= \int_{p} f\left(\frac{d \kappa}{d \eta}(p)\right) \partial(\mu \otimes \kappa)
+\\
+&= \int_x \int_y f\left(\frac{d \kappa}{d \eta}(x, y)\right) \partial \kappa(x) \partial \mu
+\\
+&= \int_x \int_y f\left(\frac{d \kappa(x)}{d \eta(x)}(y)\right) \partial \kappa(x) \partial \mu
+\\
+&= \mu\left[D_f(\kappa(x), \eta(x))\right]
+= D_f(\kappa, \eta \mid \mu)
+\: .
 \end{align*}
-TODO
 \end{proof}
 
 \section{Data-processing inequality}
@@ -144,6 +154,21 @@ TODO
 \end{lemma}
 
 \begin{proof}
+\uses{lem:rnDeriv_compProd}
+By Lemma~\ref{lem:rnDeriv_compProd},
+\begin{align*}
+D_f(\mu \otimes \kappa, \nu \otimes \kappa)
+&= \int_{p} f\left(\frac{d (\mu \otimes \kappa)}{d (\nu \otimes \kappa)}(p)\right) \partial(\mu \otimes \kappa)
+\\
+&= \int_{p} f\left(\frac{d \mu}{d \nu}(p_X)\right) \partial(\mu \otimes \kappa)
+\\
+&= \int_x \int_y f\left(\frac{d \mu}{d \nu}(x)\right) \partial \kappa(x) \partial \mu
+\\
+&= \int_x f\left(\frac{d \mu}{d \nu}(x)\right) \partial \mu
+\\
+&= D_f(\mu, \nu)
+\: .
+\end{align*}
 \end{proof}
 
 \begin{corollary}
