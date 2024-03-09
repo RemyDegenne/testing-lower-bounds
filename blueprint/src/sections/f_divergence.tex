@@ -115,13 +115,13 @@ Linearity (Lemmas~\ref{lem:fDiv_add} and~\ref{lem:fDiv_mul}), then Lemma~\ref{le
 By Lemma~\ref{lem:rnDeriv_compProd} and Corollary~\ref{cor:rnDeriv_value},
 \begin{align*}
 D_f(\mu \otimes \kappa, \mu \otimes \eta)
-&= \int_{p} f\left(\frac{d (\mu \otimes \kappa)}{d (\mu \otimes \eta)}(p)\right) \partial(\mu \otimes \kappa)
+&= \int_{p} f\left(\frac{d (\mu \otimes \kappa)}{d (\mu \otimes \eta)}(p)\right) \partial(\mu \otimes \eta)
 \\
-&= \int_{p} f\left(\frac{d \kappa}{d \eta}(p)\right) \partial(\mu \otimes \kappa)
+&= \int_{p} f\left(\frac{d \kappa}{d \eta}(p)\right) \partial(\mu \otimes \eta)
 \\
-&= \int_x \int_y f\left(\frac{d \kappa}{d \eta}(x, y)\right) \partial \kappa(x) \partial \mu
+&= \int_x \int_y f\left(\frac{d \kappa}{d \eta}(x, y)\right) \partial \eta(x) \partial \mu
 \\
-&= \int_x \int_y f\left(\frac{d \kappa(x)}{d \eta(x)}(y)\right) \partial \kappa(x) \partial \mu
+&= \int_x \int_y f\left(\frac{d \kappa(x)}{d \eta(x)}(y)\right) \partial \eta(x) \partial \mu
 \\
 &= \mu\left[D_f(\kappa(x), \eta(x))\right]
 = D_f(\kappa, \eta \mid \mu)
@@ -158,13 +158,13 @@ D_f(\mu \otimes \kappa, \mu \otimes \eta)
 By Lemma~\ref{lem:rnDeriv_compProd},
 \begin{align*}
 D_f(\mu \otimes \kappa, \nu \otimes \kappa)
-&= \int_{p} f\left(\frac{d (\mu \otimes \kappa)}{d (\nu \otimes \kappa)}(p)\right) \partial(\mu \otimes \kappa)
+&= \int_{p} f\left(\frac{d (\mu \otimes \kappa)}{d (\nu \otimes \kappa)}(p)\right) \partial(\nu \otimes \kappa)
 \\
-&= \int_{p} f\left(\frac{d \mu}{d \nu}(p_X)\right) \partial(\mu \otimes \kappa)
+&= \int_{p} f\left(\frac{d \mu}{d \nu}(p_X)\right) \partial(\nu \otimes \kappa)
 \\
-&= \int_x \int_y f\left(\frac{d \mu}{d \nu}(x)\right) \partial \kappa(x) \partial \mu
+&= \int_x \int_y f\left(\frac{d \mu}{d \nu}(x)\right) \partial \kappa(x) \partial \nu
 \\
-&= \int_x f\left(\frac{d \mu}{d \nu}(x)\right) \partial \mu
+&= \int_x f\left(\frac{d \mu}{d \nu}(x)\right) \partial \nu
 \\
 &= D_f(\mu, \nu)
 \: .
