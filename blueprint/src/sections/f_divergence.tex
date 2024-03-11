@@ -299,6 +299,20 @@ By definition, $\kappa \circ \mu$ is the marginal of $\mu \otimes \kappa$ (a mea
 Use the deterministic kernel $\kappa : \mathcal X \rightsquigarrow \{0, 1\}$ with $\kappa(x) = \delta_1 \mathbb{I}\{x \in E\} + \delta_0 \mathbb{I}\{x \notin E\}$ in Theorem~\ref{thm:fDiv_data_proc}.
 \end{proof}
 
+\begin{lemma}
+  \label{lem:fDiv_nonneg}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two measures on $\mathcal X$. If $f(1) = 0$, $D_f(\mu, \nu) \ge 0$.
+\end{lemma}
+
+\begin{proof}
+\uses{thm:fDiv_data_proc, lem:fDiv_self}
+Take $\kappa : \mathcal X \rightsquigarrow (*)$ the constant kernel to a type with only 1 element, with $\kappa(x) = \delta_*$.
+Then by Theorem~\ref{thm:fDiv_data_proc} and Lemma~\ref{lem:fDiv_self}, $D_f(\mu, \nu) \ge D_f(\kappa \circ \mu, \kappa \circ \nu) = D_f(\delta_1, \delta_1) = 0$.
+\end{proof}
+
 \section{Convexity}
 
 \begin{theorem}[Joint convexity]
