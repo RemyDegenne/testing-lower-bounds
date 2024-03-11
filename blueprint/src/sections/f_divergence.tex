@@ -111,8 +111,8 @@ Linearity (Lemmas~\ref{lem:fDiv_add} and~\ref{lem:fDiv_mul}), then Lemma~\ref{le
 \end{lemma}
 
 \begin{proof}
-\uses{lem:rnDeriv_compProd, cor:rnDeriv_value}
-By Lemma~\ref{lem:rnDeriv_compProd} and Corollary~\ref{cor:rnDeriv_value},
+\uses{cor:rnDeriv_compProd_right, cor:rnDeriv_value}
+By Lemma~\ref{cor:rnDeriv_compProd_right} and Corollary~\ref{cor:rnDeriv_value},
 \begin{align*}
 D_f(\mu \otimes \kappa, \mu \otimes \eta)
 &= \int_{p} f\left(\frac{d (\mu \otimes \kappa)}{d (\mu \otimes \eta)}(p)\right) \partial(\mu \otimes \eta)
@@ -154,8 +154,8 @@ D_f(\mu \otimes \kappa, \mu \otimes \eta)
 \end{lemma}
 
 \begin{proof}
-\uses{lem:rnDeriv_compProd}
-By Lemma~\ref{lem:rnDeriv_compProd},
+\uses{cor:rnDeriv_compProd_left}
+By Corollary~\ref{cor:rnDeriv_compProd_left},
 \begin{align*}
 D_f(\mu \otimes \kappa, \nu \otimes \kappa)
 &= \int_{p} f\left(\frac{d (\mu \otimes \kappa)}{d (\nu \otimes \kappa)}(p)\right) \partial(\nu \otimes \kappa)
