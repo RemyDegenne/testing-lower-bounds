@@ -5,7 +5,7 @@
   %\lean{}
   %\leanok
   \uses{def:TV}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ and $E$ and event. Then $\mu(E) + \nu(E^c) \ge 1 - TV(\mu, \nu)$~.
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and $E$ an event. Then $\mu(E) + \nu(E^c) \ge 1 - TV(\mu, \nu)$~.
 \end{lemma}
 
 \begin{proof}
@@ -15,7 +15,7 @@
   %\lean{}
   %\leanok
   \uses{def:Renyi}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ and $E$ and event. Let $\alpha \in (0,1)$. Then
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and $E$ an event. Let $\alpha \in (0,1)$. Then
   \begin{align*}
   \mu(E)^\alpha + \nu(E^c)^{1 - \alpha}
   \ge \exp\left(-(1 - \alpha) R_{\alpha}(\mu, \nu)\right)
@@ -42,7 +42,7 @@ R_\alpha(\mu_E, \nu_E)
   %\lean{}
   %\leanok
   \uses{def:Hellinger, def:Renyi}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ and $E$ and event. Then
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and $E$ an event. Then
   \begin{align*}
   \sqrt{\mu(E)} + \sqrt{\nu(E^c)}
   \ge \exp\left(-\frac{1}{2} R_{1/2}(\mu, \nu)\right)
@@ -61,7 +61,7 @@ The inequality is an application of Lemma~\ref{lem:testing_bound_renyi_mean} for
   %\lean{}
   %\leanok
   \uses{def:Renyi}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ and $E$ and event. Let $\alpha \in (0,1)$. Then
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and $E$ an event. Let $\alpha \in (0,1)$. Then
   \begin{align*}
   \min\{\alpha, 1 - \alpha\} \log\frac{1}{\max\{\mu(E), \nu(E^c)\}} \le (1 - \alpha) R_{\alpha}(\mu, \nu)  + \log 2 \: .
   \end{align*}
@@ -77,7 +77,7 @@ Use Lemma~\ref{lem:testing_bound_renyi_mean} and remark that $\mu(E)^\alpha + \n
   %\lean{}
   %\leanok
   \uses{def:Renyi}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ and $E$ and event of $\mathcal X^n$. Let $\alpha \in (0,1)$. Then
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and $E$ an event of $\mathcal X^n$. Let $\alpha \in (0,1)$. Then
   \begin{align*}
   \min\{\alpha, 1 - \alpha\} \log\frac{1}{\max\{\mu^{\otimes n}(E), \nu^{\otimes n}(E^c)\}} \le (1 - \alpha) n R_{\alpha}(\mu, \nu)  + \log 2 \: .
   \end{align*}
