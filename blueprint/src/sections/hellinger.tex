@@ -1,0 +1,38 @@
+\chapter{Hellinger distance}
+
+\begin{definition}[Squared Hellinger distance]
+  \label{def:Hellinger}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two measures on $\mathcal X$. The squared Hellinger distance between $\mu$ and $\nu$ is
+  \begin{align*}
+    H^2(\mu, \nu) = D_f(\mu, \nu) \quad \text{with } f: x \mapsto \frac{1}{2}\left( 1 - \sqrt{x} \right)^2 \: .
+  \end{align*}
+\end{definition}
+
+\begin{lemma}[Hellinger and Rényi]
+  \label{lem:renyi_half_eq_log_hellinger}
+  %\lean{}
+  %\leanok
+  \uses{def:Hellinger, def:Renyi}
+  Let $\mu, \nu$ be two probability measures on $\mathcal X$. Then $R_{1/2}(\mu, \nu) = -2\log(1 - H^2(\mu, \nu))$.
+\end{lemma}
+
+\begin{proof}
+\uses{lem:renyi_eq_log_fDiv, lem:fDiv_mul, lem:fDiv_add_linear}
+By Lemma~\ref{lem:renyi_eq_log_fDiv}, $R_{1/2}(\mu, \nu) = -2 \log (1 - \frac{1}{2} D_f(\nu, \mu))$ for $f : x \mapsto -2 (\sqrt{x} - 1)$. Using Lemma~\ref{lem:fDiv_mul}, $R_{1/2}(\mu, \nu) = -2 \log (1 - D_g(\nu, \mu))$ for $g(x) = 1 - \sqrt{x}$.
+
+It suffices then to show that $H^2(\mu, \nu) = D_g(\mu, \nu)$, which is true by an application of Lemma~\ref{lem:fDiv_add_linear}.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:hellinger_le_tv}
+  %\lean{}
+  %\leanok
+  \uses{def:Hellinger, def:TV}
+  Let $\mu, \nu$ be two probability measures on $\mathcal X$. Then $H^2(\mu, \nu) \le TV(\mu, \nu)$.
+\end{lemma}
+
+\begin{proof}
+\end{proof}

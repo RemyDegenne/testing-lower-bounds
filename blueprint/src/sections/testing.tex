@@ -1,13 +1,25 @@
 \chapter{Testing error lower bounds}
 
 \begin{lemma}
-  \label{lem:testing_bound_renyi}
+  \label{lem:testing_bound_rv}
+  %\lean{}
+  %\leanok
+  \uses{def:TV}
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and $E$ and event. Then $\mu(E) + \nu(E^c) \ge 1 - TV(\mu, \nu)$~.
+\end{lemma}
+
+\begin{proof}
+\end{proof}
+\begin{lemma}
+  \label{lem:testing_bound_renyi_mean}
   %\lean{}
   %\leanok
   \uses{def:Renyi}
   Let $\mu, \nu$ be two measures on $\mathcal X$ and $E$ and event. Let $\alpha \in (0,1)$. Then
   \begin{align*}
-  \min\{\alpha, 1 - \alpha\} \log\frac{1}{\max\{\mu(E), \nu(E^c)\}} \le (1 - \alpha) R_{\alpha}(\mu, \nu)  + \log 2 \: .
+  \mu(E)^\alpha + \nu(E^c)^{1 - \alpha}
+  \ge \exp\left(-(1 - \alpha) R_{\alpha}(\mu, \nu)\right)
+  \: .
   \end{align*}
 \end{lemma}
 
@@ -18,13 +30,46 @@ By Lemma~\ref{lem:renyi_data_proc_event}, $R_\alpha(\mu, \nu) \ge R_\alpha(\mu_E
 \begin{align*}
 R_\alpha(\mu_E, \nu_E)
 &= \frac{1}{\alpha - 1}\log \left(\mu(E)^\alpha \nu(E)^{1 - \alpha}
-	+ \mu(E^c)^\alpha \nu(E^c)^{1 - \alpha}\right)
+  + \mu(E^c)^\alpha \nu(E^c)^{1 - \alpha}\right)
 \\
-&\ge \frac{1}{\alpha - 1}\log \left((\max\{\mu(E), \nu(E^c)\})^\alpha \times 1^{1 - \alpha}
-	+ 1^\alpha \times (\max\{\mu(E), \nu(E^c)\})^{1 - \alpha}\right)
-\\
-&\ge \frac{1}{\alpha - 1}\log \left(2 (\max\{\mu(E), \nu(E^c)\})^{\min\{\alpha, 1-\alpha\}}\right) \: .
+&\ge \frac{1}{\alpha - 1}\log \left(\mu(E)^\alpha + \nu(E^c)^{1 - \alpha}\right)
+\: .
 \end{align*}
+\end{proof}
+
+\begin{corollary}
+  \label{cor:testing_bound_hellinger}
+  %\lean{}
+  %\leanok
+  \uses{def:Hellinger, def:Renyi}
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and $E$ and event. Then
+  \begin{align*}
+  \sqrt{\mu(E)} + \sqrt{\nu(E^c)}
+  \ge \exp\left(-\frac{1}{2} R_{1/2}(\mu, \nu)\right)
+  = 1 - H^2(\mu, \nu)
+  \: .
+  \end{align*}
+\end{corollary}
+
+\begin{proof}
+\uses{lem:testing_bound_renyi_mean, lem:renyi_half_eq_log_hellinger}
+The inequality is an application of Lemma~\ref{lem:testing_bound_renyi_mean} for $\alpha = 1/2$. The equality is Lemma~\ref{lem:renyi_half_eq_log_hellinger}.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:testing_bound_renyi_max}
+  %\lean{}
+  %\leanok
+  \uses{def:Renyi}
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and $E$ and event. Let $\alpha \in (0,1)$. Then
+  \begin{align*}
+  \min\{\alpha, 1 - \alpha\} \log\frac{1}{\max\{\mu(E), \nu(E^c)\}} \le (1 - \alpha) R_{\alpha}(\mu, \nu)  + \log 2 \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}
+\uses{lem:testing_bound_renyi_mean}
+Use Lemma~\ref{lem:testing_bound_renyi_mean} and remark that $\mu(E)^\alpha + \nu(E^c)^{1 - \alpha} \le 2\max\{\mu(E), \nu(E^c)\}^{\min\{\alpha, 1 - \alpha\}}$.
 \end{proof}
 
 \begin{corollary}
@@ -39,6 +84,6 @@ R_\alpha(\mu_E, \nu_E)
 \end{corollary}
 
 \begin{proof}
-\uses{lem:testing_bound_renyi, lem:renyi_prod_n}
-Use Lemma~\ref{lem:renyi_prod_n} in Lemma~\ref{lem:testing_bound_renyi}.
+\uses{lem:testing_bound_renyi_max, lem:renyi_prod_n}
+Use Lemma~\ref{lem:renyi_prod_n} in Lemma~\ref{lem:testing_bound_renyi_max}.
 \end{proof}
