@@ -131,17 +131,90 @@ D_f(\mu \otimes \kappa, \mu \otimes \eta)
 
 \section{Data-processing inequality}
 
+\begin{lemma}
+  \label{lem:fDiv_eq_ac}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two measures on $\mathcal X$ . Let $\mu' = \left(\frac{\partial \mu}{\partial \nu}\right) \cdot \nu$.
+  Then $D_f(\mu, \nu) = D_f(\mu', \nu)$.
+\end{lemma}
+
+\begin{proof}
+For $\nu$-almost all $x$, $\frac{\partial \mu'}{\partial \nu}(x) = \frac{\partial \mu}{\partial \nu}(x)$, hence
+\begin{align*}
+D_f(\mu', \nu)
+= \int_x f\left(\frac{\partial \mu'}{\partial \nu}(x)\right)\partial \nu
+= \int_x f\left(\frac{\partial \mu}{\partial \nu}(x)\right)\partial \nu
+= D_f(\mu, \nu)
+\: .
+\end{align*}
+
+\end{proof}
+
+\begin{lemma}
+  \label{lem:fDiv_compProd_eq_ac}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels. Let $\mu' = \left(\frac{\partial \mu}{\partial \nu}\right) \cdot \nu$ and $\kappa' = \left(\frac{\partial \kappa}{\partial \eta}\right) \cdot \eta$.
+  Then $D_f(\mu \otimes \kappa, \nu \otimes \eta) = D_f(\mu' \otimes \kappa', \nu \otimes \eta)$.
+\end{lemma}
+
+\begin{proof}
+\uses{lem:rnDeriv_eq_ac}
+By Lemma~\ref{lem:rnDeriv_eq_ac}, for $(\nu \otimes \eta)$-almost all $z$, $\frac{\partial(\mu' \otimes \kappa')}{\partial(\nu \otimes \eta)}(z) = \frac{\partial(\mu \otimes \kappa)}{\partial(\nu \otimes \eta)}(z)$, hence
+\begin{align*}
+D_f(\mu' \otimes \kappa', \nu \otimes \eta)
+&= \int_z f\left(\frac{\partial(\mu' \otimes \kappa')}{\partial(\nu \otimes \eta)}\right) \partial(\nu \otimes \eta)
+\\
+&= \int_z f\left(\frac{\partial(\mu \otimes \kappa)}{\partial(\nu \otimes \eta)}\right) \partial(\nu \otimes \eta)
+\\
+&= D_f(\mu \otimes \kappa, \nu \otimes \eta)
+\: .
+\end{align*}
+
+\end{proof}
+
 \begin{theorem}[Marginals]
   \label{thm:fDiv_fst_le}
   %\lean{}
   %\leanok
   \uses{def:fDiv}
-  Let $\mu$ and $\nu$ be two measures on $\mathcal X \times \mathcal Y$, and let $\mu_X, \nu_X$ be their marginals on $\mathcal X$.
+  Let $\mu$ and $\nu$ be two measures on $\mathcal X \times \mathcal Y$ where $\mathcal Y$ is standard Borel, and let $\mu_X, \nu_X$ be their marginals on $\mathcal X$.
   Then $D_f(\mu_X, \nu_X) \le D_f(\mu, \nu)$.
-  Similarly, for $\mu_Y, \nu_Y$ the marginals on $\mathcal Y$, $D_f(\mu_Y, \nu_Y) \le D_f(\mu, \nu)$.
+  Similarly, for $\mathcal X$ standard Borel and $\mu_Y, \nu_Y$ the marginals on $\mathcal Y$, $D_f(\mu_Y, \nu_Y) \le D_f(\mu, \nu)$.
 \end{theorem}
 
 \begin{proof}
+\uses{lem:rnDeriv_compProd, cor:rnDeriv_value, lem:fDiv_eq_ac, lem:fDiv_compProd_eq_ac}
+We first introduce conditional kernels and write $D(\mu, \nu) = D(\mu_X \otimes \mu_{Y|X}, \nu_X \otimes \nu_{Y|X})$. By Lemmas~\ref{lem:fDiv_eq_ac} and \ref{lem:fDiv_compProd_eq_ac}, it suffices to prove the result for $\mu_X \ll \nu_X$ and $\mu_{Y|X}(x) \ll \nu_{Y|X}(x)$ for all $x$.
+
+Using Lemma~\ref{lem:rnDeriv_compProd} and \ref{cor:rnDeriv_value},
+\begin{align*}
+D(\mu, \nu)
+&= D(\mu_X \otimes \mu_{Y|X}, \nu_X \otimes \nu_{Y|X})
+\\
+&= \int_x \int_y f \left( \frac{\partial \mu_X}{\partial\nu_X}(x) \frac{\partial \mu_{Y|X}(x)}{\partial\nu_{Y|X}(x)}(y) \right) \partial \nu_{Y|X}(x) \partial \nu_X
+\: .
+\end{align*}
+Since $f$ is convex, by Jensen's inequality,
+\begin{align*}
+\int_y f \left( \frac{\partial \mu_X}{\partial\nu_X}(x) \frac{\partial \mu_{Y|X}(x)}{\partial\nu_{Y|X}(x)}(y) \right) \partial \nu_{Y|X}(x)
+&\ge f \left( \int_y \frac{\partial \mu_X}{\partial\nu_X}(x) \frac{\partial \mu_{Y|X}(x)}{\partial\nu_{Y|X}(x)}(y) \partial \nu_{Y|X}(x) \right)
+\\
+&= f \left( \frac{\partial \mu_X}{\partial\nu_X}(x) \int_y \frac{\partial \mu_{Y|X}(x)}{\partial\nu_{Y|X}(x)}(y) \partial \nu_{Y|X}(x) \right)
+\: .
+\end{align*}
+
+Since $\mu_{Y|X}(x) \ll \nu_{Y|X}(x)$ for all $x$, $\int_y \frac{\partial \mu_{Y|X}(x)}{\partial\nu_{Y|X}(x)}(y) \partial \nu_{Y|X}(x) = \int_y 1 \partial \mu_{Y|X}(x) = 1$. We have obtained
+\begin{align*}
+D_f(\mu, \nu)
+\ge \int_x f \left( \frac{\partial \mu_X}{\partial\nu_X}(x)\right) \partial \nu_X
+= D_f(\mu_X, \nu_X)
+\: .
+\end{align*}
+
 \end{proof}
 
 \begin{lemma}[Composition-product with a kernel]

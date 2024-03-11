@@ -61,6 +61,27 @@ The second one uses Corollary~\ref{cor:rnDeriv_value}.
 \end{proof}
 
 \begin{lemma}
+  \label{lem:rnDeriv_eq_ac}
+  %\lean{}
+  %\leanok
+  %\uses{}
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels. Let $\mu' = \left(\frac{\partial \mu}{\partial \nu}\right) \cdot \nu$ and $\kappa' = \left(\frac{\partial \kappa}{\partial \eta}\right) \cdot \eta$. Then for $(\nu \otimes \eta)$-almost all $z$, $\frac{\partial(\mu' \otimes \kappa')}{\partial (\nu \otimes \eta)}(z) = \frac{\partial(\mu \otimes \kappa)}{\partial (\nu \otimes \eta)}(z)$.
+\end{lemma}
+
+\begin{proof}
+\end{proof}
+
+\begin{lemma}
+  \label{lem:prod_rnDeriv_eq_ac}
+  %\lean{}
+  %\leanok
+  %\uses{}
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels. Let $\mu' = \left(\frac{\partial \mu}{\partial \nu}\right) \cdot \nu$ and $\kappa' = \left(\frac{\partial \kappa}{\partial \eta}\right) \cdot \eta$. Then for $(\nu \otimes \eta)$-almost all $(x, y)$, $\frac{d\mu'}{d\nu}(x)\frac{d \kappa'}{d \eta}(x,y) = \frac{d\mu}{d\nu}(x)\frac{d \kappa}{d \eta}(x,y)$.
+\end{lemma}
+
+\begin{proof}
+\end{proof}
+\begin{lemma}
   \label{lem:rnDeriv_compProd}
   %\lean{}
   %\leanok
@@ -70,7 +91,8 @@ The second one uses Corollary~\ref{cor:rnDeriv_value}.
 \end{lemma}
 
 \begin{proof}
-\uses{lem:rnDeriv_compProd_aux}
+\uses{lem:rnDeriv_compProd_aux, lem:rnDeriv_eq_ac, lem:prod_rnDeriv_eq_ac}
+Use Lemma~\ref{lem:rnDeriv_eq_ac} for $\mu', \kappa'$ (defined in previous lemmas) then \ref{lem:rnDeriv_compProd_aux} and \ref{lem:prod_rnDeriv_eq_ac}.
 \end{proof}
 
 \begin{corollary}
