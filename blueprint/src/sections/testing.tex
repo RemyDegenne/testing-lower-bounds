@@ -1,5 +1,7 @@
 \chapter{Testing error lower bounds}
 
+\section{Generic lower bounds}
+
 \begin{lemma}
   \label{lem:testing_bound_tv}
   %\lean{}
@@ -10,6 +12,7 @@
 
 \begin{proof}
 \end{proof}
+
 \begin{lemma}
   \label{lem:testing_bound_renyi_mean}
   %\lean{}
@@ -56,6 +59,28 @@ R_\alpha(\mu_E, \nu_E)
 The inequality is an application of Lemma~\ref{lem:testing_bound_renyi_mean} for $\alpha = 1/2$. The equality is Lemma~\ref{lem:renyi_half_eq_log_hellinger}.
 \end{proof}
 
+\subsection{Lower bounds on the maximum}
+
+\begin{lemma}
+  \label{lem:testing_bound_tv_hellinger_max}
+  %\lean{}
+  %\leanok
+  \uses{def:TV, def:Hellinger}
+  Let $\mu, \nu$ be two probability measures on $\mathcal X$ and $E$ an event. Then
+  \begin{align*}
+  \max\{\mu(E), \nu(E^c)\}
+  \ge \frac{1}{2}(1 - TV(\mu, \nu))
+  \ge \frac{1}{4}(1 - H^2(\mu, \nu))^2
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}
+\uses{lem:testing_bound_tv, cor:one_sub_hellinger_squared_le_one_sub_tv}
+The first inequality is Lemma~\ref{lem:testing_bound_tv} with $\mu(E) + \nu(E^c) \le 2 \max\{\mu(E), \nu(E^c)\}$.
+The second inequality is a consequence of Corollary~\ref{cor:one_sub_hellinger_squared_le_one_sub_tv}.
+\end{proof}
+
 \begin{lemma}
   \label{lem:testing_bound_renyi_max}
   %\lean{}
@@ -71,6 +96,8 @@ The inequality is an application of Lemma~\ref{lem:testing_bound_renyi_mean} for
 \uses{lem:testing_bound_renyi_mean}
 Use Lemma~\ref{lem:testing_bound_renyi_mean} and remark that $\mu(E)^\alpha + \nu(E^c)^{1 - \alpha} \le 2\max\{\mu(E), \nu(E^c)\}^{\min\{\alpha, 1 - \alpha\}}$.
 \end{proof}
+
+\section{Product spaces}
 
 \begin{corollary}
   \label{cor:testing_bound_renyi_n}
