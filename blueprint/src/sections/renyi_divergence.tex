@@ -95,7 +95,7 @@ By Lemma~\ref{lem:renyi_eq_log_fDiv}, $R_\alpha(\mu, \nu) = \frac{1}{\alpha - 1}
 By Corollary~\ref{cor:data_proc_event}, $D_f(\mu, \nu) \ge D_f(\mu_E, \nu_E)$, hence $R_\alpha(\mu, \nu) \ge R_\alpha(\mu_E, \nu_E)$.
 \end{proof}
 
-\section{Chain rule and tensorization}
+\section{The tilted measure}
 
 \begin{definition}
   \label{def:renyi_measure}
@@ -107,6 +107,63 @@ By Corollary~\ref{cor:data_proc_event}, $D_f(\mu, \nu) \ge D_f(\mu_E, \nu_E)$, h
   \frac{d \mu^{(\alpha, \nu)}}{d \xi} = p^\alpha q^{1 - \alpha} e^{(\alpha - 1)R_\alpha(\mu, \nu)} \: .
   \end{align*}
 \end{definition}
+
+\begin{lemma}
+  \label{lem:kl_renyi_measure_eq}
+  %\lean{}
+  %\leanok
+  \uses{def:renyi_measure, def:Renyi, def:KL}
+  Let $\mu, \nu, \xi$ be three measures on $\mathcal X$ and let $\alpha \in (0, 1)$. Then
+  \begin{align*}
+  \KL(\xi, \mu^{(\alpha, \nu)}) = \alpha \KL(\xi, \mu) + (1 - \alpha)\KL(\xi, \nu) - (1 - \alpha) R_\alpha(\mu, \nu) \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}
+\uses{def:renyi_measure, def:KL}
+Unfold definitions and compute?
+\end{proof}
+
+\begin{corollary}
+  \label{cor:renyi_eq_add_kl}
+  %\lean{}
+  %\leanok
+  \uses{def:renyi_measure, def:Renyi, def:KL}
+  Let $\mu, \nu, \xi$ be three measures on $\mathcal X$ and let $\alpha \in (0, 1)$. Then
+  \begin{align*}
+  (1 - \alpha) R_\alpha(\mu, \nu) = \alpha \KL(\mu^{(\alpha, \nu)}, \mu) + (1 - \alpha)\KL(\mu^{(\alpha, \nu)}, \nu) \: .
+  \end{align*}
+\end{corollary}
+
+\begin{proof}
+\uses{lem:kl_renyi_measure_eq}
+Apply Lemma~\ref{lem:kl_renyi_measure_eq} to $\xi = \mu^{(\alpha, \nu)}$.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:renyi_eq_inf_add_kl}
+  %\leanok
+  \uses{def:Renyi, def:KL}
+  Let $\mu, \nu, \xi$ be three probability measures on $\mathcal X$ and let $\alpha \in (0, 1)$. Then
+  \begin{align*}
+  (1 - \alpha) R_\alpha(\mu, \nu) = \inf_{\xi \in \mathcal P(\mathcal X)}\left( \alpha \KL(\xi, \mu) + (1 - \alpha)\KL(\xi, \nu) \right) \: .
+  \end{align*}
+  The infimum is attained at $\xi = \mu^{(\alpha, \nu)}$.
+\end{lemma}
+
+\begin{proof}
+\uses{lem:kl_renyi_measure_eq, lem:kl_nonneg, cor:renyi_eq_add_kl}
+By Lemma~\ref{lem:kl_renyi_measure_eq} and Lemma~\ref{lem:kl_nonneg}, for all $\xi$,
+\begin{align*}
+\alpha \KL(\xi, \mu) + (1 - \alpha)\KL(\xi, \nu) - (1 - \alpha) R_\alpha(\mu, \nu)
+= \KL(\xi, \mu^{(\alpha, \nu)})
+\ge 0 \: .
+\end{align*}
+We have then $(1 - \alpha) R_\alpha(\mu, \nu) \le \inf_{\xi \in \mathcal P(\mathcal X)}\left( \alpha \KL(\xi, \mu) + (1 - \alpha)\KL(\xi, \nu) \right)$.
+Corollary~\ref{cor:renyi_eq_add_kl} proves the other inequality.
+\end{proof}
+
+\section{Chain rule and tensorization}
 
 \begin{theorem}[Chain rule]
   \label{thm:renyi_chain_rule}
