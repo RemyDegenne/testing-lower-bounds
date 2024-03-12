@@ -1,0 +1,25 @@
+\chapter{Chernoff divergence}
+
+\begin{definition}[Chernoff divergence]
+  \label{def:Chernoff}
+  %\lean{}
+  %\leanok
+  \uses{def:Renyi}
+    The Chernoff divergence between two measures $\mu$ and $\nu$ is
+  \begin{align*}
+    C(\mu, \nu) = \max_{\alpha\in [0,1]} (1 - \alpha)R_\alpha(\mu, \nu) \: .
+  \end{align*}
+\end{definition}
+
+\begin{lemma}
+  \label{lem:chernoff_symm}
+  %\lean{}
+  %\leanok
+  \uses{def:Chernoff}
+  $C(\mu, \nu) = C(\nu, \mu)$.
+\end{lemma}
+
+\begin{proof}
+\uses{lem:renyi_symm}
+Apply Lemma~\ref{lem:renyi_symm}.
+\end{proof}
