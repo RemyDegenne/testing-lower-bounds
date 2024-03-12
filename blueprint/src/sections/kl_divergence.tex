@@ -128,12 +128,12 @@ Write $\mu = \mu_X \otimes \mu_{Y|X}$ and $\nu = \nu_X \otimes \nu_{Y|X}$, then 
 \end{lemma}
 
 \begin{proof}
-\uses{thm:kl_chain_rule, thm:kl_fst_le, thm:kl_data_proc, lem:kl_nonneg}
+\uses{thm:kl_chain_rule, lem:kl_nonneg, lem:fDiv_compProd_prod_eq}
 Let $\mu_E$ be the Bernoulli distribution with $\mu_E(\{1\}) = \mu(E)$, and define $\nu_E$ similarly.
 Let $\kappa : \{0,1\} \rightsquigarrow \mathcal X$ be the kernel defined by $\kappa(1) = \mu_{|E}$ and $\kappa(0) = \mu_{|E^c}$. Define a kernel $\eta$ similarly for $\nu$.
-Then $\mu = \kappa \circ \mu_E$ and $\nu = \eta \circ \nu_E$. From Theorem~\ref{thm:kl_fst_le}, we get that $\KL(\mu, \nu) \le \KL(\mu_E \otimes \kappa, \nu_E \otimes \eta)$.
+Then $\mu = \kappa \circ \mu_E$ and $\nu = \eta \circ \nu_E$.
 
-Also, $\mu_E \otimes \kappa$ is the composition of $\mu$ and the deterministic kernel given by the function $f : x \mapsto (\mathbb{I}_E(x), x)$. That gives $\KL(\mu_E \otimes \kappa, \nu_E \otimes \eta) \le \KL(\mu, \nu)$ by Theorem~\ref{thm:kl_data_proc} and thus $\KL(\mu_E \otimes \kappa, \nu_E \otimes \eta) = \KL(\mu, \nu)$.
+$\mu_E \otimes \kappa$ is equal to the composition of $\mu$ and the deterministic kernel given by the function $f : x \mapsto (\mathbb{I}_E(x), x)$. By Lemma~\ref{lem:fDiv_compProd_prod_eq}, that gives $\KL(\mu_E \otimes \kappa, \nu_E \otimes \eta) = \KL(\mu, \nu)$.
 
 Using the chain rule (Theorem~\ref{thm:kl_chain_rule}),
 \begin{align*}

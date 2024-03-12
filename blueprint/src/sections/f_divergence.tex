@@ -313,6 +313,20 @@ Take $\kappa : \mathcal X \rightsquigarrow (*)$ the constant kernel to a type wi
 Then by Theorem~\ref{thm:fDiv_data_proc} and Lemma~\ref{lem:fDiv_self}, $D_f(\mu, \nu) \ge D_f(\kappa \circ \mu, \kappa \circ \nu) = D_f(\delta_*, \delta_*) = 0$.
 \end{proof}
 
+\begin{lemma}
+  \label{lem:fDiv_compProd_prod_eq}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow (\mathcal X \times \mathcal Y)$ be a Markov kernel such that for all $x$, $(\kappa(x))_X = \delta_x$. Then $D_f(\kappa \circ \mu, \kappa \circ \nu) = D_f(\mu, \nu)$.
+\end{lemma}
+
+\begin{proof}
+\uses{thm:fDiv_data_proc, thm:fDiv_fst_le}
+$D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu, \nu)$ by Theorem~\ref{thm:fDiv_data_proc}.
+For the other inequality, remark that $\mu = (\kappa \circ \mu)_X$ (and similarly for $\nu$). Hence by Theorem~\ref{thm:fDiv_fst_le} $D_f(\mu, \nu) \le D_f(\kappa \circ \mu, \kappa \circ \nu)$.
+\end{proof}
+
 \section{Convexity}
 
 \begin{theorem}[Joint convexity]
