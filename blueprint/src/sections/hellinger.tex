@@ -5,7 +5,7 @@
   %\lean{}
   %\leanok
   \uses{def:fDiv}
-  Let $\mu, \nu$ be two measures on $\mathcal X$. The squared Hellinger distance between $\mu$ and $\nu$ is
+  Let $\mu, \nu$ be two measures. The squared Hellinger distance between $\mu$ and $\nu$ is
   \begin{align*}
     H^2(\mu, \nu) = D_f(\mu, \nu) \quad \text{with } f: x \mapsto \frac{1}{2}\left( 1 - \sqrt{x} \right)^2 \: .
   \end{align*}
@@ -16,7 +16,7 @@
   %\lean{}
   %\leanok
   \uses{def:Hellinger, def:Renyi}
-  Let $\mu, \nu$ be two probability measures on $\mathcal X$. Then $R_{1/2}(\mu, \nu) = -2\log(1 - H^2(\mu, \nu))$.
+  Let $\mu, \nu$ be two probability measures. Then $R_{1/2}(\mu, \nu) = -2\log(1 - H^2(\mu, \nu))$.
 \end{lemma}
 
 \begin{proof}
@@ -31,8 +31,43 @@ It suffices then to show that $H^2(\mu, \nu) = D_g(\mu, \nu)$, which is true by 
   %\lean{}
   %\leanok
   \uses{def:Hellinger, def:TV}
-  Let $\mu, \nu$ be two probability measures on $\mathcal X$. Then $H^2(\mu, \nu) \le TV(\mu, \nu)$.
+  Let $\mu, \nu$ be two probability measures. Then $H^2(\mu, \nu) \le TV(\mu, \nu)$.
 \end{lemma}
 
 \begin{proof}
+\end{proof}
+
+\begin{lemma}
+  \label{lem:tv_le_hellinger}
+  %\lean{}
+  %\leanok
+  \uses{def:Hellinger, def:TV}
+  Let $\mu, \nu$ be two probability measures. Then $TV(\mu, \nu) \le \sqrt{H^2(\mu, \nu)(2 - H^2(\mu, \nu))}$.
+\end{lemma}
+
+\begin{proof}
+\end{proof}
+
+\begin{corollary}
+  \label{lem:tv_le_hellinger}
+  %\lean{}
+  %\leanok
+  \uses{def:Hellinger, def:TV}
+  Let $\mu, \nu$ be two probability measures. Then $\frac{1}{2}(1 - H^2(\mu, \nu))^2 \le 1 - TV(\mu, \nu)$.
+\end{corollary}
+
+\begin{proof}
+\uses{lem:tv_le_hellinger}
+We use Lemma~\ref{lem:tv_le_hellinger}.
+\begin{align*}
+1 - TV(\mu, \nu) - \frac{1}{2}(1 - H^2(\mu, \nu))^2
+&= \frac{1}{2} - TV(\mu, \nu) + \frac{1}{2}(H^2(\mu, \nu)(2 - H^2(\mu, \nu)))
+\\
+&\ge \frac{1}{2} - TV(\mu, \nu) + \frac{1}{2}TV^2(\mu, \nu)
+\\
+&= \frac{1}{2}(1 - TV(\mu, \nu))^2
+\\
+&\ge 0
+\: .
+\end{align*}
 \end{proof}
