@@ -149,7 +149,7 @@ Two applications of Lemma~\ref{lem:llr_change_measure}, then sum them and use $\
   \label{lem:renyi_change_measure_add}
   %\lean{}
   %\leanok
-  %\uses{}
+  \uses{def:Renyi}
   Let $\mu, \nu, \xi$ be three probability measures on $\mathcal X$ and let $E$ be an event on $\mathcal X$. Let $\alpha, \beta \ge 0$. Then
   \begin{align*}
   \mu(E) e^{R_{1+\alpha}(\xi, \mu) + \beta} + \nu(E^c) e^{R_{1+\alpha}(\xi, \nu) + \beta} \ge 1 - 2 e^{-\alpha \beta} \: .
@@ -204,7 +204,7 @@ Use Lemma~\ref{lem:testing_bound_renyi_mean} and remark that $\mu(E)^\alpha + \n
   \label{lem:testing_bound_renyi_one_add}
   %\lean{}
   %\leanok
-  %\uses{}
+  \uses{def:Renyi}
   Let $\mu, \nu$ be two probability measures on $\mathcal X$ and let $E$ be an event on $\mathcal X$. Let $\alpha > 0$. Then
   \begin{align*}
   \max\{\mu(E), \nu(E^c)\} \ge \frac{1}{4}\exp\left( - \inf_{\xi \in \mathcal P(\mathcal X)}\max\{R_{1+\alpha}(\xi, \mu), R_{1+\alpha}(\xi, \nu)\} - \frac{\log 4}{\alpha}\right) \: .
