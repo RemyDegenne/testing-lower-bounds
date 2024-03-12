@@ -233,3 +233,20 @@ Use Lemma~\ref{lem:testing_bound_renyi_mean} and remark that $\mu(E)^\alpha + \n
 \uses{lem:testing_bound_renyi_max, lem:renyi_prod_n}
 Use Lemma~\ref{lem:renyi_prod_n} in Lemma~\ref{lem:testing_bound_renyi_max}.
 \end{proof}
+
+\begin{lemma}
+  \label{lem:testing_bound_renyi_one_add_n}
+  %\lean{}
+  %\leanok
+  \uses{def:Renyi}
+  Let $\mu, \nu$ be two probability measures on $\mathcal X$, let $n \in \mathbb{N}$ and let $E$ be an event on $\mathcal X^n$. For all $\alpha > 0$,
+  \begin{align*}
+  \max\{\mu^{\otimes n}(E), \nu^{\otimes n}(E^c)\} \ge \frac{1}{4}\exp\left( - n \inf_{\xi \in \mathcal P(\mathcal X)}\max\{R_{1+\frac{\alpha}{\sqrt{n}}}(\xi, \mu), R_{1+\frac{\alpha}{\sqrt{n}}}(\xi, \nu)\} - \frac{\log 4}{\alpha}\sqrt{n}\right) \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}
+\uses{lem:renyi_prod_n, lem:testing_bound_renyi_one_add}
+Use Lemma~\ref{lem:renyi_prod_n} in Lemma~\ref{lem:testing_bound_renyi_one_add}
+\end{proof}
+
