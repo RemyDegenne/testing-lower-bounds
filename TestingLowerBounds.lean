@@ -4,3 +4,4 @@ import TestingLowerBounds.FDiv
 import TestingLowerBounds.Hellinger
 import TestingLowerBounds.KullbackLeibler
 import TestingLowerBounds.Renyi
+import TestingLowerBounds.TotalVariation

@@ -6,7 +6,7 @@ Authors: Rémy Degenne
 import TestingLowerBounds.FDiv
 
 /-!
-# Squared Helliger distance
+# Total variation distance
 
 ## Main definitions
 
@@ -41,7 +41,7 @@ namespace ProbabilityTheory
 
 variable {α : Type*} {mα : MeasurableSpace α} {μ ν : Measure α}
 
-/-- Squared Hellinger distance between two measures. -/
-noncomputable def sqHellinger (μ ν : Measure α) : ℝ := fDivReal (fun x ↦ 2⁻¹ * (1 - sqrt x)^2) μ ν
+/-- Total variation distance between two measures. -/
+noncomputable def tv (μ ν : Measure α) : ℝ := fDivReal (fun x ↦ 2⁻¹ * |1 - x|) μ ν
 
 end ProbabilityTheory
