@@ -59,14 +59,14 @@ Apply Theorem~\ref{thm:fDiv_data_proc}.
 
 \begin{lemma}
   \label{lem:kl_nonneg}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.klReal_nonneg}
+  \leanok
   \uses{def:KL}
-  $\KL(\mu, \nu) \ge 0$.
+  Let $\mu, \nu$ be two probability measures. Then $\KL(\mu, \nu) \ge 0$.
 \end{lemma}
 
-\begin{proof}
-\uses{lem:fDiv_nonneg}
+\begin{proof} \leanok
+\uses{lem:fDiv_nonneg, lem:kl_eq_fDiv}
 Apply Lemma~\ref{lem:fDiv_nonneg}.
 \end{proof}
 
