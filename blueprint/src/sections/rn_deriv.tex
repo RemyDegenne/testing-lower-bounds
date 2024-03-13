@@ -4,39 +4,39 @@ Recall that for $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ two fini
 
 \begin{lemma}
   \label{lem:rnDeriv_unique}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.kernel.eq_rnDeriv_measure}
+  \leanok
   %\uses{}
   Let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels. If for some $f$ and $\xi$, $\kappa = f \cdot \eta + \xi$ with $\xi(x) \perp \eta(x)$ for all $x$, then for all $x$, $f(x, y) = \frac{d \kappa(x)}{d \eta(x)}(y)$ for $\eta(x)$-almost all $y \in \mathcal Y$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof} \leanok
 Let $f$ and $\xi$ be such that $\kappa = f \cdot \eta + \xi$ with $\xi(x) \perp \eta(x)$ for all $x$. Then for all $x \in \mathcal X$, $\kappa(x) = f(x, \cdot) \cdot \eta(x) + \xi(x)$ with $\xi(x) \perp \eta(x)$. By the uniqueness result for the Radon-Nikodym derivative of measures, $f(x, \cdot) = \frac{d \kappa(x)}{d \eta(x)}$ almost everywhere.
 \end{proof}
 
 \begin{corollary}
   \label{cor:rnDeriv_value}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.kernel.rnDeriv_eq_rnDeriv_measure}
+  \leanok
   %\uses{}
   For all $x \in \mathcal X$, for $\eta(x)$-almost all $y \in \mathcal Y$, $\frac{d \kappa}{d \eta}(x, y) = \frac{d \kappa(x)}{d \eta(x)}(y)$.
 \end{corollary}
 
-\begin{proof}
+\begin{proof} \leanok
 \uses{lem:rnDeriv_unique}
 Apply Lemma~\ref{lem:rnDeriv_unique}.
 \end{proof}
 
 \begin{lemma}
   \label{lem:rnDeriv_compProd_aux}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.kernel.rnDeriv_measure_compProd_aux}
+  \leanok
   %\uses{}
   Let $\mu, \nu$ be two measures on $\mathcal X$ with $\mu \ll \nu$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels with $\kappa(x) \ll \eta(x)$ for $\nu$-almost all $x$. Then for $(\nu \otimes \eta)$-almost all $(x, y)$, $\frac{d (\mu \otimes \kappa)}{d (\nu \otimes \eta)}(x,y) = \frac{d\mu}{d\nu}(x)\frac{d \kappa}{d \eta}(x,y)$.
   This implies that the equality is true for $\nu$-almost all $x$, for $\eta(x)$-almost all $y$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof} \leanok
 \uses{cor:rnDeriv_value}
 It is sufficient to prove that the integrals of the two functions on all product sets $s \times t$ for $s$ and $t$ measurable are equal (since these sets are a $\pi$-system). The computation of first integral is immediate :
 \begin{align*}
@@ -62,59 +62,60 @@ The second one uses Corollary~\ref{cor:rnDeriv_value}.
 
 \begin{lemma}
   \label{lem:rnDeriv_eq_ac}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.kernel.todo1}
+  \leanok
   %\uses{}
   Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels. Let $\mu' = \left(\frac{\partial \mu}{\partial \nu}\right) \cdot \nu$ and $\kappa' = \left(\frac{\partial \kappa}{\partial \eta}\right) \cdot \eta$. Then for $(\nu \otimes \eta)$-almost all $z$, $\frac{\partial(\mu' \otimes \kappa')}{\partial (\nu \otimes \eta)}(z) = \frac{\partial(\mu \otimes \kappa)}{\partial (\nu \otimes \eta)}(z)$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof} \leanok
 \end{proof}
 
 \begin{lemma}
   \label{lem:prod_rnDeriv_eq_ac}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.kernel.todo2}
+  \leanok
   %\uses{}
   Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels. Let $\mu' = \left(\frac{\partial \mu}{\partial \nu}\right) \cdot \nu$ and $\kappa' = \left(\frac{\partial \kappa}{\partial \eta}\right) \cdot \eta$. Then for $(\nu \otimes \eta)$-almost all $(x, y)$, $\frac{d\mu'}{d\nu}(x)\frac{d \kappa'}{d \eta}(x,y) = \frac{d\mu}{d\nu}(x)\frac{d \kappa}{d \eta}(x,y)$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof} \leanok
 \end{proof}
+
 \begin{lemma}
   \label{lem:rnDeriv_compProd}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.kernel.rnDeriv_measure_compProd}
+  \leanok
   %\uses{}
   Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels. Then for $(\nu \otimes \eta)$-almost all $(x, y)$, $\frac{d (\mu \otimes \kappa)}{d (\nu \otimes \eta)}(x,y) = \frac{d\mu}{d\nu}(x)\frac{d \kappa}{d \eta}(x,y)$.
   This implies that the equality is true for $\nu$-almost all $x$, for $\eta(x)$-almost all $y$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof} \leanok
 \uses{lem:rnDeriv_compProd_aux, lem:rnDeriv_eq_ac, lem:prod_rnDeriv_eq_ac}
 Use Lemma~\ref{lem:rnDeriv_eq_ac} for $\mu', \kappa'$ (defined in previous lemmas) then \ref{lem:rnDeriv_compProd_aux} and \ref{lem:prod_rnDeriv_eq_ac}.
 \end{proof}
 
 \begin{corollary}
   \label{cor:rnDeriv_compProd_left}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.kernel.rnDeriv_measure_compProd_left}
+  \leanok
   %\uses{}
   Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a finite kernel. Then for $(\nu \otimes \kappa)$-almost all $(x, y)$, $\frac{d (\mu \otimes \kappa)}{d (\nu \otimes \kappa)}(x,y) = \frac{d\mu}{d\nu}(x)$.
 \end{corollary}
 
-\begin{proof}
+\begin{proof} \leanok
 \uses{lem:rnDeriv_compProd}
 \end{proof}
 
 \begin{corollary}
   \label{cor:rnDeriv_compProd_right}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.kernel.rnDeriv_measure_compProd_right}
+  \leanok
   %\uses{}
   Let $\mu$ be a measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels. Then for $(\mu \otimes \eta)$-almost all $(x, y)$, $\frac{d (\mu \otimes \kappa)}{d (\mu \otimes \eta)}(x,y) = \frac{d \kappa}{d \eta}(x,y)$.
 \end{corollary}
 
-\begin{proof}
+\begin{proof} \leanok
 \uses{lem:rnDeriv_compProd}
 \end{proof}
