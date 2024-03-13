@@ -2,8 +2,8 @@
 
 \begin{definition}[Kullback-Leibler divergence]
   \label{def:KL}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.klReal}
+  \leanok
   %\uses{}
   Let $\mu, \nu$ be two measures on $\mathcal X$. The Kullback-Leibler divergence between $\mu$ and $\nu$ is
   \begin{align*}
@@ -14,13 +14,13 @@
 
 \begin{lemma}
   \label{lem:kl_eq_fDiv}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.klReal_eq_fDivReal_mul_log}
+  \leanok
   \uses{def:KL, def:fDiv}
   $\KL(\mu, \nu) = D_f(\mu, \nu)$ for $f: x \mapsto x \log x$ or, for probability measures, $f: x \mapsto x \log x - x + 1$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof} \leanok
 Simple computation.
 \end{proof}
 

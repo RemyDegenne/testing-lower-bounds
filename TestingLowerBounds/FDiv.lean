@@ -23,6 +23,15 @@ import Mathlib.Analysis.Calculus.MeanValue
 
 ## Implementation details
 
+The most natural type for `f` is `ℝ≥0∞ → EReal` since we apply it to an `ℝ≥0∞`-values RN derivative,
+and its value can be in general both positive or negative, and potentially +∞.
+However, we use `ℝ → ℝ` instead, for the following reasons:
+* domain: convexity results like `ConvexOn.map_average_le` don't work for `ℝ≥0∞` because they
+  require a normed space with scalars in `ℝ`, but `ℝ≥0∞` is a module over `ℝ≥0`.
+  Also, the RN derivative is almost everywhere finite for σ-finite measures, so losing ∞ in the
+  domain is not an issue.
+* codomain: `EReal` is underdeveloped, and all functions we will actually use are finite anyway.
+
 Most results will require these conditions on `f`:
 `(hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0)) (hf_one : f 1 = 0)`
 
