@@ -4,8 +4,8 @@
 
 \begin{definition}[f-divergence]
   \label{def:fDiv}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDivReal}
+  \leanok
   %\uses{}
   Let $f : \mathbb{R} \to \mathbb{R}$ and let $\mu, \nu$ be two measures on a measurable space $\mathcal X$. The f-divergence between $\mu$ and $\nu$ is
   \begin{align*}
@@ -28,13 +28,13 @@ Linearity of the integral.
 
 \begin{lemma}
   \label{lem:fDiv_self}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDivReal_self}
+  \leanok
   \uses{def:fDiv}
   If $f(1) = 0$ then $D_{f}(\mu, \mu) = 0$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof} \leanok
 $\frac{d \mu}{d \mu}(x) = 1$ almost everywhere and $f(1) = 0$.
 \end{proof}
 
