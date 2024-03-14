@@ -116,6 +116,60 @@ By Lemma~\ref{lem:renyi_eq_log_fDiv}, $R_\alpha(\mu, \nu) = \frac{1}{\alpha - 1}
 By Corollary~\ref{cor:data_proc_event}, $D_f(\mu, \nu) \ge D_f(\mu_E, \nu_E)$, hence $R_\alpha(\mu, \nu) \ge R_\alpha(\mu_E, \nu_E)$.
 \end{proof}
 
+\section{Comparisons between orders}
+
+\begin{lemma}
+  \label{lem:renyi_tendsto_renyi_zero}
+  %\lean{}
+  %\leanok
+  \uses{def:Renyi}
+  Let $\mu, \nu$ be two finite measures. $R_0(\mu, \nu) = \lim_{\alpha \downarrow 0} R_\alpha(\mu, \nu)$.
+\end{lemma}
+
+\begin{proof}
+\end{proof}
+
+\begin{lemma}
+  \label{lem:renyi_tendsto_renyi_one}
+  %\lean{}
+  %\leanok
+  \uses{def:Renyi}
+  Let $\mu, \nu$ be two finite measures. $R_1(\mu, \nu) = \lim_{\alpha \uparrow 1} R_\alpha(\mu, \nu)$.
+\end{lemma}
+
+\begin{proof}
+\end{proof}
+
+\begin{lemma}
+  \label{lem:renyi_tendsto_renyi_one_above}
+  %\lean{}
+  %\leanok
+  \uses{def:Renyi}
+  Let $\mu, \nu$ be two finite measures such that there exists $\alpha > 1$ with $R_\alpha(\mu, \nu)$ finite. Then $R_1(\mu, \nu) = \lim_{\alpha \downarrow 1} R_\alpha(\mu, \nu)$.
+\end{lemma}
+
+\begin{proof}
+\end{proof}
+
+\begin{lemma}
+  \label{lem:renyi_monotone}
+  %\lean{}
+  %\leanok
+  \uses{def:Renyi}
+  Let $\mu, \nu$ be two finite measures. Then $\alpha \mapsto R_\alpha(\mu, \nu)$ is nondecreasing on $[0, + \infty)$.
+\end{lemma}
+
+\begin{proof}
+\end{proof}
+
+\begin{lemma}
+  \label{lem:renyi_continuous}
+  %\lean{}
+  %\leanok
+  \uses{def:Renyi}
+  Let $\mu, \nu$ be two finite measures. Then $\alpha \mapsto R_\alpha(\mu, \nu)$ is continuous on $[0, 1]$ and on $[0, \sup \{\alpha \mid R_\alpha(\mu, \nu) < \infty\})$.
+\end{lemma}
+
 \section{The tilted measure}
 
 \begin{definition}
