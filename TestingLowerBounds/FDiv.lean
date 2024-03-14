@@ -52,7 +52,7 @@ open scoped ENNReal
 namespace ProbabilityTheory
 
 variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
-  {μ ν : Measure α} {κ η : kernel α β} {f : ℝ → ℝ}
+  {μ ν : Measure α} {κ η : kernel α β} {f g : ℝ → ℝ}
 
 /-- f-Divergence of two measures, real-valued. -/
 noncomputable
@@ -67,6 +67,33 @@ def fDiv (f : ℝ → ℝ) (μ ν : Measure α) : ℝ≥0∞ :=
 lemma fDivReal_of_not_integrable (hf : ¬ Integrable (fun x ↦ f (μ.rnDeriv ν x).toReal) ν) :
     fDivReal f μ ν = 0 := by
   rw [fDivReal, integral_undef hf]
+
+lemma fDivReal_const (c : ℝ) (μ ν : Measure α) :
+    fDivReal (fun _ ↦ c) μ ν = (ν Set.univ).toReal * c := by
+  rw [fDivReal, integral_const, smul_eq_mul]
+
+lemma fDivReal_id [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν) :
+    fDivReal id μ ν = (μ Set.univ).toReal := by
+  simp only [fDivReal, id_eq, Measure.integral_toReal_rnDeriv hμν]
+
+lemma fDivReal_id' [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν) :
+    fDivReal (fun x ↦ x) μ ν = (μ Set.univ).toReal := fDivReal_id hμν
+
+lemma fDivReal_mul (c : ℝ) (f : ℝ → ℝ) (μ ν : Measure α) :
+    fDivReal (fun x ↦ c * f x) μ ν = c * fDivReal f μ ν := by
+  rw [fDivReal, integral_mul_left, fDivReal]
+
+-- TODO: in the case where both functions are convex, integrability of the sum is equivalent to
+-- integrability of both, and we don't need hf and hg.
+lemma fDivReal_add (hf : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
+    (hg : Integrable (fun x ↦ g ((∂μ/∂ν) x).toReal) ν) :
+    fDivReal (fun x ↦ f x + g x) μ ν = fDivReal f μ ν + fDivReal g μ ν := by
+  rw [fDivReal, integral_add hf hg, fDivReal, fDivReal]
+
+lemma fDivReal_add_linear (c : ℝ) [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hμν : μ ≪ ν)
+    (h_eq : μ Set.univ = ν Set.univ) :
+    fDivReal (fun x ↦ f x + c * (x - 1)) μ ν = fDivReal f μ ν := by
+  sorry
 
 lemma le_fDivReal [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
     (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0))

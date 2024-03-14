@@ -18,8 +18,8 @@ TODO: whenever necessary, we assume that $f$ is measurable.
 
 \begin{lemma}
   \label{lem:fDiv_add}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDivReal_add}
+  \leanok
   \uses{def:fDiv}
   $D_{f + g}(\mu, \nu) = D_f(\mu, \nu) + D_g(\mu, \nu)$.
 \end{lemma}
@@ -42,41 +42,73 @@ $\frac{d \mu}{d \mu}(x) = 1$ almost everywhere and $f(1) = 0$.
 
 \begin{lemma}
   \label{lem:fDiv_mul}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDivReal_mul}
+  \leanok
   \uses{def:fDiv}
   For all $a \in \mathbb{R}$, $D_{a f}(\mu, \nu) = a D_{f}(\mu, \nu)$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof} \leanok
 Linearity of the integral.
 \end{proof}
 
 \begin{lemma}
-  \label{lem:fDiv_linear}
-  %\lean{}
-  %\leanok
+  \label{lem:fDiv_const}
+  \lean{ProbabilityTheory.fDivReal_const}
+  \leanok
   \uses{def:fDiv}
-  For finite measures $\mu$ and $\nu$ with $\mu(\mathcal X) = \nu(\mathcal X)$, $D_{x - 1}(\mu, \nu) = 0$.
+  For all $a \in \mathbb{R}$, $D_{x \mapsto a}(\mu, \nu) = a \nu(\mathcal X)$.
 \end{lemma}
 
-\begin{proof}
-Computation.
+\begin{proof} \leanok
+Compute the integral.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:fDiv_eq_ac}
+  \lean{ProbabilityTheory.fDivReal_withDensity_rnDeriv}
+  \leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two measures on $\mathcal X$ with $\nu$ $\sigma$-finite. Let $\mu' = \left(\frac{\partial \mu}{\partial \nu}\right) \cdot \nu$.
+  Then $D_f(\mu, \nu) = D_f(\mu', \nu)$.
+\end{lemma}
+
+\begin{proof} \leanok
+For $\nu$-almost all $x$, $\frac{\partial \mu'}{\partial \nu}(x) = \frac{\partial \mu}{\partial \nu}(x)$, hence
+\begin{align*}
+D_f(\mu', \nu)
+= \int_x f\left(\frac{\partial \mu'}{\partial \nu}(x)\right)\partial \nu
+= \int_x f\left(\frac{\partial \mu}{\partial \nu}(x)\right)\partial \nu
+= D_f(\mu, \nu)
+\: .
+\end{align*}
+\end{proof}
+
+\begin{lemma}
+  \label{lem:fDiv_id}
+  \lean{ProbabilityTheory.fDivReal_id}
+  \leanok
+  \uses{def:fDiv}
+  For $\mu \ll \nu$, $D_{x \mapsto x}(\mu, \nu) = \mu(\mathcal X)$.
+\end{lemma}
+
+\begin{proof} \leanok
+Compute the integral. If we don't have $\mu \ll \nu$, we only get $D_{x \mapsto x}(\mu, \nu) \le \mu(\mathcal X)$.
 \end{proof}
 
 \begin{lemma}
   \label{lem:fDiv_add_linear}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDivReal_add_linear}
+  \leanok
   \uses{def:fDiv}
-  For finite measures $\mu$ and $\nu$ with $\mu(\mathcal X) = \nu(\mathcal X)$, for all $a \in \mathbb{R}$, $D_{f + a(x - 1)}(\mu, \nu) = D_{f}(\mu, \nu)$.
+  For finite measures $\mu$ and $\nu$ with $\mu \ll \nu$ and $\mu(\mathcal X) = \nu(\mathcal X)$, for all $a \in \mathbb{R}$, $D_{f + a(x - 1)}(\mu, \nu) = D_{f}(\mu, \nu)$.
 \end{lemma}
 
 This means that we can always choose $f \ge 0$ and $f'(1) = 0$ if we want (and $f$ is differentiable at $1$).
 
 \begin{proof}
-\uses{lem:fDiv_add, lem:fDiv_mul, lem:fDiv_linear}
-Linearity (Lemmas~\ref{lem:fDiv_add} and~\ref{lem:fDiv_mul}), then Lemma~\ref{lem:fDiv_linear}.
+\uses{lem:fDiv_add, lem:fDiv_mul, lem:fDiv_const, lem:fDiv_id}
+Linearity (Lemmas~\ref{lem:fDiv_add} and~\ref{lem:fDiv_mul}), then Lemma~\ref{lem:fDiv_const} and~\ref{lem:fDiv_id}.
 \end{proof}
 
 \section{Conditional f-divergence}
@@ -99,8 +131,9 @@ Linearity (Lemmas~\ref{lem:fDiv_add} and~\ref{lem:fDiv_mul}), then Lemma~\ref{le
   \uses{def:fDiv}
   Let $f : \mathbb{R} \to \mathbb{R}$, $\mu$ a measure on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ two Markov kernels from $\mathcal X$ to $\mathcal Y$. The conditional f-divergence between $\kappa$ and $\eta$ with respect to $\mu$ is
   \begin{align*}
-  D_f(\kappa, \eta \mid \mu) = \mu\left[x \mapsto D_f(\kappa(x), \eta(x))\right] \: .
+  D_f(\kappa, \eta \mid \mu) = \mu\left[x \mapsto D_f(\kappa(x), \eta(x))\right]
   \end{align*}
+  if $x \mapsto D_f(\kappa(x), \eta(x))$ is $\mu$-integrable and $+\infty$ otherwise.
 \end{definition}
 
 \begin{lemma}
@@ -158,26 +191,6 @@ D_f(\mu \otimes \kappa, \mu \otimes \eta)
 \end{proof}
 
 \section{Data-processing inequality}
-
-\begin{lemma}
-  \label{lem:fDiv_eq_ac}
-  \lean{ProbabilityTheory.fDivReal_withDensity_rnDeriv}
-  \leanok
-  \uses{def:fDiv}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ with $\nu$ $\sigma$-finite. Let $\mu' = \left(\frac{\partial \mu}{\partial \nu}\right) \cdot \nu$.
-  Then $D_f(\mu, \nu) = D_f(\mu', \nu)$.
-\end{lemma}
-
-\begin{proof} \leanok
-For $\nu$-almost all $x$, $\frac{\partial \mu'}{\partial \nu}(x) = \frac{\partial \mu}{\partial \nu}(x)$, hence
-\begin{align*}
-D_f(\mu', \nu)
-= \int_x f\left(\frac{\partial \mu'}{\partial \nu}(x)\right)\partial \nu
-= \int_x f\left(\frac{\partial \mu}{\partial \nu}(x)\right)\partial \nu
-= D_f(\mu, \nu)
-\: .
-\end{align*}
-\end{proof}
 
 \begin{lemma}
   \label{lem:fDiv_compProd_eq_ac}
