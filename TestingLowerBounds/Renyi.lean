@@ -85,9 +85,20 @@ lemma convexOn_renyi_fun (ha_pos : 0 < a) (ha_ne_one : a ≠ 1) :
     ConvexOn ℝ (Set.Ici 0) (fun x ↦ (a - 1)⁻¹ * (x ^ a - 1)) := by
   cases le_total a 1 with
   | inl ha =>
-    sorry
+    have : (fun x ↦ (a - 1)⁻¹ * (x ^ a - 1)) = - (fun x ↦ (1 - a)⁻¹ * (x ^ a - 1)) := by
+      ext x
+      simp only [Pi.neg_apply]
+      rw [← neg_mul, neg_inv, neg_sub]
+    rw [this]
+    refine ConcaveOn.neg ?_
+    have h : ConcaveOn ℝ (Set.Ici 0) fun x : ℝ ↦ x ^ a := by
+      sorry
+    simp_rw [← smul_eq_mul]
+    exact ConcaveOn.smul (by simp [ha]) (h.sub (convexOn_const _ (convex_Ici 0)))
   | inr ha =>
     have h := convexOn_rpow ha
-    sorry
+    simp_rw [← smul_eq_mul]
+    refine ConvexOn.smul (by simp [ha]) ?_
+    exact h.sub (concaveOn_const _ (convex_Ici 0))
 
 end ProbabilityTheory
