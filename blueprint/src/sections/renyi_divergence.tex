@@ -4,12 +4,16 @@
   \label{def:Renyi}
   \lean{ProbabilityTheory.renyiReal}
   \leanok
-  %\uses{}
-  Let $\mu, \nu$ be two measures on $\mathcal X$. The Rényi divergence of order $\alpha \in (0,+\infty) \backslash \{1\}$ between $\mu$ and $\nu$ is
+  \uses{def:KL}
+  Let $\mu, \nu$ be two measures on $\mathcal X$. The Rényi divergence of order $\alpha \in [0,+\infty)$ between $\mu$ and $\nu$ is
   \begin{align*}
   R_\alpha(\mu, \nu) = \left\{
  \begin{array}{ll}
-  \frac{1}{\alpha - 1}\log \nu\left[\left(\frac{d \mu}{d \nu}\right)^\alpha\right] & \text {for } \alpha \in (0,1) \text{ or } \mu \ll \nu
+  - \log(\nu\{x \mid \frac{d \mu}{d \nu}(x) > 0\}) & \text{ for } \alpha = 0
+  \\
+  \KL(\mu, \nu) & \text{ for } \alpha = 1
+  \\
+  \frac{1}{\alpha - 1}\log \nu\left[\left(\frac{d \mu}{d \nu}\right)^\alpha\right] & \text {for } \alpha \in (0,1) \text{ , or } \alpha > 1 \text{ and }\mu \ll \nu
   \\
   +\infty & \text {otherwise}
   \end{array}\right.
