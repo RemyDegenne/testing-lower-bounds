@@ -14,6 +14,8 @@
   if $x \mapsto f\left(\frac{d \mu}{d \nu}(x)\right)$ is $\nu$-integrable and $+\infty$ otherwise.
 \end{definition}
 
+TODO: whenever necessary, we assume that $f$ is measurable.
+
 \begin{lemma}
   \label{lem:fDiv_add}
   %\lean{}
@@ -106,14 +108,23 @@ Linearity (Lemmas~\ref{lem:fDiv_add} and~\ref{lem:fDiv_mul}), then Lemma~\ref{le
   \lean{ProbabilityTheory.integrable_f_rnDeriv_compProd_iff}
   \leanok
   \uses{def:fDiv}
-  Let $\mu$ be a finite measure on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels from $\mathcal X$ to $\mathcal Y$. If $f$ is bounded from below on $\mathbb{R}_+$, then $p \mapsto f \left(\frac{d(\mu \otimes \kappa)}{d(\mu \otimes \eta)} p\right)$ is $(\mu \otimes \eta)$-integrable iff
+  Let $\mu$ be a finite measure on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels from $\mathcal X$ to $\mathcal Y$.
+  Then $p \mapsto f \left(\frac{d(\mu \otimes \kappa)}{d(\mu \otimes \eta)}(p)\right)$ is $(\mu \otimes \eta)$-integrable iff
   \begin{itemize}
-    \item $x \mapsto D_f(\kappa(x), \eta(x))$ is $\mu$-integrable,
-    \item For $\mu$-almost all $x$, $y \mapsto f \left( \frac{d\kappa(x)}{d\eta(x)} \right) y$ is $\eta(a)$-integrable. 
+    \item $x \mapsto D_f(\kappa(x), \eta(x))$ is $\mu$-integrable and
+    \item for $\mu$-almost all $x$, $y \mapsto f \left( \frac{d\kappa(x)}{d\eta(x)}(y) \right)$ is $\eta(x)$-integrable. 
   \end{itemize}
 \end{lemma}
 
 \begin{proof}
+Since $x \mapsto f \left(\frac{d(\mu \otimes \kappa)}{d(\mu \otimes \eta)} x \right)$ is measurable, the integrability condition w.r.t. $\mu \otimes \eta$ is equivalent to
+\begin{itemize}
+    \item $x \mapsto \int_y \left\Vert f \left( \frac{d\kappa(x)}{d\eta(x)}(y) \right) \right\Vert \partial \eta(x)$ is $\mu$-integrable and
+    \item for $\mu$-almost all $x$, $y \mapsto f \left( \frac{d\kappa(x)}{d\eta(x)}(y) \right)$ is $\eta(x)$-integrable. 
+  \end{itemize}
+It suffices to use convexity to show that integrability of $x \mapsto \int_y f \left( \frac{d\kappa(x)}{d\eta(x)}(y) \right) \partial \eta(x)$ implies integrability of $x \mapsto \int_y \left\Vert f \left( \frac{d\kappa(x)}{d\eta(x)}(y) \right) \right\Vert \partial \eta(x)$.
+
+TODO
 \end{proof}
 
 \begin{lemma}
@@ -125,7 +136,7 @@ Linearity (Lemmas~\ref{lem:fDiv_add} and~\ref{lem:fDiv_mul}), then Lemma~\ref{le
   Then $D_f(\mu \otimes \kappa, \mu \otimes \eta) = D_f(\kappa, \eta \mid \mu)$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof} \leanok
 \uses{cor:rnDeriv_compProd_right, cor:rnDeriv_value, lem:integrable_fDiv_compProd_iff}
 By Lemma~\ref{lem:integrable_fDiv_compProd_iff}, the conditions on which the two divergences are finite are the same. We then assume integrability properties such that both are finite.
 

@@ -64,6 +64,10 @@ noncomputable
 def fDiv (f : ℝ → ℝ) (μ ν : Measure α) : ℝ≥0∞ :=
   if Integrable (fun x ↦ f (μ.rnDeriv ν x).toReal) ν then ENNReal.ofReal (fDivReal f μ ν) else ∞
 
+lemma fDivReal_of_not_integrable (hf : ¬ Integrable (fun x ↦ f (μ.rnDeriv ν x).toReal) ν) :
+    fDivReal f μ ν = 0 := by
+  rw [fDivReal, integral_undef hf]
+
 lemma le_fDivReal [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
     (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0))
     (hf_int : Integrable (fun x ↦ f (μ.rnDeriv ν x).toReal) ν) (hμν : μ ≪ ν) :
@@ -93,18 +97,40 @@ lemma fDivReal_self (hf_one : f 1 = 0) (μ : Measure α) [SigmaFinite μ] : fDiv
 
 section Conditional
 
+open Classical in
+/- Conditinal f-divergence.
+
+We enforce `∀ᵐ a ∂μ, Integrable (fun x ↦ f ((κ a).rnDeriv (η a) x).toReal) (η a)`, to ensure
+that `condFDivReal f κ η μ` and `fDivReal f (μ ⊗ₘ κ) (μ ⊗ₘ η)` are well defined under the same
+conditions (these two quantities are then always equal). -/
 noncomputable
 def condFDivReal (f : ℝ → ℝ) (κ η : kernel α β) (μ : Measure α) : ℝ :=
-  μ[fun x ↦ fDivReal f (κ x) (η x)]
+  if ∀ᵐ a ∂μ, Integrable (fun x ↦ f ((κ a).rnDeriv (η a) x).toReal) (η a)
+  then μ[fun x ↦ fDivReal f (κ x) (η x)]
+  else 0
+
+lemma condFDivReal_of_not_ae_integrable
+    (hf : ¬ ∀ᵐ a ∂μ, Integrable (fun x ↦ f ((κ a).rnDeriv (η a) x).toReal) (η a)) :
+    condFDivReal f κ η μ = 0 := by
+  rw [condFDivReal, if_neg hf]
+
+lemma condFDivReal_eq
+    (hf : ∀ᵐ a ∂μ, Integrable (fun x ↦ f ((κ a).rnDeriv (η a) x).toReal) (η a)) :
+    condFDivReal f κ η μ = μ[fun x ↦ fDivReal f (κ x) (η x)] :=
+  if_pos hf
+
+lemma condFDivReal_of_not_integrable (hf : ¬ Integrable (fun x ↦ fDivReal f (κ x) (η x)) μ) :
+    condFDivReal f κ η μ = 0 := by
+  by_cases hf' : ∀ᵐ a ∂μ, Integrable (fun x ↦ f ((κ a).rnDeriv (η a) x).toReal) (η a)
+  · rw [condFDivReal, if_pos hf', integral_undef hf]
+  · exact condFDivReal_of_not_ae_integrable hf'
 
 variable [MeasurableSpace.CountablyGenerated β]
 
 section Integrable
 
 /-! We show that the integrability of the functions used in `fDivReal f (μ ⊗ₘ κ) (μ ⊗ₘ η)`
-and in `condFDivReal f κ η μ` are equivalent, when `f` is bounded from below and `μ` is finite.
-
-TODO. -/
+and in `condFDivReal f κ η μ` are equivalent. -/
 
 lemma integrable_f_rnDeriv_of_integrable_compProd [IsFiniteMeasure μ] [IsFiniteKernel κ]
     [IsFiniteKernel η] (hf : StronglyMeasurable f)
@@ -136,7 +162,7 @@ lemma integrable_fDivReal_of_integrable_compProd [IsFiniteMeasure μ] [IsFiniteK
   rw [hb, h_eq]
 
 lemma integrable_f_rnDeriv_compProd_iff [IsFiniteMeasure μ] [IsFiniteKernel κ]
-    [IsFiniteKernel η] (hf : StronglyMeasurable f) (hbdd : BddBelow (f '' (Set.Ici 0))) :
+    [IsFiniteKernel η] (hf : StronglyMeasurable f) :
     Integrable (fun x ↦ f ((μ ⊗ₘ κ).rnDeriv (μ ⊗ₘ η) x).toReal) (μ ⊗ₘ η)
       ↔ (∀ᵐ a ∂μ, Integrable (fun x ↦ f ((κ a).rnDeriv (η a) x).toReal) (η a))
         ∧ Integrable (fun x ↦ fDivReal f (κ x) (η x)) μ := by
@@ -167,17 +193,27 @@ lemma integrable_f_rnDeriv_compProd_iff [IsFiniteMeasure μ] [IsFiniteKernel κ]
     constructor
     · filter_upwards [h1, h_ae_eq] with a ha1 ha2
       exact (integrable_congr ha2).mpr ha1
-    · sorry
+    · -- todo: cut into two parts, depending on sign of f.
+      -- on the positive part, use h2.
+      -- on the negative part, use `f x ≥ a * x + b` by convexity, then since both measures are
+      -- finite the integral is finite.
+      sorry
 
 end Integrable
 
 lemma fDivReal_compProd_left (μ : Measure α) [IsFiniteMeasure μ]
-    (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
-    (hf : StronglyMeasurable f) (hbdd : BddBelow (f '' (Set.Ici 0))) :
+    (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] (hf : StronglyMeasurable f) :
     fDivReal f (μ ⊗ₘ κ) (μ ⊗ₘ η) = condFDivReal f κ η μ := by
   by_cases hf_int : Integrable (fun x ↦ f ((μ ⊗ₘ κ).rnDeriv (μ ⊗ₘ η) x).toReal) (μ ⊗ₘ η)
-  swap; · sorry
-  rw [condFDivReal, fDivReal]
+  swap
+  · rw [fDivReal_of_not_integrable hf_int]
+    rw [integrable_f_rnDeriv_compProd_iff hf] at hf_int
+    push_neg at hf_int
+    by_cases hf_int' : ∀ᵐ (a : α) ∂μ, Integrable (fun x ↦ f ((∂κ a/∂η a) x).toReal) (η a)
+    · rw [condFDivReal_of_not_integrable (hf_int hf_int')]
+    · rw [condFDivReal_of_not_ae_integrable hf_int']
+  have hf_int' := (integrable_f_rnDeriv_compProd_iff hf).mp hf_int
+  rw [condFDivReal_eq hf_int'.1, fDivReal]
   have h_eq : ∀ a, (fun b ↦ f (kernel.rnDeriv κ η a b).toReal)
       =ᵐ[η a] fun x ↦ f ((∂κ a/∂η a) x).toReal := by
     intro a
