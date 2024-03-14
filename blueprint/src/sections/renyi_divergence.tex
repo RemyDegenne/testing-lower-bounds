@@ -7,7 +7,12 @@
   %\uses{}
   Let $\mu, \nu$ be two measures on $\mathcal X$. The Rényi divergence of order $\alpha \in (0,+\infty) \backslash \{1\}$ between $\mu$ and $\nu$ is
   \begin{align*}
-  R_\alpha(\mu, \nu) = \frac{1}{\alpha - 1}\log \nu\left[\left(\frac{d \mu}{d \nu}\right)^\alpha\right] \: .
+  R_\alpha(\mu, \nu) = \left\{
+ \begin{array}{ll}
+  \frac{1}{\alpha - 1}\log \nu\left[\left(\frac{d \mu}{d \nu}\right)^\alpha\right] & \text {for } \alpha \in (0,1) \text{ or } \mu \ll \nu
+  \\
+  +\infty & \text {otherwise}
+  \end{array}\right.
   \end{align*}
 \end{definition}
 
@@ -16,7 +21,7 @@
   %\lean{}
   %\leanok
   \uses{def:fDiv, def:Renyi}
-  $R_\alpha(\mu, \nu) = \frac{1}{\alpha - 1} \log (1 + (\alpha - 1) D_f(\nu, \mu))$ for $f : x \mapsto \frac{1}{\alpha - 1}(x^{\alpha} - 1)$, which is convex with $f(1)=0$. It is thus a monotone transformation of a f-divergence.
+  For $\nu$ a probability measure and either $\alpha \in (0,1)$ or $\mu \ll \nu$, $R_\alpha(\mu, \nu) = \frac{1}{\alpha - 1} \log (1 + (\alpha - 1) D_f(\nu, \mu))$ for $f : x \mapsto \frac{1}{\alpha - 1}(x^{\alpha} - 1)$, which is convex with $f(1)=0$. It is thus a monotone transformation of a f-divergence.
 
   TODO: use this for the definition?
 \end{lemma}
