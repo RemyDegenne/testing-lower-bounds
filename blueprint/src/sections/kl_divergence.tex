@@ -9,7 +9,7 @@
   \begin{align*}
   \KL(\mu, \nu) = \mu\left[\log \frac{d \mu}{d \nu}\right]
   \end{align*}
-  if $x \mapsto \log \frac{d \mu}{d \nu}(x)$ is $\mu$-integrable and $+\infty$ otherwise.
+  if $\mu \ll \nu$ and $x \mapsto \log \frac{d \mu}{d \nu}(x)$ is $\mu$-integrable and $+\infty$ otherwise.
 \end{definition}
 
 \begin{lemma}
@@ -17,7 +17,7 @@
   \lean{ProbabilityTheory.klReal_eq_fDivReal_mul_log}
   \leanok
   \uses{def:KL, def:fDiv}
-  $\KL(\mu, \nu) = D_f(\mu, \nu)$ for $f: x \mapsto x \log x$ or, for probability measures, $f: x \mapsto x \log x - x + 1$.
+  $\KL(\mu, \nu) = D_f(\mu, \nu)$ for $f: x \mapsto x \log x$.
 \end{lemma}
 
 \begin{proof} \leanok
