@@ -230,6 +230,25 @@ lemma fDivReal_compProd_left (μ : Measure α) [IsFiniteMeasure μ]
   rw [integral_congr_ae h]
   rfl
 
+lemma fDivReal_withDensity_rnDeriv (μ ν : Measure α) [SigmaFinite ν] :
+    fDivReal f (ν.withDensity (∂μ/∂ν)) ν = fDivReal f μ ν := by
+  refine integral_congr_ae ?_
+  filter_upwards [Measure.rnDeriv_withDensity ν (Measure.measurable_rnDeriv μ ν)] with a ha
+  rw [ha]
+
+lemma fDivReal_compProd_withDensity_rnDeriv (μ ν : Measure α) (κ η : kernel α β)
+    [IsFiniteMeasure μ] [IsFiniteMeasure ν] [IsFiniteKernel κ] [IsFiniteKernel η] :
+    fDivReal f ((ν.withDensity (∂μ/∂ν)) ⊗ₘ (kernel.withDensity η (kernel.rnDeriv κ η))) (ν ⊗ₘ η)
+      = fDivReal f (μ ⊗ₘ κ) (ν ⊗ₘ η) := by
+  refine integral_congr_ae ?_
+  filter_upwards [kernel.todo1 μ ν κ η] with p hp
+  rw [hp]
+
+lemma condFDivReal_withDensity_rnDeriv (κ η : kernel α β) (μ : Measure α)
+    [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η] :
+    condFDivReal f (kernel.withDensity η (kernel.rnDeriv κ η)) η μ = condFDivReal f κ η μ := by
+  sorry
+
 end Conditional
 
 end ProbabilityTheory

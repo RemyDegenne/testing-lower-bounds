@@ -161,14 +161,14 @@ D_f(\mu \otimes \kappa, \mu \otimes \eta)
 
 \begin{lemma}
   \label{lem:fDiv_eq_ac}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDivReal_withDensity_rnDeriv}
+  \leanok
   \uses{def:fDiv}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ . Let $\mu' = \left(\frac{\partial \mu}{\partial \nu}\right) \cdot \nu$.
+  Let $\mu, \nu$ be two measures on $\mathcal X$ with $\nu$ $\sigma$-finite. Let $\mu' = \left(\frac{\partial \mu}{\partial \nu}\right) \cdot \nu$.
   Then $D_f(\mu, \nu) = D_f(\mu', \nu)$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof} \leanok
 For $\nu$-almost all $x$, $\frac{\partial \mu'}{\partial \nu}(x) = \frac{\partial \mu}{\partial \nu}(x)$, hence
 \begin{align*}
 D_f(\mu', \nu)
@@ -177,19 +177,18 @@ D_f(\mu', \nu)
 = D_f(\mu, \nu)
 \: .
 \end{align*}
-
 \end{proof}
 
 \begin{lemma}
   \label{lem:fDiv_compProd_eq_ac}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDivReal_compProd_withDensity_rnDeriv}
+  \leanok
   \uses{def:fDiv}
   Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels. Let $\mu' = \left(\frac{\partial \mu}{\partial \nu}\right) \cdot \nu$ and $\kappa' = \left(\frac{\partial \kappa}{\partial \eta}\right) \cdot \eta$.
   Then $D_f(\mu \otimes \kappa, \nu \otimes \eta) = D_f(\mu' \otimes \kappa', \nu \otimes \eta)$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof} \leanok
 \uses{lem:rnDeriv_eq_ac}
 By Lemma~\ref{lem:rnDeriv_eq_ac}, for $(\nu \otimes \eta)$-almost all $z$, $\frac{\partial(\mu' \otimes \kappa')}{\partial(\nu \otimes \eta)}(z) = \frac{\partial(\mu \otimes \kappa)}{\partial(\nu \otimes \eta)}(z)$, hence
 \begin{align*}
