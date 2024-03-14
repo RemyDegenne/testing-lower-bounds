@@ -90,10 +90,36 @@ lemma fDivReal_add (hf : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
     fDivReal (fun x ↦ f x + g x) μ ν = fDivReal f μ ν + fDivReal g μ ν := by
   rw [fDivReal, integral_add hf hg, fDivReal, fDivReal]
 
+-- TODO: in the case where both functions are convex, integrability of the sum is equivalent to
+-- integrability of both, and we don't need hf and hg.
+lemma fDivReal_sub (hf : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
+    (hg : Integrable (fun x ↦ g ((∂μ/∂ν) x).toReal) ν) :
+    fDivReal (fun x ↦ f x - g x) μ ν = fDivReal f μ ν - fDivReal g μ ν := by
+  rw [fDivReal, integral_sub hf hg, fDivReal, fDivReal]
+
+lemma fDivReal_withDensity_rnDeriv (μ ν : Measure α) [SigmaFinite ν] :
+    fDivReal f (ν.withDensity (∂μ/∂ν)) ν = fDivReal f μ ν := by
+  refine integral_congr_ae ?_
+  filter_upwards [Measure.rnDeriv_withDensity ν (Measure.measurable_rnDeriv μ ν)] with a ha
+  rw [ha]
+
 lemma fDivReal_add_linear (c : ℝ) [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hμν : μ ≪ ν)
     (h_eq : μ Set.univ = ν Set.univ) :
     fDivReal (fun x ↦ f x + c * (x - 1)) μ ν = fDivReal f μ ν := by
-  sorry
+  by_cases hf : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν
+  · rw [fDivReal_add hf]
+    · rw [fDivReal_mul, fDivReal_sub Measure.integrable_toReal_rnDeriv (integrable_const _),
+        fDivReal_const, fDivReal_id' hμν, mul_one, h_eq, sub_self, mul_zero, add_zero]
+    · exact (Measure.integrable_toReal_rnDeriv.sub (integrable_const _)).const_mul c
+  · rw [fDivReal_of_not_integrable hf,fDivReal_of_not_integrable]
+    refine fun h_int ↦ hf ?_
+    have : (fun x ↦ f ((∂μ/∂ν) x).toReal)
+        = fun x ↦ (f ((∂μ/∂ν) x).toReal + c * (((∂μ/∂ν) x).toReal - 1))
+          - c * (((∂μ/∂ν) x).toReal - 1) := by
+      ext x
+      simp
+    rw [this]
+    exact h_int.add ((Measure.integrable_toReal_rnDeriv.sub (integrable_const _)).const_mul c).neg
 
 lemma le_fDivReal [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
     (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0))
@@ -256,12 +282,6 @@ lemma fDivReal_compProd_left (μ : Measure α) [IsFiniteMeasure μ]
     rw [hb1, hb2]
   rw [integral_congr_ae h]
   rfl
-
-lemma fDivReal_withDensity_rnDeriv (μ ν : Measure α) [SigmaFinite ν] :
-    fDivReal f (ν.withDensity (∂μ/∂ν)) ν = fDivReal f μ ν := by
-  refine integral_congr_ae ?_
-  filter_upwards [Measure.rnDeriv_withDensity ν (Measure.measurable_rnDeriv μ ν)] with a ha
-  rw [ha]
 
 lemma fDivReal_compProd_withDensity_rnDeriv (μ ν : Measure α) (κ η : kernel α β)
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] [IsFiniteKernel κ] [IsFiniteKernel η] :
