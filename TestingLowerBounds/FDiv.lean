@@ -251,4 +251,33 @@ lemma condFDivReal_withDensity_rnDeriv (κ η : kernel α β) (μ : Measure α)
 
 end Conditional
 
+lemma fDivReal_compProd_right [MeasurableSpace.CountablyGenerated β]
+    (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (κ : kernel α β) [IsMarkovKernel κ] (hf : StronglyMeasurable f) :
+    fDivReal f (μ ⊗ₘ κ) (ν ⊗ₘ κ) = fDivReal f μ ν := by
+  have h_compProd := kernel.rnDeriv_measure_compProd_left μ ν κ
+  by_cases hf_int : Integrable (fun p ↦ f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ κ) p).toReal) (ν ⊗ₘ κ)
+  swap
+  · rw [fDivReal_of_not_integrable hf_int, fDivReal_of_not_integrable]
+    have hf_int' : ¬ Integrable (fun p ↦ f ((∂μ/∂ν) p.1).toReal) (ν ⊗ₘ κ) := by
+      refine fun h_not ↦ hf_int ((integrable_congr ?_).mpr h_not)
+      filter_upwards [h_compProd] with p hp
+      rw [hp]
+    rw [Measure.integrable_compProd_iff] at hf_int'
+    swap
+    · exact (hf.comp_measurable ((Measure.measurable_rnDeriv _ _).comp
+        measurable_fst).ennreal_toReal).aestronglyMeasurable
+    push_neg at hf_int'
+    simp only [integrable_const, Filter.eventually_true, norm_eq_abs, integral_const, measure_univ,
+      ENNReal.one_toReal, smul_eq_mul, one_mul, forall_true_left] at hf_int'
+    sorry
+  rw [fDivReal, Measure.integral_compProd hf_int]
+  refine integral_congr_ae ?_
+  filter_upwards [Measure.ae_ae_of_ae_compProd h_compProd] with a ha
+  have : ∫ b, f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ κ) (a, b)).toReal ∂κ a = ∫ b, f ((∂μ/∂ν) a).toReal ∂κ a := by
+    refine integral_congr_ae ?_
+    filter_upwards [ha] with b hb
+    rw [hb]
+  simp [this, integral_const]
+
 end ProbabilityTheory
