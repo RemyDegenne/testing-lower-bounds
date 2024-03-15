@@ -226,6 +226,31 @@ D_f(\mu' \otimes \kappa', \nu \otimes \eta)
 \end{theorem}
 
 \begin{proof}
+\uses{lem:rnDeriv_compProd, cor:rnDeriv_value, lem:fDiv_eq_ac, lem:fDiv_compProd_eq_ac}
+By Lemmas~\ref{lem:fDiv_eq_ac} and \ref{lem:fDiv_compProd_eq_ac}, it suffices to prove the result for $\mu \ll \nu$ and $\kappa(x) \ll \eta(x)$ for $\nu$-almost all $x$.
+
+Using Lemma~\ref{lem:rnDeriv_compProd} and \ref{cor:rnDeriv_value},
+\begin{align*}
+D(\mu \otimes \kappa, \nu \otimes \eta)
+&= \int_x \int_y f \left( \frac{\partial \mu}{\partial\nu}(x) \frac{\partial \kappa(x)}{\partial\eta(x)}(y) \right) \partial \eta(x) \partial \nu
+\: .
+\end{align*}
+Since $f$ is convex, by Jensen's inequality,
+\begin{align*}
+\int_y f \left( \frac{\partial \mu}{\partial\nu}(x) \frac{\partial \kappa(x)}{\partial\eta(x)}(y) \right) \partial \eta(x)
+&\ge f \left( \int_y \frac{\partial \mu}{\partial\nu}(x) \frac{\partial \kappa(x)}{\partial\eta(x)}(y) \partial \eta(x) \right)
+\\
+&= f \left( \frac{\partial \mu}{\partial\nu}(x) \int_y \frac{\partial \kappa(x)}{\partial\eta(x)}(y) \partial \eta(x) \right)
+\: .
+\end{align*}
+
+Since $\kappa(x) \ll \eta(x)$ for $\nu$-almost all $x$, $\int_y \frac{\partial \kappa(x)}{\partial\eta(x)}(y) \partial \eta(x) = \int_y 1 \partial \kappa(x) = 1$ a.e.. We have obtained
+\begin{align*}
+D_f(\mu \otimes \kappa, \nu \otimes \eta)
+\ge \int_x f \left( \frac{\partial \mu}{\partial\nu}(x)\right) \partial \nu
+= D_f(\mu, \nu)
+\: .
+\end{align*}
 \end{proof}
 
 \begin{theorem}[Marginals]
@@ -239,34 +264,8 @@ D_f(\mu' \otimes \kappa', \nu \otimes \eta)
 \end{theorem}
 
 \begin{proof}
-\uses{lem:rnDeriv_compProd, cor:rnDeriv_value, lem:fDiv_eq_ac, lem:fDiv_compProd_eq_ac}
-We first introduce conditional kernels and write $D(\mu, \nu) = D(\mu_X \otimes \mu_{Y|X}, \nu_X \otimes \nu_{Y|X})$. By Lemmas~\ref{lem:fDiv_eq_ac} and \ref{lem:fDiv_compProd_eq_ac}, it suffices to prove the result for $\mu_X \ll \nu_X$ and $\mu_{Y|X}(x) \ll \nu_{Y|X}(x)$ for all $x$.
-
-Using Lemma~\ref{lem:rnDeriv_compProd} and \ref{cor:rnDeriv_value},
-\begin{align*}
-D(\mu, \nu)
-&= D(\mu_X \otimes \mu_{Y|X}, \nu_X \otimes \nu_{Y|X})
-\\
-&= \int_x \int_y f \left( \frac{\partial \mu_X}{\partial\nu_X}(x) \frac{\partial \mu_{Y|X}(x)}{\partial\nu_{Y|X}(x)}(y) \right) \partial \nu_{Y|X}(x) \partial \nu_X
-\: .
-\end{align*}
-Since $f$ is convex, by Jensen's inequality,
-\begin{align*}
-\int_y f \left( \frac{\partial \mu_X}{\partial\nu_X}(x) \frac{\partial \mu_{Y|X}(x)}{\partial\nu_{Y|X}(x)}(y) \right) \partial \nu_{Y|X}(x)
-&\ge f \left( \int_y \frac{\partial \mu_X}{\partial\nu_X}(x) \frac{\partial \mu_{Y|X}(x)}{\partial\nu_{Y|X}(x)}(y) \partial \nu_{Y|X}(x) \right)
-\\
-&= f \left( \frac{\partial \mu_X}{\partial\nu_X}(x) \int_y \frac{\partial \mu_{Y|X}(x)}{\partial\nu_{Y|X}(x)}(y) \partial \nu_{Y|X}(x) \right)
-\: .
-\end{align*}
-
-Since $\mu_{Y|X}(x) \ll \nu_{Y|X}(x)$ for all $x$, $\int_y \frac{\partial \mu_{Y|X}(x)}{\partial\nu_{Y|X}(x)}(y) \partial \nu_{Y|X}(x) = \int_y 1 \partial \mu_{Y|X}(x) = 1$. We have obtained
-\begin{align*}
-D_f(\mu, \nu)
-\ge \int_x f \left( \frac{\partial \mu_X}{\partial\nu_X}(x)\right) \partial \nu_X
-= D_f(\mu_X, \nu_X)
-\: .
-\end{align*}
-
+\uses{thm:fDiv_le_compProd}
+We introduce conditional kernels and write $D(\mu, \nu) = D(\mu_X \otimes \mu_{Y|X}, \nu_X \otimes \nu_{Y|X})$. Then apply Theorem~\ref{thm:fDiv_le_compProd}.
 \end{proof}
 
 \begin{lemma}[Composition-product with a kernel]
