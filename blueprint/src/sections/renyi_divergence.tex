@@ -9,30 +9,15 @@
   \begin{align*}
   R_\alpha(\mu, \nu) = \left\{
  \begin{array}{ll}
-  - \log(\nu\{x \mid \frac{d \mu}{d \nu}(x) > 0\}) & \text{ for } \alpha = 0
+  - \log(\nu\{x \mid \frac{d \mu}{d \nu}(x) > 0\}) & \text{for } \alpha = 0
   \\
-  \KL(\mu, \nu) & \text{ for } \alpha = 1
+  \KL(\mu, \nu) & \text{for } \alpha = 1
   \\
-  \frac{1}{\alpha - 1}\log \nu\left[\left(\frac{d \mu}{d \nu}\right)^\alpha\right] & \text {for } \alpha \in (0,1) \text{ , or } \alpha > 1 \text{ and }\mu \ll \nu
-  \\
-  +\infty & \text {otherwise}
+  \frac{1}{\alpha - 1} \log (1 + (\alpha - 1) D_f(\nu, \mu)) & \text{for } \alpha \in (0,+\infty) \backslash \{1\}
   \end{array}\right.
   \end{align*}
+  with $f : x \mapsto \frac{1}{\alpha - 1}(x^{\alpha} - 1)$.
 \end{definition}
-
-\begin{lemma}
-  \label{lem:renyi_eq_log_fDiv}
-  %\lean{}
-  %\leanok
-  \uses{def:fDiv, def:Renyi}
-  For $\nu$ a probability measure and either $\alpha \in (0,1)$ or $\mu \ll \nu$, $R_\alpha(\mu, \nu) = \frac{1}{\alpha - 1} \log (1 + (\alpha - 1) D_f(\nu, \mu))$ for $f : x \mapsto \frac{1}{\alpha - 1}(x^{\alpha} - 1)$, which is convex with $f(1)=0$. It is thus a monotone transformation of a f-divergence.
-
-  TODO: use this for the definition?
-\end{lemma}
-
-\begin{proof}
-Unfold the definitions.
-\end{proof}
 
 \begin{lemma}
   \label{lem:renyi_symm}
@@ -96,8 +81,7 @@ Since Rényi divergences are monotone transfomations of f-divergences, every ine
 \end{theorem}
 
 \begin{proof}
-\uses{thm:fDiv_data_proc, lem:renyi_eq_log_fDiv}
-By Lemma~\ref{lem:renyi_eq_log_fDiv}, $R_\alpha(\mu, \nu) = \frac{1}{\alpha - 1} \log (1 + (\alpha - 1) D_f(\nu, \mu))$ for $f : x \mapsto \frac{1}{\alpha - 1}(x^{\alpha} - 1)$.
+\uses{thm:fDiv_data_proc}
 The function $x \mapsto \frac{1}{\alpha - 1}\log (1 + (\alpha - 1)x)$ is non-decreasing and $D_f$ satisfies the DPI (Theorem~\ref{thm:fDiv_data_proc}), hence we get the DPI for $R_\alpha$.
 \end{proof}
 
@@ -111,8 +95,7 @@ The function $x \mapsto \frac{1}{\alpha - 1}\log (1 + (\alpha - 1)x)$ is non-dec
 \end{lemma}
 
 \begin{proof}
-\uses{cor:data_proc_event, lem:renyi_eq_log_fDiv}
-By Lemma~\ref{lem:renyi_eq_log_fDiv}, $R_\alpha(\mu, \nu) = \frac{1}{\alpha - 1} \log (1 + (\alpha - 1) D_f(\nu, \mu))$ for $f : x \mapsto \frac{1}{\alpha - 1}(x^{\alpha} - 1)$.
+\uses{cor:data_proc_event}
 By Corollary~\ref{cor:data_proc_event}, $D_f(\mu, \nu) \ge D_f(\mu_E, \nu_E)$, hence $R_\alpha(\mu, \nu) \ge R_\alpha(\mu_E, \nu_E)$.
 \end{proof}
 
