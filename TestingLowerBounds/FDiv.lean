@@ -47,7 +47,7 @@ Foobars, barfoos
 
 open Real MeasureTheory Filter
 
-open scoped ENNReal NNReal
+open scoped ENNReal NNReal Topology
 
 namespace ProbabilityTheory
 
@@ -75,6 +75,12 @@ lemma bot_lt_derivAtTop : ⊥ < derivAtTop f := by
   split_ifs with h <;> simp
 
 lemma derivAtTop_ne_bot : derivAtTop f ≠ ⊥ := bot_lt_derivAtTop.ne'
+
+lemma derivAtTop_of_tendsto {y : ℝ} (h : Tendsto (fun x ↦ f x / x) atTop (𝓝 y)) :
+    derivAtTop f = y := by
+  rw [derivAtTop, if_neg]
+  · rw [h.limsup_eq]
+  · sorry
 
 @[simp]
 lemma derivAtTop_const (c : ℝ) : derivAtTop (fun _ ↦ c) = 0 := by
@@ -107,8 +113,9 @@ lemma le_add_derivAtTop (h_cvx : ConvexOn ℝ (Set.Ici 0) f)
 
 lemma le_add_derivAtTop' (h_cvx : ConvexOn ℝ (Set.Ici 0) f)
     (h : ¬ Tendsto (fun x ↦ f x / x) atTop atTop) {x u : ℝ} (hx : 0 ≤ x) (hu : 0 ≤ u) :
-    f x ≤ f (u * x) + (derivAtTop f).toReal * x * (1 - u) := by
-  sorry
+    f x ≤ f (x * u) + (derivAtTop f).toReal * x * (1 - u) := by
+  refine (le_add_derivAtTop h_cvx h hx (mul_nonneg hx hu)).trans_eq ?_
+  rw [mul_assoc, mul_sub, mul_sub, mul_one, mul_sub]
 
 open Classical in
 /-- f-Divergence of two measures. -/
@@ -124,16 +131,14 @@ lemma fDiv_of_integrable (hf : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal)
     fDiv f μ ν = ∫ x, f ((∂μ/∂ν) x).toReal ∂ν + derivAtTop f * μ.singularPart ν Set.univ :=
   if_neg (not_not.mpr hf)
 
-lemma fDiv_of_eq_top (h : derivAtTop f * μ.singularPart ν Set.univ = ⊤) :
+lemma fDiv_of_mul_eq_top (h : derivAtTop f * μ.singularPart ν Set.univ = ⊤) :
     fDiv f μ ν = ⊤ := by
   by_cases hf : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν
   · rw [fDiv, if_neg (not_not.mpr hf), h, EReal.coe_add_top]
   · exact fDiv_of_not_integrable hf
 
 @[simp]
-lemma fDiv_zero (μ ν : Measure α) : fDiv (fun _ ↦ 0) μ ν = 0 := by
-  rw [fDiv]
-  simp
+lemma fDiv_zero (μ ν : Measure α) : fDiv (fun _ ↦ 0) μ ν = 0 := by simp [fDiv]
 
 @[simp]
 lemma fDiv_const (c : ℝ) (μ ν : Measure α) [IsFiniteMeasure ν] :
@@ -144,7 +149,6 @@ lemma fDiv_const (c : ℝ) (μ ν : Measure α) [IsFiniteMeasure ν] :
   rw [EReal.coe_ennreal_toReal]
   exact measure_ne_top _ _
 
-@[simp]
 lemma fDiv_const' {c : ℝ} (hc : 0 ≤ c) (μ ν : Measure α) :
     fDiv (fun _ ↦ c) μ ν = ν Set.univ * c := by
   by_cases hν : IsFiniteMeasure ν
@@ -180,7 +184,7 @@ lemma fDiv_of_mutuallySingular [SigmaFinite μ] [IsFiniteMeasure ν] (h : μ ⟂
   rw [EReal.coe_ennreal_toReal]
   exact measure_ne_top _ _
 
-lemma fDiv_of_absolutelyContinuous [SigmaFinite μ] [SigmaFinite ν]
+lemma fDiv_of_absolutelyContinuous
     [Decidable (Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)] (h : μ ≪ ν) :
     fDiv f μ ν = if Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν
       then (↑(∫ x, f ((∂μ/∂ν) x).toReal ∂ν) : EReal) else ⊤ := by
@@ -208,14 +212,17 @@ lemma fDiv_add_const
     rw [EReal.coe_ennreal_toReal]
     exact measure_ne_top _ _
   · rw [fDiv_of_not_integrable hf_int, fDiv_of_not_integrable]
-    · sorry
+    · have h1 : (c : EReal) * ν Set.univ ≠ ⊥ := by
+        sorry
+      have h2 : (c : EReal) * ν Set.univ ≠ ⊤ := by
+        sorry
+      sorry
     · have : (fun x ↦ f ((∂μ/∂ν) x).toReal) = (fun x ↦ (f ((∂μ/∂ν) x).toReal + c) - c) := by
         ext; simp
       rw [this] at hf_int
       exact fun h_int ↦ hf_int (h_int.sub (integrable_const _))
 
-lemma fDiv_sub_const
-    (μ ν : Measure α) [SigmaFinite μ] [IsFiniteMeasure ν] (c : ℝ) :
+lemma fDiv_sub_const (μ ν : Measure α) [SigmaFinite μ] [IsFiniteMeasure ν] (c : ℝ) :
     fDiv (fun x ↦ f x - c) μ ν = fDiv f μ ν - c * ν Set.univ := by
   have : f = fun x ↦ (f x - c) + c := by ext; simp
   conv_rhs => rw [this, fDiv_add_const]
