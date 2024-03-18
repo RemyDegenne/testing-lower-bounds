@@ -2,35 +2,38 @@
 
 \section{Definition and basic properties}
 
+Everywhere in this document, the functions used in divergences are assumed measurable and convex on $[0, +\infty)$.
+For such a function $f : \mathbb{R} \to \mathbb{R}$, we write $f'(\infty) = \lim_{x \to +\infty} f(x)/x$ (which can be infinite).
+
+For $\mu, \nu$ two measures, we denote by $\mu_{\perp \nu}$ the singular part of $\mu$ with respect to $\nu$.
+
 \begin{definition}[f-divergence]
   \label{def:fDiv}
-  \lean{ProbabilityTheory.fDivReal}
+  \lean{ProbabilityTheory.fDiv}
   \leanok
   %\uses{}
   Let $f : \mathbb{R} \to \mathbb{R}$ and let $\mu, \nu$ be two measures on a measurable space $\mathcal X$. The f-divergence between $\mu$ and $\nu$ is
   \begin{align*}
-  D_f(\mu, \nu) = \nu\left[x \mapsto f\left(\frac{d \mu}{d \nu}(x)\right)\right]
+  D_f(\mu, \nu) = \nu\left[x \mapsto f\left(\frac{d \mu}{d \nu}(x)\right)\right] + f'(\infty) \mu_{\perp \nu}(\mathcal X)
   \end{align*}
   if $x \mapsto f\left(\frac{d \mu}{d \nu}(x)\right)$ is $\nu$-integrable and $+\infty$ otherwise.
 \end{definition}
 
-TODO: whenever necessary, we assume that $f$ is measurable.
-
 \begin{lemma}
-  \label{lem:fDiv_add}
-  \lean{ProbabilityTheory.fDivReal_add}
+  \label{lem:fDiv_const}
+  \lean{ProbabilityTheory.fDiv_const}
   \leanok
   \uses{def:fDiv}
-  $D_{f + g}(\mu, \nu) = D_f(\mu, \nu) + D_g(\mu, \nu)$.
+  For $\nu$ a finite measure, for all $a \in \mathbb{R}$, $D_{x \mapsto a}(\mu, \nu) = a \nu(\mathcal X)$.
 \end{lemma}
 
-\begin{proof}
-Linearity of the integral.
+\begin{proof} \leanok
+Compute the integral.
 \end{proof}
 
 \begin{lemma}
   \label{lem:fDiv_self}
-  \lean{ProbabilityTheory.fDivReal_self}
+  \lean{ProbabilityTheory.fDiv_self}
   \leanok
   \uses{def:fDiv}
   If $f(1) = 0$ then $D_{f}(\mu, \mu) = 0$.
@@ -41,92 +44,64 @@ $\frac{d \mu}{d \mu}(x) = 1$ almost everywhere and $f(1) = 0$.
 \end{proof}
 
 \begin{lemma}
+  \label{lem:fDiv_id}
+  \lean{ProbabilityTheory.fDiv_id}
+  \leanok
+  \uses{def:fDiv}
+  $D_{x \mapsto x}(\mu, \nu) = \mu(\mathcal X)$.
+\end{lemma}
+
+\begin{proof} \leanok
+Compute the integral: its value is $(\frac{d\mu}{d\nu}\cdot \nu)(\mathcal X)$. Then
+$D_{x\mapsto x}(\mu, \nu) = (\frac{d\mu}{d\nu}\cdot \nu)(\mathcal X) + \mu_{\perp \nu}(\mathcal X) = \mu (\mathcal X)$.
+\end{proof}
+
+\begin{lemma}
   \label{lem:fDiv_mul}
-  \lean{ProbabilityTheory.fDivReal_mul}
+  \lean{ProbabilityTheory.fDiv_mul}
   \leanok
   \uses{def:fDiv}
   For all $a \in \mathbb{R}$, $D_{a f}(\mu, \nu) = a D_{f}(\mu, \nu)$.
 \end{lemma}
 
-\begin{proof} \leanok
+\begin{proof}
 Linearity of the integral.
 \end{proof}
 
 \begin{lemma}
-  \label{lem:fDiv_const}
-  \lean{ProbabilityTheory.fDivReal_const}
+  \label{lem:fDiv_add}
+  \lean{ProbabilityTheory.fDiv_add}
   \leanok
   \uses{def:fDiv}
-  For all $a \in \mathbb{R}$, $D_{x \mapsto a}(\mu, \nu) = a \nu(\mathcal X)$.
+  $D_{f + g}(\mu, \nu) = D_f(\mu, \nu) + D_g(\mu, \nu)$.
 \end{lemma}
 
-\begin{proof} \leanok
-Compute the integral.
-\end{proof}
-
-\begin{lemma}
-  \label{lem:fDiv_eq_ac}
-  \lean{ProbabilityTheory.fDivReal_withDensity_rnDeriv}
-  \leanok
-  \uses{def:fDiv}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ with $\nu$ $\sigma$-finite. Let $\mu' = \left(\frac{\partial \mu}{\partial \nu}\right) \cdot \nu$.
-  Then $D_f(\mu, \nu) = D_f(\mu', \nu)$.
-\end{lemma}
-
-\begin{proof} \leanok
-For $\nu$-almost all $x$, $\frac{\partial \mu'}{\partial \nu}(x) = \frac{\partial \mu}{\partial \nu}(x)$, hence
-\begin{align*}
-D_f(\mu', \nu)
-= \int_x f\left(\frac{\partial \mu'}{\partial \nu}(x)\right)\partial \nu
-= \int_x f\left(\frac{\partial \mu}{\partial \nu}(x)\right)\partial \nu
-= D_f(\mu, \nu)
-\: .
-\end{align*}
-\end{proof}
-
-\begin{lemma}
-  \label{lem:fDiv_id}
-  \lean{ProbabilityTheory.fDivReal_id}
-  \leanok
-  \uses{def:fDiv}
-  For $\mu \ll \nu$, $D_{x \mapsto x}(\mu, \nu) = \mu(\mathcal X)$.
-\end{lemma}
-
-\begin{proof} \leanok
-Compute the integral. If we don't have $\mu \ll \nu$, we only get $D_{x \mapsto x}(\mu, \nu) \le \mu(\mathcal X)$.
+\begin{proof}
+Linearity of the integral.
 \end{proof}
 
 \begin{lemma}
   \label{lem:fDiv_add_linear}
-  \lean{ProbabilityTheory.fDivReal_add_linear}
+  \lean{ProbabilityTheory.fDiv_add_linear}
   \leanok
   \uses{def:fDiv}
-  For finite measures $\mu$ and $\nu$ with $\mu \ll \nu$ and $\mu(\mathcal X) = \nu(\mathcal X)$, for all $a \in \mathbb{R}$, $D_{f + a(x - 1)}(\mu, \nu) = D_{f}(\mu, \nu)$.
+  For finite measures $\mu$ and $\nu$ with $\mu(\mathcal X) = \nu(\mathcal X)$, for all $a \in \mathbb{R}$, $D_{f + a(x - 1)}(\mu, \nu) = D_{f}(\mu, \nu)$.
 \end{lemma}
 
 This means that we can always choose $f \ge 0$ and $f'(1) = 0$ if we want (and $f$ is differentiable at $1$).
 
-\begin{proof} \leanok
+\begin{proof}
 \uses{lem:fDiv_add, lem:fDiv_mul, lem:fDiv_const, lem:fDiv_id}
 Linearity (Lemmas~\ref{lem:fDiv_add} and~\ref{lem:fDiv_mul}), then Lemma~\ref{lem:fDiv_const} and~\ref{lem:fDiv_id}.
 \end{proof}
 
 \section{Conditional f-divergence}
 
-\begin{lemma}
-  \label{lem:measurable_fDiv}
-  %\lean{}
-  %\leanok
-  \uses{def:fDiv}
-  Let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels from $\mathcal X$ to $\mathcal Y$. Then $x \mapsto D_f(\kappa(x), \eta(x))$ is measurable.
-\end{lemma}
-
-\begin{proof}
-\end{proof}
+TODO: change this section to reflect the code.
 
 \begin{definition}[Conditional f-divergence]
   \label{def:condFDiv}
-  \lean{ProbabilityTheory.condFDivReal}
+  \lean{ProbabilityTheory.condfDiv}
   \leanok
   \uses{def:fDiv}
   Let $f : \mathbb{R} \to \mathbb{R}$, $\mu$ a measure on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ two Markov kernels from $\mathcal X$ to $\mathcal Y$. The conditional f-divergence between $\kappa$ and $\eta$ with respect to $\mu$ is
@@ -162,7 +137,7 @@ TODO
 
 \begin{lemma}
   \label{lem:fDiv_compProd_left}
-  \lean{ProbabilityTheory.fDivReal_compProd_left}
+  \lean{ProbabilityTheory.fDiv_compProd_left}
   \leanok
   \uses{def:fDiv, def:condFDiv}
   Let $\mu$ be a finite measure on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels.
@@ -192,30 +167,6 @@ D_f(\mu \otimes \kappa, \mu \otimes \eta)
 
 \section{Data-processing inequality}
 
-\begin{lemma}
-  \label{lem:fDiv_compProd_eq_ac}
-  \lean{ProbabilityTheory.fDivReal_compProd_withDensity_rnDeriv}
-  \leanok
-  \uses{def:fDiv}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels. Let $\mu' = \left(\frac{\partial \mu}{\partial \nu}\right) \cdot \nu$ and $\kappa' = \left(\frac{\partial \kappa}{\partial \eta}\right) \cdot \eta$.
-  Then $D_f(\mu \otimes \kappa, \nu \otimes \eta) = D_f(\mu' \otimes \kappa', \nu \otimes \eta)$.
-\end{lemma}
-
-\begin{proof} \leanok
-\uses{lem:rnDeriv_eq_ac}
-By Lemma~\ref{lem:rnDeriv_eq_ac}, for $(\nu \otimes \eta)$-almost all $z$, $\frac{\partial(\mu' \otimes \kappa')}{\partial(\nu \otimes \eta)}(z) = \frac{\partial(\mu \otimes \kappa)}{\partial(\nu \otimes \eta)}(z)$, hence
-\begin{align*}
-D_f(\mu' \otimes \kappa', \nu \otimes \eta)
-&= \int_z f\left(\frac{\partial(\mu' \otimes \kappa')}{\partial(\nu \otimes \eta)}\right) \partial(\nu \otimes \eta)
-\\
-&= \int_z f\left(\frac{\partial(\mu \otimes \kappa)}{\partial(\nu \otimes \eta)}\right) \partial(\nu \otimes \eta)
-\\
-&= D_f(\mu \otimes \kappa, \nu \otimes \eta)
-\: .
-\end{align*}
-
-\end{proof}
-
 \begin{theorem}
   \label{thm:fDiv_le_compProd}
   %\lean{}
@@ -226,8 +177,8 @@ D_f(\mu' \otimes \kappa', \nu \otimes \eta)
 \end{theorem}
 
 \begin{proof}
-\uses{lem:rnDeriv_compProd, cor:rnDeriv_value, lem:fDiv_eq_ac, lem:fDiv_compProd_eq_ac}
-By Lemmas~\ref{lem:fDiv_eq_ac} and \ref{lem:fDiv_compProd_eq_ac}, it suffices to prove the result for $\mu \ll \nu$ and $\kappa(x) \ll \eta(x)$ for $\nu$-almost all $x$.
+\uses{lem:rnDeriv_compProd, cor:rnDeriv_value}
+TODO: the following proof assumes $\mu \ll \nu$ and $\kappa(x) \ll \eta(x)$ for $\nu$-almost all $x$. Describe the general case.
 
 Using Lemma~\ref{lem:rnDeriv_compProd} and \ref{cor:rnDeriv_value},
 \begin{align*}
@@ -270,7 +221,7 @@ We introduce conditional kernels and write $D(\mu, \nu) = D(\mu_X \otimes \mu_{Y
 
 \begin{lemma}[Composition-product with a kernel]
   \label{thm:fDiv_compProd_right}
-  \lean{ProbabilityTheory.fDivReal_compProd_right}
+  \lean{ProbabilityTheory.fDiv_compProd_right}
   \leanok
   \uses{def:fDiv}
   Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
@@ -352,15 +303,14 @@ Use the deterministic kernel $\kappa : \mathcal X \rightsquigarrow \{0, 1\}$ wit
 
 \begin{lemma}
   \label{lem:fDiv_nonneg}
-  \lean{ProbabilityTheory.fDivReal_nonneg}
-  \leanok
+  %\lean{}
+  %\leanok
   \uses{def:fDiv}
   Let $\mu, \nu$ be two probability measures on $\mathcal X$. If $f(1) = 0$, $D_f(\mu, \nu) \ge 0$.
 \end{lemma}
 
-\begin{proof} \leanok
+\begin{proof}
 \uses{thm:fDiv_data_proc, lem:fDiv_self}
-TODO: the lean proof is different.
 
 Take $\kappa : \mathcal X \rightsquigarrow (*)$ the constant kernel to a type with only 1 element, with $\kappa(x) = \delta_*$ (the dirac measure at the element $*$).
 Then by Theorem~\ref{thm:fDiv_data_proc} and Lemma~\ref{lem:fDiv_self}, $D_f(\mu, \nu) \ge D_f(\kappa \circ \mu, \kappa \circ \nu) = D_f(\delta_*, \delta_*) = 0$.
