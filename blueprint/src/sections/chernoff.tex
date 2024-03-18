@@ -4,12 +4,25 @@
   \label{def:Chernoff}
   %\lean{}
   %\leanok
-  \uses{def:Renyi}
-    The Chernoff divergence between two measures $\mu$ and $\nu$ is
+  \uses{def:KL}
+    The Chernoff divergence between two measures $\mu$ and $\nu$ on $\mathcal X$ is
   \begin{align*}
-    C(\mu, \nu) = \max_{\alpha\in [0,1]} (1 - \alpha)R_\alpha(\mu, \nu) \: .
+    C(\mu, \nu) = \inf_{\xi \in \mathcal P(\mathcal X)}\max\{\KL(\xi, \mu), \KL(\xi, \nu)\} \: .
   \end{align*}
 \end{definition}
+
+\begin{lemma}
+  \label{lem:chernoff_eq_max_renyi}
+  %\lean{}
+  %\leanok
+  \uses{def:Chernoff, def:Renyi}
+  \begin{align*}
+  C(\mu, \nu) = \max_{\alpha\in [0,1]} (1 - \alpha)R_\alpha(\mu, \nu) \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}
+\end{proof}
 
 \begin{lemma}
   \label{lem:chernoff_symm}
@@ -20,6 +33,6 @@
 \end{lemma}
 
 \begin{proof}
-\uses{lem:renyi_symm}
-Apply Lemma~\ref{lem:renyi_symm}.
+\uses{lem:chernoff_eq_max_renyi, lem:renyi_symm}
+Apply Lemma~\ref{lem:chernoff_eq_max_renyi}, then Lemma~\ref{lem:renyi_symm}.
 \end{proof}
