@@ -42,6 +42,7 @@ namespace ProbabilityTheory
 variable {α : Type*} {mα : MeasurableSpace α} {μ ν : Measure α}
 
 /-- Squared Hellinger distance between two measures. -/
-noncomputable def sqHellinger (μ ν : Measure α) : ℝ := fDivReal (fun x ↦ 2⁻¹ * (1 - sqrt x)^2) μ ν
+noncomputable def sqHellinger (μ ν : Measure α) : ℝ :=
+  (fDivReal (fun x ↦ 2⁻¹ * (1 - sqrt x)^2) μ ν).toReal
 
 end ProbabilityTheory

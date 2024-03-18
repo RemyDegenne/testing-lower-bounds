@@ -51,17 +51,6 @@ lemma integrable_rnDeriv_smul {E : Type*} [NormedAddCommGroup E] [NormedSpace �
     Integrable (fun x ↦ (μ.rnDeriv ν x).toReal • f x) ν :=
   (integrable_rnDeriv_smul_iff hμν).mpr hf
 
-lemma todo_div [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν) :
-    μ.rnDeriv ν =ᵐ[ν] fun x ↦ μ.rnDeriv (μ + ν) x / ν.rnDeriv (μ + ν) x := by
-  have hν_ac : ν ≪ μ + ν := by
-    rw [add_comm]; exact rfl.absolutelyContinuous.add_right _
-  have h_pos := Measure.rnDeriv_pos hν_ac
-  have h := Measure.rnDeriv_mul_rnDeriv hμν (κ := μ + ν)
-  filter_upwards [hν_ac.ae_le h, h_pos, hν_ac.ae_le (Measure.rnDeriv_ne_top ν (μ + ν))]
-    with x hx hx_pos hx_ne_top
-  rw [Pi.mul_apply] at hx
-  rwa [ENNReal.eq_div_iff hx_pos.ne' hx_ne_top, mul_comm]
-
 end move_this
 
 open Classical in
@@ -98,7 +87,7 @@ lemma integrable_rnDeriv_mul_log [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
 lemma klReal_eq_fDivReal_mul_log [SigmaFinite μ] [Measure.HaveLebesgueDecomposition μ ν]
     (hμν : μ ≪ ν) :
     klReal μ ν = fDivReal (fun x ↦ x * log x) μ ν := by
-  simp_rw [klReal_of_ac hμν, llr, fDivReal]
+  /-simp_rw [klReal_of_ac hμν, llr, fDivReal]
   conv_lhs =>
     rw [← Measure.withDensity_rnDeriv_eq _ _ hμν]
     conv in (Measure.rnDeriv (ν.withDensity (μ.rnDeriv ν)) ν) =>
@@ -112,7 +101,8 @@ lemma klReal_eq_fDivReal_mul_log [SigmaFinite μ] [Measure.HaveLebesgueDecomposi
   conv_lhs => rw [h_ν_eq]
   rw [integral_withDensity_eq_integral_smul]
   swap; · exact (Measure.measurable_rnDeriv _ _).ennreal_toNNReal
-  congr
+  congr -/
+  sorry
 
 end llr_and_lrf
 
@@ -121,8 +111,9 @@ section klReal_nonneg
 lemma klReal_ge_mul_log' [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
     (hμν : μ ≪ ν) (h_int : Integrable (llr μ ν) μ) :
     (μ Set.univ).toReal * log (μ Set.univ).toReal ≤ klReal μ ν :=
-  (le_fDivReal Real.convexOn_mul_log Real.continuous_mul_log.continuousOn
-    (integrable_rnDeriv_mul_log hμν h_int) hμν).trans_eq (klReal_eq_fDivReal_mul_log hμν).symm
+  sorry
+  /-(le_fDivReal Real.convexOn_mul_log Real.continuous_mul_log.continuousOn
+    (integrable_rnDeriv_mul_log hμν h_int) hμν).trans_eq (klReal_eq_fDivReal_mul_log hμν).symm-/
 
 lemma klReal_ge_mul_log [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (hμν : μ ≪ ν) (h_int : Integrable (llr μ ν) μ) :
@@ -165,13 +156,14 @@ lemma klReal_ge_mul_log [IsFiniteMeasure μ] [IsFiniteMeasure ν]
 
 lemma klReal_nonneg (μ ν : Measure α) [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
     0 ≤ klReal μ ν := by
-  by_cases hμν : μ ≪ ν
+  sorry
+  /- by_cases hμν : μ ≪ ν
   swap; · simp [hμν]
   by_cases h_int : Integrable (llr μ ν) μ
   · rw [klReal_eq_fDivReal_mul_log hμν]
     exact fDivReal_nonneg Real.convexOn_mul_log Real.continuous_mul_log.continuousOn
       (by simp) (integrable_rnDeriv_mul_log hμν h_int) hμν
-  · rw [klReal_of_ac hμν, integral_undef h_int]
+  · rw [klReal_of_ac hμν, integral_undef h_int] -/
 
 end klReal_nonneg
 

@@ -46,7 +46,8 @@ noncomputable def renyiReal (a : ℝ) (μ ν : Measure α) : ℝ :=
   if a = 0 then - log (ν {x | 0 < (∂μ/∂ν) x}).toReal
   else if a = 1 then klReal μ ν
   else if a < 1 ∨ μ ≪ ν
-    then (a - 1)⁻¹ * log (1 + (a - 1) * fDivReal (fun x ↦ (a - 1)⁻¹ * (x ^ a - 1)) μ ν)
+    -- todo: review this def
+    then (a - 1)⁻¹ * log (1 + (a - 1) * (fDivReal (fun x ↦ (a - 1)⁻¹ * (x ^ a - 1)) μ ν).toReal)
     else 0
 
 lemma renyiReal_zero (μ ν : Measure α) :
@@ -57,12 +58,12 @@ lemma renyiReal_one (μ ν : Measure α) : renyiReal 1 μ ν = klReal μ ν := b
 
 lemma renyiReal_of_pos_of_lt_one (μ ν : Measure α) (ha_pos : 0 < a) (ha_lt_one : a < 1) :
     renyiReal a μ ν
-      = (a - 1)⁻¹ * log (1 + (a - 1) * fDivReal (fun x ↦ (a - 1)⁻¹ * (x ^ a - 1)) μ ν) := by
+      = (a - 1)⁻¹ * log (1 + (a - 1) * (fDivReal (fun x ↦ (a - 1)⁻¹ * (x ^ a - 1)) μ ν).toReal) := by
   rw [renyiReal, if_neg ha_pos.ne', if_neg ha_lt_one.ne, if_pos (Or.inl ha_lt_one)]
 
 lemma renyiReal_of_one_lt (ha_one_lt : 1 < a) (hμν : μ ≪ ν) :
     renyiReal a μ ν
-      = (a - 1)⁻¹ * log (1 + (a - 1) * fDivReal (fun x ↦ (a - 1)⁻¹ * (x ^ a - 1)) μ ν) := by
+      = (a - 1)⁻¹ * log (1 + (a - 1) * (fDivReal (fun x ↦ (a - 1)⁻¹ * (x ^ a - 1)) μ ν).toReal) := by
   rw [renyiReal, if_neg (zero_lt_one.trans ha_one_lt).ne', if_neg ha_one_lt.ne',
     if_pos (Or.inr hμν)]
 
