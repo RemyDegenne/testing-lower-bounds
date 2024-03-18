@@ -42,6 +42,6 @@ namespace ProbabilityTheory
 variable {α : Type*} {mα : MeasurableSpace α} {μ ν : Measure α}
 
 /-- Total variation distance between two measures. -/
-noncomputable def tv (μ ν : Measure α) : ℝ := (fDivReal (fun x ↦ 2⁻¹ * |1 - x|) μ ν).toReal
+noncomputable def tv (μ ν : Measure α) : ℝ := (fDiv (fun x ↦ 2⁻¹ * |1 - x|) μ ν).toReal
 
 end ProbabilityTheory

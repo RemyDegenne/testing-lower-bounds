@@ -84,10 +84,10 @@ lemma integrable_rnDeriv_mul_log [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
     Integrable (fun x ↦ (μ.rnDeriv ν x).toReal * log (μ.rnDeriv ν x).toReal) ν :=
   integrable_rnDeriv_smul hμν h_int
 
-lemma klReal_eq_fDivReal_mul_log [SigmaFinite μ] [Measure.HaveLebesgueDecomposition μ ν]
+lemma klReal_eq_fDiv_mul_log [SigmaFinite μ] [Measure.HaveLebesgueDecomposition μ ν]
     (hμν : μ ≪ ν) :
-    klReal μ ν = fDivReal (fun x ↦ x * log x) μ ν := by
-  /-simp_rw [klReal_of_ac hμν, llr, fDivReal]
+    klReal μ ν = fDiv (fun x ↦ x * log x) μ ν := by
+  /-simp_rw [klReal_of_ac hμν, llr, fDiv]
   conv_lhs =>
     rw [← Measure.withDensity_rnDeriv_eq _ _ hμν]
     conv in (Measure.rnDeriv (ν.withDensity (μ.rnDeriv ν)) ν) =>
@@ -112,8 +112,8 @@ lemma klReal_ge_mul_log' [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
     (hμν : μ ≪ ν) (h_int : Integrable (llr μ ν) μ) :
     (μ Set.univ).toReal * log (μ Set.univ).toReal ≤ klReal μ ν :=
   sorry
-  /-(le_fDivReal Real.convexOn_mul_log Real.continuous_mul_log.continuousOn
-    (integrable_rnDeriv_mul_log hμν h_int) hμν).trans_eq (klReal_eq_fDivReal_mul_log hμν).symm-/
+  /-(le_fDiv Real.convexOn_mul_log Real.continuous_mul_log.continuousOn
+    (integrable_rnDeriv_mul_log hμν h_int) hμν).trans_eq (klReal_eq_fDiv_mul_log hμν).symm-/
 
 lemma klReal_ge_mul_log [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (hμν : μ ≪ ν) (h_int : Integrable (llr μ ν) μ) :
@@ -160,8 +160,8 @@ lemma klReal_nonneg (μ ν : Measure α) [IsProbabilityMeasure μ] [IsProbabilit
   /- by_cases hμν : μ ≪ ν
   swap; · simp [hμν]
   by_cases h_int : Integrable (llr μ ν) μ
-  · rw [klReal_eq_fDivReal_mul_log hμν]
-    exact fDivReal_nonneg Real.convexOn_mul_log Real.continuous_mul_log.continuousOn
+  · rw [klReal_eq_fDiv_mul_log hμν]
+    exact fDiv_nonneg Real.convexOn_mul_log Real.continuous_mul_log.continuousOn
       (by simp) (integrable_rnDeriv_mul_log hμν h_int) hμν
   · rw [klReal_of_ac hμν, integral_undef h_int] -/
 
