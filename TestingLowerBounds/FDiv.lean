@@ -76,6 +76,9 @@ lemma bot_lt_derivAtTop : ⊥ < derivAtTop f := by
 
 lemma derivAtTop_ne_bot : derivAtTop f ≠ ⊥ := bot_lt_derivAtTop.ne'
 
+lemma derivAtTop_eq_top_iff : derivAtTop f = ⊤ ↔ Tendsto (fun x ↦ f x / x) atTop atTop := by
+  sorry
+
 lemma derivAtTop_of_tendsto {y : ℝ} (h : Tendsto (fun x ↦ f x / x) atTop (𝓝 y)) :
     derivAtTop f = y := by
   rw [derivAtTop, if_neg]
@@ -109,12 +112,12 @@ lemma derivAtTop_const_mul (c : ℝ) :
   sorry
 
 lemma le_add_derivAtTop (h_cvx : ConvexOn ℝ (Set.Ici 0) f)
-    (h : ¬ Tendsto (fun x ↦ f x / x) atTop atTop) {x y : ℝ} (hx : 0 ≤ x) (hy : 0 ≤ y) :
+    (h : derivAtTop f ≠ ⊤) {x y : ℝ} (hx : 0 ≤ x) (hy : 0 ≤ y) :
     f x ≤ f y + (derivAtTop f).toReal * (x - y) := by
   sorry
 
 lemma le_add_derivAtTop' (h_cvx : ConvexOn ℝ (Set.Ici 0) f)
-    (h : ¬ Tendsto (fun x ↦ f x / x) atTop atTop) {x u : ℝ} (hx : 0 ≤ x) (hu : 0 ≤ u) :
+    (h : derivAtTop f ≠ ⊤) {x u : ℝ} (hx : 0 ≤ x) (hu : 0 ≤ u) :
     f x ≤ f (x * u) + (derivAtTop f).toReal * x * (1 - u) := by
   refine (le_add_derivAtTop h_cvx h hx (mul_nonneg hx hu)).trans_eq ?_
   rw [mul_assoc, mul_sub, mul_sub, mul_one, mul_sub]
