@@ -117,18 +117,18 @@ Write $\mu = \mu_X \otimes \mu_{Y|X}$ and $\nu = \nu_X \otimes \nu_{Y|X}$, then 
 \end{proof}
 
 \begin{lemma}
-  \label{thm:kl_chain_rule_cond_event}
+  \label{lem:kl_chain_rule_cond_event}
   %\lean{}
   %\leanok
   \uses{def:KL}
-  Let $\mu, \nu$ be two measures and $E$ an event. Let $\mu_{|E}$ be the measure defined by $\mu_{|E}(A) = \frac{\mu(A \cap E)}{\mu(E)}$ and define $\nu_{|E}$, $\mu_{| E^c}$ and $\nu_{| E^c}$ similarly. Then
+  Let $\mu, \nu$ be two measures and $E$ an event. Let $\mu_{|E}$ be the measure defined by $\mu_{|E}(A) = \frac{\mu(A \cap E)}{\mu(E)}$ and define $\nu_{|E}$, $\mu_{| E^c}$ and $\nu_{| E^c}$ similarly. Let $\kl(p,q) = p\log\frac{p}{q} + (1-p)\log\frac{1-p}{1-q}$ be the Kullback-Leibler divergence between Bernoulli distributions with means $p$ and $q$. Then
   \begin{align*}
-  \KL(\mu, \nu) \ge \mu(E) \KL(\mu_{|E}, \nu_{|E}) + \mu(E^c) \KL(\mu_{|E^c}, \nu_{|E^c}) \: .
+  \KL(\mu, \nu) \ge \kl(\mu(E), \nu(E)) + \mu(E) \KL(\mu_{|E}, \nu_{|E}) + \mu(E^c) \KL(\mu_{|E^c}, \nu_{|E^c}) \: .
   \end{align*}
 \end{lemma}
 
 \begin{proof}
-\uses{thm:kl_chain_rule, lem:kl_nonneg, lem:fDiv_compProd_prod_eq}
+\uses{thm:kl_chain_rule, lem:fDiv_compProd_prod_eq}
 Let $\mu_E$ be the Bernoulli distribution with $\mu_E(\{1\}) = \mu(E)$, and define $\nu_E$ similarly.
 Let $\kappa : \{0,1\} \rightsquigarrow \mathcal X$ be the kernel defined by $\kappa(1) = \mu_{|E}$ and $\kappa(0) = \mu_{|E^c}$. Define a kernel $\eta$ similarly for $\nu$.
 Then $\mu = \kappa \circ \mu_E$ and $\nu = \eta \circ \nu_E$.
@@ -140,13 +140,20 @@ Using the chain rule (Theorem~\ref{thm:kl_chain_rule}),
 \KL(\mu_E \otimes \kappa, \nu_E \otimes \eta)
 &= \KL(\mu_E, \nu_E) + \KL(\kappa, \eta \mid \mu_E)
 \\
-&\ge \KL(\kappa, \eta \mid \mu_E)
-\\
-&= \mu(E) \KL(\mu_{|E}, \nu_{|E}) + \mu(E^c) \KL(\mu_{|E^c}, \nu_{|E^c})
+&= \KL(\mu_E, \nu_E) + \mu(E) \KL(\mu_{|E}, \nu_{|E}) + \mu(E^c) \KL(\mu_{|E^c}, \nu_{|E^c})
 \: .
 \end{align*}
-We used non-negativity of the KL (Lemma~\ref{lem:kl_nonneg}).
 
 \end{proof}
 
+\begin{lemma}
+  \label{lem:expectation_llr_event}
+  %\lean{}
+  %\leanok
+  \uses{def:KL}
+  Let $\mu, \nu$ be two measures and $E$ an event. Then
+  $\mu(E)\log\frac{\mu(E)}{\nu(E)} \le \mu\left[\mathbb{I}(E)\log \frac{d \mu}{d \nu}\right]$ .
+\end{lemma}
 
+\begin{proof}
+\end{proof}
