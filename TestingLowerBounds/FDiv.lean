@@ -3,9 +3,7 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne
 -/
-import TestingLowerBounds.ForMathlib.EReal
-import Mathlib.Analysis.Convex.Integral
-import Mathlib.Analysis.Calculus.MeanValue
+import TestingLowerBounds.DerivAtTop
 import TestingLowerBounds.SoonInMathlib.RadonNikodym
 
 /-!
@@ -63,64 +61,6 @@ lemma integrable_toReal_iff {f : α → ℝ≥0∞} (hf : AEMeasurable f μ) (hf
     rw [← ofReal_norm_eq_coe_nnnorm, norm_of_nonneg ENNReal.toReal_nonneg, ENNReal.ofReal_toReal hx]
   rw [lintegral_congr_ae this]
   exact h.2.ne
-
--- we put the coe outside the limsup to ensure it's not ⊥
-open Classical in
-noncomputable
-def derivAtTop (f : ℝ → ℝ) : EReal :=
-  if Tendsto (fun x ↦ f x / x) atTop atTop then ⊤ else ↑(limsup (fun x ↦ f x / x) atTop)
-
-lemma bot_lt_derivAtTop : ⊥ < derivAtTop f := by
-  rw [derivAtTop]
-  split_ifs with h <;> simp
-
-lemma derivAtTop_ne_bot : derivAtTop f ≠ ⊥ := bot_lt_derivAtTop.ne'
-
-lemma derivAtTop_eq_top_iff : derivAtTop f = ⊤ ↔ Tendsto (fun x ↦ f x / x) atTop atTop := by
-  sorry
-
-lemma derivAtTop_of_tendsto {y : ℝ} (h : Tendsto (fun x ↦ f x / x) atTop (𝓝 y)) :
-    derivAtTop f = y := by
-  rw [derivAtTop, if_neg]
-  · rw [h.limsup_eq]
-  · exact h.not_tendsto (disjoint_nhds_atTop _)
-
-@[simp]
-lemma derivAtTop_const (c : ℝ) : derivAtTop (fun _ ↦ c) = 0 := by
-  refine derivAtTop_of_tendsto ?_
-  sorry
-
-@[simp]
-lemma derivAtTop_id : derivAtTop id = 1 := by
-  refine derivAtTop_of_tendsto ?_
-  sorry
-
-@[simp]
-lemma derivAtTop_id' : derivAtTop (fun x ↦ x) = 1 := derivAtTop_id
-
-lemma derivAtTop_add (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hg_cvx : ConvexOn ℝ (Set.Ici 0) g) :
-  derivAtTop (fun x ↦ f x + g x) = derivAtTop f + derivAtTop g := by
-  sorry
-
-lemma derivAtTop_add' (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hg_cvx : ConvexOn ℝ (Set.Ici 0) g) :
-    derivAtTop (f + g) = derivAtTop f + derivAtTop g := by
-  rw [← derivAtTop_add hf_cvx hg_cvx]
-  rfl
-
-lemma derivAtTop_const_mul (c : ℝ) :
-    derivAtTop (fun x ↦ c * f x) = c * derivAtTop f := by
-  sorry
-
-lemma le_add_derivAtTop (h_cvx : ConvexOn ℝ (Set.Ici 0) f)
-    (h : derivAtTop f ≠ ⊤) {x y : ℝ} (hx : 0 ≤ x) (hy : 0 ≤ y) :
-    f x ≤ f y + (derivAtTop f).toReal * (x - y) := by
-  sorry
-
-lemma le_add_derivAtTop' (h_cvx : ConvexOn ℝ (Set.Ici 0) f)
-    (h : derivAtTop f ≠ ⊤) {x u : ℝ} (hx : 0 ≤ x) (hu : 0 ≤ u) :
-    f x ≤ f (x * u) + (derivAtTop f).toReal * x * (1 - u) := by
-  refine (le_add_derivAtTop h_cvx h hx (mul_nonneg hx hu)).trans_eq ?_
-  rw [mul_assoc, mul_sub, mul_sub, mul_one, mul_sub]
 
 open Classical in
 /-- f-Divergence of two measures. -/
@@ -212,14 +152,15 @@ lemma fDiv_id (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν] :
 lemma fDiv_id' (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν] :
     fDiv (fun x ↦ x) μ ν = μ Set.univ := fDiv_id μ ν
 
-lemma fDiv_mul {c : ℝ} (hc : 0 ≤ c) (f : ℝ → ℝ) (μ ν : Measure α) :
+lemma fDiv_mul {c : ℝ} (hc : 0 ≤ c) (hf_cvx : ConvexOn ℝ (Set.Ici 0) f)
+    (μ ν : Measure α) :
     fDiv (fun x ↦ c * f x) μ ν = c * fDiv f μ ν := by
   by_cases hc0 : c = 0
   · simp [hc0]
   by_cases h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν
   · rw [fDiv_of_integrable h_int, fDiv_of_integrable]
     swap; · exact h_int.const_mul _
-    rw [integral_mul_left, derivAtTop_const_mul]
+    rw [integral_mul_left, derivAtTop_const_mul hf_cvx (lt_of_le_of_ne hc (Ne.symm hc0))]
     simp only [EReal.coe_mul]
     sorry
   · rw [fDiv_of_not_integrable h_int, fDiv_of_not_integrable]
@@ -258,6 +199,7 @@ lemma fDiv_add_linear' {c : ℝ} (hc : 0 ≤ c) [IsFiniteMeasure μ] [IsFiniteMe
     rotate_left
     · exact convexOn_id (convex_Ici 0)
     · exact convexOn_const _ (convex_Ici 0)
+    · exact (convexOn_id (convex_Ici 0)).add (convexOn_const _ (convex_Ici 0))
     simp only [EReal.coe_neg, EReal.coe_one, mul_neg, mul_one]
     congr
     · rw [EReal.coe_ennreal_toReal]
