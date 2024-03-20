@@ -59,7 +59,6 @@ lemma singularPart_compProd'' [MeasurableSpace.CountablyGenerated β]
     exact kernel.Measure.mutuallySingular_compProd_right (ν.withDensity (∂μ/∂ν)) ν
       (kernel.mutuallySingular_singularPart _ _)
 
-
 lemma singularPart_compProd [MeasurableSpace.CountablyGenerated β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
@@ -88,12 +87,6 @@ lemma singularPart_compProd' [MeasurableSpace.CountablyGenerated β]
     congr
     exact (kernel.rnDeriv_add_singularPart κ η).symm
   rw [this]
-
-lemma kernel.singularPart_self [MeasurableSpace.CountablyGenerated β]
-    (κ : kernel α β) [IsFiniteKernel κ] :
-    kernel.singularPart κ κ = 0 := by
-  ext a : 1
-  rw [zero_apply, singularPart_eq_zero_iff_absolutelyContinuous]
 
 lemma singularPart_compProd_left [MeasurableSpace.CountablyGenerated β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
