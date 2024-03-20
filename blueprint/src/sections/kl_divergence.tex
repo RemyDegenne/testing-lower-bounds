@@ -58,16 +58,27 @@ Apply Theorem~\ref{thm:fDiv_data_proc}.
 \end{proof}
 
 \begin{lemma}
+  \label{lem:kl_ge}
+  %\lean{}
+  %\leanok
+  \uses{def:KL}
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$. Then $\KL(\mu, \nu) \ge \mu(\mathcal X) \log \frac{\mu(\mathcal X)}{\nu(\mathcal X)}$.
+\end{lemma}
+
+\begin{proof}
+\end{proof}
+
+\begin{lemma}
   \label{lem:kl_nonneg}
-  \lean{ProbabilityTheory.klReal_nonneg}
-  \leanok
+  %\lean{ProbabilityTheory.klReal_nonneg}
+  %\leanok
   \uses{def:KL}
   Let $\mu, \nu$ be two probability measures. Then $\KL(\mu, \nu) \ge 0$.
 \end{lemma}
 
-\begin{proof} \leanok
-\uses{lem:fDiv_nonneg, lem:kl_eq_fDiv}
-Apply Lemma~\ref{lem:fDiv_nonneg}.
+\begin{proof}
+\uses{lem:kl_ge}
+Apply Lemma~\ref{lem:kl_ge} and use $\mu(\mathcal X) = \nu (\mathcal X)$.
 \end{proof}
 
 \section{Chain rule and tensorization}
@@ -156,4 +167,6 @@ Using the chain rule (Theorem~\ref{thm:kl_chain_rule}),
 \end{lemma}
 
 \begin{proof}
+\uses{lem:kl_ge}
+Apply Lemma~\ref{lem:kl_ge} to the measures $\mu$ and $\nu$ restricted to $E$. $\mu\left[\mathbb{I}(E)\log \frac{d \mu}{d \nu}\right]$ is the KL between those two distributions.
 \end{proof}
