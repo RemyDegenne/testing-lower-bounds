@@ -20,6 +20,17 @@ For $\mu, \nu$ two measures, we denote by $\mu_{\perp \nu}$ the singular part of
 \end{definition}
 
 \begin{lemma}
+  \label{lem:fDiv_ne_top_iff}
+  \lean{ProbabilityTheory.fDiv_ne_top_iff}
+  \leanok
+  \uses{def:fDiv}
+  For $\mu$ and $\nu$ two finite measures, $D_f(\mu, \nu)$ is finite if and only if $x \mapsto f\left(\frac{d \mu}{d \nu}(x)\right)$ is $\nu$-integrable and either $f'(\infty) < \infty$ or $\mu \ll \nu$.
+\end{lemma}
+
+\begin{proof}\leanok
+\end{proof}
+
+\begin{lemma}
   \label{lem:fDiv_const}
   \lean{ProbabilityTheory.fDiv_const}
   \leanok
@@ -97,8 +108,6 @@ Linearity (Lemmas~\ref{lem:fDiv_add} and~\ref{lem:fDiv_mul}), then Lemma~\ref{le
 
 \section{Conditional f-divergence}
 
-TODO: change this section to reflect the code.
-
 \begin{definition}[Conditional f-divergence]
   \label{def:condFDiv}
   \lean{ProbabilityTheory.condFDiv}
@@ -136,6 +145,37 @@ TODO
 \end{proof}
 
 \begin{lemma}
+  \label{lem:condFDiv_ne_top_iff}
+  \lean{ProbabilityTheory.condFDiv_ne_top_iff}
+  \leanok
+  \uses{def:fDiv, def:condFDiv}
+  Let $\mu$ be a finite measure on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels, where $\kappa$ is a Markov kernel.
+  Then $D_f(\kappa, \eta \mid \mu) \ne \infty$ if and only if
+  \begin{itemize}
+    \item for $\mu$-almost all $x$, $y \mapsto f \left( \frac{d\kappa(x)}{d\eta(x)}(y) \right)$ is $\eta(x)$-integrable,
+    \item $x \mapsto \int_y f \left( \frac{d\kappa(x)}{d\eta(x)}(y) \right) \partial \eta(x)$ is $\mu$-integrable,
+    \item either $f'(\infty) < \infty$ or for $\mu$-almost all $x$, $\kappa(x) \ll \eta(x)$.
+  \end{itemize}
+\end{lemma}
+
+\begin{proof} \leanok
+\uses{lem:integrable_fDiv_compProd_iff}
+\end{proof}
+
+\begin{lemma}
+  \label{lem:fDiv_compProd_ne_top_iff}
+  \lean{ProbabilityTheory.condFDiv_ne_top_iff_fDiv_compProd_ne_top}
+  \leanok
+  \uses{def:fDiv, def:condFDiv}
+  Let $\mu$ be a finite measure on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels, where $\kappa$ is a Markov kernel.
+  Then $D_f(\mu \otimes \kappa, \mu \otimes \eta) \ne \infty \iff D_f(\kappa, \eta \mid \mu) \ne \infty$.
+\end{lemma}
+
+\begin{proof} \leanok
+\uses{lem:integrable_fDiv_compProd_iff, lem:condFDiv_ne_top_iff}
+\end{proof}
+
+\begin{lemma}
   \label{lem:fDiv_compProd_left}
   \lean{ProbabilityTheory.fDiv_compProd_left}
   \leanok
@@ -145,8 +185,8 @@ TODO
 \end{lemma}
 
 \begin{proof} \leanok
-\uses{cor:rnDeriv_compProd_right, cor:rnDeriv_value, lem:integrable_fDiv_compProd_iff}
-By Lemma~\ref{lem:integrable_fDiv_compProd_iff}, the conditions on which the two divergences are finite are the same. We then assume integrability properties such that both are finite.
+\uses{cor:rnDeriv_compProd_right, cor:rnDeriv_value, lem:fDiv_compProd_ne_top_iff, lem:condFDiv_ne_top_iff}
+By Lemma~\ref{lem:fDiv_compProd_ne_top_iff}, the conditions on which the two divergences are finite are the same. We then assume integrability properties such that both are finite (given by Lemma~\ref{lem:condFDiv_ne_top_iff}).
 
 By Lemma~\ref{cor:rnDeriv_compProd_right} and Corollary~\ref{cor:rnDeriv_value},
 \begin{align*}
