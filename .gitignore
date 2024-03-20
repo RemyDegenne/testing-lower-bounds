@@ -2,5 +2,6 @@
 blueprint/print/*
 blueprint/web/*
 blueprint/src/print.bbl
+blueprint/src/web.bbl
 blueprint/src/web.paux
 blueprint/lean_decls
