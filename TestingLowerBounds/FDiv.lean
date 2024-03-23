@@ -447,6 +447,26 @@ lemma fDiv_of_ne_top (h : fDiv f μ ν ≠ ⊤) :
   rw [fDiv_of_integrable]
   exact integrable_of_fDiv_ne_top h
 
+lemma toReal_fDiv_of_integrable [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (hf_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
+    (h_deriv : derivAtTop f = ⊤ → μ ≪ ν) :
+    (fDiv f μ ν).toReal = ∫ y, f ((∂μ/∂ν) y).toReal ∂ν
+        + (derivAtTop f * μ.singularPart ν Set.univ).toReal := by
+  rw [fDiv_of_integrable hf_int, EReal.toReal_add]
+  rotate_left
+  · simp
+  · simp
+  · simp only [ne_eq, EReal.mul_eq_top, derivAtTop_ne_bot, false_and, EReal.coe_ennreal_ne_bot,
+      and_false, EReal.coe_ennreal_pos, Measure.measure_univ_pos, EReal.coe_ennreal_eq_top_iff,
+      measure_ne_top, or_false, false_or, not_and, not_not]
+    intro h_top
+    simp [h_top, Measure.singularPart_eq_zero_of_ac (h_deriv h_top)]
+  · simp only [ne_eq, EReal.mul_eq_bot, derivAtTop_ne_bot, EReal.coe_ennreal_pos,
+      Measure.measure_univ_pos, false_and, EReal.coe_ennreal_ne_bot, and_false,
+      EReal.coe_ennreal_eq_top_iff, measure_ne_top, or_false, false_or, not_and, not_lt]
+    exact fun _ ↦ EReal.coe_ennreal_nonneg _
+  rfl
+
 /-
 -- todo: extend beyond μ ≪ ν
 lemma le_fDiv [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
