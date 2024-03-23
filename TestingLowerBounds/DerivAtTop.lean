@@ -78,12 +78,15 @@ lemma _root_.ConvexOn.slope_tendsto_atTop (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) 
     have h := hf_cvx.secant_mono (a := 0) (x := x) (y := y) (by simp) hx_pos.le
       (hx_pos.le.trans hxy_le) hx_pos.ne' (hx_pos.trans_le hxy_le).ne' hxy_le
     simpa using h
-  suffices Tendsto (fun x ↦ (f x - f 0) / x) atTop atTop
-      ∨ ∃ l, Tendsto (fun x ↦ (f x - f 0) / x) atTop (𝓝 l) by
+  suffices Tendsto (fun x ↦ if x ≤ 1 then (f 1 - f 0) else (f x - f 0) / x) atTop atTop
+      ∨ ∃ l, Tendsto (fun x ↦ if x ≤ 1 then (f 1 - f 0) else (f x - f 0) / x) atTop (𝓝 l) by
     sorry
-  -- todo: build by pieces a monotone function. Like constant at (f 1 - f 0) then (f x - f 0) / x
-  refine tendsto_of_monotone ?_ -- not good, since for now it's monotone only on Ici 0
-  sorry
+  refine tendsto_of_monotone (fun x y hxy ↦ ?_)
+  split_ifs with hx hy hy
+  · exact le_rfl
+  · simpa using h_mono 1 y zero_lt_one (not_le.mp hy).le
+  · exact absurd (hxy.trans hy) hx
+  · simpa using h_mono x y (zero_lt_one.trans (not_le.mp hx)) hxy
 
 lemma tendsto_derivAtTop (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (h : derivAtTop f ≠ ⊤) :
     Tendsto (fun x ↦ f x / x) atTop (𝓝 (derivAtTop f).toReal) := by
