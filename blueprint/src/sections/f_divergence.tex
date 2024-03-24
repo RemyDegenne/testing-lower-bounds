@@ -300,32 +300,46 @@ D_f(\mu \otimes \kappa, \nu \otimes \kappa)
 Apply Lemma~\ref{thm:fDiv_compProd_right} with $\kappa$ the constant kernel with value $\xi$.
 \end{proof}
 
+\begin{lemma}
+  \label{lem:fDiv_comp_le_compProd}
+  \lean{ProbabilityTheory.fDiv_comp_le_compProd}
+  \leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two finite measures on a standard Borel space $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels.
+  $D_f(\kappa \circ \mu, \eta \circ \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \eta)$
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{thm:fDiv_fst_le}
+By definition, $\kappa \circ \mu$ is the marginal of $\mu \otimes \kappa$ (a measure on $\mathcal X \times \mathcal Y$) on $\mathcal Y$, and similarly for the other measure. Hence by Theorem~\ref{thm:fDiv_fst_le}, $D_f(\kappa \circ \mu, \eta \circ \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \eta)$. 
+\end{proof}
+
 \begin{theorem}[Conditioning increases f-divergence]
   \label{thm:fDiv_comp_le_condFDiv}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDiv_comp_left_le}
+  \leanok
   \uses{def:fDiv, def:condFDiv}
-  Let $\mu$ be a measure on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels.
+  Let $\mu$ be a measure on a standard Borel space $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels.
   Then $D_f(\kappa \circ \mu, \eta \circ \mu) \le D_f(\mu \otimes \kappa, \mu \otimes \eta) = D_f(\kappa, \eta \mid \mu)$
 \end{theorem}
 
-\begin{proof}
-\uses{thm:fDiv_fst_le, lem:fDiv_compProd_left}
-By definition, $\kappa \circ \mu$ is the marginal of $\mu \otimes \kappa$ (a measure on $\mathcal X \times \mathcal Y$) on $\mathcal Y$. Hence by Theorem~\ref{thm:fDiv_fst_le}, $D_f(\kappa \circ \mu, \eta \circ \mu) \le D_f(\mu \otimes \kappa, \mu \otimes \eta)$. This is equal to $D_f(\kappa, \eta \mid \mu)$ by Lemma~\ref{lem:fDiv_compProd_left}.
+\begin{proof}\leanok
+\uses{lem:fDiv_comp_le_compProd, lem:fDiv_compProd_left}
+By Lemma~\ref{lem:fDiv_comp_le_compProd}, $D_f(\kappa \circ \mu, \eta \circ \mu) \le D_f(\mu \otimes \kappa, \mu \otimes \eta)$. This is equal to $D_f(\kappa, \eta \mid \mu)$ by Lemma~\ref{lem:fDiv_compProd_left}.
 \end{proof}
 
 \begin{theorem}[Data-processing]
   \label{thm:fDiv_data_proc}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDiv_comp_right_le}
+  \leanok
   \uses{def:fDiv}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel, where both $\mathcal X$ and $\mathcal Y$ are standard Borel.
   Then $D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu, \nu)$.
 \end{theorem}
 
-\begin{proof}
-\uses{thm:fDiv_fst_le, thm:fDiv_compProd_right}
-By definition, $\kappa \circ \mu$ is the marginal of $\mu \otimes \kappa$ (a measure on $\mathcal X \times \mathcal Y$) on $\mathcal Y$. Hence by Theorem~\ref{thm:fDiv_fst_le}, $D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \kappa)$. Then the latter is equal to $D_f(\mu, \nu)$ by Lemma~\ref{thm:fDiv_compProd_right}.
+\begin{proof}\leanok
+\uses{lem:fDiv_comp_le_compProd, thm:fDiv_compProd_right}
+By Lemma~\ref{lem:fDiv_comp_le_compProd}, $D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \kappa)$. Then the latter is equal to $D_f(\mu, \nu)$ by Lemma~\ref{thm:fDiv_compProd_right}.
 \end{proof}
 
 \begin{corollary}

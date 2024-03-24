@@ -915,4 +915,86 @@ lemma le_fDiv_compProd [MeasurableSpace.CountablyGenerated β]
           exact h.symm
         · exact kernel.measurable_coe _ MeasurableSet.univ
 
+/-- Composition of a measure and a kernel.
+
+Defined using `MeasureTheory.Measure.bind` -/
+scoped[ProbabilityTheory] infixl:100 " ∘ₘ " => MeasureTheory.Measure.bind
+
+lemma Measure.comp_eq_snd_compProd (μ : Measure α) [SFinite μ] (κ : kernel α β) [IsSFiniteKernel κ] :
+    μ ∘ₘ κ = (μ ⊗ₘ κ).snd := by
+  ext s hs
+  rw [Measure.bind_apply hs (kernel.measurable _), Measure.snd_apply hs,
+    Measure.compProd_apply]
+  · rfl
+  · exact measurable_snd hs
+
+lemma fDiv_fst_le [MeasurableSpace.CountablyGenerated β]
+    (μ ν : Measure (α × β)) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (hf : StronglyMeasurable f)
+    (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0)) :
+    fDiv f μ.fst ν.fst ≤ fDiv f μ ν := by
+  sorry
+
+lemma fDiv_snd_le [MeasurableSpace.CountablyGenerated α]
+    (μ ν : Measure (α × β)) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (hf : StronglyMeasurable f)
+    (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0)) :
+    fDiv f μ.snd ν.snd ≤ fDiv f μ ν := by
+  sorry
+
+lemma fDiv_comp_le_compProd [MeasurableSpace.CountablyGenerated α]
+    (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (κ η : kernel α β) [IsMarkovKernel κ] [IsMarkovKernel η]
+    (hf : StronglyMeasurable f)
+    (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0)) :
+    fDiv f (μ ∘ₘ κ) (ν ∘ₘ η) ≤ fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ η) := by
+  simp_rw [Measure.comp_eq_snd_compProd]
+  exact fDiv_snd_le _ _ hf hf_cvx hf_cont
+
+lemma fDiv_comp_left_le [MeasurableSpace.CountablyGenerated α]
+    [MeasurableSpace.CountablyGenerated β]
+    (μ : Measure α) [IsFiniteMeasure μ]
+    (κ η : kernel α β) [IsMarkovKernel κ] [IsMarkovKernel η]
+    (hf : StronglyMeasurable f)
+    (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0)) :
+    fDiv f (μ ∘ₘ κ) (μ ∘ₘ η) ≤ condFDiv f κ η μ := by
+  calc fDiv f (μ ∘ₘ κ) (μ ∘ₘ η)
+    ≤ fDiv f (μ ⊗ₘ κ) (μ ⊗ₘ η) := fDiv_comp_le_compProd μ μ κ η hf hf_cvx hf_cont
+  _ = condFDiv f κ η μ := fDiv_compProd_left μ κ η hf hf_cvx
+
+lemma fDiv_comp_right_le [MeasurableSpace.CountablyGenerated α]
+    [MeasurableSpace.CountablyGenerated β]
+    (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (κ : kernel α β) [IsMarkovKernel κ]
+    (hf : StronglyMeasurable f)
+    (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0)) :
+    fDiv f (μ ∘ₘ κ) (ν ∘ₘ κ) ≤ fDiv f μ ν := by
+  calc fDiv f (μ ∘ₘ κ) (ν ∘ₘ κ)
+    ≤ fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ κ) := fDiv_comp_le_compProd μ ν κ κ hf hf_cvx hf_cont
+  _ = fDiv f μ ν := fDiv_compProd_right μ ν κ hf hf_cvx
+
+/-
+-- todo: extend beyond μ ≪ ν
+lemma le_fDiv [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
+    (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0))
+    (hf_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) (hμν : μ ≪ ν) :
+    f (μ Set.univ).toReal ≤ fDiv f μ ν := by
+  classical
+  rw [fDiv_of_absolutelyContinuous hμν, if_pos hf_int]
+  calc f (μ Set.univ).toReal
+    = f (∫ x, ((∂μ/∂ν) x).toReal ∂ν) := by rw [Measure.integral_toReal_rnDeriv hμν]
+  _ ≤ ∫ x, f ((∂μ/∂ν) x).toReal ∂ν := by
+    rw [← average_eq_integral, ← average_eq_integral]
+    exact ConvexOn.map_average_le hf_cvx hf_cont isClosed_Ici (by simp)
+      Measure.integrable_toReal_rnDeriv hf_int
+  _ = ∫ x, f ((∂μ/∂ν) x).toReal ∂ν := rfl
+
+lemma fDiv_nonneg [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
+    (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0)) (hf_one : f 1 = 0)
+    (hf_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) (hμν : μ ≪ ν) :
+    0 ≤ fDiv f μ ν :=
+  calc 0 = f (μ Set.univ).toReal := by simp [hf_one]
+  _ ≤ ∫ x, f ((∂μ/∂ν) x).toReal ∂ν := le_fDiv hf_cvx hf_cont hf_int hμν
+-/
+
 end ProbabilityTheory
