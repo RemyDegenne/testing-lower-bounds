@@ -34,6 +34,10 @@ namespace ProbabilityTheory
 variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
   {μ ν : Measure α} {κ η : kernel α β} {f g : ℝ → ℝ}
 
+lemma _root_.ConvexOn.exists_affine_le {s : Set ℝ} (hf : ConvexOn ℝ s f) (hs : Convex ℝ s) :
+    ∃ c c', ∀ x ∈ s, c * x + c' ≤ f x := by
+  sorry
+
 -- we put the coe outside the limsup to ensure it's not ⊥
 open Classical in
 noncomputable
