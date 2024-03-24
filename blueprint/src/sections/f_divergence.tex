@@ -209,14 +209,14 @@ D_f(\mu \otimes \kappa, \mu \otimes \eta)
 
 \begin{theorem}
   \label{thm:fDiv_le_compProd}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.le_fDiv_compProd}
+  \leanok
   \uses{def:fDiv}
   Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels.
   Then $D_f(\mu, \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \eta)$.
 \end{theorem}
 
-\begin{proof}
+\begin{proof}\leanok
 \uses{lem:rnDeriv_compProd, cor:rnDeriv_value}
 TODO: the following proof assumes $\mu \ll \nu$ and $\kappa(x) \ll \eta(x)$ for $\nu$-almost all $x$. Describe the general case.
 
@@ -268,7 +268,7 @@ We introduce conditional kernels and write $D(\mu, \nu) = D(\mu_X \otimes \mu_{Y
   Then $D_f(\mu \otimes \kappa, \nu \otimes \kappa) = D_f(\mu, \nu)$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof}\leanok
 \uses{cor:rnDeriv_compProd_left}
 By Corollary~\ref{cor:rnDeriv_compProd_left},
 \begin{align*}
