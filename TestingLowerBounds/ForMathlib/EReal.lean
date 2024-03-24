@@ -98,7 +98,7 @@ lemma add_sub_cancel (x : EReal) (y : ℝ) : x + y - y = x := by
   induction' x using EReal.rec with x
   · simp
   · norm_cast
-    rw [_root_.add_sub_cancel]
+    ring
   · simp
 
 lemma add_sub_cancel' (x : EReal) (y : ℝ) : y + x - y = x := by

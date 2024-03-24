@@ -18,35 +18,6 @@ namespace MeasureTheory.Measure
 variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
   {μ ν : Measure α} {κ η : kernel α β} {f g : ℝ → ℝ}
 
-lemma singularPart_eq_zero_of_ac (h : μ ≪ ν) : μ.singularPart ν = 0 := by
-  rw [← MutuallySingular.self_iff]
-  exact MutuallySingular.mono_ac (mutuallySingular_singularPart _ _)
-    AbsolutelyContinuous.rfl ((absolutelyContinuous_of_le (singularPart_le _ _)).trans h)
-
-lemma singularPart_eq_zero (μ ν : Measure α) [μ.HaveLebesgueDecomposition ν] :
-    μ.singularPart ν = 0 ↔ μ ≪ ν := by
-  have h_dec := haveLebesgueDecomposition_add μ ν
-  refine ⟨fun h ↦ ?_, singularPart_eq_zero_of_ac⟩
-  rw [h, zero_add] at h_dec
-  rw [h_dec]
-  exact withDensity_absolutelyContinuous ν _
-
-@[simp]
-lemma singularPart_self (μ : Measure α) : μ.singularPart μ = 0 :=
-  singularPart_eq_zero_of_ac Measure.AbsolutelyContinuous.rfl
-
-lemma singularPart_eq_self (μ ν : Measure α) [μ.HaveLebesgueDecomposition ν] :
-    μ.singularPart ν = μ ↔ μ ⟂ₘ ν := by
-  have h_dec := haveLebesgueDecomposition_add μ ν
-  refine ⟨fun h ↦ ?_, fun  h ↦ ?_⟩
-  · conv_lhs => rw [h_dec]
-    simp only [MutuallySingular.add_left_iff]
-    refine ⟨mutuallySingular_singularPart _ _, ?_⟩
-    rw [← h, withDensity_congr_ae (rnDeriv_singularPart μ ν)]
-    simp
-  · conv_rhs => rw [h_dec]
-    rw [(withDensity_rnDeriv_eq_zero _ _).mpr h, add_zero]
-
 @[simp]
 lemma singularPart_singularPart (μ ν : Measure α) :
     (μ.singularPart ν).singularPart ν = μ.singularPart ν := by
