@@ -357,13 +357,13 @@ Use the deterministic kernel $\kappa : \mathcal X \rightsquigarrow \{0, 1\}$ wit
 
 \begin{lemma}
   \label{lem:fDiv_nonneg}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDiv_nonneg}
+  \leanok
   \uses{def:fDiv}
-  Let $\mu, \nu$ be two probability measures on $\mathcal X$. If $f(1) = 0$, $D_f(\mu, \nu) \ge 0$.
+  Let $\mu, \nu$ be two probability measures on a standard Borel space $\mathcal X$. If $f(1) = 0$ then $D_f(\mu, \nu) \ge 0$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof}\leanok
 \uses{thm:fDiv_data_proc, lem:fDiv_self}
 
 Take $\kappa : \mathcal X \rightsquigarrow (*)$ the constant kernel to a type with only 1 element, with $\kappa(x) = \delta_*$ (the dirac measure at the element $*$).

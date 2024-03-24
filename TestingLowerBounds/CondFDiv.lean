@@ -973,28 +973,19 @@ lemma fDiv_comp_right_le [MeasurableSpace.CountablyGenerated α]
     ≤ fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ κ) := fDiv_comp_le_compProd μ ν κ κ hf hf_cvx hf_cont
   _ = fDiv f μ ν := fDiv_compProd_right μ ν κ hf hf_cvx
 
-/-
--- todo: extend beyond μ ≪ ν
-lemma le_fDiv [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
+lemma fDiv_nonneg [MeasurableSpace.CountablyGenerated α]
+    [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] (hf : StronglyMeasurable f)
     (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0))
-    (hf_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) (hμν : μ ≪ ν) :
-    f (μ Set.univ).toReal ≤ fDiv f μ ν := by
-  classical
-  rw [fDiv_of_absolutelyContinuous hμν, if_pos hf_int]
-  calc f (μ Set.univ).toReal
-    = f (∫ x, ((∂μ/∂ν) x).toReal ∂ν) := by rw [Measure.integral_toReal_rnDeriv hμν]
-  _ ≤ ∫ x, f ((∂μ/∂ν) x).toReal ∂ν := by
-    rw [← average_eq_integral, ← average_eq_integral]
-    exact ConvexOn.map_average_le hf_cvx hf_cont isClosed_Ici (by simp)
-      Measure.integrable_toReal_rnDeriv hf_int
-  _ = ∫ x, f ((∂μ/∂ν) x).toReal ∂ν := rfl
-
-lemma fDiv_nonneg [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
-    (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0)) (hf_one : f 1 = 0)
-    (hf_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) (hμν : μ ≪ ν) :
-    0 ≤ fDiv f μ ν :=
-  calc 0 = f (μ Set.univ).toReal := by simp [hf_one]
-  _ ≤ ∫ x, f ((∂μ/∂ν) x).toReal ∂ν := le_fDiv hf_cvx hf_cont hf_int hμν
--/
+    (hf_one : f 1 = 0) :
+    0 ≤ fDiv f μ ν := by
+  let κ := kernel.const α (Measure.dirac ())
+  have h1 : ∀ μ, IsProbabilityMeasure μ → μ ∘ₘ κ = Measure.dirac () := by
+    intro μ hμ
+    ext s hs
+    rw [Measure.bind_apply hs (kernel.measurable _)]
+    simp [κ]
+  calc 0 = fDiv f (Measure.dirac ()) (Measure.dirac ()) := (fDiv_self hf_one _).symm
+  _ = fDiv f (μ ∘ₘ κ) (ν ∘ₘ κ) := by rw [h1 μ inferInstance, h1 ν inferInstance]
+  _ ≤ fDiv f μ ν := fDiv_comp_right_le μ ν κ hf hf_cvx hf_cont
 
 end ProbabilityTheory
