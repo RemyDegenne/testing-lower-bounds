@@ -72,10 +72,10 @@ $D_{x\mapsto x}(\mu, \nu) = (\frac{d\mu}{d\nu}\cdot \nu)(\mathcal X) + \mu_{\per
   \lean{ProbabilityTheory.fDiv_mul}
   \leanok
   \uses{def:fDiv}
-  For all $a \in \mathbb{R}$, $D_{a f}(\mu, \nu) = a D_{f}(\mu, \nu)$.
+  For all $a \ge 0$, $D_{a f}(\mu, \nu) = a D_{f}(\mu, \nu)$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof}\leanok
 Linearity of the integral.
 \end{proof}
 
@@ -87,7 +87,7 @@ Linearity of the integral.
   $D_{f + g}(\mu, \nu) = D_f(\mu, \nu) + D_g(\mu, \nu)$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof}\leanok
 Linearity of the integral.
 \end{proof}
 
@@ -96,12 +96,10 @@ Linearity of the integral.
   \lean{ProbabilityTheory.fDiv_add_linear}
   \leanok
   \uses{def:fDiv}
-  For finite measures $\mu$ and $\nu$ with $\mu(\mathcal X) = \nu(\mathcal X)$, for all $a \in \mathbb{R}$, $D_{f + a(x - 1)}(\mu, \nu) = D_{f}(\mu, \nu)$.
+  For finite measures $\mu$ and $\nu$ with $\mu(\mathcal X) = \nu(\mathcal X)$, for all $a \ge 0$, $D_{f + a(x - 1)}(\mu, \nu) = D_{f}(\mu, \nu)$.
 \end{lemma}
 
-This means that we can always choose $f \ge 0$ and $f'(1) = 0$ if we want (and $f$ is differentiable at $1$).
-
-\begin{proof}
+\begin{proof}\leanok
 \uses{lem:fDiv_add, lem:fDiv_mul, lem:fDiv_const, lem:fDiv_id}
 Linearity (Lemmas~\ref{lem:fDiv_add} and~\ref{lem:fDiv_mul}), then Lemma~\ref{lem:fDiv_const} and~\ref{lem:fDiv_id}.
 \end{proof}
@@ -187,6 +185,8 @@ TODO
 \begin{proof} \leanok
 \uses{cor:rnDeriv_compProd_right, cor:rnDeriv_value, lem:fDiv_compProd_ne_top_iff, lem:condFDiv_ne_top_iff}
 By Lemma~\ref{lem:fDiv_compProd_ne_top_iff}, the conditions on which the two divergences are finite are the same. We then assume integrability properties such that both are finite (given by Lemma~\ref{lem:condFDiv_ne_top_iff}).
+
+TODO: the following proof assumes $\kappa(x) \ll \eta(x)$ for $\nu$-almost all $x$. Describe the general case.
 
 By Lemma~\ref{cor:rnDeriv_compProd_right} and Corollary~\ref{cor:rnDeriv_value},
 \begin{align*}
