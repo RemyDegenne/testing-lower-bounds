@@ -82,6 +82,14 @@ lemma fDiv_of_mul_eq_top (h : derivAtTop f * μ.singularPart ν Set.univ = ⊤) 
   · rw [fDiv, if_neg (not_not.mpr hf), h, EReal.coe_add_top]
   · exact fDiv_of_not_integrable hf
 
+lemma fDiv_ne_bot [IsFiniteMeasure μ] : fDiv f μ ν ≠ ⊥ := by
+  rw [fDiv]
+  split_ifs with h
+  · simp only [ne_eq, EReal.add_eq_bot_iff, EReal.coe_ne_bot, false_or]
+    rw [EReal.mul_eq_bot]
+    simp [derivAtTop_ne_bot, not_lt.mpr (EReal.coe_ennreal_nonneg _), measure_ne_top]
+  · simp
+
 @[simp]
 lemma fDiv_zero (μ ν : Measure α) : fDiv (fun _ ↦ 0) μ ν = 0 := by simp [fDiv]
 
@@ -466,5 +474,22 @@ lemma toReal_fDiv_of_integrable [IsFiniteMeasure μ] [IsFiniteMeasure ν]
       EReal.coe_ennreal_eq_top_iff, measure_ne_top, or_false, false_or, not_and, not_lt]
     exact fun _ ↦ EReal.coe_ennreal_nonneg _
   rfl
+
+-- todo: generalize: remove hμν?
+lemma le_fDiv_of_ac [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
+    (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0))
+    (hμν : μ ≪ ν) :
+    f (μ Set.univ).toReal ≤ fDiv f μ ν := by
+  by_cases hf_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν
+  swap; · rw [fDiv_of_not_integrable hf_int]; exact le_top
+  rw [fDiv_of_integrable hf_int, Measure.singularPart_eq_zero_of_ac hμν]
+  simp only [Measure.zero_toOuterMeasure, OuterMeasure.coe_zero, Pi.zero_apply,
+    EReal.coe_ennreal_zero, mul_zero, add_zero, EReal.coe_le_coe_iff]
+  calc f (μ Set.univ).toReal
+    = f (∫ x, (μ.rnDeriv ν x).toReal ∂ν) := by rw [Measure.integral_toReal_rnDeriv hμν]
+  _ ≤ ∫ x, f (μ.rnDeriv ν x).toReal ∂ν := by
+    rw [← average_eq_integral, ← average_eq_integral]
+    exact ConvexOn.map_average_le hf_cvx hf_cont isClosed_Ici (by simp)
+      Measure.integrable_toReal_rnDeriv hf_int
 
 end ProbabilityTheory
