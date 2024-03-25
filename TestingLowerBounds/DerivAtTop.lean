@@ -102,7 +102,24 @@ lemma tendsto_derivAtTop (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (h : derivAtTop f
 
 lemma derivAtTop_add (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hg_cvx : ConvexOn ℝ (Set.Ici 0) g) :
     derivAtTop (fun x ↦ f x + g x) = derivAtTop f + derivAtTop g := by
-  sorry
+  by_cases hf :derivAtTop f = ⊤
+  · rw [hf, EReal.top_add_of_ne_bot derivAtTop_ne_bot, derivAtTop_eq_top_iff]
+    simp_rw [add_div]
+    by_cases hg : derivAtTop g = ⊤
+    · rw [derivAtTop_eq_top_iff] at hg
+      exact tendsto_atTop_add (derivAtTop_eq_top_iff.mp hf) hg
+    · exact Tendsto.atTop_add (derivAtTop_eq_top_iff.mp hf) (tendsto_derivAtTop hg_cvx hg)
+  · by_cases hg : derivAtTop g = ⊤
+    · rw [hg, EReal.add_top_of_ne_bot derivAtTop_ne_bot, derivAtTop_eq_top_iff]
+      simp_rw [add_div]
+      exact Tendsto.add_atTop (tendsto_derivAtTop hf_cvx hf) (derivAtTop_eq_top_iff.mp hg)
+    · have hf' := tendsto_derivAtTop hf_cvx hf
+      have hg' := tendsto_derivAtTop hg_cvx hg
+      lift derivAtTop f to ℝ using ⟨hf, derivAtTop_ne_bot⟩ with df
+      lift derivAtTop g to ℝ using ⟨hg, derivAtTop_ne_bot⟩ with dg
+      refine derivAtTop_of_tendsto ?_
+      simp_rw [add_div]
+      exact hf'.add hg'
 
 lemma derivAtTop_add' (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hg_cvx : ConvexOn ℝ (Set.Ici 0) g) :
     derivAtTop (f + g) = derivAtTop f + derivAtTop g := by
