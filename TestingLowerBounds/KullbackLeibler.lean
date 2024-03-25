@@ -35,7 +35,7 @@ import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
 Foobars, barfoos
 -/
 
-open Real MeasureTheory
+open Real MeasureTheory Filter
 
 open scoped ENNReal NNReal Topology
 
@@ -75,7 +75,10 @@ lemma integrable_rnDeriv_mul_log_iff [SigmaFinite μ] [SigmaFinite ν] (hμν : 
 
 lemma derivAtTop_mul_log : derivAtTop (fun x ↦ x * log x) = ⊤ := by
   rw [derivAtTop_eq_top_iff]
-  sorry
+  refine (tendsto_congr' ?_).mp tendsto_log_atTop
+  simp only [EventuallyEq, eventually_atTop, ge_iff_le]
+  refine ⟨1, fun x hx ↦ ?_⟩
+  rw [mul_div_cancel_left₀ _ (zero_lt_one.trans_le hx).ne']
 
 lemma fDiv_mul_log_eq_top_iff [IsFiniteMeasure μ] [SigmaFinite ν] :
     fDiv (fun x ↦ x * log x) μ ν = ⊤ ↔ μ ≪ ν → ¬ Integrable (llr μ ν) μ := by
