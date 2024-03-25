@@ -122,7 +122,7 @@ end FDiv
 open Classical in
 noncomputable def renyiDiv (a : ℝ) (μ ν : Measure α) : EReal :=
   if a = 0 then - log (ν {x | 0 < (∂μ/∂ν) x}).toReal
-  else if a = 1 then EReal.toReal (kl μ ν)
+  else if a = 1 then kl μ ν
   else if fDiv (renyiFun a) μ ν ≠ ⊤
     then (a - 1)⁻¹ * log (1 + (a - 1) * (fDiv (renyiFun a) μ ν).toReal)
     else ⊤
@@ -130,7 +130,7 @@ noncomputable def renyiDiv (a : ℝ) (μ ν : Measure α) : EReal :=
 lemma renyiDiv_zero (μ ν : Measure α) :
     renyiDiv 0 μ ν = - log (ν {x | 0 < (∂μ/∂ν) x}).toReal := if_pos rfl
 
-lemma renyiDiv_one (μ ν : Measure α) : renyiDiv 1 μ ν = EReal.toReal (kl μ ν) := by
+lemma renyiDiv_one (μ ν : Measure α) : renyiDiv 1 μ ν = kl μ ν := by
   rw [renyiDiv, if_neg (by simp), if_pos rfl]
 
 lemma renyiDiv_eq_top_iff_fDiv_eq_top [IsFiniteMeasure μ] [SigmaFinite ν]
