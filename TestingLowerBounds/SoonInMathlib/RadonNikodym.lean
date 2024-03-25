@@ -824,7 +824,7 @@ lemma Measure.absolutelyContinuous_compProd_left_iff
   refine Measure.AbsolutelyContinuous.mk (fun s hs hs0 ↦ ?_)
   have h1 : (ν ⊗ₘ κ) (s ×ˢ univ) = 0 := by
     rw [Measure.compProd_apply_prod hs MeasurableSet.univ]
-    exact Measure.set_lintegral_eq_zero_of_null hs0
+    exact set_lintegral_measure_zero _ _ hs0
   have h2 := h h1
   rw [Measure.compProd_apply_prod hs MeasurableSet.univ] at h2
   simpa using h2
@@ -885,7 +885,7 @@ lemma Measure.absolutelyContinuous_of_absolutelyContinuous_compProd
   refine Measure.AbsolutelyContinuous.mk (fun s hs hs0 ↦ ?_)
   have h1 : (ν ⊗ₘ η) (s ×ˢ univ) = 0 := by
     rw [Measure.compProd_apply_prod hs MeasurableSet.univ]
-    exact Measure.set_lintegral_eq_zero_of_null hs0
+    exact set_lintegral_measure_zero _ _ hs0
   have h2 := h h1
   rw [Measure.compProd_apply_prod hs MeasurableSet.univ] at h2
   simpa using h2

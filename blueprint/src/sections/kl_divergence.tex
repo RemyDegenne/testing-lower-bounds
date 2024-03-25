@@ -2,7 +2,7 @@
 
 \begin{definition}[Kullback-Leibler divergence]
   \label{def:KL}
-  \lean{ProbabilityTheory.klReal}
+  \lean{ProbabilityTheory.kl}
   \leanok
   %\uses{}
   Let $\mu, \nu$ be two measures on $\mathcal X$. The Kullback-Leibler divergence between $\mu$ and $\nu$ is
@@ -14,7 +14,7 @@
 
 \begin{lemma}
   \label{lem:kl_eq_fDiv}
-  \lean{ProbabilityTheory.klReal_eq_fDiv_mul_log}
+  \lean{ProbabilityTheory.kl_eq_fDiv}
   \leanok
   \uses{def:KL, def:fDiv}
   $\KL(\mu, \nu) = D_f(\mu, \nu)$ for $f: x \mapsto x \log x$.
@@ -59,24 +59,24 @@ Apply Theorem~\ref{thm:fDiv_data_proc}.
 
 \begin{lemma}
   \label{lem:kl_ge}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.kl_ge_mul_log}
+  \leanok
   \uses{def:KL}
   Let $\mu, \nu$ be two finite measures on $\mathcal X$. Then $\KL(\mu, \nu) \ge \mu(\mathcal X) \log \frac{\mu(\mathcal X)}{\nu(\mathcal X)}$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof}\leanok
 \end{proof}
 
 \begin{lemma}
   \label{lem:kl_nonneg}
-  %\lean{ProbabilityTheory.klReal_nonneg}
-  %\leanok
+  \lean{ProbabilityTheory.kl_nonneg}
+  \leanok
   \uses{def:KL}
   Let $\mu, \nu$ be two probability measures. Then $\KL(\mu, \nu) \ge 0$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof}\leanok
 \uses{lem:kl_ge}
 Apply Lemma~\ref{lem:kl_ge} and use $\mu(\mathcal X) = \nu (\mathcal X)$.
 \end{proof}

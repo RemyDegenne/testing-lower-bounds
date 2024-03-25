@@ -72,10 +72,10 @@ $D_{x\mapsto x}(\mu, \nu) = (\frac{d\mu}{d\nu}\cdot \nu)(\mathcal X) + \mu_{\per
   \lean{ProbabilityTheory.fDiv_mul}
   \leanok
   \uses{def:fDiv}
-  For all $a \in \mathbb{R}$, $D_{a f}(\mu, \nu) = a D_{f}(\mu, \nu)$.
+  For all $a \ge 0$, $D_{a f}(\mu, \nu) = a D_{f}(\mu, \nu)$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof}\leanok
 Linearity of the integral.
 \end{proof}
 
@@ -87,7 +87,7 @@ Linearity of the integral.
   $D_{f + g}(\mu, \nu) = D_f(\mu, \nu) + D_g(\mu, \nu)$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof}\leanok
 Linearity of the integral.
 \end{proof}
 
@@ -96,12 +96,10 @@ Linearity of the integral.
   \lean{ProbabilityTheory.fDiv_add_linear}
   \leanok
   \uses{def:fDiv}
-  For finite measures $\mu$ and $\nu$ with $\mu(\mathcal X) = \nu(\mathcal X)$, for all $a \in \mathbb{R}$, $D_{f + a(x - 1)}(\mu, \nu) = D_{f}(\mu, \nu)$.
+  For finite measures $\mu$ and $\nu$ with $\mu(\mathcal X) = \nu(\mathcal X)$, for all $a \ge 0$, $D_{f + a(x - 1)}(\mu, \nu) = D_{f}(\mu, \nu)$.
 \end{lemma}
 
-This means that we can always choose $f \ge 0$ and $f'(1) = 0$ if we want (and $f$ is differentiable at $1$).
-
-\begin{proof}
+\begin{proof}\leanok
 \uses{lem:fDiv_add, lem:fDiv_mul, lem:fDiv_const, lem:fDiv_id}
 Linearity (Lemmas~\ref{lem:fDiv_add} and~\ref{lem:fDiv_mul}), then Lemma~\ref{lem:fDiv_const} and~\ref{lem:fDiv_id}.
 \end{proof}
@@ -188,6 +186,8 @@ TODO
 \uses{cor:rnDeriv_compProd_right, cor:rnDeriv_value, lem:fDiv_compProd_ne_top_iff, lem:condFDiv_ne_top_iff}
 By Lemma~\ref{lem:fDiv_compProd_ne_top_iff}, the conditions on which the two divergences are finite are the same. We then assume integrability properties such that both are finite (given by Lemma~\ref{lem:condFDiv_ne_top_iff}).
 
+TODO: the following proof assumes $\kappa(x) \ll \eta(x)$ for $\nu$-almost all $x$. Describe the general case.
+
 By Lemma~\ref{cor:rnDeriv_compProd_right} and Corollary~\ref{cor:rnDeriv_value},
 \begin{align*}
 D_f(\mu \otimes \kappa, \mu \otimes \eta)
@@ -209,14 +209,14 @@ D_f(\mu \otimes \kappa, \mu \otimes \eta)
 
 \begin{theorem}
   \label{thm:fDiv_le_compProd}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.le_fDiv_compProd}
+  \leanok
   \uses{def:fDiv}
   Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels.
   Then $D_f(\mu, \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \eta)$.
 \end{theorem}
 
-\begin{proof}
+\begin{proof}\leanok
 \uses{lem:rnDeriv_compProd, cor:rnDeriv_value}
 TODO: the following proof assumes $\mu \ll \nu$ and $\kappa(x) \ll \eta(x)$ for $\nu$-almost all $x$. Describe the general case.
 
@@ -246,8 +246,8 @@ D_f(\mu \otimes \kappa, \nu \otimes \eta)
 
 \begin{theorem}[Marginals]
   \label{thm:fDiv_fst_le}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDiv_fst_le}
+  \leanok
   \uses{def:fDiv}
   Let $\mu$ and $\nu$ be two measures on $\mathcal X \times \mathcal Y$ where $\mathcal Y$ is standard Borel, and let $\mu_X, \nu_X$ be their marginals on $\mathcal X$.
   Then $D_f(\mu_X, \nu_X) \le D_f(\mu, \nu)$.
@@ -268,7 +268,7 @@ We introduce conditional kernels and write $D(\mu, \nu) = D(\mu_X \otimes \mu_{Y
   Then $D_f(\mu \otimes \kappa, \nu \otimes \kappa) = D_f(\mu, \nu)$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof}\leanok
 \uses{cor:rnDeriv_compProd_left}
 By Corollary~\ref{cor:rnDeriv_compProd_left},
 \begin{align*}
@@ -300,32 +300,46 @@ D_f(\mu \otimes \kappa, \nu \otimes \kappa)
 Apply Lemma~\ref{thm:fDiv_compProd_right} with $\kappa$ the constant kernel with value $\xi$.
 \end{proof}
 
+\begin{lemma}
+  \label{lem:fDiv_comp_le_compProd}
+  \lean{ProbabilityTheory.fDiv_comp_le_compProd}
+  \leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two finite measures on a standard Borel space $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels.
+  $D_f(\kappa \circ \mu, \eta \circ \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \eta)$
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{thm:fDiv_fst_le}
+By definition, $\kappa \circ \mu$ is the marginal of $\mu \otimes \kappa$ (a measure on $\mathcal X \times \mathcal Y$) on $\mathcal Y$, and similarly for the other measure. Hence by Theorem~\ref{thm:fDiv_fst_le}, $D_f(\kappa \circ \mu, \eta \circ \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \eta)$. 
+\end{proof}
+
 \begin{theorem}[Conditioning increases f-divergence]
   \label{thm:fDiv_comp_le_condFDiv}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDiv_comp_left_le}
+  \leanok
   \uses{def:fDiv, def:condFDiv}
-  Let $\mu$ be a measure on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels.
+  Let $\mu$ be a measure on a standard Borel space $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels.
   Then $D_f(\kappa \circ \mu, \eta \circ \mu) \le D_f(\mu \otimes \kappa, \mu \otimes \eta) = D_f(\kappa, \eta \mid \mu)$
 \end{theorem}
 
-\begin{proof}
-\uses{thm:fDiv_fst_le, lem:fDiv_compProd_left}
-By definition, $\kappa \circ \mu$ is the marginal of $\mu \otimes \kappa$ (a measure on $\mathcal X \times \mathcal Y$) on $\mathcal Y$. Hence by Theorem~\ref{thm:fDiv_fst_le}, $D_f(\kappa \circ \mu, \eta \circ \mu) \le D_f(\mu \otimes \kappa, \mu \otimes \eta)$. This is equal to $D_f(\kappa, \eta \mid \mu)$ by Lemma~\ref{lem:fDiv_compProd_left}.
+\begin{proof}\leanok
+\uses{lem:fDiv_comp_le_compProd, lem:fDiv_compProd_left}
+By Lemma~\ref{lem:fDiv_comp_le_compProd}, $D_f(\kappa \circ \mu, \eta \circ \mu) \le D_f(\mu \otimes \kappa, \mu \otimes \eta)$. This is equal to $D_f(\kappa, \eta \mid \mu)$ by Lemma~\ref{lem:fDiv_compProd_left}.
 \end{proof}
 
 \begin{theorem}[Data-processing]
   \label{thm:fDiv_data_proc}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDiv_comp_right_le}
+  \leanok
   \uses{def:fDiv}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel, where both $\mathcal X$ and $\mathcal Y$ are standard Borel.
   Then $D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu, \nu)$.
 \end{theorem}
 
-\begin{proof}
-\uses{thm:fDiv_fst_le, thm:fDiv_compProd_right}
-By definition, $\kappa \circ \mu$ is the marginal of $\mu \otimes \kappa$ (a measure on $\mathcal X \times \mathcal Y$) on $\mathcal Y$. Hence by Theorem~\ref{thm:fDiv_fst_le}, $D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \kappa)$. Then the latter is equal to $D_f(\mu, \nu)$ by Lemma~\ref{thm:fDiv_compProd_right}.
+\begin{proof}\leanok
+\uses{lem:fDiv_comp_le_compProd, thm:fDiv_compProd_right}
+By Lemma~\ref{lem:fDiv_comp_le_compProd}, $D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \kappa)$. Then the latter is equal to $D_f(\mu, \nu)$ by Lemma~\ref{thm:fDiv_compProd_right}.
 \end{proof}
 
 \begin{corollary}
@@ -343,13 +357,13 @@ Use the deterministic kernel $\kappa : \mathcal X \rightsquigarrow \{0, 1\}$ wit
 
 \begin{lemma}
   \label{lem:fDiv_nonneg}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDiv_nonneg}
+  \leanok
   \uses{def:fDiv}
-  Let $\mu, \nu$ be two probability measures on $\mathcal X$. If $f(1) = 0$, $D_f(\mu, \nu) \ge 0$.
+  Let $\mu, \nu$ be two probability measures on a standard Borel space $\mathcal X$. If $f(1) = 0$ then $D_f(\mu, \nu) \ge 0$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof}\leanok
 \uses{thm:fDiv_data_proc, lem:fDiv_self}
 
 Take $\kappa : \mathcal X \rightsquigarrow (*)$ the constant kernel to a type with only 1 element, with $\kappa(x) = \delta_*$ (the dirac measure at the element $*$).

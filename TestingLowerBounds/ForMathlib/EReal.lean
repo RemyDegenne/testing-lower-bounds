@@ -2,7 +2,22 @@ import Mathlib.Data.Real.EReal
 
 open scoped ENNReal NNReal
 
-lemma EReal.mul_eq_top (a b : EReal) :
+namespace EReal
+
+lemma coe_ennreal_toReal {x : ℝ≥0∞} (hx : x ≠ ∞) : (x.toReal : EReal) = x := by
+  lift x to ℝ≥0 using hx
+  rfl
+
+lemma top_mul_ennreal_coe {x : ℝ≥0∞} (hx : x ≠ 0) : ⊤ * (x : EReal) = ⊤ := by
+  by_cases hx_top : x = ∞
+  · simp [hx_top]
+  · rw [← coe_ennreal_toReal hx_top, top_mul_coe_of_pos]
+    exact ENNReal.toReal_pos hx hx_top
+
+lemma ennreal_coe_mul_top {x : ℝ≥0∞} (hx : x ≠ 0) : (x : EReal) * ⊤ = ⊤ := by
+  rw [mul_comm, top_mul_ennreal_coe hx]
+
+lemma mul_eq_top (a b : EReal) :
     a * b = ⊤ ↔ (a = ⊥ ∧ b < 0) ∨ (a < 0 ∧ b = ⊥) ∨ (a = ⊤ ∧ 0 < b) ∨ (0 < a ∧ b = ⊤) := by
   induction' a, b using EReal.induction₂_symm with a b h x hx x hx x hx x y x hx
   · rw [mul_comm, h]
@@ -28,7 +43,7 @@ lemma EReal.mul_eq_top (a b : EReal) :
   · simp [hx, EReal.coe_mul_bot_of_neg hx]
   · simp
 
-lemma EReal.mul_eq_bot (a b : EReal) :
+lemma mul_eq_bot (a b : EReal) :
     a * b = ⊥ ↔ (a = ⊥ ∧ 0 < b) ∨ (0 < a ∧ b = ⊥) ∨ (a = ⊤ ∧ b < 0) ∨ (a < 0 ∧ b = ⊤) := by
   induction' a, b using EReal.induction₂_symm with a b h x hx x hx x hx x y x hx
   · rw [mul_comm, h]
@@ -54,6 +69,48 @@ lemma EReal.mul_eq_bot (a b : EReal) :
   · simp [hx.le, EReal.coe_mul_bot_of_neg hx]
   · simp
 
-lemma EReal.coe_ennreal_toReal {x : ℝ≥0∞} (hx : x ≠ ∞) : (x.toReal : EReal) = x := by
-  lift x to ℝ≥0 using hx
-  rfl
+lemma coe_mul_add_of_nonneg {x : ℝ} (hx_nonneg : 0 ≤ x) (y z : EReal) :
+    x * (y + z) = x * y + x * z := by
+  by_cases hx0 : x = 0
+  · simp [hx0]
+  have hx_pos : 0 < x := hx_nonneg.lt_of_ne' hx0
+  induction' y using EReal.rec with y
+  · simp [EReal.coe_mul_bot_of_pos hx_pos]
+  · induction' z using EReal.rec with z
+    · simp [EReal.coe_mul_bot_of_pos hx_pos]
+    · norm_cast
+      rw [mul_add]
+    · simp only [coe_add_top, EReal.coe_mul_top_of_pos hx_pos]
+      rw [← EReal.coe_mul, EReal.coe_add_top]
+  · simp only [EReal.coe_mul_top_of_pos hx_pos]
+    induction' z using EReal.rec with z
+    · simp [EReal.coe_mul_bot_of_pos hx_pos]
+    · simp only [top_add_coe, EReal.coe_mul_top_of_pos hx_pos]
+      rw [← EReal.coe_mul, EReal.top_add_coe]
+    · simp [EReal.coe_mul_top_of_pos hx_pos]
+
+lemma add_mul_coe_of_nonneg {x : ℝ} (hx_nonneg : 0 ≤ x) (y z : EReal) :
+    (y + z) * x = y * x + z * x := by
+  simp_rw [mul_comm _ (x : EReal)]
+  exact EReal.coe_mul_add_of_nonneg hx_nonneg y z
+
+lemma add_sub_cancel (x : EReal) (y : ℝ) : x + y - y = x := by
+  induction' x using EReal.rec with x
+  · simp
+  · norm_cast
+    ring
+  · simp
+
+lemma add_sub_cancel' (x : EReal) (y : ℝ) : y + x - y = x := by
+  rw [add_comm, EReal.add_sub_cancel]
+
+lemma top_add_of_ne_bot {x : EReal} (hx : x ≠ ⊥) : ⊤ + x = ⊤ := by
+  by_cases hx_top : x = ⊤
+  · simp [hx_top]
+  · lift x to ℝ using ⟨hx_top, hx⟩
+    simp
+
+lemma add_top_of_ne_bot {x : EReal} (hx : x ≠ ⊥) : x + ⊤ = ⊤ := by
+  rw [add_comm, top_add_of_ne_bot hx]
+
+end EReal

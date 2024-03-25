@@ -3,9 +3,7 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne
 -/
-import TestingLowerBounds.ForMathlib.EReal
-import Mathlib.Analysis.Convex.Integral
-import Mathlib.Analysis.Calculus.MeanValue
+import TestingLowerBounds.DerivAtTop
 import TestingLowerBounds.SoonInMathlib.RadonNikodym
 
 /-!
@@ -64,64 +62,6 @@ lemma integrable_toReal_iff {f : α → ℝ≥0∞} (hf : AEMeasurable f μ) (hf
   rw [lintegral_congr_ae this]
   exact h.2.ne
 
--- we put the coe outside the limsup to ensure it's not ⊥
-open Classical in
-noncomputable
-def derivAtTop (f : ℝ → ℝ) : EReal :=
-  if Tendsto (fun x ↦ f x / x) atTop atTop then ⊤ else ↑(limsup (fun x ↦ f x / x) atTop)
-
-lemma bot_lt_derivAtTop : ⊥ < derivAtTop f := by
-  rw [derivAtTop]
-  split_ifs with h <;> simp
-
-lemma derivAtTop_ne_bot : derivAtTop f ≠ ⊥ := bot_lt_derivAtTop.ne'
-
-lemma derivAtTop_eq_top_iff : derivAtTop f = ⊤ ↔ Tendsto (fun x ↦ f x / x) atTop atTop := by
-  sorry
-
-lemma derivAtTop_of_tendsto {y : ℝ} (h : Tendsto (fun x ↦ f x / x) atTop (𝓝 y)) :
-    derivAtTop f = y := by
-  rw [derivAtTop, if_neg]
-  · rw [h.limsup_eq]
-  · exact h.not_tendsto (disjoint_nhds_atTop _)
-
-@[simp]
-lemma derivAtTop_const (c : ℝ) : derivAtTop (fun _ ↦ c) = 0 := by
-  refine derivAtTop_of_tendsto ?_
-  sorry
-
-@[simp]
-lemma derivAtTop_id : derivAtTop id = 1 := by
-  refine derivAtTop_of_tendsto ?_
-  sorry
-
-@[simp]
-lemma derivAtTop_id' : derivAtTop (fun x ↦ x) = 1 := derivAtTop_id
-
-lemma derivAtTop_add (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hg_cvx : ConvexOn ℝ (Set.Ici 0) g) :
-  derivAtTop (fun x ↦ f x + g x) = derivAtTop f + derivAtTop g := by
-  sorry
-
-lemma derivAtTop_add' (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hg_cvx : ConvexOn ℝ (Set.Ici 0) g) :
-    derivAtTop (f + g) = derivAtTop f + derivAtTop g := by
-  rw [← derivAtTop_add hf_cvx hg_cvx]
-  rfl
-
-lemma derivAtTop_const_mul (c : ℝ) :
-    derivAtTop (fun x ↦ c * f x) = c * derivAtTop f := by
-  sorry
-
-lemma le_add_derivAtTop (h_cvx : ConvexOn ℝ (Set.Ici 0) f)
-    (h : derivAtTop f ≠ ⊤) {x y : ℝ} (hx : 0 ≤ x) (hy : 0 ≤ y) :
-    f x ≤ f y + (derivAtTop f).toReal * (x - y) := by
-  sorry
-
-lemma le_add_derivAtTop' (h_cvx : ConvexOn ℝ (Set.Ici 0) f)
-    (h : derivAtTop f ≠ ⊤) {x u : ℝ} (hx : 0 ≤ x) (hu : 0 ≤ u) :
-    f x ≤ f (x * u) + (derivAtTop f).toReal * x * (1 - u) := by
-  refine (le_add_derivAtTop h_cvx h hx (mul_nonneg hx hu)).trans_eq ?_
-  rw [mul_assoc, mul_sub, mul_sub, mul_one, mul_sub]
-
 open Classical in
 /-- f-Divergence of two measures. -/
 noncomputable
@@ -141,6 +81,14 @@ lemma fDiv_of_mul_eq_top (h : derivAtTop f * μ.singularPart ν Set.univ = ⊤) 
   by_cases hf : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν
   · rw [fDiv, if_neg (not_not.mpr hf), h, EReal.coe_add_top]
   · exact fDiv_of_not_integrable hf
+
+lemma fDiv_ne_bot [IsFiniteMeasure μ] : fDiv f μ ν ≠ ⊥ := by
+  rw [fDiv]
+  split_ifs with h
+  · simp only [ne_eq, EReal.add_eq_bot_iff, EReal.coe_ne_bot, false_or]
+    rw [EReal.mul_eq_bot]
+    simp [derivAtTop_ne_bot, not_lt.mpr (EReal.coe_ennreal_nonneg _), measure_ne_top]
+  · simp
 
 @[simp]
 lemma fDiv_zero (μ ν : Measure α) : fDiv (fun _ ↦ 0) μ ν = 0 := by simp [fDiv]
@@ -212,16 +160,16 @@ lemma fDiv_id (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν] :
 lemma fDiv_id' (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν] :
     fDiv (fun x ↦ x) μ ν = μ Set.univ := fDiv_id μ ν
 
-lemma fDiv_mul {c : ℝ} (hc : 0 ≤ c) (f : ℝ → ℝ) (μ ν : Measure α) :
+lemma fDiv_mul {c : ℝ} (hc : 0 ≤ c) (hf_cvx : ConvexOn ℝ (Set.Ici 0) f)
+    (μ ν : Measure α) :
     fDiv (fun x ↦ c * f x) μ ν = c * fDiv f μ ν := by
   by_cases hc0 : c = 0
   · simp [hc0]
   by_cases h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν
   · rw [fDiv_of_integrable h_int, fDiv_of_integrable]
     swap; · exact h_int.const_mul _
-    rw [integral_mul_left, derivAtTop_const_mul]
-    simp only [EReal.coe_mul]
-    sorry
+    rw [integral_mul_left, derivAtTop_const_mul hf_cvx (lt_of_le_of_ne hc (Ne.symm hc0)),
+      EReal.coe_mul, EReal.coe_mul_add_of_nonneg hc, mul_assoc]
   · rw [fDiv_of_not_integrable h_int, fDiv_of_not_integrable]
     · rw [EReal.mul_top_of_pos]
       norm_cast
@@ -234,7 +182,7 @@ lemma fDiv_mul {c : ℝ} (hc : 0 ≤ c) (f : ℝ → ℝ) (μ ν : Measure α) :
 
 -- TODO: in the case where both functions are convex, integrability of the sum is equivalent to
 -- integrability of both, and we don't need hf and hg.
-lemma fDiv_add (hf : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
+lemma fDiv_add [IsFiniteMeasure μ] (hf : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
     (hg : Integrable (fun x ↦ g ((∂μ/∂ν) x).toReal) ν)
     (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hg_cvx : ConvexOn ℝ (Set.Ici 0) g) :
     fDiv (fun x ↦ f x + g x) μ ν = fDiv f μ ν + fDiv g μ ν := by
@@ -245,7 +193,9 @@ lemma fDiv_add (hf : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
   congr 1
   conv_rhs => rw [← add_assoc, add_comm, ← add_assoc, add_comm]
   congr 1
-  sorry
+  rw [← EReal.coe_ennreal_toReal]
+  · rw [add_comm, EReal.add_mul_coe_of_nonneg ENNReal.toReal_nonneg]
+  · exact measure_ne_top _ _
 
 lemma fDiv_add_linear' {c : ℝ} (hc : 0 ≤ c) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (hf : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) :
@@ -258,6 +208,7 @@ lemma fDiv_add_linear' {c : ℝ} (hc : 0 ≤ c) [IsFiniteMeasure μ] [IsFiniteMe
     rotate_left
     · exact convexOn_id (convex_Ici 0)
     · exact convexOn_const _ (convex_Ici 0)
+    · exact (convexOn_id (convex_Ici 0)).add (convexOn_const _ (convex_Ici 0))
     simp only [EReal.coe_neg, EReal.coe_one, mul_neg, mul_one]
     congr
     · rw [EReal.coe_ennreal_toReal]
@@ -265,7 +216,7 @@ lemma fDiv_add_linear' {c : ℝ} (hc : 0 ≤ c) [IsFiniteMeasure μ] [IsFiniteMe
     · rw [EReal.coe_ennreal_toReal]
       exact measure_ne_top _ _
   · exact (Measure.integrable_toReal_rnDeriv.sub (integrable_const _)).const_mul c
-  · sorry
+  · exact ((convexOn_id (convex_Ici 0)).sub (concaveOn_const _ (convex_Ici 0))).smul hc
 
 lemma fDiv_add_linear {c : ℝ} (hc : 0 ≤ c) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (h_eq : μ Set.univ = ν Set.univ) :
@@ -285,7 +236,7 @@ lemma fDiv_add_linear {c : ℝ} (hc : 0 ≤ c) [IsFiniteMeasure μ] [IsFiniteMea
 
 lemma fDiv_of_mutuallySingular [SigmaFinite μ] [IsFiniteMeasure ν] (h : μ ⟂ₘ ν) :
     fDiv f μ ν = (f 0 : EReal) * ν Set.univ + derivAtTop f * μ Set.univ := by
-  have : μ.singularPart ν = μ := (μ.singularPart_eq_self ν).mpr h
+  have : μ.singularPart ν = μ := (μ.singularPart_eq_self).mpr h
   have hf_rnDeriv : (fun x ↦ f ((∂μ/∂ν) x).toReal) =ᵐ[ν] fun _ ↦ f 0 := by
     filter_upwards [Measure.rnDeriv_eq_zero_of_mutuallySingular h Measure.AbsolutelyContinuous.rfl]
       with x hx using by simp [hx]
@@ -310,7 +261,7 @@ lemma fDiv_of_absolutelyContinuous
     simp [Measure.singularPart_eq_zero_of_ac h]
   · rw [fDiv_of_not_integrable h_int]
 
-lemma fDiv_add_const (μ ν : Measure α) [SigmaFinite μ] [IsFiniteMeasure ν]
+lemma fDiv_add_const (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (c : ℝ) :
     fDiv (fun x ↦ f x + c) μ ν = fDiv f μ ν + c * ν Set.univ := by
   by_cases hf_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν
@@ -324,18 +275,17 @@ lemma fDiv_add_const (μ ν : Measure α) [SigmaFinite μ] [IsFiniteMeasure ν]
       rw [this] at hf_int
       exact fun h_int ↦ hf_int (h_int.sub (integrable_const _))
 
-lemma fDiv_sub_const (μ ν : Measure α) [SigmaFinite μ] [IsFiniteMeasure ν]
+lemma fDiv_sub_const (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (c : ℝ) :
     fDiv (fun x ↦ f x - c) μ ν = fDiv f μ ν - c * ν Set.univ := by
   have : f = fun x ↦ (f x - c) + c := by ext; simp
   conv_rhs => rw [this]
   rw [fDiv_add_const]
-  · sorry
+  · rw [← EReal.coe_ennreal_toReal (measure_ne_top ν _), ← EReal.coe_mul, EReal.add_sub_cancel]
   · exact hf_cvx.sub (concaveOn_const _ (convex_Ici 0))
 
 lemma fDiv_eq_add_withDensity_singularPart
-    (μ ν : Measure α) [SigmaFinite μ] [IsFiniteMeasure ν]
-    (hf : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) :
+    (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     fDiv f μ ν = fDiv f (ν.withDensity (∂μ/∂ν)) ν + fDiv f (μ.singularPart ν) ν
       - f 0 * ν Set.univ := by
   have h_int_iff : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν
@@ -355,30 +305,35 @@ lemma fDiv_eq_add_withDensity_singularPart
     · refine integral_congr_ae ?_
       filter_upwards [Measure.rnDeriv_withDensity ν (μ.measurable_rnDeriv ν)] with x hx
       rw [hx]
-    sorry
+    rw [← EReal.coe_ennreal_toReal (measure_ne_top ν _), ← EReal.coe_mul, EReal.add_sub_cancel']
   · rw [fDiv_of_not_integrable hf, fDiv_of_not_integrable]
-    · sorry
+    · rw [add_sub_assoc, ← EReal.coe_ennreal_toReal (measure_ne_top ν _), ← EReal.coe_mul,
+        EReal.add_sub_cancel']
+      by_cases h0 : μ.singularPart ν Set.univ = 0
+      · simp [h0]
+      · by_cases h_top : derivAtTop f = ⊤
+        · rw [h_top, EReal.top_mul_ennreal_coe h0, EReal.top_add_top]
+        · lift derivAtTop f to ℝ using ⟨h_top, derivAtTop_ne_bot⟩ with x
+          rw [← EReal.coe_ennreal_toReal (measure_ne_top _ _), ← EReal.coe_mul, EReal.top_add_coe]
     · rwa [← h_int_iff]
 
 lemma fDiv_eq_add_withDensity_singularPart'
-    (μ ν : Measure α) [SigmaFinite μ] [IsFiniteMeasure ν]
-    (hf_cvx : ConvexOn ℝ (Set.Ici 0) f)
-    (hf : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) :
+    (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) :
     fDiv f μ ν = fDiv (fun x ↦ f x - f 0) (ν.withDensity (∂μ/∂ν)) ν
       + fDiv f (μ.singularPart ν) ν := by
-  rw [fDiv_eq_add_withDensity_singularPart _ _ hf, fDiv_sub_const, add_sub_assoc,
+  rw [fDiv_eq_add_withDensity_singularPart _ _, fDiv_sub_const, add_sub_assoc,
     sub_eq_add_neg, sub_eq_add_neg, add_assoc]
   · congr 1
     rw [add_comm]
   · exact hf_cvx
 
 lemma fDiv_eq_add_withDensity_singularPart''
-    (μ ν : Measure α) [SigmaFinite μ] [IsFiniteMeasure ν]
-    (hf_cvx : ConvexOn ℝ (Set.Ici 0) f)
-    (hf : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) :
+    (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) :
     fDiv f μ ν = fDiv f (ν.withDensity (∂μ/∂ν)) ν
       + fDiv (fun x ↦ f x - f 0) (μ.singularPart ν) ν := by
-  rw [fDiv_eq_add_withDensity_singularPart _ _ hf, fDiv_sub_const, add_sub_assoc,
+  rw [fDiv_eq_add_withDensity_singularPart _ _, fDiv_sub_const, add_sub_assoc,
     sub_eq_add_neg]
   exact hf_cvx
 
@@ -500,28 +455,41 @@ lemma fDiv_of_ne_top (h : fDiv f μ ν ≠ ⊤) :
   rw [fDiv_of_integrable]
   exact integrable_of_fDiv_ne_top h
 
-/-
--- todo: extend beyond μ ≪ ν
-lemma le_fDiv [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
+lemma toReal_fDiv_of_integrable [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (hf_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
+    (h_deriv : derivAtTop f = ⊤ → μ ≪ ν) :
+    (fDiv f μ ν).toReal = ∫ y, f ((∂μ/∂ν) y).toReal ∂ν
+        + (derivAtTop f * μ.singularPart ν Set.univ).toReal := by
+  rw [fDiv_of_integrable hf_int, EReal.toReal_add]
+  rotate_left
+  · simp
+  · simp
+  · simp only [ne_eq, EReal.mul_eq_top, derivAtTop_ne_bot, false_and, EReal.coe_ennreal_ne_bot,
+      and_false, EReal.coe_ennreal_pos, Measure.measure_univ_pos, EReal.coe_ennreal_eq_top_iff,
+      measure_ne_top, or_false, false_or, not_and, not_not]
+    intro h_top
+    simp [h_top, Measure.singularPart_eq_zero_of_ac (h_deriv h_top)]
+  · simp only [ne_eq, EReal.mul_eq_bot, derivAtTop_ne_bot, EReal.coe_ennreal_pos,
+      Measure.measure_univ_pos, false_and, EReal.coe_ennreal_ne_bot, and_false,
+      EReal.coe_ennreal_eq_top_iff, measure_ne_top, or_false, false_or, not_and, not_lt]
+    exact fun _ ↦ EReal.coe_ennreal_nonneg _
+  rfl
+
+-- todo: generalize: remove hμν?
+lemma le_fDiv_of_ac [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
     (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0))
-    (hf_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) (hμν : μ ≪ ν) :
+    (hμν : μ ≪ ν) :
     f (μ Set.univ).toReal ≤ fDiv f μ ν := by
-  classical
-  rw [fDiv_of_absolutelyContinuous hμν, if_pos hf_int]
+  by_cases hf_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν
+  swap; · rw [fDiv_of_not_integrable hf_int]; exact le_top
+  rw [fDiv_of_integrable hf_int, Measure.singularPart_eq_zero_of_ac hμν]
+  simp only [Measure.zero_toOuterMeasure, OuterMeasure.coe_zero, Pi.zero_apply,
+    EReal.coe_ennreal_zero, mul_zero, add_zero, EReal.coe_le_coe_iff]
   calc f (μ Set.univ).toReal
-    = f (∫ x, ((∂μ/∂ν) x).toReal ∂ν) := by rw [Measure.integral_toReal_rnDeriv hμν]
-  _ ≤ ∫ x, f ((∂μ/∂ν) x).toReal ∂ν := by
+    = f (∫ x, (μ.rnDeriv ν x).toReal ∂ν) := by rw [Measure.integral_toReal_rnDeriv hμν]
+  _ ≤ ∫ x, f (μ.rnDeriv ν x).toReal ∂ν := by
     rw [← average_eq_integral, ← average_eq_integral]
     exact ConvexOn.map_average_le hf_cvx hf_cont isClosed_Ici (by simp)
       Measure.integrable_toReal_rnDeriv hf_int
-  _ = ∫ x, f ((∂μ/∂ν) x).toReal ∂ν := rfl
-
-lemma fDiv_nonneg [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
-    (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0)) (hf_one : f 1 = 0)
-    (hf_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) (hμν : μ ≪ ν) :
-    0 ≤ fDiv f μ ν :=
-  calc 0 = f (μ Set.univ).toReal := by simp [hf_one]
-  _ ≤ ∫ x, f ((∂μ/∂ν) x).toReal ∂ν := le_fDiv hf_cvx hf_cont hf_int hμν
--/
 
 end ProbabilityTheory

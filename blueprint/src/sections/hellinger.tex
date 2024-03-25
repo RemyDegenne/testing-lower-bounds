@@ -7,7 +7,7 @@
   \uses{def:fDiv}
   Let $\mu, \nu$ be two measures. The squared Hellinger distance between $\mu$ and $\nu$ is
   \begin{align*}
-    H^2(\mu, \nu) = D_f(\mu, \nu) \quad \text{with } f: x \mapsto \frac{1}{2}\left( 1 - \sqrt{x} \right)^2 \: .
+    \Hsq(\mu, \nu) = D_f(\mu, \nu) \quad \text{with } f: x \mapsto \frac{1}{2}\left( 1 - \sqrt{x} \right)^2 \: .
   \end{align*}
 \end{definition}
 
@@ -16,14 +16,14 @@
   %\lean{}
   %\leanok
   \uses{def:Hellinger, def:Renyi}
-  Let $\mu, \nu$ be two probability measures. Then $R_{1/2}(\mu, \nu) = -2\log(1 - H^2(\mu, \nu))$.
+  Let $\mu, \nu$ be two probability measures. Then $R_{1/2}(\mu, \nu) = -2\log(1 - \Hsq(\mu, \nu))$.
 \end{lemma}
 
 \begin{proof}
 \uses{lem:fDiv_mul, lem:fDiv_add_linear}
 $R_{1/2}(\mu, \nu) = -2 \log (1 - \frac{1}{2} D_f(\nu, \mu))$ for $f : x \mapsto -2 (\sqrt{x} - 1)$. Using Lemma~\ref{lem:fDiv_mul}, $R_{1/2}(\mu, \nu) = -2 \log (1 - D_g(\nu, \mu))$ for $g(x) = 1 - \sqrt{x}$.
 
-It suffices then to show that $H^2(\mu, \nu) = D_g(\mu, \nu)$, which is true by an application of Lemma~\ref{lem:fDiv_add_linear}.
+It suffices then to show that $\Hsq(\mu, \nu) = D_g(\mu, \nu)$, which is true by an application of Lemma~\ref{lem:fDiv_add_linear}.
 \end{proof}
 
 \begin{lemma}
@@ -31,7 +31,7 @@ It suffices then to show that $H^2(\mu, \nu) = D_g(\mu, \nu)$, which is true by 
   %\lean{}
   %\leanok
   \uses{def:Renyi, def:Hellinger}
-  Let $\mu, \nu$ be two probability measures. Then $2 H^2(\mu, \nu) \le R_{1/2}(\mu, \nu)$.
+  Let $\mu, \nu$ be two probability measures. Then $2 \Hsq(\mu, \nu) \le R_{1/2}(\mu, \nu)$.
 \end{lemma}
 
 \begin{proof}
@@ -44,7 +44,7 @@ Use Lemma~\ref{lem:renyi_half_eq_log_hellinger}, then $-\log(1 - x) \ge x$.
   %\lean{}
   %\leanok
   \uses{def:Hellinger, def:TV}
-  Let $\mu, \nu$ be two probability measures. Then $H^2(\mu, \nu) \le TV(\mu, \nu)$.
+  Let $\mu, \nu$ be two probability measures. Then $\Hsq(\mu, \nu) \le \TV(\mu, \nu)$.
 \end{lemma}
 
 \begin{proof}
@@ -55,7 +55,7 @@ Use Lemma~\ref{lem:renyi_half_eq_log_hellinger}, then $-\log(1 - x) \ge x$.
   %\lean{}
   %\leanok
   \uses{def:Hellinger, def:TV}
-  Let $\mu, \nu$ be two probability measures. Then $TV(\mu, \nu) \le \sqrt{H^2(\mu, \nu)(2 - H^2(\mu, \nu))}$.
+  Let $\mu, \nu$ be two probability measures. Then $\TV(\mu, \nu) \le \sqrt{\Hsq(\mu, \nu)(2 - \Hsq(\mu, \nu))}$.
 \end{lemma}
 
 \begin{proof}
@@ -68,7 +68,7 @@ Use Lemma~\ref{lem:renyi_half_eq_log_hellinger}, then $-\log(1 - x) \ge x$.
   \uses{def:Hellinger, def:TV}
   Let $\mu, \nu$ be two probability measures. Then
   \begin{align*}
-  \frac{1}{2}(1 - H^2(\mu, \nu))^2 \le 1 - TV(\mu, \nu) - \frac{1}{2}(1 - TV(\mu, \nu))^2
+  \frac{1}{2}(1 - \Hsq(\mu, \nu))^2 \le 1 - \TV(\mu, \nu) - \frac{1}{2}(1 - \TV(\mu, \nu))^2
   \: .
   \end{align*}
 \end{corollary}
@@ -77,12 +77,12 @@ Use Lemma~\ref{lem:renyi_half_eq_log_hellinger}, then $-\log(1 - x) \ge x$.
 \uses{lem:tv_le_hellinger}
 We use Lemma~\ref{lem:tv_le_hellinger}.
 \begin{align*}
-1 - TV(\mu, \nu) - \frac{1}{2}(1 - H^2(\mu, \nu))^2
-&= \frac{1}{2} - TV(\mu, \nu) + \frac{1}{2}(H^2(\mu, \nu)(2 - H^2(\mu, \nu)))
+1 - \TV(\mu, \nu) - \frac{1}{2}(1 - \Hsq(\mu, \nu))^2
+&= \frac{1}{2} - \TV(\mu, \nu) + \frac{1}{2}(\Hsq(\mu, \nu)(2 - \Hsq(\mu, \nu)))
 \\
-&\ge \frac{1}{2} - TV(\mu, \nu) + \frac{1}{2}TV^2(\mu, \nu)
+&\ge \frac{1}{2} - \TV(\mu, \nu) + \frac{1}{2}\TV^2(\mu, \nu)
 \\
-&= \frac{1}{2}(1 - TV(\mu, \nu))^2
+&= \frac{1}{2}(1 - \TV(\mu, \nu))^2
 \: .
 \end{align*}
 \end{proof}
@@ -94,7 +94,7 @@ We use Lemma~\ref{lem:tv_le_hellinger}.
   \uses{def:Hellinger, def:TV}
   Let $\mu, \nu$ be two probability measures. Then
   \begin{align*}
-  1 - \sqrt{1 - (1 - H^2(\mu, \nu))^2} \le 1 - TV(\mu, \nu) \le 1 - H^2(\mu, \nu)
+  1 - \sqrt{1 - (1 - \Hsq(\mu, \nu))^2} \le 1 - \TV(\mu, \nu) \le 1 - \Hsq(\mu, \nu)
   \: .
   \end{align*}
 \end{corollary}
@@ -111,12 +111,12 @@ Use Lemma~\ref{lem:tv_le_hellinger} and~\ref{lem:hellinger_le_tv}.
   \uses{def:Renyi, def:TV}
   Let $\mu, \nu$ be two probability measures on $\mathcal X$ and let $n \in \mathbb{N}$, and $\mu^{\otimes n}, \nu^{\otimes n}$ be their product measures on $\mathcal X^n$. Then
   \begin{align*}
-  \frac{1}{2}e^{-n R_{1/2}(\mu, \nu)} \le 1 - \sqrt{1 - e^{-n R_{1/2}(\mu, \nu)}} \le 1 - TV(\mu^{\otimes n}, \nu^{\otimes n}) \le e^{-\frac{1}{2} n R_{1/2}(\mu, \nu)}
+  \frac{1}{2}e^{-n R_{1/2}(\mu, \nu)} \le 1 - \sqrt{1 - e^{-n R_{1/2}(\mu, \nu)}} \le 1 - \TV(\mu^{\otimes n}, \nu^{\otimes n}) \le e^{-\frac{1}{2} n R_{1/2}(\mu, \nu)}
   \: .
   \end{align*}
 \end{corollary}
 
 \begin{proof}
 \uses{cor:one_sub_hellinger_le_one_sub_tv, lem:renyi_half_eq_log_hellinger, lem:renyi_prod_n}
-Use Corollary~\ref{cor:one_sub_hellinger_le_one_sub_tv} and Lemma~\ref{lem:renyi_half_eq_log_hellinger} to get to a comparison of $TV(\mu, \nu)$ and $R_{1/2}(\mu^{\otimes n}, \nu^{\otimes n})$. Finally $R_{1/2}(\mu^{\otimes n}, \nu^{\otimes n}) = n R_{1/2}(\mu, \nu)$ by Lemma~\ref{lem:renyi_prod_n}.
+Use Corollary~\ref{cor:one_sub_hellinger_le_one_sub_tv} and Lemma~\ref{lem:renyi_half_eq_log_hellinger} to get to a comparison of $\TV(\mu, \nu)$ and $R_{1/2}(\mu^{\otimes n}, \nu^{\otimes n})$. Finally $R_{1/2}(\mu^{\otimes n}, \nu^{\otimes n}) = n R_{1/2}(\mu, \nu)$ by Lemma~\ref{lem:renyi_prod_n}.
 \end{proof}
