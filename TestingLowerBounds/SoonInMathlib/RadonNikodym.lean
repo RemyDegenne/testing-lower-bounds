@@ -500,11 +500,10 @@ lemma Measure.mutuallySingular_compProd_right (μ ν : Measure α) [SFinite μ] 
     exact hκη a
   simp [h1, h2]
 
-lemma Measure.fst_map_compProd (μ : Measure α) [SFinite μ] (κ : kernel α γ)
-    [IsMarkovKernel κ] :
-    (μ ⊗ₘ κ).map Prod.fst = μ := by
+lemma Measure.fst_compProd (μ : Measure α) [SFinite μ] (κ : kernel α γ) [IsMarkovKernel κ] :
+    (μ ⊗ₘ κ).fst = μ := by
   ext s hs
-  rw [Measure.map_apply measurable_fst hs, Measure.compProd_apply]
+  rw [Measure.fst_apply hs, Measure.compProd_apply]
   swap; · exact measurable_fst hs
   have : ∀ a, (κ a) (Prod.mk a ⁻¹' (Prod.fst ⁻¹' s)) = s.indicator (fun a ↦ κ a univ) a := by
     intro a

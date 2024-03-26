@@ -5,6 +5,7 @@ Authors: Rémy Degenne
 -/
 import TestingLowerBounds.MeasureCompProd
 import TestingLowerBounds.FDiv
+import Mathlib.Probability.Kernel.Disintegration
 
 /-!
 
@@ -920,7 +921,8 @@ lemma le_fDiv_compProd [MeasurableSpace.CountablyGenerated β]
 Defined using `MeasureTheory.Measure.bind` -/
 scoped[ProbabilityTheory] infixl:100 " ∘ₘ " => MeasureTheory.Measure.bind
 
-lemma Measure.comp_eq_snd_compProd (μ : Measure α) [SFinite μ] (κ : kernel α β) [IsSFiniteKernel κ] :
+lemma Measure.comp_eq_snd_compProd (μ : Measure α) [SFinite μ]
+    (κ : kernel α β) [IsSFiniteKernel κ] :
     μ ∘ₘ κ = (μ ⊗ₘ κ).snd := by
   ext s hs
   rw [Measure.bind_apply hs (kernel.measurable _), Measure.snd_apply hs,
@@ -928,21 +930,32 @@ lemma Measure.comp_eq_snd_compProd (μ : Measure α) [SFinite μ] (κ : kernel �
   · rfl
   · exact measurable_snd hs
 
-lemma fDiv_fst_le [MeasurableSpace.CountablyGenerated β]
+lemma fDiv_fst_le [Nonempty β] [StandardBorelSpace β]
     (μ ν : Measure (α × β)) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (hf : StronglyMeasurable f)
     (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0)) :
     fDiv f μ.fst ν.fst ≤ fDiv f μ ν := by
-  sorry
+  rw [measure_eq_compProd μ, measure_eq_compProd ν, kernel.Measure.fst_compProd,
+    kernel.Measure.fst_compProd]
+  exact le_fDiv_compProd μ.fst ν.fst μ.condKernel ν.condKernel hf hf_cvx hf_cont
 
-lemma fDiv_snd_le [MeasurableSpace.CountablyGenerated α]
+lemma _root_.MeasureTheory.Measure.fst_map_swap (μ : Measure (α × β)) :
+    (μ.map Prod.swap).fst = μ.snd := by
+    ext s hs
+    rw [Measure.fst, Measure.map_map measurable_fst measurable_swap, Measure.snd_apply hs,
+      Measure.map_apply (measurable_fst.comp measurable_swap) hs]
+    congr
+
+lemma fDiv_snd_le [Nonempty α] [StandardBorelSpace α]
     (μ ν : Measure (α × β)) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (hf : StronglyMeasurable f)
     (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0)) :
     fDiv f μ.snd ν.snd ≤ fDiv f μ ν := by
-  sorry
+  rw [← μ.fst_map_swap, ← ν.fst_map_swap]
+  refine (fDiv_fst_le _ _ hf hf_cvx hf_cont).trans_eq ?_
+  exact fDiv_map_measurableEmbedding MeasurableEquiv.prodComm.measurableEmbedding
 
-lemma fDiv_comp_le_compProd [MeasurableSpace.CountablyGenerated α]
+lemma fDiv_comp_le_compProd [Nonempty α] [StandardBorelSpace α]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsMarkovKernel κ] [IsMarkovKernel η]
     (hf : StronglyMeasurable f)
@@ -951,7 +964,7 @@ lemma fDiv_comp_le_compProd [MeasurableSpace.CountablyGenerated α]
   simp_rw [Measure.comp_eq_snd_compProd]
   exact fDiv_snd_le _ _ hf hf_cvx hf_cont
 
-lemma fDiv_comp_left_le [MeasurableSpace.CountablyGenerated α]
+lemma fDiv_comp_left_le [Nonempty α] [StandardBorelSpace α]
     [MeasurableSpace.CountablyGenerated β]
     (μ : Measure α) [IsFiniteMeasure μ]
     (κ η : kernel α β) [IsMarkovKernel κ] [IsMarkovKernel η]
@@ -962,7 +975,7 @@ lemma fDiv_comp_left_le [MeasurableSpace.CountablyGenerated α]
     ≤ fDiv f (μ ⊗ₘ κ) (μ ⊗ₘ η) := fDiv_comp_le_compProd μ μ κ η hf hf_cvx hf_cont
   _ = condFDiv f κ η μ := fDiv_compProd_left μ κ η hf hf_cvx
 
-lemma fDiv_comp_right_le [MeasurableSpace.CountablyGenerated α]
+lemma fDiv_comp_right_le [Nonempty α] [StandardBorelSpace α]
     [MeasurableSpace.CountablyGenerated β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ : kernel α β) [IsMarkovKernel κ]
@@ -973,7 +986,7 @@ lemma fDiv_comp_right_le [MeasurableSpace.CountablyGenerated α]
     ≤ fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ κ) := fDiv_comp_le_compProd μ ν κ κ hf hf_cvx hf_cont
   _ = fDiv f μ ν := fDiv_compProd_right μ ν κ hf hf_cvx
 
-lemma fDiv_nonneg [MeasurableSpace.CountablyGenerated α]
+lemma fDiv_nonneg [Nonempty α] [StandardBorelSpace α]
     [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] (hf : StronglyMeasurable f)
     (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0))
     (hf_one : f 1 = 0) :

@@ -475,7 +475,7 @@ lemma toReal_fDiv_of_integrable [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     exact fun _ ↦ EReal.coe_ennreal_nonneg _
   rfl
 
--- todo: generalize: remove hμν?
+-- todo: generalize: remove hμν, then use this to prove fDiv_nonneg
 lemma le_fDiv_of_ac [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
     (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0))
     (hμν : μ ≪ ν) :
@@ -491,5 +491,22 @@ lemma le_fDiv_of_ac [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
     rw [← average_eq_integral, ← average_eq_integral]
     exact ConvexOn.map_average_le hf_cvx hf_cont isClosed_Ici (by simp)
       Measure.integrable_toReal_rnDeriv hf_int
+
+lemma fDiv_map_measurableEmbedding [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    {g : α → β} (hg : MeasurableEmbedding g) :
+    fDiv f (μ.map g) (ν.map g) = fDiv f μ ν := by
+  by_cases h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν
+  · rw [fDiv_of_integrable h_int, fDiv_of_integrable]
+    swap
+    · rw [hg.integrable_map_iff]
+      sorry
+    rw [hg.integral_map]
+    congr 2
+    · refine integral_congr_ae ?_
+      sorry
+    · sorry
+  · rw [fDiv_of_not_integrable h_int, fDiv_of_not_integrable]
+    rw [hg.integrable_map_iff]
+    sorry
 
 end ProbabilityTheory
