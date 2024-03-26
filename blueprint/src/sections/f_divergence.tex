@@ -104,6 +104,17 @@ Linearity of the integral.
 Linearity (Lemmas~\ref{lem:fDiv_add} and~\ref{lem:fDiv_mul}), then Lemma~\ref{lem:fDiv_const} and~\ref{lem:fDiv_id}.
 \end{proof}
 
+\begin{lemma}
+  \label{lem:fDiv_map_measurableEmbedding}
+  \lean{ProbabilityTheory.fDiv_map_measurableEmbedding}
+  \leanok
+  \uses{def:fDiv}
+  Let $\mu$ and $\nu$ be two measures on $\mathcal X$ and let $g : \mathcal X \to \mathcal Y$ be a measurable embedding. Then $D_f(g \cdot \mu, g \cdot \nu) = D_f(\mu, \nu)$.
+\end{lemma}
+
+\begin{proof}
+\end{proof}
+
 \section{Conditional f-divergence}
 
 \begin{definition}[Conditional f-divergence]
@@ -254,9 +265,10 @@ D_f(\mu \otimes \kappa, \nu \otimes \eta)
   Similarly, for $\mathcal X$ standard Borel and $\mu_Y, \nu_Y$ the marginals on $\mathcal Y$, $D_f(\mu_Y, \nu_Y) \le D_f(\mu, \nu)$.
 \end{theorem}
 
-\begin{proof}
-\uses{thm:fDiv_le_compProd}
+\begin{proof}\leanok
+\uses{thm:fDiv_le_compProd, lem:fDiv_map_measurableEmbedding}
 We introduce conditional kernels and write $D(\mu, \nu) = D(\mu_X \otimes \mu_{Y|X}, \nu_X \otimes \nu_{Y|X})$. Then apply Theorem~\ref{thm:fDiv_le_compProd}.
+For the second statement, we need Lemma~\ref{lem:fDiv_map_measurableEmbedding} to swap the role of the two coordinates.
 \end{proof}
 
 \begin{lemma}[Composition-product with a kernel]
