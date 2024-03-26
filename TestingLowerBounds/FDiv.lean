@@ -499,14 +499,20 @@ lemma fDiv_map_measurableEmbedding [IsFiniteMeasure μ] [IsFiniteMeasure ν]
   · rw [fDiv_of_integrable h_int, fDiv_of_integrable]
     swap
     · rw [hg.integrable_map_iff]
-      sorry
+      refine (integrable_congr ?_).mpr h_int
+      filter_upwards [hg.rnDeriv_map μ ν] with a ha
+      simp [ha]
     rw [hg.integral_map]
     congr 2
     · refine integral_congr_ae ?_
-      sorry
-    · sorry
+      filter_upwards [hg.rnDeriv_map μ ν] with a ha
+      simp [ha]
+    · rw [hg.singularPart_map μ ν, hg.map_apply]
+      simp
   · rw [fDiv_of_not_integrable h_int, fDiv_of_not_integrable]
     rw [hg.integrable_map_iff]
-    sorry
+    rwa [(integrable_congr ?_)]
+    filter_upwards [hg.rnDeriv_map μ ν] with a ha
+    simp [ha]
 
 end ProbabilityTheory
