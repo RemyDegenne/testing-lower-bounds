@@ -13,6 +13,18 @@
 \begin{proof}
 \end{proof}
 
+\begin{theorem}
+  \label{thm:testing_eq_tv}
+  %\lean{}
+  %\leanok
+  \uses{def:TV}
+  Let $\mu, \nu$ be two probability measures on $\mathcal X$. Then $\inf_{E \text{ event}}\{\mu(E) + \nu(E^c)\} = 1 - TV(\mu, \nu)$~.
+\end{theorem}
+
+\begin{proof}
+\uses{lem:testing_bound_tv}
+\end{proof}
+
 \begin{lemma}
   \label{lem:testing_bound_renyi_mean}
   %\lean{}
