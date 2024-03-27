@@ -846,7 +846,8 @@ lemma Measure.absolutelyContinuous_add_left_iff (μ₁ μ₂ ν : Measure α) :
       Measure.smul_toOuterMeasure, OuterMeasure.coe_smul, Pi.smul_apply, smul_eq_mul]
     rw [two_mul]
 
-lemma eq_zero_of_absolutelyContinuous_of_mutuallySingular (h_ac : μ ≪ η) (h_ms : μ ⟂ₘ η) :
+lemma eq_zero_of_absolutelyContinuous_of_mutuallySingular {μ η : Measure α}
+    (h_ac : μ ≪ η) (h_ms : μ ⟂ₘ η) :
     μ = 0 := by
   let s := h_ms.nullSet
   suffices μ s = 0 ∧ μ sᶜ = 0 by
