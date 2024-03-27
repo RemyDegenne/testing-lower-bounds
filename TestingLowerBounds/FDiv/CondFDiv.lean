@@ -986,19 +986,4 @@ lemma fDiv_comp_right_le [Nonempty α] [StandardBorelSpace α]
     ≤ fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ κ) := fDiv_comp_le_compProd μ ν κ κ hf hf_cvx hf_cont
   _ = fDiv f μ ν := fDiv_compProd_right μ ν κ hf hf_cvx
 
-lemma fDiv_nonneg [Nonempty α] [StandardBorelSpace α]
-    [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] (hf : StronglyMeasurable f)
-    (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0))
-    (hf_one : f 1 = 0) :
-    0 ≤ fDiv f μ ν := by
-  let κ := kernel.const α (Measure.dirac ())
-  have h1 : ∀ μ, IsProbabilityMeasure μ → μ ∘ₘ κ = Measure.dirac () := by
-    intro μ hμ
-    ext s hs
-    rw [Measure.bind_apply hs (kernel.measurable _)]
-    simp [κ]
-  calc 0 = fDiv f (Measure.dirac ()) (Measure.dirac ()) := (fDiv_self hf_one _).symm
-  _ = fDiv f (μ ∘ₘ κ) (ν ∘ₘ κ) := by rw [h1 μ inferInstance, h1 ν inferInstance]
-  _ ≤ fDiv f μ ν := fDiv_comp_right_le μ ν κ hf hf_cvx hf_cont
-
 end ProbabilityTheory

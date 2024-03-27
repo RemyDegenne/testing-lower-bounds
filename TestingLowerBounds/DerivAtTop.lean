@@ -126,6 +126,25 @@ lemma derivAtTop_add' (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hg_cvx : ConvexOn �
   rw [← derivAtTop_add hf_cvx hg_cvx]
   rfl
 
+lemma derivAtTop_add_const (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (c : ℝ) :
+    derivAtTop (fun x ↦ f x + c) = derivAtTop f := by
+  by_cases hf : derivAtTop f = ⊤
+  · rw [hf, derivAtTop_eq_top_iff]
+    simp_rw [add_div]
+    refine Tendsto.atTop_add (derivAtTop_eq_top_iff.mp hf) (C := 0) ?_
+    exact Tendsto.div_atTop tendsto_const_nhds tendsto_id
+  · have h_tendsto := tendsto_derivAtTop hf_cvx hf
+    lift derivAtTop f to ℝ using ⟨hf, derivAtTop_ne_bot⟩ with df
+    refine derivAtTop_of_tendsto ?_
+    simp_rw [add_div]
+    rw [← add_zero df]
+    exact h_tendsto.add (Tendsto.div_atTop tendsto_const_nhds tendsto_id)
+
+lemma derivAtTop_sub_const (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (c : ℝ) :
+    derivAtTop (fun x ↦ f x - c) = derivAtTop f := by
+  simp_rw [sub_eq_add_neg]
+  exact derivAtTop_add_const hf_cvx _
+
 lemma derivAtTop_const_mul (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) {c : ℝ} (hc : 0 < c) :
     derivAtTop (fun x ↦ c * f x) = c * derivAtTop f := by
   by_cases h : Tendsto (fun x ↦ f x / x) atTop atTop

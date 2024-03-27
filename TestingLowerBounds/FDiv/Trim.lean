@@ -33,7 +33,7 @@ namespace ProbabilityTheory
 variable {α β : Type*} {m mα : MeasurableSpace α} {mβ : MeasurableSpace β}
   {μ ν : Measure α} {f g : ℝ → ℝ}
 
-lemma f_condexp_rnDeriv_le [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ mα) (hμν : μ ≪ ν)
+lemma f_condexp_rnDeriv_le [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ mα)
     (hf : StronglyMeasurable f)
     (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0))
     (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) :
@@ -48,7 +48,7 @@ lemma f_rnDeriv_trim_le [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ m�
     (fun x ↦ f ((∂μ.trim hm/∂ν.trim hm) x).toReal)
       ≤ᵐ[ν.trim hm] ν[fun x ↦ f ((∂μ/∂ν) x).toReal | m] := by
   filter_upwards [Measure.toReal_rnDeriv_trim_of_ac hm hμν,
-    f_condexp_rnDeriv_le hm hμν hf hf_cvx hf_cont h_int] with a ha1 ha2
+    f_condexp_rnDeriv_le hm hf hf_cvx hf_cont h_int] with a ha1 ha2
   calc f ((∂μ.trim hm/∂ν.trim hm) a).toReal
       = f ((ν[fun x ↦ ((∂μ/∂ν) x).toReal | m]) a) := by rw [ha1]
     _ ≤ (ν[fun x ↦ f ((∂μ/∂ν) x).toReal | m]) a := ha2
@@ -112,6 +112,6 @@ lemma fDiv_trim_le_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ m
   refine integral_mono_ae (integrable_f_condexp_rnDeriv hm hμν hf hf_cvx hf_cont h_int) ?_ ?_
   · exact integrable_condexp
   refine ae_of_ae_trim hm ?_
-  exact f_condexp_rnDeriv_le hm hμν hf hf_cvx hf_cont h_int
+  exact f_condexp_rnDeriv_le hm hf hf_cvx hf_cont h_int
 
 end ProbabilityTheory
