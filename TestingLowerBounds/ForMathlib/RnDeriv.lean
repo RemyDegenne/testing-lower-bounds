@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne
 -/
 import Mathlib.MeasureTheory.Measure.Tilted
+import Mathlib.MeasureTheory.Function.ConditionalExpectation.Basic
 
 /-!
 
@@ -11,12 +12,12 @@ import Mathlib.MeasureTheory.Measure.Tilted
 
 open Real MeasureTheory Filter
 
-open scoped ENNReal
+open scoped ENNReal MeasureTheory
 
 namespace MeasureTheory.Measure
 
 variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
-  {μ ν : Measure α} {κ η : kernel α β} {f g : ℝ → ℝ}
+  {μ ν : Measure α} {f g : ℝ → ℝ}
 
 @[simp]
 lemma singularPart_singularPart (μ ν : Measure α) :
@@ -108,7 +109,7 @@ lemma measure_singularPartSet (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite
   have hν_ac : ν ≪ μ + ν := by rw [add_comm]; exact rfl.absolutelyContinuous.add_right _
   have h1 : ∫⁻ x in s, ν.rnDeriv (μ + ν) x ∂(μ + ν) = 0 := by
     calc ∫⁻ x in s, ν.rnDeriv (μ + ν) x ∂(μ + ν)
-      = ∫⁻ x in s, 0 ∂(μ + ν) := set_lintegral_congr_fun hs (ae_of_all _ (fun _ hx ↦ hx))
+      = ∫⁻ _ in s, 0 ∂(μ + ν) := set_lintegral_congr_fun hs (ae_of_all _ (fun _ hx ↦ hx))
     _ = 0 := lintegral_zero
   have h2 : ∫⁻ x in s, ν.rnDeriv (μ + ν) x ∂(μ + ν) = ν s :=
     Measure.set_lintegral_rnDeriv hν_ac _
@@ -182,6 +183,39 @@ example [SigmaFinite μ] [SigmaFinite ν] :
   rw [← restrict_singularPartSet_eq_singularPart]
   simp only [MeasurableSet.univ, restrict_apply, Set.univ_inter]
   rfl
+
+lemma AbsolutelyContinuous.trim (hm : m ≤ mα) (hμν : μ ≪ ν) :
+    μ.trim hm ≪ ν.trim hm := by
+  refine AbsolutelyContinuous.mk (fun s hs hsν ↦ ?_)
+  rw [trim_measurableSet_eq hm hs] at hsν ⊢
+  exact hμν hsν
+
+lemma toReal_rnDeriv_trim_of_ac (hm : m ≤ mα) [IsFiniteMeasure μ] [SigmaFinite ν]
+    [SigmaFinite (ν.trim hm)] (hμν : μ ≪ ν) :
+    (fun x ↦ ((μ.trim hm).rnDeriv (ν.trim hm) x).toReal)
+      =ᵐ[ν.trim hm] ν[fun x ↦ (μ.rnDeriv ν x).toReal | m] := by
+  have h_meas : StronglyMeasurable[m] fun x ↦ (rnDeriv (trim μ hm) (trim ν hm) x).toReal :=
+    (Measure.measurable_rnDeriv _ _).ennreal_toReal.stronglyMeasurable
+  rw [ae_eq_trim_iff _ h_meas stronglyMeasurable_condexp]
+  refine ae_eq_condexp_of_forall_set_integral_eq ?_ integrable_toReal_rnDeriv ?_ ?_
+    h_meas.aeStronglyMeasurable'
+  · intro s hs _
+    refine integrable_toReal_of_lintegral_ne_top ?_ ?_
+    · exact ((Measure.measurable_rnDeriv _ _).mono hm le_rfl).aemeasurable.restrict
+    · rw [← lintegral_trim hm (Measure.measurable_rnDeriv _ _), ← restrict_trim _ _ hs,
+        set_lintegral_rnDeriv (hμν.trim hm)]
+      exact measure_ne_top _ _
+  · intro s hs _
+    rw [integral_trim hm h_meas, set_integral_toReal_rnDeriv hμν, ← restrict_trim _ _ hs,
+      set_integral_toReal_rnDeriv (hμν.trim hm), trim_measurableSet_eq hm hs]
+
+lemma rnDeriv_trim_of_ac (hm : m ≤ mα) [IsFiniteMeasure μ] [SigmaFinite ν]
+    [SigmaFinite (ν.trim hm)] (hμν : μ ≪ ν) :
+    (μ.trim hm).rnDeriv (ν.trim hm)
+      =ᵐ[ν.trim hm] fun x ↦ ENNReal.ofReal ((ν[fun x ↦ (μ.rnDeriv ν x).toReal | m]) x) := by
+  filter_upwards [toReal_rnDeriv_trim_of_ac hm hμν, rnDeriv_ne_top (μ.trim hm) (ν.trim hm)]
+    with x hx hx_ne_top
+  rw [← hx, ENNReal.ofReal_toReal hx_ne_top]
 
 end MeasureTheory.Measure
 
