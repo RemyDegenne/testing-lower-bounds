@@ -16,8 +16,7 @@ open scoped ENNReal MeasureTheory
 
 namespace MeasureTheory.Measure
 
-variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
-  {μ ν : Measure α} {f g : ℝ → ℝ}
+variable {α β : Type*} {m mα : MeasurableSpace α} {mβ : MeasurableSpace β} {μ ν : Measure α}
 
 @[simp]
 lemma singularPart_singularPart (μ ν : Measure α) :
@@ -194,8 +193,9 @@ lemma toReal_rnDeriv_trim_of_ac (hm : m ≤ mα) [IsFiniteMeasure μ] [SigmaFini
     [SigmaFinite (ν.trim hm)] (hμν : μ ≪ ν) :
     (fun x ↦ ((μ.trim hm).rnDeriv (ν.trim hm) x).toReal)
       =ᵐ[ν.trim hm] ν[fun x ↦ (μ.rnDeriv ν x).toReal | m] := by
-  have h_meas : StronglyMeasurable[m] fun x ↦ (rnDeriv (trim μ hm) (trim ν hm) x).toReal :=
-    (Measure.measurable_rnDeriv _ _).ennreal_toReal.stronglyMeasurable
+  have h_meas : StronglyMeasurable[m] fun x ↦ (rnDeriv (trim μ hm) (trim ν hm) x).toReal := by
+    refine Measurable.stronglyMeasurable ?_
+    exact @Measurable.ennreal_toReal _ m _ (Measure.measurable_rnDeriv _ _)
   rw [ae_eq_trim_iff _ h_meas stronglyMeasurable_condexp]
   refine ae_eq_condexp_of_forall_set_integral_eq ?_ integrable_toReal_rnDeriv ?_ ?_
     h_meas.aeStronglyMeasurable'
@@ -221,8 +221,7 @@ end MeasureTheory.Measure
 
 namespace MeasurableEmbedding
 
-variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
-  {μ ν : Measure α} {κ η : kernel α β} {f g : ℝ → ℝ}
+variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {μ ν : Measure α}
 
 lemma _root_.MeasurableEmbedding.absolutelyContinuous_map (hμν : μ ≪ ν)
     [SigmaFinite μ] [SigmaFinite ν]
