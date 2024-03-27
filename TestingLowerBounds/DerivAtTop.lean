@@ -162,6 +162,16 @@ lemma derivAtTop_const_mul (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) {c : ℝ} (hc :
     simp_rw [mul_div_assoc]
     exact (tendsto_derivAtTop hf_cvx h_top).const_mul _
 
+lemma derivAtTop_const_mul_of_ne_top (hf_cvx : ConvexOn ℝ (Set.Ici 0) f)
+    (h_deriv : derivAtTop f ≠ ⊤) (c : ℝ) :
+    derivAtTop (fun x ↦ c * f x) = c * derivAtTop f := by
+  have h_tendsto := tendsto_derivAtTop hf_cvx h_deriv
+  lift derivAtTop f to ℝ using ⟨h_deriv, derivAtTop_ne_bot⟩ with df
+  rw [← EReal.coe_mul]
+  refine derivAtTop_of_tendsto ?_
+  simp_rw [mul_div_assoc]
+  exact h_tendsto.const_mul c
+
 lemma le_add_derivAtTop (h_cvx : ConvexOn ℝ (Set.Ici 0) f)
     (h : derivAtTop f ≠ ⊤) {x y : ℝ} (hx : 0 ≤ x) (hy : 0 ≤ y) :
     f x ≤ f y + (derivAtTop f).toReal * (x - y) := by

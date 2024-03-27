@@ -181,6 +181,19 @@ lemma fDiv_mul {c : ℝ} (hc : 0 ≤ c) (hf_cvx : ConvexOn ℝ (Set.Ici 0) f)
       rw [this]
       exact h.const_mul _
 
+lemma fDiv_mul_of_ne_top (c : ℝ) (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (h_top : derivAtTop f ≠ ⊤)
+    (μ ν : Measure α) [IsFiniteMeasure μ] (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) :
+    fDiv (fun x ↦ c * f x) μ ν = c * fDiv f μ ν := by
+  by_cases hc0 : c = 0
+  · simp [hc0]
+  rw [fDiv_of_integrable h_int, fDiv_of_integrable]
+  swap; · exact h_int.const_mul _
+  rw [integral_mul_left, derivAtTop_const_mul_of_ne_top hf_cvx h_top c]
+  lift derivAtTop f to ℝ using ⟨h_top, derivAtTop_ne_bot⟩ with df
+  rw [← EReal.coe_ennreal_toReal (measure_ne_top _ _)]
+  norm_cast
+  ring
+
 -- TODO: in the case where both functions are convex, integrability of the sum is equivalent to
 -- integrability of both, and we don't need hf and hg.
 lemma fDiv_add [IsFiniteMeasure μ] (hf : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
