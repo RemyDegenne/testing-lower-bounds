@@ -123,6 +123,8 @@ end SingularPart
 
 section Integrable
 
+variable {E : Type*}
+
 -- todo find better name
 theorem _root_.MeasureTheory.Integrable.compProd_mk_left_ae' [NormedAddCommGroup E]
     [IsFiniteMeasure μ] [IsSFiniteKernel κ] ⦃f : α × β → E⦄
