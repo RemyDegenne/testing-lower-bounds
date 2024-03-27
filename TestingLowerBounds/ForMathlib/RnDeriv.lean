@@ -183,6 +183,8 @@ example [SigmaFinite μ] [SigmaFinite ν] :
   simp only [MeasurableSet.univ, restrict_apply, Set.univ_inter]
   rfl
 
+section Trim
+
 lemma AbsolutelyContinuous.trim (hm : m ≤ mα) (hμν : μ ≪ ν) :
     μ.trim hm ≪ ν.trim hm := by
   refine AbsolutelyContinuous.mk (fun s hs hsν ↦ ?_)
@@ -199,12 +201,7 @@ lemma toReal_rnDeriv_trim_of_ac (hm : m ≤ mα) [IsFiniteMeasure μ] [SigmaFini
   rw [ae_eq_trim_iff _ h_meas stronglyMeasurable_condexp]
   refine ae_eq_condexp_of_forall_set_integral_eq ?_ integrable_toReal_rnDeriv ?_ ?_
     h_meas.aeStronglyMeasurable'
-  · intro s hs _
-    refine integrable_toReal_of_lintegral_ne_top ?_ ?_
-    · exact ((Measure.measurable_rnDeriv _ _).mono hm le_rfl).aemeasurable.restrict
-    · rw [← lintegral_trim hm (Measure.measurable_rnDeriv _ _), ← restrict_trim _ _ hs,
-        set_lintegral_rnDeriv (hμν.trim hm)]
-      exact measure_ne_top _ _
+  · exact fun s _ _ ↦ (integrable_of_integrable_trim hm integrable_toReal_rnDeriv).integrableOn
   · intro s hs _
     rw [integral_trim hm h_meas, set_integral_toReal_rnDeriv hμν, ← restrict_trim _ _ hs,
       set_integral_toReal_rnDeriv (hμν.trim hm), trim_measurableSet_eq hm hs]
@@ -216,6 +213,14 @@ lemma rnDeriv_trim_of_ac (hm : m ≤ mα) [IsFiniteMeasure μ] [SigmaFinite ν]
   filter_upwards [toReal_rnDeriv_trim_of_ac hm hμν, rnDeriv_ne_top (μ.trim hm) (ν.trim hm)]
     with x hx hx_ne_top
   rw [← hx, ENNReal.ofReal_toReal hx_ne_top]
+
+lemma trim_withDensity (hm : m ≤ mα) [SigmaFinite μ] {f : α → ℝ≥0∞} (hf : Measurable[m] f) :
+    (withDensity μ f).trim hm = withDensity (μ.trim hm) f := by
+  refine @Measure.ext _ m _ _ (fun s hs ↦ ?_)
+  rw [withDensity_apply _ hs, restrict_trim _ _ hs, lintegral_trim _ hf, trim_measurableSet_eq _ hs,
+    withDensity_apply _ (hm s hs)]
+
+end Trim
 
 end MeasureTheory.Measure
 

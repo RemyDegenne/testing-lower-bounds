@@ -49,7 +49,7 @@ open scoped ENNReal NNReal Topology
 
 namespace ProbabilityTheory
 
-variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
+variable {α β : Type*} {m mα : MeasurableSpace α} {mβ : MeasurableSpace β}
   {μ ν : Measure α} {κ η : kernel α β} {f g : ℝ → ℝ}
 
 lemma integrable_toReal_iff {f : α → ℝ≥0∞} (hf : AEMeasurable f μ) (hf_ne_top : ∀ᵐ x ∂μ, f x ≠ ∞) :

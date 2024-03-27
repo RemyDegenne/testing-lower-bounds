@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne
 -/
 import TestingLowerBounds.MeasureCompProd
-import TestingLowerBounds.FDiv
+import TestingLowerBounds.FDiv.Basic
 import Mathlib.Probability.Kernel.Disintegration
 
 /-!
