@@ -177,6 +177,11 @@ lemma le_add_derivAtTop (h_cvx : ConvexOn ℝ (Set.Ici 0) f)
     f x ≤ f y + (derivAtTop f).toReal * (x - y) := by
   sorry
 
+lemma le_add_derivAtTop'' (h_cvx : ConvexOn ℝ (Set.Ici 0) f)
+    (h : derivAtTop f ≠ ⊤) {x y : ℝ} (hx : 0 ≤ x) (hy : 0 ≤ y) :
+    f (x + y) ≤ f x + (derivAtTop f).toReal * y := by
+  sorry
+
 lemma le_add_derivAtTop' (h_cvx : ConvexOn ℝ (Set.Ici 0) f)
     (h : derivAtTop f ≠ ⊤) {x u : ℝ} (hx : 0 ≤ x) (hu : 0 ≤ u) :
     f x ≤ f (x * u) + (derivAtTop f).toReal * x * (1 - u) := by

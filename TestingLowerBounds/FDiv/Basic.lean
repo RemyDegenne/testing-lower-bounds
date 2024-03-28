@@ -351,12 +351,35 @@ lemma fDiv_eq_add_withDensity_singularPart''
     sub_eq_add_neg]
   exact hf_cvx
 
+lemma fDiv_eq_add_withDensity_derivAtTop
+    (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) :
+    fDiv f μ ν = fDiv f (ν.withDensity (∂μ/∂ν)) ν + derivAtTop f * μ.singularPart ν Set.univ := by
+  rw [fDiv_eq_add_withDensity_singularPart'' μ ν hf_cvx,
+    fDiv_of_mutuallySingular (Measure.mutuallySingular_singularPart _ _),
+    derivAtTop_sub_const hf_cvx]
+  simp
+
 lemma fDiv_lt_top_of_ac [SigmaFinite μ] [SigmaFinite ν] (h : μ ≪ ν)
     (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) :
     fDiv f μ ν < ⊤ := by
   classical
   rw [fDiv_of_absolutelyContinuous h, if_pos h_int]
   simp
+
+lemma fDiv_absolutelyContinuous_add_mutuallySingular {μ₁ μ₂ ν : Measure α}
+    [IsFiniteMeasure μ₁] [IsFiniteMeasure μ₂] [IsFiniteMeasure ν] (h₁ : μ₁ ≪ ν) (h₂ : μ₂ ⟂ₘ ν)
+    (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) :
+    fDiv f (μ₁ + μ₂) ν = fDiv f μ₁ ν + derivAtTop f * μ₂ Set.univ := by
+  rw [fDiv_eq_add_withDensity_derivAtTop  _ _ hf_cvx, Measure.singularPart_add,
+    Measure.singularPart_eq_zero_of_ac h₁, Measure.singularPart_eq_self.mpr h₂, zero_add]
+  congr
+  conv_rhs => rw [← Measure.withDensity_rnDeriv_eq μ₁ ν h₁]
+  refine withDensity_congr_ae ?_
+  refine (Measure.rnDeriv_add' _ _ _).trans ?_
+  filter_upwards [Measure.rnDeriv_eq_zero_of_mutuallySingular h₂ Measure.AbsolutelyContinuous.rfl]
+    with x hx
+  simp [hx]
 
 section derivAtTopTop
 

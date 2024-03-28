@@ -114,4 +114,62 @@ lemma fDiv_trim_le_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ m
   refine ae_of_ae_trim hm ?_
   exact f_condexp_rnDeriv_le hm hf hf_cvx hf_cont h_int
 
+lemma fdiv_add_measure_le_of_ac {μ₁ μ₂ ν : Measure α} (h₁ : μ₁ ≪ ν) (h₂ : μ₂ ≪ ν) :
+    fDiv f (μ₁ + μ₂) ν ≤ fDiv f μ₁ ν + derivAtTop f * μ₂ Set.univ := by
+  classical
+  rw [fDiv_of_absolutelyContinuous (Measure.AbsolutelyContinuous.add_left_iff.mpr ⟨h₁, h₂⟩), if_pos]
+  swap; · sorry
+  rw [fDiv_of_absolutelyContinuous h₁, if_pos]
+  swap; · sorry
+  sorry
+
+lemma Measure.trim_add (μ ν : Measure α) (hm : m ≤ mα) :
+    (μ + ν).trim hm = μ.trim hm + ν.trim hm := by
+  refine @Measure.ext _ m _ _ (fun s hs ↦ ?_)
+  simp only [Measure.add_toOuterMeasure, OuterMeasure.coe_add, Pi.add_apply,
+    trim_measurableSet_eq hm hs]
+
+lemma fDiv_trim_le [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ mα)
+    (hf : StronglyMeasurable f)
+    (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0)) :
+    fDiv f (μ.trim hm) (ν.trim hm) ≤ fDiv f μ ν := by
+  let μ' := μ.singularPart ν
+  have h1 : μ.trim hm = (ν.withDensity (∂μ/∂ν)).trim hm
+      + (ν.trim hm).withDensity (∂(μ'.trim hm)/∂(ν.trim hm))
+      + (μ'.trim hm).singularPart (ν.trim hm) := by
+    conv_lhs => rw [μ.haveLebesgueDecomposition_add ν, add_comm, Measure.trim_add,
+      ← Measure.rnDeriv_add_singularPart ((μ.singularPart ν).trim hm) (ν.trim hm), ← add_assoc]
+  rw [h1, fDiv_absolutelyContinuous_add_mutuallySingular _
+    (Measure.mutuallySingular_singularPart _ _) hf_cvx]
+  swap
+  · rw [Measure.AbsolutelyContinuous.add_left_iff]
+    constructor
+    · exact (withDensity_absolutelyContinuous _ _).trim hm
+    · exact withDensity_absolutelyContinuous _ _
+  calc fDiv f ((ν.withDensity (∂μ/∂ν)).trim hm + (ν.trim hm).withDensity (∂μ'.trim hm/∂ν.trim hm))
+        (ν.trim hm)
+      + derivAtTop f * (μ'.trim hm).singularPart (ν.trim hm) Set.univ
+    ≤ fDiv f ((ν.withDensity (∂μ/∂ν)).trim hm) (ν.trim hm)
+      + derivAtTop f * (ν.trim hm).withDensity (∂μ'.trim hm/∂ν.trim hm) Set.univ
+      + derivAtTop f * (μ'.trim hm).singularPart (ν.trim hm) Set.univ := by
+        gcongr
+        refine fdiv_add_measure_le_of_ac ?_ ?_
+        · exact (withDensity_absolutelyContinuous _ _).trim hm
+        · exact withDensity_absolutelyContinuous _ _
+  _ = fDiv f ((ν.withDensity (∂μ/∂ν)).trim hm) (ν.trim hm)
+      + derivAtTop f * ((ν.trim hm).withDensity (∂μ'.trim hm/∂ν.trim hm)
+        + (μ'.trim hm).singularPart (ν.trim hm)) Set.univ := by
+        simp only [Measure.add_toOuterMeasure, OuterMeasure.coe_add, Pi.add_apply,
+          EReal.coe_ennreal_add]
+        sorry
+  _ = fDiv f ((ν.withDensity (∂μ/∂ν)).trim hm) (ν.trim hm)
+      + derivAtTop f * μ'.trim hm Set.univ := by
+        conv_rhs => rw [← Measure.rnDeriv_add_singularPart (μ'.trim hm) (ν.trim hm)]
+  _ = fDiv f ((ν.withDensity (∂μ/∂ν)).trim hm) (ν.trim hm) + derivAtTop f * μ' Set.univ := by
+        rw [trim_measurableSet_eq hm MeasurableSet.univ]
+  _ ≤ fDiv f (ν.withDensity (∂μ/∂ν)) ν + derivAtTop f * μ' Set.univ := by
+        gcongr
+        exact fDiv_trim_le_of_ac hm (withDensity_absolutelyContinuous _ _) hf hf_cvx hf_cont
+  _ = fDiv f μ ν := by conv_rhs => rw [fDiv_eq_add_withDensity_derivAtTop _ _ hf_cvx]
+
 end ProbabilityTheory
