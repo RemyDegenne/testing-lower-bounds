@@ -677,8 +677,6 @@ lemma Measure.rnDeriv_measure_compProd_kernel_withDensity [MeasurableSpace.Count
       kernel.rnDeriv_measure_compProd μ ν κ' η, h_ae] with p h1 h2 h3
   rw [h1, h2, h3]
 
-lemma new_dummy_lemma : 0 = 0 := sorry
-
 lemma integrable_f_rnDeriv_mul_withDensity [MeasurableSpace.CountablyGenerated β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsMarkovKernel η]
