@@ -1,7 +1,19 @@
 \chapter*{Introduction}
 
-The goal of this project is to formalize the information theory notions needed in the paper \href{https://arxiv.org/abs/2403.01892}{[Degenne and Mathieu, Information Lower Bounds for Robust Mean Estimation, 2024]}.
+The goal of this project is to formalize information divergences between probability measures, as well as results about error bounds for (sequential) hypothesis testing.
+
+\section*{Source material}
+
+As a reference, we want all notions needed in the recent paper \href{https://arxiv.org/abs/2403.01892}{[Degenne and Mathieu, Information Lower Bounds for Robust Mean Estimation, 2024]}.
 
 A very useful book (draft) about information theory and hypothesis testing: \cite{polyanskiy2024information} 
 
 Main reference for the properties of the Rényi divergence: \cite{van2014renyi}
+
+\section*{Notation}
+
+Let $\mu$ be a measure on a measurable space $\mathcal X$.
+
+For a function $g : \mathcal X \to \mathcal Y$ which is $a.e.$-measurable with respect to $\mu$, $g_* \mu$ is the pushforward of $\mu$ by $g$. This is a measure on $\mathcal Y$ such that $g_* \mu (A) = \mu(g^{-1} A)$.
+
+For a function $g : \mathcal X \to \mathbb{R}_{+,\infty}$, $g \cdot \mu$ denotes the measure on $\mathcal X$ with density $g$ with respect to $\mu$. That is, $g \cdot \mu (A) = \int_{x \in A} g(x) \partial\mu$.

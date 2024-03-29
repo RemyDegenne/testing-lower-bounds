@@ -1,0 +1,43 @@
+\chapter{Hellinger alpha-divergences}
+
+\begin{definition}[Hellinger $\alpha$-divergence]
+  \label{def:hellingerAlpha}
+  %\lean{}
+  %\leanok
+  \uses{def:KL, def:fDiv}
+  Let $\mu, \nu$ be two measures on $\mathcal X$. The Hellinger divergence of order $\alpha \in (0,+\infty)$ between $\mu$ and $\nu$ is
+  \begin{align*}
+  \He_\alpha(\mu, \nu) = \left\{
+  \begin{array}{ll}
+    \KL(\mu, \nu) & \text{for } \alpha = 1
+    \\
+    D_f(\mu, \nu) & \text{for } \alpha \in (0,+\infty) \backslash \{1\}
+  \end{array}\right.
+  \end{align*}
+  with $f : x \mapsto \frac{x^{\alpha} - 1}{\alpha - 1}$.
+\end{definition}
+
+\begin{lemma}
+  \label{lem:hellingerAlpha_symm}
+  %\lean{}
+  %\leanok
+  \uses{def:hellingerAlpha}
+  For $\alpha \in (0, 1)$, $(1 - \alpha) \He_\alpha(\mu, \nu) = \alpha \He_{1 - \alpha}(\nu, \mu)$.
+\end{lemma}
+
+\begin{proof}
+Unfold the definitions.
+\end{proof}
+
+
+\begin{definition}[Conditional Hellinger $\alpha$-divergence]
+  \label{def:condHellingerAlpha}
+  %\lean{}
+  %\leanok
+  \uses{def:condFDiv}
+  Let $\mu$ be a measure on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels. The conditional Hellinger divergence of order $\alpha \in (0,+\infty) \backslash \{1\}$ between $\kappa$ and $\eta$ conditionally to $\mu$ is
+  \begin{align*}
+  \He_\alpha(\kappa, \eta \mid \mu) = D_f(\kappa, \eta \mid \mu) \: ,
+  \end{align*}
+  for $f : x \mapsto \frac{x^{\alpha} - 1}{\alpha - 1}$.
+\end{definition}

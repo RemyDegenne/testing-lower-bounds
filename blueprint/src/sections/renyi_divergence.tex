@@ -4,7 +4,7 @@
   \label{def:Renyi}
   \lean{ProbabilityTheory.renyiDiv}
   \leanok
-  \uses{def:KL}
+  \uses{def:KL, def:hellingerAlpha}
   Let $\mu, \nu$ be two measures on $\mathcal X$. The Rényi divergence of order $\alpha \in [0,+\infty)$ between $\mu$ and $\nu$ is
   \begin{align*}
   R_\alpha(\mu, \nu) = \left\{
@@ -13,10 +13,9 @@
   \\
   \KL(\mu, \nu) & \text{for } \alpha = 1
   \\
-  \frac{1}{\alpha - 1} \log (1 + (\alpha - 1) D_f(\nu, \mu)) & \text{for } \alpha \in (0,+\infty) \backslash \{1\}
+  \frac{1}{\alpha - 1} \log (1 + (\alpha - 1) \He_\alpha(\mu, \nu)) & \text{for } \alpha \in (0,+\infty) \backslash \{1\}
   \end{array}\right.
   \end{align*}
-  with $f : x \mapsto \frac{1}{\alpha - 1}(x^{\alpha} - 1)$.
 \end{definition}
 
 \begin{lemma}
@@ -28,7 +27,8 @@
 \end{lemma}
 
 \begin{proof}
-Unfold the definitions.
+\uses{lem:hellingerAlpha_symm}
+Use Lemma~\ref{lem:hellingerAlpha_symm}.
 \end{proof}
 
 \begin{lemma}
@@ -59,12 +59,11 @@ Unfold the definitions.
   \label{def:condRenyi}
   %\lean{}
   %\leanok
-  \uses{def:condFDiv}
+  \uses{def:condHellingerAlpha}
   Let $\mu$ be a measure on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels. The conditional Rényi divergence of order $\alpha \in (0,+\infty) \backslash \{1\}$ between $\kappa$ and $\eta$ conditionally to $\mu$ is
   \begin{align*}
-  R_\alpha(\kappa, \eta \mid \mu) =\frac{1}{\alpha - 1} \log (1 + (\alpha - 1) D_f(\kappa, \eta \mid \mu)) \: ,
+  R_\alpha(\kappa, \eta \mid \mu) =\frac{1}{\alpha - 1} \log (1 + (\alpha - 1) \He_\alpha(\kappa, \eta \mid \mu)) \: .
   \end{align*}
-  for $f : x \mapsto \frac{1}{\alpha - 1}(x^{\alpha} - 1)$.
 \end{definition}
 
 \section{Properties inherited from f-divergences}
@@ -153,6 +152,9 @@ By Corollary~\ref{cor:data_proc_event}, $D_f(\mu, \nu) \ge D_f(\mu_E, \nu_E)$, h
   Let $\mu, \nu$ be two finite measures. Then $\alpha \mapsto R_\alpha(\mu, \nu)$ is continuous on $[0, 1]$ and on $[0, \sup \{\alpha \mid R_\alpha(\mu, \nu) < \infty\})$.
 \end{lemma}
 
+\begin{proof}
+\end{proof}
+
 \section{The tilted measure}
 
 \begin{definition}
@@ -228,7 +230,7 @@ Corollary~\ref{cor:renyi_eq_add_kl} proves the other inequality.
   %\lean{}
   %\leanok
   \uses{def:renyi_measure, def:condRenyi}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels.
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels.
   Then $R_\alpha(\mu \otimes \kappa, \nu \otimes \eta) = R_\alpha(\mu, \nu) + R_\alpha(\kappa, \eta \mid \mu^{(\alpha, \nu)})$.
 \end{theorem}
 
