@@ -109,10 +109,77 @@ Linearity (Lemmas~\ref{lem:fDiv_add} and~\ref{lem:fDiv_mul}), then Lemma~\ref{le
   \lean{ProbabilityTheory.fDiv_map_measurableEmbedding}
   \leanok
   \uses{def:fDiv}
-  Let $\mu$ and $\nu$ be two measures on $\mathcal X$ and let $g : \mathcal X \to \mathcal Y$ be a measurable embedding. Then $D_f(g \cdot \mu, g \cdot \nu) = D_f(\mu, \nu)$.
+  Let $\mu$ and $\nu$ be two measures on $\mathcal X$ and let $g : \mathcal X \to \mathcal Y$ be a measurable embedding. Then $D_f(g_* \mu, g_* \nu) = D_f(\mu, \nu)$.
 \end{lemma}
 
 \begin{proof}\leanok
+\end{proof}
+
+\begin{lemma}
+  \label{lem:fDiv_eq_add_withDensity_derivAtTop}
+  \lean{ProbabilityTheory.fDiv_eq_add_withDensity_derivAtTop}
+  \leanok
+  \uses{def:fDiv}
+  Let $\mu$ and $\nu$ be two finite measures on $\mathcal X$.
+  Then $D_f(\mu, \nu) = D_f(\frac{d\mu}{d\nu}\cdot \nu, \nu) + f'(\infty) \mu_{\perp \nu}(\mathcal X)$.
+\end{lemma}
+
+\begin{proof}\leanok
+\end{proof}
+
+\begin{lemma}
+  \label{lem:le_fDiv_of_ac}
+  \lean{ProbabilityTheory.le_fDiv_of_ac}
+  \leanok
+  \uses{def:fDiv}
+  Let $\mu$ be a finite measure and $\nu$ be a probability measure on the same space $\mathcal X$, such that $\mu \ll \nu$. Then $f(\mu(\mathcal X)) \le D_f(\mu, \nu)$.
+\end{lemma}
+
+\begin{proof}\leanok
+Since $\mu \ll \nu$ the $f$-divergence is only the integral part. Then by Jensen's inequality,
+\begin{align*}
+D_f(\mu, \nu)
+&= \nu\left[ f\left( \frac{d\mu}{d\nu} \right) \right]
+\ge f\left( \nu\left[\frac{d\mu}{d\nu} \right] \right)
+= f(\mu(\mathcal X))
+\: .
+\end{align*}
+
+\end{proof}
+
+\begin{lemma}
+  \label{lem:le_fDiv}
+  \lean{ProbabilityTheory.le_fDiv}
+  \leanok
+  \uses{def:fDiv}
+  Let $\mu$ be a finite measure and $\nu$ be a probability measure on the same space $\mathcal X$. Then $f(\mu(\mathcal X)) \le D_f(\mu, \nu)$.
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{lem:fDiv_eq_add_withDensity_derivAtTop, lem:le_fDiv_of_ac}
+By convexity, then Lemma~\ref{lem:le_fDiv_of_ac} and finally Lemma~\ref{lem:fDiv_eq_add_withDensity_derivAtTop},
+\begin{align*}
+f(\mu(\mathcal X))
+&\le f(\frac{d\mu}{d\nu}\cdot \nu (\mathcal X)) + f'(\infty)\mu_{\perp}(\mathcal X)
+\\
+&\le D_f(\frac{d\mu}{d\nu}\cdot \nu , \nu) + f'(\infty)\mu_{\perp}(\mathcal X)
+\\
+&= D_f(\mu, \nu)
+\: .
+\end{align*}
+\end{proof}
+
+\begin{lemma}
+  \label{lem:fDiv_nonneg}
+  \lean{ProbabilityTheory.fDiv_nonneg}
+  \leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two probability measures. If $f(1) = 0$ then $D_f(\mu, \nu) \ge 0$.
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{lem:le_fDiv}
+Apply Lemma~\ref{lem:le_fDiv} and use $f(\mu(\mathcal X)) = f(1) = 0$.
 \end{proof}
 
 \section{Data-processing inequality: sigma-algebras}
@@ -369,21 +436,6 @@ By Lemma~\ref{lem:fDiv_comp_le_compProd}, $D_f(\kappa \circ \mu, \kappa \circ \n
 \begin{proof}
 \uses{thm:fDiv_data_proc}
 Use the deterministic kernel $\kappa : \mathcal X \rightsquigarrow \{0, 1\}$ with $\kappa(x) = \delta_1 \mathbb{I}\{x \in E\} + \delta_0 \mathbb{I}\{x \notin E\}$ in Theorem~\ref{thm:fDiv_data_proc}.
-\end{proof}
-
-\begin{lemma}
-  \label{lem:fDiv_nonneg}
-  \lean{ProbabilityTheory.fDiv_nonneg}
-  \leanok
-  \uses{def:fDiv}
-  Let $\mu, \nu$ be two probability measures on a standard Borel space $\mathcal X$. If $f(1) = 0$ then $D_f(\mu, \nu) \ge 0$.
-\end{lemma}
-
-\begin{proof}\leanok
-\uses{thm:fDiv_data_proc, lem:fDiv_self}
-
-Take $\kappa : \mathcal X \rightsquigarrow (*)$ the constant kernel to a type with only 1 element, with $\kappa(x) = \delta_*$ (the dirac measure at the element $*$).
-Then by Theorem~\ref{thm:fDiv_data_proc} and Lemma~\ref{lem:fDiv_self}, $D_f(\mu, \nu) \ge D_f(\kappa \circ \mu, \kappa \circ \nu) = D_f(\delta_*, \delta_*) = 0$.
 \end{proof}
 
 \begin{lemma}
