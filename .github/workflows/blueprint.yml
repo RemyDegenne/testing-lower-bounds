@@ -37,6 +37,8 @@ jobs:
             .lake/build/doc/Lean
             .lake/build/doc/Std
             .lake/build/doc/Mathlib
+            .lake/build/doc/declarations
+            !.lake/build/doc/declarations/declaration-data-TestingLowerBounds*
           key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
           restore-keys: |
             MathlibDoc-
