@@ -184,7 +184,46 @@ Apply Lemma~\ref{lem:le_fDiv} and use $f(\mu(\mathcal X)) = f(1) = 0$.
 
 \section{Data-processing inequality: sigma-algebras}
 
-TODO
+For $\mathcal A$ a sub-$\sigma$-algebra and $\mu$ a measure, we write $\mathcal \mu_{| \mathcal A}$ for the measure restricted to the $\sigma$-algebra.
+
+\begin{lemma}
+  \label{thm:fDiv_trim_le_of_ac}
+  \lean{ProbabilityTheory.fDiv_trim_le_of_ac}
+  \leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ with $\mu \ll \nu$ and let $\mathcal A$ be a sub-$\sigma$-algebra of $\mathcal X$. Then
+  $D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A}) \le D_f(\mu, \nu)$.
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{thm:condexp_jensen}
+\end{proof}
+
+\begin{theorem}
+  \label{thm:fDiv_trim_le}
+  \lean{ProbabilityTheory.fDiv_trim_le}
+  \leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\mathcal A$ be a sub-$\sigma$-algebra of $\mathcal X$. Then
+  $D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A}) \le D_f(\mu, \nu)$.
+\end{theorem}
+
+\begin{proof}\leanok
+\uses{lem:fDiv_trim_le_of_ac}
+\end{proof}
+
+\begin{theorem}
+  \label{thm:iSup_fDiv_trim}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$. Then
+  $\sup_{\mathcal A \text{ finite}} D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A}) = D_f(\mu, \nu)$.
+\end{theorem}
+
+\begin{proof}
+\uses{lem:fDiv_trim_le}
+\end{proof}
 
 \section{Conditional f-divergence}
 
