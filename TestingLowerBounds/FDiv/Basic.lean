@@ -577,7 +577,6 @@ lemma toReal_fDiv_of_integrable [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     exact fun _ ↦ EReal.coe_ennreal_nonneg _
   rfl
 
--- todo: generalize: remove hμν, then use this to prove fDiv_nonneg
 lemma le_fDiv_of_ac [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
     (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0))
     (hμν : μ ≪ ν) :
