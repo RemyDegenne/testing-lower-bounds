@@ -11,7 +11,7 @@ For $\mu, \nu$ two measures, we denote by $\mu_{\perp \nu}$ the singular part of
   \label{def:fDiv}
   \lean{ProbabilityTheory.fDiv}
   \leanok
-  %\uses{}
+  \uses{def:derivAtTop}
   Let $f : \mathbb{R} \to \mathbb{R}$ and let $\mu, \nu$ be two measures on a measurable space $\mathcal X$. The f-divergence between $\mu$ and $\nu$ is
   \begin{align*}
   D_f(\mu, \nu) = \nu\left[x \mapsto f\left(\frac{d \mu}{d \nu}(x)\right)\right] + f'(\infty) \mu_{\perp \nu}(\mathcal X)
@@ -114,6 +114,10 @@ Linearity (Lemmas~\ref{lem:fDiv_add} and~\ref{lem:fDiv_mul}), then Lemma~\ref{le
 
 \begin{proof}\leanok
 \end{proof}
+
+\section{Data-processing inequality: sigma-algebras}
+
+TODO
 
 \section{Conditional f-divergence}
 
