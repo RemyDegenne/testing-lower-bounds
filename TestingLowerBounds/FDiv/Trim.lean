@@ -114,15 +114,6 @@ lemma fDiv_trim_le_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ m
   refine ae_of_ae_trim hm ?_
   exact f_condexp_rnDeriv_le hm hf hf_cvx hf_cont h_int
 
-lemma fdiv_add_measure_le_of_ac {μ₁ μ₂ ν : Measure α} (h₁ : μ₁ ≪ ν) (h₂ : μ₂ ≪ ν) :
-    fDiv f (μ₁ + μ₂) ν ≤ fDiv f μ₁ ν + derivAtTop f * μ₂ Set.univ := by
-  classical
-  rw [fDiv_of_absolutelyContinuous (Measure.AbsolutelyContinuous.add_left_iff.mpr ⟨h₁, h₂⟩), if_pos]
-  swap; · sorry
-  rw [fDiv_of_absolutelyContinuous h₁, if_pos]
-  swap; · sorry
-  sorry
-
 lemma Measure.trim_add (μ ν : Measure α) (hm : m ≤ mα) :
     (μ + ν).trim hm = μ.trim hm + ν.trim hm := by
   refine @Measure.ext _ m _ _ (fun s hs ↦ ?_)
@@ -153,7 +144,7 @@ lemma fDiv_trim_le [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ mα)
       + derivAtTop f * (ν.trim hm).withDensity (∂μ'.trim hm/∂ν.trim hm) Set.univ
       + derivAtTop f * (μ'.trim hm).singularPart (ν.trim hm) Set.univ := by
         gcongr
-        refine fdiv_add_measure_le_of_ac ?_ ?_
+        refine fdiv_add_measure_le_of_ac ?_ ?_ hf hf_cvx
         · exact (withDensity_absolutelyContinuous _ _).trim hm
         · exact withDensity_absolutelyContinuous _ _
   _ = fDiv f ((ν.withDensity (∂μ/∂ν)).trim hm) (ν.trim hm)
@@ -161,7 +152,27 @@ lemma fDiv_trim_le [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ mα)
         + (μ'.trim hm).singularPart (ν.trim hm)) Set.univ := by
         simp only [Measure.add_toOuterMeasure, OuterMeasure.coe_add, Pi.add_apply,
           EReal.coe_ennreal_add]
-        sorry
+        rw [add_assoc]
+        congr
+        rw [← EReal.coe_ennreal_toReal (measure_ne_top _ _),
+          ← EReal.coe_ennreal_toReal (measure_ne_top _ _), ← EReal.coe_add]
+        by_cases h_top : derivAtTop f = ⊤
+        · rw [h_top]
+          by_cases h01 : (ν.trim hm).withDensity (∂μ'.trim hm/∂ν.trim hm) Set.univ = 0
+          · simp only [EReal.coe_add, h01, ENNReal.zero_toReal, EReal.coe_zero, mul_zero, zero_add]
+          by_cases h02 : (μ'.trim hm).singularPart (ν.trim hm) Set.univ = 0
+          · simp [h02]
+          rw [EReal.top_mul_of_pos, EReal.top_mul_of_pos, EReal.top_mul_of_pos, EReal.top_add_top]
+          · norm_cast
+            exact add_pos (ENNReal.toReal_pos h01 (measure_ne_top _ _))
+              (ENNReal.toReal_pos h02 (measure_ne_top _ _))
+          · norm_cast
+            exact ENNReal.toReal_pos h02 (measure_ne_top _ _)
+          · norm_cast
+            exact ENNReal.toReal_pos h01 (measure_ne_top _ _)
+        lift derivAtTop f to ℝ using ⟨h_top, derivAtTop_ne_bot⟩ with df
+        norm_cast
+        rw [mul_add]
   _ = fDiv f ((ν.withDensity (∂μ/∂ν)).trim hm) (ν.trim hm)
       + derivAtTop f * μ'.trim hm Set.univ := by
         conv_rhs => rw [← Measure.rnDeriv_add_singularPart (μ'.trim hm) (ν.trim hm)]

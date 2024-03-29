@@ -32,21 +32,6 @@ namespace ProbabilityTheory
 variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
   {μ ν : Measure α} {κ η : kernel α β} {f g : ℝ → ℝ}
 
-lemma integrable_of_le_of_le {f g₁ g₂ : α → ℝ} (hf : AEStronglyMeasurable f μ)
-    (h_le₁ : g₁ ≤ᵐ[μ] f) (h_le₂ : f ≤ᵐ[μ] g₂)
-    (h_int₁ : Integrable g₁ μ) (h_int₂ : Integrable g₂ μ) :
-    Integrable f μ := by
-  have : ∀ᵐ x ∂μ, ‖f x‖ ≤ max ‖g₁ x‖ ‖g₂ x‖ := by
-    filter_upwards [h_le₁, h_le₂] with x hx1 hx2
-    simp only [norm_eq_abs]
-    exact abs_le_max_abs_abs hx1 hx2
-  have h_le_add : ∀ᵐ x ∂μ, ‖f x‖ ≤ ‖‖g₁ x‖ + ‖g₂ x‖‖ := by
-    filter_upwards [this] with x hx
-    refine hx.trans ?_
-    conv_rhs => rw [norm_of_nonneg (by positivity)]
-    exact max_le_add_of_nonneg (norm_nonneg _) (norm_nonneg _)
-  exact Integrable.mono (h_int₁.norm.add h_int₂.norm) hf h_le_add
-
 section SingularPart
 
 lemma singularPart_compProd'' [MeasurableSpace.CountablyGenerated β]

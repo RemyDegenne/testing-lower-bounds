@@ -63,6 +63,27 @@ lemma integrable_toReal_iff {f : α → ℝ≥0∞} (hf : AEMeasurable f μ) (hf
   rw [lintegral_congr_ae this]
   exact h.2.ne
 
+lemma integrable_f_rnDeriv_of_derivAtTop_ne_top (μ ν : Measure α) [IsFiniteMeasure μ]
+    [IsFiniteMeasure ν] (hf : StronglyMeasurable f)
+    (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_deriv : derivAtTop f ≠ ⊤) :
+    Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν := by
+  obtain ⟨c, c', h⟩ : ∃ c c', ∀ x, 0 ≤ x → c * x + c' ≤ f x :=
+    hf_cvx.exists_affine_le (convex_Ici 0)
+  refine integrable_of_le_of_le (f := fun x ↦ f ((∂μ/∂ν) x).toReal)
+    (g₁ := fun x ↦ c * ((∂μ/∂ν) x).toReal + c')
+    (g₂ := fun x ↦ (derivAtTop f).toReal * ((∂μ/∂ν) x).toReal + f 0)
+    ?_ ?_ ?_ ?_ ?_
+  · exact (hf.comp_measurable (μ.measurable_rnDeriv ν).ennreal_toReal).aestronglyMeasurable
+  · exact ae_of_all _ (fun x ↦ h _ ENNReal.toReal_nonneg)
+  · refine ae_of_all _ (fun x ↦ ?_)
+    have h := le_add_derivAtTop'' hf_cvx hf_deriv le_rfl
+      (ENNReal.toReal_nonneg : 0 ≤ ((∂μ/∂ν) x).toReal)
+    rwa [zero_add, add_comm] at h
+  · refine (Integrable.const_mul ?_ _).add (integrable_const _)
+    exact Measure.integrable_toReal_rnDeriv
+  · refine (Integrable.const_mul ?_ _).add (integrable_const _)
+    exact Measure.integrable_toReal_rnDeriv
+
 open Classical in
 /-- f-Divergence of two measures. -/
 noncomputable
@@ -89,6 +110,14 @@ lemma fDiv_ne_bot [IsFiniteMeasure μ] : fDiv f μ ν ≠ ⊥ := by
   · simp only [ne_eq, EReal.add_eq_bot_iff, EReal.coe_ne_bot, false_or]
     rw [EReal.mul_eq_bot]
     simp [derivAtTop_ne_bot, not_lt.mpr (EReal.coe_ennreal_nonneg _), measure_ne_top]
+  · simp
+
+lemma fDiv_ne_bot_of_derivAtTop_nonneg (hf : 0 ≤ derivAtTop f) : fDiv f μ ν ≠ ⊥ := by
+  rw [fDiv]
+  split_ifs with h
+  · simp only [ne_eq, EReal.add_eq_bot_iff, EReal.coe_ne_bot, false_or]
+    rw [EReal.mul_eq_bot]
+    simp [derivAtTop_ne_bot, not_lt.mpr (EReal.coe_ennreal_nonneg _), not_lt.mpr hf]
   · simp
 
 @[simp]
@@ -366,6 +395,42 @@ lemma fDiv_lt_top_of_ac [SigmaFinite μ] [SigmaFinite ν] (h : μ ≪ ν)
   classical
   rw [fDiv_of_absolutelyContinuous h, if_pos h_int]
   simp
+
+lemma fdiv_add_measure_le_of_ac {μ₁ μ₂ ν : Measure α} [IsFiniteMeasure μ₁] [IsFiniteMeasure μ₂]
+    [IsFiniteMeasure ν] (h₁ : μ₁ ≪ ν) (h₂ : μ₂ ≪ ν)
+    (hf : StronglyMeasurable f) (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) :
+    fDiv f (μ₁ + μ₂) ν ≤ fDiv f μ₁ ν + derivAtTop f * μ₂ Set.univ := by
+  classical
+  by_cases hμ₂0 : μ₂ = 0
+  · simp [hμ₂0]
+  by_cases h_top : derivAtTop f = ⊤
+  · rw [h_top, EReal.top_mul_of_pos, EReal.add_top_of_ne_bot]
+    · exact le_top
+    · refine fDiv_ne_bot_of_derivAtTop_nonneg ?_
+      simp [h_top]
+    · simp [hμ₂0]
+  have h_int : Integrable (fun x ↦ f ((∂μ₁/∂ν) x).toReal) ν :=
+    integrable_f_rnDeriv_of_derivAtTop_ne_top _ _ hf hf_cvx h_top
+  have h_int_add : Integrable (fun x ↦ f ((∂μ₁ + μ₂/∂ν) x).toReal) ν :=
+    integrable_f_rnDeriv_of_derivAtTop_ne_top _ _ hf hf_cvx h_top
+  have h_le : ∀ᵐ x ∂ν, f ((∂μ₁ + μ₂/∂ν) x).toReal
+      ≤ f ((∂μ₁/∂ν) x).toReal + (derivAtTop f).toReal * ((∂μ₂/∂ν) x).toReal := by
+    have h_add := Measure.rnDeriv_add' μ₁ μ₂ ν
+    filter_upwards [h_add, μ₁.rnDeriv_lt_top ν, μ₂.rnDeriv_lt_top ν] with x hx hx₁ hx₂
+    rw [hx, Pi.add_apply, ENNReal.toReal_add hx₁.ne hx₂.ne]
+    exact le_add_derivAtTop'' hf_cvx h_top ENNReal.toReal_nonneg ENNReal.toReal_nonneg
+  rw [fDiv_of_absolutelyContinuous (Measure.AbsolutelyContinuous.add_left_iff.mpr ⟨h₁, h₂⟩),
+    if_pos h_int_add, fDiv_of_absolutelyContinuous h₁, if_pos h_int]
+  lift derivAtTop f to ℝ using ⟨h_top, derivAtTop_ne_bot⟩ with df
+  rw [← EReal.coe_ennreal_toReal (measure_ne_top _ _)]
+  norm_cast
+  calc ∫ x, f ((∂μ₁ + μ₂/∂ν) x).toReal ∂ν
+    ≤ ∫ x, f ((∂μ₁/∂ν) x).toReal + df * ((∂μ₂/∂ν) x).toReal ∂ν := by
+        refine integral_mono_ae h_int_add ?_ h_le
+        exact h_int.add (Measure.integrable_toReal_rnDeriv.const_mul _)
+  _ ≤ ∫ x, f ((∂μ₁/∂ν) x).toReal ∂ν + df * (μ₂ Set.univ).toReal := by
+        rw [integral_add h_int (Measure.integrable_toReal_rnDeriv.const_mul _),
+          integral_mul_left, Measure.integral_toReal_rnDeriv h₂]
 
 lemma fDiv_absolutelyContinuous_add_mutuallySingular {μ₁ μ₂ ν : Measure α}
     [IsFiniteMeasure μ₁] [IsFiniteMeasure μ₂] [IsFiniteMeasure ν] (h₁ : μ₁ ≪ ν) (h₂ : μ₂ ⟂ₘ ν)
