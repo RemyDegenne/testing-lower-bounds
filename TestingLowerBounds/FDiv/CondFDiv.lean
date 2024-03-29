@@ -986,6 +986,4 @@ lemma fDiv_comp_right_le [Nonempty α] [StandardBorelSpace α]
     ≤ fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ κ) := fDiv_comp_le_compProd μ ν κ κ hf hf_cvx hf_cont
   _ = fDiv f μ ν := fDiv_compProd_right μ ν κ hf hf_cvx
 
-example: 0 = 0 := rfl
-
 end ProbabilityTheory
