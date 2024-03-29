@@ -1,0 +1,24 @@
+\chapter{Convex functions of Radon-Nikodym derivatives}
+
+Let $f : \mathbb{R} \to \mathbb{R}$ be convex on $[0, +\infty)$. Remark that $f(0)$ is finite.
+
+\begin{definition}
+  \label{def:derivAtTop}
+  \lean{ProbabilityTheory.derivAtTop}
+  \leanok
+  %\uses{}
+  We define $f'(\infty) := \limsup_{x \to + \infty} f(x)/x$. This can be equal to $+\infty$ (but not $-\infty$).
+\end{definition}
+
+\begin{lemma}
+  \label{lem:integrable_f_rnDeriv_of_derivAtTop_ne_top}
+  \lean{ProbabilityTheory.integrable_f_rnDeriv_of_derivAtTop_ne_top}
+  \leanok
+  \uses{def:derivAtTop}
+  If $\mu$ and $\nu$ are two finite measures and $f'(\infty) < \infty$, then $x \mapsto f\left(\frac{d\mu}{d\nu}(x)\right)$ is $\nu$-integrable. 
+\end{lemma}
+
+\begin{proof} \leanok
+By convexity and $f(0) < \infty$, $f'(\infty)<\infty$, we can sandwich $f$ between two affine functions of $\frac{d\mu}{d\nu}$.
+Those functions are integrable since the measures are finite.
+\end{proof}
