@@ -98,6 +98,8 @@ end HellingerFun
 /-- Hellinger divergence of order `a`. Meaningful for `a ∈ (0, 1) ∪ (1, ∞)`. -/
 noncomputable def hellingerDiv (a : ℝ) (μ ν : Measure α) : EReal := fDiv (hellingerFun a) μ ν
 
+section TopAndBounds
+
 lemma hellingerDiv_eq_top_iff_of_one_lt (ha : 1 < a) (μ ν : Measure α)
     [IsFiniteMeasure μ] [SigmaFinite ν] :
     hellingerDiv a μ ν = ⊤
@@ -135,5 +137,11 @@ lemma hellingerDiv_le_of_lt_one (ha_pos : 0 < a) (ha : a < 1) (μ ν : Measure �
   rw [derivAtTop_hellingerFun_of_lt_one ha_pos ha, hellingerFun, zero_rpow ha_pos.ne']
   simp only [zero_sub, mul_neg, mul_one, zero_mul, add_zero]
   rw [neg_inv, neg_sub]
+
+end TopAndBounds
+
+lemma hellingerDiv_symm (ha_pos : 0 < a) (ha : a < 1) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
+    (1 - a) * hellingerDiv a μ ν = a * hellingerDiv (1 - a) μ ν := by
+  sorry
 
 end ProbabilityTheory

@@ -49,6 +49,8 @@ lemma renyiDiv_zero (μ ν : Measure α) :
 lemma renyiDiv_one (μ ν : Measure α) : renyiDiv 1 μ ν = kl μ ν := by
   rw [renyiDiv, if_neg (by simp), if_pos rfl]
 
+section TopAndBounds
+
 lemma renyiDiv_eq_top_iff_hellingerDiv_eq_top [IsFiniteMeasure μ] [SigmaFinite ν]
     (ha_pos : 0 < a) (ha_ne_one : a ≠ 1) :
     renyiDiv a μ ν = ⊤ ↔ hellingerDiv a μ ν = ⊤ := by
@@ -100,5 +102,31 @@ lemma renyiDiv_of_one_lt_of_not_ac [IsFiniteMeasure μ] [SigmaFinite ν]
   rw [hellingerDiv_ne_top_iff_of_one_lt ha_one_lt]
   push_neg
   exact fun _ ↦ hμν
+
+end TopAndBounds
+
+lemma renyiDiv_symm (ha_pos : 0 < a) (ha : a < 1) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
+    (1 - a) * renyiDiv a μ ν = a * renyiDiv (1 - a) μ ν := by
+  rw [renyiDiv_of_lt_one _ _ ha_pos ha, renyiDiv_of_lt_one _ _]
+  rotate_left
+  · linarith
+  · linarith
+  simp only [sub_sub_cancel_left, neg_mul]
+  rw [← mul_assoc, ← mul_assoc]
+  have h : (1 - a) * hellingerDiv a μ ν = a * hellingerDiv (1 - a) μ ν :=
+    hellingerDiv_symm ha_pos ha
+  have : (1 - (a : EReal)) * ↑(a - 1)⁻¹ = -1 := by
+    norm_cast
+    rw [← neg_neg (1 - a), neg_sub, neg_mul, mul_inv_cancel]
+    · simp
+    · linarith
+  rw [this, ← EReal.coe_mul, inv_neg, mul_neg, mul_inv_cancel ha_pos.ne']
+  simp only [EReal.coe_neg, EReal.coe_one, one_mul]
+  congr
+  rw [← EReal.toReal_coe a, ← EReal.toReal_mul, EReal.toReal_coe a, ← h, EReal.toReal_mul,
+    ← neg_mul]
+  congr
+  norm_cast
+  rw [EReal.toReal_coe, neg_sub]
 
 end ProbabilityTheory

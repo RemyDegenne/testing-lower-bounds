@@ -20,13 +20,13 @@
 
 \begin{lemma}
   \label{lem:renyi_symm}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.renyiDiv_symm}
+  \leanok
   \uses{def:Renyi}
   For $\alpha \in (0, 1)$, $(1 - \alpha) R_\alpha(\mu, \nu) = \alpha R_{1 - \alpha}(\nu, \mu)$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof}\leanok
 \uses{lem:hellingerAlpha_symm}
 Use Lemma~\ref{lem:hellingerAlpha_symm}.
 \end{proof}
