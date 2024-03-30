@@ -18,21 +18,6 @@ import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
 
 * `fooBar_unique`
 
-## Notation
-
-
-
-## Implementation details
-
-
-
-## References
-
-* [F. Bar, *Quuxes*][bibkey]
-
-## Tags
-
-Foobars, barfoos
 -/
 
 open Real MeasureTheory Filter
