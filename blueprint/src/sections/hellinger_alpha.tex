@@ -11,10 +11,10 @@
   \begin{array}{ll}
     \KL(\mu, \nu) & \text{for } \alpha = 1
     \\
-    D_f(\mu, \nu) & \text{for } \alpha \in (0,+\infty) \backslash \{1\}
+    D_{f_\alpha}(\mu, \nu) & \text{for } \alpha \in (0,+\infty) \backslash \{1\}
   \end{array}\right.
   \end{align*}
-  with $f : x \mapsto \frac{x^{\alpha} - 1}{\alpha - 1}$.
+  with $f_\alpha : x \mapsto \frac{x^{\alpha} - 1}{\alpha - 1}$.
 \end{definition}
 
 \begin{lemma}
@@ -37,7 +37,7 @@ Unfold the definitions.
   \uses{def:condFDiv}
   Let $\mu$ be a measure on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels. The conditional Hellinger divergence of order $\alpha \in (0,+\infty) \backslash \{1\}$ between $\kappa$ and $\eta$ conditionally to $\mu$ is
   \begin{align*}
-  \He_\alpha(\kappa, \eta \mid \mu) = D_f(\kappa, \eta \mid \mu) \: ,
+  \He_\alpha(\kappa, \eta \mid \mu) = D_{f_\alpha}(\kappa, \eta \mid \mu) \: ,
   \end{align*}
-  for $f : x \mapsto \frac{x^{\alpha} - 1}{\alpha - 1}$.
+  for $f_\alpha : x \mapsto \frac{x^{\alpha} - 1}{\alpha - 1}$.
 \end{definition}
