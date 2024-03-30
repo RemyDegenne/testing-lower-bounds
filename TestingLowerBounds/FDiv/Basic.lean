@@ -124,6 +124,20 @@ lemma fDiv_ne_bot_of_derivAtTop_nonneg (hf : 0 ≤ derivAtTop f) : fDiv f μ ν 
 lemma fDiv_zero (μ ν : Measure α) : fDiv (fun _ ↦ 0) μ ν = 0 := by simp [fDiv]
 
 @[simp]
+lemma fDiv_zero_measure (ν : Measure α) [IsFiniteMeasure ν] : fDiv f 0 ν = f 0 * ν Set.univ := by
+  have : (fun x ↦ f ((∂0/∂ν) x).toReal) =ᵐ[ν] fun _ ↦ f 0 := by
+    filter_upwards [Measure.rnDeriv_zero ν] with x hx
+    rw [hx]
+    simp
+  rw [fDiv_of_integrable]
+  · rw [integral_congr_ae this, mul_comm (f 0 : EReal),
+      ← EReal.coe_ennreal_toReal (measure_ne_top _ _),
+      ← EReal.coe_ennreal_toReal (measure_ne_top _ _)]
+    simp
+  · rw [integrable_congr this]
+    exact integrable_const _
+
+@[simp]
 lemma fDiv_const (c : ℝ) (μ ν : Measure α) [IsFiniteMeasure ν] :
     fDiv (fun _ ↦ c) μ ν = ν Set.univ * c := by
   rw [fDiv_of_integrable (integrable_const c), integral_const]
@@ -445,6 +459,69 @@ lemma fDiv_absolutelyContinuous_add_mutuallySingular {μ₁ μ₂ ν : Measure �
   filter_upwards [Measure.rnDeriv_eq_zero_of_mutuallySingular h₂ Measure.AbsolutelyContinuous.rfl]
     with x hx
   simp [hx]
+
+lemma fDiv_le_zero_add_top_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hμν : μ ≪ ν)
+    (hf : StronglyMeasurable f) (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) :
+    fDiv f μ ν ≤ f 0 * ν Set.univ + derivAtTop f * μ Set.univ := by
+  classical
+  by_cases hμ : μ = 0
+  · simp [hμ]
+  by_cases h_top : derivAtTop f = ⊤
+  · rw [h_top, ← EReal.coe_ennreal_toReal (measure_ne_top _ _),
+      ← EReal.coe_ennreal_toReal (measure_ne_top _ _), EReal.top_mul_of_pos, ← EReal.coe_mul,
+      EReal.coe_add_top]
+    · exact le_top
+    · norm_cast
+      refine ENNReal.toReal_pos (by simp [hμ]) (measure_ne_top _ _)
+  · have h_int := integrable_f_rnDeriv_of_derivAtTop_ne_top μ ν hf hf_cvx h_top
+    rw [fDiv_of_absolutelyContinuous hμν, if_pos h_int]
+    have h := fun x ↦ le_add_derivAtTop'' hf_cvx h_top le_rfl
+      (ENNReal.toReal_nonneg : 0 ≤ ((∂μ/∂ν) x).toReal)
+    simp only [zero_add] at h
+    rw [← EReal.coe_ennreal_toReal (measure_ne_top _ _),
+      ← EReal.coe_ennreal_toReal (measure_ne_top _ _)]
+    lift derivAtTop f to ℝ using ⟨h_top, derivAtTop_ne_bot⟩ with df
+    norm_cast
+    refine (integral_mono h_int ?_ h).trans_eq ?_
+    · exact (integrable_const _).add (Measure.integrable_toReal_rnDeriv.const_mul _)
+    rw [integral_add (integrable_const _), integral_const, integral_mul_left, smul_eq_mul, mul_comm,
+      Measure.integral_toReal_rnDeriv hμν]
+    · simp
+    · exact Measure.integrable_toReal_rnDeriv.const_mul _
+
+lemma fDiv_le_zero_add_top [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (hf : StronglyMeasurable f) (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) :
+    fDiv f μ ν ≤ f 0 * ν Set.univ + derivAtTop f * μ Set.univ := by
+  rw [fDiv_eq_add_withDensity_derivAtTop _ _ hf_cvx]
+  calc fDiv f (ν.withDensity (∂μ/∂ν)) ν + derivAtTop f * μ.singularPart ν Set.univ
+    ≤ f 0 * ν Set.univ + derivAtTop f * ν.withDensity (∂μ/∂ν) Set.univ
+      + derivAtTop f * μ.singularPart ν Set.univ := by
+        gcongr
+        exact fDiv_le_zero_add_top_of_ac (withDensity_absolutelyContinuous _ _) hf hf_cvx
+  _ ≤ f 0 * ν Set.univ + derivAtTop f * μ Set.univ := by
+        rw [add_assoc]
+        gcongr
+        conv_rhs => rw [μ.haveLebesgueDecomposition_add ν, add_comm]
+        simp only [Measure.coe_add, Pi.add_apply, EReal.coe_ennreal_add]
+        simp_rw [← EReal.coe_ennreal_toReal (measure_ne_top _ _)]
+        by_cases h_top : derivAtTop f = ⊤
+        · rw [h_top, ← EReal.coe_add]
+          by_cases h0 : (ν.withDensity (∂μ/∂ν) Set.univ).toReal
+              + (μ.singularPart ν Set.univ).toReal = 0
+          · rw [h0, EReal.coe_zero, mul_zero]
+            rw [← ENNReal.toReal_add (measure_ne_top _ _) (measure_ne_top _ _),
+              ENNReal.toReal_eq_zero_iff] at h0
+            simp only [add_eq_zero, Measure.measure_univ_eq_zero, ENNReal.add_eq_top,
+              measure_ne_top, or_false] at h0
+            rw [h0.1, h0.2]
+            simp
+          · nth_rewrite 3 [EReal.top_mul_of_pos]
+            · exact le_top
+            · norm_cast
+              exact lt_of_le_of_ne' (by positivity) h0
+        lift derivAtTop f to ℝ using ⟨h_top, derivAtTop_ne_bot⟩ with df
+        norm_cast
+        rw [mul_add]
 
 section derivAtTopTop
 

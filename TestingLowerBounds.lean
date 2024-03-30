@@ -7,3 +7,4 @@ import TestingLowerBounds.Hellinger
 import TestingLowerBounds.KullbackLeibler
 import TestingLowerBounds.Renyi
 import TestingLowerBounds.TotalVariation
+import TestingLowerBounds.SqHellinger
