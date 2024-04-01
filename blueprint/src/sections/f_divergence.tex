@@ -121,10 +121,33 @@ Linearity (Lemmas~\ref{lem:fDiv_add} and~\ref{lem:fDiv_mul}), then Lemma~\ref{le
   \leanok
   \uses{def:fDiv}
   Let $\mu_1, \mu_2$ and $\nu$ be finite measures on $\mathcal X$, with $\mu_1 \ll \nu$ and $\mu_2 \perp \nu$.
-  Then $D_f(\mu_1 + \mu_2, \nu) = D_f(\mu_1, \nu) + f'(\infty) \mu_2(\mathcal X)$.
+  Then $D_f(\mu_1 + \mu_2, \nu) = D_f(\mu_1, \nu) + \mu_2(\mathcal X) f'(\infty)$.
 \end{lemma}
 
 \begin{proof}\leanok
+$\frac{d(\mu_1 + \mu_2)}{d \nu} = \frac{d \mu_1}{d \nu}$ a.e. and $(\mu_1 + \mu_2)_{\perp \nu} = (\mu_2)_{\perp \nu}$.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:fdiv_add_measure_le_of_ac}
+  \lean{ProbabilityTheory.fdiv_add_measure_le_of_ac}
+  \leanok
+  \uses{def:fDiv}
+  Let $\mu_1, \mu_2, \nu$ be three finite measures on $\mathcal X$ with $\mu_1 \ll \nu$ and $\mu_2 \ll \nu$. Then
+  $D_f(\mu_1 + \mu_2, \nu) \le D_f(\mu_1, \nu) + \mu_2(\mathcal X) f'(\infty)$.
+\end{lemma}
+TODO: the hypothesis $\mu_2 \ll \nu$ should be removable.
+
+\begin{proof}\leanok
+\begin{align*}
+D_f(\mu_1 + \mu_2, \nu)
+&= \int_x f \left( \frac{d \mu_1}{d\nu}(x) + \frac{d\mu_2}{d\nu}(x) \right) \partial \nu
+\\
+&\le \int_x f \left( \frac{d \mu_1}{d\nu}(x) \right) + \frac{d\mu_2}{d\nu}(x) f'(\infty) \partial \nu
+\\
+&= D_f(\mu_1, \nu) + \mu_2(\mathcal X) f'(\infty)
+\: .
+\end{align*}
 \end{proof}
 
 \begin{lemma}
@@ -245,18 +268,6 @@ D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A})
 \: .
 \end{align*}
 
-\end{proof}
-
-\begin{lemma}
-  \label{lem:fdiv_add_measure_le_of_ac}
-  \lean{ProbabilityTheory.fdiv_add_measure_le_of_ac}
-  \leanok
-  \uses{def:fDiv}
-  Let $\mu_1, \mu_2, \nu$ be three finite measures on $\mathcal X$ with $\mu_1 \ll \nu$ and $\mu_2 \ll \nu$. Then
-  $D_f(\mu_1 + \mu_2, \nu) \le D_f(\mu_1, \nu) + \mu_2(\mathcal X) f'(\infty)$.
-\end{lemma}
-
-\begin{proof}\leanok
 \end{proof}
 
 \begin{theorem}
