@@ -154,7 +154,7 @@ D_f(\mu_1 + \mu_2, \nu)
   \lean{ProbabilityTheory.fDiv_add_measure_le}
   \leanok
   \uses{def:fDiv}
-  Let $\mu_1, \mu_2, \nu$ be three finite measures on $\mathcal X$ with $\mu_1 \ll \nu$. Then
+  Let $\mu_1, \mu_2, \nu$ be three finite measures on $\mathcal X$. Then
   $D_f(\mu_1 + \mu_2, \nu) \le D_f(\mu_1, \nu) + \mu_2(\mathcal X) f'(\infty)$.
 \end{lemma}
 
@@ -163,9 +163,9 @@ D_f(\mu_1 + \mu_2, \nu)
 From Lemma~\ref{lem:fDiv_absolutelyContinuous_add_mutuallySingular}, then Lemma~\ref{lem:fDiv_add_measure_le_of_ac},
 \begin{align*}
 D_f(\mu_1 + \mu_2, \nu)
-&= D_f(\mu_1 + \frac{d\mu_2}{d \nu}\cdot \nu, \nu) + (\mu_2)_{\perp\nu}(\mathcal X) f'(\infty)
+&= D_f(\frac{d\mu_1}{d \nu}\cdot \nu + \frac{d\mu_2}{d \nu}\cdot \nu, \nu) + (\mu_1)_{\perp\nu}(\mathcal X) f'(\infty) + (\mu_2)_{\perp\nu}(\mathcal X) f'(\infty)
 \\
-&\le D_f(\mu_1, \nu) + (\frac{d\mu_2}{d \nu}\cdot \nu)(\mathcal X) f'(\infty) + (\mu_2)_{\perp\nu}(\mathcal X) f'(\infty)
+&\le D_f(\frac{d\mu_1}{d \nu}\cdot \nu, \nu) + (\frac{d\mu_2}{d \nu}\cdot \nu)(\mathcal X) f'(\infty) + (\mu_1)_{\perp\nu}(\mathcal X) f'(\infty) + (\mu_2)_{\perp\nu}(\mathcal X) f'(\infty)
 \\
 &= D_f(\mu_1, \nu) + \mu_2(\mathcal X) f'(\infty)
 \: .

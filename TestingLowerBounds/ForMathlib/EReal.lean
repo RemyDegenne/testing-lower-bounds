@@ -166,4 +166,24 @@ lemma top_mul_add_of_nonneg {x y : EReal} (hx : 0 ≤ x) (hy : 0 ≤ y) :
   · simp
   · simp
 
+lemma mul_add_coe_of_nonneg (x : EReal) {y z : ℝ} (hy : 0 ≤ y) (hz : 0 ≤ z) :
+    x * (y + z) = x * y + x * z := by
+  by_cases hx_top : x = ⊤
+  · rw [hx_top]
+    exact top_mul_add_of_nonneg (mod_cast hy) (mod_cast hz)
+  by_cases hx_bot : x = ⊥
+  · rw [hx_bot]
+    by_cases hy0 : y = 0
+    · simp [hy0]
+    by_cases hz0 : z = 0
+    · simp [hz0]
+    have hy_pos : 0 < (y : EReal) := lt_of_le_of_ne' (mod_cast hy) (mod_cast hy0)
+    have hz_pos : 0 < (z : EReal) := lt_of_le_of_ne' (mod_cast hz) (mod_cast hz0)
+    rw [bot_mul_of_pos hy_pos, bot_mul_of_pos hz_pos, bot_mul_of_pos]
+    · simp
+    · exact add_pos hy_pos hz_pos
+  lift x to ℝ using ⟨hx_top, hx_bot⟩
+  norm_cast
+  rw [mul_add]
+
 end EReal

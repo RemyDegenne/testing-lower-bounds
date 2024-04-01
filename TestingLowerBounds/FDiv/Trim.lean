@@ -127,7 +127,7 @@ lemma fDiv_trim_le [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ mα)
   have h1 : μ.trim hm = (ν.withDensity (∂μ/∂ν)).trim hm + (μ.singularPart ν).trim hm := by
     conv_lhs => rw [μ.haveLebesgueDecomposition_add ν, add_comm, Measure.trim_add]
   rw [h1, fDiv_eq_add_withDensity_derivAtTop μ ν hf_cvx]
-  refine (fDiv_add_measure_le ((withDensity_absolutelyContinuous _ _).trim hm) hf hf_cvx).trans ?_
+  refine (fDiv_add_measure_le _ _ _ hf hf_cvx).trans ?_
   refine add_le_add ?_ ?_
   · exact fDiv_trim_le_of_ac hm (withDensity_absolutelyContinuous ν (∂μ/∂ν)) hf hf_cvx hf_cont
   · rw [trim_measurableSet_eq hm MeasurableSet.univ]
