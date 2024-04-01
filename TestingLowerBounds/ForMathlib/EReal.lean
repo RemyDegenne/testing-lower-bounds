@@ -113,4 +113,57 @@ lemma top_add_of_ne_bot {x : EReal} (hx : x ≠ ⊥) : ⊤ + x = ⊤ := by
 lemma add_top_of_ne_bot {x : EReal} (hx : x ≠ ⊥) : x + ⊤ = ⊤ := by
   rw [add_comm, top_add_of_ne_bot hx]
 
+lemma add_pos {x y : EReal} (hx : 0 < x) (hy : 0 < y) : 0 < x + y := by
+  induction' x, y using EReal.induction₂_symm with x y h x _ y _ _ _ x y
+  · rw [add_comm]
+    exact h hy hx
+  · simp
+  · simp
+  · simp
+  · simp
+  · simp only [add_bot, not_lt_bot]
+    exact not_lt_bot hy
+  · simp only [add_bot, not_lt_bot]
+    exact not_lt_bot hy
+  · norm_cast
+    refine _root_.add_pos ?_ ?_
+    · exact mod_cast hx
+    · exact mod_cast hy
+  · simp only [zero_add, not_lt_bot]
+    exact not_lt_bot hy
+  · simp only [add_bot, not_lt_bot]
+    exact not_lt_bot hy
+  · simp only [add_bot, not_lt_bot]
+    exact not_lt_bot hy
+
+lemma top_mul_add_of_nonneg {x y : EReal} (hx : 0 ≤ x) (hy : 0 ≤ y) :
+    ⊤ * (x + y) = ⊤ * x + ⊤ * y := by
+  induction' x, y using EReal.induction₂_symm with x y h x h y h _ _ x y
+  · rw [add_comm, add_comm (⊤ * y)]
+    exact h hy hx
+  · simp
+  · rw [top_add_coe, top_mul_top, top_mul_of_pos, top_add_top]
+    exact mod_cast h
+  · simp
+  · refine absurd hy ?_
+    exact mod_cast h.not_le
+  · simp
+  · simp
+  · by_cases hx0 : x = 0
+    · simp [hx0]
+    by_cases hy0 : y = 0
+    · simp [hy0]
+    have hx_pos : 0 < (x : EReal) := by
+      refine hx.lt_of_ne' ?_
+      exact mod_cast hx0
+    have hy_pos : 0 < (y : EReal) := by
+      refine hy.lt_of_ne' ?_
+      exact mod_cast hy0
+    rw [top_mul_of_pos hx_pos, top_mul_of_pos hy_pos, top_mul_of_pos]
+    · simp
+    · exact add_pos hx_pos hy_pos
+  · simp
+  · simp
+  · simp
+
 end EReal

@@ -129,14 +129,13 @@ $\frac{d(\mu_1 + \mu_2)}{d \nu} = \frac{d \mu_1}{d \nu}$ a.e. and $(\mu_1 + \mu_
 \end{proof}
 
 \begin{lemma}
-  \label{lem:fdiv_add_measure_le_of_ac}
-  \lean{ProbabilityTheory.fdiv_add_measure_le_of_ac}
+  \label{lem:fDiv_add_measure_le_of_ac}
+  \lean{ProbabilityTheory.fDiv_add_measure_le_of_ac}
   \leanok
   \uses{def:fDiv}
   Let $\mu_1, \mu_2, \nu$ be three finite measures on $\mathcal X$ with $\mu_1 \ll \nu$ and $\mu_2 \ll \nu$. Then
   $D_f(\mu_1 + \mu_2, \nu) \le D_f(\mu_1, \nu) + \mu_2(\mathcal X) f'(\infty)$.
 \end{lemma}
-TODO: the hypothesis $\mu_2 \ll \nu$ should be removable.
 
 \begin{proof}\leanok
 \begin{align*}
@@ -144,6 +143,29 @@ D_f(\mu_1 + \mu_2, \nu)
 &= \int_x f \left( \frac{d \mu_1}{d\nu}(x) + \frac{d\mu_2}{d\nu}(x) \right) \partial \nu
 \\
 &\le \int_x f \left( \frac{d \mu_1}{d\nu}(x) \right) + \frac{d\mu_2}{d\nu}(x) f'(\infty) \partial \nu
+\\
+&= D_f(\mu_1, \nu) + \mu_2(\mathcal X) f'(\infty)
+\: .
+\end{align*}
+\end{proof}
+
+\begin{lemma}
+  \label{lem:fDiv_add_measure_le}
+  \lean{ProbabilityTheory.fDiv_add_measure_le}
+  \leanok
+  \uses{def:fDiv}
+  Let $\mu_1, \mu_2, \nu$ be three finite measures on $\mathcal X$ with $\mu_1 \ll \nu$. Then
+  $D_f(\mu_1 + \mu_2, \nu) \le D_f(\mu_1, \nu) + \mu_2(\mathcal X) f'(\infty)$.
+\end{lemma}
+
+\begin{proof}
+\uses{lem:fDiv_absolutelyContinuous_add_mutuallySingular, lem:fDiv_add_measure_le_of_ac}
+From Lemma~\ref{lem:fDiv_absolutelyContinuous_add_mutuallySingular}, then Lemma~\ref{lem:fDiv_add_measure_le_of_ac},
+\begin{align*}
+D_f(\mu_1 + \mu_2, \nu)
+&= D_f(\mu_1 + \frac{d\mu_2}{d \nu}\cdot \nu, \nu) + (\mu_2)_{\perp\nu}(\mathcal X) f'(\infty)
+\\
+&\le D_f(\mu_1, \nu) + (\frac{d\mu_2}{d \nu}\cdot \nu)(\mathcal X) f'(\infty) + (\mu_2)_{\perp\nu}(\mathcal X) f'(\infty)
 \\
 &= D_f(\mu_1, \nu) + \mu_2(\mathcal X) f'(\infty)
 \: .
@@ -280,42 +302,20 @@ D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A})
 \end{theorem}
 
 \begin{proof}\leanok
-\uses{lem:fDiv_trim_le_of_ac, lem:fdiv_add_measure_le_of_ac, lem:fDiv_absolutelyContinuous_add_mutuallySingular}
-We decompose $\mu_{| \mathcal A}$ into three parts:
-\begin{align*}
-\mu_{| \mathcal A}
-= (\frac{d\mu}{d\nu}\cdot \nu)_{| \mathcal A}
-  + \frac{d (\mu_{\perp \nu})_{| \mathcal A}}{d \nu_{| \mathcal A}} \cdot \nu_{| \mathcal A}
-  + ((\mu_{\perp \nu})_{| \mathcal A})_{\perp \nu_{| \mathcal A}}
-\: . 
-\end{align*}
-We have $(\frac{d\mu}{d\nu}\cdot \nu)_{| \mathcal A} + \frac{d (\mu_{\perp \nu})_{| \mathcal A}}{d \nu_{| \mathcal A}} \cdot \nu_{| \mathcal A} \ll \nu_{| \mathcal A}$ and $((\mu_{\perp \nu})_{| \mathcal A})_{\perp \nu_{| \mathcal A}} \perp \nu_{| \mathcal A}$.
-
-By Lemma~\ref{lem:fDiv_absolutelyContinuous_add_mutuallySingular},
+\uses{lem:fDiv_trim_le_of_ac, lem:fDiv_add_measure_le}
+We decompose $\mu_{| \mathcal A}$ into two parts: $\mu_{| \mathcal A} = (\frac{d\mu}{d\nu}\cdot \nu)_{| \mathcal A} + (\mu_{\perp \nu})_{| \mathcal A}$~. 
+We have $(\frac{d\mu}{d\nu}\cdot \nu)_{| \mathcal A} \ll \nu_{| \mathcal A}$.
+By Lemma~\ref{lem:fDiv_add_measure_le},
 \begin{align*}
 D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A})
-= D_f\left((\frac{d\mu}{d\nu}\cdot \nu)_{| \mathcal A} + \frac{d (\mu_{\perp \nu})_{| \mathcal A}}{d \nu_{| \mathcal A}} \cdot \nu_{| \mathcal A}, \nu_{| \mathcal A}\right)
-  + ((\mu_{\perp \nu})_{| \mathcal A})_{\perp \nu_{| \mathcal A}}(\mathcal X) f'(\infty)
+\le D_f\left((\frac{d\mu}{d\nu}\cdot \nu)_{| \mathcal A}, \nu_{| \mathcal A}\right)
+  + (\mu_{\perp \nu})_{| \mathcal A}(\mathcal X) f'(\infty)
 \: .
 \end{align*}
-Then we apply Lemma~\ref{lem:fdiv_add_measure_le_of_ac} and~\ref{lem:fDiv_trim_le_of_ac} to the first term to get
-\begin{align*}
-D_f\left((\frac{d\mu}{d\nu}\cdot \nu)_{| \mathcal A} + \frac{d (\mu_{\perp \nu})_{| \mathcal A}}{d \nu_{| \mathcal A}} \cdot \nu_{| \mathcal A}, \nu_{| \mathcal A}\right)
-&\le D_f\left((\frac{d\mu}{d\nu}\cdot \nu)_{| \mathcal A}, \nu_{| \mathcal A}\right)
-  + \left(\frac{d (\mu_{\perp \nu})_{| \mathcal A}}{d \nu_{| \mathcal A}} \cdot \nu_{| \mathcal A}\right)(\mathcal X) f'(\infty)
-\\
-&\le D_f\left(\frac{d\mu}{d\nu}\cdot \nu, \nu\right)
-  + \left(\frac{d (\mu_{\perp \nu})_{| \mathcal A}}{d \nu_{| \mathcal A}} \cdot \nu_{| \mathcal A}\right)(\mathcal X) f'(\infty)
-\: .
-\end{align*}
-Putting the pieces together,
+Then we apply Lemma~\ref{lem:fDiv_trim_le_of_ac} to the first term to get
 \begin{align*}
 D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A})
 &\le D_f\left(\frac{d\mu}{d\nu}\cdot \nu, \nu\right)
-  + \left(\frac{d (\mu_{\perp \nu})_{| \mathcal A}}{d \nu_{| \mathcal A}} \cdot \nu_{| \mathcal A}\right)(\mathcal X) f'(\infty)
-  + ((\mu_{\perp \nu})_{| \mathcal A})_{\perp \nu_{| \mathcal A}}(\mathcal X) f'(\infty)
-\\
-&= D_f\left(\frac{d\mu}{d\nu}\cdot \nu, \nu\right)
   + (\mu_{\perp \nu})_{| \mathcal A}(\mathcal X) f'(\infty)
 \\
 &= D_f\left(\frac{d\mu}{d\nu}\cdot \nu, \nu\right)
