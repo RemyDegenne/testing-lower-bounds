@@ -82,6 +82,19 @@ Apply Theorem~\ref{thm:fDiv_data_proc}.
 Apply Lemma~\ref{lem:kl_ge} and use $\mu(\mathcal X) = \nu (\mathcal X)$.
 \end{proof}
 
+\begin{lemma}
+  \label{lem:kl_convex}
+  %\lean{}
+  %\leanok
+  \uses{def:KL}
+  $(\mu, \nu) \mapsto \KL(\mu, \nu)$ is convex.
+\end{lemma}
+
+\begin{proof}
+\uses{thm:fDiv_convex, lem:kl_eq_fDiv}
+Apply Theorem~\ref{thm:fDiv_convex}
+\end{proof}
+
 \section{Chain rule and tensorization}
 
 \begin{theorem}[Chain rule, kernel version]

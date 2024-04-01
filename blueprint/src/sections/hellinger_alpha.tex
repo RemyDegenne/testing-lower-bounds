@@ -41,3 +41,48 @@ Unfold the definitions.
   \end{align*}
   for $f_\alpha : x \mapsto \frac{x^{\alpha} - 1}{\alpha - 1}$.
 \end{definition}
+
+
+\section{Properties inherited from f-divergences}
+
+Since $\He_\alpha$ is an f-divergence, every inequality for f-divergences can be translated to $\He_\alpha$.
+
+\begin{theorem}[Data-processing]
+  \label{thm:hellingerAlpha_data_proc}
+  %\lean{}
+  %\leanok
+  \uses{def:hellingerAlpha}
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
+  Then $\He_\alpha(\kappa \circ \mu, \kappa \circ \nu) \le \He_\alpha(\mu, \nu)$.
+\end{theorem}
+
+\begin{proof}
+\uses{thm:fDiv_data_proc}
+Apply Theorem~\ref{thm:fDiv_data_proc}.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:hellingerAlpha_nonneg}
+  %\lean{}
+  %\leanok
+  \uses{def:hellingerAlpha}
+  Let $\mu, \nu$ be two probability measures. Then $\He_\alpha(\mu, \nu) \ge 0$.
+\end{lemma}
+
+\begin{proof}
+\uses{lem:fDiv_nonneg}
+Apply Lemma~\ref{lem:fDiv_nonneg}.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:hellingerAlpha_convex}
+  %\lean{}
+  %\leanok
+  \uses{def:hellingerAlpha}
+  $(\mu, \nu) \mapsto \He_\alpha(\mu, \nu)$ is convex.
+\end{lemma}
+
+\begin{proof}
+\uses{thm:fDiv_convex}
+Apply Theorem~\ref{thm:fDiv_convex}
+\end{proof}
