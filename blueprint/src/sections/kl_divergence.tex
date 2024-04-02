@@ -24,6 +24,18 @@
 Simple computation.
 \end{proof}
 
+\begin{definition}[Conditional Kullback-Leibler divergence]
+  \label{def:condKL}
+  %\lean{}
+  %\leanok
+  \uses{def:condFDiv}
+  Let $\mu$ be a measure on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels. The Kullback-Leibler divergence between $\kappa$ and $\eta$ conditionally to $\mu$ is
+  \begin{align*}
+  \KL(\kappa, \eta \mid \mu) = D_f(\kappa, \eta \mid \mu)
+  \end{align*}
+  with $f: x \mapsto x \log x$.
+\end{definition}
+
 \section{Properties inherited from f-divergences}
 
 Since $\KL$ is an f-divergence, every inequality for f-divergences can be translated to $\KL$.
@@ -101,7 +113,7 @@ Apply Theorem~\ref{thm:fDiv_convex}
   \label{thm:kl_chain_rule}
   %\lean{}
   %\leanok
-  \uses{def:KL}
+  \uses{def:KL, def:condKL}
   Let $\mu, \nu$ be two measures on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ two Markov kernels.
   Then $\KL(\mu \otimes \kappa, \nu \otimes \eta) = \KL(\mu, \nu) + \KL(\kappa, \eta \mid \mu)$.
 \end{theorem}
@@ -131,7 +143,7 @@ Use Lemma~\ref{lem:rnDeriv_compProd} and Corollary~\ref{cor:rnDeriv_value} in a 
   \label{thm:kl_chain_rule_prod}
   %\lean{}
   %\leanok
-  \uses{def:KL}
+  \uses{def:KL, def:condKL}
   Let $\mu, \nu$ be two measures on $\mathcal X \times \mathcal Y$, where $\mathcal Y$ is standard Borel.
   Then $\KL(\mu, \nu) = \KL(\mu_X, \nu_X) + \KL(\mu_{Y|X}, \nu_{Y|X} \mid \mu_X)$.
 \end{theorem}
