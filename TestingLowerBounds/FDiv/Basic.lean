@@ -130,16 +130,15 @@ lemma fDiv_zero_measure (ν : Measure α) [IsFiniteMeasure ν] : fDiv f 0 ν = f
     rw [hx]
     simp
   rw [fDiv_of_integrable]
-  · rw [integral_congr_ae this, mul_comm (f 0 : EReal),
-      ← EReal.coe_ennreal_toReal (measure_ne_top _ _),
+  · simp only [Measure.singularPart_zero, Measure.zero_toOuterMeasure, OuterMeasure.coe_zero,
+    Pi.zero_apply, EReal.coe_ennreal_zero, mul_zero, add_zero]
+    rw [integral_congr_ae this, mul_comm (f 0 : EReal), integral_const, smul_eq_mul, EReal.coe_mul,
       ← EReal.coe_ennreal_toReal (measure_ne_top _ _)]
-    simp
   · rw [integrable_congr this]
     exact integrable_const _
 
 @[simp]
-lemma fDiv_zero_measure_right (μ : Measure α) [IsFiniteMeasure μ] :
-    fDiv f μ 0 = derivAtTop f * μ Set.univ := by
+lemma fDiv_zero_measure_right (μ : Measure α) : fDiv f μ 0 = derivAtTop f * μ Set.univ := by
   rw [fDiv_of_integrable] <;> simp
 
 @[simp]
