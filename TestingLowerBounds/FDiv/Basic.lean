@@ -138,6 +138,11 @@ lemma fDiv_zero_measure (ν : Measure α) [IsFiniteMeasure ν] : fDiv f 0 ν = f
     exact integrable_const _
 
 @[simp]
+lemma fDiv_zero_measure_right (μ : Measure α) [IsFiniteMeasure μ] :
+    fDiv f μ 0 = derivAtTop f * μ Set.univ := by
+  rw [fDiv_of_integrable] <;> simp
+
+@[simp]
 lemma fDiv_const (c : ℝ) (μ ν : Measure α) [IsFiniteMeasure ν] :
     fDiv (fun _ ↦ c) μ ν = ν Set.univ * c := by
   rw [fDiv_of_integrable (integrable_const c), integral_const]
@@ -548,15 +553,7 @@ lemma fDiv_le_zero_add_top [IsFiniteMeasure μ] [IsFiniteMeasure ν]
         conv_rhs => rw [μ.haveLebesgueDecomposition_add ν, add_comm]
         simp only [Measure.coe_add, Pi.add_apply, EReal.coe_ennreal_add]
         simp_rw [← EReal.coe_ennreal_toReal (measure_ne_top _ _)]
-        by_cases h_top : derivAtTop f = ⊤
-        · rw [h_top, EReal.top_mul_add_of_nonneg]
-          · norm_cast
-            exact ENNReal.toReal_nonneg
-          · norm_cast
-            exact ENNReal.toReal_nonneg
-        · lift derivAtTop f to ℝ using ⟨h_top, derivAtTop_ne_bot⟩ with df
-          norm_cast
-          rw [mul_add]
+        rw [EReal.mul_add_coe_of_nonneg _ ENNReal.toReal_nonneg ENNReal.toReal_nonneg]
 
 section derivAtTopTop
 
