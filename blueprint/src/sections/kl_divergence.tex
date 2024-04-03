@@ -40,6 +40,19 @@ Simple computation.
 
 Since $\KL$ is an f-divergence, every inequality for f-divergences can be translated to $\KL$.
 
+\begin{lemma}
+  \label{lem:kl_self}
+  \lean{ProbabilityTheory.kl_self}
+  \leanok
+  \uses{def:KL}
+  $KL(\mu, \mu) = 0$.
+\end{lemma}
+
+\begin{proof} \leanok
+  \uses{lem:kl_eq_fDiv, lem:fDiv_self}
+  KL is an f-divergence thanks to Lemma \ref{lem:kl_eq_fDiv}, then apply Lemma \ref{lem:fDiv_self}.
+\end{proof}
+
 \begin{theorem}[Marginals]
   \label{thm:kl_fst_le}
   %\lean{}
