@@ -2,8 +2,8 @@
 
 \begin{definition}[Hellinger $\alpha$-divergence]
   \label{def:hellingerAlpha}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.hellingerDiv}
+  \leanok
   \uses{def:KL, def:fDiv}
   Let $\mu, \nu$ be two measures on $\mathcal X$. The Hellinger divergence of order $\alpha \in (0,+\infty)$ between $\mu$ and $\nu$ is
   \begin{align*}
@@ -11,16 +11,16 @@
   \begin{array}{ll}
     \KL(\mu, \nu) & \text{for } \alpha = 1
     \\
-    D_f(\mu, \nu) & \text{for } \alpha \in (0,+\infty) \backslash \{1\}
+    D_{f_\alpha}(\mu, \nu) & \text{for } \alpha \in (0,+\infty) \backslash \{1\}
   \end{array}\right.
   \end{align*}
-  with $f : x \mapsto \frac{x^{\alpha} - 1}{\alpha - 1}$.
+  with $f_\alpha : x \mapsto \frac{x^{\alpha} - 1}{\alpha - 1}$.
 \end{definition}
 
 \begin{lemma}
   \label{lem:hellingerAlpha_symm}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.hellingerDiv_symm}
+  \leanok
   \uses{def:hellingerAlpha}
   For $\alpha \in (0, 1)$, $(1 - \alpha) \He_\alpha(\mu, \nu) = \alpha \He_{1 - \alpha}(\nu, \mu)$.
 \end{lemma}
@@ -37,7 +37,52 @@ Unfold the definitions.
   \uses{def:condFDiv}
   Let $\mu$ be a measure on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels. The conditional Hellinger divergence of order $\alpha \in (0,+\infty) \backslash \{1\}$ between $\kappa$ and $\eta$ conditionally to $\mu$ is
   \begin{align*}
-  \He_\alpha(\kappa, \eta \mid \mu) = D_f(\kappa, \eta \mid \mu) \: ,
+  \He_\alpha(\kappa, \eta \mid \mu) = D_{f_\alpha}(\kappa, \eta \mid \mu) \: ,
   \end{align*}
-  for $f : x \mapsto \frac{x^{\alpha} - 1}{\alpha - 1}$.
+  for $f_\alpha : x \mapsto \frac{x^{\alpha} - 1}{\alpha - 1}$.
 \end{definition}
+
+
+\section{Properties inherited from f-divergences}
+
+Since $\He_\alpha$ is an f-divergence, every inequality for f-divergences can be translated to $\He_\alpha$.
+
+\begin{theorem}[Data-processing]
+  \label{thm:hellingerAlpha_data_proc}
+  %\lean{}
+  %\leanok
+  \uses{def:hellingerAlpha}
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
+  Then $\He_\alpha(\kappa \circ \mu, \kappa \circ \nu) \le \He_\alpha(\mu, \nu)$.
+\end{theorem}
+
+\begin{proof}
+\uses{thm:fDiv_data_proc}
+Apply Theorem~\ref{thm:fDiv_data_proc}.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:hellingerAlpha_nonneg}
+  %\lean{}
+  %\leanok
+  \uses{def:hellingerAlpha}
+  Let $\mu, \nu$ be two probability measures. Then $\He_\alpha(\mu, \nu) \ge 0$.
+\end{lemma}
+
+\begin{proof}
+\uses{lem:fDiv_nonneg}
+Apply Lemma~\ref{lem:fDiv_nonneg}.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:hellingerAlpha_convex}
+  %\lean{}
+  %\leanok
+  \uses{def:hellingerAlpha}
+  $(\mu, \nu) \mapsto \He_\alpha(\mu, \nu)$ is convex.
+\end{lemma}
+
+\begin{proof}
+\uses{thm:fDiv_convex}
+Apply Theorem~\ref{thm:fDiv_convex}
+\end{proof}

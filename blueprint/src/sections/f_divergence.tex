@@ -116,6 +116,63 @@ Linearity (Lemmas~\ref{lem:fDiv_add} and~\ref{lem:fDiv_mul}), then Lemma~\ref{le
 \end{proof}
 
 \begin{lemma}
+  \label{lem:fDiv_absolutelyContinuous_add_mutuallySingular}
+  \lean{ProbabilityTheory.fDiv_absolutelyContinuous_add_mutuallySingular}
+  \leanok
+  \uses{def:fDiv}
+  Let $\mu_1, \mu_2$ and $\nu$ be finite measures on $\mathcal X$, with $\mu_1 \ll \nu$ and $\mu_2 \perp \nu$.
+  Then $D_f(\mu_1 + \mu_2, \nu) = D_f(\mu_1, \nu) + \mu_2(\mathcal X) f'(\infty)$.
+\end{lemma}
+
+\begin{proof}\leanok
+$\frac{d(\mu_1 + \mu_2)}{d \nu} = \frac{d \mu_1}{d \nu}$ a.e. and $(\mu_1 + \mu_2)_{\perp \nu} = (\mu_2)_{\perp \nu}$.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:fDiv_add_measure_le_of_ac}
+  \lean{ProbabilityTheory.fDiv_add_measure_le_of_ac}
+  \leanok
+  \uses{def:fDiv}
+  Let $\mu_1, \mu_2, \nu$ be three finite measures on $\mathcal X$ with $\mu_1 \ll \nu$ and $\mu_2 \ll \nu$. Then
+  $D_f(\mu_1 + \mu_2, \nu) \le D_f(\mu_1, \nu) + \mu_2(\mathcal X) f'(\infty)$.
+\end{lemma}
+
+\begin{proof}\leanok
+\begin{align*}
+D_f(\mu_1 + \mu_2, \nu)
+&= \int_x f \left( \frac{d \mu_1}{d\nu}(x) + \frac{d\mu_2}{d\nu}(x) \right) \partial \nu
+\\
+&\le \int_x f \left( \frac{d \mu_1}{d\nu}(x) \right) + \frac{d\mu_2}{d\nu}(x) f'(\infty) \partial \nu
+\\
+&= D_f(\mu_1, \nu) + \mu_2(\mathcal X) f'(\infty)
+\: .
+\end{align*}
+\end{proof}
+
+\begin{lemma}
+  \label{lem:fDiv_add_measure_le}
+  \lean{ProbabilityTheory.fDiv_add_measure_le}
+  \leanok
+  \uses{def:fDiv}
+  Let $\mu_1, \mu_2, \nu$ be three finite measures on $\mathcal X$. Then
+  $D_f(\mu_1 + \mu_2, \nu) \le D_f(\mu_1, \nu) + \mu_2(\mathcal X) f'(\infty)$.
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{lem:fDiv_absolutelyContinuous_add_mutuallySingular, lem:fDiv_add_measure_le_of_ac}
+From Lemma~\ref{lem:fDiv_absolutelyContinuous_add_mutuallySingular}, then Lemma~\ref{lem:fDiv_add_measure_le_of_ac},
+\begin{align*}
+D_f(\mu_1 + \mu_2, \nu)
+&= D_f(\frac{d\mu_1}{d \nu}\cdot \nu + \frac{d\mu_2}{d \nu}\cdot \nu, \nu) + (\mu_1)_{\perp\nu}(\mathcal X) f'(\infty) + (\mu_2)_{\perp\nu}(\mathcal X) f'(\infty)
+\\
+&\le D_f(\frac{d\mu_1}{d \nu}\cdot \nu, \nu) + (\frac{d\mu_2}{d \nu}\cdot \nu)(\mathcal X) f'(\infty) + (\mu_1)_{\perp\nu}(\mathcal X) f'(\infty) + (\mu_2)_{\perp\nu}(\mathcal X) f'(\infty)
+\\
+&= D_f(\mu_1, \nu) + \mu_2(\mathcal X) f'(\infty)
+\: .
+\end{align*}
+\end{proof}
+
+\begin{lemma}
   \label{lem:fDiv_eq_add_withDensity_derivAtTop}
   \lean{ProbabilityTheory.fDiv_eq_add_withDensity_derivAtTop}
   \leanok
@@ -125,6 +182,8 @@ Linearity (Lemmas~\ref{lem:fDiv_add} and~\ref{lem:fDiv_mul}), then Lemma~\ref{le
 \end{lemma}
 
 \begin{proof}\leanok
+\uses{lem:fDiv_absolutelyContinuous_add_mutuallySingular}
+Apply Lemma~\ref{lem:fDiv_absolutelyContinuous_add_mutuallySingular} to $\frac{d\mu}{d\nu}\cdot \nu$ and $\mu_{\perp \nu}$.
 \end{proof}
 
 \begin{lemma}
@@ -187,6 +246,18 @@ Apply Lemma~\ref{lem:le_fDiv} and use $f(\mu(\mathcal X)) = f(1) = 0$.
 For $\mathcal A$ a sub-$\sigma$-algebra and $\mu$ a measure, we write $\mathcal \mu_{| \mathcal A}$ for the measure restricted to the $\sigma$-algebra.
 
 \begin{lemma}
+  \label{lem:rnDeriv_trim_of_ac}
+  \lean{MeasureTheory.Measure.toReal_rnDeriv_trim_of_ac}
+  \leanok
+  %\uses{}
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ with $\mu \ll \nu$ and let $\mathcal A$ be a sub-$\sigma$-algebra of $\mathcal X$.
+  Then $\frac{d \mu_{| \mathcal A}}{d \nu_{| \mathcal A}}$ is $\nu_{| \mathcal A}$-almost everywhere (hence also $\nu$-a.e.) equal to $\nu\left[ \frac{d \mu}{d \nu} \mid \mathcal A\right]$.
+\end{lemma}
+
+\begin{proof}\leanok
+\end{proof}
+
+\begin{lemma}
   \label{lem:fDiv_trim_le_of_ac}
   \lean{ProbabilityTheory.fDiv_trim_le_of_ac}
   \leanok
@@ -196,7 +267,29 @@ For $\mathcal A$ a sub-$\sigma$-algebra and $\mu$ a measure, we write $\mathcal 
 \end{lemma}
 
 \begin{proof}\leanok
-\uses{thm:condexp_jensen}
+\uses{thm:condexp_jensen, lem:rnDeriv_trim_of_ac}
+Since $\mu \ll \nu$, $\mu_{| \mathcal A} \ll \nu_{| \mathcal A}$ and
+\begin{align*}
+D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A})
+&= \int_x f \left( \frac{d \mu_{| \mathcal A}}{d \nu_{| \mathcal A}}(x) \right) \partial\nu_{| \mathcal A} \: .
+\end{align*}
+Since $f \left( \frac{d \mu_{| \mathcal A}}{d \nu_{| \mathcal A}} \right)$ is $\mathcal A$-measurable, this integral is equal to the integral w.r.t. $\nu$.
+By Lemma~\ref{lem:rnDeriv_trim_of_ac}, this is equal to $\int_x f \left( \nu\left[ \frac{d \mu}{d \nu} \mid \mathcal A\right] (x) \right) \partial\nu$.
+
+By Theorem~\ref{thm:condexp_jensen}, $f \left( \nu\left[ \frac{d \mu}{d \nu} \mid \mathcal A\right] (x) \right) \le \nu\left[ f \circ \frac{d \mu}{d \nu} \mid \mathcal A\right] (x)$ almost everywhere.
+Finally
+\begin{align*}
+D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A})
+&= \int_x f \left( \nu\left[ \frac{d \mu}{d \nu} \mid \mathcal A\right] (x) \right) \partial\nu
+\\
+&\le \int_x \nu\left[ f \circ \frac{d \mu}{d \nu} \mid \mathcal A\right] (x) \partial\nu
+\\
+&= \int_x f \left( \frac{d \mu}{d \nu} (x) \right) \partial\nu
+\\
+&= D_f(\mu, \nu)
+\: .
+\end{align*}
+
 \end{proof}
 
 \begin{theorem}
@@ -209,7 +302,28 @@ For $\mathcal A$ a sub-$\sigma$-algebra and $\mu$ a measure, we write $\mathcal 
 \end{theorem}
 
 \begin{proof}\leanok
-\uses{lem:fDiv_trim_le_of_ac}
+\uses{lem:fDiv_trim_le_of_ac, lem:fDiv_add_measure_le}
+We decompose $\mu_{| \mathcal A}$ into two parts: $\mu_{| \mathcal A} = (\frac{d\mu}{d\nu}\cdot \nu)_{| \mathcal A} + (\mu_{\perp \nu})_{| \mathcal A}$~. 
+We have $(\frac{d\mu}{d\nu}\cdot \nu)_{| \mathcal A} \ll \nu_{| \mathcal A}$.
+By Lemma~\ref{lem:fDiv_add_measure_le},
+\begin{align*}
+D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A})
+\le D_f\left((\frac{d\mu}{d\nu}\cdot \nu)_{| \mathcal A}, \nu_{| \mathcal A}\right)
+  + (\mu_{\perp \nu})_{| \mathcal A}(\mathcal X) f'(\infty)
+\: .
+\end{align*}
+Then we apply Lemma~\ref{lem:fDiv_trim_le_of_ac} to the first term to get
+\begin{align*}
+D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A})
+&\le D_f\left(\frac{d\mu}{d\nu}\cdot \nu, \nu\right)
+  + (\mu_{\perp \nu})_{| \mathcal A}(\mathcal X) f'(\infty)
+\\
+&= D_f\left(\frac{d\mu}{d\nu}\cdot \nu, \nu\right)
+  + \mu_{\perp \nu}(\mathcal X) f'(\infty)
+\\
+&= D_f(\mu, \nu)
+\: .
+\end{align*}
 \end{proof}
 
 \begin{theorem}
@@ -463,6 +577,7 @@ By Lemma~\ref{lem:fDiv_comp_le_compProd}, $D_f(\kappa \circ \mu, \eta \circ \mu)
 \uses{lem:fDiv_comp_le_compProd, thm:fDiv_compProd_right}
 By Lemma~\ref{lem:fDiv_comp_le_compProd}, $D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \kappa)$. Then the latter is equal to $D_f(\mu, \nu)$ by Lemma~\ref{thm:fDiv_compProd_right}.
 \end{proof}
+
 
 \begin{corollary}
   \label{cor:data_proc_event}

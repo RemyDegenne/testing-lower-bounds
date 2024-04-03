@@ -37,6 +37,12 @@ namespace MeasureTheory.Measure
 variable {α β : Type*} {m mα : MeasurableSpace α} {mβ : MeasurableSpace β} {μ ν : Measure α}
 
 @[simp]
+lemma singularPart_zero_right (μ : Measure α) :
+    μ.singularPart 0 = μ := by
+  rw [Measure.singularPart_eq_self]
+  exact Measure.MutuallySingular.zero_right
+
+@[simp]
 lemma singularPart_singularPart (μ ν : Measure α) :
     (μ.singularPart ν).singularPart ν = μ.singularPart ν := by
   rw [Measure.singularPart_eq_self]
