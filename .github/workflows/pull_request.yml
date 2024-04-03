@@ -32,7 +32,7 @@ jobs:
         run: curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain leanprover/lean4:4.5.0
 
       - name: Get cache
-        run: ~/.elan/bin/lake -Kenv=dev exe cache get || true
+        run: ~/.elan/bin/lake exe cache get || true
 
       - name: Build project
-        run: ~/.elan/bin/lake -Kenv=dev build TestingLowerBounds
+        run: ~/.elan/bin/lake build TestingLowerBounds
