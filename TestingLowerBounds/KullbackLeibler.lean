@@ -87,6 +87,7 @@ lemma kl_eq_fDiv [SigmaFinite μ] [SigmaFinite ν] :
   · rw [kl_of_not_integrable h_int, fDiv_of_not_integrable]
     rwa [integrable_rnDeriv_mul_log_iff hμν]
 
+@[simp]
 lemma kl_self (μ : Measure α) [SigmaFinite μ] : kl μ μ = 0 := by
   rw [kl_eq_fDiv, fDiv_self (by norm_num)]
 
