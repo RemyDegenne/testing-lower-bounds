@@ -14,7 +14,9 @@ open Real MeasureTheory Filter
 
 open scoped ENNReal MeasureTheory
 
+-- merged in mathlib
 attribute [pp_dot] Measure.trim Measure.withDensity Measure.singularPart Measure.restrict
+  Measure.rnDeriv
 
 lemma MeasureTheory.integrable_of_le_of_le {α : Type*} {mα : MeasurableSpace α} {μ : Measure α}
     {f g₁ g₂ : α → ℝ} (hf : AEStronglyMeasurable f μ)
@@ -36,24 +38,27 @@ namespace MeasureTheory.Measure
 
 variable {α β : Type*} {m mα : MeasurableSpace α} {mβ : MeasurableSpace β} {μ ν : Measure α}
 
+-- PRed
 @[simp]
-lemma singularPart_zero_right (μ : Measure α) :
-    μ.singularPart 0 = μ := by
-  rw [Measure.singularPart_eq_self]
-  exact Measure.MutuallySingular.zero_right
+lemma singularPart_zero_right (μ : Measure α) : μ.singularPart 0 = μ := by
+  conv_rhs => rw [haveLebesgueDecomposition_add μ 0]
+  simp
 
+-- PRed
 @[simp]
 lemma singularPart_singularPart (μ ν : Measure α) :
     (μ.singularPart ν).singularPart ν = μ.singularPart ν := by
   rw [Measure.singularPart_eq_self]
   exact Measure.mutuallySingular_singularPart _ _
 
+-- PRed
 lemma MutuallySingular.restrict (h : μ ⟂ₘ ν) (s : Set α) :
     μ.restrict s ⟂ₘ ν := by
   refine ⟨h.nullSet, h.measurableSet_nullSet, ?_, h.measure_compl_nullSet⟩
   rw [Measure.restrict_apply h.measurableSet_nullSet]
   exact measure_mono_null (Set.inter_subset_left _ _) h.measure_nullSet
 
+-- PRed
 lemma singularPart_restrict (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν]
     {s : Set α} (hs : MeasurableSet s) :
     (μ.restrict s).singularPart ν = (μ.singularPart ν).restrict s := by
@@ -225,6 +230,7 @@ example [SigmaFinite μ] [SigmaFinite ν] :
 
 section Trim
 
+-- PRed
 lemma AbsolutelyContinuous.trim (hm : m ≤ mα) (hμν : μ ≪ ν) :
     μ.trim hm ≪ ν.trim hm := by
   refine AbsolutelyContinuous.mk (fun s hs hsν ↦ ?_)
@@ -254,6 +260,7 @@ lemma rnDeriv_trim_of_ac (hm : m ≤ mα) [IsFiniteMeasure μ] [SigmaFinite ν]
     with x hx hx_ne_top
   rw [← hx, ENNReal.ofReal_toReal hx_ne_top]
 
+-- PRed
 lemma trim_withDensity (hm : m ≤ mα) [SigmaFinite μ] {f : α → ℝ≥0∞} (hf : Measurable[m] f) :
     (withDensity μ f).trim hm = withDensity (μ.trim hm) f := by
   refine @Measure.ext _ m _ _ (fun s hs ↦ ?_)

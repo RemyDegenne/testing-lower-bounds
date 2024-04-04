@@ -181,6 +181,7 @@ lemma fDiv_self (hf_one : f 1 = 0) (μ : Measure α) [SigmaFinite μ] : fDiv f �
   rw [Measure.singularPart_self]
   simp
 
+@[simp]
 lemma fDiv_id (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν] :
     fDiv id μ ν = μ Set.univ := by
   by_cases h_int : Integrable (fun x ↦ ((∂μ/∂ν) x).toReal) ν
@@ -205,6 +206,7 @@ lemma fDiv_id (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν] :
     refine integrable_toReal_of_lintegral_ne_top (μ.measurable_rnDeriv ν).aemeasurable ?_
     exact (Measure.lintegral_rnDeriv_lt_top _ _).ne
 
+@[simp]
 lemma fDiv_id' (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν] :
     fDiv (fun x ↦ x) μ ν = μ Set.univ := fDiv_id μ ν
 
