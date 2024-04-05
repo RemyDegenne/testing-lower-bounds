@@ -157,8 +157,6 @@ end kl_nonneg
 section Conditional
 
 variable {β : Type*} {mβ : MeasurableSpace β}
--- variable {κ η : kernel α β}
-
 
 open Classical in
 
