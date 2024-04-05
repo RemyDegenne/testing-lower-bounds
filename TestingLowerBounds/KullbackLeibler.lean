@@ -154,4 +154,31 @@ lemma kl_nonneg (μ ν : Measure α) [IsProbabilityMeasure μ] [IsProbabilityMea
 
 end kl_nonneg
 
+section Conditional
+
+variable {β : Type*} {mβ : MeasurableSpace β}
+-- variable {κ η : kernel α β}
+
+
+open Classical in
+
+-- TODO: choose the right definition between the following two
+noncomputable
+def cond_kl (κ η : kernel α β) (μ : Measure α) : EReal :=
+  if (∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤)
+    ∧ (Integrable (fun x ↦ (kl (κ x) (η x)).toReal) μ)
+  then ((μ[fun x ↦ (kl (κ x) (η x)).toReal] : ℝ) : EReal)
+  else ⊤
+
+noncomputable
+def cond_kl' (κ η : kernel α β) (μ : Measure α) : EReal :=
+  condFDiv (fun x ↦ x * log x) κ η μ
+
+--TODO: is this name correct?
+lemma kl_chain_rule_kernel (κ η : kernel α β) (μ : Measure α) :
+    kl (μ ⊗ₘ κ) (μ ⊗ₘ η) = kl μ ν + cond_kl κ η μ := by
+  sorry
+
+end Conditional
+
 end ProbabilityTheory
