@@ -173,8 +173,8 @@ def cond_kl' (κ η : kernel α β) (μ : Measure α) : EReal :=
   condFDiv (fun x ↦ x * log x) κ η μ
 
 --TODO: is this name correct?
-lemma kl_chain_rule_kernel (κ η : kernel α β) (μ : Measure α) :
-    kl (μ ⊗ₘ κ) (μ ⊗ₘ η) = kl μ ν + cond_kl κ η μ := by
+lemma kl_chain_rule_kernel (κ η : kernel α β) (μ ν : Measure α) :
+    kl (μ ⊗ₘ κ) (ν ⊗ₘ η) = kl μ ν + cond_kl κ η μ := by
   sorry
 
 end Conditional
