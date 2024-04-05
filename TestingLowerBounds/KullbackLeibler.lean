@@ -162,7 +162,7 @@ open Classical in
 
 -- TODO: choose the right definition between the following two
 noncomputable
-def cond_kl (κ η : kernel α β) (μ : Measure α) : EReal :=
+def condKL (κ η : kernel α β) (μ : Measure α) : EReal :=
   if (∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤)
     ∧ (Integrable (fun x ↦ (kl (κ x) (η x)).toReal) μ)
   then ((μ[fun x ↦ (kl (κ x) (η x)).toReal] : ℝ) : EReal)
