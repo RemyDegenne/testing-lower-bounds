@@ -172,10 +172,48 @@ noncomputable
 def condKL' (κ η : kernel α β) (μ : Measure α) : EReal :=
   condFDiv (fun x ↦ x * log x) κ η μ
 
---TODO: is this name correct?
-lemma kl_compProd (κ η : kernel α β) (μ ν : Measure α) :
+#check ProbabilityTheory.kernel.rnDeriv_measure_compProd -- Lemma A.6
+#check ProbabilityTheory.kernel.rnDeriv_eq_rnDeriv_measure -- Corollary A.2
+#check ProbabilityTheory.kernel.Measure.absolutelyContinuous_compProd_iff
+-- TODO: we are doind all the theory using natural log and eponential, is there any point in refactoring all to include the general case with arbitrary base?
+-- TODO : I added the assumption that the measures and kernels are finite, but I am not sure it is necessary. It is needed for the proof of Lemma A.
+lemma kl_compProd [StandardBorelSpace β] (κ η : kernel α β) [IsMarkovKernel κ] [IsFiniteKernel η] (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     kl (μ ⊗ₘ κ) (ν ⊗ₘ η) = kl μ ν + condKL κ η μ := by
-  sorry
+  by_cases comp_ac : (μ ⊗ₘ κ) ≪ (ν ⊗ₘ η)
+  swap; · simp [comp_ac]; sorry -- address the case where ¬(μ ≪ ν)
+  by_cases h_int : Integrable (llr μ ν) μ
+  swap; · sorry -- address the case where the log likelihood ratio is not integrable
+  have ⟨hμν, hκη⟩ := ProbabilityTheory.kernel.Measure.absolutelyContinuous_compProd_iff.mp comp_ac
+  calc kl (μ ⊗ₘ κ) (ν ⊗ₘ η) = ↑(∫ p, llr (μ ⊗ₘ κ) (ν ⊗ₘ η) p ∂(μ ⊗ₘ κ))  := by sorry
+  _ = ↑(∫ (x : α), ∫ (y : β), llr (μ ⊗ₘ κ) (ν ⊗ₘ η) (x, y) ∂κ x ∂μ) := by
+    norm_cast
+    --refine Measure.integral_compProd ?_ --problem:here it seems that we need another assumption about finiteness of the measures and kernels
+    sorry
+  _ = ↑(∫ (x : α), ∫ (y : β), log ((∂μ/∂ν) x * kernel.rnDeriv κ η x y).toReal ∂κ x ∂μ) := by
+    norm_cast
+    have h := hμν.ae_le (Measure.ae_ae_of_ae_compProd (kernel.rnDeriv_measure_compProd μ ν κ η))
+    apply integral_congr_ae
+    filter_upwards [h, hκη] with x hx hκηx
+    apply integral_congr_ae
+    filter_upwards [hκηx.ae_le hx] with y hy
+    unfold llr
+    congr
+  _ = ↑(∫ (x : α), ∫ (y : β), log (μ.rnDeriv ν x).toReal
+      + log (kernel.rnDeriv κ η x y).toReal ∂κ x ∂μ) := by
+      rcongr -- this is proably not the right tactic, because to say that the log of a product is the sum of the logs, we need to use the fact that the product is positive, but this is true only a.e., we need a lemma that says that the rnDeriv is positive a.e. wrt the relevant measures
+      simp only [ENNReal.toReal_mul]
+      apply log_mul
+      sorry
+      sorry
+  _ = ↑(∫ (x : α), ∫ (y : β), log (μ.rnDeriv ν x).toReal ∂κ x ∂μ)
+      + ↑(∫ (x : α), ∫ (y : β), log (kernel.rnDeriv κ η x y).toReal ∂κ x ∂μ) := by sorry
+  _ = ↑(∫ (x : α), log (μ.rnDeriv ν x).toReal ∂μ)
+      + ↑(∫ (x : α), ∫ (y : β), log (kernel.rnDeriv κ η x y).toReal ∂κ x ∂μ) := by sorry
+  _ = ↑(∫ (x : α), log (μ.rnDeriv ν x).toReal ∂μ)
+      + ↑(∫ (x : α), ∫ (y : β), log ((κ x).rnDeriv (η x) y).toReal ∂κ x ∂μ) := by sorry
+-- use Corollary A.2
+  _ = kl μ ν + condKL κ η μ := by sorry
+
 
 end Conditional
 
