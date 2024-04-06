@@ -172,11 +172,14 @@ noncomputable
 def condKL' (κ η : kernel α β) (μ : Measure α) : EReal :=
   condFDiv (fun x ↦ x * log x) κ η μ
 
+-- TODO: build an API for the conditional KL divergence, see the one for the conditional f-divergence and the one for the KL divergence
+
 #check ProbabilityTheory.kernel.rnDeriv_measure_compProd -- Lemma A.6
 #check ProbabilityTheory.kernel.rnDeriv_eq_rnDeriv_measure -- Corollary A.2
 #check ProbabilityTheory.kernel.Measure.absolutelyContinuous_compProd_iff
--- TODO: we are doind all the theory using natural log and eponential, is there any point in refactoring all to include the general case with arbitrary base?
--- TODO : I added the assumption that the measures and kernels are finite, but I am not sure it is necessary. It is needed for the proof of Lemma A.
+
+-- TODO: we are doing all the theory using natural log and eponential, is there any point in refactoring all to include the general case with arbitrary base?
+
 lemma kl_compProd [StandardBorelSpace β] (κ η : kernel α β) [IsMarkovKernel κ] [IsFiniteKernel η] (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     kl (μ ⊗ₘ κ) (ν ⊗ₘ η) = kl μ ν + condKL κ η μ := by
   by_cases comp_ac : (μ ⊗ₘ κ) ≪ (ν ⊗ₘ η)
@@ -200,11 +203,11 @@ lemma kl_compProd [StandardBorelSpace β] (κ η : kernel α β) [IsMarkovKernel
     congr
   _ = ↑(∫ (x : α), ∫ (y : β), log (μ.rnDeriv ν x).toReal
       + log (kernel.rnDeriv κ η x y).toReal ∂κ x ∂μ) := by
-      rcongr -- this is proably not the right tactic, because to say that the log of a product is the sum of the logs, we need to use the fact that the product is positive, but this is true only a.e., we need a lemma that says that the rnDeriv is positive a.e. wrt the relevant measures
-      simp only [ENNReal.toReal_mul]
-      apply log_mul
-      sorry
-      sorry
+    rcongr -- this is proably not the right tactic, because to say that the log of a product is the sum of the logs, we need to use the fact that the product is positive, but this is true only a.e., we need a lemma that says that the rnDeriv is positive a.e. wrt the relevant measures
+    simp only [ENNReal.toReal_mul]
+    apply log_mul
+    sorry
+    sorry
   _ = ↑(∫ (x : α), ∫ (y : β), log (μ.rnDeriv ν x).toReal ∂κ x ∂μ)
       + ↑(∫ (x : α), ∫ (y : β), log (kernel.rnDeriv κ η x y).toReal ∂κ x ∂μ) := by sorry
   _ = ↑(∫ (x : α), log (μ.rnDeriv ν x).toReal ∂μ)
