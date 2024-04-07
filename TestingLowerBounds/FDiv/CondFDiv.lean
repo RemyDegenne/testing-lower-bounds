@@ -566,37 +566,6 @@ lemma fDiv_compProd_right [MeasurableSpace.CountablyGenerated β]
     · rw [← ne_eq, fDiv_ne_top_iff] at h_top
       exact h_top.1
 
-lemma ae_rnDeriv_ne_zero_imp_of_ae_aux [SigmaFinite μ] [SigmaFinite ν] {p : α → Prop}
-    (h : ∀ᵐ a ∂μ, p a) (hμν : μ ≪ ν) :
-    ∀ᵐ a ∂ν, (∂μ/∂ν) a ≠ 0 → p a := by
-  rw [Measure.haveLebesgueDecomposition_add ν μ]
-  rw [ae_add_measure_iff]
-  constructor
-  · rw [← Measure.haveLebesgueDecomposition_add ν μ]
-    have : ∀ᵐ x ∂(ν.singularPart μ), (∂μ/∂ν) x = 0 := by
-      refine ae_eq_of_forall_set_lintegral_eq_of_sigmaFinite (Measure.measurable_rnDeriv _ _)
-        measurable_const (fun s hs _ ↦ ?_)
-      simp only [lintegral_const, MeasurableSet.univ, Measure.restrict_apply, Set.univ_inter,
-        zero_mul]
-      rw [← Measure.restrict_singularPartSet_eq_singularPart, Measure.restrict_restrict hs,
-        Measure.set_lintegral_rnDeriv hμν]
-      exact measure_mono_null (Set.inter_subset_right _ _) (Measure.measure_singularPartSet _ _)
-    filter_upwards [this] with x hx h_absurd using absurd hx h_absurd
-  · have h_ac : μ.withDensity (∂ν/∂μ) ≪ μ := withDensity_absolutelyContinuous _ _
-    rw [← Measure.haveLebesgueDecomposition_add ν μ]
-    suffices ∀ᵐx ∂μ, (∂μ/∂ν) x ≠ 0 → p x from h_ac this
-    filter_upwards [h] with _ h _ using h
-
-lemma ae_rnDeriv_ne_zero_imp_of_ae [SigmaFinite μ] [SigmaFinite ν] {p : α → Prop}
-    (h : ∀ᵐ a ∂μ, p a) :
-    ∀ᵐ a ∂ν, (∂μ/∂ν) a ≠ 0 → p a := by
-  suffices ∀ᵐ a ∂ν, (∂(ν.withDensity (∂μ/∂ν))/∂ν) a ≠ 0 → p a by
-    have h := Measure.rnDeriv_withDensity ν (Measure.measurable_rnDeriv μ ν)
-    filter_upwards [this, h] with x hx1 hx2
-    rwa [hx2] at hx1
-  refine ae_rnDeriv_ne_zero_imp_of_ae_aux ?_ (withDensity_absolutelyContinuous _ _)
-  exact (Measure.absolutelyContinuous_of_le (μ.withDensity_rnDeriv_le ν)) h
-
 lemma f_rnDeriv_ae_le_integral [MeasurableSpace.CountablyGenerated β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsMarkovKernel η]
@@ -612,7 +581,7 @@ lemma f_rnDeriv_ae_le_integral [MeasurableSpace.CountablyGenerated β]
   swap
   · refine (Measurable.stronglyMeasurable ?_).aestronglyMeasurable
     exact (Measure.measurable_rnDeriv _ _).ennreal_toReal
-  have hκη' : ∀ᵐ a ∂ν, (∂μ/∂ν) a ≠ 0 → κ a ≪ η a := ae_rnDeriv_ne_zero_imp_of_ae hκη
+  have hκη' : ∀ᵐ a ∂ν, (∂μ/∂ν) a ≠ 0 → κ a ≪ η a := Measure.ae_rnDeriv_ne_zero_imp_of_ae hκη
   filter_upwards [hκη', h_compProd, h_lt_top, h_int.compProd_mk_left_ae', this.1]
     with a h_ac h_eq h_lt_top h_int' h_rnDeriv_int
   calc f ((∂μ/∂ν) a * κ a Set.univ).toReal
@@ -652,7 +621,7 @@ lemma integrable_f_rnDeriv_mul_kernel [MeasurableSpace.CountablyGenerated β]
     simp_rw [ENNReal.toReal_mul]
     have h := integrable_rnDeriv_mul_withDensity μ ν κ η
     have h_ae : ∀ᵐ a ∂ν, (∂μ/∂ν) a ≠ 0 → kernel.withDensity η (kernel.rnDeriv κ η) a = κ a := by
-      refine ae_rnDeriv_ne_zero_imp_of_ae ?_
+      refine Measure.ae_rnDeriv_ne_zero_imp_of_ae ?_
       filter_upwards [hκη] with x hx
       rw [kernel.withDensity_rnDeriv_eq hx]
     refine (integrable_congr ?_).mp h
@@ -741,7 +710,7 @@ lemma f_rnDeriv_le_add [MeasurableSpace.CountablyGenerated β]
   by_cases h_deriv_top : derivAtTop f = ⊤
   · simp only [ENNReal.toReal_mul, h_deriv_top, EReal.toReal_top, zero_mul, add_zero]
     have h_ae : ∀ᵐ a ∂ν, (∂μ/∂ν) a ≠ 0 → kernel.withDensity η (kernel.rnDeriv κ η) a = κ a := by
-      refine ae_rnDeriv_ne_zero_imp_of_ae ?_
+      refine Measure.ae_rnDeriv_ne_zero_imp_of_ae ?_
       filter_upwards [h_deriv h_deriv_top] with a ha_ac
       rw [kernel.withDensity_rnDeriv_eq ha_ac]
     filter_upwards [h_ae] with a ha
