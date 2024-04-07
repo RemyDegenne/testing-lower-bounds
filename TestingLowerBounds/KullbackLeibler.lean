@@ -215,7 +215,21 @@ lemma condKL_eq_condFDiv [IsSFiniteKernel κ] [IsSFiniteKernel η] :
     rw [← kl_eq_fDiv]
   simp only [ne_eq, h1, h2, condKL_of_ae_finite_of_integrable, ← kl_eq_fDiv, condFDiv_eq']
 
+--TODO : add the corresponding lemma for the conditional f-divergence, then prove this one using that one, some hypothesis regarding sigma finiteness of the kernels will be needed
+-- @[simp]
+lemma condKL_self (κ : kernel α β) (μ : Measure α) : condKL κ κ μ = 0 := by
+  -- rw [condKL_eq_condFDiv, condFDiv_self (by norm_num)]
+  sorry
 
+
+
+lemma kl_compProd_left [MeasurableSpace.CountablyGenerated β] (μ : Measure α) [IsFiniteMeasure μ] (κ η : kernel α β)
+    [IsMarkovKernel κ] [IsFiniteKernel η] :
+    kl (μ ⊗ₘ κ) (μ ⊗ₘ η) = condKL κ η μ := by
+  rw [kl_eq_fDiv, condKL_eq_condFDiv]
+  refine fDiv_compProd_left μ κ η ?_ ?_
+  · sorry
+  · sorry
 
 -- TODO: build an API for the conditional KL divergence, see the one for the conditional f-divergence and the one for the KL divergence
 
