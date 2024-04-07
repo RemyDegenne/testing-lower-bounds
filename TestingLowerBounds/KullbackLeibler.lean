@@ -199,22 +199,22 @@ lemma condKL_of_not_integrable (h : ¬ Integrable (fun x ↦ (kl (κ x) (η x)).
 
 lemma condKL_eq_condFDiv [IsSFiniteKernel κ] [IsSFiniteKernel η] :
     condKL κ η μ = condFDiv (fun x ↦ x * log x) κ η μ := by
+  have : ∀ x, SigmaFinite (κ x) := by sorry --this should be substituted by some hypothesys, probabiliy the fact that the kernels are sigma finite
+  have : ∀ x, SigmaFinite (η x) := by sorry --this should be substituted by some hypothesys, probabiliy the fact that the kernels are sigma finite
   by_cases h1 : ∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤
   swap;
   · simp [h1]
     refine (condFDiv_of_not_ae_finite ?_).symm
     convert h1 using 4 with x
-    have : SFinite (κ x) := by infer_instance --problem:sfinte is not sigma finite,
-    -- rw [@kl_eq_fDiv _ _ _ _ _ _]
-    sorry
+    rw [kl_eq_fDiv]
   by_cases h2 : Integrable (fun x ↦ (kl (κ x) (η x)).toReal) μ
   swap;
   · simp [h2]
     refine (condFDiv_of_not_integrable ?_).symm
     convert h2 using 4 with x
-    -- rw [← kl_eq_fDiv] --for some reason here it doesnt manage to find the istance for SigmaFinite, but it should, since the kernels are SFinite
-    sorry
-  sorry
+    rw [← kl_eq_fDiv]
+  simp only [ne_eq, h1, h2, condKL_of_ae_finite_of_integrable, ← kl_eq_fDiv, condFDiv_eq']
+
 
 
 -- TODO: build an API for the conditional KL divergence, see the one for the conditional f-divergence and the one for the KL divergence
