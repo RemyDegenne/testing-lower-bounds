@@ -17,3 +17,20 @@ Let $\mu$ be a measure on a measurable space $\mathcal X$.
 For a function $g : \mathcal X \to \mathcal Y$ which is $a.e.$-measurable with respect to $\mu$, $g_* \mu$ is the pushforward of $\mu$ by $g$. This is a measure on $\mathcal Y$ such that $g_* \mu (A) = \mu(g^{-1} A)$.
 
 For a function $g : \mathcal X \to \mathbb{R}_{+,\infty}$, $g \cdot \mu$ denotes the measure on $\mathcal X$ with density $g$ with respect to $\mu$. That is, $g \cdot \mu (A) = \int_{x \in A} g(x) \partial\mu$.
+
+\section*{About the assumptions}
+
+Information divergences are usually considered for probability measures, but we will be more granular about the assumptions we impose on the measures.
+Since Radon-Nikodym derivatives don't have good properties unless the measures are sigma-finite and since those derivatives are the basic building block of all the information divergences we consider, every measure we consider will be supposed sigma-finite.
+Many results additionally need that the measures are finite, and only few will be about probability measures specifically.
+
+In most results, the measures can be defined on a general measurable space, without additional assumptions.
+However some statements, notably those involving conditional divergences, will require the sigma-algebra to be countably generated.
+That assumption means that there is a countable set of sets that generates the sigma-algebra.
+This is the case for example in any standard Borel space, which covers the vast majority of applications.
+
+\section*{About this document}
+
+This document is generated from a latex file written by the authors. It contains links to a Lean implementation of the results, but there is no technical guarantee that the results written here and the ones in the code match in any way.
+In particular, nothing in this document is generated from the code.
+In summary, although the authors strive to make this document as close to the code as possible, the only formally verified statements are those written in the Lean code.
