@@ -158,7 +158,7 @@ lemma eq_rnDeriv_measure [IsFiniteKernel ν] (h : κ = kernel.withDensity ν f +
     rw [h, coeFn_add, Pi.add_apply, kernel.withDensity_apply _ hf, add_comm]
   exact (κ a).eq_rnDeriv₀ (hf.comp measurable_prod_mk_left).aemeasurable (hξ a) this
 
-lemma eq_singularPart_measure [IsFiniteKernel κ] [IsFiniteKernel ν]
+lemma eq_singularPart_measure [IsFiniteKernel ν]
     (h : κ = kernel.withDensity ν f + ξ)
     (hf : Measurable (Function.uncurry f)) (hξ : ∀ a, ξ a ⟂ₘ ν a) (a : α) :
     ξ a = (κ a).singularPart (ν a) := by
@@ -328,7 +328,7 @@ lemma todo1 (μ ν : Measure α) (κ η : kernel α γ)
   simp
 
 lemma todo2 (μ ν : Measure α) (κ η : kernel α γ)
-    [IsFiniteMeasure μ] [IsFiniteMeasure ν] [IsFiniteKernel κ] [IsFiniteKernel η] :
+    [IsFiniteMeasure ν] [IsFiniteKernel κ] [IsFiniteKernel η] :
     (fun p ↦ (∂(ν.withDensity (∂μ/∂ν))/∂ν) p.1 * rnDeriv (withDensity η (rnDeriv κ η)) η p.1 p.2)
       =ᵐ[ν ⊗ₘ η] (fun p ↦ (∂μ/∂ν) p.1 * rnDeriv κ η p.1 p.2) := by
   let μ' := ν.withDensity (∂μ/∂ν)
@@ -466,7 +466,7 @@ lemma Measure.absolutelyContinuous_compProd_right_iff
 
 lemma Measure.absolutelyContinuous_of_absolutelyContinuous_compProd
     {μ ν : Measure α} {κ η : kernel α γ}
-    [IsFiniteMeasure μ] [IsFiniteMeasure ν] [IsMarkovKernel κ] [IsFiniteKernel η]
+    [SFinite μ] [SFinite ν] [IsSFiniteKernel κ] [IsSFiniteKernel η] [h_zero : ∀ a, NeZero (κ a)]
     (h : μ ⊗ₘ κ ≪ ν ⊗ₘ η) :
     μ ≪ ν := by
   refine Measure.AbsolutelyContinuous.mk (fun s hs hs0 ↦ ?_)
@@ -474,12 +474,18 @@ lemma Measure.absolutelyContinuous_of_absolutelyContinuous_compProd
     rw [Measure.compProd_apply_prod hs MeasurableSet.univ]
     exact set_lintegral_measure_zero _ _ hs0
   have h2 := h h1
-  rw [Measure.compProd_apply_prod hs MeasurableSet.univ] at h2
-  simpa using h2
+  rw [Measure.compProd_apply_prod hs MeasurableSet.univ, lintegral_eq_zero_iff] at h2
+  swap; · exact kernel.measurable_coe _ MeasurableSet.univ
+  by_contra hμs
+  have : NeBot (μ.restrict s).ae := by simp [hμs]
+  obtain ⟨a, ha⟩ : ∃ a, κ a univ = 0 := h2.exists
+  refine absurd ha ?_
+  simp only [Measure.measure_univ_eq_zero]
+  exact (h_zero a).out
 
 lemma Measure.absolutelyContinuous_compProd_iff
     {μ ν : Measure α} {κ η : kernel α γ}
-    [IsFiniteMeasure μ] [IsFiniteMeasure ν] [IsMarkovKernel κ] [IsFiniteKernel η] :
+    [SFinite μ] [SFinite ν] [IsFiniteKernel κ] [IsFiniteKernel η] [h_zero : ∀ a, NeZero (κ a)] :
     μ ⊗ₘ κ ≪ ν ⊗ₘ η ↔ μ ≪ ν ∧ ∀ᵐ a ∂μ, κ a ≪ η a := by
   refine ⟨fun h ↦ ⟨Measure.absolutelyContinuous_of_absolutelyContinuous_compProd h, ?_⟩,
     fun h ↦ Measure.absolutelyContinuous_compProd h.1 h.2⟩
