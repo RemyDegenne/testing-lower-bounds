@@ -195,6 +195,7 @@ lemma condKL_of_not_integrable (h : ¬ Integrable (fun x ↦ (kl (κ x) (η x)).
 --which needs it for the instance that the two measures have a Lebesgue decomposition, in the case of sigma finite measures the instace is
 #check MeasureTheory.Measure.haveLebesgueDecomposition_of_sigmaFinite
 --this seems to be an important theorem, so it may not be possible to generalize it, I found this paper (https://www.jstor.org/stable/2035430?seq=1) that seems to generalize it, but the result is a bit different than classical Lebesgue decomposition, so it may not be useful, maybe it's time to exit the rabbit hole
+--I found another paper that seems to give the relevant result, this seems to be the classical decomposition but for s finite kernels, so it may be useful https://arxiv.org/pdf/1810.01837.pdf, still I don't know how much time it could take to formalize it
 
 lemma condKL_eq_condFDiv [IsSFiniteKernel κ] [IsSFiniteKernel η] :
     condKL κ η μ = condFDiv (fun x ↦ x * log x) κ η μ := by
