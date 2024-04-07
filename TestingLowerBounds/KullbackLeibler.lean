@@ -156,7 +156,7 @@ end kl_nonneg
 
 section Conditional
 
-variable {β : Type*} {mβ : MeasurableSpace β}
+variable {β : Type*} {mβ : MeasurableSpace β} {κ η : kernel α β} {μ : Measure α}
 
 open Classical in
 
@@ -171,6 +171,50 @@ def condKL (κ η : kernel α β) (μ : Measure α) : EReal :=
 noncomputable
 def condKL' (κ η : kernel α β) (μ : Measure α) : EReal :=
   condFDiv (fun x ↦ x * log x) κ η μ
+
+lemma condKL_of_ae_finite_of_integrable (h1 : ∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤)
+    (h2 : Integrable (fun x ↦ (kl (κ x) (η x)).toReal) μ) :
+    condKL κ η μ = (μ[fun x ↦ (kl (κ x) (η x)).toReal] : ℝ) := if_pos ⟨h1, h2⟩
+
+@[simp]
+lemma condKL_of_not_ae_finite (h : ¬ (∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤)) :
+    condKL κ η μ = ⊤ := if_neg (not_and_of_not_left _ h)
+
+@[simp]
+lemma condKL_of_not_integrable (h : ¬ Integrable (fun x ↦ (kl (κ x) (η x)).toReal) μ) :
+    condKL κ η μ = ⊤ := if_neg (not_and_of_not_right _ h)
+
+--there seems not to be a property of kernels that says that ∀a κ a is sigma finite, but it seems to be exactly the one we would need in the following lemma, alternatively we could see if the lemma kl_eq_fDiv can be proved relaxing the hypothesis of sigma finiteness to SFinite
+
+-- attempt to see if the hypothesys of sigma finiteness can be relaxed in
+#check ProbabilityTheory.kl_eq_fDiv
+--the hypothesis is needed by
+#check ProbabilityTheory.fDiv_of_not_ac
+-- which needs it for
+#check MeasureTheory.Measure.singularPart_eq_zero
+--which needs it for the instance that the two measures have a Lebesgue decomposition, in the case of sigma finite measures the instace is
+#check MeasureTheory.Measure.haveLebesgueDecomposition_of_sigmaFinite
+--this seems to be an important theorem, so it may not be possible to generalize it, I found this paper (https://www.jstor.org/stable/2035430?seq=1) that seems to generalize it, but the result is a bit different than classical Lebesgue decomposition, so it may not be useful, maybe it's time to exit the rabbit hole
+
+lemma condKL_eq_condFDiv [IsSFiniteKernel κ] [IsSFiniteKernel η] :
+    condKL κ η μ = condFDiv (fun x ↦ x * log x) κ η μ := by
+  by_cases h1 : ∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤
+  swap;
+  · simp [h1]
+    refine (condFDiv_of_not_ae_finite ?_).symm
+    convert h1 using 4 with x
+    have : SFinite (κ x) := by infer_instance --problem:sfinte is not sigma finite,
+    -- rw [@kl_eq_fDiv _ _ _ _ _ _]
+    sorry
+  by_cases h2 : Integrable (fun x ↦ (kl (κ x) (η x)).toReal) μ
+  swap;
+  · simp [h2]
+    refine (condFDiv_of_not_integrable ?_).symm
+    convert h2 using 4 with x
+    -- rw [← kl_eq_fDiv] --for some reason here it doesnt manage to find the istance for SigmaFinite, but it should, since the kernels are SFinite
+    sorry
+  sorry
+
 
 -- TODO: build an API for the conditional KL divergence, see the one for the conditional f-divergence and the one for the KL divergence
 
