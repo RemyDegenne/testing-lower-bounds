@@ -222,14 +222,16 @@ lemma condKL_self (κ : kernel α β) (μ : Measure α) : condKL κ κ μ = 0 :=
   sorry
 
 
-
-lemma kl_compProd_left [MeasurableSpace.CountablyGenerated β] (μ : Measure α) [IsFiniteMeasure μ] (κ η : kernel α β)
-    [IsMarkovKernel κ] [IsFiniteKernel η] :
+--regarding the next 2 lemmas, should we keep them as they are (derived from the fDiv), or should we prove them using the kl_compProd? it's probabily better to leave them like this, since kl_compProd has slightly stronger hypothesis. Though maybe we can relax some of these hypothesis.
+lemma kl_compProd_left [MeasurableSpace.CountablyGenerated β] (μ : Measure α) [IsFiniteMeasure μ] (κ η : kernel α β) [IsMarkovKernel κ] [IsFiniteKernel η] :
     kl (μ ⊗ₘ κ) (μ ⊗ₘ η) = condKL κ η μ := by
   rw [kl_eq_fDiv, condKL_eq_condFDiv]
-  refine fDiv_compProd_left μ κ η ?_ ?_
-  · sorry
-  · sorry
+  exact fDiv_compProd_left μ κ η (by measurability) Real.convexOn_mul_log
+
+lemma kl_compProd_right [MeasurableSpace.CountablyGenerated β] (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν] (κ : kernel α β) [IsMarkovKernel κ] :
+    kl (μ ⊗ₘ κ) (ν ⊗ₘ κ) = kl μ ν := by
+  rw [kl_eq_fDiv, kl_eq_fDiv]
+  exact fDiv_compProd_right μ ν κ (by measurability) Real.convexOn_mul_log
 
 -- TODO: build an API for the conditional KL divergence, see the one for the conditional f-divergence and the one for the KL divergence
 
