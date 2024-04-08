@@ -221,6 +221,13 @@ lemma condKL_self (κ : kernel α β) (μ : Measure α) : condKL κ κ μ = 0 :=
   -- rw [condKL_eq_condFDiv, condFDiv_self (by norm_num)]
   sorry
 
+lemma condKL_nonneg (κ η : kernel α β) [IsMarkovKernel κ] [IsMarkovKernel η] (μ : Measure α) :
+    0 ≤ condKL κ η μ := by
+  rw [condKL_eq_condFDiv]
+  apply condFDiv_nonneg
+  · exact Real.convexOn_mul_log
+  · exact Real.continuous_mul_log.continuousOn
+  · norm_num
 
 --regarding the next 2 lemmas, should we keep them as they are (derived from the fDiv), or should we prove them using the kl_compProd? it's probabily better to leave them like this, since kl_compProd has slightly stronger hypothesis. Though maybe we can relax some of these hypothesis.
 lemma kl_compProd_left [MeasurableSpace.CountablyGenerated β] (μ : Measure α) [IsFiniteMeasure μ] (κ η : kernel α β) [IsMarkovKernel κ] [IsFiniteKernel η] :
