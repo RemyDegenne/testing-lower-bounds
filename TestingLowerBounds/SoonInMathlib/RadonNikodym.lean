@@ -18,7 +18,7 @@ open scoped NNReal ENNReal MeasureTheory Topology ProbabilityTheory
 namespace ProbabilityTheory.kernel
 
 variable {α γ : Type*} {mα : MeasurableSpace α} {mγ : MeasurableSpace γ}
-  [MeasurableSpace.CountablyGenerated γ] {κ ν : kernel α γ}
+  [MeasurableSpace.CountablyGenerated γ] {κ η : kernel α γ}
 
 lemma singularPart_self (κ : kernel α γ) [IsFiniteKernel κ] :
     kernel.singularPart κ κ = 0 := by
@@ -151,18 +151,18 @@ section Unique
 
 variable {ξ : kernel α γ} {f : α → γ → ℝ≥0∞}
 
-lemma eq_rnDeriv_measure [IsFiniteKernel ν] (h : κ = kernel.withDensity ν f + ξ)
-    (hf : Measurable (Function.uncurry f)) (hξ : ∀ a, ξ a ⟂ₘ ν a) (a : α) :
-    f a =ᵐ[ν a] ∂(κ a)/∂(ν a) := by
-  have : κ a = ξ a + (ν a).withDensity (f a) := by
+lemma eq_rnDeriv_measure [IsFiniteKernel η] (h : κ = kernel.withDensity η f + ξ)
+    (hf : Measurable (Function.uncurry f)) (hξ : ∀ a, ξ a ⟂ₘ η a) (a : α) :
+    f a =ᵐ[η a] ∂(κ a)/∂(η a) := by
+  have : κ a = ξ a + (η a).withDensity (f a) := by
     rw [h, coeFn_add, Pi.add_apply, kernel.withDensity_apply _ hf, add_comm]
   exact (κ a).eq_rnDeriv₀ (hf.comp measurable_prod_mk_left).aemeasurable (hξ a) this
 
-lemma eq_singularPart_measure [IsFiniteKernel ν]
-    (h : κ = kernel.withDensity ν f + ξ)
-    (hf : Measurable (Function.uncurry f)) (hξ : ∀ a, ξ a ⟂ₘ ν a) (a : α) :
-    ξ a = (κ a).singularPart (ν a) := by
-  have : κ a = ξ a + (ν a).withDensity (f a) := by
+lemma eq_singularPart_measure [IsFiniteKernel η]
+    (h : κ = kernel.withDensity η f + ξ)
+    (hf : Measurable (Function.uncurry f)) (hξ : ∀ a, ξ a ⟂ₘ η a) (a : α) :
+    ξ a = (κ a).singularPart (η a) := by
+  have : κ a = ξ a + (η a).withDensity (f a) := by
     rw [h, coeFn_add, Pi.add_apply, kernel.withDensity_apply _ hf, add_comm]
   exact (κ a).eq_singularPart (hf.comp measurable_prod_mk_left) (hξ a) this
 
@@ -171,22 +171,69 @@ lemma rnDeriv_eq_rnDeriv_measure (κ ν : kernel α γ) [IsFiniteKernel κ] [IsF
   eq_rnDeriv_measure (rnDeriv_add_singularPart κ ν).symm (measurable_rnDeriv κ ν)
     (mutuallySingular_singularPart κ ν) a
 
-lemma singularPart_eq_singularPart_measure [IsFiniteKernel κ] [IsFiniteKernel ν] (a : α) :
-    singularPart κ ν a = (κ a).singularPart (ν a) :=
-  eq_singularPart_measure (rnDeriv_add_singularPart κ ν).symm (measurable_rnDeriv κ ν)
-    (mutuallySingular_singularPart κ ν) a
+lemma singularPart_eq_singularPart_measure [IsFiniteKernel κ] [IsFiniteKernel η] (a : α) :
+    singularPart κ η a = (κ a).singularPart (η a) :=
+  eq_singularPart_measure (rnDeriv_add_singularPart κ η).symm (measurable_rnDeriv κ η)
+    (mutuallySingular_singularPart κ η) a
 
-lemma eq_rnDeriv [IsFiniteKernel κ] [IsFiniteKernel ν] (h : κ = kernel.withDensity ν f + ξ)
-    (hf : Measurable (Function.uncurry f)) (hξ : ∀ a, ξ a ⟂ₘ ν a) (a : α) :
-    f a =ᵐ[ν a] rnDeriv κ ν a :=
+lemma eq_rnDeriv [IsFiniteKernel κ] [IsFiniteKernel η] (h : κ = kernel.withDensity η f + ξ)
+    (hf : Measurable (Function.uncurry f)) (hξ : ∀ a, ξ a ⟂ₘ η a) (a : α) :
+    f a =ᵐ[η a] rnDeriv κ η a :=
   (eq_rnDeriv_measure h hf hξ a).trans (rnDeriv_eq_rnDeriv_measure _ _ a).symm
 
-lemma eq_singularPart [IsFiniteKernel κ] [IsFiniteKernel ν] (h : κ = kernel.withDensity ν f + ξ)
-    (hf : Measurable (Function.uncurry f)) (hξ : ∀ a, ξ a ⟂ₘ ν a) (a : α) :
-    ξ a = singularPart κ ν a :=
+lemma eq_singularPart [IsFiniteKernel κ] [IsFiniteKernel η] (h : κ = kernel.withDensity η f + ξ)
+    (hf : Measurable (Function.uncurry f)) (hξ : ∀ a, ξ a ⟂ₘ η a) (a : α) :
+    ξ a = singularPart κ η a :=
   (eq_singularPart_measure h hf hξ a).trans (singularPart_eq_singularPart_measure a).symm
 
 end Unique
+
+instance instIsFiniteKernel_withDensity_rnDeriv [hκ : IsFiniteKernel κ] [IsFiniteKernel η] :
+    IsFiniteKernel (withDensity η (rnDeriv κ η)) := by
+  constructor
+  refine ⟨hκ.bound, hκ.bound_lt_top, fun a ↦ ?_⟩
+  rw [kernel.withDensity_apply', set_lintegral_univ]
+  swap; · exact measurable_rnDeriv κ η
+  rw [lintegral_congr_ae (rnDeriv_eq_rnDeriv_measure _ _ a), ← set_lintegral_univ]
+  exact (Measure.set_lintegral_rnDeriv_le _).trans (measure_le_bound _ _ _)
+
+instance instIsFiniteKernel_singularPart [hκ : IsFiniteKernel κ] [IsFiniteKernel η] :
+    IsFiniteKernel (singularPart κ η) := by
+  constructor
+  refine ⟨hκ.bound, hκ.bound_lt_top, fun a ↦ ?_⟩
+  have h : withDensity η (rnDeriv κ η) a univ + singularPart κ η a univ = κ a univ := by
+    conv_rhs => rw [← rnDeriv_add_singularPart κ η]
+  exact (self_le_add_left _ _).trans (h.le.trans (measure_le_bound _ _ _))
+
+lemma rnDeriv_add (κ ν η : kernel α γ) [IsFiniteKernel κ] [IsFiniteKernel ν] [IsFiniteKernel η]
+    (a : α) :
+    rnDeriv (κ + ν) η a =ᵐ[η a] rnDeriv κ η a + rnDeriv ν η a := by
+  filter_upwards [rnDeriv_eq_rnDeriv_measure (κ + ν) η a, rnDeriv_eq_rnDeriv_measure κ η a,
+    rnDeriv_eq_rnDeriv_measure ν η a, Measure.rnDeriv_add (κ a) (ν a) (η a)] with x h1 h2 h3 h4
+  rw [h1, Pi.add_apply, h2, h3, coeFn_add, Pi.add_apply, h4, Pi.add_apply]
+
+lemma rnDeriv_singularPart (κ ν : kernel α γ) [IsFiniteKernel κ] [IsFiniteKernel ν] (a : α) :
+    rnDeriv (singularPart κ ν) ν a =ᵐ[ν a] 0 := by
+  filter_upwards [rnDeriv_eq_rnDeriv_measure (singularPart κ ν) ν a,
+    (Measure.rnDeriv_eq_zero _ _).mpr (mutuallySingular_singularPart κ ν a)] with x h1 h2
+  rw [h1, h2]
+
+lemma withDensity_rnDeriv_eq
+    {κ η : kernel α γ} [IsFiniteKernel κ] [IsFiniteKernel η] {a : α} (h : κ a ≪ η a) :
+    kernel.withDensity η (kernel.rnDeriv κ η) a = κ a := by
+  rw [kernel.withDensity_apply]
+  swap; · exact kernel.measurable_rnDeriv _ _
+  have h_ae := kernel.rnDeriv_eq_rnDeriv_measure κ η a
+  rw [MeasureTheory.withDensity_congr_ae h_ae, Measure.withDensity_rnDeriv_eq _ _ h]
+
+lemma rnDeriv_withDensity
+    (κ : kernel α γ) [IsFiniteKernel κ] {f : α → γ → ℝ≥0∞} [IsFiniteKernel (withDensity κ f)]
+    (hf : Measurable (Function.uncurry f)) (a : α) :
+    kernel.rnDeriv (kernel.withDensity κ f) κ a =ᵐ[κ a] f a := by
+  have h_ae := kernel.rnDeriv_eq_rnDeriv_measure (kernel.withDensity κ f) κ a
+  have hf' : ∀ a, Measurable (f a) := fun _ ↦ hf.of_uncurry_left
+  filter_upwards [h_ae, Measure.rnDeriv_withDensity (κ a) (hf' a)] with x hx1 hx2
+  rw [hx1, kernel.withDensity_apply _ hf, hx2]
 
 section MeasureCompProd
 
@@ -270,36 +317,6 @@ lemma rnDeriv_measure_compProd_aux {μ ν : Measure α} {κ η : kernel α γ}
     rw [lintegral_iUnion hf_meas hf_disj, lintegral_iUnion hf_meas hf_disj]
     congr with i
     exact hf_eq i
-
-instance instIsFiniteKernel_withDensity_rnDeriv [hκ : IsFiniteKernel κ] [IsFiniteKernel ν] :
-    IsFiniteKernel (withDensity ν (rnDeriv κ ν)) := by
-  constructor
-  refine ⟨hκ.bound, hκ.bound_lt_top, fun a ↦ ?_⟩
-  rw [kernel.withDensity_apply', set_lintegral_univ]
-  swap; · exact measurable_rnDeriv κ ν
-  rw [lintegral_congr_ae (rnDeriv_eq_rnDeriv_measure _ _ a), ← set_lintegral_univ]
-  exact (Measure.set_lintegral_rnDeriv_le _).trans (measure_le_bound _ _ _)
-
-instance instIsFiniteKernel_singularPart [hκ : IsFiniteKernel κ] [IsFiniteKernel ν] :
-    IsFiniteKernel (singularPart κ ν) := by
-  constructor
-  refine ⟨hκ.bound, hκ.bound_lt_top, fun a ↦ ?_⟩
-  have h : withDensity ν (rnDeriv κ ν) a univ + singularPart κ ν a univ = κ a univ := by
-    conv_rhs => rw [← rnDeriv_add_singularPart κ ν]
-  exact (self_le_add_left _ _).trans (h.le.trans (measure_le_bound _ _ _))
-
-lemma rnDeriv_add (κ ν η : kernel α γ) [IsFiniteKernel κ] [IsFiniteKernel ν] [IsFiniteKernel η]
-    (a : α) :
-    rnDeriv (κ + ν) η a =ᵐ[η a] rnDeriv κ η a + rnDeriv ν η a := by
-  filter_upwards [rnDeriv_eq_rnDeriv_measure (κ + ν) η a, rnDeriv_eq_rnDeriv_measure κ η a,
-    rnDeriv_eq_rnDeriv_measure ν η a, Measure.rnDeriv_add (κ a) (ν a) (η a)] with x h1 h2 h3 h4
-  rw [h1, Pi.add_apply, h2, h3, coeFn_add, Pi.add_apply, h4, Pi.add_apply]
-
-lemma rnDeriv_singularPart (κ ν : kernel α γ) [IsFiniteKernel κ] [IsFiniteKernel ν] (a : α) :
-    rnDeriv (singularPart κ ν) ν a =ᵐ[ν a] 0 := by
-  filter_upwards [rnDeriv_eq_rnDeriv_measure (singularPart κ ν) ν a,
-    (Measure.rnDeriv_eq_zero _ _).mpr (mutuallySingular_singularPart κ ν a)] with x h1 h2
-  rw [h1, h2]
 
 lemma todo1 (μ ν : Measure α) (κ η : kernel α γ)
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] [IsFiniteKernel κ] [IsFiniteKernel η] :

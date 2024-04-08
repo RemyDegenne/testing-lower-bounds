@@ -34,23 +34,6 @@ namespace ProbabilityTheory
 variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
   {μ ν : Measure α} {κ η : kernel α β} {f g : ℝ → ℝ}
 
-lemma kernel.withDensity_rnDeriv_eq [MeasurableSpace.CountablyGenerated β]
-    {κ η : kernel α β} [IsFiniteKernel κ] [IsFiniteKernel η] {a : α} (h : κ a ≪ η a) :
-    kernel.withDensity η (kernel.rnDeriv κ η) a = κ a := by
-  rw [kernel.withDensity_apply]
-  swap; · exact kernel.measurable_rnDeriv _ _
-  have h_ae := kernel.rnDeriv_eq_rnDeriv_measure κ η a
-  rw [MeasureTheory.withDensity_congr_ae h_ae, Measure.withDensity_rnDeriv_eq _ _ h]
-
-lemma kernel.rnDeriv_withDensity [MeasurableSpace.CountablyGenerated β]
-    (κ : kernel α β) [IsFiniteKernel κ] {f : α → β → ℝ≥0∞} [IsFiniteKernel (withDensity κ f)]
-    (hf : Measurable (Function.uncurry f)) (a : α) :
-    kernel.rnDeriv (kernel.withDensity κ f) κ a =ᵐ[κ a] f a := by
-  have h_ae := kernel.rnDeriv_eq_rnDeriv_measure (kernel.withDensity κ f) κ a
-  have hf' : ∀ a, Measurable (f a) := fun _ ↦ hf.of_uncurry_left
-  filter_upwards [h_ae, Measure.rnDeriv_withDensity (κ a) (hf' a)] with x hx1 hx2
-  rw [hx1, kernel.withDensity_apply _ hf, hx2]
-
 -- todo name
 lemma lintegral_measure_prod_mk_left {f : α → Set β → ℝ≥0∞} (hf : ∀ a, f a ∅ = 0)
     {s : Set α} (hs : MeasurableSet s) (t : Set β) :
