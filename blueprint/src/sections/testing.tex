@@ -262,3 +262,51 @@ Use Lemma~\ref{lem:renyi_prod_n} in Lemma~\ref{lem:testing_bound_renyi_max}.
 Use Lemma~\ref{lem:renyi_prod_n} in Lemma~\ref{lem:testing_bound_renyi_one_add}
 \end{proof}
 
+\begin{theorem}
+  \label{thm:testing_bound_chernoff}
+  %\lean{}
+  %\leanok
+  \uses{def:Chernoff}
+  Let $\mu, \nu$ be two probability measures on $\mathcal X$ and let $(E_n)_{n \in \mathbb{N}}$ be events on $\mathcal X^n$. For all $\gamma \in (0,1)$,
+  \begin{align*}
+  \limsup_{n \to +\infty} \frac{1}{n}\log \frac{1}{\gamma \mu^{\otimes n}(E_n) + (1 - \gamma)\nu^{\otimes n}(E_n^c)}
+  \le C(\mu, \nu)
+  \: .
+  \end{align*}
+\end{theorem}
+
+\begin{proof}
+\uses{cor:kl_change_measure}
+Let $\xi$ be a probability measure on $\mathcal X$ and $\beta > 0$. By Corollary~\ref{cor:kl_change_measure},
+\begin{align*}
+\mu^{\otimes n}(E_n) e^{\KL(\xi^{\otimes n}, \mu^{\otimes n}) + n\beta}
+&\ge \xi^{\otimes n}(E_n) - \xi^{\otimes n}\left\{ \log\frac{d \xi^{\otimes n}}{d \mu^{\otimes n}} - \KL(\xi^{\otimes n}, \mu^{\otimes n}) > n\beta \right\}
+\: , \\
+\nu^{\otimes n}(E_n^c) e^{\KL(\xi^{\otimes n}, \nu^{\otimes n}) + n\beta}
+&\ge \xi^{\otimes n}(E_n^c) - \xi^{\otimes n}\left\{ \log\frac{d \xi^{\otimes n}}{d \nu^{\otimes n}} - \KL(\xi^{\otimes n}, \nu^{\otimes n}) > n\beta \right\}
+\: .
+\end{align*}
+We sum both inequalities with weights $\gamma$ and $1-\gamma$ respectively and use that each $\KL$ on the left is less than their max, as well as $\xi^{\otimes n}(E_n) + \xi^{\otimes n}(E_n^c) = 1$.
+\begin{align*}
+&e^{n\beta} (\gamma\mu^{\otimes n}(E_n) + (1-\gamma)\nu^{\otimes n}(E_n^c)) e^{\max\{\KL(\xi^{\otimes n}, \mu^{\otimes n}), \KL(\xi^{\otimes n}, \nu^{\otimes n})\}}
+\\
+&\ge \min\{\gamma, 1-\gamma\} - \gamma\xi^{\otimes n}\left\{ \log\frac{d \xi^{\otimes n}}{d \mu^{\otimes n}} - \KL(\xi^{\otimes n}, \mu^{\otimes n}) > n\beta \right\}
+  - (1 - \gamma)\xi^{\otimes n}\left\{ \log\frac{d \xi^{\otimes n}}{d \nu^{\otimes n}} - \KL(\xi^{\otimes n}, \nu^{\otimes n}) > n\beta \right\}
+\: .
+\end{align*}
+Let $p_{n,\mu}(\beta)$ and $p_{n, \nu}(\beta)$ be the two probabilities on the right hand side. By the law of large numbers, both tend to 0 when $n$ tends to $+\infty$.
+In particular, for $n$ large enough, the right hand side is positive and we can take logarithms on both sides. We also use the tensorization of $\KL$ (Lemma TODO).
+\begin{align*}
+& n \max\{\KL(\xi, \mu), \KL(\xi, \nu)\}
+\\
+&\ge \log \frac{1}{\gamma \mu^{\otimes n}(E_n) + (1 - \gamma)\nu^{\otimes n}(E_n^c)} + \log (\min\{\gamma, 1-\gamma\} - \gamma p_{n, \mu}(\beta) - (1 - \gamma) p_{n, \nu}(\beta)) - n\beta
+\end{align*}
+For $n \to +\infty$,
+\begin{align*}
+\max\{\KL(\xi, \mu), \KL(\xi, \nu)\}
+\ge \limsup_{n \to + \infty}\frac{1}{n}\log \frac{1}{\gamma \mu^{\otimes n}(E_n) + (1 - \gamma)\nu^{\otimes n}(E_n^c)} - \beta
+\end{align*}
+Since $\beta > 0$ is arbitrary, we can take a supremum over $\beta$ on the right.
+
+
+\end{proof}
