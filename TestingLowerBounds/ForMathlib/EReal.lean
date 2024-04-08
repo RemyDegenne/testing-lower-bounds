@@ -187,4 +187,18 @@ lemma mul_add_coe_of_nonneg (x : EReal) {y z : ℝ} (hy : 0 ≤ y) (hz : 0 ≤ z
   norm_cast
   rw [mul_add]
 
+lemma toReal_nonneg {x : EReal} (hx : 0 ≤ x) : 0 ≤ x.toReal := by
+  induction' x using EReal.rec with x
+  · norm_num
+  · simp only [toReal_coe]
+    exact EReal.coe_nonneg.mp hx
+  · norm_num
+
+lemma toReal_nonpos {x : EReal} (hx : x ≤ 0) : x.toReal ≤ 0 := by
+  induction' x using EReal.rec with x
+  · norm_num
+  · simp only [toReal_coe]
+    exact EReal.coe_nonpos.mp hx
+  · norm_num
+
 end EReal
