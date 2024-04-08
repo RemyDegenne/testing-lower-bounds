@@ -236,18 +236,28 @@ lemma kl_compProd_right [MeasurableSpace.CountablyGenerated β] (μ ν : Measure
 -- TODO: build an API for the conditional KL divergence, see the one for the conditional f-divergence and the one for the KL divergence
 
 #check ProbabilityTheory.kernel.rnDeriv_measure_compProd -- Lemma A.6
-#check ProbabilityTheory.kernel.rnDeriv_eq_rnDeriv_measure -- Corollary A.2
+#check kernel.rnDeriv_eq_rnDeriv_measure -- Corollary A.2
 #check ProbabilityTheory.kernel.Measure.absolutelyContinuous_compProd_iff
 
 -- TODO: we are doing all the theory using natural log and eponential, is there any point in refactoring all to include the general case with arbitrary base?
 
+#check kernel.Measure.absolutelyContinuous_compProd_iff.mpr.mt
+
 lemma kl_compProd [StandardBorelSpace β] (κ η : kernel α β) [IsMarkovKernel κ] [IsFiniteKernel η] (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     kl (μ ⊗ₘ κ) (ν ⊗ₘ η) = kl μ ν + condKL κ η μ := by
   by_cases comp_ac : (μ ⊗ₘ κ) ≪ (ν ⊗ₘ η)
-  swap; · simp [comp_ac]; sorry -- address the case where ¬(μ ≪ ν)
+  swap;
+  · simp [comp_ac]
+    have h := kernel.Measure.absolutelyContinuous_compProd_iff.mpr.mt comp_ac
+    set_option push_neg.use_distrib true in push_neg at h
+    rcases h with (hμν | hκη)
+    · simp only [hμν, not_false_eq_true, kl_of_not_ac]
+      -- refine (top_add_of_nonneg ?_).symm
+      sorry
+    · sorry
   by_cases h_int : Integrable (llr μ ν) μ
   swap; · sorry -- address the case where the log likelihood ratio is not integrable
-  have ⟨hμν, hκη⟩ := ProbabilityTheory.kernel.Measure.absolutelyContinuous_compProd_iff.mp comp_ac
+  have ⟨hμν, hκη⟩ := kernel.Measure.absolutelyContinuous_compProd_iff.mp comp_ac
   calc kl (μ ⊗ₘ κ) (ν ⊗ₘ η) = ↑(∫ p, llr (μ ⊗ₘ κ) (ν ⊗ₘ η) p ∂(μ ⊗ₘ κ))  := by sorry
   _ = ↑(∫ (x : α), ∫ (y : β), llr (μ ⊗ₘ κ) (ν ⊗ₘ η) (x, y) ∂κ x ∂μ) := by
     norm_cast
@@ -272,11 +282,23 @@ lemma kl_compProd [StandardBorelSpace β] (κ η : kernel α β) [IsMarkovKernel
   _ = ↑(∫ (x : α), ∫ (y : β), log (μ.rnDeriv ν x).toReal ∂κ x ∂μ)
       + ↑(∫ (x : α), ∫ (y : β), log (kernel.rnDeriv κ η x y).toReal ∂κ x ∂μ) := by sorry
   _ = ↑(∫ (x : α), log (μ.rnDeriv ν x).toReal ∂μ)
-      + ↑(∫ (x : α), ∫ (y : β), log (kernel.rnDeriv κ η x y).toReal ∂κ x ∂μ) := by sorry
+      + ↑(∫ (x : α), ∫ (y : β), log (kernel.rnDeriv κ η x y).toReal ∂κ x ∂μ) := by
+    simp only [integral_const, measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul]
   _ = ↑(∫ (x : α), log (μ.rnDeriv ν x).toReal ∂μ)
-      + ↑(∫ (x : α), ∫ (y : β), log ((κ x).rnDeriv (η x) y).toReal ∂κ x ∂μ) := by sorry
--- use Corollary A.2
-  _ = kl μ ν + condKL κ η μ := by sorry
+      + ↑(∫ (x : α), ∫ (y : β), log ((κ x).rnDeriv (η x) y).toReal ∂κ x ∂μ) := by
+    congr 2
+    apply integral_congr_ae
+    filter_upwards [hκη] with x hx
+    have h := hx.ae_le (kernel.rnDeriv_eq_rnDeriv_measure κ η x)
+    apply integral_congr_ae
+    filter_upwards [h] with y hy
+    congr
+  _ = kl μ ν + condKL κ η μ := by
+    congr
+    · rw [← llr_def, ← kl_of_ac_of_integrable hμν h_int]
+    · -- rw [condKL_of_ae_finite_of_integrable]
+      -- rw [← llr_def, ← kl_of_ac_of_integrable hμν h_int]
+      sorry
 
 
 end Conditional
