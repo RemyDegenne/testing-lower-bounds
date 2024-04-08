@@ -104,6 +104,7 @@ lemma add_sub_cancel (x : EReal) (y : ℝ) : x + y - y = x := by
 lemma add_sub_cancel' (x : EReal) (y : ℝ) : y + x - y = x := by
   rw [add_comm, EReal.add_sub_cancel]
 
+--note
 lemma top_add_of_ne_bot {x : EReal} (hx : x ≠ ⊥) : ⊤ + x = ⊤ := by
   by_cases hx_top : x = ⊤
   · simp [hx_top]
