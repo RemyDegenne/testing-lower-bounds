@@ -158,6 +158,16 @@ lemma kl_nonneg (μ ν : Measure α) [IsProbabilityMeasure μ] [IsProbabilityMea
     = ((μ Set.univ).toReal : EReal) * log ((μ Set.univ).toReal / (ν Set.univ).toReal) := by simp
   _ ≤ kl μ ν := kl_ge_mul_log μ ν
 
+lemma kl_eq_zero_iff [SigmaFinite μ] [SigmaFinite ν] : kl μ ν = 0 ↔ μ = ν := by
+  constructor <;> intro h
+  · by_cases hμν : μ ≪ ν
+    swap; · rw [kl_of_not_ac hμν] at h; simp_all only [EReal.top_ne_zero]
+    by_cases h_int : Integrable (llr μ ν) μ
+    swap; · rw [kl_of_not_integrable h_int] at h; simp_all only [EReal.top_ne_zero]
+    sorry -- TODO : decide what proof strategy to use here, maybe we could use the fact that jensen's inequality is an equality iff the function is constant a.e., but I don't know wether this is
+  · rw [h]
+    exact kl_self ν
+
 end kl_nonneg
 
 section Conditional
