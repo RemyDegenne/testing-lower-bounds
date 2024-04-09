@@ -269,6 +269,37 @@ lemma trim_withDensity (hm : m ≤ mα) [SigmaFinite μ] {f : α → ℝ≥0∞}
 
 end Trim
 
+lemma ae_rnDeriv_ne_zero_imp_of_ae_aux [SigmaFinite μ] [SigmaFinite ν] {p : α → Prop}
+    (h : ∀ᵐ a ∂μ, p a) (hμν : μ ≪ ν) :
+    ∀ᵐ a ∂ν, μ.rnDeriv ν a ≠ 0 → p a := by
+  rw [Measure.haveLebesgueDecomposition_add ν μ]
+  rw [ae_add_measure_iff]
+  constructor
+  · rw [← Measure.haveLebesgueDecomposition_add ν μ]
+    have : ∀ᵐ x ∂(ν.singularPart μ), μ.rnDeriv ν x = 0 := by
+      refine ae_eq_of_forall_set_lintegral_eq_of_sigmaFinite (Measure.measurable_rnDeriv _ _)
+        measurable_const (fun s hs _ ↦ ?_)
+      simp only [lintegral_const, MeasurableSet.univ, Measure.restrict_apply, Set.univ_inter,
+        zero_mul]
+      rw [← Measure.restrict_singularPartSet_eq_singularPart, Measure.restrict_restrict hs,
+        Measure.set_lintegral_rnDeriv hμν]
+      exact measure_mono_null (Set.inter_subset_right _ _) (Measure.measure_singularPartSet _ _)
+    filter_upwards [this] with x hx h_absurd using absurd hx h_absurd
+  · have h_ac : μ.withDensity (ν.rnDeriv μ) ≪ μ := withDensity_absolutelyContinuous _ _
+    rw [← Measure.haveLebesgueDecomposition_add ν μ]
+    suffices ∀ᵐx ∂μ, μ.rnDeriv ν x ≠ 0 → p x from h_ac this
+    filter_upwards [h] with _ h _ using h
+
+lemma ae_rnDeriv_ne_zero_imp_of_ae [SigmaFinite μ] [SigmaFinite ν] {p : α → Prop}
+    (h : ∀ᵐ a ∂μ, p a) :
+    ∀ᵐ a ∂ν, μ.rnDeriv ν a ≠ 0 → p a := by
+  suffices ∀ᵐ a ∂ν, (ν.withDensity (μ.rnDeriv ν)).rnDeriv ν a ≠ 0 → p a by
+    have h := Measure.rnDeriv_withDensity ν (Measure.measurable_rnDeriv μ ν)
+    filter_upwards [this, h] with x hx1 hx2
+    rwa [hx2] at hx1
+  refine ae_rnDeriv_ne_zero_imp_of_ae_aux ?_ (withDensity_absolutelyContinuous _ _)
+  exact (Measure.absolutelyContinuous_of_le (μ.withDensity_rnDeriv_le ν)) h
+
 end MeasureTheory.Measure
 
 namespace MeasurableEmbedding
