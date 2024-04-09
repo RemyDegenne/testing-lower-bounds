@@ -241,7 +241,7 @@ lemma condKL_ne_bot (κ η : kernel α β) (μ : Measure α) : condKL κ η μ �
   split_ifs with h
   · simp only [ne_eq, EReal.coe_ne_bot, not_false_eq_true]
   · norm_num
-  
+
 lemma condKL_nonneg (κ η : kernel α β) [IsMarkovKernel κ] [IsMarkovKernel η] (μ : Measure α) :
     0 ≤ condKL κ η μ := by
   rw [condKL_eq_condFDiv]
@@ -250,7 +250,7 @@ lemma condKL_nonneg (κ η : kernel α β) [IsMarkovKernel κ] [IsMarkovKernel �
   · exact Real.continuous_mul_log.continuousOn
   · norm_num
 
---regarding the next 2 lemmas, should we keep them as they are (derived from the fDiv), or should we prove them using the kl_compProd? it's probabily better to leave them like this, since kl_compProd has slightly stronger hypothesis. Though maybe we can relax some of these hypothesis.
+-- TODO : regarding the next 2 lemmas, should we keep them as they are (derived from the fDiv), or should we prove them using the kl_compProd? it's probabily better to leave them like this, since kl_compProd has slightly stronger hypothesis. Though maybe we can relax some of these hypothesis.
 lemma kl_compProd_left [MeasurableSpace.CountablyGenerated β] (μ : Measure α) [IsFiniteMeasure μ] (κ η : kernel α β) [IsMarkovKernel κ] [IsFiniteKernel η] :
     kl (μ ⊗ₘ κ) (μ ⊗ₘ η) = condKL κ η μ := by
   rw [kl_eq_fDiv, condKL_eq_condFDiv]
@@ -261,13 +261,13 @@ lemma kl_compProd_right [MeasurableSpace.CountablyGenerated β] (μ ν : Measure
   rw [kl_eq_fDiv, kl_eq_fDiv]
   exact fDiv_compProd_right μ ν κ (by measurability) Real.convexOn_mul_log
 
--- TODO: build an API for the conditional KL divergence, see the one for the conditional f-divergence and the one for the KL divergence
+-- TODO : build an API for the conditional KL divergence, see the one for the conditional f-divergence and the one for the KL divergence
 
 #check ProbabilityTheory.kernel.rnDeriv_measure_compProd -- Lemma A.6
 #check kernel.rnDeriv_eq_rnDeriv_measure -- Corollary A.2
 #check ProbabilityTheory.kernel.Measure.absolutelyContinuous_compProd_iff
 
--- TODO: we are doing all the theory using natural log and eponential, is there any point in refactoring all to include the general case with arbitrary base?
+-- TODO : we are doing all the theory using natural log and eponential, is there any point in refactoring all to include the general case with arbitrary base?
 
 #check kernel.Measure.absolutelyContinuous_compProd_iff.mpr.mt
 
@@ -281,15 +281,18 @@ lemma kl_compProd [StandardBorelSpace β] (κ η : kernel α β) [IsMarkovKernel
     rcases h with (hμν | hκη)
     · simp only [hμν, not_false_eq_true, kl_of_not_ac]
       -- refine (top_add_of_nonneg ?_).symm
+      apply (EReal.top_add_of_ne_bot _).symm
+
       sorry
-    · sorry
+    · -- simp? [hκη]
+      sorry
   by_cases h_int : Integrable (llr μ ν) μ
   swap; · sorry -- address the case where the log likelihood ratio is not integrable
   have ⟨hμν, hκη⟩ := kernel.Measure.absolutelyContinuous_compProd_iff.mp comp_ac
   calc kl (μ ⊗ₘ κ) (ν ⊗ₘ η) = ↑(∫ p, llr (μ ⊗ₘ κ) (ν ⊗ₘ η) p ∂(μ ⊗ₘ κ))  := by sorry
   _ = ↑(∫ (x : α), ∫ (y : β), llr (μ ⊗ₘ κ) (ν ⊗ₘ η) (x, y) ∂κ x ∂μ) := by
     norm_cast
-    --refine Measure.integral_compProd ?_ --problem:here it seems that we need another assumption about finiteness of the measures and kernels
+    refine Measure.integral_compProd ?_ --problem:here it seems that we need another assumption about finiteness of the measures and kernels
     sorry
   _ = ↑(∫ (x : α), ∫ (y : β), log ((∂μ/∂ν) x * kernel.rnDeriv κ η x y).toReal ∂κ x ∂μ) := by
     norm_cast
@@ -302,7 +305,16 @@ lemma kl_compProd [StandardBorelSpace β] (κ η : kernel α β) [IsMarkovKernel
     congr
   _ = ↑(∫ (x : α), ∫ (y : β), log (μ.rnDeriv ν x).toReal
       + log (kernel.rnDeriv κ η x y).toReal ∂κ x ∂μ) := by
-    rcongr -- this is proably not the right tactic, because to say that the log of a product is the sum of the logs, we need to use the fact that the product is positive, but this is true only a.e., we need a lemma that says that the rnDeriv is positive a.e. wrt the relevant measures
+    #check Measure.rnDeriv_pos
+    norm_cast
+    apply integral_congr_ae
+    filter_upwards [hκη, Measure.rnDeriv_pos hμν] with x hκηx hμν_pos
+    -- TODO : here I think we need the equivalent of Measure.rnDeriv_pos for kernels, which I think is not yet defined, we may need to restrict the hypothesis to finiteness of the kernels, since we don't have the theory for sigma finiteness of kernels yet
+
+
+
+
+    rcongr -- this is proably not the right tactic, because to say that the log of a product is the sum of the logs, we need to use the fact that the product is positive, but this is true only a.e., we need a lemma that says that the rnDeriv is positive a.e. wrt the relevant measures --rnderiv_pos or pos'
     simp only [ENNReal.toReal_mul]
     apply log_mul
     sorry
@@ -324,9 +336,101 @@ lemma kl_compProd [StandardBorelSpace β] (κ η : kernel α β) [IsMarkovKernel
   _ = kl μ ν + condKL κ η μ := by
     congr
     · rw [← llr_def, ← kl_of_ac_of_integrable hμν h_int]
-    · -- rw [condKL_of_ae_finite_of_integrable]
-      -- rw [← llr_def, ← kl_of_ac_of_integrable hμν h_int]
+    · simp_rw [← llr_def]
       sorry
+      -- rw [condKL_of_ae_finite_of_integrable _ _]
+      -- norm_cast
+      -- apply integral_congr_ae
+      -- filter_upwards [hκη] with x hx
+      -- by_cases h : Integrable (llr (κ x) (η x)) (κ x) -- this last part of the proof is very ugly, there should be a more elegant way
+      -- · suffices hh : kl (κ x) (η x) = ∫ y, llr (κ x) (η x) y ∂(κ x) from by simp [hh]
+      --   exact kl_of_ac_of_integrable (hx) h
+      -- · rw [kl_of_not_integrable h]
+      --   simp only [h, not_false_eq_true, integral_undef, EReal.toReal_top]
+
+-- maybe I'm doing the wrong assumptions in the by_cases at the beginning, I try to modify the proof. the proof above is probabily to be deleted
+lemma kl_compProd2 [StandardBorelSpace β] (κ η : kernel α β) [IsMarkovKernel κ] [IsFiniteKernel η] (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
+    kl (μ ⊗ₘ κ) (ν ⊗ₘ η) = kl μ ν + condKL κ η μ := by
+  by_cases h_prod : (μ ⊗ₘ κ) ≪ (ν ⊗ₘ η)
+  swap;
+  · simp only [h_prod, not_false_eq_true, kl_of_not_ac]
+    have h := kernel.Measure.absolutelyContinuous_compProd_iff.mpr.mt h_prod
+    set_option push_neg.use_distrib true in push_neg at h
+    rcases h with (hμν | hκη)
+    · simp only [hμν, not_false_eq_true, kl_of_not_ac]
+      exact (EReal.top_add_of_ne_bot (condKL_ne_bot _ _ _)).symm
+    · simp only [hκη, not_false_eq_true, condKL_of_not_ae_ac]
+      exact (EReal.add_top_of_ne_bot (kl_ne_bot _ _)).symm
+  by_cases h_int : Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ)
+  swap;
+  · simp only [h_int, not_false_eq_true, kl_of_not_integrable]
+    -- we have to make use of the non integrability of the products of the kernels, one option may be using ProbabilityTheory.integrable_f_rnDeriv_compProd_iff, this is almost proven (a sorry is left in the proof), but it is stated as integrability wrt the second product, while we need it wrt the first one, see how to adapt it
+    sorry -- address the case where the log likelihood ratio is not integrable
+  have ⟨hμν, hκη⟩ := kernel.Measure.absolutelyContinuous_compProd_iff.mp h_prod
+  calc kl (μ ⊗ₘ κ) (ν ⊗ₘ η) = ↑(∫ p, llr (μ ⊗ₘ κ) (ν ⊗ₘ η) p ∂(μ ⊗ₘ κ)) :=
+    kl_of_ac_of_integrable h_prod h_int
+  _ = ↑(∫ (x : α), ∫ (y : β), llr (μ ⊗ₘ κ) (ν ⊗ₘ η) (x, y) ∂κ x ∂μ) := by
+    norm_cast
+    refine Measure.integral_compProd h_int
+  _ = ↑(∫ (x : α), ∫ (y : β), log ((∂μ/∂ν) x * kernel.rnDeriv κ η x y).toReal ∂κ x ∂μ) := by
+    norm_cast
+    have h := hμν.ae_le (Measure.ae_ae_of_ae_compProd (kernel.rnDeriv_measure_compProd μ ν κ η))
+    apply integral_congr_ae
+    filter_upwards [h, hκη] with x hx hκηx
+    apply integral_congr_ae
+    filter_upwards [hκηx.ae_le hx] with y hy
+    unfold llr
+    congr
+  _ = ↑(∫ (x : α), ∫ (y : β), log (μ.rnDeriv ν x).toReal
+      + log (kernel.rnDeriv κ η x y).toReal ∂κ x ∂μ) := by
+    #check Measure.rnDeriv_pos
+    norm_cast
+    apply integral_congr_ae
+    filter_upwards [hκη, Measure.rnDeriv_pos hμν] with x hκηx hμν_pos
+    -- TODO : here I think we need the equivalent of Measure.rnDeriv_pos for kernels, which I think is not yet defined, we may need to restrict the hypothesis to finiteness of the kernels, since we don't have the theory for sigma finiteness of kernels yet
+    sorry
+  _ = ↑(∫ (x : α), ∫ (y : β), log (μ.rnDeriv ν x).toReal ∂κ x ∂μ)
+      + ↑(∫ (x : α), ∫ (y : β), log (kernel.rnDeriv κ η x y).toReal ∂κ x ∂μ) := by
+    norm_cast
+    rw [← integral_add']
+    simp only [Pi.add_apply]
+    -- rw [← integral_add']
+    -- simp only [Pi.add_apply]
+    -- here I have 2 problems: 1) it doesnt let me use the integral_add' the second time, I don't know why, 2) I'm not sure how to prove the 4 integrability goals that should spawn from this step
+    sorry
+    sorry
+    sorry
+  _ = ↑(∫ (x : α), log (μ.rnDeriv ν x).toReal ∂μ)
+      + ↑(∫ (x : α), ∫ (y : β), log (kernel.rnDeriv κ η x y).toReal ∂κ x ∂μ) := by
+    simp only [integral_const, measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul]
+  _ = ↑(∫ (x : α), log (μ.rnDeriv ν x).toReal ∂μ)
+      + ↑(∫ (x : α), ∫ (y : β), log ((κ x).rnDeriv (η x) y).toReal ∂κ x ∂μ) := by
+    congr 2
+    apply integral_congr_ae
+    filter_upwards [hκη] with x hx
+    have h := hx.ae_le (kernel.rnDeriv_eq_rnDeriv_measure κ η x)
+    apply integral_congr_ae
+    filter_upwards [h] with y hy
+    congr
+  _ = kl μ ν + condKL κ η μ := by
+    -- have := integrable_f_rnDeriv_compProd_iff
+    congr
+    · rw [← llr_def, ← kl_of_ac_of_integrable hμν]
+      -- rw [integrable_rnDeriv_mul_log_iff]
+      sorry -- here we need something to say that llr μ ν is μ-integrable, this probabily follows from the integrability of llr (μ ⊗ₘ κ) (ν ⊗ₘ η), but I need the right lemma, maybe it's integrable_f_rnDeriv_compProd_iff? but as anbove the problem is that it is stated wrt the second product, while we need it wrt the first one. the same lemma should help us also with the last two sorries below
+    · simp_rw [← llr_def]
+      rw [condKL_of_ae_finite_of_integrable _ _]
+      norm_cast
+      apply integral_congr_ae
+      filter_upwards [hκη] with x hx
+      by_cases h : Integrable (llr (κ x) (η x)) (κ x) -- this last part of the proof is very ugly, there should be a more elegant way
+      · suffices hh : kl (κ x) (η x) = ∫ y, llr (κ x) (η x) y ∂(κ x) from by simp [hh]
+        exact kl_of_ac_of_integrable (hx) h
+      · rw [kl_of_not_integrable h]
+        simp only [h, not_false_eq_true, integral_undef, EReal.toReal_top]
+      · sorry
+      · sorry
+
 
 
 end Conditional
