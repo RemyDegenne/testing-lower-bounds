@@ -227,6 +227,12 @@ lemma condKL_self (κ : kernel α β) (μ : Measure α) : condKL κ κ μ = 0 :=
   -- rw [condKL_eq_condFDiv, condFDiv_self (by norm_num)]
   sorry
 
+lemma condKL_ne_bot (κ η : kernel α β) (μ : Measure α) : condKL κ η μ ≠ ⊥ := by
+  rw [condKL]
+  split_ifs with h
+  · simp only [ne_eq, EReal.coe_ne_bot, not_false_eq_true]
+  · norm_num
+  
 lemma condKL_nonneg (κ η : kernel α β) [IsMarkovKernel κ] [IsMarkovKernel η] (μ : Measure α) :
     0 ≤ condKL κ η μ := by
   rw [condKL_eq_condFDiv]
