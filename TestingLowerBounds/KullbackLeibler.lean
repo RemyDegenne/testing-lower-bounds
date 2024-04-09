@@ -93,6 +93,12 @@ lemma kl_self (μ : Measure α) [SigmaFinite μ] : kl μ μ = 0 := by
 
 section kl_nonneg
 
+lemma kl_ne_bot (μ ν : Measure α) : kl μ ν ≠ ⊥ := by
+  rw [kl]
+  split_ifs with h
+  · simp only [ne_eq, EReal.coe_ne_bot, not_false_eq_true]
+  · norm_num
+
 lemma kl_ge_mul_log' [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
     (hμν : μ ≪ ν) :
     (μ Set.univ).toReal * log (μ Set.univ).toReal ≤ kl μ ν :=
