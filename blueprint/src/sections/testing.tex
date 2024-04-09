@@ -7,7 +7,7 @@
   %\lean{}
   %\leanok
   \uses{def:TV}
-  Let $\mu, \nu$ be two probability measures on $\mathcal X$ and $E$ an event. Then $\mu(E) + \nu(E^c) \ge 1 - TV(\mu, \nu)$~.
+  Let $\mu, \nu$ be two probability measures on $\mathcal X$ and $E$ an event. Then $\mu(E) + \nu(E^c) \ge 1 - \TV(\mu, \nu)$~.
 \end{lemma}
 
 \begin{proof}
@@ -18,7 +18,7 @@
   %\lean{}
   %\leanok
   \uses{def:TV}
-  Let $\mu, \nu$ be two probability measures on $\mathcal X$. Then $\inf_{E \text{ event}}\{\mu(E) + \nu(E^c)\} = 1 - TV(\mu, \nu)$~.
+  Let $\mu, \nu$ be two probability measures on $\mathcal X$. Then $\inf_{E \text{ event}}\{\mu(E) + \nu(E^c)\} = 1 - \TV(\mu, \nu)$~.
 \end{theorem}
 
 \begin{proof}
@@ -61,7 +61,7 @@ R_\alpha(\mu_E, \nu_E)
   \begin{align*}
   \sqrt{\mu(E)} + \sqrt{\nu(E^c)}
   \ge \exp\left(-\frac{1}{2} R_{1/2}(\mu, \nu)\right)
-  = 1 - H^2(\mu, \nu)
+  = 1 - \Hsq(\mu, \nu)
   \: .
   \end{align*}
 \end{corollary}
@@ -183,8 +183,8 @@ Two applications of Lemma~\ref{lem:llr_change_measure}, then sum them and use $\
   Let $\mu, \nu$ be two probability measures on $\mathcal X$ and $E$ an event. Then
   \begin{align*}
   \max\{\mu(E), \nu(E^c)\}
-  \ge \frac{1}{2}(1 - TV(\mu, \nu))
-  \ge \frac{1}{4}(1 - H^2(\mu, \nu))^2
+  \ge \frac{1}{2}(1 - \TV(\mu, \nu))
+  \ge \frac{1}{4}(1 - \Hsq(\mu, \nu))^2
   \: .
   \end{align*}
 \end{lemma}
