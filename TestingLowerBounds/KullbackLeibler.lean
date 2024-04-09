@@ -166,17 +166,12 @@ variable {β : Type*} {mβ : MeasurableSpace β} {κ η : kernel α β} {μ : Me
 
 open Classical in
 
--- TODO: choose the right definition between the following two
 noncomputable
 def condKL (κ η : kernel α β) (μ : Measure α) : EReal :=
   if (∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤)
     ∧ (Integrable (fun x ↦ (kl (κ x) (η x)).toReal) μ)
   then ((μ[fun x ↦ (kl (κ x) (η x)).toReal] : ℝ) : EReal)
   else ⊤
-
-noncomputable
-def condKL' (κ η : kernel α β) (μ : Measure α) : EReal :=
-  condFDiv (fun x ↦ x * log x) κ η μ
 
 lemma condKL_of_ae_finite_of_integrable (h1 : ∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤)
     (h2 : Integrable (fun x ↦ (kl (κ x) (η x)).toReal) μ) :
@@ -199,23 +194,8 @@ lemma condKL_of_not_ae_ac (h : ¬ (∀ᵐ x ∂μ, (κ x) ≪ (η x))) :
 lemma condKL_of_not_integrable (h : ¬ Integrable (fun x ↦ (kl (κ x) (η x)).toReal) μ) :
     condKL κ η μ = ⊤ := if_neg (not_and_of_not_right _ h)
 
---there seems not to be a property of kernels that says that ∀a κ a is sigma finite, but it seems to be exactly the one we would need in the following lemma, alternatively we could see if the lemma kl_eq_fDiv can be proved relaxing the hypothesis of sigma finiteness to SFinite
-
--- attempt to see if the hypothesys of sigma finiteness can be relaxed in
-#check ProbabilityTheory.kl_eq_fDiv
---the hypothesis is needed by
-#check ProbabilityTheory.fDiv_of_not_ac
--- which needs it for
-#check MeasureTheory.Measure.singularPart_eq_zero
---which needs it for the instance that the two measures have a Lebesgue decomposition, in the case of sigma finite measures the instace is
-#check MeasureTheory.Measure.haveLebesgueDecomposition_of_sigmaFinite
---this seems to be an important theorem, so it may not be possible to generalize it, I found this paper (https://www.jstor.org/stable/2035430?seq=1) that seems to generalize it, but the result is a bit different than classical Lebesgue decomposition, so it may not be useful, maybe it's time to exit the rabbit hole
---I found another paper that seems to give the relevant result, this seems to be the classical decomposition but for s finite kernels, so it may be useful https://arxiv.org/pdf/1810.01837.pdf, still I don't know how much time it could take to formalize it
-
-lemma condKL_eq_condFDiv [IsSFiniteKernel κ] [IsSFiniteKernel η] :
+lemma condKL_eq_condFDiv [IsFiniteKernel κ] [IsFiniteKernel η] :
     condKL κ η μ = condFDiv (fun x ↦ x * log x) κ η μ := by
-  have : ∀ x, SigmaFinite (κ x) := by sorry --this should be substituted by some hypothesys, probabiliy the fact that the kernels are sigma finite
-  have : ∀ x, SigmaFinite (η x) := by sorry --this should be substituted by some hypothesys, probabiliy the fact that the kernels are sigma finite
   by_cases h1 : ∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤
   swap;
   · simp [h1]
@@ -287,6 +267,7 @@ lemma kl_compProd [StandardBorelSpace β] (κ η : kernel α β) [IsMarkovKernel
   swap;
   · simp only [h_int, not_false_eq_true, kl_of_not_integrable]
     -- we have to make use of the non integrability of the products of the kernels, one option may be using ProbabilityTheory.integrable_f_rnDeriv_compProd_iff, this is almost proven (a sorry is left in the proof), but it is stated as integrability wrt the second product, while we need it wrt the first one, see how to adapt it
+    #check ProbabilityTheory.integrable_f_rnDeriv_compProd_iff
     sorry
   have ⟨hμν, hκη⟩ := kernel.Measure.absolutelyContinuous_compProd_iff.mp h_prod
   calc kl (μ ⊗ₘ κ) (ν ⊗ₘ η) = ↑(∫ p, llr (μ ⊗ₘ κ) (ν ⊗ₘ η) p ∂(μ ⊗ₘ κ)) :=
@@ -342,6 +323,9 @@ lemma kl_compProd [StandardBorelSpace β] (κ η : kernel α β) [IsMarkovKernel
       sorry -- here we need something to say that llr μ ν is μ-integrable, this probabily follows from the integrability of llr (μ ⊗ₘ κ) (ν ⊗ₘ η), but I need the right lemma, maybe it's integrable_f_rnDeriv_compProd_iff? but as anbove the problem is that it is stated wrt the second product, while we need it wrt the first one. the same lemma should help us also with the last two sorries below
     · simp_rw [← llr_def]
       rw [condKL_of_ae_finite_of_integrable _ _]
+      rotate_left
+      · sorry
+      · sorry
       norm_cast
       apply integral_congr_ae
       filter_upwards [hκη] with x hx
@@ -350,8 +334,6 @@ lemma kl_compProd [StandardBorelSpace β] (κ η : kernel α β) [IsMarkovKernel
         exact kl_of_ac_of_integrable (hx) h
       · rw [kl_of_not_integrable h]
         simp only [h, not_false_eq_true, integral_undef, EReal.toReal_top]
-      · sorry
-      · sorry
 
 
 
