@@ -210,11 +210,9 @@ lemma condKL_eq_condFDiv [IsFiniteKernel κ] [IsFiniteKernel η] :
     rw [← kl_eq_fDiv]
   simp only [ne_eq, h1, h2, condKL_of_ae_finite_of_integrable, ← kl_eq_fDiv, condFDiv_eq']
 
---TODO : add the corresponding lemma for the conditional f-divergence, then prove this one using that one, some hypothesis regarding sigma finiteness of the kernels will be needed
--- @[simp]
-lemma condKL_self (κ : kernel α β) (μ : Measure α) : condKL κ κ μ = 0 := by
-  -- rw [condKL_eq_condFDiv, condFDiv_self (by norm_num)]
-  sorry
+@[simp]
+lemma condKL_self (κ : kernel α β) (μ : Measure α) [IsFiniteKernel κ] : condKL κ κ μ = 0 := by
+  simp [condKL_of_ae_finite_of_integrable, kl_self] --maybe I found a bug in simp? If I use the suggestions it gives with simp only it doesn't work, while using simp directly with the additional lemmas works
 
 lemma condKL_ne_bot (κ η : kernel α β) (μ : Measure α) : condKL κ η μ ≠ ⊥ := by
   rw [condKL]
