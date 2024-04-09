@@ -11,6 +11,9 @@
 \end{lemma}
 
 \begin{proof}
+\uses{thm:tv_eq_sup_sub_measure}
+By Theorem~\ref{thm:tv_eq_sup_sub_measure}, $TV(\mu, \nu) = \sup_{E \text{ event}} \left( \mu(E) - \nu(E) \right)$. For any event $E$, 
+$1 - \TV(\mu, \nu) \le 1 - \mu(E^c) + \nu(E^c) = \mu(E) + \nu(E^c)$.
 \end{proof}
 
 \begin{theorem}
@@ -22,7 +25,15 @@
 \end{theorem}
 
 \begin{proof}
-\uses{lem:testing_bound_tv}
+\uses{thm:tv_eq_sup_sub_measure}
+By Theorem~\ref{thm:tv_eq_sup_sub_measure},
+\begin{align*}
+-TV(\mu, \nu)
+= -\sup_{E \text{ event}} \left( \mu(E) - \nu(E) \right)
+=\inf_{E \text{ event}} \left(\nu(E) - \mu(E) \right)
+= \inf_{E \text{ event}} \left( \nu(E) + \mu(E^c) \right) - 1
+\: .
+\end{align*}
 \end{proof}
 
 \begin{lemma}
