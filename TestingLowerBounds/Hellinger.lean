@@ -128,6 +128,19 @@ lemma hellingerDiv_ne_top_of_lt_one (ha_pos : 0 < a) (ha : a < 1) (μ ν : Measu
   rw [hellingerDiv_ne_top_iff_of_lt_one ha_pos ha]
   exact integrable_hellingerFun_rnDeriv_of_lt_one ha_pos ha
 
+lemma hellingerDiv_eq_integral_of_lt_one (ha_pos : 0 < a) (ha : a < 1) (μ ν : Measure α)
+    [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
+    hellingerDiv a μ ν = ∫ x, hellingerFun a ((∂μ/∂ν) x).toReal ∂ν := by
+  have h := hellingerDiv_ne_top_of_lt_one ha_pos ha μ ν
+  rw [hellingerDiv, fDiv_of_ne_top h, derivAtTop_hellingerFun_of_lt_one ha_pos ha, zero_mul,
+    add_zero]
+
+lemma hellingerDiv_eq_integral_of_lt_one' (ha_pos : 0 < a) (ha : a < 1) (μ ν : Measure α)
+    [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
+    hellingerDiv a μ ν = (a - 1)⁻¹ * ∫ x, ((∂μ/∂ν) x).toReal ^ a - 1 ∂ν := by
+  rw [hellingerDiv_eq_integral_of_lt_one ha_pos ha μ ν, ← EReal.coe_mul, ← integral_mul_left]
+  rfl
+
 lemma hellingerDiv_le_of_lt_one (ha_pos : 0 < a) (ha : a < 1) (μ ν : Measure α)
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     hellingerDiv a μ ν ≤ (1 - a)⁻¹ * ν Set.univ := by
@@ -140,8 +153,40 @@ lemma hellingerDiv_le_of_lt_one (ha_pos : 0 < a) (ha : a < 1) (μ ν : Measure �
 
 end TopAndBounds
 
-lemma hellingerDiv_symm (ha_pos : 0 < a) (ha : a < 1) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
-    (1 - a) * hellingerDiv a μ ν = a * hellingerDiv (1 - a) μ ν := by
-  sorry
+lemma hellingerDiv_symm' (ha_pos : 0 < a) (ha : a < 1) (h_eq : μ Set.univ = ν Set.univ)
+    [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
+    (1 - a) * hellingerDiv a μ ν = a * hellingerDiv (1 - a) ν μ := by
+  rw [hellingerDiv_eq_integral_of_lt_one' ha_pos ha, hellingerDiv_eq_integral_of_lt_one']
+  rotate_left
+  · linarith
+  · linarith
+  simp only [sub_sub_cancel_left]
+  rw [← mul_assoc, ← mul_assoc]
+  have : (1 - (a : EReal)) * ↑(a - 1)⁻¹ = -1 := by
+    norm_cast
+    rw [← neg_neg (1 - a), neg_sub, neg_mul, mul_inv_cancel]
+    · simp
+    · linarith
+  rw [this, ← EReal.coe_mul, inv_neg, mul_neg, mul_inv_cancel ha_pos.ne']
+  simp only [neg_mul, one_mul, EReal.coe_neg, EReal.coe_one, neg_inj, EReal.coe_eq_coe_iff]
+  rw [integral_sub _ (integrable_const _), integral_sub _ (integrable_const _), integral_const,
+    integral_const, smul_eq_mul, smul_eq_mul, mul_one, mul_one, h_eq]
+  rotate_left
+  · sorry
+  · sorry
+  congr 1
+  let p := ∂μ/∂(μ + ν)
+  let q := ∂ν/∂(μ + ν)
+  -- todo: should we use (∂μ/∂(μ+ν))/(∂ν/∂(μ+ν)) instead of ∂μ/∂ν everywhere?
+  calc ∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν
+    = ∫ x, ((p/q) x).toReal ^ a ∂(μ + ν) := sorry
+  _ = ∫ x, ((q/p) x).toReal * ((p/q) x).toReal ^ a ∂(μ + ν) := sorry
+  _ = ∫ x, ((q/p) x).toReal ^ (1 - a) ∂(μ + ν) := sorry
+  _ = ∫ x, ((∂ν/∂μ) x).toReal ^ (1 - a) ∂μ := sorry
+
+lemma hellingerDiv_symm (ha_pos : 0 < a) (ha : a < 1)
+    [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
+    (1 - a) * hellingerDiv a μ ν = a * hellingerDiv (1 - a) ν μ :=
+  hellingerDiv_symm' ha_pos ha (by simp)
 
 end ProbabilityTheory
