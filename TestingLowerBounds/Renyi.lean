@@ -105,16 +105,17 @@ lemma renyiDiv_of_one_lt_of_not_ac [IsFiniteMeasure μ] [SigmaFinite ν]
 
 end TopAndBounds
 
-lemma renyiDiv_symm (ha_pos : 0 < a) (ha : a < 1) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
-    (1 - a) * renyiDiv a μ ν = a * renyiDiv (1 - a) μ ν := by
+lemma renyiDiv_symm' (ha_pos : 0 < a) (ha : a < 1) (h_eq : μ Set.univ = ν Set.univ)
+    [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
+    (1 - a) * renyiDiv a μ ν = a * renyiDiv (1 - a) ν μ := by
   rw [renyiDiv_of_lt_one _ _ ha_pos ha, renyiDiv_of_lt_one _ _]
   rotate_left
   · linarith
   · linarith
   simp only [sub_sub_cancel_left, neg_mul]
   rw [← mul_assoc, ← mul_assoc]
-  have h : (1 - a) * hellingerDiv a μ ν = a * hellingerDiv (1 - a) μ ν :=
-    hellingerDiv_symm ha_pos ha
+  have h : (1 - a) * hellingerDiv a μ ν = a * hellingerDiv (1 - a) ν μ :=
+    hellingerDiv_symm' ha_pos ha h_eq
   have : (1 - (a : EReal)) * ↑(a - 1)⁻¹ = -1 := by
     norm_cast
     rw [← neg_neg (1 - a), neg_sub, neg_mul, mul_inv_cancel]
@@ -128,5 +129,10 @@ lemma renyiDiv_symm (ha_pos : 0 < a) (ha : a < 1) [IsFiniteMeasure μ] [IsFinite
   congr
   norm_cast
   rw [EReal.toReal_coe, neg_sub]
+
+lemma renyiDiv_symm (ha_pos : 0 < a) (ha : a < 1)
+    [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
+    (1 - a) * renyiDiv a μ ν = a * renyiDiv (1 - a) ν μ :=
+  renyiDiv_symm' ha_pos ha (by simp)
 
 end ProbabilityTheory
