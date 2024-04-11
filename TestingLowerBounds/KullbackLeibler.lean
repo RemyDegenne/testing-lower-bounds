@@ -208,6 +208,19 @@ lemma condKL_of_not_ae_ac (h : ¬ (∀ᵐ x ∂μ, (κ x) ≪ (η x))) :
 lemma condKL_of_not_integrable (h : ¬ Integrable (fun x ↦ (kl (κ x) (η x)).toReal) μ) :
     condKL κ η μ = ⊤ := if_neg (not_and_of_not_right _ h)
 
+@[simp]
+lemma condKL_of_not_integrable' (h : ¬ Integrable (fun a ↦ integral (κ a) (llr (κ a) (η a))) μ) :
+    condKL κ η μ = ⊤ := by
+  contrapose! h
+  have hh : (fun a => integral (κ a) (llr (κ a) (η a))) =ᵐ[μ] fun a => (kl (κ a) (η a)).toReal := by
+    have h1 := of_not_not (condKL_of_not_ae_ac.mt h)
+    have h2 := of_not_not (condKL_of_not_ae_finite.mt h)
+    filter_upwards [h1, h2] with x hx1 hx2
+    rw [kl_of_ac_of_integrable hx1 (of_not_not (kl_of_not_integrable.mt hx2))]
+    simp only [EReal.toReal_coe]
+  refine Integrable.congr ?_ hh.symm
+  exact of_not_not (condKL_of_not_integrable.mt h)
+
 lemma condKL_eq_condFDiv [IsFiniteKernel κ] [IsFiniteKernel η] :
     condKL κ η μ = condFDiv (fun x ↦ x * log x) κ η μ := by
   by_cases h1 : ∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤
