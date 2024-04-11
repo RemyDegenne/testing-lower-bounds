@@ -168,7 +168,7 @@ lemma kl_eq_zero_iff [SigmaFinite μ] [SigmaFinite ν] : kl μ ν = 0 ↔ μ = �
     swap; · rw [kl_of_not_ac hμν] at h; simp_all only [EReal.top_ne_zero]
     by_cases h_int : Integrable (llr μ ν) μ
     swap; · rw [kl_of_not_integrable h_int] at h; simp_all only [EReal.top_ne_zero]
-    sorry -- TODO : decide what proof strategy to use here, maybe we could use the fact that jensen's inequality is an equality iff the function is constant a.e., but I don't know wether this is
+    sorry -- TODO : decide what proof strategy to use here, maybe we could use the fact that jensen's inequality is an equality iff the function is constant a.e., but I don't know wether this is in mathlib
   · rw [h]
     exact kl_self ν
 
@@ -250,7 +250,8 @@ lemma kl_compProd_left [MeasurableSpace.CountablyGenerated β] (μ : Measure α)
   rw [kl_eq_fDiv, condKL_eq_condFDiv]
   exact fDiv_compProd_left μ κ η (by measurability) Real.convexOn_mul_log
 
-lemma kl_compProd_right [MeasurableSpace.CountablyGenerated β] (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν] (κ : kernel α β) [IsMarkovKernel κ] :
+lemma kl_compProd_right [MeasurableSpace.CountablyGenerated β] (μ ν : Measure α) [IsFiniteMeasure μ]
+    [IsFiniteMeasure ν] (κ : kernel α β) [IsMarkovKernel κ] :
     kl (μ ⊗ₘ κ) (ν ⊗ₘ κ) = kl μ ν := by
   rw [kl_eq_fDiv, kl_eq_fDiv]
   exact fDiv_compProd_right μ ν κ (by measurability) Real.convexOn_mul_log
