@@ -269,16 +269,27 @@ lemma kl_compProd_right [MeasurableSpace.CountablyGenerated β] (μ ν : Measure
   rw [kl_eq_fDiv, kl_eq_fDiv]
   exact fDiv_compProd_right μ ν κ (by measurability) Real.convexOn_mul_log
 
--- TODO : build an API for the conditional KL divergence, see the one for the conditional f-divergence and the one for the KL divergence
-
-#check ProbabilityTheory.kernel.rnDeriv_measure_compProd -- Lemma A.6
-#check kernel.rnDeriv_eq_rnDeriv_measure -- Corollary A.2
-#check ProbabilityTheory.kernel.Measure.absolutelyContinuous_compProd_iff
 
 -- TODO : we are doing all the theory using natural log and eponential, is there any point in refactoring all to include the general case with arbitrary base?
 
 #check kernel.Measure.absolutelyContinuous_compProd_iff.mpr.mt
 
+
+lemma integrable_rdDeriv_mul_of_integrable [StandardBorelSpace β] [IsFiniteKernel κ] -- we probablity need some hypothesis of measurability on g
+    [IsFiniteMeasure μ] [IsFiniteMeasure ν] (g : α → β → ℝ)
+    (h : ∀ᵐ a ∂μ, Integrable (fun x => g a x) (κ a)) :
+    ∀ᵐ a ∂ν, Integrable (fun x ↦ (μ.rnDeriv ν a).toReal * g a x) (κ a) := by
+  sorry
+
+#check Measure.rnDeriv_toReal_ne_zero
+#check kernel.rnDeriv_toReal_ne_zero
+#check MeasureTheory.integrable_rnDeriv_smul_iff
+#check MeasureTheory.Integrable.const_mul
+#check kernel.rnDeriv_eq_rnDeriv_measure
+#check integral_smul_const
+#check integral_smul
+#check integral_rnDeriv_smul
+#check Integrable.congr
 --TODO : decide what to do with the next lemma, when proven it should be incorporated in the main proof, or maybe renamed and put in the right place, annother option is also to 'cut' the the proof a bit earlier, incorporate the last part in the main proof and leave the first part as a separate lemma, putting it in the right place and renaming it accordingly.
 lemma kl_compProdAux [StandardBorelSpace β] [IsMarkovKernel κ] [IsFiniteKernel η]
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
@@ -287,9 +298,59 @@ lemma kl_compProdAux [StandardBorelSpace β] [IsMarkovKernel κ] [IsFiniteKernel
   rw [← integrable_rnDeriv_mul_log_iff h_prod]
   rw [integrable_f_rnDeriv_compProd_iff (by measurability) Real.convexOn_mul_log]
   simp_rw [ENNReal.toReal_mul]
+  have ⟨hμν, hκη⟩ := kernel.Measure.absolutelyContinuous_compProd_iff.mp h_prod
   constructor
-  · sorry
-  · sorry
+  · simp_rw [mul_assoc]
+    apply integrable_rdDeriv_mul_of_integrable _
+    have h_top := condKL_of_not_ae_finite.mt h.2
+    push_neg at h_top
+    filter_upwards [hκη, h_top] with a ha h_top
+    apply (MeasureTheory.integrable_rnDeriv_smul_iff ha).mpr
+    -- here there is the problem of splitting the log in this situation the first part of the product is actually constant in (κ a), one solution could be to make a lemma that says that if log(f) is integrable and c is a constant then log(c*f) is integrable, I proved it in my notes, but it may be a bit tricky to formalize, moreover it feels a bit like something that should be generalized, but I still did not figure out what the correct generalization is, and wether it's too intricated.
+    suffices Integrable (fun x ↦ log (kernel.rnDeriv κ η a x).toReal) (κ a) from by sorry -- this should be removed when we have a way to deal with the log
+    have h := ha.ae_le (kernel.rnDeriv_eq_rnDeriv_measure κ η a)
+    apply Integrable.congr _ _
+    · exact (fun x ↦ llr (κ a) (η a) x)
+    swap;
+    · filter_upwards [h] with x hx
+      rw [hx, llr_def]
+    have := kl_of_not_integrable.mt h_top
+    push_neg at this
+    exact this
+  · simp_rw [mul_assoc, integral_mul_left]
+    apply (MeasureTheory.integrable_rnDeriv_smul_iff hμν).mpr
+    apply Integrable.congr _ _
+    · exact fun a ↦ ∫ (x : β), log (((∂μ/∂ν) a).toReal * ((∂κ a/∂η a) x).toReal) ∂κ a
+    swap
+    · filter_upwards [hκη] with a ha
+      exact (integral_rnDeriv_smul ha).symm
+    apply Integrable.congr _ _
+    · exact fun a ↦ ∫ (x : β), log ((∂μ/∂ν) a).toReal + log ((∂κ a/∂η a) x).toReal ∂κ a
+    swap
+    · have hμν_zero := Measure.rnDeriv_toReal_ne_zero hμν
+      filter_upwards [hκη, hμν_zero] with a ha hμν_zero
+      have hκη_zero := kernel.rnDeriv_toReal_ne_zero ha
+      have hκη_rn_eq := ha.ae_le (kernel.rnDeriv_eq_rnDeriv_measure κ η a)
+      apply integral_congr_ae
+      filter_upwards [hκη_zero, hκη_rn_eq] with x hκη_zero hκη_rn_eq
+      rw [hκη_rn_eq] at hκη_zero
+      rw [Real.log_mul hμν_zero hκη_zero]
+    apply Integrable.congr _ _
+    · exact fun a ↦ ∫ (x : β), log ((∂μ/∂ν) a).toReal ∂κ a
+        + ∫ (x : β), log ((∂κ a/∂η a) x).toReal ∂κ a
+    swap
+    · have hκη_top := of_not_not (condKL_of_not_ae_finite.mt h.2)
+      filter_upwards [hκη, hκη_top] with a ha hκη_top
+      rw [integral_add (integrable_const _)]
+      · rw [← llr_def]
+        exact of_not_not (kl_of_not_integrable.mt hκη_top)
+    simp only [integral_const, measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul]
+    apply Integrable.add
+    · rw [← llr_def]
+      exact of_not_not (kl_of_not_integrable.mt h.1)
+    · simp_rw [← llr_def]
+      exact of_not_not (condKL_of_not_integrable'.mt h.2)
+
   -- set_option push_neg.use_distrib true in push_neg
   -- rcases h_int with (h1 | h2)
   -- · contrapose h1
@@ -307,7 +368,6 @@ lemma kl_compProdAux1 [StandardBorelSpace β] [IsMarkovKernel κ] [IsFiniteKerne
     rw [← integrable_rnDeriv_mul_log_iff h_prod] at h
     sorry
 
-#check MeasureTheory.integrableOn_congr_fun_ae
 
 -- TODO : consider changing the arguments, in particular the kernels and measures may be put between curly braces, but maybe not, since there are no other hypothesis that mention them, so they cannot be inferred
 lemma kl_compProd [StandardBorelSpace β] (κ η : kernel α β) [IsMarkovKernel κ] [IsFiniteKernel η]
