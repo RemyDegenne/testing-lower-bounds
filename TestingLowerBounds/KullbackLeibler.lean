@@ -304,16 +304,20 @@ lemma kl_compProdAux [StandardBorelSpace β] [IsMarkovKernel κ] [IsFiniteKernel
     apply integrable_rdDeriv_mul_of_integrable _
     have h_top := condKL_of_not_ae_finite.mt h.2
     push_neg at h_top
-    filter_upwards [hκη, h_top] with a ha h_top
+    have hμν_zero := Measure.rnDeriv_toReal_ne_zero hμν
+    filter_upwards [hκη, h_top, hμν_zero] with a ha h_top hμν_zero
     apply (MeasureTheory.integrable_rnDeriv_smul_iff ha).mpr
-    -- here there is the problem of splitting the log in this situation the first part of the product is actually constant in (κ a), one solution could be to make a lemma that says that if log(f) is integrable and c is a constant then log(c*f) is integrable, I proved it in my notes, but it may be a bit tricky to formalize, moreover it feels a bit like something that should be generalized, but I still did not figure out what the correct generalization is, and wether it's too intricated.
-    suffices Integrable (fun x ↦ log (kernel.rnDeriv κ η a x).toReal) (κ a) from by sorry -- this should be removed when we have a way to deal with the log
-    have h := ha.ae_le (kernel.rnDeriv_eq_rnDeriv_measure κ η a)
+    apply Integrable.congr _ _
+    · exact fun x ↦ log ((∂μ/∂ν) a).toReal + log ((∂κ a/∂η a) x).toReal
+    swap
+    · have hκη_zero := Measure.rnDeriv_toReal_ne_zero ha
+      filter_upwards [hκη_zero] with a hκη_zero
+      rw [Real.log_mul hμν_zero hκη_zero]
+    apply Integrable.add (integrable_const _)
     apply Integrable.congr _ _
     · exact (fun x ↦ llr (κ a) (η a) x)
     swap;
-    · filter_upwards [h] with x hx
-      rw [hx, llr_def]
+    · rw [llr_def]
     have := kl_of_not_integrable.mt h_top
     push_neg at this
     exact this
@@ -329,18 +333,16 @@ lemma kl_compProdAux [StandardBorelSpace β] [IsMarkovKernel κ] [IsFiniteKernel
     swap
     · have hμν_zero := Measure.rnDeriv_toReal_ne_zero hμν
       filter_upwards [hκη, hμν_zero] with a ha hμν_zero
-      have hκη_zero := kernel.rnDeriv_toReal_ne_zero ha
-      have hκη_rn_eq := ha.ae_le (kernel.rnDeriv_eq_rnDeriv_measure κ η a)
+      have hκη_zero := Measure.rnDeriv_toReal_ne_zero ha
       apply integral_congr_ae
-      filter_upwards [hκη_zero, hκη_rn_eq] with x hκη_zero hκη_rn_eq
-      rw [hκη_rn_eq] at hκη_zero
+      filter_upwards [hκη_zero] with x hκη_zero
       rw [Real.log_mul hμν_zero hκη_zero]
     apply Integrable.congr _ _
-    · exact fun a ↦ ∫ (x : β), log ((∂μ/∂ν) a).toReal ∂κ a
+    · exact fun a ↦ ∫ (_ : β), log ((∂μ/∂ν) a).toReal ∂κ a
         + ∫ (x : β), log ((∂κ a/∂η a) x).toReal ∂κ a
     swap
     · have hκη_top := of_not_not (condKL_of_not_ae_finite.mt h.2)
-      filter_upwards [hκη, hκη_top] with a ha hκη_top
+      filter_upwards [hκη_top] with a hκη_top
       rw [integral_add (integrable_const _)]
       · rw [← llr_def]
         exact of_not_not (kl_of_not_integrable.mt hκη_top)
@@ -350,16 +352,6 @@ lemma kl_compProdAux [StandardBorelSpace β] [IsMarkovKernel κ] [IsFiniteKernel
       exact of_not_not (kl_of_not_integrable.mt h.1)
     · simp_rw [← llr_def]
       exact of_not_not (condKL_of_not_integrable'.mt h.2)
-
-  -- set_option push_neg.use_distrib true in push_neg
-  -- rcases h_int with (h1 | h2)
-  -- · contrapose h1
-  --   push_neg
-  --   filter_upwards with a
-  --   simp_rw [mul_assoc]
-  --   apply MeasureTheory.Integrable.const_mul
-
-  -- sorry
 
 #check integrable_f_rnDeriv_mul_kernel -- this cannot be used, because it assumes that η is markov, but we don't have that hypothesis
 lemma kl_compProdAux1 [StandardBorelSpace β] [IsMarkovKernel κ] [IsFiniteKernel η]
