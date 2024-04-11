@@ -266,7 +266,39 @@ lemma kl_compProd_right [MeasurableSpace.CountablyGenerated β] (μ ν : Measure
 
 #check kernel.Measure.absolutelyContinuous_compProd_iff.mpr.mt
 
-lemma kl_compProd [StandardBorelSpace β] (κ η : kernel α β) [IsMarkovKernel κ] [IsFiniteKernel η] (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
+--TODO : decide what to do with the next lemma, when proven it should be incorporated in the main proof, or maybe renamed and put in the right place, annother option is also to 'cut' the the proof a bit earlier, incorporate the last part in the main proof and leave the first part as a separate lemma, putting it in the right place and renaming it accordingly.
+lemma kl_compProdAux [StandardBorelSpace β] [IsMarkovKernel κ] [IsFiniteKernel η]
+    [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
+    (h : ¬ Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ) ) : (kl μ ν = ⊤) ∨ (condKL κ η μ = ⊤) := by
+  contrapose! h
+  rw [← integrable_rnDeriv_mul_log_iff h_prod]
+  rw [integrable_f_rnDeriv_compProd_iff (by measurability) Real.convexOn_mul_log]
+  simp_rw [ENNReal.toReal_mul]
+  constructor
+  · sorry
+  · sorry
+  -- set_option push_neg.use_distrib true in push_neg
+  -- rcases h_int with (h1 | h2)
+  -- · contrapose h1
+  --   push_neg
+  --   filter_upwards with a
+  --   simp_rw [mul_assoc]
+  --   apply MeasureTheory.Integrable.const_mul
+
+  -- sorry
+
+#check integrable_f_rnDeriv_mul_kernel -- this cannot be used, because it assumes that η is markov, but we don't have that hypothesis
+lemma kl_compProdAux1 [StandardBorelSpace β] [IsMarkovKernel κ] [IsFiniteKernel η]
+    [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
+    (h : Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ) ) : Integrable (llr μ ν) μ := by
+    rw [← integrable_rnDeriv_mul_log_iff h_prod] at h
+    sorry
+
+#check MeasureTheory.integrableOn_congr_fun_ae
+
+-- TODO : consider changing the arguments, in particular the kernels and measures may be put between curly braces, but maybe not, since there are no other hypothesis that mention them, so they cannot be inferred
+lemma kl_compProd [StandardBorelSpace β] (κ η : kernel α β) [IsMarkovKernel κ] [IsFiniteKernel η]
+    (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     kl (μ ⊗ₘ κ) (ν ⊗ₘ η) = kl μ ν + condKL κ η μ := by
   by_cases h_prod : (μ ⊗ₘ κ) ≪ (ν ⊗ₘ η)
   swap;
@@ -282,22 +314,16 @@ lemma kl_compProd [StandardBorelSpace β] (κ η : kernel α β) [IsMarkovKernel
   by_cases h_int : Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ)
   swap;
   · simp only [h_int, not_false_eq_true, kl_of_not_integrable]
-    -- we have to make use of the non integrability of the products of the kernels, then the proof should be similar to the one for the previous goal. One option may be using ProbabilityTheory.integrable_f_rnDeriv_compProd_iff, this is almost proven (a sorry is left in the proof), but it is stated as integrability wrt the second product, while we need it wrt the first one, see how to adapt it. integrable rnderiv mul
-    #check integrable_rnDeriv_mul_log_iff
-    #check integrable_f_rnDeriv_compProd_iff
-    rw [← integrable_rnDeriv_mul_log_iff h_prod] at h_int
-    rw [integrable_f_rnDeriv_compProd_iff (by measurability) Real.convexOn_mul_log] at h_int
-    simp_rw [ENNReal.toReal_mul] at h_int
+    apply kl_compProdAux h_prod at h_int --here we use the auxiliary lemma
     set_option push_neg.use_distrib true in push_neg at h_int
-    rcases h_int with (h1 | h2)
-    · contrapose h1
-      push_neg
-      filter_upwards with a
-      simp_rw [mul_assoc]
-      apply MeasureTheory.Integrable.const_mul
-      -- here we need to separate the log of the product, for this we need the lemma that says that the rnderiv of the kernel is different from zero
-      sorry
-    · sorry
+    rcases h_int with (h | h) <;> rw [h]
+    · exact (EReal.top_add_of_ne_bot (condKL_ne_bot _ _ _)).symm
+    · exact (EReal.add_top_of_ne_bot (kl_ne_bot _ _)).symm
+  have intμν : Integrable (llr μ ν) μ := by sorry -- here we should use the external lemma 1, the 3 lemmas are still to be written
+  have intκη : Integrable (fun x ↦ ∫ (y : β), log (kernel.rnDeriv κ η x y).toReal ∂κ x) μ := by
+    sorry -- here we should use the external lemma 2
+  have intκη2 : ∀ᵐ x ∂μ, Integrable (llr (κ x) (η x)) (κ x) := by
+    sorry -- here we should use the external lemma 3
   calc kl (μ ⊗ₘ κ) (ν ⊗ₘ η) = ↑(∫ p, llr (μ ⊗ₘ κ) (ν ⊗ₘ η) p ∂(μ ⊗ₘ κ)) :=
     kl_of_ac_of_integrable h_prod h_int
   _ = ↑(∫ (x : α), ∫ (y : β), llr (μ ⊗ₘ κ) (ν ⊗ₘ η) (x, y) ∂κ x ∂μ) := by
@@ -326,17 +352,23 @@ lemma kl_compProd [StandardBorelSpace β] (κ η : kernel α β) [IsMarkovKernel
     norm_cast
     rw [← integral_add']
     simp only [Pi.add_apply]
-    congr with a
+    rotate_left
+    · simp only [integral_const, measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul, ← llr_def]
+      exact intμν
+    · exact intκη
+    apply integral_congr_ae
+    filter_upwards [hκη, intκη2] with x hx hκηx
+    have h := hx.ae_le (kernel.rnDeriv_eq_rnDeriv_measure κ η x)
     rw [← integral_add']
+    rotate_left
+    · simp only [integrable_const]
+    · apply Integrable.congr hκηx
+      filter_upwards [h] with y hy
+      rw [hy, llr_def]
+    apply integral_congr_ae
+    filter_upwards
+    intro a
     congr
-    -- get all the integrabiility conditions before, they will be used multiple times
-
-    -- simp only [Pi.add_apply]
-    -- here I have 2 problems: 1) it doesnt let me use the integral_add' the second time, I don't know why, 2) I'm not sure how to prove the 4 integrability goals that should spawn from this step
-    sorry
-    sorry
-    sorry
-    sorry
   _ = ↑(∫ (x : α), log (μ.rnDeriv ν x).toReal ∂μ)
       + ↑(∫ (x : α), ∫ (y : β), log (kernel.rnDeriv κ η x y).toReal ∂κ x ∂μ) := by
     simp only [integral_const, measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul]
@@ -350,16 +382,17 @@ lemma kl_compProd [StandardBorelSpace β] (κ η : kernel α β) [IsMarkovKernel
     filter_upwards [h] with y hy
     congr
   _ = kl μ ν + condKL κ η μ := by
-    -- have := integrable_f_rnDeriv_compProd_iff
     congr
     · rw [← llr_def, ← kl_of_ac_of_integrable hμν]
-      -- rw [integrable_rnDeriv_mul_log_iff]
-      sorry -- here we need something to say that llr μ ν is μ-integrable, this probabily follows from the integrability of llr (μ ⊗ₘ κ) (ν ⊗ₘ η), but I need the right lemma, maybe it's integrable_f_rnDeriv_compProd_iff? but as anbove the problem is that it is stated wrt the second product, while we need it wrt the first one. the same lemma should help us also with the last two sorries below. write a general lemma
+      exact intμν
     · simp_rw [← llr_def]
       rw [condKL_of_ae_finite_of_integrable _ _]
       rotate_left
-      · sorry
-      · sorry
+      · filter_upwards [hκη, intκη2] with x hx hκηx
+        intro h
+        apply kl_eq_top_iff.mp at h
+        tauto
+      · sorry -- this should be derived from lemma 2, i.e. intκη, but I'm not sure how to do it
       norm_cast
       apply integral_congr_ae
       filter_upwards [hκη] with x hx
