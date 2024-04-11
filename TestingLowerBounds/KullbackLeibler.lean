@@ -6,7 +6,6 @@ Authors: Rémy Degenne
 import Mathlib.MeasureTheory.Measure.LogLikelihoodRatio
 import TestingLowerBounds.FDiv.CondFDiv
 import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
-
 /-!
 # Kullback-Leibler divergence
 
@@ -274,11 +273,25 @@ lemma kl_compProd_right [MeasurableSpace.CountablyGenerated β] (μ ν : Measure
 
 #check kernel.Measure.absolutelyContinuous_compProd_iff.mpr.mt
 
+#check Set.setOf_subset_setOf
 
 lemma integrable_rdDeriv_mul_of_integrable [StandardBorelSpace β] [IsFiniteKernel κ] -- we probablity need some hypothesis of measurability on g
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] (g : α → β → ℝ)
     (h : ∀ᵐ a ∂μ, Integrable (fun x => g a x) (κ a)) :
     ∀ᵐ a ∂ν, Integrable (fun x ↦ (μ.rnDeriv ν a).toReal * g a x) (κ a) := by
+  by_contra h_not
+  rw [not_eventually] at h_not
+  apply MeasureTheory.frequently_ae_iff.mp at h_not
+  let s := {a | ¬Integrable (fun x ↦ ((∂μ/∂ν) a).toReal * g a x) (κ a)}
+  let t := {a | ¬Integrable (fun x ↦ g a x) (κ a)}
+  change (OuterMeasure.measureOf ν.toOuterMeasure) s ≠ 0 at h_not
+  have hh : s ⊆ t := by
+    apply Set.setOf_subset_setOf.mpr
+    intro a ha
+    contrapose! ha
+    exact Integrable.const_mul ha _
+
+
   sorry
 
 #check Measure.rnDeriv_toReal_ne_zero
