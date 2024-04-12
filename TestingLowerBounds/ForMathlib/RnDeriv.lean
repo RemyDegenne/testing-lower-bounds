@@ -141,6 +141,7 @@ lemma rnDeriv_eq_div' {ξ : Measure α} [SigmaFinite μ] [SigmaFinite ν] [Sigma
   filter_upwards [rnDeriv_eq_div μ ν, hν_ac (rnDeriv_div_rnDeriv hμ hν)] with a h1 h2
   exact h1.trans h2.symm
 
+/--Singular part set of μ with respect to ν.-/
 def singularPartSet (μ ν : Measure α) := {x | ν.rnDeriv (μ + ν) x = 0}
 
 lemma measurableSet_singularPartSet : MeasurableSet (singularPartSet μ ν) :=
@@ -378,3 +379,4 @@ lemma _root_.MeasurableEmbedding.singularPart_map (μ ν : Measure α)
   exact hg.mutuallySingular_map (μ.mutuallySingular_singularPart ν)
 
 end MeasurableEmbedding
+#lint
