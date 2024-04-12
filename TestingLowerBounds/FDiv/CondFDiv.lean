@@ -263,6 +263,20 @@ lemma condFDiv_eq' (hf_ae : ∀ᵐ a ∂μ, fDiv f (κ a) (η a) ≠ ⊤)
     condFDiv f κ η μ = ((μ[fun x ↦ (fDiv f (κ x) (η x)).toReal] : ℝ) : EReal) :=
   if_pos ⟨hf_ae, hf⟩
 
+lemma condFDiv_nonneg [IsMarkovKernel κ] [IsMarkovKernel η]
+    (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0))
+    (hf_one : f 1 = 0) : 0 ≤ condFDiv f κ η μ := by
+  by_cases h_ae : ∀ᵐ a ∂μ, fDiv f (κ a) (η a) ≠ ⊤
+  swap; · rw[condFDiv_of_not_ae_finite h_ae]; exact le_top
+  by_cases h_int : Integrable (fun x ↦ (fDiv f (κ x) (η x)).toReal) μ
+  swap; · rw[condFDiv_of_not_integrable h_int]; exact le_top
+  rw [condFDiv_eq' h_ae h_int]
+  simp only [EReal.coe_nonneg]
+  apply integral_nonneg _
+  intro x
+  have h := @fDiv_nonneg _ _ (κ x) (η x) f _ _ hf_cvx hf_cont hf_one
+  simp [EReal.toReal_nonneg, h]
+
 variable [MeasurableSpace.CountablyGenerated β]
 
 section Integrable

@@ -91,7 +91,17 @@ lemma kl_eq_fDiv [SigmaFinite μ] [SigmaFinite ν] :
 lemma kl_self (μ : Measure α) [SigmaFinite μ] : kl μ μ = 0 := by
   rw [kl_eq_fDiv, fDiv_self (by norm_num)]
 
+lemma kl_eq_top_iff [IsFiniteMeasure μ] [SigmaFinite ν] :
+    kl μ ν = ⊤ ↔ μ ≪ ν → ¬ Integrable (llr μ ν) μ := by
+  rw [kl_eq_fDiv, fDiv_mul_log_eq_top_iff]
+
 section kl_nonneg
+
+lemma kl_ne_bot (μ ν : Measure α) : kl μ ν ≠ ⊥ := by
+  rw [kl]
+  split_ifs with h
+  · simp only [ne_eq, EReal.coe_ne_bot, not_false_eq_true]
+  · norm_num
 
 lemma kl_ge_mul_log' [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
     (hμν : μ ≪ ν) :
