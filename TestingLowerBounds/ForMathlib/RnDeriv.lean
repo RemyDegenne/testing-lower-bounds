@@ -270,10 +270,10 @@ lemma trim_withDensity (hm : m ≤ mα) {f : α → ℝ≥0∞} (hf : Measurable
 
 end Trim
 
-lemma rnDeriv_toReal_ne_zero [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν) :
-    ∀ᵐ x ∂μ, (μ.rnDeriv ν x).toReal ≠ 0 := by
+lemma rnDeriv_toReal_pos [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν) :
+    ∀ᵐ x ∂μ, (μ.rnDeriv ν x).toReal > 0 := by
   filter_upwards [rnDeriv_pos hμν, hμν.ae_le (rnDeriv_ne_top μ ν)] with x h0 htop
-  simp_all only [pos_iff_ne_zero, ne_eq, ENNReal.toReal_ne_zero, not_false_eq_true, and_self]
+  simp_all only [pos_iff_ne_zero, ne_eq, not_false_eq_true, ENNReal.toReal_pos]
 
 lemma ae_rnDeriv_ne_zero_imp_of_ae_aux [SigmaFinite μ] [SigmaFinite ν] {p : α → Prop}
     (h : ∀ᵐ a ∂μ, p a) (hμν : μ ≪ ν) :
