@@ -179,6 +179,10 @@ variable {β : Type*} {mβ : MeasurableSpace β} {κ η : kernel α β} {μ : Me
 
 open Classical in
 
+/--
+Kullback-Leibler divergence between two kernels κ and η conditional to a measure μ.
+It is defined as KL(κ, η | μ) := ∫ x, KL(κ x, η x) dμ.
+-/
 noncomputable
 def condKL (κ η : kernel α β) (μ : Measure α) : EReal :=
   if (∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤)
@@ -296,31 +300,26 @@ lemma ae_int_mul_rnDeriv_of_ae_int [SigmaFinite μ] [SigmaFinite ν] (g : α →
   · apply Integrable.const_mul
     exact ha h_zero
 
-#check Measure.rnDeriv_toReal_ne_zero
-#check kernel.rnDeriv_toReal_ne_zero
-#check MeasureTheory.integrable_rnDeriv_smul_iff
-#check MeasureTheory.Integrable.const_mul
-#check kernel.rnDeriv_eq_rnDeriv_measure
-#check integral_smul_const
-#check integral_smul
-#check integral_rnDeriv_smul
-#check Integrable.congr
---TODO : decide what to do with the next lemma, when proven it should be incorporated in the main proof, or maybe renamed and put in the right place, annother option is also to 'cut' the the proof a bit earlier, incorporate the last part in the main proof and leave the first part as a separate lemma, putting it in the right place and renaming it accordingly.
-lemma kl_compProdAux [StandardBorelSpace β] [IsMarkovKernel κ] [IsFiniteKernel η]
-    [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
-    (h : ¬ Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ) ) : (kl μ ν = ⊤) ∨ (condKL κ η μ = ⊤) := by
-  contrapose! h
+
+lemma integrable_llr_compProd_of_integrable_llr [MeasurableSpace.CountablyGenerated β] [IsMarkovKernel κ]
+    [IsFiniteKernel η] [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
+    (hμν : Integrable (llr μ ν) μ) (hκη_int : Integrable (fun a ↦ ∫ x, llr (κ a) (η a) x ∂(κ a)) μ)
+    (hκη_ae : ∀ᵐ a ∂μ, Integrable (llr (κ a) (η a)) (κ a)) :
+    Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ) := by
   rw [← integrable_rnDeriv_mul_log_iff h_prod]
   rw [integrable_f_rnDeriv_compProd_iff (by measurability) Real.convexOn_mul_log]
   simp_rw [ENNReal.toReal_mul]
-  have ⟨hμν, hκη⟩ := kernel.Measure.absolutelyContinuous_compProd_iff.mp h_prod
+  have ⟨hμν_ac, hκη_ac⟩ := kernel.Measure.absolutelyContinuous_compProd_iff.mp h_prod
+  have hκη_top : ∀ᵐ (x : α) ∂μ, kl (κ x) (η x) ≠ ⊤ := by
+    filter_upwards [hκη_ac, hκη_ae] with x hx hx2
+    apply kl_eq_top_iff.mp.mt
+    push_neg
+    exact ⟨hx, hx2⟩
   constructor
   · simp_rw [mul_assoc]
     apply ae_int_mul_rnDeriv_of_ae_int _
-    have h_top := condKL_of_not_ae_finite.mt h.2
-    push_neg at h_top
-    have hμν_zero := Measure.rnDeriv_toReal_ne_zero hμν
-    filter_upwards [hκη, h_top, hμν_zero] with a ha h_top hμν_zero
+    have hμν_zero := Measure.rnDeriv_toReal_ne_zero hμν_ac
+    filter_upwards [hκη_ac, hκη_top, hμν_zero] with a ha h_top hμν_zero
     apply (MeasureTheory.integrable_rnDeriv_smul_iff ha).mpr
     apply Integrable.congr _ _
     · exact fun x ↦ log ((∂μ/∂ν) a).toReal + log ((∂κ a/∂η a) x).toReal
@@ -331,23 +330,20 @@ lemma kl_compProdAux [StandardBorelSpace β] [IsMarkovKernel κ] [IsFiniteKernel
     apply Integrable.add (integrable_const _)
     apply Integrable.congr _ _
     · exact (fun x ↦ llr (κ a) (η a) x)
-    swap;
-    · rw [llr_def]
+    swap; rw [llr_def]
     have := kl_of_not_integrable.mt h_top
     push_neg at this
     exact this
   · simp_rw [mul_assoc, integral_mul_left]
-    apply (MeasureTheory.integrable_rnDeriv_smul_iff hμν).mpr
+    apply (MeasureTheory.integrable_rnDeriv_smul_iff hμν_ac).mpr
     apply Integrable.congr _ _
     · exact fun a ↦ ∫ (x : β), log (((∂μ/∂ν) a).toReal * ((∂κ a/∂η a) x).toReal) ∂κ a
-    swap
-    · filter_upwards [hκη] with a ha
-      exact (integral_rnDeriv_smul ha).symm
+    swap; filter_upwards [hκη_ac] with a ha using (integral_rnDeriv_smul ha).symm
     apply Integrable.congr _ _
     · exact fun a ↦ ∫ (x : β), log ((∂μ/∂ν) a).toReal + log ((∂κ a/∂η a) x).toReal ∂κ a
     swap
-    · have hμν_zero := Measure.rnDeriv_toReal_ne_zero hμν
-      filter_upwards [hκη, hμν_zero] with a ha hμν_zero
+    · have hμν_zero := Measure.rnDeriv_toReal_ne_zero hμν_ac
+      filter_upwards [hκη_ac, hμν_zero] with a ha hμν_zero
       have hκη_zero := Measure.rnDeriv_toReal_ne_zero ha
       apply integral_congr_ae
       filter_upwards [hκη_zero] with x hκη_zero
@@ -356,20 +352,38 @@ lemma kl_compProdAux [StandardBorelSpace β] [IsMarkovKernel κ] [IsFiniteKernel
     · exact fun a ↦ ∫ (_ : β), log ((∂μ/∂ν) a).toReal ∂κ a
         + ∫ (x : β), log ((∂κ a/∂η a) x).toReal ∂κ a
     swap
-    · have hκη_top := of_not_not (condKL_of_not_ae_finite.mt h.2)
-      filter_upwards [hκη_top] with a hκη_top
+    · filter_upwards [hκη_top] with a hκη_top
       rw [integral_add (integrable_const _)]
       · rw [← llr_def]
         exact of_not_not (kl_of_not_integrable.mt hκη_top)
     simp only [integral_const, measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul]
     apply Integrable.add
     · rw [← llr_def]
-      exact of_not_not (kl_of_not_integrable.mt h.1)
+      exact hμν
     · simp_rw [← llr_def]
-      exact of_not_not (condKL_of_not_integrable'.mt h.2)
+      exact hκη_int
+
+#check Measure.rnDeriv_toReal_ne_zero
+#check kernel.rnDeriv_toReal_ne_zero
+#check MeasureTheory.integrable_rnDeriv_smul_iff
+#check MeasureTheory.Integrable.const_mul
+#check kernel.rnDeriv_eq_rnDeriv_measure
+#check integral_smul_const
+#check integral_smul
+#check integral_rnDeriv_smul
+#check Integrable.congr
+--TODO : decide what to do with the next lemma. Maybe incorporate it in the main proof, or maybe rename it and put in the right place, another option is also to 'cut' the the proof a bit earlier, incorporate the last part in the main proof and leave the first part as a separate lemma, putting it in the right place and renaming it accordingly.
+-- I think a good way to split this lemma is the following one, because itcuts the proof in a way s.t. both the hypothesis and the conclusions are sated in terms of the llr
+
+lemma kl_eq_top_or_condKL_eq_top_of_integrable_llr_compProd [MeasurableSpace.CountablyGenerated β] [IsMarkovKernel κ] [IsFiniteKernel η]
+    [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
+    (h : ¬ Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ) ) : (kl μ ν = ⊤) ∨ (condKL κ η μ = ⊤) := by
+  contrapose! h
+  apply integrable_llr_compProd_of_integrable_llr h_prod <;>
+  contrapose! h <;> aesop
 
 #check integrable_f_rnDeriv_mul_kernel -- this cannot be used, because it assumes that η is markov, but we don't have that hypothesis
-lemma kl_compProdAux1 [StandardBorelSpace β] [IsMarkovKernel κ] [IsFiniteKernel η]
+lemma kl_compProdAux1 [MeasurableSpace.CountablyGenerated β] [IsMarkovKernel κ] [IsFiniteKernel η]
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
     (h : Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ) ) : Integrable (llr μ ν) μ := by
     rw [← integrable_rnDeriv_mul_log_iff h_prod] at h
@@ -377,11 +391,11 @@ lemma kl_compProdAux1 [StandardBorelSpace β] [IsMarkovKernel κ] [IsFiniteKerne
 
 
 -- TODO : consider changing the arguments, in particular the kernels and measures may be put between curly braces, but maybe not, since there are no other hypothesis that mention them, so they cannot be inferred
-lemma kl_compProd [StandardBorelSpace β] (κ η : kernel α β) [IsMarkovKernel κ] [IsFiniteKernel η]
+lemma kl_compProd [MeasurableSpace.CountablyGenerated β] (κ η : kernel α β) [IsMarkovKernel κ] [IsFiniteKernel η]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     kl (μ ⊗ₘ κ) (ν ⊗ₘ η) = kl μ ν + condKL κ η μ := by
   by_cases h_prod : (μ ⊗ₘ κ) ≪ (ν ⊗ₘ η)
-  swap;
+  swap
   · simp only [h_prod, not_false_eq_true, kl_of_not_ac]
     have h := kernel.Measure.absolutelyContinuous_compProd_iff.mpr.mt h_prod
     set_option push_neg.use_distrib true in push_neg at h
@@ -392,9 +406,9 @@ lemma kl_compProd [StandardBorelSpace β] (κ η : kernel α β) [IsMarkovKernel
       exact (EReal.add_top_of_ne_bot (kl_ne_bot _ _)).symm
   have ⟨hμν, hκη⟩ := kernel.Measure.absolutelyContinuous_compProd_iff.mp h_prod
   by_cases h_int : Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ)
-  swap;
+  swap
   · simp only [h_int, not_false_eq_true, kl_of_not_integrable]
-    apply kl_compProdAux h_prod at h_int --here we use the auxiliary lemma
+    apply kl_eq_top_or_condKL_eq_top_of_integrable_llr_compProd h_prod at h_int --here we use the auxiliary lemma
     set_option push_neg.use_distrib true in push_neg at h_int
     rcases h_int with (h | h) <;> rw [h]
     · exact (EReal.top_add_of_ne_bot (condKL_ne_bot _ _ _)).symm
@@ -487,5 +501,3 @@ lemma kl_compProd [StandardBorelSpace β] (κ η : kernel α β) [IsMarkovKernel
 end Conditional
 
 end ProbabilityTheory
-
---TODO : shorten the lines so they are less than 100 characters long, this is the convention in mathlib
