@@ -170,6 +170,10 @@ variable {β : Type*} {mβ : MeasurableSpace β} {κ η : kernel α β} {μ : Me
 
 open Classical in
 
+/--
+Kullback-Leibler divergence between two kernels κ and η conditional to a measure μ.
+It is defined as KL(κ, η | μ) := ∫ x, KL(κ x, η x) dμ.
+-/
 noncomputable
 def condKL (κ η : kernel α β) (μ : Measure α) : EReal :=
   if (∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤)
@@ -184,6 +188,15 @@ lemma condKL_of_ae_finite_of_integrable (h1 : ∀ᵐ a ∂μ, kl (κ a) (η a) �
 @[simp]
 lemma condKL_of_not_ae_finite (h : ¬ (∀ᵐ x ∂μ, kl (κ x) (η x) ≠ ⊤)) :
     condKL κ η μ = ⊤ := if_neg (not_and_of_not_left _ h)
+
+@[simp]
+lemma condKL_of_not_ae_integrable (h : ¬ (∀ᵐ (a : α) ∂μ, Integrable (llr (κ a) (η a)) (κ a))) :
+    condKL κ η μ = ⊤ := by
+  apply condKL_of_not_ae_finite
+  contrapose! h
+  filter_upwards [h] with x hx
+  contrapose! hx
+  simp only [hx, ne_eq, not_false_eq_true, kl_of_not_integrable]
 
 @[simp]
 lemma condKL_of_not_ae_ac (h : ¬ (∀ᵐ x ∂μ, (κ x) ≪ (η x))) :
