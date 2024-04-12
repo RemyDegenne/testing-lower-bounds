@@ -80,10 +80,10 @@ jobs:
         with:
           path: docs/
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v1
+      # - name: Deploy to GitHub Pages
+      #   id: deployment
+      #   uses: actions/deploy-pages@v1
 
-      - name: Make sure the cache works
-        run: |
-          mv docs/docs .lake/build/doc
+      # - name: Make sure the cache works
+      #   run: |
+      #     mv docs/docs .lake/build/doc
