@@ -142,9 +142,9 @@ Use Lemma~\ref{lem:rnDeriv_compProd} and Corollary~\ref{cor:rnDeriv_value} in a 
 \\
 &= \int_x \int_y\log \left(\frac{d\mu}{d \nu}(x)\right) + \log \left(\frac{d\kappa}{d \eta}(x,y)\right) \partial \kappa(x) \partial\mu
 \\
-&= \int_x \log \left(\frac{d\mu}{d \nu}(x)\right)\partial\mu + \int_y\log \left(\frac{d\kappa}{d \eta}(x,y)\right) \partial \kappa(x) \partial\mu
+&= \int_x \log \left(\frac{d\mu}{d \nu}(x)\right)\partial\mu + \int_x \int_y\log \left(\frac{d\kappa}{d \eta}(x,y)\right) \partial \kappa(x) \partial\mu
 \\
-&= \int_x \log \left(\frac{d\mu}{d \nu}(x)\right)\partial\mu + \int_y\log \left(\frac{d\kappa(x)}{d \eta(x)}(y)\right) \partial \kappa(x) \partial\mu
+&= \int_x \log \left(\frac{d\mu}{d \nu}(x)\right)\partial\mu + \int_x \int_y\log \left(\frac{d\kappa(x)}{d \eta(x)}(y)\right) \partial \kappa(x) \partial\mu
 \\
 &= \KL(\mu, \nu) + \KL(\kappa, \eta \mid \mu)
 \: .
