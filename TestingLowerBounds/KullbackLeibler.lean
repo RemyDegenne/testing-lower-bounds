@@ -275,6 +275,7 @@ lemma kl_compProd_right [MeasurableSpace.CountablyGenerated β] (μ ν : Measure
 
 #check Set.setOf_subset_setOf
 
+-- maybe we have to change the name of this lemma and put it in a suitable place
 lemma integrable_rdDeriv_mul_of_integrable [StandardBorelSpace β] [IsFiniteKernel κ] -- we probablity need some hypothesis of measurability on g
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] (g : α → β → ℝ)
     (h : ∀ᵐ a ∂μ, Integrable (fun x => g a x) (κ a)) :
@@ -290,6 +291,11 @@ lemma integrable_rdDeriv_mul_of_integrable [StandardBorelSpace β] [IsFiniteKern
     intro a ha
     contrapose! ha
     exact Integrable.const_mul ha _
+  have μt : (OuterMeasure.measureOf μ.toOuterMeasure) t = 0 := MeasureTheory.ae_iff.mp h
+  have μs := MeasureTheory.measure_mono_null hh μt
+  -- let s' := s \ ()
+  -- use
+  #check Measure.ae_rnDeriv_ne_zero_imp_of_ae
 
 
   sorry
