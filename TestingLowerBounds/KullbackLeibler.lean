@@ -19,7 +19,7 @@ import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
 
 -/
 
-open Real MeasureTheory Filter
+open Real MeasureTheory Filter MeasurableSpace
 
 open scoped ENNReal NNReal Topology
 
@@ -269,13 +269,13 @@ lemma condKL_nonneg (κ η : kernel α β) [IsMarkovKernel κ] [IsMarkovKernel �
   · norm_num
 
 -- TODO : regarding the next 2 lemmas, should we keep them as they are (derived from the fDiv), or should we prove them using the kl_compProd? it's probabily better to leave them like this, since kl_compProd has slightly stronger hypothesis. Though maybe we can relax some of these hypothesis.
-lemma kl_compProd_left [MeasurableSpace.CountablyGenerated β] (μ : Measure α) [IsFiniteMeasure μ]
+lemma kl_compProd_left [CountablyGenerated β] (μ : Measure α) [IsFiniteMeasure μ]
     (κ η : kernel α β) [IsMarkovKernel κ] [IsFiniteKernel η] :
     kl (μ ⊗ₘ κ) (μ ⊗ₘ η) = condKL κ η μ := by
   rw [kl_eq_fDiv, condKL_eq_condFDiv]
   exact fDiv_compProd_left μ κ η (by measurability) Real.convexOn_mul_log
 
-lemma kl_compProd_right [MeasurableSpace.CountablyGenerated β] (μ ν : Measure α) [IsFiniteMeasure μ]
+lemma kl_compProd_right [CountablyGenerated β] (μ ν : Measure α) [IsFiniteMeasure μ]
     [IsFiniteMeasure ν] (κ : kernel α β) [IsMarkovKernel κ] :
     kl (μ ⊗ₘ κ) (ν ⊗ₘ κ) = kl μ ν := by
   rw [kl_eq_fDiv, kl_eq_fDiv]
@@ -301,7 +301,7 @@ lemma ae_int_mul_rnDeriv_of_ae_int [SigmaFinite μ] [SigmaFinite ν] (g : α →
     exact ha h_zero
 
 
-lemma integrable_llr_compProd_of_integrable_llr [MeasurableSpace.CountablyGenerated β] [IsMarkovKernel κ]
+lemma integrable_llr_compProd_of_integrable_llr [CountablyGenerated β] [IsMarkovKernel κ]
     [IsFiniteKernel η] [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
     (hμν : Integrable (llr μ ν) μ) (hκη_int : Integrable (fun a ↦ ∫ x, llr (κ a) (η a) x ∂(κ a)) μ)
     (hκη_ae : ∀ᵐ a ∂μ, Integrable (llr (κ a) (η a)) (κ a)) :
@@ -315,10 +315,10 @@ lemma integrable_llr_compProd_of_integrable_llr [MeasurableSpace.CountablyGenera
     apply kl_eq_top_iff.mp.mt
     push_neg
     exact ⟨hx, hx2⟩
+  have hμν_zero := Measure.rnDeriv_toReal_ne_zero hμν_ac
   constructor
   · simp_rw [mul_assoc]
-    apply ae_int_mul_rnDeriv_of_ae_int _
-    have hμν_zero := Measure.rnDeriv_toReal_ne_zero hμν_ac
+    apply ae_int_mul_rnDeriv_of_ae_int
     filter_upwards [hκη_ac, hκη_top, hμν_zero] with a ha h_top hμν_zero
     apply (MeasureTheory.integrable_rnDeriv_smul_iff ha).mpr
     apply Integrable.congr _ _
@@ -328,40 +328,108 @@ lemma integrable_llr_compProd_of_integrable_llr [MeasurableSpace.CountablyGenera
       filter_upwards [hκη_zero] with a hκη_zero
       rw [Real.log_mul hμν_zero hκη_zero]
     apply Integrable.add (integrable_const _)
-    apply Integrable.congr _ _
-    · exact (fun x ↦ llr (κ a) (η a) x)
-    swap; rw [llr_def]
-    have := kl_of_not_integrable.mt h_top
-    push_neg at this
-    exact this
+    apply Integrable.congr (of_not_not (kl_of_not_integrable.mt h_top))
+    rw [llr_def]
   · simp_rw [mul_assoc, integral_mul_left]
     apply (MeasureTheory.integrable_rnDeriv_smul_iff hμν_ac).mpr
-    apply Integrable.congr _ _
-    · exact fun a ↦ ∫ (x : β), log (((∂μ/∂ν) a).toReal * ((∂κ a/∂η a) x).toReal) ∂κ a
-    swap; filter_upwards [hκη_ac] with a ha using (integral_rnDeriv_smul ha).symm
-    apply Integrable.congr _ _
-    · exact fun a ↦ ∫ (x : β), log ((∂μ/∂ν) a).toReal + log ((∂κ a/∂η a) x).toReal ∂κ a
-    swap
-    · have hμν_zero := Measure.rnDeriv_toReal_ne_zero hμν_ac
-      filter_upwards [hκη_ac, hμν_zero] with a ha hμν_zero
-      have hκη_zero := Measure.rnDeriv_toReal_ne_zero ha
-      apply integral_congr_ae
-      filter_upwards [hκη_zero] with x hκη_zero
-      rw [Real.log_mul hμν_zero hκη_zero]
-    apply Integrable.congr _ _
-    · exact fun a ↦ ∫ (_ : β), log ((∂μ/∂ν) a).toReal ∂κ a
-        + ∫ (x : β), log ((∂κ a/∂η a) x).toReal ∂κ a
-    swap
-    · filter_upwards [hκη_top] with a hκη_top
-      rw [integral_add (integrable_const _)]
-      · rw [← llr_def]
-        exact of_not_not (kl_of_not_integrable.mt hκη_top)
-    simp only [integral_const, measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul]
+    have h : (fun a ↦ log ((∂μ/∂ν) a).toReal + ∫ x, log ((∂κ a/∂η a) x).toReal ∂κ a)
+        =ᵐ[μ] (fun a ↦ ∫ x, ((∂κ a/∂η a) x).toReal
+        * log (((∂μ/∂ν) a).toReal * ((∂κ a/∂η a) x).toReal) ∂η a) := by
+      filter_upwards [hκη_ac, hμν_zero, hκη_top] with a ha hμν_zero hκη_top
+      calc
+        _ = ∫ (x : β), log ((∂μ/∂ν) a).toReal + log ((∂κ a/∂η a) x).toReal ∂κ a := by
+          rw [integral_add (integrable_const _)]
+          · simp only [integral_const, measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul]
+          · rw [← llr_def]
+            exact of_not_not (kl_of_not_integrable.mt hκη_top)
+        _ = ∫ x, log (((∂μ/∂ν) a).toReal * ((∂κ a/∂η a) x).toReal) ∂κ a := by
+          have hκη_zero := Measure.rnDeriv_toReal_ne_zero ha
+          apply integral_congr_ae
+          filter_upwards [hκη_zero] with x hκη_zero
+          rw [Real.log_mul hμν_zero hκη_zero]
+        _ = _ := (integral_rnDeriv_smul ha).symm
+    apply Integrable.congr _ h
     apply Integrable.add
     · rw [← llr_def]
       exact hμν
     · simp_rw [← llr_def]
       exact hκη_int
+
+lemma integrable_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMarkovKernel κ]
+    [IsFiniteKernel η] [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
+    (h_int : Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ)) :
+    Integrable (llr μ ν) μ := by
+  rw [← integrable_rnDeriv_mul_log_iff h_prod] at h_int
+  rw [integrable_f_rnDeriv_compProd_iff (by measurability) Real.convexOn_mul_log] at h_int
+  replace h_int := h_int.2
+  simp_rw [ENNReal.toReal_mul] at h_int
+  have ⟨hμν_ac, hκη_ac⟩ := kernel.Measure.absolutelyContinuous_compProd_iff.mp h_prod
+  -- have hκη_top : ∀ᵐ (x : α) ∂μ, kl (κ x) (η x) ≠ ⊤ := by --TODO : check that these have are actually used
+  --   filter_upwards [hκη_ac, hκη_ae] with x hx hx2
+  --   apply kl_eq_top_iff.mp.mt
+  --   push_neg
+  --   exact ⟨hx, hx2⟩
+  have hμν_zero := Measure.rnDeriv_toReal_ne_zero hμν_ac
+  simp_rw [mul_assoc, integral_mul_left]  at h_int
+  apply (MeasureTheory.integrable_rnDeriv_smul_iff hμν_ac).mp  at h_int
+  have h : (fun a ↦ log ((∂μ/∂ν) a).toReal + ∫ x, log ((∂κ a/∂η a) x).toReal ∂κ a)
+      =ᵐ[μ] (fun a ↦ ∫ x, ((∂κ a/∂η a) x).toReal
+      * log (((∂μ/∂ν) a).toReal * ((∂κ a/∂η a) x).toReal) ∂η a) := by
+    filter_upwards [hκη_ac, hμν_zero] with a ha hμν_zero
+    calc
+      _ = ∫ (x : β), log ((∂μ/∂ν) a).toReal + log ((∂κ a/∂η a) x).toReal ∂κ a := by
+        rw [integral_add (integrable_const _)]
+        · simp only [integral_const, measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul]
+        · rw [← llr_def]
+          sorry --I'm not sure how to prove this, in this case we do not have it from the hypothesis, so it may even be false, and maybe I have to address the case where this is false separately
+      _ = ∫ x, log (((∂μ/∂ν) a).toReal * ((∂κ a/∂η a) x).toReal) ∂κ a := by
+        have hκη_zero := Measure.rnDeriv_toReal_ne_zero ha
+        apply integral_congr_ae
+        filter_upwards [hκη_zero] with x hκη_zero
+        rw [Real.log_mul hμν_zero hκη_zero]
+      _ = _ := (integral_rnDeriv_smul ha).symm
+
+  replace h_int := Integrable.congr h_int h.symm
+  -- here we have to say that if the sum is integrable then the two terms are integrable, this is not true in general, but in this case it is, since the two terms are nonnegative, I didn't find a lemma for this, I wonder if there is something useful in mathlib, or if I have to prove it myself. Probably to prove it we must also assume some measurability conditions on the two functions, I hope they are easy to prove in this case.
+  sorry
+
+  -- simp_rw [llr_def]
+  -- · exact fun a ↦ ∫ (x : β), log (((∂μ/∂ν) a).toReal * ((∂κ a/∂η a) x).toReal) ∂κ a
+  -- swap; filter_upwards [hκη_ac] with a ha using (integral_rnDeriv_smul ha).symm
+  -- apply Integrable.congr _ _
+  -- · exact fun a ↦ ∫ (x : β), log ((∂μ/∂ν) a).toReal + log ((∂κ a/∂η a) x).toReal ∂κ a
+  -- swap
+  -- · have hμν_zero := Measure.rnDeriv_toReal_ne_zero hμν_ac
+  --   filter_upwards [hκη_ac, hμν_zero] with a ha hμν_zero
+  --   have hκη_zero := Measure.rnDeriv_toReal_ne_zero ha
+  --   apply integral_congr_ae
+  --   filter_upwards [hκη_zero] with x hκη_zero
+  --   rw [Real.log_mul hμν_zero hκη_zero]
+  -- apply Integrable.congr _ _
+  -- · exact fun a ↦ ∫ (_ : β), log ((∂μ/∂ν) a).toReal ∂κ a
+  --     + ∫ (x : β), log ((∂κ a/∂η a) x).toReal ∂κ a
+  -- swap
+  -- · filter_upwards [hκη_top] with a hκη_top
+  --   rw [integral_add (integrable_const _)]
+  --   · rw [← llr_def]
+  --     exact of_not_not (kl_of_not_integrable.mt hκη_top)
+  -- simp only [integral_const, measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul]
+  -- sorry
+
+lemma integrable_integral_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMarkovKernel κ]
+    [IsFiniteKernel η] [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
+    (h_int : Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ)) :
+    Integrable (fun a ↦ ∫ x, llr (κ a) (η a) x ∂(κ a)) μ := by
+  sorry
+
+lemma ae_integrable_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMarkovKernel κ]
+    [IsFiniteKernel η] [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
+    (h_int : Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ)) :
+    ∀ᵐ a ∂μ, Integrable (llr (κ a) (η a)) (κ a) := by
+  sorry
+
+
+
 
 #check Measure.rnDeriv_toReal_ne_zero
 #check kernel.rnDeriv_toReal_ne_zero
@@ -375,7 +443,7 @@ lemma integrable_llr_compProd_of_integrable_llr [MeasurableSpace.CountablyGenera
 --TODO : decide what to do with the next lemma. Maybe incorporate it in the main proof, or maybe rename it and put in the right place, another option is also to 'cut' the the proof a bit earlier, incorporate the last part in the main proof and leave the first part as a separate lemma, putting it in the right place and renaming it accordingly.
 -- I think a good way to split this lemma is the following one, because itcuts the proof in a way s.t. both the hypothesis and the conclusions are sated in terms of the llr
 
-lemma kl_eq_top_or_condKL_eq_top_of_integrable_llr_compProd [MeasurableSpace.CountablyGenerated β] [IsMarkovKernel κ] [IsFiniteKernel η]
+lemma kl_eq_top_or_condKL_eq_top_of_integrable_llr_compProd [CountablyGenerated β] [IsMarkovKernel κ] [IsFiniteKernel η]
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
     (h : ¬ Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ) ) : (kl μ ν = ⊤) ∨ (condKL κ η μ = ⊤) := by
   contrapose! h
@@ -383,7 +451,7 @@ lemma kl_eq_top_or_condKL_eq_top_of_integrable_llr_compProd [MeasurableSpace.Cou
   contrapose! h <;> aesop
 
 #check integrable_f_rnDeriv_mul_kernel -- this cannot be used, because it assumes that η is markov, but we don't have that hypothesis
-lemma kl_compProdAux1 [MeasurableSpace.CountablyGenerated β] [IsMarkovKernel κ] [IsFiniteKernel η]
+lemma kl_compProdAux1 [CountablyGenerated β] [IsMarkovKernel κ] [IsFiniteKernel η]
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
     (h : Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ) ) : Integrable (llr μ ν) μ := by
     rw [← integrable_rnDeriv_mul_log_iff h_prod] at h
@@ -391,7 +459,7 @@ lemma kl_compProdAux1 [MeasurableSpace.CountablyGenerated β] [IsMarkovKernel κ
 
 
 -- TODO : consider changing the arguments, in particular the kernels and measures may be put between curly braces, but maybe not, since there are no other hypothesis that mention them, so they cannot be inferred
-lemma kl_compProd [MeasurableSpace.CountablyGenerated β] (κ η : kernel α β) [IsMarkovKernel κ] [IsFiniteKernel η]
+lemma kl_compProd [CountablyGenerated β] (κ η : kernel α β) [IsMarkovKernel κ] [IsFiniteKernel η]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     kl (μ ⊗ₘ κ) (ν ⊗ₘ η) = kl μ ν + condKL κ η μ := by
   by_cases h_prod : (μ ⊗ₘ κ) ≪ (ν ⊗ₘ η)
@@ -413,9 +481,10 @@ lemma kl_compProd [MeasurableSpace.CountablyGenerated β] (κ η : kernel α β)
     rcases h_int with (h | h) <;> rw [h]
     · exact (EReal.top_add_of_ne_bot (condKL_ne_bot _ _ _)).symm
     · exact (EReal.add_top_of_ne_bot (kl_ne_bot _ _)).symm
-  have intμν : Integrable (llr μ ν) μ := by sorry -- here we should use the external lemma 1, the 3 lemmas are still to be written
+  have intμν : Integrable (llr μ ν) μ := integrable_llr_of_integrable_llr_compProd h_prod h_int -- here we use the external lemma 1
   have intκη : Integrable (fun x ↦ ∫ (y : β), log (kernel.rnDeriv κ η x y).toReal ∂κ x) μ := by
-    sorry -- here we should use the external lemma 2
+    sorry
+    --exact integrable_integral_llr_of_integrable_llr_compProd h_prod h_int -- here we should use the external lemma 2
   have intκη2 : ∀ᵐ x ∂μ, Integrable (llr (κ x) (η x)) (κ x) := by
     sorry -- here we should use the external lemma 3
   calc kl (μ ⊗ₘ κ) (ν ⊗ₘ η) = ↑(∫ p, llr (μ ⊗ₘ κ) (ν ⊗ₘ η) p ∂(μ ⊗ₘ κ)) :=
