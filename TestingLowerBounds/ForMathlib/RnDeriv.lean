@@ -261,7 +261,7 @@ lemma rnDeriv_trim_of_ac (hm : m ≤ mα) [IsFiniteMeasure μ] [SigmaFinite ν]
   rw [← hx, ENNReal.ofReal_toReal hx_ne_top]
 
 -- PRed
-lemma trim_withDensity (hm : m ≤ mα) [SigmaFinite μ] {f : α → ℝ≥0∞} (hf : Measurable[m] f) :
+lemma trim_withDensity (hm : m ≤ mα) {f : α → ℝ≥0∞} (hf : Measurable[m] f) :
     (withDensity μ f).trim hm = withDensity (μ.trim hm) f := by
   refine @Measure.ext _ m _ _ (fun s hs ↦ ?_)
   rw [withDensity_apply _ hs, restrict_trim _ _ hs, lintegral_trim _ hf, trim_measurableSet_eq _ hs,
@@ -312,7 +312,6 @@ namespace MeasurableEmbedding
 variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {μ ν : Measure α}
 
 lemma _root_.MeasurableEmbedding.absolutelyContinuous_map (hμν : μ ≪ ν)
-    [SigmaFinite μ] [SigmaFinite ν]
     {g : α → β} (hg : MeasurableEmbedding g) :
     μ.map g ≪ ν.map g := by
   intro t ht
@@ -320,7 +319,6 @@ lemma _root_.MeasurableEmbedding.absolutelyContinuous_map (hμν : μ ≪ ν)
   exact hμν ht
 
 lemma _root_.MeasurableEmbedding.mutuallySingular_map (hμν : μ ⟂ₘ ν)
-    [SigmaFinite μ] [SigmaFinite ν]
     {g : α → β} (hg : MeasurableEmbedding g) :
     μ.map g ⟂ₘ ν.map g := by
   refine ⟨g '' hμν.nullSet, hg.measurableSet_image' hμν.measurableSet_nullSet, ?_, ?_⟩
