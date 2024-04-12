@@ -275,30 +275,17 @@ lemma kl_compProd_right [MeasurableSpace.CountablyGenerated β] (μ ν : Measure
 
 #check Set.setOf_subset_setOf
 
--- maybe we have to change the name of this lemma and put it in a suitable place
-lemma integrable_rdDeriv_mul_of_integrable [StandardBorelSpace β] [IsFiniteKernel κ] -- we probablity need some hypothesis of measurability on g
-    [IsFiniteMeasure μ] [IsFiniteMeasure ν] (g : α → β → ℝ)
+-- TODO : this should be moved to the right place
+lemma ae_int_mul_rnDeriv_of_ae_int [SigmaFinite μ] [SigmaFinite ν] (g : α → β → ℝ)
     (h : ∀ᵐ a ∂μ, Integrable (fun x => g a x) (κ a)) :
     ∀ᵐ a ∂ν, Integrable (fun x ↦ (μ.rnDeriv ν a).toReal * g a x) (κ a) := by
-  by_contra h_not
-  rw [not_eventually] at h_not
-  apply MeasureTheory.frequently_ae_iff.mp at h_not
-  let s := {a | ¬Integrable (fun x ↦ ((∂μ/∂ν) a).toReal * g a x) (κ a)}
-  let t := {a | ¬Integrable (fun x ↦ g a x) (κ a)}
-  change (OuterMeasure.measureOf ν.toOuterMeasure) s ≠ 0 at h_not
-  have hh : s ⊆ t := by
-    apply Set.setOf_subset_setOf.mpr
-    intro a ha
-    contrapose! ha
-    exact Integrable.const_mul ha _
-  have μt : (OuterMeasure.measureOf μ.toOuterMeasure) t = 0 := MeasureTheory.ae_iff.mp h
-  have μs := MeasureTheory.measure_mono_null hh μt
-  -- let s' := s \ ()
-  -- use
-  #check Measure.ae_rnDeriv_ne_zero_imp_of_ae
-
-
-  sorry
+  apply @Measure.ae_rnDeriv_ne_zero_imp_of_ae _ _ _ ν at h
+  filter_upwards [h] with a ha
+  by_cases h_zero : μ.rnDeriv ν a = 0
+  · rw [h_zero]
+    simp only [ENNReal.zero_toReal, zero_mul, integrable_zero]
+  · apply Integrable.const_mul
+    exact ha h_zero
 
 #check Measure.rnDeriv_toReal_ne_zero
 #check kernel.rnDeriv_toReal_ne_zero
@@ -320,7 +307,7 @@ lemma kl_compProdAux [StandardBorelSpace β] [IsMarkovKernel κ] [IsFiniteKernel
   have ⟨hμν, hκη⟩ := kernel.Measure.absolutelyContinuous_compProd_iff.mp h_prod
   constructor
   · simp_rw [mul_assoc]
-    apply integrable_rdDeriv_mul_of_integrable _
+    apply ae_int_mul_rnDeriv_of_ae_int _
     have h_top := condKL_of_not_ae_finite.mt h.2
     push_neg at h_top
     have hμν_zero := Measure.rnDeriv_toReal_ne_zero hμν
