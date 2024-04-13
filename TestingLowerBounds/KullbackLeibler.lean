@@ -288,7 +288,7 @@ lemma kl_compProd_right [CountablyGenerated β] (μ ν : Measure α) [IsFiniteMe
 
 #check Set.setOf_subset_setOf
 
--- TODO : this should be moved to the right place
+-- TODO : this two lemmas should be moved to the right place
 lemma ae_int_mul_rnDeriv_of_ae_int [SigmaFinite μ] [SigmaFinite ν] (g : α → β → ℝ)
     (h : ∀ᵐ a ∂μ, Integrable (fun x => g a x) (κ a)) :
     ∀ᵐ a ∂ν, Integrable (fun x ↦ (μ.rnDeriv ν a).toReal * g a x) (κ a) := by
@@ -300,6 +300,13 @@ lemma ae_int_mul_rnDeriv_of_ae_int [SigmaFinite μ] [SigmaFinite ν] (g : α →
   · apply Integrable.const_mul
     exact ha h_zero
 
+lemma ae_int_of_ae_int_mul_rnDeriv [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν) (g : α → β → ℝ)
+    (h : ∀ᵐ a ∂ν, Integrable (fun x ↦ (μ.rnDeriv ν a).toReal * g a x) (κ a)) :
+    ∀ᵐ a ∂μ, Integrable (fun x => g a x) (κ a) := by
+  filter_upwards [hμν.ae_le h, Measure.rnDeriv_toReal_ne_zero hμν] with a ha h_zero
+  apply (integrable_const_mul_iff _ (fun x ↦ g a x)).mp
+  · exact ha
+  · simp only [isUnit_iff_ne_zero, ne_eq, h_zero, not_false_eq_true]
 
 lemma integrable_llr_compProd_of_integrable_llr [CountablyGenerated β] [IsMarkovKernel κ]
     [IsFiniteKernel η] [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
