@@ -481,12 +481,14 @@ lemma kl_compProd [CountablyGenerated β] (κ η : kernel α β) [IsMarkovKernel
     rcases h_int with (h | h) <;> rw [h]
     · exact (EReal.top_add_of_ne_bot (condKL_ne_bot _ _ _)).symm
     · exact (EReal.add_top_of_ne_bot (kl_ne_bot _ _)).symm
-  have intμν : Integrable (llr μ ν) μ := integrable_llr_of_integrable_llr_compProd h_prod h_int -- here we use the external lemma 1
-  have intκη : Integrable (fun x ↦ ∫ (y : β), log (kernel.rnDeriv κ η x y).toReal ∂κ x) μ := by
-    sorry
-    --exact integrable_integral_llr_of_integrable_llr_compProd h_prod h_int -- here we should use the external lemma 2
-  have intκη2 : ∀ᵐ x ∂μ, Integrable (llr (κ x) (η x)) (κ x) := by
-    sorry -- here we should use the external lemma 3
+  have intμν := integrable_llr_of_integrable_llr_compProd h_prod h_int -- here we use the external lemma 1
+  have intκη : Integrable (fun x ↦ ∫ (y : β), log (kernel.rnDeriv κ η x y).toReal ∂κ x) μ := by -- here we use the external lemma 2
+    apply Integrable.congr (integrable_integral_llr_of_integrable_llr_compProd h_prod h_int)
+    filter_upwards [hκη] with x hx
+    apply integral_congr_ae
+    filter_upwards [hx.ae_le (kernel.rnDeriv_eq_rnDeriv_measure κ η x)] with y hy
+    rw [hy, llr_def]
+  have intκη2 := ae_integrable_llr_of_integrable_llr_compProd h_prod h_int -- here we use the external lemma 3
   calc kl (μ ⊗ₘ κ) (ν ⊗ₘ η) = ↑(∫ p, llr (μ ⊗ₘ κ) (ν ⊗ₘ η) p ∂(μ ⊗ₘ κ)) :=
     kl_of_ac_of_integrable h_prod h_int
   _ = ↑(∫ (x : α), ∫ (y : β), llr (μ ⊗ₘ κ) (ν ⊗ₘ η) (x, y) ∂κ x ∂μ) := by
@@ -510,7 +512,7 @@ lemma kl_compProd [CountablyGenerated β] (κ η : kernel α β) [IsMarkovKernel
     filter_upwards [kernel.rnDeriv_toReal_ne_zero hκηx] with y hy
     simp only [ENNReal.toReal_mul]
     apply Real.log_mul hμν_pos hy
-  _ = ↑(∫ (x : α), ∫ (y : β), log (μ.rnDeriv ν x).toReal ∂κ x ∂μ)
+  _ = ↑(∫ (x : α), ∫ (_ : β), log (μ.rnDeriv ν x).toReal ∂κ x ∂μ)
       + ↑(∫ (x : α), ∫ (y : β), log (kernel.rnDeriv κ η x y).toReal ∂κ x ∂μ) := by
     norm_cast
     rw [← integral_add']
@@ -555,7 +557,12 @@ lemma kl_compProd [CountablyGenerated β] (κ η : kernel α β) [IsMarkovKernel
         intro h
         apply kl_eq_top_iff.mp at h
         tauto
-      · sorry -- this should be derived from lemma 2, i.e. intκη, but I'm not sure how to do it
+      · apply Integrable.congr intκη
+        filter_upwards [hκη, intκη2] with x hx hκηx
+        rw [kl_of_ac_of_integrable hx hκηx, EReal.toReal_coe]
+        apply integral_congr_ae
+        filter_upwards [hx.ae_le (kernel.rnDeriv_eq_rnDeriv_measure κ η x)] with y hy
+        rw [hy, llr_def]
       norm_cast
       apply integral_congr_ae
       filter_upwards [hκη] with x hx
