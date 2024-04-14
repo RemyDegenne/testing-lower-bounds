@@ -236,7 +236,7 @@ section Conditional
 
 -- TODO: explain that we should not use these hypotheses in lemmas, but equivalent ones.
 open Classical in
-/- Conditional f-divergence. -/
+/-- Conditional f-divergence. -/
 noncomputable
 def condFDiv (f : ℝ → ℝ) (κ η : kernel α β) (μ : Measure α) : EReal :=
   if (∀ᵐ a ∂μ, fDiv f (κ a) (η a) ≠ ⊤)
