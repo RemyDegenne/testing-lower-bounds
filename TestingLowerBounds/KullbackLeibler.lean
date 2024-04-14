@@ -303,10 +303,10 @@ lemma ae_int_mul_rnDeriv_of_ae_int [SigmaFinite μ] [SigmaFinite ν] (g : α →
 lemma ae_int_of_ae_int_mul_rnDeriv [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν) (g : α → β → ℝ)
     (h : ∀ᵐ a ∂ν, Integrable (fun x ↦ (μ.rnDeriv ν a).toReal * g a x) (κ a)) :
     ∀ᵐ a ∂μ, Integrable (fun x => g a x) (κ a) := by
-  filter_upwards [hμν.ae_le h, Measure.rnDeriv_toReal_ne_zero hμν] with a ha h_zero
-  apply (integrable_const_mul_iff _ (fun x ↦ g a x)).mp
-  · exact ha
-  · simp only [isUnit_iff_ne_zero, ne_eq, h_zero, not_false_eq_true]
+  filter_upwards [hμν.ae_le h, Measure.rnDeriv_toReal_pos hμν] with a ha h_pos
+  apply (integrable_const_mul_iff _ (fun x ↦ g a x)).mp ha
+  apply isUnit_iff_ne_zero.mpr
+  linarith
 
 lemma integrable_llr_compProd_of_integrable_llr [CountablyGenerated β] [IsMarkovKernel κ]
     [IsFiniteKernel η] [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
@@ -322,17 +322,19 @@ lemma integrable_llr_compProd_of_integrable_llr [CountablyGenerated β] [IsMarko
     apply kl_eq_top_iff.mp.mt
     push_neg
     exact ⟨hx, hx2⟩
-  have hμν_zero := Measure.rnDeriv_toReal_ne_zero hμν_ac
+  have hμν_pos := Measure.rnDeriv_toReal_pos hμν_ac
   constructor
   · simp_rw [mul_assoc]
     apply ae_int_mul_rnDeriv_of_ae_int
-    filter_upwards [hκη_ac, hκη_top, hμν_zero] with a ha h_top hμν_zero
+    filter_upwards [hκη_ac, hκη_top, hμν_pos] with a ha h_top hμν_pos
+    have hμν_zero : ((∂μ/∂ν) a).toReal ≠ 0 := by linarith
     apply (MeasureTheory.integrable_rnDeriv_smul_iff ha).mpr
     apply Integrable.congr _ _
     · exact fun x ↦ log ((∂μ/∂ν) a).toReal + log ((∂κ a/∂η a) x).toReal
     swap
-    · have hκη_zero := Measure.rnDeriv_toReal_ne_zero ha
-      filter_upwards [hκη_zero] with a hκη_zero
+    · have hκη_pos := Measure.rnDeriv_toReal_pos ha
+      filter_upwards [hκη_pos] with x hκη_pos
+      have hκη_zero : ((∂κ a/∂η a) x).toReal ≠ 0 := by linarith
       rw [Real.log_mul hμν_zero hκη_zero]
     apply Integrable.add (integrable_const _)
     apply Integrable.congr (of_not_not (kl_of_not_integrable.mt h_top))
@@ -342,7 +344,8 @@ lemma integrable_llr_compProd_of_integrable_llr [CountablyGenerated β] [IsMarko
     have h : (fun a ↦ log ((∂μ/∂ν) a).toReal + ∫ x, log ((∂κ a/∂η a) x).toReal ∂κ a)
         =ᵐ[μ] (fun a ↦ ∫ x, ((∂κ a/∂η a) x).toReal
         * log (((∂μ/∂ν) a).toReal * ((∂κ a/∂η a) x).toReal) ∂η a) := by
-      filter_upwards [hκη_ac, hμν_zero, hκη_top] with a ha hμν_zero hκη_top
+      filter_upwards [hκη_ac, hμν_pos, hκη_top] with a ha hμν_pos hκη_top
+      have hμν_zero : ((∂μ/∂ν) a).toReal ≠ 0 := by linarith
       calc
         _ = ∫ (x : β), log ((∂μ/∂ν) a).toReal + log ((∂κ a/∂η a) x).toReal ∂κ a := by
           rw [integral_add (integrable_const _)]
@@ -350,9 +353,10 @@ lemma integrable_llr_compProd_of_integrable_llr [CountablyGenerated β] [IsMarko
           · rw [← llr_def]
             exact of_not_not (kl_of_not_integrable.mt hκη_top)
         _ = ∫ x, log (((∂μ/∂ν) a).toReal * ((∂κ a/∂η a) x).toReal) ∂κ a := by
-          have hκη_zero := Measure.rnDeriv_toReal_ne_zero ha
+          have hκη_pos := Measure.rnDeriv_toReal_pos ha
           apply integral_congr_ae
-          filter_upwards [hκη_zero] with x hκη_zero
+          filter_upwards [hκη_pos] with x hκη_pos
+          have hκη_zero : ((∂κ a/∂η a) x).toReal ≠ 0 := by linarith
           rw [Real.log_mul hμν_zero hκη_zero]
         _ = _ := (integral_rnDeriv_smul ha).symm
     apply Integrable.congr _ h
@@ -367,18 +371,20 @@ lemma ae_integrable_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMa
     (h_int : Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ)) :
     ∀ᵐ a ∂μ, Integrable (llr (κ a) (η a)) (κ a) := by
   have ⟨hμν_ac, hκη_ac⟩ := kernel.Measure.absolutelyContinuous_compProd_iff.mp h_prod
-  have hμν_zero := Measure.rnDeriv_toReal_ne_zero hμν_ac --verify that these have are actually used
+  have hμν_pos := Measure.rnDeriv_toReal_pos hμν_ac --verify that these have are actually used
   -- consider if we also need the have h like in the following proof
   rw [← integrable_rnDeriv_mul_log_iff h_prod] at h_int
   rw [integrable_f_rnDeriv_compProd_iff (by measurability) Real.convexOn_mul_log] at h_int
   replace h_int := h_int.1
   simp_rw [ENNReal.toReal_mul, mul_assoc] at h_int
   apply ae_int_of_ae_int_mul_rnDeriv hμν_ac at h_int
-  filter_upwards [h_int, hκη_ac, hμν_zero] with a h_int hκη_ac hμν_zero
+  filter_upwards [h_int, hκη_ac, hμν_pos] with a h_int hκη_ac hμν_pos
+  have hμν_zero : ((∂μ/∂ν) a).toReal ≠ 0 := by linarith
   have h : (fun x ↦ log (((∂μ/∂ν) a).toReal * ((∂κ a/∂η a) x).toReal))
       =ᵐ[κ a] (fun x ↦ log (((∂μ/∂ν) a).toReal) + log (((∂κ a/∂η a) x).toReal)) := by
-    have hκη_zero := Measure.rnDeriv_toReal_ne_zero hκη_ac
-    filter_upwards [hκη_zero] with x hκη_zero
+    have hκη_pos := Measure.rnDeriv_toReal_pos hκη_ac
+    filter_upwards [hκη_pos] with x hκη_zero
+    have hκη_zero : ((∂κ a/∂η a) x).toReal ≠ 0 := by linarith
     rw [Real.log_mul hμν_zero hκη_zero]
   apply (MeasureTheory.integrable_rnDeriv_smul_iff hκη_ac).mp at h_int
   replace h_int := Integrable.congr h_int h
@@ -393,21 +399,23 @@ lemma integrable_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMarko
     (h_int : Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ)) :
     Integrable (llr μ ν) μ := by
   have ⟨hμν_ac, hκη_ac⟩ := kernel.Measure.absolutelyContinuous_compProd_iff.mp h_prod
-  have hμν_zero := Measure.rnDeriv_toReal_ne_zero hμν_ac
+  have hμν_pos := Measure.rnDeriv_toReal_pos hμν_ac
   have h : (fun a ↦ log ((∂μ/∂ν) a).toReal + ∫ x, log ((∂κ a/∂η a) x).toReal ∂κ a)
       =ᵐ[μ] (fun a ↦ ∫ x, ((∂κ a/∂η a) x).toReal
       * log (((∂μ/∂ν) a).toReal * ((∂κ a/∂η a) x).toReal) ∂η a) := by
-    filter_upwards [hκη_ac, hμν_zero, ae_integrable_llr_of_integrable_llr_compProd h_prod h_int]
-      with a ha hμν_zero hκη_int
+    filter_upwards [hκη_ac, hμν_pos, ae_integrable_llr_of_integrable_llr_compProd h_prod h_int]
+      with a ha hμν_pos hκη_int
+    have hμν_zero : ((∂μ/∂ν) a).toReal ≠ 0 := by linarith
     calc
       _ = ∫ (x : β), log ((∂μ/∂ν) a).toReal + log ((∂κ a/∂η a) x).toReal ∂κ a := by
         rw [llr_def] at hκη_int
         rw [integral_add (integrable_const _) hκη_int]
         simp only [integral_const, measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul]
       _ = ∫ x, log (((∂μ/∂ν) a).toReal * ((∂κ a/∂η a) x).toReal) ∂κ a := by
-        have hκη_zero := Measure.rnDeriv_toReal_ne_zero ha
+        have hκη_pos := Measure.rnDeriv_toReal_pos ha
         apply integral_congr_ae
-        filter_upwards [hκη_zero] with x hκη_zero
+        filter_upwards [hκη_pos] with x hκη_pos
+        have hκη_zero : ((∂κ a/∂η a) x).toReal ≠ 0 := by linarith
         rw [Real.log_mul hμν_zero hκη_zero]
       _ = _ := (integral_rnDeriv_smul ha).symm
   rw [← integrable_rnDeriv_mul_log_iff h_prod] at h_int
@@ -434,21 +442,23 @@ lemma integrable_integral_llr_of_integrable_llr_compProd [CountablyGenerated β]
     (h_int : Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ)) :
     Integrable (fun a ↦ ∫ x, llr (κ a) (η a) x ∂(κ a)) μ := by
   have ⟨hμν_ac, hκη_ac⟩ := kernel.Measure.absolutelyContinuous_compProd_iff.mp h_prod --check that these have are actually used
-  have hμν_zero := Measure.rnDeriv_toReal_ne_zero hμν_ac
+  have hμν_pos := Measure.rnDeriv_toReal_pos hμν_ac
   have h : (fun a ↦ log ((∂μ/∂ν) a).toReal + ∫ x, log ((∂κ a/∂η a) x).toReal ∂κ a)
       =ᵐ[μ] (fun a ↦ ∫ x, ((∂κ a/∂η a) x).toReal
       * log (((∂μ/∂ν) a).toReal * ((∂κ a/∂η a) x).toReal) ∂η a) := by
-    filter_upwards [hκη_ac, hμν_zero, ae_integrable_llr_of_integrable_llr_compProd h_prod h_int]
-      with a ha hμν_zero hκη_int
+    filter_upwards [hκη_ac, hμν_pos, ae_integrable_llr_of_integrable_llr_compProd h_prod h_int]
+      with a ha hμν_pos hκη_int
+    have hμν_zero : ((∂μ/∂ν) a).toReal ≠ 0 := by linarith
     calc
       _ = ∫ (x : β), log ((∂μ/∂ν) a).toReal + log ((∂κ a/∂η a) x).toReal ∂κ a := by
         rw [llr_def] at hκη_int
         rw [integral_add (integrable_const _) hκη_int]
         simp only [integral_const, measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul]
       _ = ∫ x, log (((∂μ/∂ν) a).toReal * ((∂κ a/∂η a) x).toReal) ∂κ a := by
-        have hκη_zero := Measure.rnDeriv_toReal_ne_zero ha
+        have hκη_pos := Measure.rnDeriv_toReal_pos ha
         apply integral_congr_ae
-        filter_upwards [hκη_zero] with x hκη_zero
+        filter_upwards [hκη_pos] with x hκη_pos
+        have hκη_zero : ((∂κ a/∂η a) x).toReal ≠ 0 := by linarith
         rw [Real.log_mul hμν_zero hκη_zero]
       _ = _ := (integral_rnDeriv_smul ha).symm
   rw [← integrable_rnDeriv_mul_log_iff h_prod] at h_int
@@ -467,21 +477,23 @@ lemma integrable_of_integrable_llr_compProd [CountablyGenerated β] [IsMarkovKer
     (h_int : Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ)) :
     Integrable (llr μ ν) μ ∧ Integrable (fun a ↦ ∫ x, llr (κ a) (η a) x ∂(κ a)) μ := by
   have ⟨hμν_ac, hκη_ac⟩ := kernel.Measure.absolutelyContinuous_compProd_iff.mp h_prod --check that these have are actually used
-  have hμν_zero := Measure.rnDeriv_toReal_ne_zero hμν_ac
+  have hμν_pos := Measure.rnDeriv_toReal_pos hμν_ac
   have h : (fun a ↦ log ((∂μ/∂ν) a).toReal + ∫ x, log ((∂κ a/∂η a) x).toReal ∂κ a)
       =ᵐ[μ] (fun a ↦ ∫ x, ((∂κ a/∂η a) x).toReal
       * log (((∂μ/∂ν) a).toReal * ((∂κ a/∂η a) x).toReal) ∂η a) := by
-    filter_upwards [hκη_ac, hμν_zero, ae_integrable_llr_of_integrable_llr_compProd h_prod h_int]
-      with a ha hμν_zero hκη_int
+    filter_upwards [hκη_ac, hμν_pos, ae_integrable_llr_of_integrable_llr_compProd h_prod h_int]
+      with a ha hμν_pos hκη_int
+    have hμν_zero : ((∂μ/∂ν) a).toReal ≠ 0 := by linarith
     calc
       _ = ∫ (x : β), log ((∂μ/∂ν) a).toReal + log ((∂κ a/∂η a) x).toReal ∂κ a := by
         rw [llr_def] at hκη_int
         rw [integral_add (integrable_const _) hκη_int]
         simp only [integral_const, measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul]
       _ = ∫ x, log (((∂μ/∂ν) a).toReal * ((∂κ a/∂η a) x).toReal) ∂κ a := by
-        have hκη_zero := Measure.rnDeriv_toReal_ne_zero ha
+        have hκη_pos := Measure.rnDeriv_toReal_pos ha
         apply integral_congr_ae
-        filter_upwards [hκη_zero] with x hκη_zero
+        filter_upwards [hκη_pos] with x hκη_pos
+        have hκη_zero : ((∂κ a/∂η a) x).toReal ≠ 0 := by linarith
         rw [Real.log_mul hμν_zero hκη_zero]
       _ = _ := (integral_rnDeriv_smul ha).symm
   rw [← integrable_rnDeriv_mul_log_iff h_prod] at h_int
@@ -506,8 +518,8 @@ lemma integrable_llr_compProd_iff [CountablyGenerated β] [IsMarkovKernel κ]
 
 
 
-#check Measure.rnDeriv_toReal_ne_zero
-#check kernel.rnDeriv_toReal_ne_zero
+#check Measure.rnDeriv_toReal_pos
+#check kernel.rnDeriv_toReal_pos
 #check integrable_rnDeriv_smul_iff
 #check Integrable.const_mul
 #check kernel.rnDeriv_eq_rnDeriv_measure
@@ -576,11 +588,13 @@ lemma kl_compProd [CountablyGenerated β] (κ η : kernel α β) [IsMarkovKernel
       + log (kernel.rnDeriv κ η x y).toReal ∂κ x ∂μ) := by
     norm_cast
     apply integral_congr_ae
-    filter_upwards [hκη, Measure.rnDeriv_toReal_ne_zero hμν] with x hκηx hμν_pos
+    filter_upwards [hκη, Measure.rnDeriv_toReal_pos hμν] with x hκηx hμν_pos
+    have hμν_zero : (μ.rnDeriv ν x).toReal ≠ 0 := by linarith
     apply integral_congr_ae
-    filter_upwards [kernel.rnDeriv_toReal_ne_zero hκηx] with y hy
+    filter_upwards [kernel.rnDeriv_toReal_pos hκηx] with y hy
+    have hκη_zero : (kernel.rnDeriv κ η x y).toReal ≠ 0 := by linarith
     simp only [ENNReal.toReal_mul]
-    apply Real.log_mul hμν_pos hy
+    apply Real.log_mul hμν_zero hκη_zero
   _ = ↑(∫ (x : α), ∫ (_ : β), log (μ.rnDeriv ν x).toReal ∂κ x ∂μ)
       + ↑(∫ (x : α), ∫ (y : β), log (kernel.rnDeriv κ η x y).toReal ∂κ x ∂μ) := by
     norm_cast

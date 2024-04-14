@@ -271,7 +271,7 @@ lemma trim_withDensity (hm : m ≤ mα) {f : α → ℝ≥0∞} (hf : Measurable
 end Trim
 
 lemma rnDeriv_toReal_pos [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν) :
-    ∀ᵐ x ∂μ, (μ.rnDeriv ν x).toReal > 0 := by
+    ∀ᵐ x ∂μ, 0 < (μ.rnDeriv ν x).toReal := by
   filter_upwards [rnDeriv_pos hμν, hμν.ae_le (rnDeriv_ne_top μ ν)] with x h0 htop
   simp_all only [pos_iff_ne_zero, ne_eq, not_false_eq_true, ENNReal.toReal_pos]
 
