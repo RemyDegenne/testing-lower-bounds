@@ -268,7 +268,6 @@ lemma condKL_nonneg (κ η : kernel α β) [IsMarkovKernel κ] [IsMarkovKernel �
   · exact Real.continuous_mul_log.continuousOn
   · norm_num
 
--- TODO : regarding the next 2 lemmas, should we keep them as they are (derived from the fDiv), or should we prove them using the kl_compProd? it's probabily better to leave them like this, since kl_compProd has slightly stronger hypothesis. Though maybe we can relax some of these hypothesis.
 lemma kl_compProd_left [CountablyGenerated β] (μ : Measure α) [IsFiniteMeasure μ]
     (κ η : kernel α β) [IsMarkovKernel κ] [IsFiniteKernel η] :
     kl (μ ⊗ₘ κ) (μ ⊗ₘ η) = condKL κ η μ := by
@@ -281,14 +280,8 @@ lemma kl_compProd_right [CountablyGenerated β] (μ ν : Measure α) [IsFiniteMe
   rw [kl_eq_fDiv, kl_eq_fDiv]
   exact fDiv_compProd_right μ ν κ (by measurability) Real.convexOn_mul_log
 
-
--- TODO : we are doing all the theory using natural log and eponential, is there any point in refactoring all to include the general case with arbitrary base?
-
-#check kernel.Measure.absolutelyContinuous_compProd_iff.mpr.mt
-
-#check Set.setOf_subset_setOf
-
--- TODO : this two lemmas should be moved to the right place
+-- TODO : this two lemmas should be moved to the right place, maybe they could be put in RnDeriv.lean, after
+#check Measure.ae_rnDeriv_ne_zero_imp_of_ae
 lemma ae_int_mul_rnDeriv_of_ae_int [SigmaFinite μ] [SigmaFinite ν] (g : α → β → ℝ)
     (h : ∀ᵐ a ∂μ, Integrable (fun x => g a x) (κ a)) :
     ∀ᵐ a ∂ν, Integrable (fun x ↦ (μ.rnDeriv ν a).toReal * g a x) (κ a) := by
@@ -469,7 +462,8 @@ lemma integrable_integral_llr_of_integrable_llr_compProd [CountablyGenerated β]
 
   sorry
 
---this leemma is a version of the previous two lemmas together, if we choose to use this we also have to change the application of the lemma in the following proof
+-- TODO : choose what to do with the following lemma
+-- this lemma is a version of the previous two lemmas together, if we choose to use this we also have to change the application of the lemma in the following proof
 lemma integrable_of_integrable_llr_compProd [CountablyGenerated β] [IsMarkovKernel κ] -- this is external lemma 2
     [IsFiniteKernel η] [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
     (h_int : Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ)) :
