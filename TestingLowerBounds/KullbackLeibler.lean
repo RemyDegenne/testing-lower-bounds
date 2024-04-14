@@ -186,16 +186,16 @@ It is defined as KL(κ, η | μ) := ∫ x, KL(κ x, η x) dμ.
 noncomputable
 def condKL (κ η : kernel α β) (μ : Measure α) : EReal :=
   if (∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤)
-    ∧ (Integrable (fun x ↦ (kl (κ x) (η x)).toReal) μ)
-  then ((μ[fun x ↦ (kl (κ x) (η x)).toReal] : ℝ) : EReal)
+    ∧ (Integrable (fun a ↦ (kl (κ a) (η a)).toReal) μ)
+  then ((μ[fun a ↦ (kl (κ a) (η a)).toReal] : ℝ) : EReal)
   else ⊤
 
 lemma condKL_of_ae_finite_of_integrable (h1 : ∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤)
-    (h2 : Integrable (fun x ↦ (kl (κ x) (η x)).toReal) μ) :
-    condKL κ η μ = (μ[fun x ↦ (kl (κ x) (η x)).toReal] : ℝ) := if_pos ⟨h1, h2⟩
+    (h2 : Integrable (fun a ↦ (kl (κ a) (η a)).toReal) μ) :
+    condKL κ η μ = (μ[fun a ↦ (kl (κ a) (η a)).toReal] : ℝ) := if_pos ⟨h1, h2⟩
 
 @[simp]
-lemma condKL_of_not_ae_finite (h : ¬ (∀ᵐ x ∂μ, kl (κ x) (η x) ≠ ⊤)) :
+lemma condKL_of_not_ae_finite (h : ¬ (∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤)) :
     condKL κ η μ = ⊤ := if_neg (not_and_of_not_left _ h)
 
 @[simp]
@@ -203,21 +203,21 @@ lemma condKL_of_not_ae_integrable (h : ¬ (∀ᵐ (a : α) ∂μ, Integrable (ll
     condKL κ η μ = ⊤ := by
   apply condKL_of_not_ae_finite
   contrapose! h
-  filter_upwards [h] with x hx
-  contrapose! hx
-  simp only [hx, ne_eq, not_false_eq_true, kl_of_not_integrable]
+  filter_upwards [h] with a ha
+  contrapose! ha
+  simp only [ha, ne_eq, not_false_eq_true, kl_of_not_integrable]
 
 @[simp]
-lemma condKL_of_not_ae_ac (h : ¬ (∀ᵐ x ∂μ, (κ x) ≪ (η x))) :
+lemma condKL_of_not_ae_ac (h : ¬ (∀ᵐ a ∂μ, (κ a) ≪ (η a))) :
     condKL κ η μ = ⊤ := by
   apply condKL_of_not_ae_finite
   contrapose! h
-  filter_upwards [h] with x hx
-  contrapose! hx
-  simp only [hx, not_false_eq_true, kl_of_not_ac]
+  filter_upwards [h] with x ha
+  contrapose! ha
+  simp only [ha, not_false_eq_true, kl_of_not_ac]
 
 @[simp]
-lemma condKL_of_not_integrable (h : ¬ Integrable (fun x ↦ (kl (κ x) (η x)).toReal) μ) :
+lemma condKL_of_not_integrable (h : ¬ Integrable (fun a ↦ (kl (κ a) (η a)).toReal) μ) :
     condKL κ η μ = ⊤ := if_neg (not_and_of_not_right _ h)
 
 @[simp]
@@ -227,8 +227,8 @@ lemma condKL_of_not_integrable' (h : ¬ Integrable (fun a ↦ integral (κ a) (l
   have hh : (fun a => integral (κ a) (llr (κ a) (η a))) =ᵐ[μ] fun a => (kl (κ a) (η a)).toReal := by
     have h1 := of_not_not (condKL_of_not_ae_ac.mt h)
     have h2 := of_not_not (condKL_of_not_ae_finite.mt h)
-    filter_upwards [h1, h2] with x hx1 hx2
-    rw [kl_of_ac_of_integrable hx1 (of_not_not (kl_of_not_integrable.mt hx2))]
+    filter_upwards [h1, h2] with a ha1 ha2
+    rw [kl_of_ac_of_integrable ha1 (of_not_not (kl_of_not_integrable.mt ha2))]
     simp only [EReal.toReal_coe]
   refine Integrable.congr ?_ hh.symm
   exact of_not_not (condKL_of_not_integrable.mt h)
@@ -239,13 +239,13 @@ lemma condKL_eq_condFDiv [IsFiniteKernel κ] [IsFiniteKernel η] :
   swap;
   · simp [h1]
     refine (condFDiv_of_not_ae_finite ?_).symm
-    convert h1 using 4 with x
+    convert h1 using 4 with a
     rw [kl_eq_fDiv]
   by_cases h2 : Integrable (fun x ↦ (kl (κ x) (η x)).toReal) μ
   swap;
   · simp [h2]
     refine (condFDiv_of_not_integrable ?_).symm
-    convert h2 using 4 with x
+    convert h2 using 4 with a
     rw [← kl_eq_fDiv]
   simp only [ne_eq, h1, h2, condKL_of_ae_finite_of_integrable, ← kl_eq_fDiv, condFDiv_eq']
 
@@ -317,11 +317,11 @@ lemma integrable_llr_compProd_of_integrable_llr [CountablyGenerated β] [IsMarko
   rw [integrable_f_rnDeriv_compProd_iff (by measurability) Real.convexOn_mul_log]
   simp_rw [ENNReal.toReal_mul]
   have ⟨hμν_ac, hκη_ac⟩ := kernel.Measure.absolutelyContinuous_compProd_iff.mp h_prod
-  have hκη_top : ∀ᵐ (x : α) ∂μ, kl (κ x) (η x) ≠ ⊤ := by
-    filter_upwards [hκη_ac, hκη_ae] with x hx hx2
+  have hκη_top : ∀ᵐ (a : α) ∂μ, kl (κ a) (η a) ≠ ⊤ := by
+    filter_upwards [hκη_ac, hκη_ae] with a ha ha2
     apply kl_eq_top_iff.mp.mt
     push_neg
-    exact ⟨hx, hx2⟩
+    exact ⟨ha, ha2⟩
   have hμν_pos := Measure.rnDeriv_toReal_pos hμν_ac
   constructor
   · simp_rw [mul_assoc]
@@ -430,11 +430,6 @@ lemma integrable_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMarko
   --   filter_upwards [hκη_ac, hκη_ae] with x hx hx2
   --   apply kl_eq_top_iff.mp.mt
   --   push_neg
-  --   exact ⟨hx, hx2⟩
-  simp_rw [mul_assoc, integral_mul_left] at h_int
-  apply (MeasureTheory.integrable_rnDeriv_smul_iff hμν_ac).mp at h_int
-  replace h_int := Integrable.congr h_int h.symm
-
   -- here we have to say that if the sum is integrable then the two terms are integrable, this is not true in general, but in this case it is, since the two terms are nonnegative, I didn't find a lemma for this, I wonder if there is something useful in mathlib, or if I have to prove it myself. Probably to prove it we must also assume some measurability conditions on the two functions, I hope they are easy to prove in this case.
   sorry
   --rw [← llr_def] at h_int -- once we solve the previous problem, this should close the goal
@@ -567,40 +562,40 @@ lemma kl_compProd [CountablyGenerated β] (κ η : kernel α β) [IsMarkovKernel
     · exact (EReal.top_add_of_ne_bot (condKL_ne_bot _ _ _)).symm
     · exact (EReal.add_top_of_ne_bot (kl_ne_bot _ _)).symm
   have intμν := integrable_llr_of_integrable_llr_compProd h_prod h_int -- here we use the external lemma 1
-  have intκη : Integrable (fun x ↦ ∫ (y : β), log (kernel.rnDeriv κ η x y).toReal ∂κ x) μ := by -- here we use the external lemma 2
+  have intκη : Integrable (fun a ↦ ∫ (x : β), log (kernel.rnDeriv κ η a x).toReal ∂κ a) μ := by -- here we use the external lemma 2
     apply Integrable.congr (integrable_integral_llr_of_integrable_llr_compProd h_prod h_int)
-    filter_upwards [hκη] with x hx
+    filter_upwards [hκη] with a ha
     apply integral_congr_ae
-    filter_upwards [hx.ae_le (kernel.rnDeriv_eq_rnDeriv_measure κ η x)] with y hy
-    rw [hy, llr_def]
+    filter_upwards [ha.ae_le (kernel.rnDeriv_eq_rnDeriv_measure κ η a)] with x hx
+    rw [hx, llr_def]
   have intκη2 := ae_integrable_llr_of_integrable_llr_compProd h_prod h_int -- here we use the external lemma 3
   calc kl (μ ⊗ₘ κ) (ν ⊗ₘ η) = ↑(∫ p, llr (μ ⊗ₘ κ) (ν ⊗ₘ η) p ∂(μ ⊗ₘ κ)) :=
     kl_of_ac_of_integrable h_prod h_int
-  _ = ↑(∫ (x : α), ∫ (y : β), llr (μ ⊗ₘ κ) (ν ⊗ₘ η) (x, y) ∂κ x ∂μ) := by
+  _ = ↑(∫ (a : α), ∫ (x : β), llr (μ ⊗ₘ κ) (ν ⊗ₘ η) (a, x) ∂κ a ∂μ) := by
     norm_cast
     refine Measure.integral_compProd h_int
-  _ = ↑(∫ (x : α), ∫ (y : β), log ((∂μ/∂ν) x * kernel.rnDeriv κ η x y).toReal ∂κ x ∂μ) := by
+  _ = ↑(∫ (a : α), ∫ (x : β), log ((∂μ/∂ν) a * kernel.rnDeriv κ η a x).toReal ∂κ a ∂μ) := by
     norm_cast
     have h := hμν.ae_le (Measure.ae_ae_of_ae_compProd (kernel.rnDeriv_measure_compProd μ ν κ η))
     apply integral_congr_ae
-    filter_upwards [h, hκη] with x hx hκηx
+    filter_upwards [h, hκη] with a ha hκηa
     apply integral_congr_ae
-    filter_upwards [hκηx.ae_le hx] with y hy
+    filter_upwards [hκηa.ae_le ha] with x hx
     unfold llr
     congr
-  _ = ↑(∫ (x : α), ∫ (y : β), log (μ.rnDeriv ν x).toReal
-      + log (kernel.rnDeriv κ η x y).toReal ∂κ x ∂μ) := by
+  _ = ↑(∫ (a : α), ∫ (x : β), log (μ.rnDeriv ν a).toReal
+      + log (kernel.rnDeriv κ η a x).toReal ∂κ a ∂μ) := by
     norm_cast
     apply integral_congr_ae
-    filter_upwards [hκη, Measure.rnDeriv_toReal_pos hμν] with x hκηx hμν_pos
-    have hμν_zero : (μ.rnDeriv ν x).toReal ≠ 0 := by linarith
+    filter_upwards [hκη, Measure.rnDeriv_toReal_pos hμν] with a hκηa hμν_pos
+    have hμν_zero : (μ.rnDeriv ν a).toReal ≠ 0 := by linarith
     apply integral_congr_ae
-    filter_upwards [kernel.rnDeriv_toReal_pos hκηx] with y hy
-    have hκη_zero : (kernel.rnDeriv κ η x y).toReal ≠ 0 := by linarith
+    filter_upwards [kernel.rnDeriv_toReal_pos hκηa] with x hx
+    have hκη_zero : (kernel.rnDeriv κ η a x).toReal ≠ 0 := by linarith
     simp only [ENNReal.toReal_mul]
     apply Real.log_mul hμν_zero hκη_zero
-  _ = ↑(∫ (x : α), ∫ (_ : β), log (μ.rnDeriv ν x).toReal ∂κ x ∂μ)
-      + ↑(∫ (x : α), ∫ (y : β), log (kernel.rnDeriv κ η x y).toReal ∂κ x ∂μ) := by
+  _ = ↑(∫ (a : α), ∫ (_ : β), log (μ.rnDeriv ν a).toReal ∂κ a ∂μ)
+      + ↑(∫ (a : α), ∫ (x : β), log (kernel.rnDeriv κ η a x).toReal ∂κ a ∂μ) := by
     norm_cast
     rw [← integral_add']
     simp only [Pi.add_apply]
@@ -609,29 +604,29 @@ lemma kl_compProd [CountablyGenerated β] (κ η : kernel α β) [IsMarkovKernel
       exact intμν
     · exact intκη
     apply integral_congr_ae
-    filter_upwards [hκη, intκη2] with x hx hκηx
-    have h := hx.ae_le (kernel.rnDeriv_eq_rnDeriv_measure κ η x)
+    filter_upwards [hκη, intκη2] with a ha hκηa
+    have h := ha.ae_le (kernel.rnDeriv_eq_rnDeriv_measure κ η a)
     rw [← integral_add']
     rotate_left
     · simp only [integrable_const]
-    · apply Integrable.congr hκηx
-      filter_upwards [h] with y hy
-      rw [hy, llr_def]
+    · apply Integrable.congr hκηa
+      filter_upwards [h] with x hx
+      rw [hx, llr_def]
     apply integral_congr_ae
     filter_upwards
     intro a
     congr
-  _ = ↑(∫ (x : α), log (μ.rnDeriv ν x).toReal ∂μ)
-      + ↑(∫ (x : α), ∫ (y : β), log (kernel.rnDeriv κ η x y).toReal ∂κ x ∂μ) := by
+  _ = ↑(∫ (a : α), log (μ.rnDeriv ν a).toReal ∂μ)
+      + ↑(∫ (a : α), ∫ (x : β), log (kernel.rnDeriv κ η a x).toReal ∂κ a ∂μ) := by
     simp only [integral_const, measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul]
-  _ = ↑(∫ (x : α), log (μ.rnDeriv ν x).toReal ∂μ)
-      + ↑(∫ (x : α), ∫ (y : β), log ((κ x).rnDeriv (η x) y).toReal ∂κ x ∂μ) := by
+  _ = ↑(∫ (a : α), log (μ.rnDeriv ν a).toReal ∂μ)
+      + ↑(∫ (a : α), ∫ (x : β), log ((κ a).rnDeriv (η a) x).toReal ∂κ a ∂μ) := by
     congr 2
     apply integral_congr_ae
-    filter_upwards [hκη] with x hx
-    have h := hx.ae_le (kernel.rnDeriv_eq_rnDeriv_measure κ η x)
+    filter_upwards [hκη] with a ha
+    have h := ha.ae_le (kernel.rnDeriv_eq_rnDeriv_measure κ η a)
     apply integral_congr_ae
-    filter_upwards [h] with y hy
+    filter_upwards [h] with x hx
     congr
   _ = kl μ ν + condKL κ η μ := by
     congr
@@ -640,22 +635,22 @@ lemma kl_compProd [CountablyGenerated β] (κ η : kernel α β) [IsMarkovKernel
     · simp_rw [← llr_def]
       rw [condKL_of_ae_finite_of_integrable _ _]
       rotate_left
-      · filter_upwards [hκη, intκη2] with x hx hκηx
+      · filter_upwards [hκη, intκη2] with a ha hκηa
         intro h
         apply kl_eq_top_iff.mp at h
         tauto
       · apply Integrable.congr intκη
-        filter_upwards [hκη, intκη2] with x hx hκηx
-        rw [kl_of_ac_of_integrable hx hκηx, EReal.toReal_coe]
+        filter_upwards [hκη, intκη2] with a ha hκηa
+        rw [kl_of_ac_of_integrable ha hκηa, EReal.toReal_coe]
         apply integral_congr_ae
-        filter_upwards [hx.ae_le (kernel.rnDeriv_eq_rnDeriv_measure κ η x)] with y hy
-        rw [hy, llr_def]
+        filter_upwards [ha.ae_le (kernel.rnDeriv_eq_rnDeriv_measure κ η a)] with x hx
+        rw [hx, llr_def]
       norm_cast
       apply integral_congr_ae
-      filter_upwards [hκη] with x hx
-      by_cases h : Integrable (llr (κ x) (η x)) (κ x)
-      · suffices hh : kl (κ x) (η x) = ∫ y, llr (κ x) (η x) y ∂(κ x) from by simp [hh]
-        exact kl_of_ac_of_integrable (hx) h
+      filter_upwards [hκη] with a ha
+      by_cases h : Integrable (llr (κ a) (η a)) (κ a)
+      · suffices hh : kl (κ a) (η a) = ∫ x, llr (κ a) (η a) x ∂(κ a) from by simp [hh]
+        exact kl_of_ac_of_integrable (ha) h
       · rw [kl_of_not_integrable h]
         simp only [h, not_false_eq_true, integral_undef, EReal.toReal_top]
 
