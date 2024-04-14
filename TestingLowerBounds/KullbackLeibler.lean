@@ -524,17 +524,6 @@ lemma integrable_llr_compProd_iff [CountablyGenerated β] [IsMarkovKernel κ]
 #check integral_smul
 #check integral_rnDeriv_smul
 #check Integrable.congr
---TODO : decide what to do with the next lemma. Maybe incorporate it in the main proof, or maybe rename it and put in the right place, another option is also to 'cut' the the proof a bit earlier, incorporate the last part in the main proof and leave the first part as a separate lemma, putting it in the right place and renaming it accordingly.
--- I think a good way to split this lemma is the following one, because itcuts the proof in a way s.t. both the hypothesis and the conclusions are sated in terms of the llr
-
---this should probabiliy be incorporated in the main proof, and not stated as a separate lemma
-lemma kl_eq_top_or_condKL_eq_top_of_integrable_llr_compProd [CountablyGenerated β] [IsMarkovKernel κ] [IsFiniteKernel η]
-    [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
-    (h : ¬ Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ) ) : (kl μ ν = ⊤) ∨ (condKL κ η μ = ⊤) := by
-  contrapose! h
-  apply integrable_llr_compProd_of_integrable_llr h_prod <;>
-  contrapose! h <;> aesop
-
 
 -- TODO : consider changing the arguments, in particular the kernels and measures may be put between curly braces, but maybe not, since there are no other hypothesis that mention them, so they cannot be inferred
 
@@ -556,11 +545,9 @@ lemma kl_compProd [CountablyGenerated β] (κ η : kernel α β) [IsMarkovKernel
   by_cases h_int : Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ)
   swap
   · simp only [h_int, not_false_eq_true, kl_of_not_integrable]
-    apply kl_eq_top_or_condKL_eq_top_of_integrable_llr_compProd h_prod at h_int --here we use the auxiliary lemma
+    rw [integrable_llr_compProd_iff h_prod] at h_int --here we use the auxiliary lemma
     set_option push_neg.use_distrib true in push_neg at h_int
-    rcases h_int with (h | h) <;> rw [h]
-    · exact (EReal.top_add_of_ne_bot (condKL_ne_bot _ _ _)).symm
-    · exact (EReal.add_top_of_ne_bot (kl_ne_bot _ _)).symm
+    rcases h_int with ((h | h) | h) <;> simp [h, EReal.top_add_of_ne_bot, condKL_ne_bot, EReal.add_top_of_ne_bot, kl_ne_bot]
   have intμν := integrable_llr_of_integrable_llr_compProd h_prod h_int -- here we use the external lemma 1
   have intκη : Integrable (fun a ↦ ∫ (x : β), log (kernel.rnDeriv κ η a x).toReal ∂κ a) μ := by -- here we use the external lemma 2
     apply Integrable.congr (integrable_integral_llr_of_integrable_llr_compProd h_prod h_int)
