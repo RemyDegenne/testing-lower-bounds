@@ -421,7 +421,11 @@ lemma integrable_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMarko
   rw [← integrable_rnDeriv_mul_log_iff h_prod] at h_int
   rw [integrable_f_rnDeriv_compProd_iff (by measurability) Real.convexOn_mul_log] at h_int
   replace h_int := h_int.2
-  simp_rw [ENNReal.toReal_mul] at h_int
+  simp_rw [ENNReal.toReal_mul, mul_assoc, integral_mul_left] at h_int
+  apply (MeasureTheory.integrable_rnDeriv_smul_iff hμν_ac).mp at h_int
+  replace h_int := Integrable.congr h_int h.symm
+
+  --   exact ⟨hx, hx2⟩
   -- have hκη_top : ∀ᵐ (x : α) ∂μ, kl (κ x) (η x) ≠ ⊤ := by --TODO : check that these have are actually used
   --   filter_upwards [hκη_ac, hκη_ae] with x hx hx2
   --   apply kl_eq_top_iff.mp.mt
@@ -464,8 +468,7 @@ lemma integrable_integral_llr_of_integrable_llr_compProd [CountablyGenerated β]
   rw [← integrable_rnDeriv_mul_log_iff h_prod] at h_int
   rw [integrable_f_rnDeriv_compProd_iff (by measurability) Real.convexOn_mul_log] at h_int
   replace h_int := h_int.2
-  simp_rw [ENNReal.toReal_mul] at h_int
-  simp_rw [mul_assoc, integral_mul_left] at h_int
+  simp_rw [ENNReal.toReal_mul, mul_assoc, integral_mul_left] at h_int
   apply (MeasureTheory.integrable_rnDeriv_smul_iff hμν_ac).mp at h_int
   replace h_int := Integrable.congr h_int h.symm
 
@@ -499,8 +502,7 @@ lemma integrable_of_integrable_llr_compProd [CountablyGenerated β] [IsMarkovKer
   rw [← integrable_rnDeriv_mul_log_iff h_prod] at h_int
   rw [integrable_f_rnDeriv_compProd_iff (by measurability) Real.convexOn_mul_log] at h_int
   replace h_int := h_int.2
-  simp_rw [ENNReal.toReal_mul] at h_int
-  simp_rw [mul_assoc, integral_mul_left] at h_int
+  simp_rw [ENNReal.toReal_mul, mul_assoc, integral_mul_left] at h_int
   apply (MeasureTheory.integrable_rnDeriv_smul_iff hμν_ac).mp at h_int
   replace h_int := Integrable.congr h_int h.symm
 
@@ -540,6 +542,8 @@ lemma kl_eq_top_or_condKL_eq_top_of_integrable_llr_compProd [CountablyGenerated 
 
 
 -- TODO : consider changing the arguments, in particular the kernels and measures may be put between curly braces, but maybe not, since there are no other hypothesis that mention them, so they cannot be inferred
+
+/--The chain rule for the KL divergence.-/
 lemma kl_compProd [CountablyGenerated β] (κ η : kernel α β) [IsMarkovKernel κ] [IsFiniteKernel η]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     kl (μ ⊗ₘ κ) (ν ⊗ₘ η) = kl μ ν + condKL κ η μ := by
