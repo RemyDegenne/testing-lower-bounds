@@ -427,10 +427,71 @@ lemma integrable_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMarko
   sorry
   --rw [← llr_def] at h_int -- once we solve the previous problem, this should close the goal
 
+
+-- consider merging this lemma and the one above, since the first part of the proof is the same, one option could be to do a single lemma with a goal in the form of an and, another way could be to do an auxiliary lemma with the first part of the proof and then use it in the two lemmas. maybe in this situaiton the first option is better, since it is likely that the closing lemma that we would use has actually a thesis in the form of an and.
 lemma integrable_integral_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMarkovKernel κ] -- this is external lemma 2
     [IsFiniteKernel η] [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
     (h_int : Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ)) :
     Integrable (fun a ↦ ∫ x, llr (κ a) (η a) x ∂(κ a)) μ := by
+  have ⟨hμν_ac, hκη_ac⟩ := kernel.Measure.absolutelyContinuous_compProd_iff.mp h_prod --check that these have are actually used
+  have hμν_zero := Measure.rnDeriv_toReal_ne_zero hμν_ac
+  have h : (fun a ↦ log ((∂μ/∂ν) a).toReal + ∫ x, log ((∂κ a/∂η a) x).toReal ∂κ a)
+      =ᵐ[μ] (fun a ↦ ∫ x, ((∂κ a/∂η a) x).toReal
+      * log (((∂μ/∂ν) a).toReal * ((∂κ a/∂η a) x).toReal) ∂η a) := by
+    filter_upwards [hκη_ac, hμν_zero, ae_integrable_llr_of_integrable_llr_compProd h_prod h_int]
+      with a ha hμν_zero hκη_int
+    calc
+      _ = ∫ (x : β), log ((∂μ/∂ν) a).toReal + log ((∂κ a/∂η a) x).toReal ∂κ a := by
+        rw [llr_def] at hκη_int
+        rw [integral_add (integrable_const _) hκη_int]
+        simp only [integral_const, measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul]
+      _ = ∫ x, log (((∂μ/∂ν) a).toReal * ((∂κ a/∂η a) x).toReal) ∂κ a := by
+        have hκη_zero := Measure.rnDeriv_toReal_ne_zero ha
+        apply integral_congr_ae
+        filter_upwards [hκη_zero] with x hκη_zero
+        rw [Real.log_mul hμν_zero hκη_zero]
+      _ = _ := (integral_rnDeriv_smul ha).symm
+  rw [← integrable_rnDeriv_mul_log_iff h_prod] at h_int
+  rw [integrable_f_rnDeriv_compProd_iff (by measurability) Real.convexOn_mul_log] at h_int
+  replace h_int := h_int.2
+  simp_rw [ENNReal.toReal_mul] at h_int
+  simp_rw [mul_assoc, integral_mul_left] at h_int
+  apply (MeasureTheory.integrable_rnDeriv_smul_iff hμν_ac).mp at h_int
+  replace h_int := Integrable.congr h_int h.symm
+
+  sorry
+
+--this leemma is a version of the previous two lemmas together, if we choose to use this we also have to change the application of the lemma in the following proof
+lemma integrable_of_integrable_llr_compProd [CountablyGenerated β] [IsMarkovKernel κ] -- this is external lemma 2
+    [IsFiniteKernel η] [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
+    (h_int : Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ)) :
+    Integrable (llr μ ν) μ ∧ Integrable (fun a ↦ ∫ x, llr (κ a) (η a) x ∂(κ a)) μ := by
+  have ⟨hμν_ac, hκη_ac⟩ := kernel.Measure.absolutelyContinuous_compProd_iff.mp h_prod --check that these have are actually used
+  have hμν_zero := Measure.rnDeriv_toReal_ne_zero hμν_ac
+  have h : (fun a ↦ log ((∂μ/∂ν) a).toReal + ∫ x, log ((∂κ a/∂η a) x).toReal ∂κ a)
+      =ᵐ[μ] (fun a ↦ ∫ x, ((∂κ a/∂η a) x).toReal
+      * log (((∂μ/∂ν) a).toReal * ((∂κ a/∂η a) x).toReal) ∂η a) := by
+    filter_upwards [hκη_ac, hμν_zero, ae_integrable_llr_of_integrable_llr_compProd h_prod h_int]
+      with a ha hμν_zero hκη_int
+    calc
+      _ = ∫ (x : β), log ((∂μ/∂ν) a).toReal + log ((∂κ a/∂η a) x).toReal ∂κ a := by
+        rw [llr_def] at hκη_int
+        rw [integral_add (integrable_const _) hκη_int]
+        simp only [integral_const, measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul]
+      _ = ∫ x, log (((∂μ/∂ν) a).toReal * ((∂κ a/∂η a) x).toReal) ∂κ a := by
+        have hκη_zero := Measure.rnDeriv_toReal_ne_zero ha
+        apply integral_congr_ae
+        filter_upwards [hκη_zero] with x hκη_zero
+        rw [Real.log_mul hμν_zero hκη_zero]
+      _ = _ := (integral_rnDeriv_smul ha).symm
+  rw [← integrable_rnDeriv_mul_log_iff h_prod] at h_int
+  rw [integrable_f_rnDeriv_compProd_iff (by measurability) Real.convexOn_mul_log] at h_int
+  replace h_int := h_int.2
+  simp_rw [ENNReal.toReal_mul] at h_int
+  simp_rw [mul_assoc, integral_mul_left] at h_int
+  apply (MeasureTheory.integrable_rnDeriv_smul_iff hμν_ac).mp at h_int
+  replace h_int := Integrable.congr h_int h.symm
+
   sorry
 
 
