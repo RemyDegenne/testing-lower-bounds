@@ -494,6 +494,15 @@ lemma integrable_of_integrable_llr_compProd [CountablyGenerated β] [IsMarkovKer
 
   sorry
 
+lemma integrable_llr_compProd_iff [CountablyGenerated β] [IsMarkovKernel κ]
+    [IsFiniteKernel η] [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η) :
+    Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ) ↔ (Integrable (llr μ ν) μ
+    ∧ Integrable (fun a ↦ ∫ x, llr (κ a) (η a) x ∂(κ a)) μ)
+    ∧ ∀ᵐ a ∂μ, Integrable (llr (κ a) (η a)) (κ a):= by
+  constructor <;> intro h
+  · exact ⟨integrable_of_integrable_llr_compProd h_prod h,
+      ae_integrable_llr_of_integrable_llr_compProd h_prod h⟩
+  · exact integrable_llr_compProd_of_integrable_llr h_prod h.1.1 h.1.2 h.2
 
 
 
@@ -509,19 +518,13 @@ lemma integrable_of_integrable_llr_compProd [CountablyGenerated β] [IsMarkovKer
 --TODO : decide what to do with the next lemma. Maybe incorporate it in the main proof, or maybe rename it and put in the right place, another option is also to 'cut' the the proof a bit earlier, incorporate the last part in the main proof and leave the first part as a separate lemma, putting it in the right place and renaming it accordingly.
 -- I think a good way to split this lemma is the following one, because itcuts the proof in a way s.t. both the hypothesis and the conclusions are sated in terms of the llr
 
+--this should probabiliy be incorporated in the main proof, and not stated as a separate lemma
 lemma kl_eq_top_or_condKL_eq_top_of_integrable_llr_compProd [CountablyGenerated β] [IsMarkovKernel κ] [IsFiniteKernel η]
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
     (h : ¬ Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ) ) : (kl μ ν = ⊤) ∨ (condKL κ η μ = ⊤) := by
   contrapose! h
   apply integrable_llr_compProd_of_integrable_llr h_prod <;>
   contrapose! h <;> aesop
-
-#check integrable_f_rnDeriv_mul_kernel -- this cannot be used, because it assumes that η is markov, but we don't have that hypothesis
-lemma kl_compProdAux1 [CountablyGenerated β] [IsMarkovKernel κ] [IsFiniteKernel η]
-    [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
-    (h : Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ) ) : Integrable (llr μ ν) μ := by
-    rw [← integrable_rnDeriv_mul_log_iff h_prod] at h
-    sorry
 
 
 -- TODO : consider changing the arguments, in particular the kernels and measures may be put between curly braces, but maybe not, since there are no other hypothesis that mention them, so they cannot be inferred
