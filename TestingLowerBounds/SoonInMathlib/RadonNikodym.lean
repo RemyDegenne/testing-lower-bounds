@@ -198,10 +198,10 @@ lemma rnDeriv_ne_top (κ η : kernel α γ) [IsFiniteKernel κ] [IsFiniteKernel 
   filter_upwards [rnDeriv_eq_rnDeriv_measure κ η a, Measure.rnDeriv_ne_top (κ a) _] with x heq htop
   rwa [heq]
 
-lemma rnDeriv_toReal_ne_zero [IsFiniteKernel κ] [IsFiniteKernel η] {a : α} (ha : κ a ≪ η a) :
-    ∀ᵐ x ∂(κ a), (rnDeriv κ η a x).toReal ≠ 0 := by
-  filter_upwards [rnDeriv_pos ha, ha.ae_le (rnDeriv_ne_top κ _)] with x h0 htop
-  simp_all only [pos_iff_ne_zero, ne_eq, ENNReal.toReal_ne_zero, not_false_eq_true, and_self]
+lemma rnDeriv_toReal_pos [IsFiniteKernel κ] [IsFiniteKernel η] {a : α} (h : κ a ≪ η a) :
+    ∀ᵐ x ∂(κ a), (rnDeriv κ η a x).toReal > 0 := by
+  filter_upwards [rnDeriv_pos h, h.ae_le (rnDeriv_ne_top κ _)] with x h0 htop
+  simp_all only [pos_iff_ne_zero, ne_eq, ENNReal.toReal_pos, not_false_eq_true, and_self]
 
 instance instIsFiniteKernel_withDensity_rnDeriv [hκ : IsFiniteKernel κ] [IsFiniteKernel η] :
     IsFiniteKernel (withDensity η (rnDeriv κ η)) := by
