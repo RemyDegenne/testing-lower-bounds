@@ -379,4 +379,3 @@ lemma _root_.MeasurableEmbedding.singularPart_map (μ ν : Measure α)
   exact hg.mutuallySingular_map (μ.mutuallySingular_singularPart ν)
 
 end MeasurableEmbedding
-#lint
