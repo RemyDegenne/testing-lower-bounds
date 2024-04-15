@@ -451,6 +451,8 @@ lemma integrable_integral_llr_of_integrable_llr_compProd [CountablyGenerated β]
   simp_rw [llr_def]
   exact h_int
 
+--TODO : put this lemma and the auxiliary ones in the right place, maybe in a section Integrable in this file, or in the file about llr? Also consider adding it to the blueprint
+
 lemma integrable_llr_compProd_iff [CountablyGenerated β] [IsMarkovKernel κ]
     [IsMarkovKernel η] [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η) :
     Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ) ↔ (Integrable (llr μ ν) μ
@@ -461,7 +463,8 @@ lemma integrable_llr_compProd_iff [CountablyGenerated β] [IsMarkovKernel κ]
       ae_integrable_llr_of_integrable_llr_compProd h_prod h⟩
   · exact integrable_llr_compProd_of_integrable_llr h_prod h.1.1 h.1.2 h.2
 
--- TODO : consider changing the arguments, in particular the kernels and measures may be put between curly braces, but maybe not, since there are no other hypothesis that mention them, so they cannot be inferred
+-- TODO : consider changing the arguments, in particular the kernels and measures may be put between curly braces, but maybe not, since there are no other hypothesis that mention them, so they cannot be inferred.
+-- TODO : the name of this lemma in the blueprint is kl_chain_rule, is it ok to keep it like this in lean or should we change one of the two names?
 
 /--The chain rule for the KL divergence.-/
 lemma kl_compProd [CountablyGenerated β] (κ η : kernel α β) [IsMarkovKernel κ] [IsMarkovKernel η]
@@ -481,17 +484,17 @@ lemma kl_compProd [CountablyGenerated β] (κ η : kernel α β) [IsMarkovKernel
   by_cases h_int : Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ)
   swap
   · simp only [h_int, not_false_eq_true, kl_of_not_integrable]
-    rw [integrable_llr_compProd_iff h_prod] at h_int --here we use the auxiliary lemma
+    rw [integrable_llr_compProd_iff h_prod] at h_int
     set_option push_neg.use_distrib true in push_neg at h_int
     rcases h_int with ((h | h) | h) <;> simp [h, EReal.top_add_of_ne_bot, condKL_ne_bot, EReal.add_top_of_ne_bot, kl_ne_bot]
-  have intμν := integrable_llr_of_integrable_llr_compProd h_prod h_int -- here we use the external lemma 1
-  have intκη : Integrable (fun a ↦ ∫ (x : β), log (kernel.rnDeriv κ η a x).toReal ∂κ a) μ := by -- here we use the external lemma 2
+  have intμν := integrable_llr_of_integrable_llr_compProd h_prod h_int
+  have intκη : Integrable (fun a ↦ ∫ (x : β), log (kernel.rnDeriv κ η a x).toReal ∂κ a) μ := by
     apply Integrable.congr (integrable_integral_llr_of_integrable_llr_compProd h_prod h_int)
     filter_upwards [hκη] with a ha
     apply integral_congr_ae
     filter_upwards [ha.ae_le (kernel.rnDeriv_eq_rnDeriv_measure κ η a)] with x hx
     rw [hx, llr_def]
-  have intκη2 := ae_integrable_llr_of_integrable_llr_compProd h_prod h_int -- here we use the external lemma 3
+  have intκη2 := ae_integrable_llr_of_integrable_llr_compProd h_prod h_int
   calc kl (μ ⊗ₘ κ) (ν ⊗ₘ η) = ↑(∫ p, llr (μ ⊗ₘ κ) (ν ⊗ₘ η) p ∂(μ ⊗ₘ κ)) :=
     kl_of_ac_of_integrable h_prod h_int
   _ = ↑(∫ (a : α), ∫ (x : β), llr (μ ⊗ₘ κ) (ν ⊗ₘ η) (a, x) ∂κ a ∂μ) := by
@@ -580,3 +583,4 @@ lemma kl_compProd [CountablyGenerated β] (κ η : kernel α β) [IsMarkovKernel
 end Conditional
 
 end ProbabilityTheory
+-- TODO : update the blueprint
