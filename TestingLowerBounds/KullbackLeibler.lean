@@ -6,6 +6,7 @@ Authors: Rémy Degenne
 import Mathlib.MeasureTheory.Measure.LogLikelihoodRatio
 import TestingLowerBounds.FDiv.CondFDiv
 import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
+import TestingLowerBounds.ForMathlib.L1Space
 
 /-!
 # Kullback-Leibler divergence
@@ -362,34 +363,6 @@ lemma integrable_llr_compProd_of_integrable_llr [CountablyGenerated β] [IsMarko
     · simp_rw [← llr_def]
       exact hκη_int
 
--- TODO : put the next 4 lemmas in the right place, maybe in the Integrable namespace, this should probably be PRed to Mathlib.
-@[simp]
-lemma integrable_add_const_iff [NormedAddCommGroup β] [IsFiniteMeasure μ] {f : α → β} {c : β} :
-    Integrable (fun x ↦ f x + c) μ ↔ Integrable f μ :=
-  ⟨fun h ↦ show f = fun x ↦ f x + c + (-c)
-    by simp only [add_neg_cancel_right] ▸ h.add (integrable_const _), fun h ↦ h.add (integrable_const _)⟩
-
-@[simp]
-lemma integrable_const_add_iff [NormedAddCommGroup β] [IsFiniteMeasure μ] {f : α → β} {c : β} :
-    Integrable (fun x ↦ c + f x) μ ↔ Integrable f μ :=
-  ⟨fun h ↦ show f = fun x ↦ (c + f x) + (-c)
-    by simp only [add_neg_cancel_comm] ▸ Integrable.add h (integrable_const (-c)),
-    fun h ↦ Integrable.add (integrable_const _) h⟩
-
-@[simp]
-lemma integrable_add_integrable_iff [NormedAddCommGroup β] [IsFiniteMeasure μ] {f g : α → β}
-    (hf : Integrable f μ) : Integrable (f + g) μ ↔ Integrable g μ :=
-  ⟨fun h ↦ show g = f + g + (-f)
-    by simp only [add_neg_cancel_comm] ▸ Integrable.add h (Integrable.neg hf),
-    fun h ↦ Integrable.add hf h⟩
-
-@[simp]
-lemma integrable_integrable_add_iff [NormedAddCommGroup β] [IsFiniteMeasure μ] {f g : α → β}
-    (hf : Integrable f μ) : Integrable (g + f) μ ↔ Integrable g μ :=
-  ⟨fun h ↦ show g = g + f + (-f)
-    by simp only [add_neg_cancel_right] ▸ Integrable.add h (Integrable.neg hf),
-    fun h ↦ Integrable.add h hf⟩
-
 lemma ae_integrable_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMarkovKernel κ]
     [IsFiniteKernel η] [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
     (h_int : Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ)) :
@@ -410,7 +383,7 @@ lemma ae_integrable_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMa
     have hκη_zero : ((∂κ a/∂η a) x).toReal ≠ 0 := by linarith
     rw [Real.log_mul hμν_zero hκη_zero]
   apply (MeasureTheory.integrable_rnDeriv_smul_iff hκη_ac).mp at h_int
-  replace h_int := integrable_const_add_iff.mp  (Integrable.congr h_int h)
+  replace h_int := Integrable.integrable_const_add_iff.mp  (Integrable.congr h_int h)
   exact (llr_def _ _).symm ▸ h_int
 
 lemma integrable_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMarkovKernel κ]
@@ -455,7 +428,7 @@ lemma integrable_integral_llr_of_integrable_llr_compProd [CountablyGenerated β]
   replace h_int := h_int.2
   simp_rw [ENNReal.toReal_mul, mul_assoc, integral_mul_left] at h_int
   apply (MeasureTheory.integrable_rnDeriv_smul_iff hμν_ac).mp at h_int
-  replace h_int := (integrable_add_integrable_iff hμν_int).mp (Integrable.congr h_int h.symm)
+  replace h_int := (Integrable.integrable_add_integrable_iff hμν_int).mp (Integrable.congr h_int h.symm)
   simp_rw [llr_def]
   exact h_int
 
