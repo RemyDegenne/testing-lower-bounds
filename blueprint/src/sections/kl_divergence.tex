@@ -29,11 +29,11 @@ Simple computation.
   \lean{ProbabilityTheory.condKL}
   \leanok
   \uses{def:KL}
-  Let $\mu$ be a measure on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels. The Kullback-Leibler divergence between $\kappa$ and $\eta$ conditionally to $\mu$ is
+  Let $\mu$ be a measure on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two kernels. The conditional Kullback-Leibler divergence between $\kappa$ and $\eta$ with respect to $\mu$ is
   \begin{align*}
-    \KL(\kappa, \eta \mid \mu) = D_f(\kappa, \eta \mid \mu)
+  \KL(\kappa, \eta \mid \mu) = \mu\left[x \mapsto \KL(\kappa(x), \eta(x))\right]
   \end{align*}
-  with $f: x \mapsto x \log x$.
+  if $x \mapsto \KL(\kappa(x), \eta(x))$ is $\mu$-integrable and $+\infty$ otherwise.
 \end{definition}
 
 \begin{lemma}
