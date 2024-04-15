@@ -386,47 +386,17 @@ lemma ae_integrable_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMa
   sorry
   --rw [← llr_def] at h_int -- once we solve the previous problem, this should close the goal
 
+#check integrable_f_rnDeriv_of_integrable_compProd'
 
 lemma integrable_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMarkovKernel κ] -- this is external lemma 1
-    [IsFiniteKernel η] [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
+    [IsMarkovKernel η] [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
     (h_int : Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ)) :
     Integrable (llr μ ν) μ := by
   have ⟨hμν_ac, hκη_ac⟩ := kernel.Measure.absolutelyContinuous_compProd_iff.mp h_prod
-  have hμν_pos := Measure.rnDeriv_toReal_pos hμν_ac
-  have h : (fun a ↦ log ((∂μ/∂ν) a).toReal + ∫ x, log ((∂κ a/∂η a) x).toReal ∂κ a)
-      =ᵐ[μ] (fun a ↦ ∫ x, ((∂κ a/∂η a) x).toReal
-      * log (((∂μ/∂ν) a).toReal * ((∂κ a/∂η a) x).toReal) ∂η a) := by
-    filter_upwards [hκη_ac, hμν_pos, ae_integrable_llr_of_integrable_llr_compProd h_prod h_int]
-      with a ha hμν_pos hκη_int
-    have hμν_zero : ((∂μ/∂ν) a).toReal ≠ 0 := by linarith
-    calc
-      _ = ∫ (x : β), log ((∂μ/∂ν) a).toReal + log ((∂κ a/∂η a) x).toReal ∂κ a := by
-        rw [llr_def] at hκη_int
-        rw [integral_add (integrable_const _) hκη_int]
-        simp only [integral_const, measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul]
-      _ = ∫ x, log (((∂μ/∂ν) a).toReal * ((∂κ a/∂η a) x).toReal) ∂κ a := by
-        have hκη_pos := Measure.rnDeriv_toReal_pos ha
-        apply integral_congr_ae
-        filter_upwards [hκη_pos] with x hκη_pos
-        have hκη_zero : ((∂κ a/∂η a) x).toReal ≠ 0 := by linarith
-        rw [Real.log_mul hμν_zero hκη_zero]
-      _ = _ := (integral_rnDeriv_smul ha).symm
   rw [← integrable_rnDeriv_mul_log_iff h_prod] at h_int
-  rw [integrable_f_rnDeriv_compProd_iff (by measurability) Real.convexOn_mul_log] at h_int
-  replace h_int := h_int.2
-  simp_rw [ENNReal.toReal_mul, mul_assoc, integral_mul_left] at h_int
-  apply (MeasureTheory.integrable_rnDeriv_smul_iff hμν_ac).mp at h_int
-  replace h_int := Integrable.congr h_int h.symm
-
-  --   exact ⟨hx, hx2⟩
-  -- have hκη_top : ∀ᵐ (x : α) ∂μ, kl (κ x) (η x) ≠ ⊤ := by --TODO : check that these have are actually used
-  --   filter_upwards [hκη_ac, hκη_ae] with x hx hx2
-  --   apply kl_eq_top_iff.mp.mt
-  --   push_neg
-  -- here we have to say that if the sum is integrable then the two terms are integrable, this is not true in general, but in this case it is, since the two terms are nonnegative, I didn't find a lemma for this, I wonder if there is something useful in mathlib, or if I have to prove it myself. Probably to prove it we must also assume some measurability conditions on the two functions, I hope they are easy to prove in this case.
-  sorry
-  --rw [← llr_def] at h_int -- once we solve the previous problem, this should close the goal
-
+  replace h_int := integrable_f_rnDeriv_of_integrable_compProd' μ ν κ η (by measurability)
+    Real.convexOn_mul_log Real.continuous_mul_log.continuousOn h_int (fun _ ↦ hκη_ac)
+  exact (integrable_rnDeriv_mul_log_iff hμν_ac).mp h_int
 
 -- consider merging this lemma and the one above, since the first part of the proof is the same, one option could be to do a single lemma with a goal in the form of an and, another way could be to do an auxiliary lemma with the first part of the proof and then use it in the two lemmas. maybe in this situaiton the first option is better, since it is likely that the closing lemma that we would use has actually a thesis in the form of an and.
 lemma integrable_integral_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMarkovKernel κ] -- this is external lemma 2
@@ -495,6 +465,7 @@ lemma integrable_of_integrable_llr_compProd [CountablyGenerated β] [IsMarkovKer
   apply (MeasureTheory.integrable_rnDeriv_smul_iff hμν_ac).mp at h_int
   replace h_int := Integrable.congr h_int h.symm
 
+
   sorry
 
 lemma integrable_llr_compProd_iff [CountablyGenerated β] [IsMarkovKernel κ]
@@ -522,7 +493,7 @@ lemma integrable_llr_compProd_iff [CountablyGenerated β] [IsMarkovKernel κ]
 -- TODO : consider changing the arguments, in particular the kernels and measures may be put between curly braces, but maybe not, since there are no other hypothesis that mention them, so they cannot be inferred
 
 /--The chain rule for the KL divergence.-/
-lemma kl_compProd [CountablyGenerated β] (κ η : kernel α β) [IsMarkovKernel κ] [IsFiniteKernel η]
+lemma kl_compProd [CountablyGenerated β] (κ η : kernel α β) [IsMarkovKernel κ] [IsMarkovKernel η]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     kl (μ ⊗ₘ κ) (ν ⊗ₘ η) = kl μ ν + condKL κ η μ := by
   by_cases h_prod : (μ ⊗ₘ κ) ≪ (ν ⊗ₘ η)
