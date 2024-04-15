@@ -416,11 +416,14 @@ lemma integrable_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMarko
 
 -- consider merging this lemma and the one above, since the first part of the proof is the same, one option could be to do a single lemma with a goal in the form of an and, another way could be to do an auxiliary lemma with the first part of the proof and then use it in the two lemmas. maybe in this situaiton the first option is better, since it is likely that the closing lemma that we would use has actually a thesis in the form of an and.
 lemma integrable_integral_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMarkovKernel κ] -- this is external lemma 2
-    [IsFiniteKernel η] [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
+    [IsMarkovKernel η] [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
     (h_int : Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ)) :
     Integrable (fun a ↦ ∫ x, llr (κ a) (η a) x ∂(κ a)) μ := by
   have ⟨hμν_ac, hκη_ac⟩ := kernel.Measure.absolutelyContinuous_compProd_iff.mp h_prod --check that these have are actually used
   have hμν_pos := Measure.rnDeriv_toReal_pos hμν_ac
+  have hμν_int : Integrable (fun a ↦ log ((∂μ/∂ν) a).toReal) μ := by
+    rw [← llr_def]
+    exact integrable_llr_of_integrable_llr_compProd h_prod h_int
   have h : (fun a ↦ log ((∂μ/∂ν) a).toReal + ∫ x, log ((∂κ a/∂η a) x).toReal ∂κ a)
       =ᵐ[μ] (fun a ↦ ∫ x, ((∂κ a/∂η a) x).toReal
       * log (((∂μ/∂ν) a).toReal * ((∂κ a/∂η a) x).toReal) ∂η a) := by
@@ -444,9 +447,9 @@ lemma integrable_integral_llr_of_integrable_llr_compProd [CountablyGenerated β]
   replace h_int := h_int.2
   simp_rw [ENNReal.toReal_mul, mul_assoc, integral_mul_left] at h_int
   apply (MeasureTheory.integrable_rnDeriv_smul_iff hμν_ac).mp at h_int
-  replace h_int := Integrable.congr h_int h.symm
-
-  sorry
+  replace h_int := (integrable_add_integrable_iff hμν_int).mpr (Integrable.congr h_int h.symm)
+  simp_rw [llr_def]
+  exact h_int
 
 -- TODO : choose what to do with the following lemma
 -- this lemma is a version of the previous two lemmas together, if we choose to use this we also have to change the application of the lemma in the following proof
