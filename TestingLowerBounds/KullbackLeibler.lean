@@ -376,7 +376,6 @@ lemma ae_integrable_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMa
     ∀ᵐ a ∂μ, Integrable (llr (κ a) (η a)) (κ a) := by
   have ⟨hμν_ac, hκη_ac⟩ := kernel.Measure.absolutelyContinuous_compProd_iff.mp h_prod
   have hμν_pos := Measure.rnDeriv_toReal_pos hμν_ac --verify that these have are actually used
-  -- consider if we also need the have h like in the following proof
   rw [← integrable_rnDeriv_mul_log_iff h_prod] at h_int
   rw [integrable_f_rnDeriv_compProd_iff (by measurability) Real.convexOn_mul_log] at h_int
   replace h_int := h_int.1
@@ -391,12 +390,8 @@ lemma ae_integrable_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMa
     have hκη_zero : ((∂κ a/∂η a) x).toReal ≠ 0 := by linarith
     rw [Real.log_mul hμν_zero hκη_zero]
   apply (MeasureTheory.integrable_rnDeriv_smul_iff hκη_ac).mp at h_int
-  replace h_int := Integrable.congr h_int h
-  replace h_int := integrable_add_const_iff.mpr h_int
-  -- rw [← llr, ← llr] at h_int
-  --same problem that we have in the following lemma where we need to split a hypothesis of Integrable (a + b) into Integrable a and Integrable b, maybe here it is easier, since one of the terms is constant. I didn't find the lemma, it may be worth adding it to mathlib, the fact that if the measure is finite then f is integrable iff f + c is integrable, for a constant c.
-  sorry
-  --rw [← llr_def] at h_int -- once we solve the previous problem, this should close the goal
+  replace h_int := integrable_const_add_iff.mpr  (Integrable.congr h_int h)
+  exact (llr_def _ _).symm ▸ h_int
 
 #check integrable_f_rnDeriv_of_integrable_compProd'
 
