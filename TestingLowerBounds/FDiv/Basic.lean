@@ -721,7 +721,11 @@ lemma f_measure_univ_le_add (μ ν : Measure α) [IsFiniteMeasure μ] [IsProbabi
         simp [Measure.singularPart_eq_zero, hμν, measure_lt_top]
       rw [EReal.top_mul_coe_of_pos h_pos, EReal.coe_add_top]
       exact le_top
-  have h := le_add_derivAtTop hf_cvx hf_top (ENNReal.toReal_nonneg : 0 ≤ (μ Set.univ).toReal)
+  have h_le : (ν.withDensity (∂μ/∂ν) Set.univ).toReal ≤ (μ Set.univ).toReal := by
+    gcongr; exact MeasureTheory.measure_ne_top _ _
+    exact MeasureTheory.Measure.le_iff.mp (MeasureTheory.Measure.withDensity_rnDeriv_le μ ν) _
+      (by measurability)
+  have h := le_add_derivAtTop hf_cvx hf_top h_le
     (ENNReal.toReal_nonneg : 0 ≤ (ν.withDensity (∂μ/∂ν) Set.univ).toReal)
   lift derivAtTop f to ℝ using ⟨hf_top, derivAtTop_ne_bot⟩ with df
   rw [← EReal.coe_ennreal_toReal (measure_ne_top _ _)]
