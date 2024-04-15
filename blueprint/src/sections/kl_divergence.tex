@@ -124,15 +124,15 @@ Apply Theorem~\ref{thm:fDiv_convex}
 
 \begin{theorem}[Chain rule, kernel version]
   \label{thm:kl_chain_rule}
-  %\lean{}
-  %\leanok
+  \lean{kl_compProd}
+  \leanok
   \uses{def:KL, def:condKL}
   Let $\mu, \nu$ be two measures on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ two Markov kernels.
   Then $\KL(\mu \otimes \kappa, \nu \otimes \eta) = \KL(\mu, \nu) + \KL(\kappa, \eta \mid \mu)$.
 \end{theorem}
 
 \begin{proof}
-\uses{lem:rnDeriv_compProd}
+\uses{lem:rnDeriv_compProd, cor:rnDeriv_value}
 Use Lemma~\ref{lem:rnDeriv_compProd} and Corollary~\ref{cor:rnDeriv_value} in a computation:
 \begin{align*}
 \KL(\mu \otimes \kappa, \nu \otimes \eta)
