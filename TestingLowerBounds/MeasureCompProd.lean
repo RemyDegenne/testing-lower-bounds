@@ -169,7 +169,6 @@ lemma integrable_f_rnDeriv_of_integrable_compProd [IsFiniteMeasure μ] [IsFinite
     [IsFiniteKernel η] (hf : StronglyMeasurable f)
     (hf_int : Integrable (fun x ↦ f ((μ ⊗ₘ κ).rnDeriv (μ ⊗ₘ η) x).toReal) (μ ⊗ₘ η)) :
     ∀ᵐ a ∂μ, Integrable (fun x ↦ f ((κ a).rnDeriv (η a) x).toReal) (η a) := by
-  have h := hf_int.integral_compProd'
   rw [Measure.integrable_compProd_iff] at hf_int
   swap
   · exact (hf.comp_measurable (Measure.measurable_rnDeriv _ _).ennreal_toReal).aestronglyMeasurable
