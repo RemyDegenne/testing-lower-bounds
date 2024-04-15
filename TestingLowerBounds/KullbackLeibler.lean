@@ -94,6 +94,8 @@ lemma kl_eq_top_iff [IsFiniteMeasure μ] [SigmaFinite ν] :
     kl μ ν = ⊤ ↔ μ ≪ ν → ¬ Integrable (llr μ ν) μ := by
   rw [kl_eq_fDiv, fDiv_mul_log_eq_top_iff]
 
+-- TODO : add the equivalent of integrable_fDiv_iff for kl
+
 section kl_nonneg
 
 lemma kl_ne_bot (μ ν : Measure α) : kl μ ν ≠ ⊥ := by
@@ -359,7 +361,7 @@ lemma integrable_llr_compProd_of_integrable_llr [CountablyGenerated β] [IsMarko
     · simp_rw [← llr_def]
       exact hκη_int
 
--- TODO : put this and the next lemma in the right place, maybe in the Integrable namespace, this should probably be PRed to Mathlib.
+-- TODO : put the next 4 lemmas in the right place, maybe in the Integrable namespace, this should probably be PRed to Mathlib.
 lemma integrable_add_const_iff [NormedAddCommGroup β] [IsFiniteMeasure μ] {f : α → β} {c : β} :
     Integrable f μ ↔ Integrable (fun x ↦ f x + c) μ := by
   refine ⟨fun h ↦ Integrable.add h (integrable_const _), fun h ↦ show f = fun x ↦ f x + c + (-c)
@@ -381,12 +383,12 @@ lemma integrable_integrable_add_iff [NormedAddCommGroup β] [IsFiniteMeasure μ]
     by simp only [add_neg_cancel_right] ▸ Integrable.add h (Integrable.neg hf)⟩
 
 
-lemma ae_integrable_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMarkovKernel κ] -- this is external lemma 3
+lemma ae_integrable_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMarkovKernel κ]
     [IsFiniteKernel η] [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
     (h_int : Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ)) :
     ∀ᵐ a ∂μ, Integrable (llr (κ a) (η a)) (κ a) := by
   have ⟨hμν_ac, hκη_ac⟩ := kernel.Measure.absolutelyContinuous_compProd_iff.mp h_prod
-  have hμν_pos := Measure.rnDeriv_toReal_pos hμν_ac --verify that these have are actually used
+  have hμν_pos := Measure.rnDeriv_toReal_pos hμν_ac
   rw [← integrable_rnDeriv_mul_log_iff h_prod] at h_int
   rw [integrable_f_rnDeriv_compProd_iff (by measurability) Real.convexOn_mul_log] at h_int
   replace h_int := h_int.1
@@ -404,7 +406,7 @@ lemma ae_integrable_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMa
   replace h_int := integrable_const_add_iff.mpr  (Integrable.congr h_int h)
   exact (llr_def _ _).symm ▸ h_int
 
-lemma integrable_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMarkovKernel κ] -- this is external lemma 1
+lemma integrable_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMarkovKernel κ]
     [IsMarkovKernel η] [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
     (h_int : Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ)) :
     Integrable (llr μ ν) μ := by
@@ -414,12 +416,11 @@ lemma integrable_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMarko
     Real.convexOn_mul_log Real.continuous_mul_log.continuousOn h_int (fun _ ↦ hκη_ac)
   exact (integrable_rnDeriv_mul_log_iff hμν_ac).mp h_int
 
--- consider merging this lemma and the one above, since the first part of the proof is the same, one option could be to do a single lemma with a goal in the form of an and, another way could be to do an auxiliary lemma with the first part of the proof and then use it in the two lemmas. maybe in this situaiton the first option is better, since it is likely that the closing lemma that we would use has actually a thesis in the form of an and.
-lemma integrable_integral_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMarkovKernel κ] -- this is external lemma 2
+lemma integrable_integral_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMarkovKernel κ]
     [IsMarkovKernel η] [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
     (h_int : Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ)) :
     Integrable (fun a ↦ ∫ x, llr (κ a) (η a) x ∂(κ a)) μ := by
-  have ⟨hμν_ac, hκη_ac⟩ := kernel.Measure.absolutelyContinuous_compProd_iff.mp h_prod --check that these have are actually used
+  have ⟨hμν_ac, hκη_ac⟩ := kernel.Measure.absolutelyContinuous_compProd_iff.mp h_prod
   have hμν_pos := Measure.rnDeriv_toReal_pos hμν_ac
   have hμν_int : Integrable (fun a ↦ log ((∂μ/∂ν) a).toReal) μ := by
     rw [← llr_def]
@@ -460,18 +461,6 @@ lemma integrable_llr_compProd_iff [CountablyGenerated β] [IsMarkovKernel κ]
   · exact ⟨⟨integrable_llr_of_integrable_llr_compProd h_prod h, integrable_integral_llr_of_integrable_llr_compProd h_prod h⟩,
       ae_integrable_llr_of_integrable_llr_compProd h_prod h⟩
   · exact integrable_llr_compProd_of_integrable_llr h_prod h.1.1 h.1.2 h.2
-
-
-
-#check Measure.rnDeriv_toReal_pos
-#check kernel.rnDeriv_toReal_pos
-#check integrable_rnDeriv_smul_iff
-#check Integrable.const_mul
-#check kernel.rnDeriv_eq_rnDeriv_measure
-#check integral_smul_const
-#check integral_smul
-#check integral_rnDeriv_smul
-#check Integrable.congr
 
 -- TODO : consider changing the arguments, in particular the kernels and measures may be put between curly braces, but maybe not, since there are no other hypothesis that mention them, so they cannot be inferred
 
@@ -588,8 +577,6 @@ lemma kl_compProd [CountablyGenerated β] (κ η : kernel α β) [IsMarkovKernel
         exact kl_of_ac_of_integrable (ha) h
       · rw [kl_of_not_integrable h]
         simp only [h, not_false_eq_true, integral_undef, EReal.toReal_top]
-
-
 
 end Conditional
 
