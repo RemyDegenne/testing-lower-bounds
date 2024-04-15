@@ -182,18 +182,18 @@ def condKL (κ η : kernel α β) (μ : Measure α) : EReal :=
   then ((μ[fun x ↦ (kl (κ x) (η x)).toReal] : ℝ) : EReal)
   else ⊤
 
-lemma condKL_of_ae_finite_of_integrable (h1 : ∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤)
+lemma condKL_of_ae_ne_top_of_integrable (h1 : ∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤)
     (h2 : Integrable (fun x ↦ (kl (κ x) (η x)).toReal) μ) :
     condKL κ η μ = (μ[fun x ↦ (kl (κ x) (η x)).toReal] : ℝ) := if_pos ⟨h1, h2⟩
 
 @[simp]
-lemma condKL_of_not_ae_finite (h : ¬ (∀ᵐ x ∂μ, kl (κ x) (η x) ≠ ⊤)) :
+lemma condKL_of_not_ae_ne_top (h : ¬ (∀ᵐ x ∂μ, kl (κ x) (η x) ≠ ⊤)) :
     condKL κ η μ = ⊤ := if_neg (not_and_of_not_left _ h)
 
 @[simp]
 lemma condKL_of_not_ae_integrable (h : ¬ ∀ᵐ a ∂μ, Integrable (llr (κ a) (η a)) (κ a)) :
     condKL κ η μ = ⊤ := by
-  apply condKL_of_not_ae_finite
+  apply condKL_of_not_ae_ne_top
   contrapose! h
   filter_upwards [h] with x hx
   contrapose! hx
@@ -202,7 +202,7 @@ lemma condKL_of_not_ae_integrable (h : ¬ ∀ᵐ a ∂μ, Integrable (llr (κ a)
 @[simp]
 lemma condKL_of_not_ae_ac (h : ¬ ∀ᵐ x ∂μ, κ x ≪ η x) :
     condKL κ η μ = ⊤ := by
-  apply condKL_of_not_ae_finite
+  apply condKL_of_not_ae_ne_top
   contrapose! h
   filter_upwards [h] with x hx
   contrapose! hx
@@ -218,7 +218,7 @@ lemma condKL_of_not_integrable' (h : ¬ Integrable (fun a ↦ integral (κ a) (l
   contrapose! h
   have hh : (fun a => integral (κ a) (llr (κ a) (η a))) =ᵐ[μ] fun a => (kl (κ a) (η a)).toReal := by
     have h1 := of_not_not (condKL_of_not_ae_ac.mt h)
-    have h2 := of_not_not (condKL_of_not_ae_finite.mt h)
+    have h2 := of_not_not (condKL_of_not_ae_ne_top.mt h)
     filter_upwards [h1, h2] with x hx1 hx2
     rw [kl_of_ac_of_integrable hx1 (of_not_not (kl_of_not_integrable.mt hx2))]
     simp only [EReal.toReal_coe]
@@ -239,12 +239,12 @@ lemma condKL_eq_condFDiv [IsFiniteKernel κ] [IsFiniteKernel η] :
     refine (condFDiv_of_not_integrable ?_).symm
     convert h2 using 4 with x
     rw [← kl_eq_fDiv]
-  simp only [ne_eq, h1, h2, condKL_of_ae_finite_of_integrable, ← kl_eq_fDiv, condFDiv_eq']
+  simp only [ne_eq, h1, h2, condKL_of_ae_ne_top_of_integrable, ← kl_eq_fDiv, condFDiv_eq']
 
 @[simp]
 lemma condKL_self (κ : kernel α β) (μ : Measure α) [IsFiniteKernel κ] : condKL κ κ μ = 0 := by
   simp only [kl_self, ne_eq, not_false_eq_true, eventually_true, EReal.toReal_zero, integrable_zero,
-    condKL_of_ae_finite_of_integrable, integral_zero, EReal.coe_zero, EReal.zero_ne_top]
+    condKL_of_ae_ne_top_of_integrable, integral_zero, EReal.coe_zero, EReal.zero_ne_top]
 
 lemma condKL_ne_bot (κ η : kernel α β) (μ : Measure α) : condKL κ η μ ≠ ⊥ := by
   rw [condKL]
