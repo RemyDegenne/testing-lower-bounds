@@ -359,6 +359,12 @@ lemma integrable_llr_compProd_of_integrable_llr [CountablyGenerated β] [IsMarko
     · simp_rw [← llr_def]
       exact hκη_int
 
+-- TODO : put this in the right place, this should probably be PRed to Mathlib
+lemma integrable_add_const_iff [NormedAddCommGroup β] [IsFiniteMeasure μ] {f : α → β} {c : β} :
+    Integrable f μ ↔ Integrable (fun x ↦ f x + c) μ := by
+  refine ⟨fun h ↦ Integrable.add h (integrable_const _), fun h ↦ (show f = fun x ↦ f x + c + (-c)
+    by simp only [add_neg_cancel_right] ▸ Integrable.add h (integrable_const _))⟩
+
 lemma ae_integrable_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMarkovKernel κ] -- this is external lemma 3
     [IsFiniteKernel η] [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
     (h_int : Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ)) :
