@@ -354,6 +354,19 @@ D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A})
 \end{definition}
 
 \begin{lemma}
+  \label{lem:condFDiv_nonneg}
+  \lean{ProbabilityTheory.condFDiv_nonneg}
+  \leanok
+  \uses{def:condFDiv}
+  Let $f : \mathbb{R} \to \mathbb{R}$ be continuous in $0$, $\mu$ a measure on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ two Markov kernels. If $f(1) = 0$ then $D_f(\kappa, \eta \mid \mu) \ge 0$.
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{lem:le_fDiv}
+Apply Lemma~\ref{lem:fDiv_nonneg}.
+\end{proof}
+
+\begin{lemma}
   \label{lem:integrable_fDiv_compProd_iff}
   \lean{ProbabilityTheory.integrable_f_rnDeriv_compProd_iff}
   \leanok
