@@ -359,11 +359,16 @@ lemma integrable_llr_compProd_of_integrable_llr [CountablyGenerated β] [IsMarko
     · simp_rw [← llr_def]
       exact hκη_int
 
--- TODO : put this in the right place, this should probably be PRed to Mathlib
+-- TODO : put this and the next lemma in the right place, maybe in the Integrable namespace, this should probably be PRed to Mathlib.
 lemma integrable_add_const_iff [NormedAddCommGroup β] [IsFiniteMeasure μ] {f : α → β} {c : β} :
     Integrable f μ ↔ Integrable (fun x ↦ f x + c) μ := by
   refine ⟨fun h ↦ Integrable.add h (integrable_const _), fun h ↦ (show f = fun x ↦ f x + c + (-c)
     by simp only [add_neg_cancel_right] ▸ Integrable.add h (integrable_const _))⟩
+
+lemma integrable_const_add_iff [NormedAddCommGroup β] [IsFiniteMeasure μ] {f : α → β} {c : β} :
+    Integrable f μ ↔ Integrable (fun x ↦ c + f x) μ := by
+  refine ⟨fun h ↦ Integrable.add (integrable_const _) h, fun h ↦ (show f = fun x ↦ (-c) + (c + f x)
+    by simp only [neg_add_cancel_left] ▸ Integrable.add (integrable_const (-c)) h)⟩
 
 lemma ae_integrable_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMarkovKernel κ] -- this is external lemma 3
     [IsFiniteKernel η] [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
@@ -387,6 +392,7 @@ lemma ae_integrable_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMa
     rw [Real.log_mul hμν_zero hκη_zero]
   apply (MeasureTheory.integrable_rnDeriv_smul_iff hκη_ac).mp at h_int
   replace h_int := Integrable.congr h_int h
+  replace h_int := integrable_add_const_iff.mpr h_int
   -- rw [← llr, ← llr] at h_int
   --same problem that we have in the following lemma where we need to split a hypothesis of Integrable (a + b) into Integrable a and Integrable b, maybe here it is easier, since one of the terms is constant. I didn't find the lemma, it may be worth adding it to mathlib, the fact that if the measure is finite then f is integrable iff f + c is integrable, for a constant c.
   sorry
