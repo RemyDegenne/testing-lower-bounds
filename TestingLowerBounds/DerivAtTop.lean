@@ -173,19 +173,31 @@ lemma slope_le_derivAtTop (h_cvx : ConvexOn ℝ (Set.Ici 0) f)
   · exact tendsto_slope_derivAtTop h_cvx h x
 
 lemma le_add_derivAtTop (h_cvx : ConvexOn ℝ (Set.Ici 0) f)
-    (h : derivAtTop f ≠ ⊤) {x y : ℝ} (hx : 0 ≤ x) (hy : 0 ≤ y) :
+    (h : derivAtTop f ≠ ⊤) {x y : ℝ} (hy : 0 ≤ y) (hyx : y ≤ x) :
     f x ≤ f y + (derivAtTop f).toReal * (x - y) := by
-  sorry
+  cases eq_or_lt_of_le hyx with
+  | inl h_eq => simp [h_eq]
+  | inr h_lt =>
+    have h_le := slope_le_derivAtTop h_cvx h hy h_lt
+    rwa [div_le_iff, sub_le_iff_le_add'] at h_le
+    simp [h_lt]
 
 lemma le_add_derivAtTop'' (h_cvx : ConvexOn ℝ (Set.Ici 0) f)
     (h : derivAtTop f ≠ ⊤) {x y : ℝ} (hx : 0 ≤ x) (hy : 0 ≤ y) :
     f (x + y) ≤ f x + (derivAtTop f).toReal * y := by
-  sorry
+  have h_le := le_add_derivAtTop h_cvx h hx (x := x + y) ?_
+  · simpa using h_le
+  · linarith
 
 lemma le_add_derivAtTop' (h_cvx : ConvexOn ℝ (Set.Ici 0) f)
-    (h : derivAtTop f ≠ ⊤) {x u : ℝ} (hx : 0 ≤ x) (hu : 0 ≤ u) :
+    (h : derivAtTop f ≠ ⊤) {x u : ℝ} (hx : 0 ≤ x) (hu : 0 ≤ u) (hu' : u ≤ 1) :
     f x ≤ f (x * u) + (derivAtTop f).toReal * x * (1 - u) := by
-  refine (le_add_derivAtTop h_cvx h hx (mul_nonneg hx hu)).trans_eq ?_
-  rw [mul_assoc, mul_sub, mul_sub, mul_one, mul_sub]
+  by_cases hx0 : x = 0
+  · simp [hx0]
+  have h := le_add_derivAtTop h_cvx h (mul_nonneg hx hu) (x := x) ?_
+  swap;
+  · rwa [mul_le_iff_le_one_right]
+    exact hx.lt_of_ne' hx0
+  rwa [mul_assoc, mul_sub, mul_one]
 
 end ProbabilityTheory

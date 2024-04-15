@@ -705,9 +705,15 @@ lemma f_rnDeriv_le_add [MeasurableSpace.CountablyGenerated β]
   simp only [ENNReal.toReal_mul]
   let κ' := kernel.withDensity η (kernel.rnDeriv κ η)
   calc f ((∂μ/∂ν) a).toReal
-    ≤ f (((∂μ/∂ν) a).toReal * (κ' a Set.univ).toReal)
-        + (derivAtTop f).toReal * ((∂μ/∂ν) a).toReal * (1 - (κ' a Set.univ).toReal) :=
-      le_add_derivAtTop' hf_cvx h_deriv_top ENNReal.toReal_nonneg ENNReal.toReal_nonneg
+  _ ≤ f (((∂μ/∂ν) a).toReal * (κ' a Set.univ).toReal)
+        + (derivAtTop f).toReal * ((∂μ/∂ν) a).toReal * (1 - (κ' a Set.univ).toReal) := by
+      refine le_add_derivAtTop' hf_cvx h_deriv_top ENNReal.toReal_nonneg ENNReal.toReal_nonneg ?_
+      calc (κ' a Set.univ).toReal
+      _ ≤ (κ a Set.univ).toReal := by
+          gcongr
+          · exact measure_ne_top _ _
+          · exact kernel.withDensity_rnDeriv_le κ η a Set.univ
+      _ = 1 := by simp
   _ = f (((∂μ/∂ν) a).toReal * (κ' a Set.univ).toReal)
         + (derivAtTop f).toReal * ((∂μ/∂ν) a).toReal
           * (kernel.singularPart κ η a Set.univ).toReal := by

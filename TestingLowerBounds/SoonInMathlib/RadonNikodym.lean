@@ -235,6 +235,15 @@ lemma rnDeriv_withDensity
   filter_upwards [h_ae, Measure.rnDeriv_withDensity (κ a) (hf' a)] with x hx1 hx2
   rw [hx1, kernel.withDensity_apply _ hf, hx2]
 
+lemma withDensity_rnDeriv_le (κ η : kernel α γ) [IsFiniteKernel κ] [IsFiniteKernel η] (a : α) :
+    kernel.withDensity η (kernel.rnDeriv κ η) a ≤ κ a := by
+  refine Measure.le_intro (fun s hs _ ↦ ?_)
+  rw [kernel.withDensity_apply']
+  swap; · exact kernel.measurable_rnDeriv _ _
+  rw [set_lintegral_congr_fun hs
+    ((kernel.rnDeriv_eq_rnDeriv_measure κ η a).mono (fun x hx _ ↦ hx)), ← withDensity_apply _ hs]
+  exact Measure.withDensity_rnDeriv_le _ _ _
+
 section MeasureCompProd
 
 lemma set_lintegral_prod_rnDeriv {μ ν : Measure α} {κ η : kernel α γ}
