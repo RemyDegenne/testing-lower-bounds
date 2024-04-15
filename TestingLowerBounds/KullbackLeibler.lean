@@ -97,6 +97,7 @@ lemma kl_eq_top_iff [IsFiniteMeasure μ] [SigmaFinite ν] :
 
 section kl_nonneg
 
+@[simp]
 lemma kl_ne_bot (μ ν : Measure α) : kl μ ν ≠ ⊥ := by
   rw [kl]
   split_ifs with h
@@ -190,7 +191,7 @@ lemma condKL_of_not_ae_finite (h : ¬ (∀ᵐ x ∂μ, kl (κ x) (η x) ≠ ⊤)
     condKL κ η μ = ⊤ := if_neg (not_and_of_not_left _ h)
 
 @[simp]
-lemma condKL_of_not_ae_integrable (h : ¬ (∀ᵐ (a : α) ∂μ, Integrable (llr (κ a) (η a)) (κ a))) :
+lemma condKL_of_not_ae_integrable (h : ¬ ∀ᵐ a ∂μ, Integrable (llr (κ a) (η a)) (κ a)) :
     condKL κ η μ = ⊤ := by
   apply condKL_of_not_ae_finite
   contrapose! h
@@ -199,7 +200,7 @@ lemma condKL_of_not_ae_integrable (h : ¬ (∀ᵐ (a : α) ∂μ, Integrable (ll
   simp only [hx, ne_eq, not_false_eq_true, kl_of_not_integrable]
 
 @[simp]
-lemma condKL_of_not_ae_ac (h : ¬ (∀ᵐ x ∂μ, (κ x) ≪ (η x))) :
+lemma condKL_of_not_ae_ac (h : ¬ ∀ᵐ x ∂μ, κ x ≪ η x) :
     condKL κ η μ = ⊤ := by
   apply condKL_of_not_ae_finite
   contrapose! h
@@ -227,13 +228,13 @@ lemma condKL_of_not_integrable' (h : ¬ Integrable (fun a ↦ integral (κ a) (l
 lemma condKL_eq_condFDiv [IsFiniteKernel κ] [IsFiniteKernel η] :
     condKL κ η μ = condFDiv (fun x ↦ x * log x) κ η μ := by
   by_cases h1 : ∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤
-  swap;
+  swap
   · simp [h1]
     refine (condFDiv_of_not_ae_finite ?_).symm
     convert h1 using 4 with x
     rw [kl_eq_fDiv]
   by_cases h2 : Integrable (fun x ↦ (kl (κ x) (η x)).toReal) μ
-  swap;
+  swap
   · simp [h2]
     refine (condFDiv_of_not_integrable ?_).symm
     convert h2 using 4 with x
