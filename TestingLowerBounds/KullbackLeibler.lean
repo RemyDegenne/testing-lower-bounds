@@ -232,8 +232,7 @@ lemma condKL_of_not_integrable' (h : ¬ Integrable (fun a ↦ integral (κ a) (l
     filter_upwards [h1, h2] with a ha1 ha2
     rw [kl_of_ac_of_integrable ha1 (of_not_not (kl_of_not_integrable.mt ha2))]
     simp only [EReal.toReal_coe]
-  refine Integrable.congr ?_ hh.symm
-  exact of_not_not (condKL_of_not_integrable.mt h)
+  exact Integrable.congr (of_not_not (condKL_of_not_integrable.mt h)) hh.symm
 
 lemma condKL_eq_condFDiv [IsFiniteKernel κ] [IsFiniteKernel η] :
     condKL κ η μ = condFDiv (fun x ↦ x * log x) κ η μ := by
@@ -497,7 +496,7 @@ lemma kl_compProd [CountablyGenerated β] (κ η : kernel α β) [IsMarkovKernel
     kl_of_ac_of_integrable h_prod h_int
   _ = ↑(∫ (a : α), ∫ (x : β), llr (μ ⊗ₘ κ) (ν ⊗ₘ η) (a, x) ∂κ a ∂μ) := by
     norm_cast
-    refine Measure.integral_compProd h_int
+    exact Measure.integral_compProd h_int
   _ = ↑(∫ (a : α), ∫ (x : β), log ((∂μ/∂ν) a * kernel.rnDeriv κ η a x).toReal ∂κ a ∂μ) := by
     norm_cast
     have h := hμν.ae_le (Measure.ae_ae_of_ae_compProd (kernel.rnDeriv_measure_compProd μ ν κ η))
