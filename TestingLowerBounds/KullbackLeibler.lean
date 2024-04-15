@@ -363,23 +363,23 @@ lemma integrable_llr_compProd_of_integrable_llr [CountablyGenerated β] [IsMarko
 
 -- TODO : put the next 4 lemmas in the right place, maybe in the Integrable namespace, this should probably be PRed to Mathlib.
 lemma integrable_add_const_iff [NormedAddCommGroup β] [IsFiniteMeasure μ] {f : α → β} {c : β} :
-    Integrable f μ ↔ Integrable (fun x ↦ f x + c) μ := by
-  refine ⟨fun h ↦ Integrable.add h (integrable_const _), fun h ↦ show f = fun x ↦ f x + c + (-c)
-    by simp only [add_neg_cancel_right] ▸ Integrable.add h (integrable_const _)⟩
+    Integrable f μ ↔ Integrable (fun x ↦ f x + c) μ :=
+  ⟨fun h ↦ h.add (integrable_const _), fun h ↦ show f = fun x ↦ f x + c + (-c)
+    by simp only [add_neg_cancel_right] ▸ h.add (integrable_const _)⟩
 
 lemma integrable_const_add_iff [NormedAddCommGroup β] [IsFiniteMeasure μ] {f : α → β} {c : β} :
-    Integrable f μ ↔ Integrable (fun x ↦ c + f x) μ := by
-  refine ⟨fun h ↦ Integrable.add (integrable_const _) h, fun h ↦ show f = fun x ↦ (c + f x) + (-c)
+    Integrable f μ ↔ Integrable (fun x ↦ c + f x) μ :=
+  ⟨fun h ↦ Integrable.add (integrable_const _) h, fun h ↦ show f = fun x ↦ (c + f x) + (-c)
     by simp only [add_neg_cancel_comm] ▸ Integrable.add h (integrable_const (-c))⟩
 
 lemma integrable_add_integrable_iff [NormedAddCommGroup β] [IsFiniteMeasure μ] {f g : α → β}
-    (hf : Integrable f μ) : Integrable g μ ↔ Integrable (f + g) μ := by
-  refine ⟨fun h ↦ Integrable.add hf h, fun h ↦ show g = f + g + (-f)
+    (hf : Integrable f μ) : Integrable g μ ↔ Integrable (f + g) μ :=
+  ⟨fun h ↦ Integrable.add hf h, fun h ↦ show g = f + g + (-f)
     by simp only [add_neg_cancel_comm] ▸ Integrable.add h (Integrable.neg hf)⟩
 
 lemma integrable_integrable_add_iff [NormedAddCommGroup β] [IsFiniteMeasure μ] {f g : α → β}
-    (hf : Integrable f μ) : Integrable g μ ↔ Integrable (g + f) μ := by
-  refine ⟨fun h ↦ Integrable.add h hf, fun h ↦ show g = g + f + (-f)
+    (hf : Integrable f μ) : Integrable g μ ↔ Integrable (g + f) μ :=
+  ⟨fun h ↦ Integrable.add h hf, fun h ↦ show g = g + f + (-f)
     by simp only [add_neg_cancel_right] ▸ Integrable.add h (Integrable.neg hf)⟩
 
 
