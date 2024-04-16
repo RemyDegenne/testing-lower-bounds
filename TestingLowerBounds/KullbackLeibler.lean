@@ -8,6 +8,9 @@ import TestingLowerBounds.FDiv.CondFDiv
 import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
 import TestingLowerBounds.ForMathlib.L1Space
 
+lemma foo (n : ℕ) : 0 ≤ n := by exact? -- trick to make exact? work TODO : erase this when we are done
+
+
 /-!
 # Kullback-Leibler divergence
 
@@ -284,27 +287,6 @@ lemma kl_compProd_right [CountablyGenerated β] (μ ν : Measure α) [IsFiniteMe
   rw [kl_eq_fDiv, kl_eq_fDiv]
   exact fDiv_compProd_right μ ν κ (by measurability) Real.convexOn_mul_log
 
--- TODO : this two lemmas should be moved to the right place, maybe they could be put in RnDeriv.lean, after
-#check Measure.ae_rnDeriv_ne_zero_imp_of_ae
-lemma ae_int_mul_rnDeriv_of_ae_int [SigmaFinite μ] [SigmaFinite ν] (g : α → β → ℝ)
-    (h : ∀ᵐ a ∂μ, Integrable (fun x => g a x) (κ a)) :
-    ∀ᵐ a ∂ν, Integrable (fun x ↦ (μ.rnDeriv ν a).toReal * g a x) (κ a) := by
-  apply @Measure.ae_rnDeriv_ne_zero_imp_of_ae _ _ _ ν at h
-  filter_upwards [h] with a ha
-  by_cases h_zero : μ.rnDeriv ν a = 0
-  · rw [h_zero]
-    simp only [ENNReal.zero_toReal, zero_mul, integrable_zero]
-  · apply Integrable.const_mul
-    exact ha h_zero
-
-lemma ae_int_of_ae_int_mul_rnDeriv [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν) (g : α → β → ℝ)
-    (h : ∀ᵐ a ∂ν, Integrable (fun x ↦ (μ.rnDeriv ν a).toReal * g a x) (κ a)) :
-    ∀ᵐ a ∂μ, Integrable (fun x => g a x) (κ a) := by
-  filter_upwards [hμν.ae_le h, Measure.rnDeriv_toReal_pos hμν] with a ha h_pos
-  apply (integrable_const_mul_iff _ (fun x ↦ g a x)).mp ha
-  apply isUnit_iff_ne_zero.mpr
-  linarith
-
 lemma integrable_llr_compProd_of_integrable_llr [CountablyGenerated β] [IsMarkovKernel κ]
     [IsFiniteKernel η] [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
     (hμν : Integrable (llr μ ν) μ) (hκη_int : Integrable (fun a ↦ ∫ x, llr (κ a) (η a) x ∂(κ a)) μ)
@@ -322,7 +304,7 @@ lemma integrable_llr_compProd_of_integrable_llr [CountablyGenerated β] [IsMarko
   have hμν_pos := Measure.rnDeriv_toReal_pos hμν_ac
   constructor
   · simp_rw [mul_assoc]
-    apply ae_int_mul_rnDeriv_of_ae_int
+    apply Measure.ae_int_mul_rnDeriv_of_ae_int
     filter_upwards [hκη_ac, hκη_top, hμν_pos] with a ha h_top hμν_pos
     have hμν_zero : ((∂μ/∂ν) a).toReal ≠ 0 := by linarith
     apply (MeasureTheory.integrable_rnDeriv_smul_iff ha).mpr
@@ -373,7 +355,7 @@ lemma ae_integrable_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMa
   rw [integrable_f_rnDeriv_compProd_iff (by measurability) Real.convexOn_mul_log] at h_int
   replace h_int := h_int.1
   simp_rw [ENNReal.toReal_mul, mul_assoc] at h_int
-  apply ae_int_of_ae_int_mul_rnDeriv hμν_ac at h_int
+  apply Measure.ae_int_of_ae_int_mul_rnDeriv hμν_ac at h_int
   filter_upwards [h_int, hκη_ac, hμν_pos] with a h_int hκη_ac hμν_pos
   have hμν_zero : ((∂μ/∂ν) a).toReal ≠ 0 := by linarith
   have h : (fun x ↦ log (((∂μ/∂ν) a).toReal * ((∂κ a/∂η a) x).toReal))

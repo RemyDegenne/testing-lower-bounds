@@ -306,6 +306,25 @@ lemma ae_rnDeriv_ne_zero_imp_of_ae [SigmaFinite μ] [SigmaFinite ν] {p : α →
   refine ae_rnDeriv_ne_zero_imp_of_ae_aux ?_ (withDensity_absolutelyContinuous _ _)
   exact (Measure.absolutelyContinuous_of_le (μ.withDensity_rnDeriv_le ν)) h
 
+lemma ae_int_mul_rnDeriv_of_ae_int {κ : α → Measure β} [SigmaFinite μ] [SigmaFinite ν] (g : α → β → ℝ)
+    (h : ∀ᵐ a ∂μ, Integrable (fun x => g a x) (κ a)) :
+    ∀ᵐ a ∂ν, Integrable (fun x ↦ (μ.rnDeriv ν a).toReal * g a x) (κ a) := by
+  apply @Measure.ae_rnDeriv_ne_zero_imp_of_ae _ _ _ ν at h
+  filter_upwards [h] with a ha
+  by_cases h_zero : μ.rnDeriv ν a = 0
+  · rw [h_zero]
+    simp only [ENNReal.zero_toReal, zero_mul, integrable_zero]
+  · apply Integrable.const_mul
+    exact ha h_zero
+
+lemma ae_int_of_ae_int_mul_rnDeriv {κ : α → Measure β} [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν) (g : α → β → ℝ)
+    (h : ∀ᵐ a ∂ν, Integrable (fun x ↦ (μ.rnDeriv ν a).toReal * g a x) (κ a)) :
+    ∀ᵐ a ∂μ, Integrable (fun x => g a x) (κ a) := by
+  filter_upwards [hμν.ae_le h, Measure.rnDeriv_toReal_pos hμν] with a ha h_pos
+  apply (integrable_const_mul_iff _ (fun x ↦ g a x)).mp ha
+  apply isUnit_iff_ne_zero.mpr
+  linarith
+
 end MeasureTheory.Measure
 
 namespace MeasurableEmbedding
