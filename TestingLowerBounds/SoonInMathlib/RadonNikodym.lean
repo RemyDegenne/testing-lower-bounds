@@ -188,6 +188,21 @@ lemma eq_singularPart [IsFiniteKernel κ] [IsFiniteKernel η] (h : κ = kernel.w
 
 end Unique
 
+lemma rnDeriv_pos [IsFiniteKernel κ] [IsFiniteKernel η] {a : α} (ha : κ a ≪ η a) :
+    ∀ᵐ x ∂(κ a), 0 < rnDeriv κ η a x := by
+  filter_upwards [ha.ae_le (rnDeriv_eq_rnDeriv_measure κ η a), Measure.rnDeriv_pos ha] with x heq hpos
+  rwa [heq]
+
+lemma rnDeriv_ne_top (κ η : kernel α γ) [IsFiniteKernel κ] [IsFiniteKernel η] {a : α} :
+    ∀ᵐ x ∂(η a), rnDeriv κ η a x ≠ ⊤ := by
+  filter_upwards [rnDeriv_eq_rnDeriv_measure κ η a, Measure.rnDeriv_ne_top (κ a) _] with x heq htop
+  rwa [heq]
+
+lemma rnDeriv_toReal_pos [IsFiniteKernel κ] [IsFiniteKernel η] {a : α} (h : κ a ≪ η a) :
+    ∀ᵐ x ∂(κ a), 0 < (rnDeriv κ η a x).toReal := by
+  filter_upwards [rnDeriv_pos h, h.ae_le (rnDeriv_ne_top κ _)] with x h0 htop
+  simp_all only [pos_iff_ne_zero, ne_eq, ENNReal.toReal_pos, not_false_eq_true, and_self]
+
 instance instIsFiniteKernel_withDensity_rnDeriv [hκ : IsFiniteKernel κ] [IsFiniteKernel η] :
     IsFiniteKernel (withDensity η (rnDeriv κ η)) := by
   constructor

@@ -26,15 +26,27 @@ Simple computation.
 
 \begin{definition}[Conditional Kullback-Leibler divergence]
   \label{def:condKL}
-  %\lean{}
-  %\leanok
-  \uses{def:condFDiv}
-  Let $\mu$ be a measure on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels. The Kullback-Leibler divergence between $\kappa$ and $\eta$ conditionally to $\mu$ is
+  \lean{ProbabilityTheory.condKL}
+  \leanok
+  \uses{def:KL}
+  Let $\mu$ be a measure on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two kernels. The conditional Kullback-Leibler divergence between $\kappa$ and $\eta$ with respect to $\mu$ is
   \begin{align*}
-  \KL(\kappa, \eta \mid \mu) = D_f(\kappa, \eta \mid \mu)
+  \KL(\kappa, \eta \mid \mu) = \mu\left[x \mapsto \KL(\kappa(x), \eta(x))\right]
   \end{align*}
-  with $f: x \mapsto x \log x$.
+  if $x \mapsto \KL(\kappa(x), \eta(x))$ is $\mu$-integrable and $+\infty$ otherwise.
 \end{definition}
+
+\begin{lemma}
+  \label{lem:condKL_eq_condFDiv}
+  \lean{ProbabilityTheory.kl_eq_fDiv}
+  \leanok
+  \uses{def:condKL, def:condFDiv}
+  $\KL(\kappa, \eta \mid \mu) = D_f(\kappa, \eta \mid \mu)$ for $f: x \mapsto x \log x$.
+\end{lemma}
+
+\begin{proof}\leanok
+Simple computation.
+\end{proof}
 
 \section{Properties inherited from f-divergences}
 
@@ -142,9 +154,9 @@ Use Lemma~\ref{lem:rnDeriv_compProd} and Corollary~\ref{cor:rnDeriv_value} in a 
 \\
 &= \int_x \int_y\log \left(\frac{d\mu}{d \nu}(x)\right) + \log \left(\frac{d\kappa}{d \eta}(x,y)\right) \partial \kappa(x) \partial\mu
 \\
-&= \int_x \log \left(\frac{d\mu}{d \nu}(x)\right)\partial\mu + \int_y\log \left(\frac{d\kappa}{d \eta}(x,y)\right) \partial \kappa(x) \partial\mu
+&= \int_x \log \left(\frac{d\mu}{d \nu}(x)\right)\partial\mu + \int_x \int_y\log \left(\frac{d\kappa}{d \eta}(x,y)\right) \partial \kappa(x) \partial\mu
 \\
-&= \int_x \log \left(\frac{d\mu}{d \nu}(x)\right)\partial\mu + \int_y\log \left(\frac{d\kappa(x)}{d \eta(x)}(y)\right) \partial \kappa(x) \partial\mu
+&= \int_x \log \left(\frac{d\mu}{d \nu}(x)\right)\partial\mu + \int_x \int_y\log \left(\frac{d\kappa(x)}{d \eta(x)}(y)\right) \partial \kappa(x) \partial\mu
 \\
 &= \KL(\mu, \nu) + \KL(\kappa, \eta \mid \mu)
 \: .

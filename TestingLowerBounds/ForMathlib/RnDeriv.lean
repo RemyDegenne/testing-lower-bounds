@@ -141,6 +141,7 @@ lemma rnDeriv_eq_div' {ξ : Measure α} [SigmaFinite μ] [SigmaFinite ν] [Sigma
   filter_upwards [rnDeriv_eq_div μ ν, hν_ac (rnDeriv_div_rnDeriv hμ hν)] with a h1 h2
   exact h1.trans h2.symm
 
+/--Singular part set of μ with respect to ν.-/
 def singularPartSet (μ ν : Measure α) := {x | ν.rnDeriv (μ + ν) x = 0}
 
 lemma measurableSet_singularPartSet : MeasurableSet (singularPartSet μ ν) :=
@@ -261,13 +262,18 @@ lemma rnDeriv_trim_of_ac (hm : m ≤ mα) [IsFiniteMeasure μ] [SigmaFinite ν]
   rw [← hx, ENNReal.ofReal_toReal hx_ne_top]
 
 -- PRed
-lemma trim_withDensity (hm : m ≤ mα) [SigmaFinite μ] {f : α → ℝ≥0∞} (hf : Measurable[m] f) :
+lemma trim_withDensity (hm : m ≤ mα) {f : α → ℝ≥0∞} (hf : Measurable[m] f) :
     (withDensity μ f).trim hm = withDensity (μ.trim hm) f := by
   refine @Measure.ext _ m _ _ (fun s hs ↦ ?_)
   rw [withDensity_apply _ hs, restrict_trim _ _ hs, lintegral_trim _ hf, trim_measurableSet_eq _ hs,
     withDensity_apply _ (hm s hs)]
 
 end Trim
+
+lemma rnDeriv_toReal_pos [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν) :
+    ∀ᵐ x ∂μ, 0 < (μ.rnDeriv ν x).toReal := by
+  filter_upwards [rnDeriv_pos hμν, hμν.ae_le (rnDeriv_ne_top μ ν)] with x h0 htop
+  simp_all only [pos_iff_ne_zero, ne_eq, not_false_eq_true, ENNReal.toReal_pos]
 
 lemma ae_rnDeriv_ne_zero_imp_of_ae_aux [SigmaFinite μ] [SigmaFinite ν] {p : α → Prop}
     (h : ∀ᵐ a ∂μ, p a) (hμν : μ ≪ ν) :
@@ -307,7 +313,6 @@ namespace MeasurableEmbedding
 variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {μ ν : Measure α}
 
 lemma _root_.MeasurableEmbedding.absolutelyContinuous_map (hμν : μ ≪ ν)
-    [SigmaFinite μ] [SigmaFinite ν]
     {g : α → β} (hg : MeasurableEmbedding g) :
     μ.map g ≪ ν.map g := by
   intro t ht
@@ -315,7 +320,6 @@ lemma _root_.MeasurableEmbedding.absolutelyContinuous_map (hμν : μ ≪ ν)
   exact hμν ht
 
 lemma _root_.MeasurableEmbedding.mutuallySingular_map (hμν : μ ⟂ₘ ν)
-    [SigmaFinite μ] [SigmaFinite ν]
     {g : α → β} (hg : MeasurableEmbedding g) :
     μ.map g ⟂ₘ ν.map g := by
   refine ⟨g '' hμν.nullSet, hg.measurableSet_image' hμν.measurableSet_nullSet, ?_, ?_⟩
