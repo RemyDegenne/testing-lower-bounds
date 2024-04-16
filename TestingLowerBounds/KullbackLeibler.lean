@@ -8,7 +8,7 @@ import TestingLowerBounds.FDiv.CondFDiv
 import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
 import TestingLowerBounds.ForMathlib.L1Space
 
-lemma foo (n : ℕ) : 0 ≤ n := by exact? -- trick to make exact? work TODO : erase this when we are done
+-- lemma foo (n : ℕ) : 0 ≤ n := by exact? -- trick to make exact? work TODO : erase this when we are done
 
 
 /-!
