@@ -112,7 +112,6 @@ lemma kl_ge_mul_log' [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
   (le_fDiv_of_ac Real.convexOn_mul_log Real.continuous_mul_log.continuousOn hμν).trans_eq
     kl_eq_fDiv.symm
 
-
 lemma kl_ge_mul_log [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     (μ Set.univ).toReal * log ((μ Set.univ).toReal / (ν Set.univ).toReal) ≤ kl μ ν := by
   by_cases hμν : μ ≪ ν
@@ -195,18 +194,18 @@ def condKL (κ η : kernel α β) (μ : Measure α) : EReal :=
   then ((μ[fun a ↦ (kl (κ a) (η a)).toReal] : ℝ) : EReal)
   else ⊤
 
-lemma condKL_of_ae_finite_of_integrable (h1 : ∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤)
+lemma condKL_of_ae_ne_top_of_integrable (h1 : ∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤)
     (h2 : Integrable (fun a ↦ (kl (κ a) (η a)).toReal) μ) :
     condKL κ η μ = (μ[fun a ↦ (kl (κ a) (η a)).toReal] : ℝ) := if_pos ⟨h1, h2⟩
 
 @[simp]
-lemma condKL_of_not_ae_finite (h : ¬ (∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤)) :
+lemma condKL_of_not_ae_ne_top (h : ¬ (∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤)) :
     condKL κ η μ = ⊤ := if_neg (not_and_of_not_left _ h)
 
 @[simp]
 lemma condKL_of_not_ae_integrable (h : ¬ ∀ᵐ a ∂μ, Integrable (llr (κ a) (η a)) (κ a)) :
     condKL κ η μ = ⊤ := by
-  apply condKL_of_not_ae_finite
+  apply condKL_of_not_ae_ne_top
   contrapose! h
   filter_upwards [h] with a ha
   contrapose! ha
@@ -215,7 +214,7 @@ lemma condKL_of_not_ae_integrable (h : ¬ ∀ᵐ a ∂μ, Integrable (llr (κ a)
 @[simp]
 lemma condKL_of_not_ae_ac (h : ¬ ∀ᵐ x ∂μ, κ x ≪ η x) :
     condKL κ η μ = ⊤ := by
-  apply condKL_of_not_ae_finite
+  apply condKL_of_not_ae_ne_top
   contrapose! h
   filter_upwards [h] with x ha
   contrapose! ha
@@ -231,7 +230,7 @@ lemma condKL_of_not_integrable' (h : ¬ Integrable (fun a ↦ integral (κ a) (l
   contrapose! h
   have hh : (fun a => integral (κ a) (llr (κ a) (η a))) =ᵐ[μ] fun a => (kl (κ a) (η a)).toReal := by
     have h1 := of_not_not (condKL_of_not_ae_ac.mt h)
-    have h2 := of_not_not (condKL_of_not_ae_finite.mt h)
+    have h2 := of_not_not (condKL_of_not_ae_ne_top.mt h)
     filter_upwards [h1, h2] with a ha1 ha2
     rw [kl_of_ac_of_integrable ha1 (of_not_not (kl_of_not_integrable.mt ha2))]
     simp only [EReal.toReal_coe]
@@ -251,12 +250,12 @@ lemma condKL_eq_condFDiv [IsFiniteKernel κ] [IsFiniteKernel η] :
     refine (condFDiv_of_not_integrable ?_).symm
     convert h2 using 4 with a
     rw [← kl_eq_fDiv]
-  simp only [ne_eq, h1, h2, condKL_of_ae_finite_of_integrable, ← kl_eq_fDiv, condFDiv_eq']
+  simp only [ne_eq, h1, h2, condKL_of_ae_ne_top_of_integrable, ← kl_eq_fDiv, condFDiv_eq']
 
 @[simp]
 lemma condKL_self (κ : kernel α β) (μ : Measure α) [IsFiniteKernel κ] : condKL κ κ μ = 0 := by
   simp only [kl_self, ne_eq, not_false_eq_true, eventually_true, EReal.toReal_zero, integrable_zero,
-    condKL_of_ae_finite_of_integrable, integral_zero, EReal.coe_zero, EReal.zero_ne_top]
+    condKL_of_ae_ne_top_of_integrable, integral_zero, EReal.coe_zero, EReal.zero_ne_top]
 
 lemma condKL_ne_bot (κ η : kernel α β) (μ : Measure α) : condKL κ η μ ≠ ⊥ := by
   rw [condKL]
@@ -379,7 +378,7 @@ lemma kl_compProd [CountablyGenerated β] [IsMarkovKernel κ] [IsMarkovKernel η
     · rw [← llr_def, ← kl_of_ac_of_integrable hμν]
       exact intμν
     · simp_rw [← llr_def]
-      rw [condKL_of_ae_finite_of_integrable _ _]
+      rw [condKL_of_ae_ne_top_of_integrable _ _]
       rotate_left
       · filter_upwards [hκη, intκη2] with a ha hκηa
         intro h
