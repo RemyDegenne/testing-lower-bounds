@@ -138,7 +138,7 @@ Apply Theorem~\ref{thm:fDiv_convex}
   \lean{ProbabilityTheory.integrable_llr_compProd_iff}
   \leanok
   \uses{}
-  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels such that $\mu \otimes \kappa \ll \nu \otimes \eta$. Then $p \mapsto \log \frac{d \mu \otimes \kappa}{d \nu \otimes \eta}(p)$ is $\nu \otimes \eta$-integrable if and only if the following hold:
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels such that $\mu \otimes \kappa \ll \nu \otimes \eta$. Then $p \mapsto \log \frac{d \mu \otimes \kappa}{d \nu \otimes \eta}(p)$ is $\mu \otimes \kappa$-integrable if and only if the following hold:
   \begin{enumerate}
     \item $x \mapsto \log \frac{d \mu}{d \nu}(x)$ is $\mu$-integrable \label{:1}
     \item $x \mapsto \int_y  \log \frac{d \kappa(x)}{d \eta(x)}(y) \partial \kappa(x)$ is $\mu$-integrable \label{:2}
@@ -185,16 +185,18 @@ Then using 1.\ we can conclude that $x \mapsto \int_y \log \frac{d \kappa(x)}{d 
 
 \begin{theorem}[Chain rule, kernel version]
   \label{thm:kl_chain_rule}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.kl_compProd}
+  \leanok
   \uses{def:KL, def:condKL}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ two Markov kernels.
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ two Markov kernels.
   Then $\KL(\mu \otimes \kappa, \nu \otimes \eta) = \KL(\mu, \nu) + \KL(\kappa, \eta \mid \mu)$.
 \end{theorem}
 
 \begin{proof}
-\uses{lem:rnDeriv_compProd}
-Use Lemma~\ref{lem:rnDeriv_compProd} and Corollary~\ref{cor:rnDeriv_value} in a computation:
+\uses{lem:rnDeriv_compProd, cor:rnDeriv_value, lem:integrable_llr_compProd_iff}
+Handle the case where $\mu \otimes \kappa$ is not absolutely continuous with respect to  $\nu \otimes \eta$ first, then the case where $p \mapsto \log \frac{d \mu \otimes \kappa}{d \nu \otimes \eta}(p)$ is not $\mu \otimes \kappa$-integrable using Lemma~\ref{lem:integrable_llr_compProd_iff}.
+
+For the case where $\mu \otimes \kappa \ll \nu \otimes \eta$ and $p \mapsto \log \frac{d \mu \otimes \kappa}{d \nu \otimes \eta}(p)$ is $\mu \otimes \kappa$-integrable use Lemma~\ref{lem:rnDeriv_compProd} and Corollary~\ref{cor:rnDeriv_value} in a computation:
 \begin{align*}
 \KL(\mu \otimes \kappa, \nu \otimes \eta)
 &= \int_p \log \frac{d(\mu \otimes \kappa)}{d(\nu \otimes \eta)}(p) \partial (\mu \otimes \kappa)
