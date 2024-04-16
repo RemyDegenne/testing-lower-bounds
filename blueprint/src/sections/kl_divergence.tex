@@ -132,6 +132,48 @@ Apply Lemma~\ref{lem:kl_ge} and use $\mu(\mathcal X) = \nu (\mathcal X)$.
 Apply Theorem~\ref{thm:fDiv_convex}
 \end{proof}
 
+%TODO : this may be moved to another section about integrability
+\begin{lemma}
+  \label{lem:integrable_llr_compProd_iff}
+  \lean{ProbabilityTheory.integrable_llr_compProd_iff}
+  \leanok
+  \uses{}
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels such that $\mu \otimes \kappa \ll \nu \otimes \eta$. Then $p \mapsto \log \frac{d \mu \otimes \kappa}{d \nu \otimes \eta}(p)$ is $\nu \otimes \eta$-integrable if and only if the following hold:
+  \begin{itemize}
+    \item $a \mapsto \log \frac{d \mu}{d \nu}(a)$ is $\mu$-integrable \label{:1}
+    \item $a \mapsto \int_x  \log \frac{d \kappa(a)}{d \eta(a)}(x) \partial \kappa(a)$ is $\mu$-integrable \label{:2}
+    \item for $\mu$-almost all $a$, $x \mapsto \log \frac{d \kappa(a)}{d \eta(a)}(x)$ is $\kappa(a)$-integrable \label{:3}
+  \end{itemize}
+\end{lemma}
+
+\begin{proof}
+\uses{def:KL, lem:integrable_fDiv_compProd_iff}
+Note that from the hypothesis it easily follows that $\mu \ll \nu$ and for $\mu$-almost all $a$ $\kappa(a) \ll \eta(a)$.
+Applying \Cref{lem:integrable_fDiv_compProd_iff} we know that $\log \frac{d \mu \otimes \kappa}{d \nu \otimes \eta}(p)$ is $\nu \otimes \eta$-integrable iff:
+% make a numbered list, but not with numbers, with letters or other identifiers, to distinguish it from the previous list
+\begin{enumerate}
+    \item for $\nu$-almost all $a$, $x \mapsto \log \frac{d \mu}{d \nu}(a)$ is $\mu$-integrable \label{:a}
+    $a \mapsto \log \frac{d \mu}{d \nu}(a)$ is $\mu$-integrable \label{:1}
+    \item $a \mapsto \int_x  \log \frac{d \kappa(a)}{d \eta(a)}(x) \partial \kappa(a)$ is $\mu$-integrable \label{:2}
+    \item for $\mu$-almost all $a$, $x \mapsto \log \frac{d \kappa(a)}{d \eta(a)}(x)$ is $\kappa(a)$-integrable \label{:3}
+\end{enumerate}
+
+{\bfseries($\Leftarrow$)} From \ref{:3} we have that $\KL(\kappa (a), \eta (a)) \neq +\infty$ $\mu$-a.e. 
+
+
+
+
+{\bfseries($\Rightarrow$\ref{:1})}
+
+{\bfseries($\Rightarrow$\ref{:2})}
+
+{\bfseries($\Rightarrow$\ref{:3})}
+
+Apply Theorem~\ref{thm:fDiv_convex}
+\end{proof}
+
+
+
 \section{Chain rule and tensorization}
 
 \begin{theorem}[Chain rule, kernel version]
