@@ -112,7 +112,8 @@ lemma kl_ge_mul_log' [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
   (le_fDiv_of_ac Real.convexOn_mul_log Real.continuous_mul_log.continuousOn hμν).trans_eq
     kl_eq_fDiv.symm
 
-lemma kl_ge_mul_log (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
+
+lemma kl_ge_mul_log [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     (μ Set.univ).toReal * log ((μ Set.univ).toReal / (ν Set.univ).toReal) ≤ kl μ ν := by
   by_cases hμν : μ ≪ ν
   swap; · simp [hμν]
@@ -163,7 +164,7 @@ lemma kl_nonneg (μ ν : Measure α) [IsProbabilityMeasure μ] [IsProbabilityMea
   swap; · rw [kl_of_not_integrable h_int]; simp
   calc 0
     = ((μ Set.univ).toReal : EReal) * log ((μ Set.univ).toReal / (ν Set.univ).toReal) := by simp
-  _ ≤ kl μ ν := kl_ge_mul_log μ ν
+  _ ≤ kl μ ν := kl_ge_mul_log
 
 lemma kl_eq_zero_iff [SigmaFinite μ] [SigmaFinite ν] : kl μ ν = 0 ↔ μ = ν := by
   constructor <;> intro h
@@ -271,14 +272,14 @@ lemma condKL_nonneg (κ η : kernel α β) [IsMarkovKernel κ] [IsMarkovKernel �
   · exact Real.continuous_mul_log.continuousOn
   · norm_num
 
-lemma kl_compProd_left [CountablyGenerated β] (μ : Measure α) [IsFiniteMeasure μ]
-    (κ η : kernel α β) [IsMarkovKernel κ] [IsFiniteKernel η] :
+lemma kl_compProd_left [CountablyGenerated β] [IsFiniteMeasure μ] [IsMarkovKernel κ]
+    [IsFiniteKernel η] :
     kl (μ ⊗ₘ κ) (μ ⊗ₘ η) = condKL κ η μ := by
   rw [kl_eq_fDiv, condKL_eq_condFDiv]
   exact fDiv_compProd_left μ κ η (by measurability) Real.convexOn_mul_log
 
-lemma kl_compProd_right [CountablyGenerated β] (μ ν : Measure α) [IsFiniteMeasure μ]
-    [IsFiniteMeasure ν] (κ : kernel α β) [IsMarkovKernel κ] :
+lemma kl_compProd_right [CountablyGenerated β] [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    [IsMarkovKernel κ] :
     kl (μ ⊗ₘ κ) (ν ⊗ₘ κ) = kl μ ν := by
   rw [kl_eq_fDiv, kl_eq_fDiv]
   exact fDiv_compProd_right μ ν κ (by measurability) Real.convexOn_mul_log
@@ -288,8 +289,8 @@ lemma kl_compProd_right [CountablyGenerated β] (μ ν : Measure α) [IsFiniteMe
 -- TODO : the name of this lemma in the blueprint is kl_chain_rule, is it ok to keep it like this in lean or should we change one of the two names?
 
 /--The chain rule for the KL divergence.-/
-lemma kl_compProd [CountablyGenerated β] (κ η : kernel α β) [IsMarkovKernel κ] [IsMarkovKernel η]
-    (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
+lemma kl_compProd [CountablyGenerated β] [IsMarkovKernel κ] [IsMarkovKernel η] [IsFiniteMeasure μ]
+    [IsFiniteMeasure ν] :
     kl (μ ⊗ₘ κ) (ν ⊗ₘ η) = kl μ ν + condKL κ η μ := by
   by_cases h_prod : (μ ⊗ₘ κ) ≪ (ν ⊗ₘ η)
   swap
