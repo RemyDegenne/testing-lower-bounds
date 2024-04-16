@@ -68,6 +68,16 @@ lemma integrable_llr_compProd_of_integrable_llr [CountablyGenerated β] [IsMarko
     · simp_rw [← llr_def]
       exact hκη_int
 
+lemma integrable_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMarkovKernel κ]
+    [IsMarkovKernel η] [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
+    (h_int : Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ)) :
+    Integrable (llr μ ν) μ := by
+  have ⟨hμν_ac, hκη_ac⟩ := kernel.Measure.absolutelyContinuous_compProd_iff.mp h_prod
+  rw [← integrable_rnDeriv_mul_log_iff h_prod] at h_int
+  replace h_int := integrable_f_rnDeriv_of_integrable_compProd' μ ν κ η (by measurability)
+    Real.convexOn_mul_log Real.continuous_mul_log.continuousOn h_int (fun _ ↦ hκη_ac)
+  exact (integrable_rnDeriv_mul_log_iff hμν_ac).mp h_int
+
 lemma ae_integrable_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMarkovKernel κ]
     [IsFiniteKernel η] [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
     (h_int : Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ)) :
@@ -90,16 +100,6 @@ lemma ae_integrable_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMa
   apply (MeasureTheory.integrable_rnDeriv_smul_iff hκη_ac).mp at h_int
   replace h_int := Integrable.integrable_const_add_iff.mp  (Integrable.congr h_int h)
   exact (llr_def _ _).symm ▸ h_int
-
-lemma integrable_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMarkovKernel κ]
-    [IsMarkovKernel η] [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
-    (h_int : Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ)) :
-    Integrable (llr μ ν) μ := by
-  have ⟨hμν_ac, hκη_ac⟩ := kernel.Measure.absolutelyContinuous_compProd_iff.mp h_prod
-  rw [← integrable_rnDeriv_mul_log_iff h_prod] at h_int
-  replace h_int := integrable_f_rnDeriv_of_integrable_compProd' μ ν κ η (by measurability)
-    Real.convexOn_mul_log Real.continuous_mul_log.continuousOn h_int (fun _ ↦ hκη_ac)
-  exact (integrable_rnDeriv_mul_log_iff hμν_ac).mp h_int
 
 lemma integrable_integral_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMarkovKernel κ]
     [IsMarkovKernel η] [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
@@ -148,5 +148,3 @@ lemma integrable_llr_compProd_iff [CountablyGenerated β] [IsMarkovKernel κ]
   · exact integrable_llr_compProd_of_integrable_llr h_prod h.1.1 h.1.2 h.2
 
 end ProbabilityTheory
-
-#minimize_imports
