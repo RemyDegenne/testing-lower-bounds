@@ -284,8 +284,6 @@ lemma kl_compProd_right [CountablyGenerated β] [IsFiniteMeasure μ] [IsFiniteMe
   rw [kl_eq_fDiv, kl_eq_fDiv]
   exact fDiv_compProd_right μ ν κ (by measurability) Real.convexOn_mul_log
 
-
--- TODO : consider changing the arguments, in particular the kernels and measures may be put between curly braces, but maybe not, since there are no other hypothesis that mention them, so they cannot be inferred.
 -- TODO : the name of this lemma in the blueprint is kl_chain_rule, is it ok to keep it like this in lean or should we change one of the two names?
 
 /--The chain rule for the KL divergence.-/
