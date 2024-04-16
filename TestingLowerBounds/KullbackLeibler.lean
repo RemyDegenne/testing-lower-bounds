@@ -181,111 +181,10 @@ lemma kl_eq_zero_iff [SigmaFinite μ] [SigmaFinite ν] : kl μ ν = 0 ↔ μ = �
 
 end kl_nonneg
 
-section Conditional
+section Integrability
+-- TODO : consider giving this section a different namespae, maybe MeasureTheory.Integrability
 
 variable {β : Type*} {mβ : MeasurableSpace β} {κ η : kernel α β} {μ : Measure α}
-
-open Classical in
-
-/--
-Kullback-Leibler divergence between two kernels κ and η conditional to a measure μ.
-It is defined as KL(κ, η | μ) := ∫ x, KL(κ x, η x) dμ.
--/
-noncomputable
-def condKL (κ η : kernel α β) (μ : Measure α) : EReal :=
-  if (∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤)
-    ∧ (Integrable (fun a ↦ (kl (κ a) (η a)).toReal) μ)
-  then ((μ[fun a ↦ (kl (κ a) (η a)).toReal] : ℝ) : EReal)
-  else ⊤
-
-lemma condKL_of_ae_finite_of_integrable (h1 : ∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤)
-    (h2 : Integrable (fun a ↦ (kl (κ a) (η a)).toReal) μ) :
-    condKL κ η μ = (μ[fun a ↦ (kl (κ a) (η a)).toReal] : ℝ) := if_pos ⟨h1, h2⟩
-
-@[simp]
-lemma condKL_of_not_ae_finite (h : ¬ (∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤)) :
-    condKL κ η μ = ⊤ := if_neg (not_and_of_not_left _ h)
-
-@[simp]
-lemma condKL_of_not_ae_integrable (h : ¬ ∀ᵐ a ∂μ, Integrable (llr (κ a) (η a)) (κ a)) :
-    condKL κ η μ = ⊤ := by
-  apply condKL_of_not_ae_finite
-  contrapose! h
-  filter_upwards [h] with a ha
-  contrapose! ha
-  simp only [ha, ne_eq, not_false_eq_true, kl_of_not_integrable]
-
-@[simp]
-lemma condKL_of_not_ae_ac (h : ¬ ∀ᵐ x ∂μ, κ x ≪ η x) :
-    condKL κ η μ = ⊤ := by
-  apply condKL_of_not_ae_finite
-  contrapose! h
-  filter_upwards [h] with x ha
-  contrapose! ha
-  simp only [ha, not_false_eq_true, kl_of_not_ac]
-
-@[simp]
-lemma condKL_of_not_integrable (h : ¬ Integrable (fun a ↦ (kl (κ a) (η a)).toReal) μ) :
-    condKL κ η μ = ⊤ := if_neg (not_and_of_not_right _ h)
-
-@[simp]
-lemma condKL_of_not_integrable' (h : ¬ Integrable (fun a ↦ integral (κ a) (llr (κ a) (η a))) μ) :
-    condKL κ η μ = ⊤ := by
-  contrapose! h
-  have hh : (fun a => integral (κ a) (llr (κ a) (η a))) =ᵐ[μ] fun a => (kl (κ a) (η a)).toReal := by
-    have h1 := of_not_not (condKL_of_not_ae_ac.mt h)
-    have h2 := of_not_not (condKL_of_not_ae_finite.mt h)
-    filter_upwards [h1, h2] with a ha1 ha2
-    rw [kl_of_ac_of_integrable ha1 (of_not_not (kl_of_not_integrable.mt ha2))]
-    simp only [EReal.toReal_coe]
-  exact Integrable.congr (of_not_not (condKL_of_not_integrable.mt h)) hh.symm
-
-lemma condKL_eq_condFDiv [IsFiniteKernel κ] [IsFiniteKernel η] :
-    condKL κ η μ = condFDiv (fun x ↦ x * log x) κ η μ := by
-  by_cases h1 : ∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤
-  swap
-  · simp [h1]
-    refine (condFDiv_of_not_ae_finite ?_).symm
-    convert h1 using 4 with a
-    rw [kl_eq_fDiv]
-  by_cases h2 : Integrable (fun x ↦ (kl (κ x) (η x)).toReal) μ
-  swap
-  · simp [h2]
-    refine (condFDiv_of_not_integrable ?_).symm
-    convert h2 using 4 with a
-    rw [← kl_eq_fDiv]
-  simp only [ne_eq, h1, h2, condKL_of_ae_finite_of_integrable, ← kl_eq_fDiv, condFDiv_eq']
-
-@[simp]
-lemma condKL_self (κ : kernel α β) (μ : Measure α) [IsFiniteKernel κ] : condKL κ κ μ = 0 := by
-  simp only [kl_self, ne_eq, not_false_eq_true, eventually_true, EReal.toReal_zero, integrable_zero,
-    condKL_of_ae_finite_of_integrable, integral_zero, EReal.coe_zero, EReal.zero_ne_top]
-
-lemma condKL_ne_bot (κ η : kernel α β) (μ : Measure α) : condKL κ η μ ≠ ⊥ := by
-  rw [condKL]
-  split_ifs with h
-  · simp only [ne_eq, EReal.coe_ne_bot, not_false_eq_true]
-  · norm_num
-
-lemma condKL_nonneg (κ η : kernel α β) [IsMarkovKernel κ] [IsMarkovKernel η] (μ : Measure α) :
-    0 ≤ condKL κ η μ := by
-  rw [condKL_eq_condFDiv]
-  apply condFDiv_nonneg
-  · exact Real.convexOn_mul_log
-  · exact Real.continuous_mul_log.continuousOn
-  · norm_num
-
-lemma kl_compProd_left [CountablyGenerated β] (μ : Measure α) [IsFiniteMeasure μ]
-    (κ η : kernel α β) [IsMarkovKernel κ] [IsFiniteKernel η] :
-    kl (μ ⊗ₘ κ) (μ ⊗ₘ η) = condKL κ η μ := by
-  rw [kl_eq_fDiv, condKL_eq_condFDiv]
-  exact fDiv_compProd_left μ κ η (by measurability) Real.convexOn_mul_log
-
-lemma kl_compProd_right [CountablyGenerated β] (μ ν : Measure α) [IsFiniteMeasure μ]
-    [IsFiniteMeasure ν] (κ : kernel α β) [IsMarkovKernel κ] :
-    kl (μ ⊗ₘ κ) (ν ⊗ₘ κ) = kl μ ν := by
-  rw [kl_eq_fDiv, kl_eq_fDiv]
-  exact fDiv_compProd_right μ ν κ (by measurability) Real.convexOn_mul_log
 
 lemma integrable_llr_compProd_of_integrable_llr [CountablyGenerated β] [IsMarkovKernel κ]
     [IsFiniteKernel η] [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
@@ -415,6 +314,7 @@ lemma integrable_integral_llr_of_integrable_llr_compProd [CountablyGenerated β]
   exact h_int
 
 --TODO : put this lemma and the auxiliary ones in the right place, maybe in a section Integrable in this file, or in the file about llr? Also consider adding it to the blueprint
+-- I realized that inside the proof we are using the definition of kl, so these lemmas as they are now cannot be moved outside this file, one way could be to try and refactor the proof in order to avois using kl, but this seems like a lot of work and maybe it's not worth it, another idea is to leave it in this file, maybe giving it a separate section, for now I am going with this last option.
 
 lemma integrable_llr_compProd_iff [CountablyGenerated β] [IsMarkovKernel κ]
     [IsMarkovKernel η] [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_prod : μ ⊗ₘ κ ≪ ν ⊗ₘ η) :
@@ -425,6 +325,115 @@ lemma integrable_llr_compProd_iff [CountablyGenerated β] [IsMarkovKernel κ]
   · exact ⟨⟨integrable_llr_of_integrable_llr_compProd h_prod h, integrable_integral_llr_of_integrable_llr_compProd h_prod h⟩,
       ae_integrable_llr_of_integrable_llr_compProd h_prod h⟩
   · exact integrable_llr_compProd_of_integrable_llr h_prod h.1.1 h.1.2 h.2
+
+end Integrability
+
+section Conditional
+
+variable {β : Type*} {mβ : MeasurableSpace β} {κ η : kernel α β} {μ : Measure α}
+
+open Classical in
+
+/--
+Kullback-Leibler divergence between two kernels κ and η conditional to a measure μ.
+It is defined as KL(κ, η | μ) := ∫ x, KL(κ x, η x) dμ.
+-/
+noncomputable
+def condKL (κ η : kernel α β) (μ : Measure α) : EReal :=
+  if (∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤)
+    ∧ (Integrable (fun a ↦ (kl (κ a) (η a)).toReal) μ)
+  then ((μ[fun a ↦ (kl (κ a) (η a)).toReal] : ℝ) : EReal)
+  else ⊤
+
+lemma condKL_of_ae_finite_of_integrable (h1 : ∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤)
+    (h2 : Integrable (fun a ↦ (kl (κ a) (η a)).toReal) μ) :
+    condKL κ η μ = (μ[fun a ↦ (kl (κ a) (η a)).toReal] : ℝ) := if_pos ⟨h1, h2⟩
+
+@[simp]
+lemma condKL_of_not_ae_finite (h : ¬ (∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤)) :
+    condKL κ η μ = ⊤ := if_neg (not_and_of_not_left _ h)
+
+@[simp]
+lemma condKL_of_not_ae_integrable (h : ¬ ∀ᵐ a ∂μ, Integrable (llr (κ a) (η a)) (κ a)) :
+    condKL κ η μ = ⊤ := by
+  apply condKL_of_not_ae_finite
+  contrapose! h
+  filter_upwards [h] with a ha
+  contrapose! ha
+  simp only [ha, ne_eq, not_false_eq_true, kl_of_not_integrable]
+
+@[simp]
+lemma condKL_of_not_ae_ac (h : ¬ ∀ᵐ x ∂μ, κ x ≪ η x) :
+    condKL κ η μ = ⊤ := by
+  apply condKL_of_not_ae_finite
+  contrapose! h
+  filter_upwards [h] with x ha
+  contrapose! ha
+  simp only [ha, not_false_eq_true, kl_of_not_ac]
+
+@[simp]
+lemma condKL_of_not_integrable (h : ¬ Integrable (fun a ↦ (kl (κ a) (η a)).toReal) μ) :
+    condKL κ η μ = ⊤ := if_neg (not_and_of_not_right _ h)
+
+@[simp]
+lemma condKL_of_not_integrable' (h : ¬ Integrable (fun a ↦ integral (κ a) (llr (κ a) (η a))) μ) :
+    condKL κ η μ = ⊤ := by
+  contrapose! h
+  have hh : (fun a => integral (κ a) (llr (κ a) (η a))) =ᵐ[μ] fun a => (kl (κ a) (η a)).toReal := by
+    have h1 := of_not_not (condKL_of_not_ae_ac.mt h)
+    have h2 := of_not_not (condKL_of_not_ae_finite.mt h)
+    filter_upwards [h1, h2] with a ha1 ha2
+    rw [kl_of_ac_of_integrable ha1 (of_not_not (kl_of_not_integrable.mt ha2))]
+    simp only [EReal.toReal_coe]
+  exact Integrable.congr (of_not_not (condKL_of_not_integrable.mt h)) hh.symm
+
+lemma condKL_eq_condFDiv [IsFiniteKernel κ] [IsFiniteKernel η] :
+    condKL κ η μ = condFDiv (fun x ↦ x * log x) κ η μ := by
+  by_cases h1 : ∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤
+  swap
+  · simp [h1]
+    refine (condFDiv_of_not_ae_finite ?_).symm
+    convert h1 using 4 with a
+    rw [kl_eq_fDiv]
+  by_cases h2 : Integrable (fun x ↦ (kl (κ x) (η x)).toReal) μ
+  swap
+  · simp [h2]
+    refine (condFDiv_of_not_integrable ?_).symm
+    convert h2 using 4 with a
+    rw [← kl_eq_fDiv]
+  simp only [ne_eq, h1, h2, condKL_of_ae_finite_of_integrable, ← kl_eq_fDiv, condFDiv_eq']
+
+@[simp]
+lemma condKL_self (κ : kernel α β) (μ : Measure α) [IsFiniteKernel κ] : condKL κ κ μ = 0 := by
+  simp only [kl_self, ne_eq, not_false_eq_true, eventually_true, EReal.toReal_zero, integrable_zero,
+    condKL_of_ae_finite_of_integrable, integral_zero, EReal.coe_zero, EReal.zero_ne_top]
+
+lemma condKL_ne_bot (κ η : kernel α β) (μ : Measure α) : condKL κ η μ ≠ ⊥ := by
+  rw [condKL]
+  split_ifs with h
+  · simp only [ne_eq, EReal.coe_ne_bot, not_false_eq_true]
+  · norm_num
+
+lemma condKL_nonneg (κ η : kernel α β) [IsMarkovKernel κ] [IsMarkovKernel η] (μ : Measure α) :
+    0 ≤ condKL κ η μ := by
+  rw [condKL_eq_condFDiv]
+  apply condFDiv_nonneg
+  · exact Real.convexOn_mul_log
+  · exact Real.continuous_mul_log.continuousOn
+  · norm_num
+
+lemma kl_compProd_left [CountablyGenerated β] (μ : Measure α) [IsFiniteMeasure μ]
+    (κ η : kernel α β) [IsMarkovKernel κ] [IsFiniteKernel η] :
+    kl (μ ⊗ₘ κ) (μ ⊗ₘ η) = condKL κ η μ := by
+  rw [kl_eq_fDiv, condKL_eq_condFDiv]
+  exact fDiv_compProd_left μ κ η (by measurability) Real.convexOn_mul_log
+
+lemma kl_compProd_right [CountablyGenerated β] (μ ν : Measure α) [IsFiniteMeasure μ]
+    [IsFiniteMeasure ν] (κ : kernel α β) [IsMarkovKernel κ] :
+    kl (μ ⊗ₘ κ) (ν ⊗ₘ κ) = kl μ ν := by
+  rw [kl_eq_fDiv, kl_eq_fDiv]
+  exact fDiv_compProd_right μ ν κ (by measurability) Real.convexOn_mul_log
+
 
 -- TODO : consider changing the arguments, in particular the kernels and measures may be put between curly braces, but maybe not, since there are no other hypothesis that mention them, so they cannot be inferred.
 -- TODO : the name of this lemma in the blueprint is kl_chain_rule, is it ok to keep it like this in lean or should we change one of the two names?
