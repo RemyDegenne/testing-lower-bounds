@@ -169,7 +169,7 @@ Therefore $$x \mapsto \frac{d \mu}{d \nu}(x) \log \frac{d \mu}{d \nu}(x) + \frac
 {\bfseries($\Rightarrow$1.)} This follows from the hypothesis applying a more general Lemma for f divergences, see ProbabilityTheory.integrable\_f\_rnDeriv\_of\_integrable\_compProd' in the lean code.
 % TODO : add the lemma ProbabilityTheory.integrable_f_rnDeriv_of_integrable_compProd' to the blueprint and reference it here
 
-{\bfseries($\Rightarrow$3.\)} i.\ implies that $\mu$-a.e.\ $y \mapsto \frac{d \kappa(x)}{d \eta(x)}(y) \log \left(\frac{d \mu}{d \nu}(x) \frac{d \kappa(x)}{d \eta(x)}(y) \right)$ is $\eta(x)$-integrable, hence $y \mapsto \log \left(\frac{d \mu}{d \nu}(x) \frac{d \kappa(x)}{d \eta(x)}(y) \right) = \log \frac{d \mu}{d \nu}(x) + \log \frac{d \kappa(x)}{d \eta(x)}(y)$ is $\kappa(x)$-integrable. Then, since $\log \frac{d \mu}{d \nu}(x)$ is constant in $y$ and $\kappa(x)$ is a finite measure, $y \mapsto \log \frac{d \kappa(x)}{d \eta(x)}(y)$ is $\kappa(x)$-integrable.
+{\bfseries($\Rightarrow$3.)} i.\ implies that $\mu$-a.e.\ $y \mapsto \frac{d \kappa(x)}{d \eta(x)}(y) \log \left(\frac{d \mu}{d \nu}(x) \frac{d \kappa(x)}{d \eta(x)}(y) \right)$ is $\eta(x)$-integrable, hence $y \mapsto \log \left(\frac{d \mu}{d \nu}(x) \frac{d \kappa(x)}{d \eta(x)}(y) \right) = \log \frac{d \mu}{d \nu}(x) + \log \frac{d \kappa(x)}{d \eta(x)}(y)$ is $\kappa(x)$-integrable. Then, since $\log \frac{d \mu}{d \nu}(x)$ is constant in $y$ and $\kappa(x)$ is a finite measure, $y \mapsto \log \frac{d \kappa(x)}{d \eta(x)}(y)$ is $\kappa(x)$-integrable.
 
 {\bfseries($\Rightarrow$2.)} ii.\ implies that $x \mapsto  \int_y \frac{d \kappa(x)}{d \eta(x)}(y) \log \left(\frac{d \mu}{d \nu}(x) \frac{d \kappa(x)}{d \eta(x)}(y) \right) \partial \eta (x) = \int_y \log \left(\frac{d \mu}{d \nu}(x) \frac{d \kappa(x)}{d \eta(x)}(y) \right) \partial \kappa (x)$ is $\mu$-integrable. 
 Thanks to 3.\ we can split the integral:
@@ -191,6 +191,7 @@ Then using 1.\ we can conclude that $x \mapsto \int_y \log \frac{d \kappa(x)}{d 
   Let $\mu, \nu$ be two finite measures on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ two Markov kernels.
   Then $\KL(\mu \otimes \kappa, \nu \otimes \eta) = \KL(\mu, \nu) + \KL(\kappa, \eta \mid \mu)$.
 \end{theorem}
+
 
 \begin{proof}
 \uses{lem:rnDeriv_compProd, cor:rnDeriv_value, lem:integrable_llr_compProd_iff}
