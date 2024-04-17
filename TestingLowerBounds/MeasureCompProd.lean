@@ -72,7 +72,7 @@ lemma singularPart_compProd [MeasurableSpace.CountablyGenerated β]
         + (ν.withDensity (∂μ/∂ν) ⊗ₘ kernel.singularPart κ η) := by
     rw [← Measure.compProd_add_left, ← μ.haveLebesgueDecomposition_add ν]
   rw [this]
-  abel_nf
+  abel
 
 lemma singularPart_compProd' [MeasurableSpace.CountablyGenerated β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]

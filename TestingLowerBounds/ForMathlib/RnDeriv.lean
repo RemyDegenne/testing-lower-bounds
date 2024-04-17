@@ -14,9 +14,6 @@ open Real MeasureTheory Filter
 
 open scoped ENNReal MeasureTheory
 
--- merged in mathlib
-attribute [pp_dot] Measure.trim Measure.withDensity Measure.singularPart Measure.restrict
-  Measure.rnDeriv
 
 lemma MeasureTheory.integrable_of_le_of_le {α : Type*} {mα : MeasurableSpace α} {μ : Measure α}
     {f g₁ g₂ : α → ℝ} (hf : AEStronglyMeasurable f μ)
