@@ -5,7 +5,7 @@ Authors: Rémy Degenne
 -/
 import TestingLowerBounds.MeasureCompProd
 import TestingLowerBounds.FDiv.Basic
-import Mathlib.Probability.Kernel.Disintegration
+import Mathlib.Probability.Kernel.Disintegration.Basic
 
 /-!
 
@@ -907,7 +907,7 @@ lemma fDiv_fst_le [Nonempty β] [StandardBorelSpace β]
     (hf : StronglyMeasurable f)
     (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0)) :
     fDiv f μ.fst ν.fst ≤ fDiv f μ ν := by
-  rw [measure_eq_compProd μ, measure_eq_compProd ν, kernel.Measure.fst_compProd,
+  rw [← Measure.compProd_fst_condKernel μ, ← Measure.compProd_fst_condKernel ν, kernel.Measure.fst_compProd,
     kernel.Measure.fst_compProd]
   exact le_fDiv_compProd μ.fst ν.fst μ.condKernel ν.condKernel hf hf_cvx hf_cont
 

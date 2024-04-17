@@ -73,8 +73,6 @@ lemma singularPart_compProd [MeasurableSpace.CountablyGenerated β]
     rw [← Measure.compProd_add_left, ← μ.haveLebesgueDecomposition_add ν]
   rw [this]
   abel_nf
-  congr
-  trivial
 
 lemma singularPart_compProd' [MeasurableSpace.CountablyGenerated β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
