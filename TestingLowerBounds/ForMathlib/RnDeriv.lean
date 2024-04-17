@@ -38,37 +38,6 @@ namespace MeasureTheory.Measure
 
 variable {α β : Type*} {m mα : MeasurableSpace α} {mβ : MeasurableSpace β} {μ ν : Measure α}
 
--- PRed
-@[simp]
-lemma singularPart_zero_right (μ : Measure α) : μ.singularPart 0 = μ := by
-  conv_rhs => rw [haveLebesgueDecomposition_add μ 0]
-  simp
-
--- PRed
-@[simp]
-lemma singularPart_singularPart (μ ν : Measure α) :
-    (μ.singularPart ν).singularPart ν = μ.singularPart ν := by
-  rw [Measure.singularPart_eq_self]
-  exact Measure.mutuallySingular_singularPart _ _
-
--- PRed
-lemma MutuallySingular.restrict (h : μ ⟂ₘ ν) (s : Set α) :
-    μ.restrict s ⟂ₘ ν := by
-  refine ⟨h.nullSet, h.measurableSet_nullSet, ?_, h.measure_compl_nullSet⟩
-  rw [Measure.restrict_apply h.measurableSet_nullSet]
-  exact measure_mono_null (Set.inter_subset_left _ _) h.measure_nullSet
-
--- PRed
-lemma singularPart_restrict (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν]
-    {s : Set α} (hs : MeasurableSet s) :
-    (μ.restrict s).singularPart ν = (μ.singularPart ν).restrict s := by
-  refine (Measure.eq_singularPart (f := s.indicator (μ.rnDeriv ν)) ?_ ?_ ?_).symm
-  · exact (μ.measurable_rnDeriv ν).indicator hs
-  · exact (Measure.mutuallySingular_singularPart μ ν).restrict s
-  · ext t ht
-    rw [Measure.restrict_apply ht, withDensity_indicator hs, ← restrict_withDensity hs,
-      ← Measure.restrict_add, ← μ.haveLebesgueDecomposition_add ν, Measure.restrict_apply ht]
-
 lemma rnDeriv_add_self_right (ν μ : Measure α) [SigmaFinite μ] [SigmaFinite ν] :
     ν.rnDeriv (μ + ν) =ᵐ[ν] fun x ↦ (μ.rnDeriv ν x + 1)⁻¹ := by
   have hν_ac : ν ≪ μ + ν := by rw [add_comm]; exact rfl.absolutelyContinuous.add_right _
@@ -230,13 +199,6 @@ example [SigmaFinite μ] [SigmaFinite ν] :
   rfl
 
 section Trim
-
--- PRed
-lemma AbsolutelyContinuous.trim (hm : m ≤ mα) (hμν : μ ≪ ν) :
-    μ.trim hm ≪ ν.trim hm := by
-  refine AbsolutelyContinuous.mk (fun s hs hsν ↦ ?_)
-  rw [trim_measurableSet_eq hm hs] at hsν ⊢
-  exact hμν hsν
 
 lemma toReal_rnDeriv_trim_of_ac (hm : m ≤ mα) [IsFiniteMeasure μ] [SigmaFinite ν]
     [SigmaFinite (ν.trim hm)] (hμν : μ ≪ ν) :
