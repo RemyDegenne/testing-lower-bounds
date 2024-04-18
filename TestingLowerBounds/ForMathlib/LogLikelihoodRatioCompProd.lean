@@ -9,7 +9,7 @@ open Real MeasureTheory MeasurableSpace
 
 namespace ProbabilityTheory
 
-variable {α : Type*} {β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
+variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
 variable {μ ν : Measure α} {κ η : kernel α β}
 
 
@@ -30,7 +30,7 @@ lemma integrable_llr_compProd_of_integrable_llr [CountablyGenerated β] [IsMarko
   have hμν_pos := Measure.rnDeriv_toReal_pos hμν_ac
   constructor
   · simp_rw [mul_assoc]
-    apply Measure.ae_int_mul_rnDeriv_of_ae_int
+    apply Measure.ae_integrable_mul_rnDeriv_of_ae_integrable
     filter_upwards [hκη_ac, hκη_ae, hμν_pos] with a ha hκηa_ae hμν_pos
     have hμν_zero : ((∂μ/∂ν) a).toReal ≠ 0 := by linarith
     apply (MeasureTheory.integrable_rnDeriv_smul_iff ha).mpr
@@ -88,7 +88,7 @@ lemma ae_integrable_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMa
   rw [integrable_f_rnDeriv_compProd_iff (by measurability) Real.convexOn_mul_log] at h_int
   replace h_int := h_int.1
   simp_rw [ENNReal.toReal_mul, mul_assoc] at h_int
-  apply Measure.ae_int_of_ae_int_mul_rnDeriv hμν_ac at h_int
+  apply Measure.ae_integrable_of_ae_integrable_mul_rnDeriv hμν_ac at h_int
   filter_upwards [h_int, hκη_ac, hμν_pos] with a h_int hκη_ac hμν_pos
   have hμν_zero : ((∂μ/∂ν) a).toReal ≠ 0 := by linarith
   have h : (fun x ↦ log (((∂μ/∂ν) a).toReal * ((∂κ a/∂η a) x).toReal))
@@ -133,7 +133,7 @@ lemma integrable_integral_llr_of_integrable_llr_compProd [CountablyGenerated β]
   replace h_int := h_int.2
   simp_rw [ENNReal.toReal_mul, mul_assoc, integral_mul_left] at h_int
   apply (MeasureTheory.integrable_rnDeriv_smul_iff hμν_ac).mp at h_int
-  replace h_int := (Integrable.integrable_add_integrable_iff hμν_int).mp (Integrable.congr h_int h.symm)
+  replace h_int := (Integrable.integrable_add_iff_integrable_right hμν_int).mp (Integrable.congr h_int h.symm)
   simp_rw [llr_def]
   exact h_int
 
