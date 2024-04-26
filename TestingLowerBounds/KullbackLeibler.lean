@@ -124,7 +124,8 @@ lemma kl_ge_mul_log (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure �
   by_cases hν : ν = 0
   · refine absurd ?_ hμ
     rw [hν] at hμν
-    apply? says exact Measure.measure_univ_eq_zero.mp (hμν rfl)
+    set_option says.verify true in
+    exact Measure.absolutelyContinuous_zero_iff.mp hμν
   let ν' := (ν Set.univ)⁻¹ • ν
   have : IsProbabilityMeasure ν' := by
     constructor
