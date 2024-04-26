@@ -3,7 +3,6 @@
 import Mathlib.MeasureTheory.Measure.LogLikelihoodRatio
 import TestingLowerBounds.FDiv.CondFDiv
 import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
-import TestingLowerBounds.ForMathlib.L1Space
 
 open Real MeasureTheory MeasurableSpace
 
@@ -98,7 +97,7 @@ lemma ae_integrable_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMa
     have hκη_zero : ((∂κ a/∂η a) x).toReal ≠ 0 := by linarith
     rw [Real.log_mul hμν_zero hκη_zero]
   apply (MeasureTheory.integrable_rnDeriv_smul_iff hκη_ac).mp at h_int
-  replace h_int := Integrable.integrable_const_add_iff.mp  (Integrable.congr h_int h)
+  replace h_int := integrable_const_add_iff.mp  (Integrable.congr h_int h)
   exact (llr_def _ _).symm ▸ h_int
 
 lemma integrable_integral_llr_of_integrable_llr_compProd [CountablyGenerated β] [IsMarkovKernel κ]
@@ -133,7 +132,7 @@ lemma integrable_integral_llr_of_integrable_llr_compProd [CountablyGenerated β]
   replace h_int := h_int.2
   simp_rw [ENNReal.toReal_mul, mul_assoc, integral_mul_left] at h_int
   apply (MeasureTheory.integrable_rnDeriv_smul_iff hμν_ac).mp at h_int
-  replace h_int := (Integrable.integrable_add_iff_integrable_right hμν_int).mp (Integrable.congr h_int h.symm)
+  replace h_int := (integrable_add_iff_integrable_right hμν_int).mp (Integrable.congr h_int h.symm)
   simp_rw [llr_def]
   exact h_int
 
