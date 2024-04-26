@@ -232,4 +232,13 @@ lemma integrable_f_rnDeriv_compProd_right_iff [IsFiniteMeasure μ]
 
 end Integrable
 
+/--The composition product of a measure and a constant kernel is the product between the two
+measures.-/
+@[simp]
+lemma compProd_const {ν : Measure β} [SFinite ν] [SFinite μ]:
+    μ ⊗ₘ (kernel.const α ν) = μ.prod ν := by
+  ext s hs
+  rw [Measure.compProd_apply hs, Measure.prod_apply hs]
+  simp_rw [kernel.const_apply]
+
 end ProbabilityTheory
