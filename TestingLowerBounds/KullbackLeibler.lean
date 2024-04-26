@@ -8,7 +8,6 @@ Authors: Rémy Degenne
 import Mathlib.MeasureTheory.Measure.LogLikelihoodRatio
 import TestingLowerBounds.FDiv.CondFDiv
 import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
-import TestingLowerBounds.ForMathlib.L1Space
 import TestingLowerBounds.ForMathlib.LogLikelihoodRatioCompProd
 
 /-!
