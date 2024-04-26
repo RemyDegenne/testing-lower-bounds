@@ -166,7 +166,7 @@ lemma integrable_singularPart [MeasurableSpace.CountablyGenerated β] [IsFiniteM
   rw [lintegral_singularPart _ _ _ MeasurableSet.univ]
   exact measure_lt_top _ _
 
-lemma set_integral_rnDeriv_mul_withDensity [MeasurableSpace.CountablyGenerated β]
+lemma setIntegral_rnDeriv_mul_withDensity [MeasurableSpace.CountablyGenerated β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
     {s : Set α} (hs : MeasurableSet s) {t : Set β} (ht : MeasurableSet t) :
@@ -188,9 +188,9 @@ lemma integral_rnDeriv_mul_withDensity [MeasurableSpace.CountablyGenerated β]
     {t : Set β} (ht : MeasurableSet t) :
     ∫ a, ((∂μ/∂ν) a).toReal *(kernel.withDensity η (kernel.rnDeriv κ η) a t).toReal ∂ν
       = ((ν ⊗ₘ η).withDensity (∂(μ ⊗ₘ κ)/∂(ν ⊗ₘ η)) (Set.univ ×ˢ t)).toReal := by
-  rw [← set_integral_rnDeriv_mul_withDensity μ ν κ η MeasurableSet.univ ht, integral_univ]
+  rw [← setIntegral_rnDeriv_mul_withDensity μ ν κ η MeasurableSet.univ ht, integral_univ]
 
-lemma set_integral_rnDeriv_mul_singularPart [MeasurableSpace.CountablyGenerated β]
+lemma setIntegral_rnDeriv_mul_singularPart [MeasurableSpace.CountablyGenerated β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
     {s : Set α} (hs : MeasurableSet s) {t : Set β} (ht : MeasurableSet t) :
@@ -213,9 +213,9 @@ lemma integral_rnDeriv_mul_singularPart [MeasurableSpace.CountablyGenerated β]
     {t : Set β} (ht : MeasurableSet t) :
     ∫ a, ((∂μ/∂ν) a).toReal * ((κ a).singularPart (η a) t).toReal ∂ν
       = (((ν.withDensity (∂μ/∂ν)) ⊗ₘ κ).singularPart (ν ⊗ₘ η) (Set.univ ×ˢ t)).toReal := by
-  rw [← set_integral_rnDeriv_mul_singularPart μ ν κ η MeasurableSet.univ ht, integral_univ]
+  rw [← setIntegral_rnDeriv_mul_singularPart μ ν κ η MeasurableSet.univ ht, integral_univ]
 
-lemma set_integral_singularPart [MeasurableSpace.CountablyGenerated β]
+lemma setIntegral_singularPart [MeasurableSpace.CountablyGenerated β]
     (μ : Measure α) [IsFiniteMeasure μ] (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
     {s : Set α} (hs : MeasurableSet s) {t : Set β} (ht : MeasurableSet t) :
     ∫ a in s, ((κ a).singularPart (η a) t).toReal ∂μ
@@ -230,7 +230,7 @@ lemma integral_singularPart [MeasurableSpace.CountablyGenerated β]
     {s : Set β} (hs : MeasurableSet s) :
     ∫ a, ((κ a).singularPart (η a) s).toReal ∂μ
       = ((μ ⊗ₘ κ).singularPart (μ ⊗ₘ η) (Set.univ ×ˢ s)).toReal := by
-  rw [← integral_univ, set_integral_singularPart _ _ _ MeasurableSet.univ hs]
+  rw [← integral_univ, setIntegral_singularPart _ _ _ MeasurableSet.univ hs]
 
 section Conditional
 

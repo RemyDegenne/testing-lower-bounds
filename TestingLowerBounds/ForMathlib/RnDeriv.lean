@@ -205,12 +205,12 @@ lemma toReal_rnDeriv_trim_of_ac (hm : m ≤ mα) [IsFiniteMeasure μ] [SigmaFini
     refine Measurable.stronglyMeasurable ?_
     exact @Measurable.ennreal_toReal _ m _ (Measure.measurable_rnDeriv _ _)
   rw [ae_eq_trim_iff _ h_meas stronglyMeasurable_condexp]
-  refine ae_eq_condexp_of_forall_set_integral_eq ?_ integrable_toReal_rnDeriv ?_ ?_
+  refine ae_eq_condexp_of_forall_setIntegral_eq ?_ integrable_toReal_rnDeriv ?_ ?_
     h_meas.aeStronglyMeasurable'
   · exact fun s _ _ ↦ (integrable_of_integrable_trim hm integrable_toReal_rnDeriv).integrableOn
   · intro s hs _
-    rw [integral_trim hm h_meas, set_integral_toReal_rnDeriv hμν, ← restrict_trim _ _ hs,
-      set_integral_toReal_rnDeriv (hμν.trim hm), trim_measurableSet_eq hm hs]
+    rw [integral_trim hm h_meas, setIntegral_toReal_rnDeriv hμν, ← restrict_trim _ _ hs,
+      setIntegral_toReal_rnDeriv (hμν.trim hm), trim_measurableSet_eq hm hs]
 
 lemma rnDeriv_trim_of_ac (hm : m ≤ mα) [IsFiniteMeasure μ] [SigmaFinite ν]
     [SigmaFinite (ν.trim hm)] (hμν : μ ≪ ν) :
