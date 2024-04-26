@@ -186,6 +186,11 @@ lemma mul_add_coe_of_nonneg (x : EReal) {y z : ℝ} (hy : 0 ≤ y) (hz : 0 ≤ z
   norm_cast
   rw [mul_add]
 
+lemma coe_add_mul_of_nonneg (x : EReal) {y z : ℝ} (hy : 0 ≤ y) (hz : 0 ≤ z) :
+    (y + z) * x =  y * x + z * x := by
+  simp_rw [mul_comm _ x]
+  exact EReal.mul_add_coe_of_nonneg x hy hz
+
 lemma toReal_nonneg {x : EReal} (hx : 0 ≤ x) : 0 ≤ x.toReal := by
   induction' x using EReal.rec with x
   · norm_num
@@ -199,5 +204,16 @@ lemma toReal_nonpos {x : EReal} (hx : x ≤ 0) : x.toReal ≤ 0 := by
   · simp only [toReal_coe]
     exact EReal.coe_nonpos.mp hx
   · norm_num
+
+lemma toReal_eq_zero_iff {x : EReal} : x.toReal ≠ 0 ↔ x ≠ 0 ∧ x ≠ ⊤ ∧ x ≠ ⊥ := by
+  induction' x using EReal.rec with x <;> norm_num
+
+@[simp]
+lemma nsmul_eq_mul {n : ℕ} {x : EReal} : n • x = n * x := by
+  induction n with
+  | zero => rw [Nat.zero_eq, zero_smul, Nat.cast_zero, zero_mul]
+  | succ n ih =>
+    rw [succ_nsmul, ih, Nat.cast_succ]
+    convert (EReal.coe_add_mul_of_nonneg x _ _).symm <;> simp
 
 end EReal
