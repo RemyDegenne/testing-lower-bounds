@@ -205,7 +205,10 @@ lemma toReal_nonpos {x : EReal} (hx : x ≤ 0) : x.toReal ≤ 0 := by
     exact EReal.coe_nonpos.mp hx
   · norm_num
 
-lemma toReal_eq_zero_iff {x : EReal} : x.toReal ≠ 0 ↔ x ≠ 0 ∧ x ≠ ⊤ ∧ x ≠ ⊥ := by
+lemma toReal_ne_zero_iff {x : EReal} : x.toReal ≠ 0 ↔ x ≠ 0 ∧ x ≠ ⊤ ∧ x ≠ ⊥ := by
+  induction' x using EReal.rec with x <;> norm_num
+
+lemma toReal_eq_zero_iff {x : EReal} : x.toReal = 0 ↔ x = 0 ∨ x = ⊤ ∨ x = ⊥ := by
   induction' x using EReal.rec with x <;> norm_num
 
 @[simp]
