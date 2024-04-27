@@ -1,36 +1,46 @@
 \chapter*{Introduction}
 
 The goal of this project is to formalize information divergences between probability measures, as well as results about error bounds for (sequential) hypothesis testing.
+This is not an introductory text and we will not explain why the objects described here are useful, where they come from or what applications the results might have. For all those considerations, we refer the reader to the recent book~\cite{polyanskiy2024information}.
+
+Our goal is to compile properties of information divergences and their uses in hypothesis testing. Most software libraries have tutorials, to learn how to use them, as well as a documentation listing all the available objects and methods of the library: in this project, we write the ``documentation'' of the ``information theory library''.
+
 
 \section*{Source material}
-
-As a reference, we want all notions needed in the recent paper \href{https://arxiv.org/abs/2403.01892}{[Degenne and Mathieu, Information Lower Bounds for Robust Mean Estimation, 2024]}.
 
 A very useful book (draft) about information theory and hypothesis testing: \cite{polyanskiy2024information} 
 
 Main reference for the properties of the Rényi divergence: \cite{van2014renyi}
 
-\section*{Notation}
+As a reference, we want all notions needed in the recent paper \href{https://arxiv.org/abs/2403.01892}{[Degenne and Mathieu, Information Lower Bounds for Robust Mean Estimation, 2024]}. % TODO: why is this not a cite command?
 
-Let $\mu$ be a measure on a measurable space $\mathcal X$.
+\section*{This document and the Lean implementation}
 
-For a function $g : \mathcal X \to \mathcal Y$ which is $a.e.$-measurable with respect to $\mu$, $g_* \mu$ is the pushforward of $\mu$ by $g$. This is a measure on $\mathcal Y$ such that $g_* \mu (A) = \mu(g^{-1} A)$.
+This document is generated from a latex file written by the authors, thanks to the \texttt{leanblueprint} library developed by Patrick Massot (TODO add ref). It contains links to a Lean implementation of the results, but there is no technical guarantee that the results written here and the ones in the code match in any way.
+In particular, nothing in this document is automatically generated from the code.
+In summary, although the authors strive to make this document as close to the Lean implementation as possible, the only formally verified statements are those written in Lean.
 
-For a function $g : \mathcal X \to \mathbb{R}_{+,\infty}$, $g \cdot \mu$ denotes the measure on $\mathcal X$ with density $g$ with respect to $\mu$. That is, $g \cdot \mu (A) = \int_{x \in A} g(x) \partial\mu$.
-
-\section*{About the assumptions}
+\section*{Assumptions}
 
 Information divergences are usually considered for probability measures, but we will be more granular about the assumptions we impose on the measures.
 Since Radon-Nikodym derivatives don't have good properties unless the measures are sigma-finite and since those derivatives are the basic building block of all the information divergences we consider, every measure we consider will be supposed sigma-finite.
-Many results additionally need that the measures are finite, and only few will be about probability measures specifically.
+Many results additionally need that the measures are finite, and some will be about probability measures specifically.
 
 In most results, the measures can be defined on a general measurable space, without additional assumptions.
-However some statements, notably those involving conditional divergences, will require the sigma-algebra to be countably generated.
-That assumption means that there is a countable set of sets that generates the sigma-algebra.
+However some statements, notably those involving conditional divergences, will require the sigma-algebra to be countably generated or the space to be standard Borel.
+The countably generated assumption means that there is a countable set of sets that generates the sigma-algebra.
 This is the case for example in any standard Borel space, which covers the vast majority of applications.
 
-\section*{About this document}
+\section*{Notation}
 
-This document is generated from a latex file written by the authors. It contains links to a Lean implementation of the results, but there is no technical guarantee that the results written here and the ones in the code match in any way.
-In particular, nothing in this document is generated from the code.
-In summary, although the authors strive to make this document as close to the code as possible, the only formally verified statements are those written in the Lean code.
+$\mathcal X$, $\mathcal Y$ will denote measurable spaces. Additional assumptions such as $\mathcal X$ being standard Borel will be specified where necessary.
+
+$\mu$, $\nu$ denote measures on a space $\mathcal X$.
+
+$\kappa, \eta$ are used to refer to transition kernels, and we write $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ to indicate that $\kappa$ is a transition kernel from $\mathcal X$ to $\mathcal Y$. That is, $\kappa$ is a measurable map from $\mathcal X$ to the measures on $\mathcal Y$.
+
+TODO: composition/product of measures and kernels. $\mu \otimes \kappa$, $\kappa \circ \mu$.
+
+For a function $g : \mathcal X \to \mathcal Y$ which is $a.e.$-measurable with respect to $\mu$, $g_* \mu$ denotes the pushforward of $\mu$ by $g$. This is a measure on $\mathcal Y$ such that $g_* \mu (A) = \mu(g^{-1} A)$.
+
+For a function $g : \mathcal X \to \mathbb{R}_{+,\infty}$, $g \cdot \mu$ denotes the measure on $\mathcal X$ with density $g$ with respect to $\mu$. That is, $g \cdot \mu (A) = \int_{x \in A} g(x) \partial\mu$.
