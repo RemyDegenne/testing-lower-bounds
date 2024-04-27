@@ -89,7 +89,7 @@ The inequality is an application of Lemma~\ref{lem:testing_bound_renyi_mean} for
   %\lean{}
   %\leanok
   %\uses{}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $E$ be an event on $\mathcal X$. Let $\beta \in \mathbb{R}$. Then
+  Let $\mu, \nu$ be two measures on $\mathcal X$ with $\mu \ll \nu$ and let $E$ be an event on $\mathcal X$. Let $\beta \in \mathbb{R}$. Then
   \begin{align*}
   \nu(E) e^{\beta} \ge \mu(E) - \mu\left\{ \log\frac{d \mu}{d \nu} > \beta \right\} \: .
   \end{align*}
@@ -181,6 +181,7 @@ Two applications of Lemma~\ref{lem:llr_change_measure}, then sum them and use $\
 
 \begin{proof}
 \uses{lem:renyi_change_measure}
+Two applications of Lemma~\ref{lem:renyi_change_measure}, then sum them and use $\xi(E)+\xi(E^c) = 1$.
 \end{proof}
 
 
