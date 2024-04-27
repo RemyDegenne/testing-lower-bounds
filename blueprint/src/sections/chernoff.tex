@@ -4,12 +4,54 @@
   \label{def:Chernoff}
   %\lean{}
   %\leanok
-  \uses{def:KL}
-    The Chernoff divergence between two measures $\mu$ and $\nu$ on $\mathcal X$ is
+  \uses{def:Renyi}
+    The Chernoff divergence of order $\alpha > 0$ between two measures $\mu$ and $\nu$ on $\mathcal X$ is
   \begin{align*}
-    C(\mu, \nu) = \inf_{\xi \in \mathcal P(\mathcal X)}\max\{\KL(\xi, \mu), \KL(\xi, \nu)\} \: .
+    C_\alpha(\mu, \nu) = \inf_{\xi \in \mathcal P(\mathcal X)}\max\{R_\alpha(\xi, \mu), R_\alpha(\xi, \nu)\} \: .
   \end{align*}
 \end{definition}
+
+Note: the name Chernoff divergence is usually reserved for $C_1$, and any reference to $C$ without subscript in this document refers to $C_1$.
+The extension to other orders $\alpha$ is motivated by the appearance of $C_\alpha$ in a result further down.
+This is not a well established notion and it remains to see if this extension is meaningful.
+
+\begin{lemma}
+  \label{lem:chernoff_eq_kl}
+  %\lean{}
+  %\leanok
+  \uses{def:Chernoff, def:KL}
+  $C_1(\mu, \nu) = \inf_{\xi \in \mathcal P(\mathcal X)}\max\{\KL(\xi, \mu), \KL(\xi, \nu)\}$ .
+\end{lemma}
+
+\begin{proof}
+\uses{def:Renyi}
+This is $R_1 = \KL$ (by definition).
+\end{proof}
+
+\begin{lemma}[Symmetry]
+  \label{lem:chernoff_symm}
+  %\lean{}
+  %\leanok
+  \uses{def:Chernoff}
+  $C_\alpha(\mu, \nu) = C_\alpha(\nu, \mu)$.
+\end{lemma}
+
+\begin{proof}
+Immediate from the definition.
+\end{proof}
+
+\begin{lemma}[Monotonicity]
+  \label{lem:chernoff_mono}
+  %\lean{}
+  %\leanok
+  \uses{def:Chernoff}
+  The function $\alpha \mapsto C_\alpha(\mu, \nu)$ is monotone.
+\end{lemma}
+
+\begin{proof}
+\uses{lem:renyi_monotone}
+Consequence of Lemma~\ref{lem:renyi_monotone}.
+\end{proof}
 
 \begin{lemma}
   \label{lem:chernoff_eq_max_renyi}
@@ -17,22 +59,9 @@
   %\leanok
   \uses{def:Chernoff, def:Renyi}
   \begin{align*}
-  C(\mu, \nu) = \max_{\alpha\in [0,1]} (1 - \alpha)R_\alpha(\mu, \nu) \: .
+  C_1(\mu, \nu) = \max_{\alpha\in [0,1]} (1 - \alpha)R_\alpha(\mu, \nu) \: .
   \end{align*}
 \end{lemma}
 
 \begin{proof}
-\end{proof}
-
-\begin{lemma}
-  \label{lem:chernoff_symm}
-  %\lean{}
-  %\leanok
-  \uses{def:Chernoff}
-  $C(\mu, \nu) = C(\nu, \mu)$.
-\end{lemma}
-
-\begin{proof}
-\uses{lem:chernoff_eq_max_renyi, lem:renyi_symm}
-Apply Lemma~\ref{lem:chernoff_eq_max_renyi}, then Lemma~\ref{lem:renyi_symm}.
 \end{proof}

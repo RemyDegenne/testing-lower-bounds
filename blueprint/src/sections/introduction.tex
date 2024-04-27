@@ -35,9 +35,11 @@ This is the case for example in any standard Borel space, which covers the vast 
 
 $\mathcal X$, $\mathcal Y$ will denote measurable spaces. Additional assumptions such as $\mathcal X$ being standard Borel will be specified where necessary.
 
-$\mu$, $\nu$ denote measures on a space $\mathcal X$.
+$\mu$, $\nu$ denote measures on a space $\mathcal X$. A measure $\mu$ is said to be finite if $\mu(\mathcal X) < \infty$, to be a probability measure if $\mu(\mathcal X) = 1$. A measure is s-finite if it can be written as a countable sum of finite measures, and is $\sigma$-finite if it can be written as a countable sum of finite measures which are pairwise mutually singular.
+The set of measures on $\mathcal X$ is $\mathcal M(\mathcal X)$. The set of probability measures is denoted by $\mathcal P(\mathcal X)$.
 
 $\kappa, \eta$ are used to refer to transition kernels, and we write $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ to indicate that $\kappa$ is a transition kernel from $\mathcal X$ to $\mathcal Y$. That is, $\kappa$ is a measurable map from $\mathcal X$ to the measures on $\mathcal Y$.
+A kernel is finite if there exists $C < + \infty$ such that $\kappa(x, \mathcal Y) \le C$ for all $x \in \mathcal X$ (note that this is stronger than the condition that all $\kappa(x)$ are finite since it requires a uniform bound). It is s-finite if it can be written as a countable sum of finite kernels, and is called a Markov kernel if $\kappa(x)$ is a probability measure for all $x \in \mathcal X$.
 
 TODO: composition/product of measures and kernels. $\mu \otimes \kappa$, $\kappa \circ \mu$.
 
