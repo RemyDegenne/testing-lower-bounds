@@ -263,6 +263,13 @@ lemma condFDiv_eq' (hf_ae : ∀ᵐ a ∂μ, fDiv f (κ a) (η a) ≠ ⊤)
     condFDiv f κ η μ = ((μ[fun x ↦ (fDiv f (κ x) (η x)).toReal] : ℝ) : EReal) :=
   if_pos ⟨hf_ae, hf⟩
 
+@[simp]
+lemma condFDiv_zero_measure : condFDiv f κ η 0 = 0 := by
+  have hf_ae : ∀ᵐ a ∂(0 : Measure α), fDiv f (κ a) (η a) ≠ ⊤ := by
+    simp only [ne_eq, ae_zero, eventually_bot]
+  rw [condFDiv_eq' hf_ae integrable_zero_measure]
+  simp only [integral_zero_measure, EReal.coe_zero]
+
 lemma condFDiv_nonneg [IsMarkovKernel κ] [IsMarkovKernel η]
     (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0))
     (hf_one : f 1 = 0) : 0 ≤ condFDiv f κ η μ := by
@@ -274,8 +281,32 @@ lemma condFDiv_nonneg [IsMarkovKernel κ] [IsMarkovKernel η]
   simp only [EReal.coe_nonneg]
   apply integral_nonneg _
   intro x
-  have h := @fDiv_nonneg _ _ (κ x) (η x) f _ _ hf_cvx hf_cont hf_one
+  have h := fDiv_nonneg (μ := κ x) (ν := η x) hf_cvx hf_cont hf_one
   simp [EReal.toReal_nonneg, h]
+
+lemma condFDiv_const {ξ : Measure β} [IsFiniteMeasure ξ] (h_ne_bot : fDiv f μ ν ≠ ⊥) :
+    condFDiv f (kernel.const β μ) (kernel.const β ν) ξ = (fDiv f μ ν) * ξ Set.univ := by
+  by_cases hξ_zero : ξ = 0
+  · simp only [hξ_zero, condFDiv_zero_measure, Measure.zero_toOuterMeasure, OuterMeasure.coe_zero,
+      Pi.zero_apply, EReal.coe_ennreal_zero, mul_zero]
+  by_cases h_zero : fDiv f μ ν = 0
+  · simp only [h_zero, zero_mul]
+    rw [condFDiv_eq'] <;>
+    simp only [kernel.const_apply, h_zero, EReal.toReal_zero, integral_zero, EReal.coe_zero, ne_eq,
+      EReal.zero_ne_top, not_false_eq_true, eventually_true, integrable_zero]
+  by_cases h_top : fDiv f μ ν = ⊤
+  · rw [h_top, EReal.top_mul_of_pos _]
+    swap
+    · simp only [EReal.coe_ennreal_pos, Measure.measure_univ_pos, ne_eq, hξ_zero,
+        not_false_eq_true]
+    simp only [condFDiv_of_not_ae_finite, kernel.const_apply, h_top, ne_eq, not_true_eq_false,
+      eventually_false_iff_eq_bot, ae_eq_bot, hξ_zero, not_false_eq_true]
+  rw [condFDiv_eq' (by simp [h_top]) _]
+  swap; simp [integrable_const_iff, lt_top_iff_ne_top]
+  simp only [kernel.const_apply, integral_const, smul_eq_mul, mul_comm, EReal.coe_mul]
+  congr
+  · exact EReal.coe_toReal h_top h_ne_bot
+  · exact EReal.coe_ennreal_toReal (measure_ne_top _ _)
 
 variable [MeasurableSpace.CountablyGenerated β]
 

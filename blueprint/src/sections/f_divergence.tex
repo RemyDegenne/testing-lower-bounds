@@ -366,6 +366,23 @@ D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A})
 Apply Lemma~\ref{lem:fDiv_nonneg}.
 \end{proof}
 
+\begin{lemma}
+  \label{lem:condFDiv_const}
+  \lean{ProbabilityTheory.condFDiv_const}
+  \leanok
+  \uses{def:condFDiv, def:fDiv}
+  Let $\mu, \nu$ be measures on $\mathcal X$ such that $D_f(\mu, \nu) \neq -\infty$, let $\xi$ be a finite measure on $\mathcal Y$.
+  Then $D_f(x \mapsto \mu, x \mapsto \nu \mid \xi) = D_f(\mu, \nu) \xi (\mathcal X)$.
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{}
+$$D_f(x \mapsto \mu, x \mapsto \nu \mid \xi) 
+= \xi\left[x \mapsto D_f(\mu, \nu)\right] 
+= D_f(\mu, \nu) \xi\left[1\right] 
+= D_f(\mu, \nu) \xi (\mathcal X)$$
+\end{proof}
+
 % TODO : this statement is not the same as the lean code, in particular here there is only one measure mentioned, while in the lean we have 2, also the rest of the statement is not the same
 \begin{lemma}
   \label{lem:integrable_fDiv_compProd_iff}
