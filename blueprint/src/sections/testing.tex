@@ -1,5 +1,12 @@
 \chapter{Testing error lower bounds}
 
+In simple hypothesis testing, a sample from an unknown measure on $\mathcal X$ among $\{\mu, \nu\}$ is observed, and the goal of the test is to return the measure from which the sample came.
+In typical scenarios, $\mathcal X$ is a product space $\mathcal Y^n$, $\mu$ and $\nu$ are product measures and the observation is a collection of $n$ i.i.d. samples.
+
+A test is a measurable function $\phi : \mathcal X \to \{0,1\}$, which can equivalently be described by the even $E = \{\phi = 1\}$. If we decide that the test should return 0 if the sample came from $\mu$ and 1 if it came from $\nu$, the two error probabilities of the test are $\mu(E)$ and $\nu(E^c)$. A good test minimizes these (or a given combination of these).
+
+In this section, we prove lower bounds on functions of $\mu(E)$ and $\nu(E^c)$, for any event $E$.
+
 \section{Generic lower bounds}
 
 \begin{lemma}
