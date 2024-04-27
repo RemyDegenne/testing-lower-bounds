@@ -89,6 +89,15 @@ lemma kl_eq_fDiv [SigmaFinite μ] [SigmaFinite ν] :
 lemma kl_self (μ : Measure α) [SigmaFinite μ] : kl μ μ = 0 := by
   rw [kl_eq_fDiv, fDiv_self (by norm_num)]
 
+@[simp]
+lemma kl_zero_left : kl 0 ν = 0 := by
+  convert kl_of_ac_of_integrable (Measure.AbsolutelyContinuous.zero _) integrable_zero_measure
+  simp only [integral_zero_measure, EReal.coe_zero]
+
+@[simp]
+lemma kl_zero_right [NeZero μ] : kl μ 0 = ⊤ :=
+  kl_of_not_ac (Measure.absolutelyContinuous_zero_iff.mp.mt (NeZero.ne _))
+
 lemma kl_eq_top_iff : kl μ ν = ⊤ ↔ ¬ μ ≪ ν ∨ ¬ Integrable (llr μ ν) μ := by
   constructor <;> intro h <;> push_neg at *
   · contrapose! h
@@ -292,6 +301,30 @@ lemma condKL_self (κ : kernel α β) (μ : Measure α) [IsFiniteKernel κ] : co
   simp only [kl_self, ne_eq, not_false_eq_true, eventually_true, EReal.toReal_zero, integrable_zero,
     condKL_of_ae_ne_top_of_integrable, integral_zero, EReal.coe_zero, EReal.zero_ne_top]
 
+@[simp]
+lemma condKL_zero_left : condKL 0 η μ = 0 := by
+  rw [condKL_of_ae_ne_top_of_integrable _ _]
+  rotate_left
+  · simp only [kernel.zero_apply, kl_zero_left, ne_eq, EReal.zero_ne_top, not_false_eq_true,
+      eventually_true]
+  · simp only [kernel.zero_apply, kl_zero_left, EReal.toReal_zero, integrable_zero]
+  simp only [kernel.zero_apply, kl_zero_left, EReal.toReal_zero, integral_zero, EReal.coe_zero]
+
+@[simp]
+lemma condKL_zero_right [NeZero μ] (h : ∀ᵐ a ∂μ, κ a ≠ 0) : condKL κ 0 μ = ⊤ := by
+  apply condKL_of_not_ae_ac
+  intro h1
+  apply Filter.eventually_false_iff_eq_bot.mp.mt (NeBot.ne' (f := μ.ae))
+  filter_upwards [h, h1] with a ha h1a
+  exact ha (Measure.absolutelyContinuous_zero_iff.mp h1a)
+
+@[simp]
+lemma condKL_zero_measure : condKL κ η 0 = 0 := by
+  have hf_ae : ∀ᵐ a ∂(0 : Measure α), kl (κ a) (η a) ≠ ⊤ := by
+    simp only [ne_eq, ae_zero, eventually_bot]
+  rw [condKL_of_ae_ne_top_of_integrable hf_ae integrable_zero_measure]
+  simp only [integral_zero_measure, EReal.coe_zero]
+
 lemma condKL_ne_bot (κ η : kernel α β) (μ : Measure α) : condKL κ η μ ≠ ⊥ := by
   rw [condKL]
   split_ifs with h
@@ -306,6 +339,12 @@ lemma condKL_nonneg (κ η : kernel α β) [IsMarkovKernel κ] [IsMarkovKernel �
   · exact Real.continuous_mul_log.continuousOn
   · norm_num
 
+lemma condKL_const {ξ : Measure β} [IsFiniteMeasure ξ] [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
+    condKL (kernel.const β μ) (kernel.const β ν) ξ = (kl μ ν) * ξ Set.univ := by
+  have h := kl_ne_bot μ ν
+  rw [condKL_eq_condFDiv, kl_eq_fDiv] at *
+  exact condFDiv_const h
+
 lemma kl_compProd_left [CountablyGenerated β] [IsFiniteMeasure μ] [IsMarkovKernel κ]
     [IsFiniteKernel η] :
     kl (μ ⊗ₘ κ) (μ ⊗ₘ η) = condKL κ η μ := by
@@ -317,6 +356,35 @@ lemma kl_compProd_right (κ : kernel α β) [CountablyGenerated β] [IsFiniteMea
     kl (μ ⊗ₘ κ) (ν ⊗ₘ κ) = kl μ ν := by
   rw [kl_eq_fDiv, kl_eq_fDiv]
   exact fDiv_compProd_right μ ν κ (by measurability) Real.convexOn_mul_log
+
+section IntegralLemma
+
+--TODO: put this lemma in a separate file, then PR it to mathlib, I'm not sure it can just go in the same file as integral_congr_ae, since it uses the kernels. maybe we could do a simpler version with 2 probability measures instead of kernels. decide what to do with the 2 vertions, are they both useful?
+--I could have proven the second one using the first, but it is probabily easier to do them separately, also in this way we can put them in separate files without worring about dependencies
+--also about the names, if we put the two lemmas under different namespaces (the first one could go under something that contains kernel) we can give them the same name
+variable {α β: Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
+variable {μ : Measure α} {ν : Measure β} {κ : kernel α β}
+variable {G : Type*} [NormedAddCommGroup G] [NormedSpace ℝ G]
+
+lemma integral_congr_ae₂ {f g : α → β → G} (h : ∀ᵐ a ∂μ, f a =ᵐ[κ a] g a) :
+    ∫ a, ∫ b, f a b ∂(κ a) ∂μ = ∫ a, ∫ b, g a b ∂(κ a) ∂μ := by
+  apply integral_congr_ae
+  filter_upwards [h] with a ha
+  apply integral_congr_ae
+  filter_upwards [ha] with b hb using hb
+
+--change the name of this one
+lemma integral_congr_ae₂' {f g : α → β → G} (h : ∀ᵐ a ∂μ, f a =ᵐ[ν] g a) :
+    ∫ a, ∫ b, f a b ∂ν ∂μ = ∫ a, ∫ b, g a b ∂ν ∂μ := by
+  apply integral_congr_ae
+  filter_upwards [h] with a ha
+  apply integral_congr_ae
+  filter_upwards [ha] with b hb using hb
+
+-- #find_home! ProbabilityTheory.integral_congr_ae₂
+
+end IntegralLemma
+
 
 /--The chain rule for the KL divergence.-/
 lemma kl_compProd [CountablyGenerated β] [IsMarkovKernel κ] [IsMarkovKernel η] [IsFiniteMeasure μ]
@@ -338,7 +406,8 @@ lemma kl_compProd [CountablyGenerated β] [IsMarkovKernel κ] [IsMarkovKernel η
   · simp only [h_int, not_false_eq_true, kl_of_not_integrable]
     rw [integrable_llr_compProd_iff h_prod] at h_int
     set_option push_neg.use_distrib true in push_neg at h_int
-    rcases h_int with ((h | h) | h) <;> simp [h, EReal.top_add_of_ne_bot, condKL_ne_bot, EReal.add_top_of_ne_bot, kl_ne_bot]
+    rcases h_int with ((h | h) | h) <;>
+    simp [h, EReal.top_add_of_ne_bot, condKL_ne_bot, EReal.add_top_of_ne_bot, kl_ne_bot]
   have intμν := integrable_llr_of_integrable_llr_compProd h_prod h_int
   have intκη : Integrable (fun a ↦ ∫ (x : β), log (kernel.rnDeriv κ η a x).toReal ∂κ a) μ := by
     apply Integrable.congr (integrable_integral_llr_of_integrable_llr_compProd h_prod h_int)
@@ -347,33 +416,24 @@ lemma kl_compProd [CountablyGenerated β] [IsMarkovKernel κ] [IsMarkovKernel η
     filter_upwards [ha.ae_le (kernel.rnDeriv_eq_rnDeriv_measure κ η a)] with x hx
     rw [hx, llr_def]
   have intκη2 := ae_integrable_llr_of_integrable_llr_compProd h_prod h_int
-  calc kl (μ ⊗ₘ κ) (ν ⊗ₘ η) = ↑(∫ p, llr (μ ⊗ₘ κ) (ν ⊗ₘ η) p ∂(μ ⊗ₘ κ)) :=
+  calc kl (μ ⊗ₘ κ) (ν ⊗ₘ η) = ∫ p, llr (μ ⊗ₘ κ) (ν ⊗ₘ η) p ∂(μ ⊗ₘ κ) :=
     kl_of_ac_of_integrable h_prod h_int
-  _ = ↑(∫ (a : α), ∫ (x : β), llr (μ ⊗ₘ κ) (ν ⊗ₘ η) (a, x) ∂κ a ∂μ) := by
+  _ = ∫ a, ∫ x, llr (μ ⊗ₘ κ) (ν ⊗ₘ η) (a, x) ∂κ a ∂μ := by
     norm_cast
     exact Measure.integral_compProd h_int
-  _ = ↑(∫ (a : α), ∫ (x : β), log ((∂μ/∂ν) a * kernel.rnDeriv κ η a x).toReal ∂κ a ∂μ) := by
+  _ = ∫ a, ∫ x, log (μ.rnDeriv ν a).toReal
+      + log (kernel.rnDeriv κ η a x).toReal ∂κ a ∂μ := by
     norm_cast
     have h := hμν.ae_le (Measure.ae_ae_of_ae_compProd (kernel.rnDeriv_measure_compProd μ ν κ η))
-    apply integral_congr_ae
-    filter_upwards [h, hκη] with a ha hκηa
-    apply integral_congr_ae
-    filter_upwards [hκηa.ae_le ha] with x hx
-    unfold llr
-    congr
-  _ = ↑(∫ (a : α), ∫ (x : β), log (μ.rnDeriv ν a).toReal
-      + log (kernel.rnDeriv κ η a x).toReal ∂κ a ∂μ) := by
-    norm_cast
-    apply integral_congr_ae
-    filter_upwards [hκη, Measure.rnDeriv_toReal_pos hμν] with a hκηa hμν_pos
+    apply integral_congr_ae₂
+    filter_upwards [h, hκη, Measure.rnDeriv_toReal_pos hμν] with a ha hκηa hμν_pos
     have hμν_zero : (μ.rnDeriv ν a).toReal ≠ 0 := by linarith
-    apply integral_congr_ae
-    filter_upwards [kernel.rnDeriv_toReal_pos hκηa] with x hx
+    filter_upwards [kernel.rnDeriv_toReal_pos hκηa, hκηa.ae_le ha] with x hκη_pos hx
     have hκη_zero : (kernel.rnDeriv κ η a x).toReal ≠ 0 := by linarith
-    simp only [ENNReal.toReal_mul]
-    apply Real.log_mul hμν_zero hκη_zero
-  _ = ↑(∫ (a : α), ∫ (_ : β), log (μ.rnDeriv ν a).toReal ∂κ a ∂μ)
-      + ↑(∫ (a : α), ∫ (x : β), log (kernel.rnDeriv κ η a x).toReal ∂κ a ∂μ) := by
+    rw [llr, hx, ENNReal.toReal_mul]
+    exact Real.log_mul hμν_zero hκη_zero
+  _ = ∫ a, ∫ _, log (μ.rnDeriv ν a).toReal ∂κ a ∂μ
+      + ∫ a, ∫ x, log (kernel.rnDeriv κ η a x).toReal ∂κ a ∂μ := by
     norm_cast
     rw [← integral_add']
     simp only [Pi.add_apply]
@@ -391,46 +451,37 @@ lemma kl_compProd [CountablyGenerated β] [IsMarkovKernel κ] [IsMarkovKernel η
       filter_upwards [h] with x hx
       rw [hx, llr_def]
     apply integral_congr_ae
-    filter_upwards
-    intro a
+    filter_upwards with a
     congr
-  _ = ↑(∫ (a : α), log (μ.rnDeriv ν a).toReal ∂μ)
-      + ↑(∫ (a : α), ∫ (x : β), log (kernel.rnDeriv κ η a x).toReal ∂κ a ∂μ) := by
+  _ = ∫ a, log (μ.rnDeriv ν a).toReal ∂μ
+      + ∫ a, ∫ x, log ((κ a).rnDeriv (η a) x).toReal ∂κ a ∂μ := by
     simp only [integral_const, measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul]
-  _ = ↑(∫ (a : α), log (μ.rnDeriv ν a).toReal ∂μ)
-      + ↑(∫ (a : α), ∫ (x : β), log ((κ a).rnDeriv (η a) x).toReal ∂κ a ∂μ) := by
     congr 2
-    apply integral_congr_ae
+    apply integral_congr_ae₂
     filter_upwards [hκη] with a ha
     have h := ha.ae_le (kernel.rnDeriv_eq_rnDeriv_measure κ η a)
-    apply integral_congr_ae
     filter_upwards [h] with x hx
     congr
   _ = kl μ ν + condKL κ η μ := by
-    congr
-    · rw [← llr_def, ← kl_of_ac_of_integrable hμν]
-      exact intμν
-    · simp_rw [← llr_def]
-      rw [condKL_of_ae_ne_top_of_integrable _ _]
-      rotate_left
-      · filter_upwards [hκη, intκη2] with a ha hκηa
-        intro h
-        apply kl_eq_top_iff.mp at h
-        tauto
-      · apply Integrable.congr intκη
-        filter_upwards [hκη, intκη2] with a ha hκηa
-        rw [kl_of_ac_of_integrable ha hκηa, EReal.toReal_coe]
-        apply integral_congr_ae
-        filter_upwards [ha.ae_le (kernel.rnDeriv_eq_rnDeriv_measure κ η a)] with x hx
-        rw [hx, llr_def]
-      norm_cast
-      apply integral_congr_ae
+    congr <;> simp_rw [← llr_def]
+    · rw [← kl_of_ac_of_integrable hμν intμν]
+    · rw [condKL_of_ae_ac_of_ae_integrable_of_integrable' hκη intκη2 _]
+      apply (integrable_kl_iff hκη intκη2).mpr
+      simp_rw [llr_def]
+      apply Integrable.congr intκη
       filter_upwards [hκη] with a ha
-      by_cases h : Integrable (llr (κ a) (η a)) (κ a)
-      · suffices hh : kl (κ a) (η a) = ∫ x, llr (κ a) (η a) x ∂(κ a) from by simp [hh]
-        exact kl_of_ac_of_integrable (ha) h
-      · rw [kl_of_not_integrable h]
-        simp only [h, not_false_eq_true, integral_undef, EReal.toReal_top]
+      have h := ha.ae_le (kernel.rnDeriv_eq_rnDeriv_measure κ η a)
+      apply integral_congr_ae
+      filter_upwards [h] with x hx
+      rw [hx]
+
+--TODO: decide the name for this lemma, in the blueprint it is called kl_chain_rule_prod, but if we call it like that maybe we have to change also the name of the previous one. A possible name could be kl_joint, but I'm not sure about it
+--Why do we need to assume that β is not empty?
+lemma kl_chain_rule_prod [StandardBorelSpace β] [Nonempty β] {μ ν : Measure (α × β)}
+    [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
+    kl μ ν = kl μ.fst ν.fst + condKL μ.condKernel ν.condKernel μ.fst := by
+  rw [← kl_compProd, μ.compProd_fst_condKernel, ν.compProd_fst_condKernel]
+
 
 end Conditional
 
