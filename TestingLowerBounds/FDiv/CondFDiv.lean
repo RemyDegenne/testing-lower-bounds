@@ -284,9 +284,6 @@ lemma condFDiv_nonneg [IsMarkovKernel κ] [IsMarkovKernel η]
   have h := fDiv_nonneg (μ := κ x) (ν := η x) hf_cvx hf_cont hf_one
   simp [EReal.toReal_nonneg, h]
 
-example (x : EReal) (h : x ≠ 0) (h' : 0 ≤ x) : 0 < x := by
-  exact lt_of_le_of_ne h' (id (Ne.symm h))
-
 lemma condFDiv_const {ξ : Measure β} [IsFiniteMeasure ξ] (h_ne_bot : fDiv f μ ν ≠ ⊥) :
     condFDiv f (kernel.const β μ) (kernel.const β ν) ξ = (fDiv f μ ν) * ξ Set.univ := by
   by_cases hξ_zero : ξ = 0
