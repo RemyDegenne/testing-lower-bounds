@@ -9,6 +9,7 @@ import Mathlib.MeasureTheory.Measure.LogLikelihoodRatio
 import TestingLowerBounds.FDiv.CondFDiv
 import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
 import TestingLowerBounds.ForMathlib.LogLikelihoodRatioCompProd
+import TestingLowerBounds.ForMathlib.IntegralCongr2
 
 /-!
 # Kullback-Leibler divergence
@@ -203,7 +204,7 @@ conditional KL divergence, the first version is the preferred one.-/
 lemma integrable_kl_iff (h_ac : ∀ᵐ a ∂μ, κ a ≪ η a)
     (h_int : ∀ᵐ a ∂μ, Integrable (llr (κ a) (η a)) (κ a)):
     Integrable (fun a ↦ (kl (κ a) (η a)).toReal) μ
-      ↔ Integrable (fun a ↦ integral (κ a) (llr (κ a) (η a))) μ := by
+      ↔ Integrable (fun a ↦ ∫ x, llr (κ a) (η a) x ∂(κ a)) μ := by
   apply integrable_congr
   filter_upwards [h_ac, h_int] with a ha1 ha2
   rw [kl_of_ac_of_integrable ha1 ha2, EReal.toReal_coe]
@@ -234,7 +235,7 @@ lemma condKL_of_ae_ac_of_ae_integrable_of_integrable (h_ac : ∀ᵐ a ∂μ, κ 
 lemma condKL_of_ae_ac_of_ae_integrable_of_integrable' (h_ac : ∀ᵐ a ∂μ, κ a ≪ η a)
     (h_ae_int : ∀ᵐ a ∂μ, Integrable (llr (κ a) (η a)) (κ a))
     (h_int : Integrable (fun a ↦ (kl (κ a) (η a)).toReal) μ) :
-    condKL κ η μ = (μ[fun a ↦ integral (κ a) (llr (κ a) (η a))] : ℝ) := by
+    condKL κ η μ = (μ[fun a ↦ ∫ x, llr (κ a) (η a) x ∂(κ a)] : ℝ) := by
   rw [condKL_of_ae_ac_of_ae_integrable_of_integrable h_ac h_ae_int h_int]
   congr 1
   apply integral_congr_ae
@@ -264,7 +265,7 @@ lemma condKL_of_not_integrable (h : ¬ Integrable (fun a ↦ (kl (κ a) (η a)).
     condKL κ η μ = ⊤ := if_neg (not_and_of_not_right _ h)
 
 @[simp]
-lemma condKL_of_not_integrable' (h : ¬ Integrable (fun a ↦ integral (κ a) (llr (κ a) (η a))) μ) :
+lemma condKL_of_not_integrable' (h : ¬ Integrable (fun a ↦ ∫ x, llr (κ a) (η a) x ∂(κ a)) μ) :
     condKL κ η μ = ⊤ := by
   by_cases h_ne_top : ∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤
   swap ; exact condKL_of_not_ae_ne_top h_ne_top
@@ -311,12 +312,8 @@ lemma condKL_zero_left : condKL 0 η μ = 0 := by
   simp only [kernel.zero_apply, kl_zero_left, EReal.toReal_zero, integral_zero, EReal.coe_zero]
 
 @[simp]
-lemma condKL_zero_right [NeZero μ] (h : ∀ᵐ a ∂μ, κ a ≠ 0) : condKL κ 0 μ = ⊤ := by
-  apply condKL_of_not_ae_ac
-  intro h1
-  apply Filter.eventually_false_iff_eq_bot.mp.mt (NeBot.ne' (f := μ.ae))
-  filter_upwards [h, h1] with a ha h1a
-  exact ha (Measure.absolutelyContinuous_zero_iff.mp h1a)
+lemma condKL_zero_right [NeZero μ] (h : ∃ᵐ a ∂μ, κ a ≠ 0) : condKL κ 0 μ = ⊤ := by
+  simp [h]
 
 @[simp]
 lemma condKL_zero_measure : condKL κ η 0 = 0 := by
@@ -357,35 +354,6 @@ lemma kl_compProd_right (κ : kernel α β) [CountablyGenerated β] [IsFiniteMea
   rw [kl_eq_fDiv, kl_eq_fDiv]
   exact fDiv_compProd_right μ ν κ (by measurability) Real.convexOn_mul_log
 
-section IntegralLemma
-
---TODO: put this lemma in a separate file, then PR it to mathlib, I'm not sure it can just go in the same file as integral_congr_ae, since it uses the kernels. maybe we could do a simpler version with 2 probability measures instead of kernels. decide what to do with the 2 vertions, are they both useful?
---I could have proven the second one using the first, but it is probabily easier to do them separately, also in this way we can put them in separate files without worring about dependencies
---also about the names, if we put the two lemmas under different namespaces (the first one could go under something that contains kernel) we can give them the same name
-variable {α β: Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
-variable {μ : Measure α} {ν : Measure β} {κ : kernel α β}
-variable {G : Type*} [NormedAddCommGroup G] [NormedSpace ℝ G]
-
-lemma integral_congr_ae₂ {f g : α → β → G} (h : ∀ᵐ a ∂μ, f a =ᵐ[κ a] g a) :
-    ∫ a, ∫ b, f a b ∂(κ a) ∂μ = ∫ a, ∫ b, g a b ∂(κ a) ∂μ := by
-  apply integral_congr_ae
-  filter_upwards [h] with a ha
-  apply integral_congr_ae
-  filter_upwards [ha] with b hb using hb
-
---change the name of this one
-lemma integral_congr_ae₂' {f g : α → β → G} (h : ∀ᵐ a ∂μ, f a =ᵐ[ν] g a) :
-    ∫ a, ∫ b, f a b ∂ν ∂μ = ∫ a, ∫ b, g a b ∂ν ∂μ := by
-  apply integral_congr_ae
-  filter_upwards [h] with a ha
-  apply integral_congr_ae
-  filter_upwards [ha] with b hb using hb
-
--- #find_home! ProbabilityTheory.integral_congr_ae₂
-
-end IntegralLemma
-
-
 /--The chain rule for the KL divergence.-/
 lemma kl_compProd [CountablyGenerated β] [IsMarkovKernel κ] [IsMarkovKernel η] [IsFiniteMeasure μ]
     [IsFiniteMeasure ν] :
@@ -407,7 +375,7 @@ lemma kl_compProd [CountablyGenerated β] [IsMarkovKernel κ] [IsMarkovKernel η
     rw [integrable_llr_compProd_iff h_prod] at h_int
     set_option push_neg.use_distrib true in push_neg at h_int
     rcases h_int with ((h | h) | h) <;>
-    simp [h, EReal.top_add_of_ne_bot, condKL_ne_bot, EReal.add_top_of_ne_bot, kl_ne_bot]
+      simp [h, EReal.top_add_of_ne_bot, condKL_ne_bot, EReal.add_top_of_ne_bot, kl_ne_bot]
   have intμν := integrable_llr_of_integrable_llr_compProd h_prod h_int
   have intκη : Integrable (fun a ↦ ∫ (x : β), log (kernel.rnDeriv κ η a x).toReal ∂κ a) μ := by
     apply Integrable.congr (integrable_integral_llr_of_integrable_llr_compProd h_prod h_int)
@@ -477,9 +445,10 @@ lemma kl_compProd [CountablyGenerated β] [IsMarkovKernel κ] [IsMarkovKernel η
 
 --TODO: decide the name for this lemma, in the blueprint it is called kl_chain_rule_prod, but if we call it like that maybe we have to change also the name of the previous one. A possible name could be kl_joint, but I'm not sure about it
 --Why do we need to assume that β is not empty?
-lemma kl_chain_rule_prod [StandardBorelSpace β] [Nonempty β] {μ ν : Measure (α × β)}
+/--The chain rule for the KL divergence.-/
+lemma kl_fst_add_condKL [StandardBorelSpace β] [Nonempty β] {μ ν : Measure (α × β)}
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
-    kl μ ν = kl μ.fst ν.fst + condKL μ.condKernel ν.condKernel μ.fst := by
+    kl μ.fst ν.fst + condKL μ.condKernel ν.condKernel μ.fst = kl μ ν := by
   rw [← kl_compProd, μ.compProd_fst_condKernel, ν.compProd_fst_condKernel]
 
 
