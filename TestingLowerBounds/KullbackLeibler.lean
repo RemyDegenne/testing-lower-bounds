@@ -184,18 +184,14 @@ variable {β : Type*} {mβ : MeasurableSpace β} {κ η : kernel α β}
 conditional KL divergence, the second version is the preferred one.-/
 lemma kl_ae_ne_top_iff : (∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤) ↔
     (∀ᵐ a ∂μ, κ a ≪ η a) ∧ (∀ᵐ a ∂μ, Integrable (llr (κ a) (η a)) (κ a)) := by
-  constructor <;> intro h
-  · constructor <;> filter_upwards [h] with a ha <;> have := kl_eq_top_iff.mpr.mt ha <;> tauto
-  · filter_upwards [h.1, h.2] with a ha1 ha2
-    apply kl_eq_top_iff.mp.mt
-    tauto
+  simp_rw [ne_eq, kl_eq_top_iff, ← and_iff_not_or_not, Filter.eventually_and]
 
 /--Equivalence between two possible versions of the second condition for the finiteness of the
 conditional KL divergence, the first version is the preferred one.-/
 lemma integrable_kl_iff (h_ac : ∀ᵐ a ∂μ, κ a ≪ η a)
-    (h_int : ∀ᵐ a ∂μ, Integrable (llr (κ a) (η a)) (κ a)):
+    (h_int : ∀ᵐ a ∂μ, Integrable (llr (κ a) (η a)) (κ a)) :
     Integrable (fun a ↦ (kl (κ a) (η a)).toReal) μ
-      ↔ Integrable (fun a ↦ integral (κ a) (llr (κ a) (η a))) μ := by
+      ↔ Integrable (fun a ↦ ∫ x, llr (κ a) (η a) x ∂(κ a)) μ := by
   apply integrable_congr
   filter_upwards [h_ac, h_int] with a ha1 ha2
   rw [kl_of_ac_of_integrable ha1 ha2, EReal.toReal_coe]
@@ -226,7 +222,7 @@ lemma condKL_of_ae_ac_of_ae_integrable_of_integrable (h_ac : ∀ᵐ a ∂μ, κ 
 lemma condKL_of_ae_ac_of_ae_integrable_of_integrable' (h_ac : ∀ᵐ a ∂μ, κ a ≪ η a)
     (h_ae_int : ∀ᵐ a ∂μ, Integrable (llr (κ a) (η a)) (κ a))
     (h_int : Integrable (fun a ↦ (kl (κ a) (η a)).toReal) μ) :
-    condKL κ η μ = (μ[fun a ↦ integral (κ a) (llr (κ a) (η a))] : ℝ) := by
+    condKL κ η μ = (μ[fun a ↦ ∫ x, llr (κ a) (η a) x ∂(κ a)] : ℝ) := by
   rw [condKL_of_ae_ac_of_ae_integrable_of_integrable h_ac h_ae_int h_int]
   congr 1
   apply integral_congr_ae
@@ -256,12 +252,12 @@ lemma condKL_of_not_integrable (h : ¬ Integrable (fun a ↦ (kl (κ a) (η a)).
     condKL κ η μ = ⊤ := if_neg (not_and_of_not_right _ h)
 
 @[simp]
-lemma condKL_of_not_integrable' (h : ¬ Integrable (fun a ↦ integral (κ a) (llr (κ a) (η a))) μ) :
+lemma condKL_of_not_integrable' (h : ¬ Integrable (fun a ↦ ∫ x, llr (κ a) (η a) x ∂(κ a)) μ) :
     condKL κ η μ = ⊤ := by
   by_cases h_ne_top : ∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤
-  swap ; exact condKL_of_not_ae_ne_top h_ne_top
+  swap; exact condKL_of_not_ae_ne_top h_ne_top
   apply condKL_of_not_integrable
-  rwa [integrable_kl_iff (kl_ae_ne_top_iff.mp h_ne_top).1  (kl_ae_ne_top_iff.mp h_ne_top).2]
+  rwa [integrable_kl_iff (kl_ae_ne_top_iff.mp h_ne_top).1 (kl_ae_ne_top_iff.mp h_ne_top).2]
 
 lemma condKL_eq_top_iff : condKL κ η μ = ⊤ ↔
     ¬ (∀ᵐ a ∂μ, κ a ≪ η a) ∨ ¬ (∀ᵐ a ∂μ, Integrable (llr (κ a) (η a)) (κ a))
@@ -271,6 +267,13 @@ lemma condKL_eq_top_iff : condKL κ η μ = ⊤ ↔
     rw [condKL_of_ae_ac_of_ae_integrable_of_integrable h.1 h.2.1 h.2.2]
     simp only [ne_eq, EReal.coe_ne_top, not_false_eq_true]
   · rcases h with (h | h | h) <;> simp [h]
+
+lemma condKL_ne_top_iff : condKL κ η μ ≠ ⊤ ↔
+    (∀ᵐ a ∂μ, κ a ≪ η a) ∧ (∀ᵐ a ∂μ, Integrable (llr (κ a) (η a)) (κ a))
+    ∧ Integrable (fun a ↦ (kl (κ a) (η a)).toReal) μ := by
+  rw [ne_eq, condKL_eq_top_iff]
+  push_neg
+  rfl
 
 lemma condKL_eq_condFDiv [IsFiniteKernel κ] [IsFiniteKernel η] :
     condKL κ η μ = condFDiv (fun x ↦ x * log x) κ η μ := by
