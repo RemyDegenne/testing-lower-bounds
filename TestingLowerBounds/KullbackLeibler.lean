@@ -268,7 +268,7 @@ lemma condKL_of_not_integrable (h : ¬ Integrable (fun a ↦ (kl (κ a) (η a)).
 lemma condKL_of_not_integrable' (h : ¬ Integrable (fun a ↦ ∫ x, llr (κ a) (η a) x ∂(κ a)) μ) :
     condKL κ η μ = ⊤ := by
   by_cases h_ne_top : ∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤
-  swap ; exact condKL_of_not_ae_ne_top h_ne_top
+  swap; exact condKL_of_not_ae_ne_top h_ne_top
   apply condKL_of_not_integrable
   rwa [integrable_kl_iff (kl_ae_ne_top_iff.mp h_ne_top).1  (kl_ae_ne_top_iff.mp h_ne_top).2]
 
