@@ -308,8 +308,8 @@ lemma condFDiv_const' {ξ : Measure β} [IsFiniteMeasure ξ] (h_ne_bot : fDiv f 
   · exact EReal.coe_ennreal_toReal (measure_ne_top _ _)
 
 lemma condFDiv_const {ξ : Measure β} [IsFiniteMeasure ξ] [IsFiniteMeasure μ] :
-    condFDiv f (kernel.const β μ) (kernel.const β ν) ξ = (fDiv f μ ν) * ξ Set.univ := by
-  exact condFDiv_const' fDiv_ne_bot
+    condFDiv f (kernel.const β μ) (kernel.const β ν) ξ = (fDiv f μ ν) * ξ Set.univ :=
+  condFDiv_const' fDiv_ne_bot
 
 variable [MeasurableSpace.CountablyGenerated β]
 
