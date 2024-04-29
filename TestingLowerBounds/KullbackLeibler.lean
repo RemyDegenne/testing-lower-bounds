@@ -95,7 +95,7 @@ lemma kl_eq_top_iff : kl μ ν = ⊤ ↔ μ ≪ ν → ¬ Integrable (llr μ ν)
   · contrapose! h
     rw [kl_of_ac_of_integrable h.1 h.2]
     exact EReal.coe_ne_top _
-  · rcases h with (h | h) <;> simp [h]
+  · rcases or_not_of_imp h with (h | h) <;> simp [h]
 
 section kl_nonneg
 
@@ -184,7 +184,7 @@ variable {β : Type*} {mβ : MeasurableSpace β} {κ η : kernel α β}
 conditional KL divergence, the second version is the preferred one.-/
 lemma kl_ae_ne_top_iff : (∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤) ↔
     (∀ᵐ a ∂μ, κ a ≪ η a) ∧ (∀ᵐ a ∂μ, Integrable (llr (κ a) (η a)) (κ a)) := by
-  simp_rw [ne_eq, kl_eq_top_iff, ← and_iff_not_or_not, Filter.eventually_and]
+  simp_rw [ne_eq, kl_eq_top_iff, Classical.not_imp_iff_and_not, Classical.not_not, Filter.eventually_and]
 
 /--Equivalence between two possible versions of the second condition for the finiteness of the
 conditional KL divergence, the first version is the preferred one.-/
