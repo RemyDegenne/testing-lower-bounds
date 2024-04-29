@@ -90,7 +90,7 @@ lemma kl_eq_fDiv [SigmaFinite μ] [SigmaFinite ν] :
 lemma kl_self (μ : Measure α) [SigmaFinite μ] : kl μ μ = 0 := by
   rw [kl_eq_fDiv, fDiv_self (by norm_num)]
 
-lemma kl_eq_top_iff : kl μ ν = ⊤ ↔ ¬ μ ≪ ν ∨ ¬ Integrable (llr μ ν) μ := by
+lemma kl_eq_top_iff : kl μ ν = ⊤ ↔ μ ≪ ν → ¬ Integrable (llr μ ν) μ := by
   constructor <;> intro h <;> push_neg at *
   · contrapose! h
     rw [kl_of_ac_of_integrable h.1 h.2]
