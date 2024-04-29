@@ -125,10 +125,10 @@ Linearity (Lemmas~\ref{lem:fDiv_add} and~\ref{lem:fDiv_mul}), then Lemma~\ref{le
 \end{lemma}
 
 \begin{proof}\leanok
-$\frac{d(\mu_1 + \mu_2)}{d \nu} = \frac{d \mu_1}{d \nu}$ a.e. and $(\mu_1 + \mu_2)_{\perp \nu} = (\mu_2)_{\perp \nu}$.
+$\frac{d(\mu_1 + \mu_2)}{d \nu} = \frac{d \mu_1}{d \nu}$ a.e. and $(\mu_1 + \mu_2)_{\perp \nu} = \mu_2$.
 \end{proof}
 
-\begin{lemma}
+\begin{lemma}[Superseded by Lemma~\ref{lem:fDiv_add_measure_le}]
   \label{lem:fDiv_add_measure_le_of_ac}
   \lean{ProbabilityTheory.fDiv_add_measure_le_of_ac}
   \leanok
@@ -186,7 +186,7 @@ D_f(\mu_1 + \mu_2, \nu)
 Apply Lemma~\ref{lem:fDiv_absolutelyContinuous_add_mutuallySingular} to $\frac{d\mu}{d\nu}\cdot \nu$ and $\mu_{\perp \nu}$.
 \end{proof}
 
-\begin{lemma}
+\begin{lemma}[Superseded by Lemma~\ref{lem:le_fDiv}]
   \label{lem:le_fDiv_of_ac}
   \lean{ProbabilityTheory.le_fDiv_of_ac}
   \leanok
@@ -371,7 +371,7 @@ Apply Lemma~\ref{lem:fDiv_nonneg}.
   \lean{ProbabilityTheory.condFDiv_const}
   \leanok
   \uses{def:condFDiv, def:fDiv}
-  Let $\mu, \nu$ be measures on $\mathcal X$ such that $D_f(\mu, \nu) \neq -\infty$, let $\xi$ be a finite measure on $\mathcal Y$.
+  Let $\mu, \nu$ be measures on $\mathcal X$, where $\mu$ is finite, and let $\xi$ be a finite measure on $\mathcal Y$.
   Then $D_f(x \mapsto \mu, x \mapsto \nu \mid \xi) = D_f(\mu, \nu) \xi (\mathcal X)$.
 \end{lemma}
 

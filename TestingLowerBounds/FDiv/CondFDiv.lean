@@ -284,7 +284,7 @@ lemma condFDiv_nonneg [IsMarkovKernel κ] [IsMarkovKernel η]
   have h := fDiv_nonneg (μ := κ x) (ν := η x) hf_cvx hf_cont hf_one
   simp [EReal.toReal_nonneg, h]
 
-lemma condFDiv_const {ξ : Measure β} [IsFiniteMeasure ξ] (h_ne_bot : fDiv f μ ν ≠ ⊥) :
+lemma condFDiv_const' {ξ : Measure β} [IsFiniteMeasure ξ] (h_ne_bot : fDiv f μ ν ≠ ⊥) :
     condFDiv f (kernel.const β μ) (kernel.const β ν) ξ = (fDiv f μ ν) * ξ Set.univ := by
   by_cases hξ_zero : ξ = 0
   · simp only [hξ_zero, condFDiv_zero_measure, Measure.zero_toOuterMeasure, OuterMeasure.coe_zero,
@@ -292,21 +292,25 @@ lemma condFDiv_const {ξ : Measure β} [IsFiniteMeasure ξ] (h_ne_bot : fDiv f �
   by_cases h_zero : fDiv f μ ν = 0
   · simp only [h_zero, zero_mul]
     rw [condFDiv_eq'] <;>
-    simp only [kernel.const_apply, h_zero, EReal.toReal_zero, integral_zero, EReal.coe_zero, ne_eq,
-      EReal.zero_ne_top, not_false_eq_true, eventually_true, integrable_zero]
+      simp only [kernel.const_apply, h_zero, EReal.toReal_zero, integral_zero, EReal.coe_zero, ne_eq,
+        EReal.zero_ne_top, not_false_eq_true, eventually_true, integrable_zero]
   by_cases h_top : fDiv f μ ν = ⊤
   · rw [h_top, EReal.top_mul_of_pos _]
-    swap
+    · simp only [condFDiv_of_not_ae_finite, kernel.const_apply, h_top, ne_eq, not_true_eq_false,
+        eventually_false_iff_eq_bot, ae_eq_bot, hξ_zero, not_false_eq_true]
     · simp only [EReal.coe_ennreal_pos, Measure.measure_univ_pos, ne_eq, hξ_zero,
         not_false_eq_true]
-    simp only [condFDiv_of_not_ae_finite, kernel.const_apply, h_top, ne_eq, not_true_eq_false,
-      eventually_false_iff_eq_bot, ae_eq_bot, hξ_zero, not_false_eq_true]
   rw [condFDiv_eq' (by simp [h_top]) _]
   swap; simp [integrable_const_iff, lt_top_iff_ne_top]
   simp only [kernel.const_apply, integral_const, smul_eq_mul, mul_comm, EReal.coe_mul]
   congr
   · exact EReal.coe_toReal h_top h_ne_bot
   · exact EReal.coe_ennreal_toReal (measure_ne_top _ _)
+
+@[simp]
+lemma condFDiv_const {ξ : Measure β} [IsFiniteMeasure ξ] [IsFiniteMeasure μ] :
+    condFDiv f (kernel.const β μ) (kernel.const β ν) ξ = (fDiv f μ ν) * ξ Set.univ :=
+  condFDiv_const' fDiv_ne_bot
 
 variable [MeasurableSpace.CountablyGenerated β]
 
