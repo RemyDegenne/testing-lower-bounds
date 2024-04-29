@@ -308,11 +308,10 @@ lemma condKL_self (κ : kernel α β) (μ : Measure α) [IsFiniteKernel κ] : co
 @[simp]
 lemma condKL_zero_left : condKL 0 η μ = 0 := by
   rw [condKL_of_ae_ne_top_of_integrable _ _]
-  rotate_left
+  · simp only [kernel.zero_apply, kl_zero_left, EReal.toReal_zero, integral_zero, EReal.coe_zero]
   · simp only [kernel.zero_apply, kl_zero_left, ne_eq, EReal.zero_ne_top, not_false_eq_true,
       eventually_true]
   · simp only [kernel.zero_apply, kl_zero_left, EReal.toReal_zero, integrable_zero]
-  simp only [kernel.zero_apply, kl_zero_left, EReal.toReal_zero, integral_zero, EReal.coe_zero]
 
 @[simp]
 lemma condKL_zero_right [NeZero μ] (h : ∃ᵐ a ∂μ, κ a ≠ 0) : condKL κ 0 μ = ⊤ := by
@@ -339,6 +338,7 @@ lemma condKL_nonneg (κ η : kernel α β) [IsMarkovKernel κ] [IsMarkovKernel �
   · exact Real.continuous_mul_log.continuousOn
   · norm_num
 
+@[simp]
 lemma condKL_const {ξ : Measure β} [IsFiniteMeasure ξ] [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     condKL (kernel.const β μ) (kernel.const β ν) ξ = (kl μ ν) * ξ Set.univ := by
   have h := kl_ne_bot μ ν
@@ -444,8 +444,6 @@ lemma kl_compProd [CountablyGenerated β] [IsMarkovKernel κ] [IsMarkovKernel η
       filter_upwards [h] with x hx
       rw [hx]
 
---TODO: decide the name for this lemma, in the blueprint it is called kl_chain_rule_prod, but if we call it like that maybe we have to change also the name of the previous one. A possible name could be kl_joint, but I'm not sure about it
---Why do we need to assume that β is not empty?
 /--The chain rule for the KL divergence.-/
 lemma kl_fst_add_condKL [StandardBorelSpace β] [Nonempty β] {μ ν : Measure (α × β)}
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
