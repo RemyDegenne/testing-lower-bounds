@@ -297,7 +297,7 @@ lemma condFDiv_const' {ξ : Measure β} [IsFiniteMeasure ξ] (h_ne_bot : fDiv f 
   by_cases h_top : fDiv f μ ν = ⊤
   · rw [h_top, EReal.top_mul_of_pos _]
     · simp only [condFDiv_of_not_ae_finite, kernel.const_apply, h_top, ne_eq, not_true_eq_false,
-      eventually_false_iff_eq_bot, ae_eq_bot, hξ_zero, not_false_eq_true]
+        eventually_false_iff_eq_bot, ae_eq_bot, hξ_zero, not_false_eq_true]
     · simp only [EReal.coe_ennreal_pos, Measure.measure_univ_pos, ne_eq, hξ_zero,
         not_false_eq_true]
   rw [condFDiv_eq' (by simp [h_top]) _]
