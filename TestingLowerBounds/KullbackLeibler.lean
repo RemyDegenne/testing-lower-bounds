@@ -386,9 +386,7 @@ lemma kl_compProd [CountablyGenerated β] [IsMarkovKernel κ] [IsMarkovKernel η
   have intκη2 := ae_integrable_llr_of_integrable_llr_compProd h_prod h_int
   calc kl (μ ⊗ₘ κ) (ν ⊗ₘ η) = ∫ p, llr (μ ⊗ₘ κ) (ν ⊗ₘ η) p ∂(μ ⊗ₘ κ) :=
     kl_of_ac_of_integrable h_prod h_int
-  _ = ∫ a, ∫ x, llr (μ ⊗ₘ κ) (ν ⊗ₘ η) (a, x) ∂κ a ∂μ := by
-    norm_cast
-    exact Measure.integral_compProd h_int
+  _ = ∫ a, ∫ x, llr (μ ⊗ₘ κ) (ν ⊗ₘ η) (a, x) ∂κ a ∂μ := mod_cast Measure.integral_compProd h_int
   _ = ∫ a, ∫ x, log (μ.rnDeriv ν a).toReal
       + log (kernel.rnDeriv κ η a x).toReal ∂κ a ∂μ := by
     norm_cast
