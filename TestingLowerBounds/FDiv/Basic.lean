@@ -772,4 +772,53 @@ lemma fDiv_restrict_of_integrable (μ ν : Measure α) [IsFiniteMeasure μ] [IsF
   rw [EReal.coe_ennreal_toReal, mul_comm]
   exact measure_ne_top _ _
 
+section Measurability
+
+lemma measurableSet_integrable_f_kernel_rnDeriv [MeasurableSpace.CountablyGenerated β]
+    (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] (hf : StronglyMeasurable f) :
+    MeasurableSet {a | Integrable (fun x ↦ f (kernel.rnDeriv κ η a x).toReal) (η a)} :=
+  measurableSet_kernel_integrable
+    (hf.comp_measurable (kernel.measurable_rnDeriv κ η).ennreal_toReal)
+
+lemma measurableSet_integrable_f_rnDeriv [MeasurableSpace.CountablyGenerated β]
+    (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] (hf : StronglyMeasurable f) :
+    MeasurableSet {a | Integrable (fun x ↦ f ((∂κ a/∂η a) x).toReal) (η a)} := by
+  convert measurableSet_integrable_f_kernel_rnDeriv κ η hf using 3 with a
+  refine integrable_congr ?_
+  filter_upwards [kernel.rnDeriv_eq_rnDeriv_measure κ η a] with b hb
+  rw [hb]
+
+lemma measurable_fDiv [MeasurableSpace.CountablyGenerated β]
+    (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
+    (hf : StronglyMeasurable f) :
+    Measurable (fun a ↦ fDiv f (κ a) (η a)) := by
+  let s := {a | Integrable (fun x ↦ f ((∂κ a/∂η a) x).toReal) (η a)}
+  have hs : MeasurableSet s := measurableSet_integrable_f_rnDeriv κ η hf
+  classical
+  have h_eq : (fun a ↦ fDiv f (κ a) (η a))
+      = fun a ↦ if a ∈ s then ∫ x, f ((∂κ a/∂η a) x).toReal ∂(η a)
+          + derivAtTop f * (κ a).singularPart (η a) Set.univ
+        else ⊤ := by
+    ext a
+    split_ifs with ha
+    · rw [fDiv_of_integrable ha]
+    · rw [fDiv_of_not_integrable ha]
+  rw [h_eq]
+  refine Measurable.ite hs ?_ measurable_const
+  refine Measurable.add ?_ ?_
+  · have : ∀ a, ∫ x, f ((∂κ a/∂η a) x).toReal ∂η a
+        = ∫ x, f (kernel.rnDeriv κ η a x).toReal ∂η a := by
+      refine fun a ↦ integral_congr_ae ?_
+      filter_upwards [kernel.rnDeriv_eq_rnDeriv_measure κ η a] with x hx
+      rw [hx]
+    simp_rw [this]
+    refine (StronglyMeasurable.integral_kernel_prod_left ?_).measurable.coe_real_ereal
+    refine hf.comp_measurable ?_
+    exact ((kernel.measurable_rnDeriv κ η).comp measurable_swap).ennreal_toReal
+  · refine Measurable.const_mul ?_ _
+    exact ((Measure.measurable_coe MeasurableSet.univ).comp
+      (kernel.measurable_singularPart κ η)).coe_ereal_ennreal
+
+end Measurability
+
 end ProbabilityTheory

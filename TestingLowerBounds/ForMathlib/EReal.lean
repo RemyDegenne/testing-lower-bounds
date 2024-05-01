@@ -1,4 +1,7 @@
 import Mathlib.Data.Real.EReal
+import Mathlib.Topology.Semicontinuous
+import Mathlib.Topology.Instances.EReal
+import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
 
 open scoped ENNReal NNReal
 
@@ -218,5 +221,25 @@ lemma nsmul_eq_mul {n : ℕ} {x : EReal} : n • x = n * x := by
   | succ n ih =>
     rw [succ_nsmul, ih, Nat.cast_succ]
     convert (EReal.coe_add_mul_of_nonneg x _ _).symm <;> simp
+
+lemma lowerSemicontinuous_add : LowerSemicontinuous fun (p : EReal × EReal) ↦ p.1 + p.2 := by
+  intro x
+  by_cases hx1_bot : x.1 = ⊥
+  · intro y
+    simp [hx1_bot]
+  by_cases hx2_bot : x.2 = ⊥
+  · intro y
+    simp [hx2_bot]
+  refine ContinuousAt.lowerSemicontinuousAt ?_
+  exact EReal.continuousAt_add (Or.inr hx2_bot) (Or.inl hx1_bot)
+
+instance : MeasurableAdd₂ EReal := by
+  constructor
+  refine LowerSemicontinuous.measurable ?_
+  exact EReal.lowerSemicontinuous_add
+
+instance : MeasurableMul₂ EReal := by
+  constructor
+  sorry
 
 end EReal

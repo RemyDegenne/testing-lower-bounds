@@ -188,6 +188,12 @@ lemma eq_singularPart [IsFiniteKernel κ] [IsFiniteKernel η] (h : κ = kernel.w
 
 end Unique
 
+lemma measurable_singularPart (κ η : kernel α γ) [IsFiniteKernel κ] [IsFiniteKernel η] :
+    Measurable (fun a ↦ (κ a).singularPart (η a)) := by
+  refine Measure.measurable_of_measurable_coe _ (fun s hs ↦ ?_)
+  simp_rw [← kernel.singularPart_eq_singularPart_measure, kernel.singularPart_def κ η]
+  exact kernel.measurable_coe _ hs
+
 lemma rnDeriv_pos [IsFiniteKernel κ] [IsFiniteKernel η] {a : α} (ha : κ a ≪ η a) :
     ∀ᵐ x ∂(κ a), 0 < rnDeriv κ η a x := by
   filter_upwards [ha.ae_le (rnDeriv_eq_rnDeriv_measure κ η a), Measure.rnDeriv_pos ha] with x heq hpos
