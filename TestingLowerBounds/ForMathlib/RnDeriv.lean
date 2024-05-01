@@ -220,13 +220,6 @@ lemma rnDeriv_trim_of_ac (hm : m ≤ mα) [IsFiniteMeasure μ] [SigmaFinite ν]
     with x hx hx_ne_top
   rw [← hx, ENNReal.ofReal_toReal hx_ne_top]
 
--- PRed
-lemma trim_withDensity (hm : m ≤ mα) {f : α → ℝ≥0∞} (hf : Measurable[m] f) :
-    (withDensity μ f).trim hm = withDensity (μ.trim hm) f := by
-  refine @Measure.ext _ m _ _ (fun s hs ↦ ?_)
-  rw [withDensity_apply _ hs, restrict_trim _ _ hs, lintegral_trim _ hf, trim_measurableSet_eq _ hs,
-    withDensity_apply _ (hm s hs)]
-
 end Trim
 
 lemma rnDeriv_toReal_pos [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν) :

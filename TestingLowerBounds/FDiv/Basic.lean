@@ -4,8 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne
 -/
 import TestingLowerBounds.DerivAtTop
-import TestingLowerBounds.SoonInMathlib.RadonNikodym
+import TestingLowerBounds.ForMathlib.RadonNikodym
 import TestingLowerBounds.ForMathlib.RnDeriv
+import TestingLowerBounds.ForMathlib.Measure
 
 /-!
 
@@ -465,10 +466,6 @@ lemma fDiv_absolutelyContinuous_add_mutuallySingular {μ₁ μ₂ ν : Measure �
   filter_upwards [Measure.rnDeriv_eq_zero_of_mutuallySingular h₂ Measure.AbsolutelyContinuous.rfl]
     with x hx
   simp [hx]
-
-lemma _root_.MeasureTheory.Measure.AbsolutelyContinuous.add_left {μ₁ μ₂ ν : Measure α}
-    (h₁ : μ₁ ≪ ν) (h₂ : μ₂ ≪ ν) :
-    μ₁ + μ₂ ≪ ν := Measure.AbsolutelyContinuous.add_left_iff.mpr ⟨h₁, h₂⟩
 
 lemma fDiv_add_measure_le (μ₁ μ₂ ν : Measure α) [IsFiniteMeasure μ₁] [IsFiniteMeasure μ₂]
     [IsFiniteMeasure ν] (hf : StronglyMeasurable f) (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) :

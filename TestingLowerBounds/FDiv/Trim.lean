@@ -114,12 +114,6 @@ lemma fDiv_trim_le_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ m
   refine ae_of_ae_trim hm ?_
   exact f_condexp_rnDeriv_le hm hf hf_cvx hf_cont h_int
 
-lemma Measure.trim_add (μ ν : Measure α) (hm : m ≤ mα) :
-    (μ + ν).trim hm = μ.trim hm + ν.trim hm := by
-  refine @Measure.ext _ m _ _ (fun s hs ↦ ?_)
-  simp only [Measure.add_toOuterMeasure, OuterMeasure.coe_add, Pi.add_apply,
-    trim_measurableSet_eq hm hs]
-
 lemma fDiv_trim_le [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ mα)
     (hf : StronglyMeasurable f)
     (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0)) :
