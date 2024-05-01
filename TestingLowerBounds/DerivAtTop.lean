@@ -200,4 +200,25 @@ lemma le_add_derivAtTop' (h_cvx : ConvexOn ℝ (Set.Ici 0) f)
     exact hx.lt_of_ne' hx0
   rwa [mul_assoc, mul_sub, mul_one]
 
+lemma toReal_le_add_derivAtTop (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) {a b : ENNReal}
+    (ha : a ≠ ⊤) (hb : b ≠ ⊤) :
+    f ((a + b).toReal) ≤ f a.toReal + derivAtTop f * b := by
+  by_cases hf_top : derivAtTop f = ⊤
+  · rw [hf_top]
+    by_cases hb_zero : b = 0
+    · simp [hb_zero]
+    · rw [EReal.top_mul_ennreal_coe hb_zero, EReal.coe_add_top]
+      exact le_top
+  · have h_le : a.toReal ≤ (a + b).toReal := by
+      gcongr
+      · simp [ha, hb]
+      · simp
+    have h := le_add_derivAtTop hf_cvx hf_top (ENNReal.toReal_nonneg : 0 ≤ a.toReal) h_le
+    lift derivAtTop f to ℝ using ⟨hf_top, derivAtTop_ne_bot⟩ with df
+    rw [← EReal.coe_ennreal_toReal hb]
+    norm_cast
+    refine h.trans_eq ?_
+    congr
+    rw [sub_eq_iff_eq_add, ← ENNReal.toReal_add hb ha, add_comm]
+
 end ProbabilityTheory

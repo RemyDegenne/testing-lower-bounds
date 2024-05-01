@@ -704,33 +704,10 @@ lemma f_measure_univ_le_add (μ ν : Measure α) [IsFiniteMeasure μ] [IsProbabi
     (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) :
     f (μ Set.univ).toReal
       ≤ f (ν.withDensity (∂μ/∂ν) Set.univ).toReal + derivAtTop f * μ.singularPart ν Set.univ := by
-  by_cases hf_top : derivAtTop f = ⊤
-  · rw [hf_top]
-    by_cases hμν : μ ≪ ν
-    · rw [Measure.singularPart_eq_zero_of_ac hμν]
-      simp only [MeasurableSet.univ, withDensity_apply, Measure.restrict_univ,
-        Measure.zero_toOuterMeasure, OuterMeasure.coe_zero, Pi.zero_apply, EReal.coe_ennreal_zero,
-        mul_zero, add_zero, EReal.coe_le_coe_iff]
-      rw [Measure.lintegral_rnDeriv hμν]
-    · rw [← EReal.coe_ennreal_toReal (measure_ne_top _ _)]
-      have h_pos : 0 < (μ.singularPart ν Set.univ).toReal := by
-        rw [ENNReal.toReal_pos_iff]
-        simp [Measure.singularPart_eq_zero, hμν, measure_lt_top]
-      rw [EReal.top_mul_coe_of_pos h_pos, EReal.coe_add_top]
-      exact le_top
-  have h_le : (ν.withDensity (∂μ/∂ν) Set.univ).toReal ≤ (μ Set.univ).toReal := by
-    gcongr
-    · exact measure_ne_top _ _
-    · exact (MeasureTheory.Measure.withDensity_rnDeriv_le μ ν) _
-  have h := le_add_derivAtTop hf_cvx hf_top
-    (ENNReal.toReal_nonneg : 0 ≤ (ν.withDensity (∂μ/∂ν) Set.univ).toReal) h_le
-  lift derivAtTop f to ℝ using ⟨hf_top, derivAtTop_ne_bot⟩ with df
-  rw [← EReal.coe_ennreal_toReal (measure_ne_top _ _)]
-  norm_cast
-  refine h.trans_eq ?_
-  congr
-  rw [sub_eq_iff_eq_add, ← ENNReal.toReal_add (measure_ne_top _ _) (measure_ne_top _ _)]
-  conv_lhs => rw [μ.haveLebesgueDecomposition_add ν]
+  have : μ Set.univ = ν.withDensity (∂μ/∂ν) Set.univ + μ.singularPart ν Set.univ := by
+    conv_lhs => rw [μ.haveLebesgueDecomposition_add ν, add_comm]
+  rw [this]
+  exact toReal_le_add_derivAtTop hf_cvx (measure_ne_top _ _) (measure_ne_top _ _)
 
 lemma le_fDiv [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
     (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0)) :
