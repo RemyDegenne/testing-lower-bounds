@@ -32,6 +32,20 @@ namespace ProbabilityTheory
 variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
   {μ ν : Measure α} {κ η : kernel α β} {f g : ℝ → ℝ}
 
+/-- Composition of a measure and a kernel.
+
+Defined using `MeasureTheory.Measure.bind` -/
+scoped[ProbabilityTheory] infixl:100 " ∘ₘ " => MeasureTheory.Measure.bind
+
+lemma Measure.comp_eq_snd_compProd (μ : Measure α) [SFinite μ]
+    (κ : kernel α β) [IsSFiniteKernel κ] :
+    μ ∘ₘ κ = (μ ⊗ₘ κ).snd := by
+  ext s hs
+  rw [Measure.bind_apply hs (kernel.measurable _), Measure.snd_apply hs,
+    Measure.compProd_apply]
+  · rfl
+  · exact measurable_snd hs
+
 section SingularPart
 
 lemma singularPart_compProd'' [MeasurableSpace.CountablyGenerated β]

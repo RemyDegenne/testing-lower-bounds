@@ -923,20 +923,6 @@ lemma le_fDiv_compProd [MeasurableSpace.CountablyGenerated β]
           exact h.symm
         · exact kernel.measurable_coe _ MeasurableSet.univ
 
-/-- Composition of a measure and a kernel.
-
-Defined using `MeasureTheory.Measure.bind` -/
-scoped[ProbabilityTheory] infixl:100 " ∘ₘ " => MeasureTheory.Measure.bind
-
-lemma Measure.comp_eq_snd_compProd (μ : Measure α) [SFinite μ]
-    (κ : kernel α β) [IsSFiniteKernel κ] :
-    μ ∘ₘ κ = (μ ⊗ₘ κ).snd := by
-  ext s hs
-  rw [Measure.bind_apply hs (kernel.measurable _), Measure.snd_apply hs,
-    Measure.compProd_apply]
-  · rfl
-  · exact measurable_snd hs
-
 lemma fDiv_fst_le [Nonempty β] [StandardBorelSpace β]
     (μ ν : Measure (α × β)) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (hf : StronglyMeasurable f)
@@ -945,13 +931,6 @@ lemma fDiv_fst_le [Nonempty β] [StandardBorelSpace β]
   rw [← μ.compProd_fst_condKernel, ← ν.compProd_fst_condKernel, kernel.Measure.fst_compProd,
     kernel.Measure.fst_compProd]
   exact le_fDiv_compProd μ.fst ν.fst μ.condKernel ν.condKernel hf hf_cvx hf_cont
-
-lemma _root_.MeasureTheory.Measure.fst_map_swap (μ : Measure (α × β)) :
-    (μ.map Prod.swap).fst = μ.snd := by
-    ext s hs
-    rw [Measure.fst, Measure.map_map measurable_fst measurable_swap, Measure.snd_apply hs,
-      Measure.map_apply (measurable_fst.comp measurable_swap) hs]
-    congr
 
 lemma fDiv_snd_le [Nonempty α] [StandardBorelSpace α]
     (μ ν : Measure (α × β)) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
