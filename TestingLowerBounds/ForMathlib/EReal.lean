@@ -233,10 +233,7 @@ lemma lowerSemicontinuous_add : LowerSemicontinuous fun (p : EReal × EReal) ↦
   refine ContinuousAt.lowerSemicontinuousAt ?_
   exact EReal.continuousAt_add (Or.inr hx2_bot) (Or.inl hx1_bot)
 
-instance : MeasurableAdd₂ EReal := by
-  constructor
-  refine LowerSemicontinuous.measurable ?_
-  exact EReal.lowerSemicontinuous_add
+instance : MeasurableAdd₂ EReal := ⟨EReal.lowerSemicontinuous_add.measurable⟩
 
 instance : MeasurableMul₂ EReal := by
   constructor

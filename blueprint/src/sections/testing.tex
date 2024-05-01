@@ -93,8 +93,8 @@ The inequality is an application of Lemma~\ref{lem:testing_bound_renyi_mean} for
 
 \begin{lemma}
   \label{lem:llr_change_measure}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.measure_sub_le_measure_mul_exp'}
+  \leanok
   %\uses{}
   Let $\mu, \nu$ be two measures on $\mathcal X$ with $\mu \ll \nu$ and let $E$ be an event on $\mathcal X$. Let $\beta \in \mathbb{R}$. Then
   \begin{align*}
@@ -102,7 +102,7 @@ The inequality is an application of Lemma~\ref{lem:testing_bound_renyi_mean} for
   \end{align*}
 \end{lemma}
 
-\begin{proof}
+\begin{proof}\leanok
 \begin{align*}
 \nu(E)
 &\ge \mu\left[\mathbb{I}(E) e^{- \log\frac{d \mu}{d \nu} }\right]
@@ -161,8 +161,8 @@ Then $\mu\left[\left(\frac{d \mu}{d \nu}\right)^\alpha \right] = \nu\left[\left(
 
 \begin{lemma}
   \label{lem:llr_change_measure_add}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.one_sub_le_add_measure_mul_exp}
+  \leanok
   %\uses{}
   Let $\mu, \nu, \xi$ be three probability measures on $\mathcal X$ and let $E$ be an event on $\mathcal X$. Let $\beta_1, \beta_2 \in \mathbb{R}$. Then
   \begin{align*}
@@ -170,7 +170,7 @@ Then $\mu\left[\left(\frac{d \mu}{d \nu}\right)^\alpha \right] = \nu\left[\left(
   \end{align*}
 \end{lemma}
 
-\begin{proof}
+\begin{proof}\leanok
 \uses{lem:llr_change_measure}
 Two applications of Lemma~\ref{lem:llr_change_measure}, then sum them and use $\xi(E)+\xi(E^c) = 1$.
 \end{proof}
