@@ -179,7 +179,7 @@ lemma hellingerDiv_symm' (ha_pos : 0 < a) (ha : a < 1) (h_eq : μ Set.univ = ν 
   let q := ∂ν/∂(μ + ν)
   -- todo: should we use (∂μ/∂(μ+ν))/(∂ν/∂(μ+ν)) instead of ∂μ/∂ν everywhere?
   calc ∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν
-    = ∫ x, ((p/q) x).toReal ^ a ∂(μ + ν) := sorry
+    = ∫ x, ((p/q) x).toReal ^ a ∂ν := sorry
   _ = ∫ x, ((q/p) x).toReal * ((p/q) x).toReal ^ a ∂(μ + ν) := sorry
   _ = ∫ x, ((q/p) x).toReal ^ (1 - a) ∂(μ + ν) := sorry
   _ = ∫ x, ((∂ν/∂μ) x).toReal ^ (1 - a) ∂μ := sorry
