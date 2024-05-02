@@ -37,10 +37,12 @@ section HellingerFun
 noncomputable
 def hellingerFun (a : ℝ) : ℝ → ℝ := fun x ↦ (a - 1)⁻¹ * (x ^ a - 1)
 
-lemma continuous_hellingerFun (ha_pos : 0 < a) : Continuous (hellingerFun a) := by
-  refine continuous_const.mul (Continuous.sub ?_ continuous_const)
+lemma continuous_rpow_const (ha_pos : 0 < a) : Continuous fun (x : ℝ) ↦ x ^ a := by
   rw [continuous_iff_continuousAt]
   exact fun _ ↦ continuousAt_rpow_const _ _ (Or.inr ha_pos)
+
+lemma continuous_hellingerFun (ha_pos : 0 < a) : Continuous (hellingerFun a) :=
+  continuous_const.mul ((continuous_rpow_const ha_pos).sub continuous_const)
 
 lemma stronglyMeasurable_hellingerFun (ha_pos : 0 < a) : StronglyMeasurable (hellingerFun a) :=
   (continuous_hellingerFun ha_pos).stronglyMeasurable
@@ -92,6 +94,18 @@ lemma integrable_hellingerFun_rnDeriv_of_lt_one [IsFiniteMeasure μ] [IsFiniteMe
   · exact convexOn_hellingerFun ha_pos
   · rw [derivAtTop_hellingerFun_of_lt_one ha_pos ha]
     exact EReal.zero_ne_top
+
+lemma integrable_rpow_rnDeriv_of_lt_one [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (ha_pos : 0 < a) (ha : a < 1) :
+    Integrable (fun x ↦ ((∂μ/∂ν) x).toReal ^ a) ν := by
+  suffices Integrable (fun x ↦ - ((∂μ/∂ν) x).toReal ^ a) ν by
+    rw [← integrable_neg_iff]
+    exact this
+  refine integrable_f_rnDeriv_of_derivAtTop_ne_top μ ν (f := fun x ↦ - x ^ a) ?_ ?_ ?_
+  · exact (continuous_rpow_const ha_pos).stronglyMeasurable.neg
+  · refine ConcaveOn.neg ?_
+    sorry
+  · sorry
 
 end HellingerFun
 

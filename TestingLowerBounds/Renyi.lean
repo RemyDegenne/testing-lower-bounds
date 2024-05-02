@@ -5,6 +5,7 @@ Authors: Rémy Degenne
 -/
 import TestingLowerBounds.KullbackLeibler
 import TestingLowerBounds.Hellinger
+import Mathlib.Probability.Moments
 
 /-!
 # Rényi divergence
@@ -130,9 +131,61 @@ lemma renyiDiv_symm' (ha_pos : 0 < a) (ha : a < 1) (h_eq : μ Set.univ = ν Set.
   norm_cast
   rw [EReal.toReal_coe, neg_sub]
 
-lemma renyiDiv_symm (ha_pos : 0 < a) (ha : a < 1)
-    [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
+lemma renyiDiv_symm [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
+    (ha_pos : 0 < a) (ha : a < 1) :
     (1 - a) * renyiDiv a μ ν = a * renyiDiv (1 - a) ν μ :=
   renyiDiv_symm' ha_pos ha (by simp)
+
+-- todo: what about `1 < a`?
+lemma renyiDiv_eq_log_integral [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
+    (ha_pos : 0 < a) (ha : a < 1) :
+    renyiDiv a μ ν = (a - 1)⁻¹ * log (∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν) := by
+  rw [renyiDiv_of_lt_one μ ν ha_pos ha]
+  congr
+  rw [hellingerDiv_eq_integral_of_lt_one' ha_pos ha, EReal.toReal_mul, EReal.toReal_coe,
+    EReal.toReal_coe, ← mul_assoc, mul_inv_cancel, one_mul, integral_sub _ (integrable_const _)]
+  · simp
+  · exact integrable_rpow_rnDeriv_of_lt_one ha_pos ha
+  · linarith
+
+-- todo: what about `1 < a`?
+lemma renyiDiv_eq_log_integral' [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
+    (ha_pos : 0 < a) (ha : a < 1) :
+    renyiDiv a μ ν = (a - 1)⁻¹ * log (∫ x, ((∂μ/∂ν) x).toReal ^ (a - 1) ∂μ) := by
+  sorry
+
+-- todo: `ν ≪ μ` is necessary (?) due to the llr being 0 when `(∂μ/∂ν) x = 0`.
+-- In that case, `exp (llr μ ν x) = 1 ≠ 0 = (∂μ/∂ν) x`.
+lemma cgf_llr [IsFiniteMeasure μ] [IsProbabilityMeasure ν] (hνμ : ν ≪ μ)
+    (ha_pos : 0 < a) (ha : a < 1) :
+    cgf (llr μ ν) ν a = (a - 1) * renyiDiv a μ ν := by
+  rw [renyiDiv_eq_log_integral ha_pos ha, ← mul_assoc]
+  have : ((a : EReal) - 1) * ↑(a - 1)⁻¹ = 1 := by
+    norm_cast
+    rw [mul_inv_cancel]
+    linarith
+  rw [this, one_mul, cgf, mgf]
+  congr 2
+  refine integral_congr_ae ?_
+  filter_upwards [Measure.rnDeriv_lt_top μ ν, Measure.rnDeriv_pos' hνμ] with x hx_lt_top hx_pos
+  rw [llr_def]
+  simp only
+  have h_pos : 0 < ((∂μ/∂ν) x).toReal :=  ENNReal.toReal_pos hx_pos.ne' hx_lt_top.ne
+  rw [← log_rpow h_pos, exp_log (rpow_pos_of_pos h_pos _)]
+
+section RenyiMeasure
+
+/-- Density of the Rényi measure `renyiMeasure a μ ν` with respect to `μ + ν`. -/
+noncomputable
+def renyiDensity (a : ℝ) (μ ν : Measure α) (x : α) : ℝ≥0∞ :=
+  ((∂μ/∂(μ + ν)) x) ^ a * ((∂ν/∂(μ + ν)) x) ^ (1 - a)
+    * ENNReal.ofReal (exp ((a - 1) * (renyiDiv a μ ν).toReal))
+
+/-- Tilted measure of `μ` with respect to `ν` parametrized by `a`. -/
+noncomputable
+def renyiMeasure (a : ℝ) (μ ν : Measure α) : Measure α :=
+  (μ + ν).withDensity (renyiDensity a μ ν)
+
+end RenyiMeasure
 
 end ProbabilityTheory
