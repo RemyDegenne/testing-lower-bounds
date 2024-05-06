@@ -775,15 +775,15 @@ lemma fDiv_restrict_of_integrable (μ ν : Measure α) [IsFiniteMeasure μ] [IsF
 section Measurability
 
 lemma measurableSet_integrable_f_kernel_rnDeriv [MeasurableSpace.CountablyGenerated β]
-    (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] (hf : StronglyMeasurable f) :
-    MeasurableSet {a | Integrable (fun x ↦ f (kernel.rnDeriv κ η a x).toReal) (η a)} :=
+    (κ η ξ : kernel α β) [IsFiniteKernel ξ] (hf : StronglyMeasurable f) :
+    MeasurableSet {a | Integrable (fun x ↦ f (kernel.rnDeriv κ η a x).toReal) (ξ a)} :=
   measurableSet_kernel_integrable
     (hf.comp_measurable (kernel.measurable_rnDeriv κ η).ennreal_toReal)
 
 lemma measurableSet_integrable_f_rnDeriv [MeasurableSpace.CountablyGenerated β]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] (hf : StronglyMeasurable f) :
     MeasurableSet {a | Integrable (fun x ↦ f ((∂κ a/∂η a) x).toReal) (η a)} := by
-  convert measurableSet_integrable_f_kernel_rnDeriv κ η hf using 3 with a
+  convert measurableSet_integrable_f_kernel_rnDeriv κ η η hf using 3 with a
   refine integrable_congr ?_
   filter_upwards [kernel.rnDeriv_eq_rnDeriv_measure κ η a] with b hb
   rw [hb]
