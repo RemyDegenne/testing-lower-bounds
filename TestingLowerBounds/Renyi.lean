@@ -142,11 +142,18 @@ lemma renyiDiv_eq_log_integral [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
     renyiDiv a μ ν = (a - 1)⁻¹ * log (∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν) := by
   rw [renyiDiv_of_lt_one μ ν ha_pos ha]
   congr
-  rw [hellingerDiv_eq_integral_of_lt_one' ha_pos ha, EReal.toReal_mul, EReal.toReal_coe,
-    EReal.toReal_coe, ← mul_assoc, mul_inv_cancel, one_mul, integral_sub _ (integrable_const _)]
+  rw [hellingerDiv_eq_integral_of_lt_one' ha_pos ha]
+  simp only [measure_univ, EReal.coe_ennreal_one, mul_one]
+  rw [EReal.toReal_sub, EReal.toReal_mul, EReal.toReal_coe, EReal.toReal_coe, mul_sub, ← mul_assoc,
+    mul_inv_cancel, one_mul]
   · simp
-  · exact integrable_rpow_rnDeriv_of_lt_one ha_pos ha
   · linarith
+  · rw [← EReal.coe_mul]
+    exact EReal.coe_ne_top _
+  · rw [← EReal.coe_mul]
+    exact EReal.coe_ne_bot _
+  · exact EReal.coe_ne_top _
+  · exact EReal.coe_ne_bot _
 
 -- todo: what about `1 < a`?
 lemma renyiDiv_eq_log_integral' [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
