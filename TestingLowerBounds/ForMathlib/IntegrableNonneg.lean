@@ -44,8 +44,6 @@ lemma integrable_add_iff_of_nonpos {f g : α → ℝ} (h_meas : AEStronglyMeasur
   exact integrable_add_iff_of_nonneg h_meas.neg (hf.mono (fun a ↦ neg_nonneg_of_nonpos))
     (hg.mono (fun a ↦ neg_nonneg_of_nonpos))
 
---should all of the above be calles ...of_ae_non... instead of ...of_non...?
-
 end MeasureTheory
 
 
