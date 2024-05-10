@@ -257,6 +257,32 @@ lemma cgf_llr [IsFiniteMeasure μ] [IsProbabilityMeasure ν] (hνμ : ν ≪ μ)
   have h_pos : 0 < ((∂μ/∂ν) x).toReal :=  ENNReal.toReal_pos hx_pos.ne' hx_lt_top.ne
   rw [← log_rpow h_pos, exp_log (rpow_pos_of_pos h_pos _)]
 
+lemma cgf_llr' [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
+    (ha_pos : 0 < a) (h : renyiDiv (1 + a) μ ν ≠ ⊤) :
+    cgf (llr μ ν) μ a = a * renyiDiv (1 + a) μ ν := by
+  have hμν : μ ≪ ν := by
+    rw [renyiDiv_ne_top_iff_of_one_lt] at h
+    · exact h.2
+    · linarith
+  rw [renyiDiv_eq_log_integral_of_ne_top' _ _ hμν h, ← mul_assoc]
+  rotate_left
+  · linarith
+  · linarith
+  simp only [add_sub_cancel_left]
+  have : (a : EReal) * ↑a⁻¹ = 1 := by
+    norm_cast
+    rw [mul_inv_cancel]
+    linarith
+  rw [this, one_mul, cgf, mgf]
+  congr 2
+  refine integral_congr_ae ?_
+  filter_upwards [hμν <| Measure.rnDeriv_lt_top μ ν, Measure.rnDeriv_pos hμν]
+    with x hx_lt_top hx_pos
+  rw [llr_def]
+  simp only
+  have h_pos : 0 < ((∂μ/∂ν) x).toReal :=  ENNReal.toReal_pos hx_pos.ne' hx_lt_top.ne
+  rw [← log_rpow h_pos, exp_log (rpow_pos_of_pos h_pos _)]
+
 section RenyiMeasure
 
 /-- Density of the Rényi measure `renyiMeasure a μ ν` with respect to `μ + ν`. -/
