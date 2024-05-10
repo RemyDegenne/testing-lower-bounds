@@ -75,4 +75,17 @@ lemma one_sub_exp_le_add_measure_mul_exp_max_renyiDiv [IsProbabilityMeasure μ]
         * exp (max (renyiDiv (1 + a) μ ν).toReal (renyiDiv (1 + a) μ ν').toReal + c) := by
         rw [max_add_add_right]
 
+lemma exp_neg_max_renyiDiv_le_add_measure [IsProbabilityMeasure μ]
+    [IsProbabilityMeasure ν] [IsProbabilityMeasure ν'] (hμν : μ ≪ ν) (hμν' : μ ≪ ν') (s : Set α)
+    {a : ℝ} (ha : 0 < a) (hν : renyiDiv (1 + a) μ ν ≠ ⊤) (hν' : renyiDiv (1 + a) μ ν' ≠ ⊤) :
+    2⁻¹ * exp (- max (renyiDiv (1 + a) μ ν).toReal (renyiDiv (1 + a) μ ν').toReal - log 4 / a)
+      ≤ (ν s).toReal + (ν' sᶜ).toReal := by
+  have h := one_sub_exp_le_add_measure_mul_exp_max_renyiDiv hμν hμν' s ha (log 4 / a) hν hν'
+  have : 1 - 2 * exp (-a * (log 4 / a)) = 2⁻¹ := by
+    rw [neg_mul, mul_div_cancel₀ _ ha.ne', exp_neg, exp_log]
+    · norm_num
+    · positivity
+  rw [this] at h
+  rwa [neg_sub_left, exp_neg, mul_inv_le_iff' (exp_pos _), add_comm (log 4 / a)]
+
 end ProbabilityTheory
