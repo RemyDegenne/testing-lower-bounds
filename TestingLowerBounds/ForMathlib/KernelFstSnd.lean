@@ -2,17 +2,14 @@ import Mathlib.Probability.Kernel.MeasureCompProd
 
 open MeasureTheory
 
-open scoped ENNReal
+open scoped ENNReal ProbabilityTheory
 
 namespace ProbabilityTheory
 
 namespace kernel
 
-variable {α β ι : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
-
-variable {γ : Type*} {mγ : MeasurableSpace γ}
-
-open scoped ProbabilityTheory
+variable {α β γ ι : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
+  {mγ : MeasurableSpace γ}
 
 section FstSnd
 
