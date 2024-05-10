@@ -138,7 +138,7 @@ lemma kl_ge_mul_log (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure �
   let ν' := (ν Set.univ)⁻¹ • ν
   have : IsProbabilityMeasure ν' := by
     constructor
-    simp only [ν', Measure.smul_toOuterMeasure, OuterMeasure.coe_smul, Pi.smul_apply, smul_eq_mul]
+    simp only [ν', Measure.coe_smul, Pi.smul_apply, smul_eq_mul]
     rw [mul_comm, ENNReal.mul_inv_cancel]
     · simp [hν]
     · exact measure_ne_top _ _

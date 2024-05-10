@@ -224,6 +224,7 @@ instance instIsFiniteKernel_singularPart [hκ : IsFiniteKernel κ] [IsFiniteKern
   refine ⟨hκ.bound, hκ.bound_lt_top, fun a ↦ ?_⟩
   have h : withDensity η (rnDeriv κ η) a univ + singularPart κ η a univ = κ a univ := by
     conv_rhs => rw [← rnDeriv_add_singularPart κ η]
+    simp
   exact (self_le_add_left _ _).trans (h.le.trans (measure_le_bound _ _ _))
 
 lemma rnDeriv_add (κ ν η : kernel α γ) [IsFiniteKernel κ] [IsFiniteKernel ν] [IsFiniteKernel η]

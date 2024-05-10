@@ -287,7 +287,7 @@ lemma condFDiv_nonneg [IsMarkovKernel κ] [IsMarkovKernel η]
 lemma condFDiv_const' {ξ : Measure β} [IsFiniteMeasure ξ] (h_ne_bot : fDiv f μ ν ≠ ⊥) :
     condFDiv f (kernel.const β μ) (kernel.const β ν) ξ = (fDiv f μ ν) * ξ Set.univ := by
   by_cases hξ_zero : ξ = 0
-  · simp only [hξ_zero, condFDiv_zero_measure, Measure.zero_toOuterMeasure, OuterMeasure.coe_zero,
+  · simp only [hξ_zero, condFDiv_zero_measure, Measure.coe_zero,
       Pi.zero_apply, EReal.coe_ennreal_zero, mul_zero]
   by_cases h_zero : fDiv f μ ν = 0
   · simp only [h_zero, zero_mul]
@@ -771,7 +771,7 @@ lemma f_rnDeriv_le_add [MeasurableSpace.CountablyGenerated β]
       unfold_let κ'
       rw [sub_eq_iff_eq_add, ← ENNReal.one_toReal, ← measure_univ (μ := κ a)]
       conv_lhs => rw [← kernel.rnDeriv_add_singularPart κ η, add_comm]
-      simp only [kernel.coeFn_add, Pi.add_apply, Measure.add_toOuterMeasure, OuterMeasure.coe_add]
+      simp only [kernel.coeFn_add, Pi.add_apply, Measure.coe_add]
       rw [ENNReal.toReal_add]
       · exact measure_ne_top _ _
       · exact measure_ne_top _ _
@@ -902,14 +902,14 @@ lemma le_fDiv_compProd [MeasurableSpace.CountablyGenerated β]
           ← EReal.coe_ennreal_toReal (measure_ne_top _ _)]
         conv_rhs => rw [Measure.haveLebesgueDecomposition_add μ ν]
         rw [Measure.compProd_add_left, add_comm, Measure.singularPart_add]
-        simp only [Measure.add_toOuterMeasure, OuterMeasure.coe_add, Pi.add_apply]
+        simp only [Measure.coe_add, Pi.add_apply]
         rw [ENNReal.toReal_add (measure_ne_top _ _) (measure_ne_top _ _)]
         simp only [EReal.coe_add]
         norm_cast
         rw [mul_add]
         congr
         rw [singularPart_compProd]
-        simp only [Measure.add_toOuterMeasure, OuterMeasure.coe_add, Pi.add_apply]
+        simp only [Measure.coe_add, Pi.add_apply]
         rw [Measure.compProd_apply MeasurableSet.univ]
         rw [Measure.compProd_apply MeasurableSet.univ]
         simp only [Measure.singularPart_singularPart, Set.preimage_univ]

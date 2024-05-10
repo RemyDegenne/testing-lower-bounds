@@ -29,7 +29,6 @@ lemma Measure.AbsolutelyContinuous.add_left {μ₁ μ₂ ν : Measure α} (h₁ 
 lemma Measure.trim_add (μ ν : Measure α) (hm : m ≤ mα) :
     (μ + ν).trim hm = μ.trim hm + ν.trim hm := by
   refine @Measure.ext _ m _ _ (fun s hs ↦ ?_)
-  simp only [Measure.add_toOuterMeasure, OuterMeasure.coe_add, Pi.add_apply,
-    trim_measurableSet_eq hm hs]
+  simp only [Measure.coe_add, Pi.add_apply, trim_measurableSet_eq hm hs]
 
 end MeasureTheory
