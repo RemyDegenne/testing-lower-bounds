@@ -185,7 +185,7 @@ with respect to `μ`. -/
 lemma renyiDiv_eq_log_integral' [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
     (ha_pos : 0 < a) (ha : a < 1) (hμν : μ ≪ ν) :
     renyiDiv a μ ν = (a - 1)⁻¹ * log (∫ x, ((∂μ/∂ν) x).toReal ^ (a - 1) ∂μ) := by
-  rw [renyiDiv_eq_log_integral ha_pos ha, integral_rpow_rnderiv ha_pos ha.ne]
+  rw [renyiDiv_eq_log_integral ha_pos ha, integral_rpow_rnDeriv ha_pos ha.ne]
   congr 3
   refine integral_congr_ae ?_
   filter_upwards [Measure.inv_rnDeriv hμν] with x hx
@@ -198,7 +198,7 @@ If `a < 1`, use `renyiDiv_eq_log_integral'` instead. -/
 lemma renyiDiv_eq_log_integral_of_ne_top' [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
     (ha_pos : 0 < a) (ha : a ≠ 1) (hμν : μ ≪ ν) (h : renyiDiv a μ ν ≠ ⊤) :
     renyiDiv a μ ν = (a - 1)⁻¹ * log (∫ x, ((∂μ/∂ν) x).toReal ^ (a - 1) ∂μ) := by
-  rw [renyiDiv_eq_log_integral_of_ne_top ha_pos ha, integral_rpow_rnderiv ha_pos ha]
+  rw [renyiDiv_eq_log_integral_of_ne_top ha_pos ha, integral_rpow_rnDeriv ha_pos ha]
   congr 3
   refine integral_congr_ae ?_
   filter_upwards [Measure.inv_rnDeriv hμν] with x hx

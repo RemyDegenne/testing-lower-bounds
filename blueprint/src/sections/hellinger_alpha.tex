@@ -46,6 +46,23 @@
 \end{proof}
 
 \begin{lemma}
+  \label{lem:integral_rpow_rnDeriv}
+  \lean{ProbabilityTheory.integral_rpow_rnDeriv}
+  \leanok
+  \uses{}
+  For $\mu, \nu$ two sigma-finite measures,
+  \begin{align*}
+  \int_x \left(\frac{d \mu}{d \nu}(x)\right)^\alpha \partial \nu
+  = \int_x \left(\frac{d \nu}{d \mu}(x)\right)^{1 - \alpha} \partial \mu
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{}
+\end{proof}
+
+\begin{lemma}
   \label{lem:hellingerAlpha_symm}
   \lean{ProbabilityTheory.hellingerDiv_symm}
   \leanok
@@ -54,7 +71,8 @@
 \end{lemma}
 
 \begin{proof}\leanok
-TODO
+\uses{lem:integral_rpow_rnDeriv}
+Use Lemma~\ref{lem:hellingerAlpha_symm}.
 \end{proof}
 
 

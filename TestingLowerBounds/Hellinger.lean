@@ -33,7 +33,7 @@ namespace ProbabilityTheory
 variable {α : Type*} {mα : MeasurableSpace α} {μ ν : Measure α} {a : ℝ}
 
 -- todo: rename and move.
-lemma integral_rpow_rnderiv (ha_pos : 0 < a) (ha : a ≠ 1) [SigmaFinite μ] [SigmaFinite ν] :
+lemma integral_rpow_rnDeriv (ha_pos : 0 < a) (ha : a ≠ 1) [SigmaFinite μ] [SigmaFinite ν] :
     ∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν = ∫ x, ((∂ν/∂μ) x).toReal ^ (1 - a) ∂μ := by
   let p := ∂μ/∂(μ + ν)
   let q := ∂ν/∂(μ + ν)
@@ -277,7 +277,7 @@ lemma hellingerDiv_symm' (ha_pos : 0 < a) (ha : a < 1) (h_eq : μ Set.univ = ν 
     rw [← neg_neg (1 - a), neg_sub, neg_mul, mul_inv_cancel, inv_neg, mul_comm, neg_mul,
       inv_mul_cancel ha_pos.ne']
     linarith
-  rw [integral_rpow_rnderiv ha_pos ha.ne]
+  rw [integral_rpow_rnDeriv ha_pos ha.ne]
   congr
 
 lemma hellingerDiv_symm (ha_pos : 0 < a) (ha : a < 1)
