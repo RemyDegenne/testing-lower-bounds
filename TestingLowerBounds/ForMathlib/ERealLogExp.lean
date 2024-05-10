@@ -28,6 +28,7 @@ namespace EReal
 
 section Log
 
+/-- Logarithm as a function from `ℝ≥0∞` to `EReal`. -/
 noncomputable
 def log : ℝ≥0∞ → EReal
 | ∞ => ⊤
@@ -48,10 +49,29 @@ lemma log_ofReal_of_pos {x : ℝ} (hx : 0 < x) : log (ENNReal.ofReal x) = Real.l
   rw [log_ofReal, if_neg]
   exact not_le.mpr hx
 
+lemma log_mono {a b : ℝ≥0∞} (h : a ≤ b) : log a ≤ log b := by
+  by_cases hb_top : b = ∞
+  · simp [hb_top]
+  have ha_ne_top : a ≠ ∞ := by
+    refine fun ha ↦ hb_top (top_le_iff.mp ?_)
+    rwa [ha] at h
+  by_cases ha_zero : a = 0
+  · simp [ha_zero]
+  have hb_ne_zero : b ≠ 0 := by
+    refine fun hb ↦ ha_zero (le_antisymm ?_ zero_le')
+    rwa [hb] at h
+  have ha_pos : 0 < a.toReal := ENNReal.toReal_pos ha_zero ha_ne_top
+  have hb_pos : 0 < b.toReal := ENNReal.toReal_pos hb_ne_zero hb_top
+  rw [← ENNReal.ofReal_toReal ha_ne_top, ← ENNReal.ofReal_toReal hb_top,
+    log_ofReal_of_pos ha_pos, log_ofReal_of_pos hb_pos]
+  norm_cast
+  rwa [Real.log_le_log_iff ha_pos hb_pos, ENNReal.toReal_le_toReal ha_ne_top hb_top]
+
 end Log
 
 section Exp
 
+/-- Exponential as a function from `EReal` to `ℝ≥0∞`. -/
 noncomputable
 def exp : EReal → ℝ≥0∞
 | ⊥ => 0
@@ -64,6 +84,17 @@ def exp : EReal → ℝ≥0∞
 @[simp] lemma exp_coe (x : ℝ) : exp x = ENNReal.ofReal (Real.exp x) := by
   have h : (x : EReal) = some (some x) := rfl
   simp [h, exp]
+
+lemma exp_mono {a b : EReal} (h : a ≤ b) : exp a ≤ exp b := by
+  induction' a using EReal.rec with a
+  · simp
+  · induction' b using EReal.rec with b
+    · simp at h
+    · rw [exp_coe, exp_coe]
+      exact ENNReal.ofReal_le_ofReal (Real.exp_le_exp_of_le (mod_cast h))
+    · simp
+  · rw [top_le_iff] at h
+    simp [h.symm, exp_top, top_le_iff]
 
 end Exp
 
@@ -82,6 +113,33 @@ section LogExp
   · simp [hx_zero]
   have hx_pos : 0 < x.toReal := ENNReal.toReal_pos hx_zero hx_top
   rw [← ENNReal.ofReal_toReal hx_top, log_ofReal_of_pos hx_pos, exp_coe, Real.exp_log hx_pos]
+
+@[simp]
+lemma log_le_iff {a b : ℝ≥0∞} : log a ≤ log b ↔ a ≤ b := by
+  refine ⟨fun h ↦ ?_, log_mono⟩
+  rw [← exp_log a, ← exp_log b]
+  exact exp_mono h
+
+@[simp]
+lemma exp_le_iff {a b : EReal} : exp a ≤ exp b ↔ a ≤ b := by
+  conv_rhs => rw [← log_exp a, ← log_exp b, log_le_iff]
+
+/-- `EReal.log` and its inverse `Ereal.exp` are an order isomorphism between `ℝ≥0∞` and `EReal`. -/
+noncomputable
+def logOrderIso : ℝ≥0∞ ≃o EReal where
+  toFun := log
+  invFun := exp
+  left_inv x := exp_log x
+  right_inv x := log_exp x
+  map_rel_iff' := by simp only [Equiv.coe_fn_mk, log_le_iff, forall_const]
+
+lemma continuous_log : Continuous log := logOrderIso.continuous
+
+lemma continuous_exp : Continuous exp := logOrderIso.symm.continuous
+
+lemma measurable_log : Measurable log := continuous_log.measurable
+
+lemma measurable_exp : Measurable exp := continuous_exp.measurable
 
 end LogExp
 
