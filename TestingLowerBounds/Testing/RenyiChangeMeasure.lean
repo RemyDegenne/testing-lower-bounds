@@ -5,7 +5,7 @@ Authors: Rémy Degenne
 -/
 import TestingLowerBounds.Renyi
 import TestingLowerBounds.Testing.ChangeMeasure
-import Mathlib.Probability.Moments
+import TestingLowerBounds.Chernoff
 
 /-!
 
@@ -87,5 +87,16 @@ lemma exp_neg_max_renyiDiv_le_add_measure [IsProbabilityMeasure μ]
     · positivity
   rw [this] at h
   rwa [neg_sub_left, exp_neg, mul_inv_le_iff' (exp_pos _), add_comm (log 4 / a)]
+
+lemma exp_neg_chernoffDiv_le_add_measure [IsProbabilityMeasure ν] [IsProbabilityMeasure ν']
+    (s : Set α) {a : ℝ} (ha : 0 < a) :
+    2⁻¹ * exp (- (chernoffDiv (1 + a) ν ν').toReal - log 4 / a)
+      ≤ (ν s).toReal + (ν' sᶜ).toReal := by
+  have h μ (_ : IsProbabilityMeasure μ) (hμν : μ ≪ ν) (hμν' : μ ≪ ν')
+      (hν : renyiDiv (1 + a) μ ν ≠ ⊤) (hν' : renyiDiv (1 + a) μ ν' ≠ ⊤) :
+      2⁻¹ * exp (- max (renyiDiv (1 + a) μ ν).toReal (renyiDiv (1 + a) μ ν').toReal - log 4 / a)
+        ≤ (ν s).toReal + (ν' sᶜ).toReal :=
+    exp_neg_max_renyiDiv_le_add_measure hμν hμν' s ha hν hν'
+  sorry
 
 end ProbabilityTheory
