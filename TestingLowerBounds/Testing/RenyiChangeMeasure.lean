@@ -29,7 +29,7 @@ namespace ProbabilityTheory
 
 variable {α : Type*} {mα : MeasurableSpace α} {μ ν ν' : Measure α} {s : Set α}
 
-lemma measure_llr_gt_renyiDiv_le_exp [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
+lemma measure_llr_gt_renyiDiv_le_exp [IsFiniteMeasure μ] [IsProbabilityMeasure ν] (hμν : μ ≪ ν)
     {a : ℝ} (ha : 0 < a) (c : ℝ) (h : renyiDiv (1 + a) μ ν ≠ ⊤) :
     (μ {x | EReal.toReal (renyiDiv (1 + a) μ ν) + c < llr μ ν x}).toReal ≤ exp (-a * c) := by
   calc (μ {x | EReal.toReal (renyiDiv (1 + a) μ ν) + c < llr μ ν x}).toReal
@@ -40,7 +40,12 @@ lemma measure_llr_gt_renyiDiv_le_exp [IsFiniteMeasure μ] [IsProbabilityMeasure 
   _ ≤ exp (-a * ((renyiDiv (1 + a) μ ν).toReal + c) + cgf (llr μ ν) μ a) := by
         refine measure_ge_le_exp_cgf (X := llr μ ν) (μ := μ) ((renyiDiv (1 + a) μ ν).toReal + c)
           ha.le ?_
-        sorry
+        rw [integrable_congr (exp_mul_llr' hμν)]
+        rw [renyiDiv_ne_top_iff_of_one_lt, integrable_hellingerFun_iff_integrable_rpow] at h
+        · rw [integrable_rpow_rnDeriv_iff hμν ha]
+          exact h.1
+        · linarith
+        · linarith
   _ = exp (-a * c) := by
         congr
         rw [cgf_llr' ha h]
@@ -52,7 +57,7 @@ lemma measure_sub_le_measure_mul_exp_renyiDiv [IsFiniteMeasure μ] [IsProbabilit
   refine le_trans ?_ (measure_sub_le_measure_mul_exp hμν s ((renyiDiv (1 + a) μ ν).toReal + c)
     (measure_ne_top _ _))
   gcongr
-  exact measure_llr_gt_renyiDiv_le_exp ha c h
+  exact measure_llr_gt_renyiDiv_le_exp hμν ha c h
 
 lemma one_sub_exp_le_add_measure_mul_exp_max_renyiDiv [IsProbabilityMeasure μ]
     [IsProbabilityMeasure ν] [IsProbabilityMeasure ν'] (hμν : μ ≪ ν) (hμν' : μ ≪ ν') (s : Set α)
@@ -66,8 +71,8 @@ lemma one_sub_exp_le_add_measure_mul_exp_max_renyiDiv [IsProbabilityMeasure μ]
   _ ≤ 1 - (μ {x | (renyiDiv (1 + a) μ ν).toReal + c < llr μ ν x}).toReal
       - (μ {x | (renyiDiv (1 + a) μ ν').toReal + c < llr μ ν' x}).toReal := by
         gcongr
-        · exact measure_llr_gt_renyiDiv_le_exp ha c hν
-        · exact measure_llr_gt_renyiDiv_le_exp ha c hν'
+        · exact measure_llr_gt_renyiDiv_le_exp hμν ha c hν
+        · exact measure_llr_gt_renyiDiv_le_exp hμν' ha c hν'
   _ ≤ ((ν s).toReal + (ν' sᶜ).toReal)
       * exp (max ((renyiDiv (1 + a) μ ν).toReal + c) ((renyiDiv (1 + a) μ ν').toReal + c)) :=
         one_sub_le_add_measure_mul_exp' hμν hμν' s _ _

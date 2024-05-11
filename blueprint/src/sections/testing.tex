@@ -145,7 +145,7 @@ Use Lemma~\ref{lem:llr_change_measure} with the choice $\KL(\mu, \nu) + \beta$ f
   \end{align*}
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{lem:renyi_cgf_2}
 This is a Chernoff bound, using that the cumulant generating function of $\log\frac{d\mu}{d\nu}$ under $\mu$ has value $\alpha R_{1+\alpha}(\mu, \nu)$ at $\alpha$ by Lemma~\ref{lem:renyi_cgf_2}.
 \begin{align*}
@@ -168,7 +168,7 @@ Then $\mu\left[\left(\frac{d \mu}{d \nu}\right)^\alpha \right] = \nu\left[\left(
   \end{align*}
 \end{lemma}
 
-\begin{proof}
+\begin{proof}\leanok
 \uses{lem:llr_change_measure, lem:renyi_chernoff_bound}
 Use Lemma~\ref{lem:llr_change_measure} with the choice $R_{1+\alpha}(\mu, \nu) + \beta$ for $\beta$. Then apply Lemma~\ref{lem:renyi_chernoff_bound}.
 \end{proof}
