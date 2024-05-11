@@ -7,6 +7,8 @@ open scoped ENNReal NNReal
 
 namespace EReal
 
+instance : CharZero EReal := inferInstanceAs (CharZero (WithBot (WithTop ℝ)))
+
 lemma coe_ennreal_toReal {x : ℝ≥0∞} (hx : x ≠ ∞) : (x.toReal : EReal) = x := by
   lift x to ℝ≥0 using hx
   rfl
