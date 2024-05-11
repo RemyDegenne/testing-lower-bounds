@@ -248,16 +248,16 @@ Use Lemma~\ref{lem:testing_bound_renyi_mean} and remark that $\mu(E)^\alpha + \n
 
 \begin{lemma}
   \label{lem:testing_bound_renyi_one_add}
-  %\lean{}
-  %\leanok
-  \uses{def:Renyi}
+  \lean{ProbabilityTheory.exp_neg_chernoffDiv_le_add_measure}
+  \leanok
+  \uses{def:Renyi, def:Chernoff}
   Let $\mu, \nu$ be two probability measures on $\mathcal X$ and let $E$ be an event on $\mathcal X$. Let $\alpha > 0$. Then
   \begin{align*}
-  \max\{\mu(E), \nu(E^c)\} \ge \frac{1}{4}\exp\left( - \inf_{\xi \in \mathcal P(\mathcal X)}\max\{R_{1+\alpha}(\xi, \mu), R_{1+\alpha}(\xi, \nu)\} - \frac{\log 4}{\alpha}\right) \: .
+  \mu(E) + \nu(E^c) \ge \frac{1}{2}\exp\left( - C_{1+\alpha}(\mu, \nu) - \frac{\log 4}{\alpha}\right) \: .
   \end{align*}
 \end{lemma}
 
-\begin{proof}
+\begin{proof}%\leanok
 \uses{lem:renyi_change_measure_add}
 \end{proof}
 
@@ -284,16 +284,16 @@ Use Lemma~\ref{lem:renyi_prod_n} in Lemma~\ref{lem:testing_bound_renyi_max}.
   \label{lem:testing_bound_renyi_one_add_n}
   %\lean{}
   %\leanok
-  \uses{def:Renyi}
+  \uses{def:Renyi, def:Chernoff}
   Let $\mu, \nu$ be two probability measures on $\mathcal X$, let $n \in \mathbb{N}$ and let $E$ be an event on $\mathcal X^n$. For all $\alpha > 0$,
   \begin{align*}
-  \max\{\mu^{\otimes n}(E), \nu^{\otimes n}(E^c)\} \ge \frac{1}{4}\exp\left( - n \inf_{\xi \in \mathcal P(\mathcal X)}\max\{R_{1+\frac{\alpha}{\sqrt{n}}}(\xi, \mu), R_{1+\frac{\alpha}{\sqrt{n}}}(\xi, \nu)\} - \frac{\log 4}{\alpha}\sqrt{n}\right) \: .
+  \mu^{\otimes n}(E) + \nu^{\otimes n}(E^c) \ge \frac{1}{2}\exp\left( - n C_{1+\frac{\alpha}{\sqrt{n}}}(\mu, \nu) - \frac{\log 4}{\alpha}\sqrt{n}\right) \: .
   \end{align*}
 \end{lemma}
 
 \begin{proof}
 \uses{lem:renyi_prod_n, lem:testing_bound_renyi_one_add}
-Use Lemma~\ref{lem:renyi_prod_n} in Lemma~\ref{lem:testing_bound_renyi_one_add}
+Use Lemma~\ref{lem:renyi_prod_n} in Lemma~\ref{lem:testing_bound_renyi_one_add}. TODO: add a lemma for tensorization of the Chernoff divergence.
 \end{proof}
 
 \begin{theorem}
@@ -304,7 +304,7 @@ Use Lemma~\ref{lem:renyi_prod_n} in Lemma~\ref{lem:testing_bound_renyi_one_add}
   Let $\mu, \nu$ be two probability measures on $\mathcal X$ and let $(E_n)_{n \in \mathbb{N}}$ be events on $\mathcal X^n$. For all $\gamma \in (0,1)$,
   \begin{align*}
   \limsup_{n \to +\infty} \frac{1}{n}\log \frac{1}{\gamma \mu^{\otimes n}(E_n) + (1 - \gamma)\nu^{\otimes n}(E_n^c)}
-  \le C(\mu, \nu)
+  \le C_1(\mu, \nu)
   \: .
   \end{align*}
 \end{theorem}
