@@ -34,8 +34,8 @@ def log : ℝ≥0∞ → EReal
 | ∞ => ⊤
 | x => if x = 0 then ⊥ else Real.log x.toReal
 
-@[simp] lemma log_zero : log 0 = ⊥ := by simp [log]
-@[simp] lemma log_top : log ∞ = ⊤ := by simp [log]
+@[simp] lemma log_zero : log 0 = ⊥ := if_pos rfl
+@[simp] lemma log_top : log ∞ = ⊤ := rfl
 
 lemma log_ofReal (x : ℝ) : log (ENNReal.ofReal x) = if x ≤ 0 then ⊥ else ↑(Real.log x) := by
   simp only [log, ENNReal.none_eq_top, ENNReal.ofReal_ne_top, IsEmpty.forall_iff,
@@ -50,13 +50,13 @@ lemma log_ofReal_of_pos {x : ℝ} (hx : 0 < x) : log (ENNReal.ofReal x) = Real.l
   exact not_le.mpr hx
 
 @[simp] lemma log_eq_bot_iff {x : ℝ≥0∞} : log x = ⊥ ↔ x = 0 := by
-  refine ⟨fun h ↦ ?_, fun hx ↦ by simp [hx]⟩
+  refine ⟨fun h ↦ ?_, fun hx ↦ hx ▸ log_zero⟩
   by_contra hx_ne_zero
   by_cases hx_top : x = ∞
   · simp [hx_top] at h
   have hx_pos : 0 < x.toReal := ENNReal.toReal_pos hx_ne_zero hx_top
   rw [← ENNReal.ofReal_toReal hx_top, log_ofReal_of_pos hx_pos] at h
-  simp at h
+  exact coe_ne_bot _ h
 
 @[simp] lemma log_eq_top_iff {x : ℝ≥0∞} : log x = ⊤ ↔ x = ∞ := by
   refine ⟨fun h ↦ ?_, fun hx ↦ by simp [hx]⟩
@@ -70,14 +70,10 @@ lemma log_ofReal_of_pos {x : ℝ} (hx : 0 < x) : log (ENNReal.ofReal x) = Real.l
 lemma log_mono {a b : ℝ≥0∞} (h : a ≤ b) : log a ≤ log b := by
   by_cases hb_top : b = ∞
   · simp [hb_top]
-  have ha_ne_top : a ≠ ∞ := by
-    refine fun ha ↦ hb_top (top_le_iff.mp ?_)
-    rwa [ha] at h
+  have ha_ne_top : a ≠ ∞ := fun ha ↦ hb_top (top_le_iff.mp <| ha ▸ h)
   by_cases ha_zero : a = 0
   · simp [ha_zero]
-  have hb_ne_zero : b ≠ 0 := by
-    refine fun hb ↦ ha_zero (le_antisymm ?_ zero_le')
-    rwa [hb] at h
+  have hb_ne_zero : b ≠ 0 := fun hb ↦ ha_zero (le_antisymm (hb ▸ h) zero_le')
   have ha_pos : 0 < a.toReal := ENNReal.toReal_pos ha_zero ha_ne_top
   have hb_pos : 0 < b.toReal := ENNReal.toReal_pos hb_ne_zero hb_top
   rw [← ENNReal.ofReal_toReal ha_ne_top, ← ENNReal.ofReal_toReal hb_top,
@@ -92,9 +88,8 @@ lemma log_inv (x : ℝ≥0∞) : log x⁻¹ = - log x := by
   · simp [hx_zero]
   have hx_pos : 0 < x.toReal := ENNReal.toReal_pos hx_zero hx_top
   rw [← ENNReal.ofReal_toReal hx_top, log_ofReal_of_pos hx_pos, ← ENNReal.ofReal_inv_of_pos hx_pos,
-    log_ofReal_of_pos (by positivity)]
+    log_ofReal_of_pos (by positivity), Real.log_inv]
   norm_cast
-  rw [Real.log_inv]
 
 lemma log_mul (a b : ℝ≥0∞) : log (a * b) = log a + log b := by
   by_cases ha_zero : a = 0
@@ -109,7 +104,7 @@ lemma log_mul (a b : ℝ≥0∞) : log (a * b) = log a + log b := by
     rwa [ne_eq, log_eq_bot_iff]
   have ha_pos : 0 < a.toReal := ENNReal.toReal_pos ha_zero ha_top
   have hb_pos : 0 < b.toReal := ENNReal.toReal_pos hb_zero hb_top
-  rw [← ENNReal.ofReal_toReal ha_top,← ENNReal.ofReal_toReal hb_top,
+  rw [← ENNReal.ofReal_toReal ha_top, ← ENNReal.ofReal_toReal hb_top,
     ← ENNReal.ofReal_mul ENNReal.toReal_nonneg, log_ofReal_of_pos, log_ofReal_of_pos ha_pos,
     log_ofReal_of_pos hb_pos, Real.log_mul ha_pos.ne' hb_pos.ne']
   · norm_cast
@@ -126,12 +121,10 @@ def exp : EReal → ℝ≥0∞
 | ⊤ => ∞
 | (x : ℝ) => ENNReal.ofReal (Real.exp x)
 
-@[simp] lemma exp_bot : exp ⊥ = 0 := by simp [exp]
-@[simp] lemma exp_top : exp ⊤ = ∞ := by simp [exp]
+@[simp] lemma exp_bot : exp ⊥ = 0 := rfl
+@[simp] lemma exp_top : exp ⊤ = ∞ := rfl
 
-@[simp] lemma exp_coe (x : ℝ) : exp x = ENNReal.ofReal (Real.exp x) := by
-  have h : (x : EReal) = some (some x) := rfl
-  simp [h, exp]
+@[simp] lemma exp_coe (x : ℝ) : exp x = ENNReal.ofReal (Real.exp x) := rfl
 
 @[simp] lemma exp_eq_zero_iff {x : EReal} : exp x = 0 ↔ x = ⊥ := by
   induction' x using EReal.rec with x <;> simp [Real.exp_pos]
@@ -153,9 +146,8 @@ lemma exp_mono {a b : EReal} (h : a ≤ b) : exp a ≤ exp b := by
 lemma exp_neg (x : EReal) : exp (-x) = (exp x)⁻¹ := by
   induction' x using EReal.rec with x
   · simp
-  · rw [exp_coe, ← EReal.coe_neg, exp_coe, ← ENNReal.ofReal_inv_of_pos (Real.exp_pos _)]
-    congr
-    rw [Real.exp_neg]
+  · rw [exp_coe, ← EReal.coe_neg, exp_coe, ← ENNReal.ofReal_inv_of_pos (Real.exp_pos _), 
+      Real.exp_neg]
   · simp
 
 lemma exp_add (x y : EReal) : exp (x + y) = exp x * exp y := by
@@ -229,5 +221,8 @@ lemma _root_.Measurable.ereal_exp {α : Type*} {_ : MeasurableSpace α}
     Measurable fun x ↦ exp (f x) := measurable_exp.comp hf
 
 end LogExp
+
+instance : TopologicalSpace.MetrizableSpace EReal :=
+  logOrderIso.symm.toHomeomorph.embedding.metrizableSpace
 
 end EReal
