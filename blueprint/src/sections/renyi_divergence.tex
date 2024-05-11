@@ -77,15 +77,15 @@ Use Lemma~\ref{lem:hellingerAlpha_symm}.
 
 \begin{lemma}
   \label{lem:renyi_cgf}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.cgf_llr}
+  \leanok
   \uses{def:Renyi}
   The cumulant generating function of $\log\frac{d\mu}{d\nu}$ under $\nu$ is $\alpha \mapsto (\alpha - 1) R_\alpha(\mu, \nu)$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof}\leanok
 \uses{lem:renyi_eq_log_integral}
-Unfold the definitions.
+Unfold the definitions, using Lemma~\ref{lem:renyi_eq_log_integral} for the Rényi divergence.
 \end{proof}
 
 \begin{lemma}

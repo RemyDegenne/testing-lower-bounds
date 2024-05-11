@@ -133,30 +133,44 @@ Use Lemma~\ref{lem:llr_change_measure} with the choice $\KL(\mu, \nu) + \beta$ f
 \end{proof}
 
 \begin{lemma}
-  \label{lem:renyi_change_measure}
-  %\lean{}
-  %\leanok
+  \label{lem:renyi_chernoff_bound}
+  \lean{ProbabilityTheory.measure_llr_gt_renyiDiv_le_exp}
+  \leanok
   \uses{def:Renyi}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $E$ be an event on $\mathcal X$. Let $\alpha,\beta \ge 0$. Then
+  For $\mu$ a finite measure, $\nu$ a probability measure and $\alpha, \beta > 0$,
+  \begin{align*}
+  \mu\left\{ \log\frac{d \mu}{d \nu} > R_{1+\alpha}(\mu, \nu) + \beta \right\}
+  \le e^{- \alpha \beta}
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{lem:renyi_cgf_2}
+This is a Chernoff bound, using that the cumulant generating function of $\log\frac{d\mu}{d\nu}$ under $\mu$ has value $\alpha R_{1+\alpha}(\mu, \nu)$ at $\alpha$ by Lemma~\ref{lem:renyi_cgf_2}.
+\begin{align*}
+\mu\left\{ \log\frac{d \mu}{d \nu} > R_{1+\alpha}(\mu, \nu) + \beta \right\}
+&= \mu\left\{ \exp\left(\alpha\log\frac{d \mu}{d \nu}\right) > \exp\left(\alpha R_{1+\alpha}(\mu, \nu) + \alpha \beta\right) \right\}
+\\
+&\le e^{-\alpha R_{1+\alpha}(\mu, \nu) - \alpha \beta} \mu\left[\left(\frac{d \mu}{d \nu}\right)^\alpha \right]
+\end{align*}
+Then $\mu\left[\left(\frac{d \mu}{d \nu}\right)^\alpha \right] = \nu\left[\left(\frac{d \mu}{d \nu}\right)^{1+\alpha} \right] = e^{\alpha R_{1+\alpha}(\mu, \nu)}$.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:renyi_change_measure}
+  \lean{ProbabilityTheory.measure_sub_le_measure_mul_exp_renyiDiv}
+  \leanok
+  \uses{def:Renyi}
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $E$ be an event on $\mathcal X$. Let $\alpha,\beta > 0$. Then
   \begin{align*}
   \nu(E) e^{R_{1+\alpha}(\mu, \nu) + \beta} \ge \mu(E) - e^{-\alpha \beta} \: .
   \end{align*}
 \end{lemma}
 
-\begin{proof}
-\uses{lem:llr_change_measure, lem:renyi_cgf_2}
-Use Lemma~\ref{lem:llr_change_measure} with the choice $R_{1+\alpha}(\mu, \nu) + \beta$ for $\beta$. Then by a Chernoff bound,
-\begin{align*}
-\mu\left\{ \log\frac{d \mu}{d \nu} - R_{1+\alpha}(\mu, \nu) > \beta \right\}
-&= \mu\left\{ \exp\left(\alpha\log\frac{d \mu}{d \nu}\right) > \exp\left(\alpha R_{1+\alpha}(\mu, \nu) + \alpha \beta\right) \right\}
-\\
-&\le e^{-\alpha R_{1+\alpha}(\mu, \nu) - \alpha \beta} \mu\left[\left(\frac{d \mu}{d \nu}\right)^\alpha \right]
-\end{align*}
-Then $\mu\left[\left(\frac{d \mu}{d \nu}\right)^\alpha \right] = \nu\left[\left(\frac{d \mu}{d \nu}\right)^{1+\alpha} \right] = e^{\alpha R_{1+\alpha}(\mu, \nu)}$. We obtained
-\begin{align*}
-\mu\left\{ \log\frac{d \mu}{d \nu} - R_{1+\alpha}(\mu, \nu) > \beta \right\}
-\le e^{- \alpha \beta}
-\end{align*}
+\begin{proof}\leanok
+\uses{lem:llr_change_measure, lem:renyi_chernoff_bound}
+Use Lemma~\ref{lem:llr_change_measure} with the choice $R_{1+\alpha}(\mu, \nu) + \beta$ for $\beta$. Then apply Lemma~\ref{lem:renyi_chernoff_bound}.
 \end{proof}
 
 \begin{lemma}
@@ -177,8 +191,8 @@ Two applications of Lemma~\ref{lem:llr_change_measure}, then sum them and use $\
 
 \begin{lemma}
   \label{lem:renyi_change_measure_add}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.one_sub_exp_le_add_measure_mul_exp_max_renyiDiv}
+  \leanok
   \uses{def:Renyi}
   Let $\mu, \nu, \xi$ be three probability measures on $\mathcal X$ and let $E$ be an event on $\mathcal X$. Let $\alpha, \beta \ge 0$. Then
   \begin{align*}
@@ -186,9 +200,10 @@ Two applications of Lemma~\ref{lem:llr_change_measure}, then sum them and use $\
   \end{align*}
 \end{lemma}
 
-\begin{proof}
-\uses{lem:renyi_change_measure}
-Two applications of Lemma~\ref{lem:renyi_change_measure}, then sum them and use $\xi(E)+\xi(E^c) = 1$.
+\begin{proof}\leanok
+\uses{lem:llr_change_measure_add, lem:renyi_chernoff_bound}
+Use Lemma~\ref{lem:llr_change_measure_add} with the choices $R_{1+\alpha}(\xi, \mu) + \beta$ and $R_{1+\alpha}(\xi, \nu) + \beta$ for $\beta_1$ and $\beta_2$.
+Then apply Lemma~\ref{lem:renyi_chernoff_bound}.
 \end{proof}
 
 
@@ -233,16 +248,16 @@ Use Lemma~\ref{lem:testing_bound_renyi_mean} and remark that $\mu(E)^\alpha + \n
 
 \begin{lemma}
   \label{lem:testing_bound_renyi_one_add}
-  %\lean{}
-  %\leanok
-  \uses{def:Renyi}
+  \lean{ProbabilityTheory.exp_neg_chernoffDiv_le_add_measure}
+  \leanok
+  \uses{def:Renyi, def:Chernoff}
   Let $\mu, \nu$ be two probability measures on $\mathcal X$ and let $E$ be an event on $\mathcal X$. Let $\alpha > 0$. Then
   \begin{align*}
-  \max\{\mu(E), \nu(E^c)\} \ge \frac{1}{4}\exp\left( - \inf_{\xi \in \mathcal P(\mathcal X)}\max\{R_{1+\alpha}(\xi, \mu), R_{1+\alpha}(\xi, \nu)\} - \frac{\log 4}{\alpha}\right) \: .
+  \mu(E) + \nu(E^c) \ge \frac{1}{2}\exp\left( - C_{1+\alpha}(\mu, \nu) - \frac{\log 4}{\alpha}\right) \: .
   \end{align*}
 \end{lemma}
 
-\begin{proof}
+\begin{proof}%\leanok
 \uses{lem:renyi_change_measure_add}
 \end{proof}
 
@@ -269,16 +284,16 @@ Use Lemma~\ref{lem:renyi_prod_n} in Lemma~\ref{lem:testing_bound_renyi_max}.
   \label{lem:testing_bound_renyi_one_add_n}
   %\lean{}
   %\leanok
-  \uses{def:Renyi}
+  \uses{def:Renyi, def:Chernoff}
   Let $\mu, \nu$ be two probability measures on $\mathcal X$, let $n \in \mathbb{N}$ and let $E$ be an event on $\mathcal X^n$. For all $\alpha > 0$,
   \begin{align*}
-  \max\{\mu^{\otimes n}(E), \nu^{\otimes n}(E^c)\} \ge \frac{1}{4}\exp\left( - n \inf_{\xi \in \mathcal P(\mathcal X)}\max\{R_{1+\frac{\alpha}{\sqrt{n}}}(\xi, \mu), R_{1+\frac{\alpha}{\sqrt{n}}}(\xi, \nu)\} - \frac{\log 4}{\alpha}\sqrt{n}\right) \: .
+  \mu^{\otimes n}(E) + \nu^{\otimes n}(E^c) \ge \frac{1}{2}\exp\left( - n C_{1+\frac{\alpha}{\sqrt{n}}}(\mu, \nu) - \frac{\log 4}{\alpha}\sqrt{n}\right) \: .
   \end{align*}
 \end{lemma}
 
 \begin{proof}
 \uses{lem:renyi_prod_n, lem:testing_bound_renyi_one_add}
-Use Lemma~\ref{lem:renyi_prod_n} in Lemma~\ref{lem:testing_bound_renyi_one_add}
+Use Lemma~\ref{lem:renyi_prod_n} in Lemma~\ref{lem:testing_bound_renyi_one_add}. TODO: add a lemma for tensorization of the Chernoff divergence.
 \end{proof}
 
 \begin{theorem}
@@ -289,7 +304,7 @@ Use Lemma~\ref{lem:renyi_prod_n} in Lemma~\ref{lem:testing_bound_renyi_one_add}
   Let $\mu, \nu$ be two probability measures on $\mathcal X$ and let $(E_n)_{n \in \mathbb{N}}$ be events on $\mathcal X^n$. For all $\gamma \in (0,1)$,
   \begin{align*}
   \limsup_{n \to +\infty} \frac{1}{n}\log \frac{1}{\gamma \mu^{\otimes n}(E_n) + (1 - \gamma)\nu^{\otimes n}(E_n^c)}
-  \le C(\mu, \nu)
+  \le C_1(\mu, \nu)
   \: .
   \end{align*}
 \end{theorem}

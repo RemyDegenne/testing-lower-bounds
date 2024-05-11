@@ -34,6 +34,23 @@ namespace ProbabilityTheory
 
 variable {α : Type*} {mα : MeasurableSpace α} {μ ν : Measure α} {a : ℝ}
 
+-- todo: move
+lemma exp_mul_llr [SigmaFinite μ] [SigmaFinite ν] (hνμ : ν ≪ μ) :
+    (fun x ↦ exp (a * llr μ ν x)) =ᵐ[ν] fun x ↦ (μ.rnDeriv ν x).toReal ^ a := by
+  filter_upwards [Measure.rnDeriv_lt_top μ ν, Measure.rnDeriv_pos' hνμ] with x hx_lt_top hx_pos
+  simp only [llr_def]
+  have h_pos : 0 < ((∂μ/∂ν) x).toReal :=  ENNReal.toReal_pos hx_pos.ne' hx_lt_top.ne
+  rw [← log_rpow h_pos, exp_log (rpow_pos_of_pos h_pos _)]
+
+-- todo: move
+lemma exp_mul_llr' [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν) :
+    (fun x ↦ exp (a * llr μ ν x)) =ᵐ[μ] fun x ↦ (μ.rnDeriv ν x).toReal ^ a := by
+  filter_upwards [hμν <| Measure.rnDeriv_lt_top μ ν, Measure.rnDeriv_pos hμν]
+    with x hx_lt_top hx_pos
+  simp only [llr_def]
+  have h_pos : 0 < ((∂μ/∂ν) x).toReal :=  ENNReal.toReal_pos hx_pos.ne' hx_lt_top.ne
+  rw [← log_rpow h_pos, exp_log (rpow_pos_of_pos h_pos _)]
+
 open Classical in
 noncomputable def renyiDiv (a : ℝ) (μ ν : Measure α) : EReal :=
   if a = 0 then - log (ν {x | 0 < (∂μ/∂ν) x}).toReal
@@ -240,7 +257,7 @@ lemma renyiDiv_symm [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
 
 -- todo: `ν ≪ μ` is necessary (?) due to the llr being 0 when `(∂μ/∂ν) x = 0`.
 -- In that case, `exp (llr μ ν x) = 1 ≠ 0 = (∂μ/∂ν) x`.
-lemma cgf_llr [IsFiniteMeasure μ] [IsProbabilityMeasure ν] (hνμ : ν ≪ μ)
+lemma coe_cgf_llr [IsFiniteMeasure μ] [IsProbabilityMeasure ν] (hνμ : ν ≪ μ)
     (ha_pos : 0 < a) (ha : a < 1) :
     cgf (llr μ ν) ν a = (a - 1) * renyiDiv a μ ν := by
   rw [renyiDiv_eq_log_integral ha_pos ha, ← mul_assoc]
@@ -250,14 +267,16 @@ lemma cgf_llr [IsFiniteMeasure μ] [IsProbabilityMeasure ν] (hνμ : ν ≪ μ)
     linarith
   rw [this, one_mul, cgf, mgf]
   congr 2
-  refine integral_congr_ae ?_
-  filter_upwards [Measure.rnDeriv_lt_top μ ν, Measure.rnDeriv_pos' hνμ] with x hx_lt_top hx_pos
-  rw [llr_def]
-  simp only
-  have h_pos : 0 < ((∂μ/∂ν) x).toReal :=  ENNReal.toReal_pos hx_pos.ne' hx_lt_top.ne
-  rw [← log_rpow h_pos, exp_log (rpow_pos_of_pos h_pos _)]
+  exact integral_congr_ae (exp_mul_llr hνμ)
 
-lemma cgf_llr' [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
+lemma cgf_llr [IsFiniteMeasure μ] [IsProbabilityMeasure ν] (hνμ : ν ≪ μ)
+    (ha_pos : 0 < a) (ha : a < 1) :
+    cgf (llr μ ν) ν a = (a - 1) * (renyiDiv a μ ν).toReal := by
+  have : (a - 1) * (renyiDiv a μ ν).toReal = ((a - 1) * renyiDiv a μ ν).toReal := by
+    rw [EReal.toReal_mul, ← EReal.coe_one, ← EReal.coe_sub, EReal.toReal_coe]
+  rw [this, ← coe_cgf_llr hνμ ha_pos ha, EReal.toReal_coe]
+
+lemma coe_cgf_llr' [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
     (ha_pos : 0 < a) (h : renyiDiv (1 + a) μ ν ≠ ⊤) :
     cgf (llr μ ν) μ a = a * renyiDiv (1 + a) μ ν := by
   have hμν : μ ≪ ν := by
@@ -275,13 +294,14 @@ lemma cgf_llr' [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
     linarith
   rw [this, one_mul, cgf, mgf]
   congr 2
-  refine integral_congr_ae ?_
-  filter_upwards [hμν <| Measure.rnDeriv_lt_top μ ν, Measure.rnDeriv_pos hμν]
-    with x hx_lt_top hx_pos
-  rw [llr_def]
-  simp only
-  have h_pos : 0 < ((∂μ/∂ν) x).toReal :=  ENNReal.toReal_pos hx_pos.ne' hx_lt_top.ne
-  rw [← log_rpow h_pos, exp_log (rpow_pos_of_pos h_pos _)]
+  exact integral_congr_ae (exp_mul_llr' hμν)
+
+lemma cgf_llr' [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
+    (ha_pos : 0 < a) (h : renyiDiv (1 + a) μ ν ≠ ⊤) :
+    cgf (llr μ ν) μ a = a * (renyiDiv (1 + a) μ ν).toReal := by
+  have : a * (renyiDiv (1 + a) μ ν).toReal = (a * renyiDiv (1 + a) μ ν).toReal := by
+    rw [EReal.toReal_mul, EReal.toReal_coe]
+  rw [this, ← coe_cgf_llr' ha_pos h, EReal.toReal_coe]
 
 section RenyiMeasure
 
