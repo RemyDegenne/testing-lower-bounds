@@ -229,6 +229,39 @@ For the case where $\mu \otimes \kappa \ll \nu \otimes \eta$ and $p \mapsto \log
 Write $\mu = \mu_X \otimes \mu_{Y|X}$ and $\nu = \nu_X \otimes \nu_{Y|X}$, then use Theorem~\ref{thm:kl_compProd}.
 \end{proof}
 
+\begin{theorem}
+  \label{thm:kl_prod_two}
+  %\lean{}
+  %\leanok
+  \uses{def:KL}
+  For $\mu_1, \nu_1$ two probability measures on $\mathcal X$ and $\mu_2, \nu_2$ two probability measures on $\mathcal Y$,
+  \begin{align*}
+  \KL(\mu_1 \times \mu_2, \nu_1 \times \nu_2) = \KL(\mu_1, \nu_1) + \KL(\mu_2 \times \nu_2) \: .
+  \end{align*}
+\end{theorem}
+
+\begin{proof}%\leanok
+\uses{thm:kl_compProd}
+This is a particular case of the chain rule, Theorem~\ref{thm:kl_compProd}.
+\end{proof}
+
+\begin{theorem}
+  \label{thm:kl_pi}
+  %\lean{}
+  %\leanok
+  \uses{}
+  Let $I$ be a finite index set. Let $(\mu_i)_{i \in I}, (\nu_i)_{i \in I}$ be probability measures on spaces $(\mathcal X_i)_{i \in I}$. Then
+  \begin{align*}
+  \KL(\prod_{i \in I} \mu_i, \prod_{i \in I} \nu_i) = \sum_{i \in I} \KL(\mu_i, \nu_i)
+  \: .
+  \end{align*}
+\end{theorem}
+
+\begin{proof}%\leanok
+\uses{thm:kl_prod_two}
+Induction on the size of $I$, using Theorem~\ref{thm:kl_prod_two}.
+\end{proof}
+
 \begin{lemma}
   \label{lem:kl_chain_rule_cond_event}
   %\lean{}

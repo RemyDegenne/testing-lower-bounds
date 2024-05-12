@@ -124,19 +124,19 @@ variable {E : Type*}
 
 -- todo find better name
 theorem _root_.MeasureTheory.Integrable.compProd_mk_left_ae' [NormedAddCommGroup E]
-    [IsFiniteMeasure μ] [IsSFiniteKernel κ] ⦃f : α × β → E⦄
+    [SFinite μ] [IsSFiniteKernel κ] ⦃f : α × β → E⦄
     (hf : Integrable f (μ ⊗ₘ κ)) :
     ∀ᵐ x ∂μ, Integrable (fun y ↦ f (x, y)) (κ x) :=
   hf.compProd_mk_left_ae
 
 theorem _root_.MeasureTheory.Integrable.integral_norm_compProd' [NormedAddCommGroup E]
-    [IsFiniteMeasure μ] [IsSFiniteKernel κ] ⦃f : α × β → E⦄
+    [SFinite μ] [IsSFiniteKernel κ] ⦃f : α × β → E⦄
     (hf : Integrable f (μ ⊗ₘ κ)) :
     Integrable (fun x ↦ ∫ y, ‖f (x, y)‖ ∂(κ x)) μ :=
   hf.integral_norm_compProd
 
 theorem _root_.MeasureTheory.Integrable.integral_compProd' [NormedAddCommGroup E]
-    [IsFiniteMeasure μ] [IsSFiniteKernel κ] ⦃f : α × β → E⦄ [NormedSpace ℝ E] [CompleteSpace E]
+    [SFinite μ] [IsSFiniteKernel κ] ⦃f : α × β → E⦄ [NormedSpace ℝ E] [CompleteSpace E]
     (hf : Integrable f (μ ⊗ₘ κ)) :
     Integrable (fun x ↦ ∫ y, f (x, y) ∂(κ x)) μ :=
   hf.integral_compProd
