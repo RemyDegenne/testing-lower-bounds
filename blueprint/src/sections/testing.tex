@@ -105,8 +105,7 @@ The inequality is an application of Lemma~\ref{lem:testing_bound_renyi_mean} for
 \begin{proof}\leanok
 \begin{align*}
 \nu(E)
-&\ge \mu\left[\mathbb{I}(E) e^{- \log\frac{d \mu}{d \nu} }\right]
-\\
+\ge \mu\left[\mathbb{I}(E) e^{- \log\frac{d \mu}{d \nu} }\right]
 &\ge \mu\left[\mathbb{I}\left(E \cap \left\{\log\frac{d \mu}{d \nu} \le \beta\right\}\right) e^{- \log\frac{d \mu}{d \nu} }\right]
 \\
 &\ge e^{- \beta}\mu\left(E \cap \left\{\log\frac{d \mu}{d \nu} \le \beta\right\}\right)
@@ -130,6 +129,22 @@ The inequality is an application of Lemma~\ref{lem:testing_bound_renyi_mean} for
 \begin{proof}
 \uses{lem:llr_change_measure}
 Use Lemma~\ref{lem:llr_change_measure} with the choice $\KL(\mu, \nu) + \beta$ for $\beta$.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:llr_change_measure_variance}
+  %\lean{}
+  %\leanok
+  \uses{}
+  Let $\mu, \nu$ be two measures on $\mathcal X$ such that $\mu\left[\left(\log\frac{d \mu}{d \nu}\right)^2\right] < \infty$. Let $E$ be an event on $\mathcal X$ and let $\beta > 0$. Then
+  \begin{align*}
+  \nu(E) e^{\KL(\mu, \nu) + \sqrt{\Var_\mu[\log\frac{d \mu}{d \nu}]\beta}} \ge \mu(E) - \frac{1}{\beta} \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:llr_change_measure}
+Use Lemma~\ref{lem:llr_change_measure} with the choice $\KL(\mu, \nu) + \sqrt{\Var_\mu[\log\frac{d \mu}{d \nu}]\beta}$ for $\beta$ and bound the probability of deviation of the log-likelihood ratio with Chebychev's inequality.
 \end{proof}
 
 \begin{lemma}

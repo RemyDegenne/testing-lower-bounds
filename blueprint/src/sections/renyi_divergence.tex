@@ -204,7 +204,7 @@ By Corollary~\ref{cor:data_proc_event}, $D_f(\mu, \nu) \ge D_f(\mu_E, \nu_E)$, h
 \section{The tilted measure}
 
 \begin{definition}
-  \label{def:renyi_measure}
+  \label{def:renyiMeasure}
   \lean{ProbabilityTheory.renyiMeasure}
   \leanok
   \uses{def:Renyi}
@@ -215,10 +215,38 @@ By Corollary~\ref{cor:data_proc_event}, $D_f(\mu, \nu) \ge D_f(\mu_E, \nu_E)$, h
 \end{definition}
 
 \begin{lemma}
-  \label{lem:kl_renyi_measure_eq}
+  \label{lem:renyiMeasure_ac}
   %\lean{}
   %\leanok
-  \uses{def:renyi_measure, def:Renyi, def:KL}
+  \uses{def:renyiMeasure}
+  For $\alpha \in (0,1)$, $\mu^{(\alpha, \nu)} \ll \mu$ and $\mu^{(\alpha, \nu)} \ll \nu$.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+
+\end{proof}
+
+\begin{lemma}
+  \label{lem:rnDeriv_renyiMeasure}
+  %\lean{}
+  %\leanok
+  \uses{def:renyiMeasure}
+  $\frac{d \mu^{(\alpha, \nu)}}{d \nu} = \left(\frac{d\mu}{d\nu}\right)^\alpha e^{(\alpha - 1) R_\alpha(\mu, \nu)}$~, $\nu$-a.e.,
+  and
+  $\frac{d \mu^{(\alpha, \nu)}}{d \mu} = \left(\frac{d\nu}{d\mu}\right)^{1 - \alpha} e^{(\alpha - 1) R_\alpha(\mu, \nu)}$~, $\mu$-a.e..
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:renyiMeasure_ac}
+
+\end{proof}
+
+\begin{lemma}
+  \label{lem:kl_renyiMeasure_eq}
+  %\lean{}
+  %\leanok
+  \uses{def:renyiMeasure, def:Renyi, def:KL}
   Let $\mu, \nu, \xi$ be three measures on $\mathcal X$ and let $\alpha \in (0, 1)$. Then
   \begin{align*}
   \KL(\xi, \mu^{(\alpha, \nu)}) = \alpha \KL(\xi, \mu) + (1 - \alpha)\KL(\xi, \nu) - (1 - \alpha) R_\alpha(\mu, \nu) \: .
@@ -226,7 +254,7 @@ By Corollary~\ref{cor:data_proc_event}, $D_f(\mu, \nu) \ge D_f(\mu_E, \nu_E)$, h
 \end{lemma}
 
 \begin{proof}
-\uses{def:renyi_measure, def:KL}
+\uses{def:renyiMeasure, def:KL}
 Unfold definitions and compute?
 \end{proof}
 
@@ -234,7 +262,7 @@ Unfold definitions and compute?
   \label{cor:renyi_eq_add_kl}
   %\lean{}
   %\leanok
-  \uses{def:renyi_measure, def:Renyi, def:KL}
+  \uses{def:renyiMeasure, def:Renyi, def:KL}
   Let $\mu, \nu, \xi$ be three measures on $\mathcal X$ and let $\alpha \in (0, 1)$. Then
   \begin{align*}
   (1 - \alpha) R_\alpha(\mu, \nu) = \alpha \KL(\mu^{(\alpha, \nu)}, \mu) + (1 - \alpha)\KL(\mu^{(\alpha, \nu)}, \nu) \: .
@@ -242,8 +270,8 @@ Unfold definitions and compute?
 \end{corollary}
 
 \begin{proof}
-\uses{lem:kl_renyi_measure_eq}
-Apply Lemma~\ref{lem:kl_renyi_measure_eq} to $\xi = \mu^{(\alpha, \nu)}$.
+\uses{lem:kl_renyiMeasure_eq}
+Apply Lemma~\ref{lem:kl_renyiMeasure_eq} to $\xi = \mu^{(\alpha, \nu)}$.
 \end{proof}
 
 \begin{lemma}
@@ -258,8 +286,8 @@ Apply Lemma~\ref{lem:kl_renyi_measure_eq} to $\xi = \mu^{(\alpha, \nu)}$.
 \end{lemma}
 
 \begin{proof}
-\uses{lem:kl_renyi_measure_eq, lem:kl_nonneg, cor:renyi_eq_add_kl}
-By Lemma~\ref{lem:kl_renyi_measure_eq} and Lemma~\ref{lem:kl_nonneg}, for all $\xi$,
+\uses{lem:kl_renyiMeasure_eq, lem:kl_nonneg, cor:renyi_eq_add_kl}
+By Lemma~\ref{lem:kl_renyiMeasure_eq} and Lemma~\ref{lem:kl_nonneg}, for all $\xi$,
 \begin{align*}
 \alpha \KL(\xi, \mu) + (1 - \alpha)\KL(\xi, \nu) - (1 - \alpha) R_\alpha(\mu, \nu)
 = \KL(\xi, \mu^{(\alpha, \nu)})
@@ -275,7 +303,7 @@ Corollary~\ref{cor:renyi_eq_add_kl} proves the other inequality.
   \label{thm:renyi_chain_rule}
   %\lean{}
   %\leanok
-  \uses{def:renyi_measure, def:condRenyi}
+  \uses{def:renyiMeasure, def:condRenyi}
   Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels.
   Then $R_\alpha(\mu \otimes \kappa, \nu \otimes \eta) = R_\alpha(\mu, \nu) + R_\alpha(\kappa, \eta \mid \mu^{(\alpha, \nu)})$.
 \end{theorem}
