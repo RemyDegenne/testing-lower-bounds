@@ -325,7 +325,7 @@ Use Lemma~\ref{lem:renyi_prod_n} in Lemma~\ref{lem:testing_bound_renyi_one_add}.
 \end{theorem}
 
 \begin{proof}
-\uses{cor:kl_change_measure}
+\uses{cor:kl_change_measure, thm:kl_pi}
 Let $\xi$ be a probability measure on $\mathcal X$ and $\beta > 0$. By Corollary~\ref{cor:kl_change_measure},
 \begin{align*}
 \mu^{\otimes n}(E_n) e^{\KL(\xi^{\otimes n}, \mu^{\otimes n}) + n\beta}
@@ -344,7 +344,7 @@ We sum both inequalities with weights $\gamma$ and $1-\gamma$ respectively and u
 \: .
 \end{align*}
 Let $p_{n,\mu}(\beta)$ and $p_{n, \nu}(\beta)$ be the two probabilities on the right hand side. By the law of large numbers, both tend to 0 when $n$ tends to $+\infty$.
-In particular, for $n$ large enough, the right hand side is positive and we can take logarithms on both sides. We also use the tensorization of $\KL$ (Lemma TODO).
+In particular, for $n$ large enough, the right hand side is positive and we can take logarithms on both sides. We also use the tensorization of $\KL$ (Theorem~\ref{thm:kl_pi}).
 \begin{align*}
 & n \max\{\KL(\xi, \mu), \KL(\xi, \nu)\}
 \\
@@ -356,6 +356,4 @@ For $n \to +\infty$,
 \ge \limsup_{n \to + \infty}\frac{1}{n}\log \frac{1}{\gamma \mu^{\otimes n}(E_n) + (1 - \gamma)\nu^{\otimes n}(E_n^c)} - \beta
 \end{align*}
 Since $\beta > 0$ is arbitrary, we can take a supremum over $\beta$ on the right.
-
-
 \end{proof}
