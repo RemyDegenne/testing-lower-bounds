@@ -308,7 +308,8 @@ Corollary~\ref{cor:renyi_eq_add_kl} proves the other inequality.
   Then $R_\alpha(\mu \otimes \kappa, \nu \otimes \eta) = R_\alpha(\mu, \nu) + R_\alpha(\kappa, \eta \mid \mu^{(\alpha, \nu)})$.
 \end{theorem}
 
-\begin{proof}
+\begin{proof}%\leanok
+\uses{thm:kl_compProd}
 \end{proof}
 
 \begin{corollary}
@@ -320,7 +321,7 @@ Corollary~\ref{cor:renyi_eq_add_kl} proves the other inequality.
   Then $R_\alpha(\mu \times \xi, \nu \times \lambda) = R_\alpha(\mu, \nu) + R_\alpha(\xi, \lambda)$.
 \end{corollary}
 
-\begin{proof}
+\begin{proof}%\leanok
 \uses{thm:renyi_chain_rule}
 Apply Theorem~\ref{thm:renyi_chain_rule} (the product of measures is a special case of $\otimes$). TODO: more details.
 \end{proof}
@@ -334,7 +335,7 @@ Apply Theorem~\ref{thm:renyi_chain_rule} (the product of measures is a special c
   Then $R_\alpha (\prod_{i \in I} \mu_i, \prod_{i \in I} \nu_i) = \sum_{i \in I} R_\alpha(\mu_i, \nu_i)$.
 \end{theorem}
 
-\begin{proof}
+\begin{proof}%\leanok
 \uses{cor:renyi_prod_two}
 Induction over the finite index set, using Corollary~\ref{cor:renyi_prod_two}.
 \end{proof}
@@ -348,7 +349,7 @@ Induction over the finite index set, using Corollary~\ref{cor:renyi_prod_two}.
   Then $R_\alpha(\mu^{\otimes n}, \nu^{\otimes n}) = n R_\alpha(\mu, \nu)$.
 \end{corollary}
 
-\begin{proof}
+\begin{proof}%\leanok
 \uses{thm:renyi_prod}
 Apply Theorem~\ref{thm:renyi_prod}.
 \end{proof}
@@ -362,6 +363,6 @@ Apply Theorem~\ref{thm:renyi_prod}.
   Then $R_\alpha (\prod_{i \in I} \mu_i, \prod_{i \in I} \nu_i) = \sum_{i \in I} R_\alpha(\mu_i, \nu_i)$.
 \end{theorem}
 
-\begin{proof}
+\begin{proof}%\leanok
 \uses{thm:renyi_prod}
 \end{proof}
