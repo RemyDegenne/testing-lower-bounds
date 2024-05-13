@@ -383,7 +383,6 @@ lemma condFDiv_eq_top_iff [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKern
   have h := condFDiv_ne_top_iff (κ := κ) (η := η) (μ := μ) (f := f)
   tauto
 
---TODO: the hp here are in a strange order, should we reorder them? If we do, then do it also for the next lemma.
 lemma condFDiv_eq [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η]
     (hf_ae : ∀ᵐ a ∂μ, Integrable (fun x ↦ f ((∂κ a/∂η a) x).toReal) (η a))
     (hf : Integrable (fun a ↦ ∫ b, f ((∂κ a/∂η a) b).toReal ∂η a) μ)
