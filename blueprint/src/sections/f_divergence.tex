@@ -667,3 +667,61 @@ By Theorem~\ref{thm:fDiv_comp_le_condFDiv}, $D_f(\kappa \circ \xi, \eta \circ \x
 \section{Variational representations}
 
 TODO
+
+\section{Comparisons between divergences}
+
+Specific divergences are discussed in the next chapters. This section contains general tools that can be used to compare $D_f$ and $D_g$ for two functions $f$ and $g$.
+
+\begin{lemma}
+  \label{lem:fDiv_mono_fun}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  If $f \le g$, then $D_f(\mu, \nu) \le D_g(\mu, \nu)$.
+\end{lemma}
+
+\begin{proof}
+Monotonicity of the integral and of $f \mapsto f'(\infty)$.
+\end{proof}
+
+\begin{theorem}[\cite{sason2016f}]
+  \label{thm:fDiv_eq_sup_mul_fDiv}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  Suppose that $f(1) = g(1) = 0$ and that $f'(1) = g'(1) = 0$, and that $g>0$ on $(0,1) \cup (1, +\infty)$. Suppose that the space $\mathcal X$ has at least two disjoint non-empty measurable sets. Then
+  \begin{align*}
+  \sup_{\mu, \nu \in \mathcal P(\mathcal X)} \frac{D_f(\mu, \nu)}{D_g(\mu, \nu)}
+  = \sup_{t > 0, t \ne 1} \frac{f(t)}{g(t)}
+  \: .
+  \end{align*}
+\end{theorem}
+
+Remark: if $\mathcal X$ does not have two disjoint non-empty measurable sets then its measurable sets are only $\{\emptyset, \mathcal X\}$ and the ratio on the left is $0/0$.
+
+\begin{proof}%\leanok
+\uses{lem:fDiv_mono_fun}
+TODO: proof done for measurable singletons?
+
+By Lemma~\ref{lem:fDiv_mono_fun}, $\sup_{\mu, \nu \in \mathcal P(\mathcal X)} \frac{D_f(\mu, \nu)}{D_g(\mu, \nu)} \le \sup_{t > 0, t \ne 1} \frac{f(t)}{g(t)}$. Let's prove the other inequality.
+
+Let $x$ and $y$ be two points in disjoint non-empty measurable sets. For $t \in (0,1) \cup (1, +\infty)$ and $\varepsilon \in (0, 1/t]$ let $\mu_{t, \varepsilon} = t \varepsilon \delta_x + (1 - t \varepsilon) \delta_y$ and $\nu_\varepsilon = \varepsilon \delta_x + (1 - \varepsilon) \delta_y$~.
+\begin{align*}
+D_f(\mu_{t, \varepsilon}, \nu_\varepsilon)
+&= \varepsilon f(t) + (1 - \varepsilon) f(\frac{1 - t \varepsilon}{1 - \varepsilon})
+\\
+&= \varepsilon f(t) + \varepsilon (1 - t) \frac{1 - \varepsilon}{\varepsilon (1 - t)} f(1 + \frac{\varepsilon(1 - t)}{1 - \varepsilon})
+\end{align*}
+Let $\alpha = \frac{\varepsilon (1 - t)}{1 - \varepsilon}$. Then since $f(1) = g(1) = 0$,
+\begin{align*}
+\frac{D_f(\mu_{t, \varepsilon}, \nu_\varepsilon)}{D_g(\mu_{t, \varepsilon}, \nu_\varepsilon)}
+&= \frac{f(t) + (1 - t)\frac{f(1 + \alpha) - f(1)}{\alpha}}{g(t) + (1 - t)\frac{g(1 + \alpha) - g(1)}{\alpha}} \: .
+\end{align*}
+As $\varepsilon \to 0$, $\alpha$ also tends to 0 and
+\begin{align*}
+\frac{D_f(\mu_{t, \varepsilon}, \nu_\varepsilon)}{D_g(\mu_{t, \varepsilon}, \nu_\varepsilon)}
+\to \frac{f(t) + (1 - t)f'(1)}{g(t) + (1 - t)g'(1)}
+= \frac{f(t)}{g(t)}
+\: .
+\end{align*}
+\end{proof}

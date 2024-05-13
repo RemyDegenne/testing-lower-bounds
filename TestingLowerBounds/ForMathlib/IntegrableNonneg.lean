@@ -2,11 +2,9 @@ import TestingLowerBounds.ForMathlib.Measurable
 
 open Real
 
-
 namespace MeasureTheory
 
 variable {α : Type*} {mα : MeasurableSpace α} {μ ν : Measure α}
-
 
 --TODO: put this in the right place and PR to mathlib
 lemma integrable_left_of_integrable_add_of_nonneg {f g : α → ℝ}
@@ -44,13 +42,9 @@ lemma integrable_add_iff_of_nonpos {f g : α → ℝ} (h_meas : AEStronglyMeasur
   exact integrable_add_iff_of_nonneg h_meas.neg (hf.mono (fun a ↦ neg_nonneg_of_nonpos))
     (hg.mono (fun a ↦ neg_nonneg_of_nonpos))
 
---should all of the above be calles ...of_ae_non... instead of ...of_non...?
-
 end MeasureTheory
-
 
 --we could put this in the same section as:
 #check MeasureTheory.Integrable.add
 --or maybe in some other file, if the file L1space is too general, since in this case we are talking about functions on ℝ
 --also, is there some way to generalize this lemma to functions on a more general space?
-#minimize_imports
