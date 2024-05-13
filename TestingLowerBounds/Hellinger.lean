@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne
 -/
 import TestingLowerBounds.FDiv.Basic
+import Mathlib.Analysis.Convex.SpecificFunctions.Pow
 
 /-!
 # Helliger divergence
@@ -117,16 +118,14 @@ lemma hellingerFun_one_eq_zero : hellingerFun a 1 = 0 := by simp [hellingerFun]
 lemma convexOn_hellingerFun (ha_pos : 0 < a) : ConvexOn ℝ (Set.Ici 0) (hellingerFun a) := by
   cases le_total a 1 with
   | inl ha =>
-    have : hellingerFun a = - (fun x ↦ (1 - a)⁻¹ * (x ^ a - 1)) := by
+    have : hellingerFun a = - (fun x ↦ (1 - a)⁻¹ • (x ^ a - 1)) := by
       ext x
       simp only [Pi.neg_apply]
-      rw [← neg_mul, neg_inv, neg_sub, hellingerFun]
+      rw [smul_eq_mul, ← neg_mul, neg_inv, neg_sub, hellingerFun]
     rw [this]
     refine ConcaveOn.neg ?_
-    have h : ConcaveOn ℝ (Set.Ici 0) fun x : ℝ ↦ x ^ a := by
-      sorry
-    simp_rw [← smul_eq_mul]
-    exact ConcaveOn.smul (by simp [ha]) (h.sub (convexOn_const _ (convex_Ici 0)))
+    exact ((Real.concaveOn_rpow ha_pos.le ha).sub (convexOn_const _ (convex_Ici 0))).smul
+      (by simp [ha])
   | inr ha =>
     have h := convexOn_rpow ha
     unfold hellingerFun
