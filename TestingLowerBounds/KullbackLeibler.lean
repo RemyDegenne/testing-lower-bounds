@@ -474,13 +474,10 @@ lemma MeasurableEquiv.piCongrLeft_apply_apply {ι ι' : Type*} (e : ι ≃ ι') 
     (MeasurableEquiv.piCongrLeft (fun i' => β i') e) x (e i) = x i := by
   rw [MeasurableEquiv.piCongrLeft, MeasurableEquiv.coe_mk, Equiv.piCongrLeft_apply_apply]
 
---TODO: find a place for this, and a better name
---the hypothesis hι and hι' are not needed both, we can do with just one of them, but then the statement complains that it doesn't find the instance for the other, should we just leave it like this or find some way to circumvent it?
---should μ be an explicit argument?
 lemma Measure.pi_map_piCongrLeft {ι ι' : Type*} [hι : Fintype ι] [hι' : Fintype ι'] (e : ι ≃ ι')
-    {β : ι' → Type*} [∀ i, MeasurableSpace (β i)] {μ : (i : ι') → Measure (β i)}
+    {β : ι' → Type*} [∀ i, MeasurableSpace (β i)] (μ : (i : ι') → Measure (β i))
     [∀ i, SigmaFinite (μ i)] :
-    Measure.map (MeasurableEquiv.piCongrLeft (fun i ↦ β i) e) (Measure.pi fun i ↦ μ (e i))
+    (Measure.pi fun i ↦ μ (e i)).map (MeasurableEquiv.piCongrLeft (fun i ↦ β i) e)
     = Measure.pi μ := by
   let e_meas : ((b : ι) → β (e b)) ≃ᵐ ((a : ι') → β a) :=
     MeasurableEquiv.piCongrLeft (fun i ↦ β i) e
@@ -500,6 +497,25 @@ lemma Measure.pi_map_piCongrLeft {ι ι' : Type*} [hι : Fintype ι] [hι' : Fin
   simp only [s']
   congr
   all_goals rw [e.apply_symm_apply]
+
+lemma _root_.MeasureTheory.Measure.pi_map_piOptionEquivProd {ι : Type*} [hι : Fintype ι]
+    {β : Option ι → Type*} [∀ i, MeasurableSpace (β i)] (ξ : (i : Option ι) → Measure (β i))
+    [∀ (i : Option ι), SigmaFinite (ξ i)] :
+    ((Measure.pi fun i ↦ ξ (some i)).prod (ξ none)).map --TODO: when we bump mathlib remove the explicit universe level
+      (MeasurableEquiv.piOptionEquivProd.{_, _, u_3} β).symm = Measure.pi ξ := by
+  refine Measure.pi_eq (fun s _ ↦ ?_) |>.symm
+  let e_meas : ((i : ι) → β (some i)) × β none ≃ᵐ ((i : Option ι) → β i) :=
+        MeasurableEquiv.piOptionEquivProd.{_, _, u_3} β |>.symm --TODO: when we bump mathlib remove the explicit universe level
+  have me := MeasurableEquiv.measurableEmbedding e_meas
+  have : e_meas ⁻¹' Set.pi Set.univ s
+      = (Set.pi Set.univ (fun i ↦ s (some i))) ×ˢ (s none) := by
+    ext x
+    simp only [Set.mem_preimage, Set.mem_pi, Set.mem_univ, forall_true_left, Set.mem_prod]
+    constructor; tauto
+    intro h i
+    rcases i <;> tauto
+  simp only [me.map_apply, univ_option, Finset.le_eq_subset, Finset.prod_insertNone, this,
+    Measure.prod_prod, Measure.pi_pi, mul_comm]
 
 lemma kl_pi {ι : Type*} [hι : Fintype ι] {β : ι → Type*} [∀ i, MeasurableSpace (β i)]
     [∀ i, CountablyGenerated (β i)] {μ ν : (i : ι) → Measure (β i)}
@@ -532,20 +548,8 @@ lemma kl_pi {ι : Type*} [hι : Fintype ι] {β : ι → Type*} [∀ i, Measurab
       let e_meas : ((i : ι) → β (some i)) × β none ≃ᵐ ((i : Option ι) → β i) :=
         MeasurableEquiv.piOptionEquivProd.{_, _, u_3} β |>.symm --TODO: when we bump mathlib remove the explicit universe level
       have me := MeasurableEquiv.measurableEmbedding e_meas
-      have hh (ξ : (i : Option ι) → Measure (β i)) [∀ (i : Option ι), IsProbabilityMeasure (ξ i)] :
-          Measure.pi ξ = ((Measure.pi fun i ↦ ξ (some i)).prod (ξ none)).map (⇑e_meas) := by
-        refine Measure.pi_eq (fun s _ ↦ ?_)
-        have : e_meas ⁻¹' Set.pi Set.univ s
-            = (Set.pi Set.univ (fun i ↦ s (some i))) ×ˢ (s none) := by
-          ext x
-          simp only [Set.mem_preimage, Set.mem_pi, Set.mem_univ, forall_true_left, Set.mem_prod]
-          constructor; tauto
-          intro h i
-          rcases i <;> tauto
-        simp only [me.map_apply, univ_option, Finset.le_eq_subset, Finset.prod_insertNone, this,
-          Measure.prod_prod, Measure.pi_pi, mul_comm]
       convert fDiv_map_measurableEmbedding me
-      <;> try {exact hh _} <;> infer_instance
+        <;> try {exact Measure.pi_map_piOptionEquivProd _ |>.symm} <;> infer_instance
     rw [Fintype.sum_option, h, add_comm, ← ind_h]
     convert kl_prod_two <;> tauto <;> infer_instance
 
