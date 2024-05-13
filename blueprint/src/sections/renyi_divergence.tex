@@ -210,7 +210,7 @@ By Corollary~\ref{cor:data_proc_event}, $D_f(\mu, \nu) \ge D_f(\mu_E, \nu_E)$, h
   \uses{def:Renyi}
   Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\alpha \in (0, +\infty) \backslash \{1\}$. Let $p = \frac{d \mu}{d (\mu + \nu)}$ and $q = \frac{d \nu}{d (\mu + \nu)}$. We define a measure $\mu^{(\alpha, \nu)}$, absolutely continuous with respect to $\mu + \nu$ with density
   \begin{align*}
-  \frac{d \mu^{(\alpha, \nu)}}{d (\mu + \nu)} = p^\alpha q^{1 - \alpha} e^{(\alpha - 1)R_\alpha(\mu, \nu)} \: .
+  \frac{d \mu^{(\alpha, \nu)}}{d (\mu + \nu)} = p^\alpha q^{1 - \alpha} e^{-(\alpha - 1)R_\alpha(\mu, \nu)} \: .
   \end{align*}
 \end{definition}
 
@@ -232,9 +232,9 @@ By Corollary~\ref{cor:data_proc_event}, $D_f(\mu, \nu) \ge D_f(\mu_E, \nu_E)$, h
   %\lean{}
   %\leanok
   \uses{def:renyiMeasure}
-  $\frac{d \mu^{(\alpha, \nu)}}{d \nu} = \left(\frac{d\mu}{d\nu}\right)^\alpha e^{(\alpha - 1) R_\alpha(\mu, \nu)}$~, $\nu$-a.e.,
+  $\frac{d \mu^{(\alpha, \nu)}}{d \nu} = \left(\frac{d\mu}{d\nu}\right)^\alpha e^{-(\alpha - 1) R_\alpha(\mu, \nu)}$~, $\nu$-a.e.,
   and
-  $\frac{d \mu^{(\alpha, \nu)}}{d \mu} = \left(\frac{d\nu}{d\mu}\right)^{1 - \alpha} e^{(\alpha - 1) R_\alpha(\mu, \nu)}$~, $\mu$-a.e..
+  $\frac{d \mu^{(\alpha, \nu)}}{d \mu} = \left(\frac{d\nu}{d\mu}\right)^{1 - \alpha} e^{-(\alpha - 1) R_\alpha(\mu, \nu)}$~, $\mu$-a.e..
 \end{lemma}
 
 \begin{proof}%\leanok
