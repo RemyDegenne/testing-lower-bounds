@@ -496,6 +496,113 @@ lemma kl_fst_add_condKL [StandardBorelSpace β] [Nonempty β] {μ ν : Measure (
 
 end Conditional
 
+section Tensorization
+
+variable {β : Type*} {mβ : MeasurableSpace β}
+
+lemma kl_prod_two' [CountablyGenerated β] {ξ ψ : Measure β} [IsProbabilityMeasure ξ]
+    [IsProbabilityMeasure ψ] [IsFiniteMeasure μ] [IsFiniteMeasure ν]:
+    kl (μ.prod ξ) (ν.prod ψ) = kl μ ν + kl ξ ψ * (μ Set.univ) := by
+  simp only [← condKL_const, ← kl_compProd, compProd_const]
+
+/--Tensorization property for KL divergence-/
+lemma kl_prod_two [CountablyGenerated β] {ξ ψ : Measure β} [IsProbabilityMeasure ξ]
+    [IsProbabilityMeasure ψ] [IsProbabilityMeasure μ] [IsFiniteMeasure ν] :
+    kl (μ.prod ξ) (ν.prod ψ) = kl μ ν + kl ξ ψ := by
+  simp only [kl_prod_two', measure_univ, EReal.coe_ennreal_one, mul_one]
+
+--TODO: put this in the right place, maybe PR to mathlib, just after MeasurableEquiv.piCongrLeft?
+lemma MeasurableEquiv.piCongrLeft_apply_apply {ι ι' : Type*} (e : ι ≃ ι') {β : ι' → Type*}
+    [∀ i', MeasurableSpace (β i')] (x : (i : ι) → β (e i)) (i : ι) :
+    (MeasurableEquiv.piCongrLeft (fun i' => β i') e) x (e i) = x i := by
+  rw [MeasurableEquiv.piCongrLeft, MeasurableEquiv.coe_mk, Equiv.piCongrLeft_apply_apply]
+
+lemma Measure.pi_map_piCongrLeft {ι ι' : Type*} [hι : Fintype ι] [hι' : Fintype ι'] (e : ι ≃ ι')
+    {β : ι' → Type*} [∀ i, MeasurableSpace (β i)] (μ : (i : ι') → Measure (β i))
+    [∀ i, SigmaFinite (μ i)] :
+    (Measure.pi fun i ↦ μ (e i)).map (MeasurableEquiv.piCongrLeft (fun i ↦ β i) e)
+    = Measure.pi μ := by
+  let e_meas : ((b : ι) → β (e b)) ≃ᵐ ((a : ι') → β a) :=
+    MeasurableEquiv.piCongrLeft (fun i ↦ β i) e
+  refine Measure.pi_eq (fun s _ ↦ ?_) |>.symm
+  rw [e_meas.measurableEmbedding.map_apply]
+  let s' : (i : ι) → Set (β (e i)) := fun i ↦ s (e i)
+  have : e_meas ⁻¹' Set.pi Set.univ s = Set.pi Set.univ s' := by
+    ext x
+    simp only [Set.mem_preimage, Set.mem_pi, Set.mem_univ, forall_true_left, s']
+    apply (e.forall_congr _).symm
+    intro i
+    convert Iff.rfl
+    exact MeasurableEquiv.piCongrLeft_apply_apply e x i
+  rw [this, Measure.pi_pi, Finset.prod_equiv e.symm]
+  · simp only [Finset.mem_univ, implies_true]
+  intro i _
+  simp only [s']
+  congr
+  all_goals rw [e.apply_symm_apply]
+
+lemma _root_.MeasureTheory.Measure.pi_map_piOptionEquivProd {ι : Type*} [hι : Fintype ι]
+    {β : Option ι → Type*} [∀ i, MeasurableSpace (β i)] (ξ : (i : Option ι) → Measure (β i))
+    [∀ (i : Option ι), SigmaFinite (ξ i)] :
+    ((Measure.pi fun i ↦ ξ (some i)).prod (ξ none)).map --TODO: when we bump mathlib remove the explicit universe level
+      (MeasurableEquiv.piOptionEquivProd.{_, _, u_3} β).symm = Measure.pi ξ := by
+  refine Measure.pi_eq (fun s _ ↦ ?_) |>.symm
+  let e_meas : ((i : ι) → β (some i)) × β none ≃ᵐ ((i : Option ι) → β i) :=
+        MeasurableEquiv.piOptionEquivProd.{_, _, u_3} β |>.symm --TODO: when we bump mathlib remove the explicit universe level
+  have me := MeasurableEquiv.measurableEmbedding e_meas
+  have : e_meas ⁻¹' Set.pi Set.univ s
+      = (Set.pi Set.univ (fun i ↦ s (some i))) ×ˢ (s none) := by
+    ext x
+    simp only [Set.mem_preimage, Set.mem_pi, Set.mem_univ, forall_true_left, Set.mem_prod]
+    constructor; tauto
+    intro h i
+    rcases i <;> tauto
+  simp only [me.map_apply, univ_option, Finset.le_eq_subset, Finset.prod_insertNone, this,
+    Measure.prod_prod, Measure.pi_pi, mul_comm]
+
+lemma kl_pi {ι : Type*} [hι : Fintype ι] {β : ι → Type*} [∀ i, MeasurableSpace (β i)]
+    [∀ i, CountablyGenerated (β i)] {μ ν : (i : ι) → Measure (β i)}
+    [∀ i, IsProbabilityMeasure (μ i)] [∀ i, IsProbabilityMeasure (ν i)] :
+    kl (Measure.pi μ) (Measure.pi ν) = ∑ i, kl (μ i) (ν i) := by
+  refine Fintype.induction_empty_option (P := fun ι ↦ ∀ {β : ι → Type u_4}
+    [(i : ι) → MeasurableSpace (β i)] [∀ (i : ι), CountablyGenerated (β i)]
+    {μ ν : (i : ι) → Measure (β i)} [∀ (i : ι), IsProbabilityMeasure (μ i)]
+    [∀ (i : ι), IsProbabilityMeasure (ν i)],
+    kl (Measure.pi μ) (Measure.pi ν) = ∑ i : ι, kl (μ i) (ν i) ) ?_ ?_ ?_ ι
+  · intro ι ι' hι' e h β _ _ μ ν _ _
+    specialize h (β := fun i ↦ β (e i)) (μ := fun i ↦ μ (e i)) (ν := fun i ↦ ν (e i))
+    let hι : Fintype ι := Fintype.ofEquiv _ e.symm
+    rw [Fintype.sum_equiv e.symm _ (fun i ↦ kl (μ (e i)) (ν (e i))), ← h, kl_eq_fDiv, kl_eq_fDiv]
+    let e_meas : ((b : ι) → β (e b)) ≃ᵐ ((a : ι') → β a) :=
+      MeasurableEquiv.piCongrLeft (fun i ↦ β i) e
+    have me := MeasurableEquiv.measurableEmbedding e_meas.symm
+    convert (fDiv_map_measurableEmbedding me).symm
+      <;> try {rw [← Measure.pi_map_piCongrLeft e, MeasurableEquiv.map_symm_map]}
+      <;> infer_instance
+    intro i
+    rw [Equiv.apply_symm_apply]
+  · intro β _ _ μ ν _ _
+    rw [Measure.pi_of_empty, Measure.pi_of_empty, kl_self, Finset.univ_eq_empty, Finset.sum_empty]
+  · intro ι hι ind_h β _ _ μ ν _ _
+    specialize ind_h (β := fun i ↦ β i) (μ := fun i ↦ μ i) (ν := fun i ↦ ν i)
+    have h : kl (Measure.pi μ) (Measure.pi ν) = kl ((Measure.pi (fun (i : ι) ↦ μ i)).prod
+        (μ none)) ((Measure.pi (fun (i : ι) ↦ ν i)).prod (ν none)) := by
+      rw [kl_eq_fDiv, kl_eq_fDiv]
+      let e_meas : ((i : ι) → β (some i)) × β none ≃ᵐ ((i : Option ι) → β i) :=
+        MeasurableEquiv.piOptionEquivProd.{_, _, u_3} β |>.symm --TODO: when we bump mathlib remove the explicit universe level
+      have me := MeasurableEquiv.measurableEmbedding e_meas
+      convert fDiv_map_measurableEmbedding me
+        <;> try {exact Measure.pi_map_piOptionEquivProd _ |>.symm} <;> infer_instance
+    rw [Fintype.sum_option, h, add_comm, ← ind_h]
+    convert kl_prod_two <;> tauto <;> infer_instance
+
+lemma kl_pi_const {ι : Type*} [hι : Fintype ι] [CountablyGenerated α] [IsProbabilityMeasure μ]
+    [IsProbabilityMeasure ν] :
+    kl (Measure.pi (fun (_ : ι) ↦ μ)) (Measure.pi (fun (_ : ι) ↦ ν)) = hι.card * kl μ ν := by
+  rw [kl_pi, Finset.sum_const, (Finset.card_eq_iff_eq_univ _).mpr rfl, EReal.nsmul_eq_mul]
+
+end Tensorization
+
 end ProbabilityTheory
 --TODO: check if the EReal are a metrizable space (I think the istance is not there, since using a lemma it says that it failed to sintethize the instance of pseudo metrizable space), if there is not, we could add it, we can metrize the EReal using the metric d(x,y) = |arctg(x)-arctg(y)|. This may be useful to apply some lemmas, for example
 --TODO: define the extended exp and log
