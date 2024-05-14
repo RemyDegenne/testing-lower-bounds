@@ -22,7 +22,7 @@
 \begin{proof}
 \begin{align*}
 \TV(\mu, \nu)
-= \nu\left[ \vert \frac{d\mu}{d\nu} - 1 \vert \right] + \frac{1}{2}\mu_{\perp \nu}(\mathcal X).
+= \frac{1}{2}\nu\left[ \vert \frac{d\mu}{d\nu} - 1 \vert \right] + \frac{1}{2}\mu_{\perp \nu}(\mathcal X).
 \end{align*}
 Both terms are nonnegative.
 \end{proof}
@@ -51,12 +51,7 @@ Apply Lemma TODO (fDiv\_le\_zero\_add\_top in the code, not in the blueprint yet
 
 \begin{proof}
 \uses{lem:tv_le_add}
-By Lemma~\ref{lem:tv_le_add},
-\begin{align*}
-\TV(\mu, \nu)
-\le \frac{1}{2}\nu(\mathcal X) + \frac{1}{2}\mu(\mathcal X)
-= 1
-\end{align*}
+By Lemma~\ref{lem:tv_le_add}, $\TV(\mu, \nu) \le \frac{1}{2}\nu(\mathcal X) + \frac{1}{2}\mu(\mathcal X) = 1$~.
 \end{proof}
 
 \begin{lemma}

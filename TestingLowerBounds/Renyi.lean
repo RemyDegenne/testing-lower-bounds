@@ -309,7 +309,7 @@ section RenyiMeasure
 noncomputable
 def renyiDensity (a : ℝ) (μ ν : Measure α) (x : α) : ℝ≥0∞ :=
   ((∂μ/∂(μ + ν)) x) ^ a * ((∂ν/∂(μ + ν)) x) ^ (1 - a)
-    * ENNReal.ofReal (exp ((a - 1) * (renyiDiv a μ ν).toReal))
+    * ENNReal.ofReal (exp (- (a - 1) * (renyiDiv a μ ν).toReal))
 
 /-- Tilted measure of `μ` with respect to `ν` parametrized by `a`. -/
 noncomputable

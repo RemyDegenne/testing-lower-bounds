@@ -60,7 +60,9 @@ lemma kl_of_not_ac (h : ¬ μ ≪ ν) : kl μ ν = ⊤ := if_neg (not_and_of_not
 lemma kl_of_not_integrable (h : ¬ Integrable (llr μ ν) μ) : kl μ ν = ⊤ :=
   if_neg (not_and_of_not_right _ h)
 
---This lemma is to make some proof a bit easier, since we can avoid repeating the integrability hypothesis if we have a cast to the reals. Unfortunately this cannot be used if we don't have the absolute continuity, since in that case the integral may still be finite but not zero.
+/-- If `μ ≪ ν`, then `toReal` of the Kullback-Leibler divergence is equal to an integral,
+without any integrability condition. Not true in general without `μ ≪ ν`, as the integral might be
+finite but non-zero. -/
 lemma kl_toReal_of_ac (h : μ ≪ ν) : (kl μ ν).toReal = ∫ a, llr μ ν a ∂μ := by
   by_cases h_int : Integrable (llr μ ν) μ
   · rw [kl_of_ac_of_integrable h h_int, EReal.toReal_coe]
@@ -699,7 +701,3 @@ lemma kl_pi_const {ι : Type*} [hι : Fintype ι] [CountablyGenerated α] [IsPro
 end Tensorization
 
 end ProbabilityTheory
---TODO: check if the EReal are a metrizable space (I think the istance is not there, since using a lemma it says that it failed to sintethize the instance of pseudo metrizable space), if there is not, we could add it, we can metrize the EReal using the metric d(x,y) = |arctg(x)-arctg(y)|. This may be useful to apply some lemmas, for example
---TODO: define the extended exp and log
-#check Measurable.stronglyMeasurable
---TODO: bump mathlib, I tried to do it using `lake -R -Kenv=dev update` but it failed, giving me the error `function expected at FetchM`
