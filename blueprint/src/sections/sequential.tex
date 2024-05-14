@@ -31,10 +31,10 @@ TODO: need Wald's first identity.
 \end{proof}
 
 \begin{lemma}
-  \label{lem:renyi_measure_stopping_time}
+  \label{lem:renyiMeasure_stopping_time}
   %\lean{}
   %\leanok
-  \uses{def:renyi_measure}
+  \uses{def:renyiMeasure}
   For $\mu, \nu$ two probability measures on $\Omega$ and $\alpha \in (0,1)$, $(\mu^{(\alpha, \nu)})_\tau = (\mu_\tau)^{(\alpha, \nu_\tau)}$.
 \end{lemma}
 
@@ -46,13 +46,13 @@ This is a guess, I did not check it. TODO
   \label{thm:renyi_stopping_time}
   %\lean{}
   %\leanok
-  \uses{def:KL, def:Renyi, def:renyi_measure}
+  \uses{def:KL, def:Renyi, def:renyiMeasure}
   For $\mu, \nu$ two probability measures on $\Omega$ and $\alpha \in (0,1)$,
   $R_\alpha(\mu_\tau, \nu_\tau) = \mu^{\alpha, \nu}[\tau] R_\alpha(\mu, \nu)$.
 \end{theorem}
 
 \begin{proof}
-\uses{thm:kl_stopping_time, cor:renyi_eq_add_kl, lem:renyi_measure_stopping_time}
+\uses{thm:kl_stopping_time, cor:renyi_eq_add_kl, lem:renyiMeasure_stopping_time}
 From Corollary~\ref{cor:renyi_eq_add_kl}, $(1 - \alpha) R_\alpha(\mu, \nu) = \alpha \KL(\mu^{(\alpha, \nu)}, \mu) + (1 - \alpha)\KL(\mu^{(\alpha, \nu)}, \nu)$, hence we can use Theorem~\ref{thm:kl_stopping_time} to write
 \begin{align*}
 \mu^{\alpha, \nu}[\tau] R_\alpha(\mu, \nu)
@@ -60,7 +60,7 @@ From Corollary~\ref{cor:renyi_eq_add_kl}, $(1 - \alpha) R_\alpha(\mu, \nu) = \al
 \\
 &= \frac{1}{1 - \alpha}\left(\alpha \KL((\mu^{(\alpha, \nu)})_\tau, \mu_\tau) + (1 - \alpha)\KL((\mu^{(\alpha, \nu)})_\tau, \nu_\tau) \right)
 \end{align*}
-It then suffices to remark that $(\mu^{(\alpha, \nu)})_\tau = (\mu_\tau)^{(\alpha, \nu_\tau)}$, thanks to Lemma~\ref{lem:renyi_measure_stopping_time}.
+It then suffices to remark that $(\mu^{(\alpha, \nu)})_\tau = (\mu_\tau)^{(\alpha, \nu_\tau)}$, thanks to Lemma~\ref{lem:renyiMeasure_stopping_time}.
 
 TODO: if that lemma does not hold, we still have the inequality $R_\alpha(\mu_\tau, \nu_\tau) \le \mu^{\alpha, \nu}[\tau] R_\alpha(\mu, \nu)$ by Lemma~\ref{lem:renyi_eq_inf_add_kl}.
 \end{proof}

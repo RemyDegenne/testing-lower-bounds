@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne
 -/
 import TestingLowerBounds.FDiv.Basic
+import Mathlib.Analysis.Convex.SpecificFunctions.Pow
 
 /-!
 # Helliger divergence
@@ -82,6 +83,20 @@ lemma integral_rpow_rnDeriv (ha_pos : 0 < a) (ha : a ≠ 1) [SigmaFinite μ] [Si
         rw [add_comm] at hx
         simp only [hx, Pi.div_apply, p, q]
 
+lemma integrable_rpow_rnDeriv_iff [SigmaFinite ν] [SigmaFinite μ] (hμν : μ ≪ ν)
+    {a : ℝ} (ha : 0 < a) :
+    Integrable (fun x ↦ ((∂μ/∂ν) x).toReal ^ a) μ
+      ↔ Integrable (fun x ↦ ((∂μ/∂ν) x).toReal ^ (1 + a)) ν := by
+  rw [← integrable_rnDeriv_smul_iff hμν]
+  refine integrable_congr ?_
+  filter_upwards [Measure.rnDeriv_ne_top μ ν] with x hx
+  simp only [smul_eq_mul]
+  by_cases h_zero : μ.rnDeriv ν x = 0
+  · simp only [h_zero, ENNReal.zero_toReal, zero_mul]
+    rw [zero_rpow]
+    linarith
+  · rw [rpow_add (ENNReal.toReal_pos h_zero hx), rpow_one]
+
 section HellingerFun
 
 noncomputable
@@ -103,16 +118,14 @@ lemma hellingerFun_one_eq_zero : hellingerFun a 1 = 0 := by simp [hellingerFun]
 lemma convexOn_hellingerFun (ha_pos : 0 < a) : ConvexOn ℝ (Set.Ici 0) (hellingerFun a) := by
   cases le_total a 1 with
   | inl ha =>
-    have : hellingerFun a = - (fun x ↦ (1 - a)⁻¹ * (x ^ a - 1)) := by
+    have : hellingerFun a = - (fun x ↦ (1 - a)⁻¹ • (x ^ a - 1)) := by
       ext x
       simp only [Pi.neg_apply]
-      rw [← neg_mul, neg_inv, neg_sub, hellingerFun]
+      rw [smul_eq_mul, ← neg_mul, neg_inv, neg_sub, hellingerFun]
     rw [this]
     refine ConcaveOn.neg ?_
-    have h : ConcaveOn ℝ (Set.Ici 0) fun x : ℝ ↦ x ^ a := by
-      sorry
-    simp_rw [← smul_eq_mul]
-    exact ConcaveOn.smul (by simp [ha]) (h.sub (convexOn_const _ (convex_Ici 0)))
+    exact ((Real.concaveOn_rpow ha_pos.le ha).sub (convexOn_const _ (convex_Ici 0))).smul
+      (by simp [ha])
   | inr ha =>
     have h := convexOn_rpow ha
     unfold hellingerFun

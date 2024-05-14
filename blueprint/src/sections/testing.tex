@@ -6,22 +6,7 @@ In typical scenarios, $\mathcal X$ is a product space $\mathcal Y^n$, $\mu$ and 
 A test is a measurable function $\phi : \mathcal X \to \{0,1\}$, which can equivalently be described by the even $E = \{\phi = 1\}$. If we decide that the test should return 0 if the sample came from $\mu$ and 1 if it came from $\nu$, the two error probabilities of the test are $\mu(E)$ and $\nu(E^c)$. A good test minimizes these (or a given combination of these).
 
 In this section, we prove lower bounds on functions of $\mu(E)$ and $\nu(E^c)$, for any event $E$.
-
-\section{Generic lower bounds}
-
-\begin{lemma}
-  \label{lem:testing_bound_tv}
-  %\lean{}
-  %\leanok
-  \uses{def:TV}
-  Let $\mu, \nu$ be two probability measures on $\mathcal X$ and $E$ an event. Then $\mu(E) + \nu(E^c) \ge 1 - \TV(\mu, \nu)$~.
-\end{lemma}
-
-\begin{proof}
-\uses{thm:tv_eq_sup_sub_measure}
-By Theorem~\ref{thm:tv_eq_sup_sub_measure}, $TV(\mu, \nu) = \sup_{E \text{ event}} \left( \mu(E) - \nu(E) \right)$. For any event $E$, 
-$1 - \TV(\mu, \nu) \le 1 - \mu(E^c) + \nu(E^c) = \mu(E) + \nu(E^c)$.
-\end{proof}
+For the sum $\mu(E) + \nu(E^c)$, the value of the optimal test is exactly $1 - \TV(\mu, \nu)$, as shown in the following theorem.
 
 \begin{theorem}
   \label{thm:testing_eq_tv}
@@ -42,6 +27,10 @@ By Theorem~\ref{thm:tv_eq_sup_sub_measure},
 \: .
 \end{align*}
 \end{proof}
+
+The drawback of $\TV$ is that it is not easy to manipulate. In particular, it does not tensorize. In order to quantify error probabilities on product spaces like $\mu^{\otimes n}(E) + \nu^{\otimes n}(E^c)$, we use other divergences.
+
+\section{Generic lower bounds}
 
 \begin{lemma}
   \label{lem:testing_bound_renyi_mean}
@@ -105,8 +94,7 @@ The inequality is an application of Lemma~\ref{lem:testing_bound_renyi_mean} for
 \begin{proof}\leanok
 \begin{align*}
 \nu(E)
-&\ge \mu\left[\mathbb{I}(E) e^{- \log\frac{d \mu}{d \nu} }\right]
-\\
+\ge \mu\left[\mathbb{I}(E) e^{- \log\frac{d \mu}{d \nu} }\right]
 &\ge \mu\left[\mathbb{I}\left(E \cap \left\{\log\frac{d \mu}{d \nu} \le \beta\right\}\right) e^{- \log\frac{d \mu}{d \nu} }\right]
 \\
 &\ge e^{- \beta}\mu\left(E \cap \left\{\log\frac{d \mu}{d \nu} \le \beta\right\}\right)
@@ -133,30 +121,60 @@ Use Lemma~\ref{lem:llr_change_measure} with the choice $\KL(\mu, \nu) + \beta$ f
 \end{proof}
 
 \begin{lemma}
-  \label{lem:renyi_change_measure}
+  \label{lem:llr_change_measure_variance}
   %\lean{}
   %\leanok
+  \uses{}
+  Let $\mu, \nu$ be two measures on $\mathcal X$ such that $\mu\left[\left(\log\frac{d \mu}{d \nu}\right)^2\right] < \infty$. Let $E$ be an event on $\mathcal X$ and let $\beta > 0$. Then
+  \begin{align*}
+  \nu(E) e^{\KL(\mu, \nu) + \sqrt{\Var_\mu[\log\frac{d \mu}{d \nu}]\beta}} \ge \mu(E) - \frac{1}{\beta} \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:llr_change_measure}
+Use Lemma~\ref{lem:llr_change_measure} with the choice $\KL(\mu, \nu) + \sqrt{\Var_\mu[\log\frac{d \mu}{d \nu}]\beta}$ for $\beta$ and bound the probability of deviation of the log-likelihood ratio with Chebychev's inequality.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:renyi_chernoff_bound}
+  \lean{ProbabilityTheory.measure_llr_gt_renyiDiv_le_exp}
+  \leanok
   \uses{def:Renyi}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $E$ be an event on $\mathcal X$. Let $\alpha,\beta \ge 0$. Then
+  For $\mu$ a finite measure, $\nu$ a probability measure and $\alpha, \beta > 0$,
+  \begin{align*}
+  \mu\left\{ \log\frac{d \mu}{d \nu} > R_{1+\alpha}(\mu, \nu) + \beta \right\}
+  \le e^{- \alpha \beta}
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{lem:renyi_cgf_2}
+This is a Chernoff bound, using that the cumulant generating function of $\log\frac{d\mu}{d\nu}$ under $\mu$ has value $\alpha R_{1+\alpha}(\mu, \nu)$ at $\alpha$ by Lemma~\ref{lem:renyi_cgf_2}.
+\begin{align*}
+\mu\left\{ \log\frac{d \mu}{d \nu} > R_{1+\alpha}(\mu, \nu) + \beta \right\}
+&= \mu\left\{ \exp\left(\alpha\log\frac{d \mu}{d \nu}\right) > \exp\left(\alpha R_{1+\alpha}(\mu, \nu) + \alpha \beta\right) \right\}
+\\
+&\le e^{-\alpha R_{1+\alpha}(\mu, \nu) - \alpha \beta} \mu\left[\left(\frac{d \mu}{d \nu}\right)^\alpha \right]
+\end{align*}
+Then $\mu\left[\left(\frac{d \mu}{d \nu}\right)^\alpha \right] = \nu\left[\left(\frac{d \mu}{d \nu}\right)^{1+\alpha} \right] = e^{\alpha R_{1+\alpha}(\mu, \nu)}$.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:renyi_change_measure}
+  \lean{ProbabilityTheory.measure_sub_le_measure_mul_exp_renyiDiv}
+  \leanok
+  \uses{def:Renyi}
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $E$ be an event on $\mathcal X$. Let $\alpha,\beta > 0$. Then
   \begin{align*}
   \nu(E) e^{R_{1+\alpha}(\mu, \nu) + \beta} \ge \mu(E) - e^{-\alpha \beta} \: .
   \end{align*}
 \end{lemma}
 
-\begin{proof}
-\uses{lem:llr_change_measure, lem:renyi_cgf_2}
-Use Lemma~\ref{lem:llr_change_measure} with the choice $R_{1+\alpha}(\mu, \nu) + \beta$ for $\beta$. Then by a Chernoff bound,
-\begin{align*}
-\mu\left\{ \log\frac{d \mu}{d \nu} - R_{1+\alpha}(\mu, \nu) > \beta \right\}
-&= \mu\left\{ \exp\left(\alpha\log\frac{d \mu}{d \nu}\right) > \exp\left(\alpha R_{1+\alpha}(\mu, \nu) + \alpha \beta\right) \right\}
-\\
-&\le e^{-\alpha R_{1+\alpha}(\mu, \nu) - \alpha \beta} \mu\left[\left(\frac{d \mu}{d \nu}\right)^\alpha \right]
-\end{align*}
-Then $\mu\left[\left(\frac{d \mu}{d \nu}\right)^\alpha \right] = \nu\left[\left(\frac{d \mu}{d \nu}\right)^{1+\alpha} \right] = e^{\alpha R_{1+\alpha}(\mu, \nu)}$. We obtained
-\begin{align*}
-\mu\left\{ \log\frac{d \mu}{d \nu} - R_{1+\alpha}(\mu, \nu) > \beta \right\}
-\le e^{- \alpha \beta}
-\end{align*}
+\begin{proof}\leanok
+\uses{lem:llr_change_measure, lem:renyi_chernoff_bound}
+Use Lemma~\ref{lem:llr_change_measure} with the choice $R_{1+\alpha}(\mu, \nu) + \beta$ for $\beta$. Then apply Lemma~\ref{lem:renyi_chernoff_bound}.
 \end{proof}
 
 \begin{lemma}
@@ -176,9 +194,27 @@ Two applications of Lemma~\ref{lem:llr_change_measure}, then sum them and use $\
 \end{proof}
 
 \begin{lemma}
+  \label{lem:change_measure_variance_add}
+  \lean{ProbabilityTheory.one_sub_exp_le_add_measure_mul_exp_max_renyiDiv}
+  \leanok
+  \uses{}
+  Let $\mu, \nu, \xi$ be three probability measures on $\mathcal X$ and let $E$ be an event on $\mathcal X$. For $\beta > 0$~,
+  \begin{align*}
+  \mu(E) e^{\KL(\xi, \mu) + \sqrt{\beta \Var_{\xi}\left[\log\frac{d\xi}{d\mu}\right]}} + \nu(E^c) e^{\KL(\xi, \nu) + \sqrt{\beta \Var_{\xi}\left[\log\frac{d\xi}{d\nu}\right]}}
+  \ge 1 - \frac{2}{\beta} \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{lem:llr_change_measure_add}
+Use Lemma~\ref{lem:llr_change_measure_add} with the choices $\KL(\xi, \mu) + \sqrt{\beta \Var_{\xi}\left[\log\frac{d\xi}{d\mu}\right]}$ and $\KL(\xi, \nu) + \sqrt{\beta \Var_{\xi}\left[\log\frac{d\xi}{d\nu}\right]}$ for $\beta_1$ and $\beta_2$.
+Then use Chebyshev's inequality to bound the probabilities of deviation of the log-likelihood ratios.
+\end{proof}
+
+\begin{lemma}
   \label{lem:renyi_change_measure_add}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.one_sub_exp_le_add_measure_mul_exp_max_renyiDiv}
+  \leanok
   \uses{def:Renyi}
   Let $\mu, \nu, \xi$ be three probability measures on $\mathcal X$ and let $E$ be an event on $\mathcal X$. Let $\alpha, \beta \ge 0$. Then
   \begin{align*}
@@ -186,9 +222,10 @@ Two applications of Lemma~\ref{lem:llr_change_measure}, then sum them and use $\
   \end{align*}
 \end{lemma}
 
-\begin{proof}
-\uses{lem:renyi_change_measure}
-Two applications of Lemma~\ref{lem:renyi_change_measure}, then sum them and use $\xi(E)+\xi(E^c) = 1$.
+\begin{proof}\leanok
+\uses{lem:llr_change_measure_add, lem:renyi_chernoff_bound}
+Use Lemma~\ref{lem:llr_change_measure_add} with the choices $R_{1+\alpha}(\xi, \mu) + \beta$ and $R_{1+\alpha}(\xi, \nu) + \beta$ for $\beta_1$ and $\beta_2$.
+Then apply Lemma~\ref{lem:renyi_chernoff_bound}.
 \end{proof}
 
 
@@ -209,8 +246,8 @@ Two applications of Lemma~\ref{lem:renyi_change_measure}, then sum them and use 
 \end{lemma}
 
 \begin{proof}
-\uses{lem:testing_bound_tv, cor:one_sub_hellinger_squared_le_one_sub_tv}
-The first inequality is Lemma~\ref{lem:testing_bound_tv} with $\mu(E) + \nu(E^c) \le 2 \max\{\mu(E), \nu(E^c)\}$.
+\uses{thm:testing_bound_tv, cor:one_sub_hellinger_squared_le_one_sub_tv}
+The first inequality is Theorem~\ref{thm:testing_bound_tv} with $\mu(E) + \nu(E^c) \le 2 \max\{\mu(E), \nu(E^c)\}$.
 The second inequality is a consequence of Corollary~\ref{cor:one_sub_hellinger_squared_le_one_sub_tv}.
 \end{proof}
 
@@ -233,16 +270,16 @@ Use Lemma~\ref{lem:testing_bound_renyi_mean} and remark that $\mu(E)^\alpha + \n
 
 \begin{lemma}
   \label{lem:testing_bound_renyi_one_add}
-  %\lean{}
-  %\leanok
-  \uses{def:Renyi}
+  \lean{ProbabilityTheory.exp_neg_chernoffDiv_le_add_measure}
+  \leanok
+  \uses{def:Renyi, def:Chernoff}
   Let $\mu, \nu$ be two probability measures on $\mathcal X$ and let $E$ be an event on $\mathcal X$. Let $\alpha > 0$. Then
   \begin{align*}
-  \max\{\mu(E), \nu(E^c)\} \ge \frac{1}{4}\exp\left( - \inf_{\xi \in \mathcal P(\mathcal X)}\max\{R_{1+\alpha}(\xi, \mu), R_{1+\alpha}(\xi, \nu)\} - \frac{\log 4}{\alpha}\right) \: .
+  \mu(E) + \nu(E^c) \ge \frac{1}{2}\exp\left( - C_{1+\alpha}(\mu, \nu) - \frac{\log 4}{\alpha}\right) \: .
   \end{align*}
 \end{lemma}
 
-\begin{proof}
+\begin{proof}%\leanok
 \uses{lem:renyi_change_measure_add}
 \end{proof}
 
@@ -269,16 +306,16 @@ Use Lemma~\ref{lem:renyi_prod_n} in Lemma~\ref{lem:testing_bound_renyi_max}.
   \label{lem:testing_bound_renyi_one_add_n}
   %\lean{}
   %\leanok
-  \uses{def:Renyi}
+  \uses{def:Renyi, def:Chernoff}
   Let $\mu, \nu$ be two probability measures on $\mathcal X$, let $n \in \mathbb{N}$ and let $E$ be an event on $\mathcal X^n$. For all $\alpha > 0$,
   \begin{align*}
-  \max\{\mu^{\otimes n}(E), \nu^{\otimes n}(E^c)\} \ge \frac{1}{4}\exp\left( - n \inf_{\xi \in \mathcal P(\mathcal X)}\max\{R_{1+\frac{\alpha}{\sqrt{n}}}(\xi, \mu), R_{1+\frac{\alpha}{\sqrt{n}}}(\xi, \nu)\} - \frac{\log 4}{\alpha}\sqrt{n}\right) \: .
+  \mu^{\otimes n}(E) + \nu^{\otimes n}(E^c) \ge \frac{1}{2}\exp\left( - n C_{1+\frac{\alpha}{\sqrt{n}}}(\mu, \nu) - \frac{\log 4}{\alpha}\sqrt{n}\right) \: .
   \end{align*}
 \end{lemma}
 
 \begin{proof}
 \uses{lem:renyi_prod_n, lem:testing_bound_renyi_one_add}
-Use Lemma~\ref{lem:renyi_prod_n} in Lemma~\ref{lem:testing_bound_renyi_one_add}
+Use Lemma~\ref{lem:renyi_prod_n} in Lemma~\ref{lem:testing_bound_renyi_one_add}. TODO: add a lemma for tensorization of the Chernoff divergence.
 \end{proof}
 
 \begin{theorem}
@@ -289,13 +326,13 @@ Use Lemma~\ref{lem:renyi_prod_n} in Lemma~\ref{lem:testing_bound_renyi_one_add}
   Let $\mu, \nu$ be two probability measures on $\mathcal X$ and let $(E_n)_{n \in \mathbb{N}}$ be events on $\mathcal X^n$. For all $\gamma \in (0,1)$,
   \begin{align*}
   \limsup_{n \to +\infty} \frac{1}{n}\log \frac{1}{\gamma \mu^{\otimes n}(E_n) + (1 - \gamma)\nu^{\otimes n}(E_n^c)}
-  \le C(\mu, \nu)
+  \le C_1(\mu, \nu)
   \: .
   \end{align*}
 \end{theorem}
 
 \begin{proof}
-\uses{cor:kl_change_measure}
+\uses{cor:kl_change_measure, thm:kl_pi}
 Let $\xi$ be a probability measure on $\mathcal X$ and $\beta > 0$. By Corollary~\ref{cor:kl_change_measure},
 \begin{align*}
 \mu^{\otimes n}(E_n) e^{\KL(\xi^{\otimes n}, \mu^{\otimes n}) + n\beta}
@@ -314,7 +351,7 @@ We sum both inequalities with weights $\gamma$ and $1-\gamma$ respectively and u
 \: .
 \end{align*}
 Let $p_{n,\mu}(\beta)$ and $p_{n, \nu}(\beta)$ be the two probabilities on the right hand side. By the law of large numbers, both tend to 0 when $n$ tends to $+\infty$.
-In particular, for $n$ large enough, the right hand side is positive and we can take logarithms on both sides. We also use the tensorization of $\KL$ (Lemma TODO).
+In particular, for $n$ large enough, the right hand side is positive and we can take logarithms on both sides. We also use the tensorization of $\KL$ (Theorem~\ref{thm:kl_pi}).
 \begin{align*}
 & n \max\{\KL(\xi, \mu), \KL(\xi, \nu)\}
 \\
@@ -326,6 +363,4 @@ For $n \to +\infty$,
 \ge \limsup_{n \to + \infty}\frac{1}{n}\log \frac{1}{\gamma \mu^{\otimes n}(E_n) + (1 - \gamma)\nu^{\otimes n}(E_n^c)} - \beta
 \end{align*}
 Since $\beta > 0$ is arbitrary, we can take a supremum over $\beta$ on the right.
-
-
 \end{proof}

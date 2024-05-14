@@ -243,18 +243,18 @@ section Conditional
 
 /--Equivalence between two possible versions of the first condition for the finiteness of the
 conditional f divergence, the second version is the preferred one.-/
-lemma fDiv_ae_ne_top_iff [IsFiniteKernel κ] [IsFiniteKernel η] : (∀ᵐ a ∂μ, fDiv f (κ a) (η a) ≠ ⊤)
+lemma fDiv_ae_ne_top_iff [IsFiniteKernel κ] [IsFiniteKernel η] :
+    (∀ᵐ a ∂μ, fDiv f (κ a) (η a) ≠ ⊤)
     ↔ (∀ᵐ a ∂μ, Integrable (fun x ↦ f ((∂κ a/∂η a) x).toReal) (η a))
       ∧ (derivAtTop f = ⊤ → ∀ᵐ a ∂μ, κ a ≪ η a) := by
   simp_rw [fDiv_ne_top_iff, eventually_and, eventually_all]
-
 
 /--Equivalence between two possible versions of the second condition for the finiteness of the
 conditional f divergence, the second version is the preferred one.-/
 lemma integrable_fDiv_iff [CountablyGenerated β] [IsFiniteMeasure μ] [IsFiniteKernel κ]
     [IsFiniteKernel η] (h_int : ∀ᵐ a ∂μ, Integrable (fun x ↦ f ((∂κ a/∂η a) x).toReal) (η a))
     (h_ac : derivAtTop f = ⊤ → ∀ᵐ a ∂μ, κ a ≪ η a) :
-    Integrable (fun x ↦ EReal.toReal (fDiv f (κ x) (η x))) μ
+    Integrable (fun x ↦ (fDiv f (κ x) (η x)).toReal) μ
       ↔ Integrable (fun a ↦ ∫ b, f ((∂κ a/∂η a) b).toReal ∂η a) μ := by
   have h_fin : ∀ᵐ a ∂μ, fDiv f (κ a) (η a) ≠ ⊤ := fDiv_ae_ne_top_iff.mpr ⟨h_int, h_ac⟩
   by_cases h_top : derivAtTop f = ⊤
@@ -383,7 +383,6 @@ lemma condFDiv_eq_top_iff [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKern
   have h := condFDiv_ne_top_iff (κ := κ) (η := η) (μ := μ) (f := f)
   tauto
 
---TODO: the hp here are in a strange order, should we reorder them? If we do, then do it also for the next lemma.
 lemma condFDiv_eq [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η]
     (hf_ae : ∀ᵐ a ∂μ, Integrable (fun x ↦ f ((∂κ a/∂η a) x).toReal) (η a))
     (hf : Integrable (fun a ↦ ∫ b, f ((∂κ a/∂η a) b).toReal ∂η a) μ)
@@ -458,6 +457,12 @@ lemma condFDiv_zero_left [IsFiniteMeasure μ] [IsFiniteKernel η] :
   · simp_rw [EReal.toReal_mul, EReal.toReal_coe, EReal.toReal_coe_ennreal]
     apply MeasureTheory.Integrable.const_mul
     exact kernel.IsFiniteKernel.integrable μ η MeasurableSet.univ
+
+@[simp]
+lemma condFDiv_zero_left' [IsProbabilityMeasure μ] [IsMarkovKernel η] :
+    condFDiv f 0 η μ = f 0 := by
+  simp_rw [condFDiv_zero_left, measure_univ, integral_const, measure_univ]
+  norm_num
 
 --I also wanted to add something like condKL_zero_right, but it turns out it's not so
 --straightforward to state and prove, and since we don't really need it for now I will leave it out.

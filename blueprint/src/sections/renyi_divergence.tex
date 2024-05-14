@@ -77,15 +77,15 @@ Use Lemma~\ref{lem:hellingerAlpha_symm}.
 
 \begin{lemma}
   \label{lem:renyi_cgf}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.cgf_llr}
+  \leanok
   \uses{def:Renyi}
   The cumulant generating function of $\log\frac{d\mu}{d\nu}$ under $\nu$ is $\alpha \mapsto (\alpha - 1) R_\alpha(\mu, \nu)$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof}\leanok
 \uses{lem:renyi_eq_log_integral}
-Unfold the definitions.
+Unfold the definitions, using Lemma~\ref{lem:renyi_eq_log_integral} for the Rényi divergence.
 \end{proof}
 
 \begin{lemma}
@@ -204,21 +204,49 @@ By Corollary~\ref{cor:data_proc_event}, $D_f(\mu, \nu) \ge D_f(\mu_E, \nu_E)$, h
 \section{The tilted measure}
 
 \begin{definition}
-  \label{def:renyi_measure}
+  \label{def:renyiMeasure}
   \lean{ProbabilityTheory.renyiMeasure}
   \leanok
   \uses{def:Renyi}
   Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\alpha \in (0, +\infty) \backslash \{1\}$. Let $p = \frac{d \mu}{d (\mu + \nu)}$ and $q = \frac{d \nu}{d (\mu + \nu)}$. We define a measure $\mu^{(\alpha, \nu)}$, absolutely continuous with respect to $\mu + \nu$ with density
   \begin{align*}
-  \frac{d \mu^{(\alpha, \nu)}}{d \xi} = p^\alpha q^{1 - \alpha} e^{(\alpha - 1)R_\alpha(\mu, \nu)} \: .
+  \frac{d \mu^{(\alpha, \nu)}}{d (\mu + \nu)} = p^\alpha q^{1 - \alpha} e^{-(\alpha - 1)R_\alpha(\mu, \nu)} \: .
   \end{align*}
 \end{definition}
 
 \begin{lemma}
-  \label{lem:kl_renyi_measure_eq}
+  \label{lem:renyiMeasure_ac}
   %\lean{}
   %\leanok
-  \uses{def:renyi_measure, def:Renyi, def:KL}
+  \uses{def:renyiMeasure}
+  For $\alpha \in (0,1)$, $\mu^{(\alpha, \nu)} \ll \mu$ and $\mu^{(\alpha, \nu)} \ll \nu$.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+
+\end{proof}
+
+\begin{lemma}
+  \label{lem:rnDeriv_renyiMeasure}
+  %\lean{}
+  %\leanok
+  \uses{def:renyiMeasure}
+  $\frac{d \mu^{(\alpha, \nu)}}{d \nu} = \left(\frac{d\mu}{d\nu}\right)^\alpha e^{-(\alpha - 1) R_\alpha(\mu, \nu)}$~, $\nu$-a.e.,
+  and
+  $\frac{d \mu^{(\alpha, \nu)}}{d \mu} = \left(\frac{d\nu}{d\mu}\right)^{1 - \alpha} e^{-(\alpha - 1) R_\alpha(\mu, \nu)}$~, $\mu$-a.e..
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:renyiMeasure_ac}
+
+\end{proof}
+
+\begin{lemma}
+  \label{lem:kl_renyiMeasure_eq}
+  %\lean{}
+  %\leanok
+  \uses{def:renyiMeasure, def:Renyi, def:KL}
   Let $\mu, \nu, \xi$ be three measures on $\mathcal X$ and let $\alpha \in (0, 1)$. Then
   \begin{align*}
   \KL(\xi, \mu^{(\alpha, \nu)}) = \alpha \KL(\xi, \mu) + (1 - \alpha)\KL(\xi, \nu) - (1 - \alpha) R_\alpha(\mu, \nu) \: .
@@ -226,7 +254,7 @@ By Corollary~\ref{cor:data_proc_event}, $D_f(\mu, \nu) \ge D_f(\mu_E, \nu_E)$, h
 \end{lemma}
 
 \begin{proof}
-\uses{def:renyi_measure, def:KL}
+\uses{def:renyiMeasure, def:KL}
 Unfold definitions and compute?
 \end{proof}
 
@@ -234,7 +262,7 @@ Unfold definitions and compute?
   \label{cor:renyi_eq_add_kl}
   %\lean{}
   %\leanok
-  \uses{def:renyi_measure, def:Renyi, def:KL}
+  \uses{def:renyiMeasure, def:Renyi, def:KL}
   Let $\mu, \nu, \xi$ be three measures on $\mathcal X$ and let $\alpha \in (0, 1)$. Then
   \begin{align*}
   (1 - \alpha) R_\alpha(\mu, \nu) = \alpha \KL(\mu^{(\alpha, \nu)}, \mu) + (1 - \alpha)\KL(\mu^{(\alpha, \nu)}, \nu) \: .
@@ -242,8 +270,8 @@ Unfold definitions and compute?
 \end{corollary}
 
 \begin{proof}
-\uses{lem:kl_renyi_measure_eq}
-Apply Lemma~\ref{lem:kl_renyi_measure_eq} to $\xi = \mu^{(\alpha, \nu)}$.
+\uses{lem:kl_renyiMeasure_eq}
+Apply Lemma~\ref{lem:kl_renyiMeasure_eq} to $\xi = \mu^{(\alpha, \nu)}$.
 \end{proof}
 
 \begin{lemma}
@@ -258,8 +286,8 @@ Apply Lemma~\ref{lem:kl_renyi_measure_eq} to $\xi = \mu^{(\alpha, \nu)}$.
 \end{lemma}
 
 \begin{proof}
-\uses{lem:kl_renyi_measure_eq, lem:kl_nonneg, cor:renyi_eq_add_kl}
-By Lemma~\ref{lem:kl_renyi_measure_eq} and Lemma~\ref{lem:kl_nonneg}, for all $\xi$,
+\uses{lem:kl_renyiMeasure_eq, lem:kl_nonneg, cor:renyi_eq_add_kl}
+By Lemma~\ref{lem:kl_renyiMeasure_eq} and Lemma~\ref{lem:kl_nonneg}, for all $\xi$,
 \begin{align*}
 \alpha \KL(\xi, \mu) + (1 - \alpha)\KL(\xi, \nu) - (1 - \alpha) R_\alpha(\mu, \nu)
 = \KL(\xi, \mu^{(\alpha, \nu)})
@@ -275,12 +303,13 @@ Corollary~\ref{cor:renyi_eq_add_kl} proves the other inequality.
   \label{thm:renyi_chain_rule}
   %\lean{}
   %\leanok
-  \uses{def:renyi_measure, def:condRenyi}
+  \uses{def:renyiMeasure, def:condRenyi}
   Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels.
   Then $R_\alpha(\mu \otimes \kappa, \nu \otimes \eta) = R_\alpha(\mu, \nu) + R_\alpha(\kappa, \eta \mid \mu^{(\alpha, \nu)})$.
 \end{theorem}
 
-\begin{proof}
+\begin{proof}%\leanok
+\uses{thm:kl_compProd}
 \end{proof}
 
 \begin{corollary}
@@ -292,7 +321,7 @@ Corollary~\ref{cor:renyi_eq_add_kl} proves the other inequality.
   Then $R_\alpha(\mu \times \xi, \nu \times \lambda) = R_\alpha(\mu, \nu) + R_\alpha(\xi, \lambda)$.
 \end{corollary}
 
-\begin{proof}
+\begin{proof}%\leanok
 \uses{thm:renyi_chain_rule}
 Apply Theorem~\ref{thm:renyi_chain_rule} (the product of measures is a special case of $\otimes$). TODO: more details.
 \end{proof}
@@ -306,7 +335,7 @@ Apply Theorem~\ref{thm:renyi_chain_rule} (the product of measures is a special c
   Then $R_\alpha (\prod_{i \in I} \mu_i, \prod_{i \in I} \nu_i) = \sum_{i \in I} R_\alpha(\mu_i, \nu_i)$.
 \end{theorem}
 
-\begin{proof}
+\begin{proof}%\leanok
 \uses{cor:renyi_prod_two}
 Induction over the finite index set, using Corollary~\ref{cor:renyi_prod_two}.
 \end{proof}
@@ -320,7 +349,7 @@ Induction over the finite index set, using Corollary~\ref{cor:renyi_prod_two}.
   Then $R_\alpha(\mu^{\otimes n}, \nu^{\otimes n}) = n R_\alpha(\mu, \nu)$.
 \end{corollary}
 
-\begin{proof}
+\begin{proof}%\leanok
 \uses{thm:renyi_prod}
 Apply Theorem~\ref{thm:renyi_prod}.
 \end{proof}
@@ -334,6 +363,6 @@ Apply Theorem~\ref{thm:renyi_prod}.
   Then $R_\alpha (\prod_{i \in I} \mu_i, \prod_{i \in I} \nu_i) = \sum_{i \in I} R_\alpha(\mu_i, \nu_i)$.
 \end{theorem}
 
-\begin{proof}
+\begin{proof}%\leanok
 \uses{thm:renyi_prod}
 \end{proof}
