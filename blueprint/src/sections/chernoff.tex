@@ -2,8 +2,8 @@
 
 \begin{definition}[Chernoff divergence]
   \label{def:Chernoff}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.chernoffDiv}
+  \leanok
   \uses{def:Renyi}
     The Chernoff divergence of order $\alpha > 0$ between two measures $\mu$ and $\nu$ on $\mathcal X$ is
   \begin{align*}
@@ -17,13 +17,13 @@ This is not a well established notion and it remains to see if this extension is
 
 \begin{lemma}
   \label{lem:chernoff_eq_kl}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.chernoffDiv_one}
+  \leanok
   \uses{def:Chernoff, def:KL}
   $C_1(\mu, \nu) = \inf_{\xi \in \mathcal P(\mathcal X)}\max\{\KL(\xi, \mu), \KL(\xi, \nu)\}$ .
 \end{lemma}
 
-\begin{proof}
+\begin{proof}\leanok
 \uses{def:Renyi}
 This is $R_1 = \KL$ (by definition).
 \end{proof}

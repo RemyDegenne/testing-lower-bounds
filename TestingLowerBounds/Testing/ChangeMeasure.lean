@@ -84,16 +84,16 @@ lemma setIntegral_exp_neg_llr_le [SigmaFinite ν] [SigmaFinite μ] (hμν : μ �
 
 -- todo: if `0 < c` then `hμc` can be deducted from an integrability assumption on `llr μ ν`.
 lemma measure_sub_le_measure_mul_exp [SigmaFinite μ] [IsFiniteMeasure ν] (hμν : μ ≪ ν)
-    (s : Set α) (c : ℝ) (hμc : μ {x | llr μ ν x > c} ≠ ∞) :
-    (μ s).toReal - (μ {x | llr μ ν x > c}).toReal ≤ (ν s).toReal * exp c := by
+    (s : Set α) (c : ℝ) (hμc : μ {x | c < llr μ ν x} ≠ ∞) :
+    (μ s).toReal - (μ {x | c < llr μ ν x}).toReal ≤ (ν s).toReal * exp c := by
   by_cases hμs : μ s = ∞
   · simp only [hμs, ENNReal.top_toReal, gt_iff_lt, zero_sub]
-    calc - (μ {x | llr μ ν x > c}).toReal
+    calc - (μ {x | c < llr μ ν x}).toReal
       ≤ 0 := by simp
     _ ≤ (ν s).toReal * exp c := by positivity
   rw [← div_le_iff (exp_pos _), div_eq_mul_inv, ← exp_neg]
-  calc ((μ s).toReal - (μ {x | llr μ ν x > c}).toReal) * rexp (-c)
-    ≤ (μ (s \ {x | llr μ ν x > c})).toReal * rexp (-c) := by
+  calc ((μ s).toReal - (μ {x | c < llr μ ν x}).toReal) * rexp (-c)
+    ≤ (μ (s \ {x | c < llr μ ν x})).toReal * rexp (-c) := by
         gcongr
         refine (ENNReal.le_toReal_sub hμc).trans ?_
         rw [ENNReal.toReal_le_toReal]
@@ -123,10 +123,10 @@ lemma measure_sub_le_measure_mul_exp [SigmaFinite μ] [IsFiniteMeasure ν] (hμ�
         · exact ((measure_mono (Set.inter_subset_left _ _)).trans_lt (measure_lt_top _ _)).ne
 
 lemma measure_sub_le_measure_mul_exp' [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hμν : μ ≪ ν)
-    (s : Set α) (c : ℝ) (hμc : μ {x | llr μ ν x > c} ≠ ∞) :
-    μ s - μ {x | llr μ ν x > c} ≤ (ν s) * ENNReal.ofReal (exp c) := by
+    (s : Set α) (c : ℝ) (hμc : μ {x | c < llr μ ν x} ≠ ∞) :
+    μ s - μ {x | c < llr μ ν x} ≤ (ν s) * ENNReal.ofReal (exp c) := by
   have h := measure_sub_le_measure_mul_exp hμν s c hμc
-  by_cases h_le : μ {x | llr μ ν x > c} ≤ μ s
+  by_cases h_le : μ {x | c < llr μ ν x} ≤ μ s
   · rw [← ENNReal.toReal_sub_of_le h_le (measure_ne_top _ _)] at h
     rw [← ENNReal.ofReal_toReal (measure_ne_top ν s), ← ENNReal.ofReal_mul ENNReal.toReal_nonneg,
       ENNReal.le_ofReal_iff_toReal_le]
@@ -140,27 +140,27 @@ lemma measure_sub_le_measure_mul_exp' [IsFiniteMeasure μ] [IsFiniteMeasure ν] 
 lemma one_sub_le_add_measure_mul_exp [IsFiniteMeasure ν] [IsFiniteMeasure ν']
     [IsProbabilityMeasure μ]
     (hμν : μ ≪ ν) (hμν' : μ ≪ ν') (s : Set α) (c c' : ℝ) :
-    1 - (μ {x | llr μ ν x > c}).toReal - (μ {x | llr μ ν' x > c'}).toReal
+    1 - (μ {x | c < llr μ ν x}).toReal - (μ {x | c' < llr μ ν' x}).toReal
       ≤ (ν s).toReal * exp c + (ν' sᶜ).toReal * exp c' := by
   have h := measure_sub_le_measure_mul_exp hμν s c (measure_ne_top _ _)
   have h' := measure_sub_le_measure_mul_exp hμν' sᶜ c' (measure_ne_top _ _)
-  calc 1 - (μ {x | llr μ ν x > c}).toReal
-      - (μ {x | llr μ ν' x > c'}).toReal
-    ≤ (μ s).toReal + (μ sᶜ).toReal - (μ {x | llr μ ν x > c}).toReal
-      - (μ {x | llr μ ν' x > c'}).toReal := by
+  calc 1 - (μ {x | c < llr μ ν x}).toReal
+      - (μ {x | c' < llr μ ν' x}).toReal
+    ≤ (μ s).toReal + (μ sᶜ).toReal - (μ {x | c < llr μ ν x}).toReal
+      - (μ {x | c' < llr μ ν' x}).toReal := by
         rw [← ENNReal.toReal_add (measure_ne_top _ _) (measure_ne_top _ _)]
         gcongr
         rw [← ENNReal.one_toReal, ← measure_univ (μ := μ), ENNReal.toReal_le_toReal]
         · exact measure_univ_le_add_compl s
         · exact measure_ne_top _ _
         · simp only [ne_eq, ENNReal.add_eq_top, measure_ne_top μ, or_self, not_false_eq_true]
-  _ = ((μ s).toReal - (μ {x | llr μ ν x > c}).toReal)
-      + ((μ sᶜ).toReal - (μ {x | llr μ ν' x > c'}).toReal) := by abel
+  _ = ((μ s).toReal - (μ {x | c < llr μ ν x}).toReal)
+      + ((μ sᶜ).toReal - (μ {x | c' < llr μ ν' x}).toReal) := by abel
   _ ≤ (ν s).toReal * exp c + (ν' sᶜ).toReal * exp c' := by gcongr
 
-lemma one_sub_le_mul_exp [IsFiniteMeasure ν] [IsFiniteMeasure ν'] [IsProbabilityMeasure μ]
-    (hμν : μ ≪ ν) (hμν' : μ ≪ ν') (s : Set α) (c c' : ℝ) :
-    1 - (μ {x | llr μ ν x > c}).toReal - (μ {x | llr μ ν' x > c'}).toReal
+lemma one_sub_le_add_measure_mul_exp' [IsFiniteMeasure ν] [IsFiniteMeasure ν']
+    [IsProbabilityMeasure μ] (hμν : μ ≪ ν) (hμν' : μ ≪ ν') (s : Set α) (c c' : ℝ) :
+    1 - (μ {x | c < llr μ ν x}).toReal - (μ {x | c' < llr μ ν' x}).toReal
       ≤ ((ν s).toReal + (ν' sᶜ).toReal) * exp (max c c') := by
   refine (one_sub_le_add_measure_mul_exp hμν hμν' s c c').trans ?_
   rw [add_mul]
