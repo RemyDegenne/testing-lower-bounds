@@ -709,7 +709,8 @@ lemma fDiv_toReal_eq_ae {ξ : kernel α β} {κ η : kernel (α × β) γ} [IsFi
       + (derivAtTop f).toReal * (((κ (a, b)).singularPart (η (a, b)) Set.univ)).toReal := by
   filter_upwards [eventually_all.mpr h_ac, h_int] with a ha_ae ha_int
   filter_upwards [eventually_all.mpr ha_ae, ha_int] with b hb_ae hb_int
-  rw [← EReal.toReal_coe (∫ _, _ ∂_), fDiv_of_integrable hb_int, ← EReal.toReal_coe_ennreal, ← EReal.toReal_mul]
+  rw [← EReal.toReal_coe (∫ _, _ ∂_), fDiv_of_integrable hb_int, ← EReal.toReal_coe_ennreal,
+    ← EReal.toReal_mul]
   refine EReal.toReal_add ?_ ?_ ?_ ?_
   · simp only [ne_eq, EReal.coe_ne_top, not_false_eq_true]
   · simp only [ne_eq, EReal.coe_ne_bot, not_false_eq_true]
@@ -768,7 +769,8 @@ lemma condFDiv_kernel_snd'_integrable_iff [CountablyGenerated γ] [IsFiniteMeasu
           + (derivAtTop f).toReal * (((κ (a, b)).singularPart (η (a, b)) Set.univ)).toReal| := by
         rw [hb_ereal_add]
       _ ≤ |∫ x, f ((∂κ (a, b)/∂η (a, b)) x).toReal ∂η (a, b)|
-          + |(derivAtTop f).toReal * (((κ (a, b)).singularPart (η (a, b)) Set.univ)).toReal| := abs_add _ _
+          + |(derivAtTop f).toReal * (((κ (a, b)).singularPart (η (a, b)) Set.univ)).toReal| :=
+        abs_add _ _
       _ ≤ |∫ x, f ((∂κ (a, b)/∂η (a, b)) x).toReal ∂η (a, b)|
           + |(derivAtTop f).toReal| * ((κ (a, b)) Set.univ).toReal := by
         gcongr
