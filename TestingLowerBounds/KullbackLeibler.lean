@@ -553,16 +553,16 @@ lemma condKL_compProd_kernel_eq_top [CountablyGenerated γ] {κ₁ η₁ : kerne
   simp_rw [condKL_eq_top_iff,
     Measure.ae_compProd_iff (kernel.measurableSet_absolutelyContinuous _ _)]
   by_cases h_ac : ∀ᵐ a ∂μ, (κ₁ ⊗ₖ κ₂) a ≪ (η₁ ⊗ₖ η₂) a
-  <;> have h_ac' := h_ac
-  <;> simp only [kernel.absolutelyContinuous_compProd_iff, eventually_and, not_and_or] at h_ac'
-  <;> simp only [h_ac, h_ac', not_false_eq_true, true_or, not_true, true_iff, false_or]
+    <;> have h_ac' := h_ac
+    <;> simp only [kernel.absolutelyContinuous_compProd_iff, eventually_and, not_and_or] at h_ac'
+    <;> simp only [h_ac, h_ac', not_false_eq_true, true_or, not_true, true_iff, false_or]
   swap; tauto
   rw [← Measure.ae_compProd_iff (kernel.measurableSet_absolutelyContinuous _ _)] at h_ac'
   by_cases h_ae_int : ∀ᵐ a ∂μ, Integrable (llr ((κ₁ ⊗ₖ κ₂) a) ((η₁ ⊗ₖ η₂) a)) ((κ₁ ⊗ₖ κ₂) a)
-  <;> have h_ae_int' := h_ae_int
-  <;> simp only [eventually_congr (h_ac.mono (fun a h ↦ (kernel.integrable_llr_compProd_iff a h))),
+    <;> have h_ae_int' := h_ae_int
+    <;> simp only [eventually_congr (h_ac.mono (fun a h ↦ (kernel.integrable_llr_compProd_iff a h))),
     eventually_and, not_and_or] at h_ae_int'
-  <;> simp only [h_ae_int, h_ae_int', not_false_eq_true, true_or, true_and, not_true, true_iff,
+    <;> simp only [h_ae_int, h_ae_int', not_false_eq_true, true_or, true_and, not_true, true_iff,
     false_or, not_and_or, ae_compProd_integrable_llr_iff h_ac'.2, Measure.integrable_compProd_iff
     (measurable_kl _ _).ereal_toReal.stronglyMeasurable.aestronglyMeasurable]
   swap
@@ -582,7 +582,6 @@ lemma condKL_compProd_kernel_eq_top [CountablyGenerated γ] {κ₁ η₁ : kerne
       ((measurable_kl κ₂ η₂).ereal_toReal.stronglyMeasurable) |>.aestronglyMeasurable
   · filter_upwards with a using integral_nonneg (fun b ↦ EReal.toReal_nonneg (kl_nonneg _ _))
   · filter_upwards with a using EReal.toReal_nonneg (kl_nonneg _ _)
-
 
 lemma condKL_compProd_kernel [CountablyGenerated γ] {κ₁ η₁ : kernel α β} {κ₂ η₂ : kernel (α × β) γ}
     [IsMarkovKernel κ₁] [IsMarkovKernel η₁] [IsMarkovKernel κ₂] [IsMarkovKernel η₂] [SFinite μ] :
