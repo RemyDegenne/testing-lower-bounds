@@ -387,6 +387,98 @@ lemma condKL_const {ξ : Measure β} [IsFiniteMeasure ξ] [IsFiniteMeasure μ] [
   rw [condKL_eq_condFDiv, kl_eq_fDiv]
   exact condFDiv_const
 
+--TODO: the following lemma may be generalized, infact the hypothesys of being markov kernels is only used to prove that `Integrable (fun x ↦ ∫ (y : β), ‖EReal.toReal (kl (κ (x, y)) (η (x, y)))‖ ∂ξ x) μ` is true, given that `Integrable (fun x ↦ ∫ (y : β), EReal.toReal (kl (κ (x, y)) (η (x, y))) ∂ξ x` but if the kernels are finite then the kl is bounded from below, so it should be still possible to conclude the integrability of the first function, this would however require more work
+--this is to handle the case in `condKL_compProd_meas` when the lhs is ⊤, in this case the rhs is 'morally' also ⊤, so the equality holds, but actually in Lean the equality is not true, because of how we handle the infinities in the integrals, so we have to make a separate lemma for this case
+lemma condKL_compProd_meas_eq_top [CountablyGenerated γ] [SFinite μ] {ξ : kernel α β}
+    [IsSFiniteKernel ξ] {κ η : kernel (α × β) γ} [IsMarkovKernel κ] [IsMarkovKernel η] :
+    condKL κ η (μ ⊗ₘ ξ) = ⊤
+      ↔ ¬ (∀ᵐ a ∂μ, condKL (kernel.snd' κ a) (kernel.snd' η a) (ξ a) ≠ ⊤)
+        ∨ ¬ Integrable (fun x ↦ (condKL (kernel.snd' κ x) (kernel.snd' η x) (ξ x)).toReal) μ := by
+  rw [condKL_eq_top_iff]
+  have h_ae_eq (h_ae : ∀ᵐ a ∂μ, ∀ᵐ b ∂ξ a, κ (a, b) ≪ η (a, b))
+      (h_int : ∀ᵐ a ∂μ, ∀ᵐ b ∂ξ a, Integrable (llr (κ (a, b)) (η (a, b))) (κ (a, b))) :
+      (fun x ↦ (condKL (kernel.snd' κ x) (kernel.snd' η x) (ξ x)).toReal)
+        =ᵐ[μ] fun a ↦ ∫ b, (kl (κ (a, b)) (η (a, b))).toReal ∂ξ a := by
+    filter_upwards [h_ae, h_int] with a ha_ae ha_int
+    rw [condKL_toReal_of_ae_ac_of_ae_integrable]
+    · simp only [kernel.snd'_apply]
+    · filter_upwards [ha_ae] with b hb using kernel.snd'_apply _ _ _ ▸ hb
+    · filter_upwards [ha_int] with b hb using kernel.snd'_apply _ _ _ ▸ hb
+  constructor
+  · by_cases h_ae : ∀ᵐ x ∂(μ ⊗ₘ ξ), κ x ≪ η x
+    swap
+    · rw [Measure.ae_compProd_iff (kernel.measurableSet_absolutelyContinuous _ _)] at h_ae
+      simp_rw [condKL_ne_top_iff, kernel.snd'_apply, eventually_and, not_and_or]
+      intro; left; left
+      exact h_ae
+    by_cases h_int : ∀ᵐ x ∂μ ⊗ₘ ξ, Integrable (llr (κ x) (η x)) (κ x)
+    swap
+    · rw [ae_compProd_integrable_llr_iff h_ae] at h_int
+      rw [Measure.ae_compProd_iff (kernel.measurableSet_absolutelyContinuous _ _)] at h_ae
+      simp only [condKL_ne_top_iff, not_eventually, kernel.snd'_apply, eventually_and, h_int,
+        false_and, and_false, not_false_eq_true, true_or, implies_true]
+    simp only [not_true_eq_false, false_or, ne_eq, not_eventually, not_not, h_ae, h_int]
+    rw [Measure.integrable_compProd_iff
+      (measurable_kl κ η).ereal_toReal.stronglyMeasurable.aestronglyMeasurable]
+    push_neg
+    intro h
+    by_cases h_int2 : ∀ᵐ a ∂μ, Integrable (fun b ↦ (kl (κ (a, b)) (η (a, b))).toReal) (ξ a)
+    swap
+    · left
+      contrapose! h_int2
+      rw [not_frequently] at h_int2
+      filter_upwards [h_int2] with a ha_int2
+      simp only [condKL_ne_top_iff, kernel.snd'_apply] at ha_int2
+      exact ha_int2.2.2
+    right
+    rw [ae_compProd_integrable_llr_iff h_ae] at h_int
+    rw [Measure.ae_compProd_iff (kernel.measurableSet_absolutelyContinuous _ _)] at h_ae
+    apply Integrable.congr.mt
+    swap; exact fun a ↦ ∫ b, (kl (κ (a, b)) (η (a, b))).toReal ∂(ξ a)
+    push_neg
+    constructor
+    · exact h_ae_eq h_ae h_int
+    · replace h := h h_int2
+      contrapose! h
+      convert h with a b
+      simp only [norm_eq_abs, abs_eq_self]
+      exact EReal.toReal_nonneg (kl_nonneg _ _)
+  · rintro h
+    contrapose! h
+    obtain ⟨h_ae, ⟨h_int1, h_int2⟩⟩ := h
+    rw [ae_compProd_integrable_llr_iff h_ae] at h_int1
+    rw [Measure.ae_compProd_iff (kernel.measurableSet_absolutelyContinuous _ _)] at h_ae
+    have h_meas := (Integrable.integral_compProd' h_int2).aestronglyMeasurable
+    rw [Measure.integrable_compProd_iff h_int2.aestronglyMeasurable] at h_int2
+    constructor
+    · filter_upwards [h_ae, h_int1, h_int2.1] with a ha_ae ha_int ha_int2
+      apply condKL_ne_top_iff.mpr
+      simp only [kernel.snd'_apply]
+      exact ⟨ha_ae, ⟨ha_int, ha_int2⟩⟩
+    · refine Integrable.congr ?_ (h_ae_eq h_ae h_int1).symm
+      replace h_int := h_int2.2
+      apply Integrable.mono h_int h_meas
+      refine ae_of_all μ fun a ↦ ?_
+      calc ‖∫ b, (kl (κ (a, b)) (η (a, b))).toReal ∂ξ a‖
+      _ ≤ ∫ b, ‖(kl (κ (a, b)) (η (a, b))).toReal‖ ∂ξ a :=
+        norm_integral_le_integral_norm _
+      _ = _ := by
+        simp only [norm_eq_abs]
+        apply (abs_of_nonneg _).symm
+        positivity
+
+-- TODO: find a better name
+lemma condKL_compProd_meas [CountablyGenerated γ] [SFinite μ] {ξ : kernel α β} [IsSFiniteKernel ξ]
+    {κ η : kernel (α × β) γ} [IsMarkovKernel κ] [IsMarkovKernel η] (h : condKL κ η (μ ⊗ₘ ξ) ≠ ⊤) :
+    condKL κ η (μ ⊗ₘ ξ) = ∫ x, (condKL (kernel.snd' κ x) (kernel.snd' η x) (ξ x)).toReal ∂μ := by
+  rw [condKL_ne_top_iff'.mp h, Measure.integral_compProd (condKL_ne_top_iff.mp h).2.2]
+  replace h := condKL_compProd_meas_eq_top.mpr.mt h
+  push_neg at h
+  norm_cast
+  apply integral_congr_ae
+  filter_upwards [h.1] with a ha
+  simp_rw [condKL_ne_top_iff'.mp ha, EReal.toReal_coe, kernel.snd'_apply]
+
 lemma kl_compProd_left [CountablyGenerated β] [IsFiniteMeasure μ] [IsMarkovKernel κ]
     [IsFiniteKernel η] :
     kl (μ ⊗ₘ κ) (μ ⊗ₘ η) = condKL κ η μ := by
