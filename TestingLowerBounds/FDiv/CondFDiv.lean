@@ -867,7 +867,7 @@ lemma condFDiv_compProd_meas_eq_top [CountablyGenerated γ] [IsFiniteMeasure μ]
         h_int, eventually_all, false_and, not_false_eq_true, true_or, implies_true]
     have h_int' := h_int
     rw [← Measure.ae_compProd_iff (measurableSet_integrable_f_rnDeriv κ η hf_meas)] at h_int'
-    rw [← not_imp]
+    rw [← _root_.not_imp]
     simp_all only [forall_true_left, not_true_eq_false, implies_true, or_false, false_or, ne_eq,
       not_eventually, not_not]
     rw [Measure.integrable_compProd_iff
