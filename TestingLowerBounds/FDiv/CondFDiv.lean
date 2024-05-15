@@ -1,9 +1,8 @@
 /-
 Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Rémy Degenne
+Authors: Rémy Degenne, Lorenzo Luccioli
 -/
--- theorem foo (n : Nat) : 0 ≤ n := by exact? -- trick to make exact? work TODO : erase this when we are done
 import Mathlib.MeasureTheory.Order.Group.Lattice
 import TestingLowerBounds.MeasureCompProd
 import TestingLowerBounds.FDiv.Basic
@@ -757,7 +756,8 @@ lemma integrable_f_rnDeriv_mul_kernel [CountablyGenerated β]
 lemma Measure.rnDeriv_measure_compProd_kernel_withDensity [CountablyGenerated β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
-    (∂μ ⊗ₘ (kernel.withDensity η (kernel.rnDeriv κ η))/∂ν ⊗ₘ η) =ᵐ[ν ⊗ₘ η] (∂μ ⊗ₘ κ/∂ν ⊗ₘ η) := by
+    (∂μ ⊗ₘ (kernel.withDensity η (kernel.rnDeriv κ η))/∂ν ⊗ₘ η)
+      =ᵐ[ν ⊗ₘ η] (∂μ ⊗ₘ κ/∂ν ⊗ₘ η) := by
   let κ' := kernel.withDensity η (kernel.rnDeriv κ η)
   have h_ae : ∀ᵐ p ∂(ν ⊗ₘ η), kernel.rnDeriv κ' η p.1 p.2 = kernel.rnDeriv κ η p.1 p.2 := by
     refine kernel.ENNReal.ae_eq_compProd_of_forall_ae_eq ν η ?_ ?_ ?_

@@ -1,10 +1,8 @@
 /-
 Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Rémy Degenne
+Authors: Rémy Degenne, Lorenzo Luccioli
 -/
--- theorem foo (n : Nat) : 0 ≤ n := by exact? -- trick to make exact? work TODO : erase this when we are done
-
 import Mathlib.MeasureTheory.Measure.LogLikelihoodRatio
 import TestingLowerBounds.FDiv.CondFDiv
 import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
@@ -209,7 +207,9 @@ lemma kl_eq_zero_iff [SigmaFinite μ] [SigmaFinite ν] : kl μ ν = 0 ↔ μ = �
     swap; · rw [kl_of_not_ac hμν] at h; simp_all only [EReal.top_ne_zero]
     by_cases h_int : Integrable (llr μ ν) μ
     swap; · rw [kl_of_not_integrable h_int] at h; simp_all only [EReal.top_ne_zero]
-    sorry -- TODO : decide what proof strategy to use here, maybe we could use the fact that jensen's inequality is an equality iff the function is constant a.e., but I don't know wether this is in mathlib
+    sorry -- TODO : decide what proof strategy to use here, maybe we could use the fact that
+    -- jensen's inequality is an equality iff the function is constant a.e., but I don't know wether
+    -- this is in mathlib
   · exact h ▸ kl_self ν
 
 end kl_nonneg
@@ -387,8 +387,15 @@ lemma condKL_const {ξ : Measure β} [IsFiniteMeasure ξ] [IsFiniteMeasure μ] [
   rw [condKL_eq_condFDiv, kl_eq_fDiv]
   exact condFDiv_const
 
---TODO: the following lemma may be generalized, infact the hypothesys of being markov kernels is only used to prove that `Integrable (fun x ↦ ∫ (y : β), ‖EReal.toReal (kl (κ (x, y)) (η (x, y)))‖ ∂ξ x) μ` is true, given that `Integrable (fun x ↦ ∫ (y : β), EReal.toReal (kl (κ (x, y)) (η (x, y))) ∂ξ x` but if the kernels are finite then the kl is bounded from below, so it should be still possible to conclude the integrability of the first function, this would however require more work
---this is to handle the case in `condKL_compProd_meas` when the lhs is ⊤, in this case the rhs is 'morally' also ⊤, so the equality holds, but actually in Lean the equality is not true, because of how we handle the infinities in the integrals, so we have to make a separate lemma for this case
+/- TODO: the following lemma may be generalized, infact the hypothesys of being markov kernels is
+only used to prove that
+`Integrable (fun x ↦ ∫ (y : β), ‖EReal.toReal (kl (κ (x, y)) (η (x, y)))‖ ∂ξ x) μ` is true,
+given that `Integrable (fun x ↦ ∫ (y : β), EReal.toReal (kl (κ (x, y)) (η (x, y))) ∂ξ x` but if
+the kernels are finite then the kl is bounded from below, so it should be still possible to conclude
+the integrability of the first function, this would however require more work. -/
+/-- This is to handle the case in `condKL_compProd_meas` when the lhs is ⊤, in this case the rhs is
+'morally' also ⊤, so the equality holds, but actually in Lean the equality is not true, because of
+how we handle the infinities in the integrals, so we have to make a separate lemma for this case. -/
 lemma condKL_compProd_meas_eq_top [CountablyGenerated γ] [SFinite μ] {ξ : kernel α β}
     [IsSFiniteKernel ξ] {κ η : kernel (α × β) γ} [IsMarkovKernel κ] [IsMarkovKernel η] :
     condKL κ η (μ ⊗ₘ ξ) = ⊤
@@ -588,9 +595,15 @@ lemma kl_fst_add_condKL [StandardBorelSpace β] [Nonempty β] {μ ν : Measure (
   rw [← kl_compProd, μ.compProd_fst_condKernel, ν.compProd_fst_condKernel]
 
 
---TODO: this can be generalized, relaxing the markov kernel hypothesis, it is sufficient that the kernels are finite and that they are not zero, but just stating that is not enough, because the actual hypothesys needed is that `∀ b, NeZero (snd' κ₂ a) b` but this is very ugly to use as an explicit hypothesis, maybe it is worth it to add an instance saying that if `NeZero κ (a, b)` then `NeZero (snd' κ a) b`
---to fix this maybe we can add the instance that if `NeZero κ (a, b)` then `NeZero (snd' κ a) b`, then it should be able to generalize this lemma
---TODO: these lemmas may be put in another file, decide how to organize the files, about composition of kernels
+/- TODO: this can be generalized, relaxing the markov kernel hypothesis, it is sufficient that
+the kernels are finite and that they are not zero, but just stating that is not enough, because
+the actual hypothesys needed is that `∀ b, NeZero (snd' κ₂ a) b` but this is very ugly to use as
+an explicit hypothesis, maybe it is worth it to add an instance saying that if `NeZero κ (a, b)`
+then `NeZero (snd' κ a) b`.
+To fix this maybe we can add the instance that if `NeZero κ (a, b)` then `NeZero (snd' κ a) b`,
+then it should be able to generalize this lemma.
+TODO: these lemmas may be put in another file, decide how to organize the files, about composition
+of kernels. -/
 lemma kernel.absolutelyContinuous_compProd_iff [CountablyGenerated γ] {κ₁ η₁ : kernel α β}
     {κ₂ η₂ : kernel (α × β) γ} [IsSFiniteKernel κ₁] [IsSFiniteKernel η₁] [IsMarkovKernel κ₂]
     [IsMarkovKernel η₂] (a : α) :
@@ -652,11 +665,12 @@ lemma condKL_compProd_kernel_eq_top [CountablyGenerated γ] {κ₁ η₁ : kerne
   rw [← Measure.ae_compProd_iff (kernel.measurableSet_absolutelyContinuous _ _)] at h_ac'
   by_cases h_ae_int : ∀ᵐ a ∂μ, Integrable (llr ((κ₁ ⊗ₖ κ₂) a) ((η₁ ⊗ₖ η₂) a)) ((κ₁ ⊗ₖ κ₂) a)
     <;> have h_ae_int' := h_ae_int
-    <;> simp only [eventually_congr (h_ac.mono (fun a h ↦ (kernel.integrable_llr_compProd_iff a h))),
-    eventually_and, not_and_or] at h_ae_int'
+    <;> simp only [eventually_congr
+        (h_ac.mono (fun a h ↦ (kernel.integrable_llr_compProd_iff a h))),
+      eventually_and, not_and_or] at h_ae_int'
     <;> simp only [h_ae_int, h_ae_int', not_false_eq_true, true_or, true_and, not_true, true_iff,
-    false_or, not_and_or, ae_compProd_integrable_llr_iff h_ac'.2, Measure.integrable_compProd_iff
-    (measurable_kl _ _).ereal_toReal.stronglyMeasurable.aestronglyMeasurable]
+      false_or, not_and_or, ae_compProd_integrable_llr_iff h_ac'.2, Measure.integrable_compProd_iff
+      (measurable_kl _ _).ereal_toReal.stronglyMeasurable.aestronglyMeasurable]
   swap
   · by_cases h_int₁ : ∀ᵐ x ∂μ, Integrable (llr (κ₁ x) (η₁ x)) (κ₁ x)
     swap; tauto
@@ -742,11 +756,11 @@ lemma Measure.pi_map_piCongrLeft {ι ι' : Type*} [hι : Fintype ι] [hι' : Fin
 lemma _root_.MeasureTheory.Measure.pi_map_piOptionEquivProd {ι : Type*} [hι : Fintype ι]
     {β : Option ι → Type*} [∀ i, MeasurableSpace (β i)] (ξ : (i : Option ι) → Measure (β i))
     [∀ (i : Option ι), SigmaFinite (ξ i)] :
-    ((Measure.pi fun i ↦ ξ (some i)).prod (ξ none)).map --TODO: when we bump mathlib remove the explicit universe level
-      (MeasurableEquiv.piOptionEquivProd.{_, _, u_3} β).symm = Measure.pi ξ := by
+    ((Measure.pi fun i ↦ ξ (some i)).prod (ξ none)).map
+      (MeasurableEquiv.piOptionEquivProd β).symm = Measure.pi ξ := by
   refine Measure.pi_eq (fun s _ ↦ ?_) |>.symm
   let e_meas : ((i : ι) → β (some i)) × β none ≃ᵐ ((i : Option ι) → β i) :=
-        MeasurableEquiv.piOptionEquivProd.{_, _, u_3} β |>.symm --TODO: when we bump mathlib remove the explicit universe level
+        MeasurableEquiv.piOptionEquivProd β |>.symm
   have me := MeasurableEquiv.measurableEmbedding e_meas
   have : e_meas ⁻¹' Set.pi Set.univ s
       = (Set.pi Set.univ (fun i ↦ s (some i))) ×ˢ (s none) := by
@@ -787,7 +801,7 @@ lemma kl_pi {ι : Type*} [hι : Fintype ι] {β : ι → Type*} [∀ i, Measurab
         (μ none)) ((Measure.pi (fun (i : ι) ↦ ν i)).prod (ν none)) := by
       rw [kl_eq_fDiv, kl_eq_fDiv]
       let e_meas : ((i : ι) → β (some i)) × β none ≃ᵐ ((i : Option ι) → β i) :=
-        MeasurableEquiv.piOptionEquivProd.{_, _, u_3} β |>.symm --TODO: when we bump mathlib remove the explicit universe level
+        MeasurableEquiv.piOptionEquivProd β |>.symm
       have me := MeasurableEquiv.measurableEmbedding e_meas
       convert fDiv_map_measurableEmbedding me
         <;> try {exact Measure.pi_map_piOptionEquivProd _ |>.symm} <;> infer_instance
