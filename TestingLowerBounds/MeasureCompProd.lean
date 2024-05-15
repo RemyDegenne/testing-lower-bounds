@@ -48,7 +48,7 @@ lemma Measure.comp_eq_snd_compProd (μ : Measure α) [SFinite μ]
 
 section SingularPart
 
-lemma singularPart_compProd'' [MeasurableSpace.CountablyGenerated β]
+lemma singularPart_compProd'' [MeasurableSpace.CountableOrCountablyGenerated α β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
     (μ ⊗ₘ κ).singularPart (ν ⊗ₘ η)
@@ -75,7 +75,7 @@ lemma singularPart_compProd'' [MeasurableSpace.CountablyGenerated β]
     exact kernel.Measure.mutuallySingular_compProd_right (ν.withDensity (∂μ/∂ν)) ν
       (kernel.mutuallySingular_singularPart _ _)
 
-lemma singularPart_compProd [MeasurableSpace.CountablyGenerated β]
+lemma singularPart_compProd [MeasurableSpace.CountableOrCountablyGenerated α β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
     (μ ⊗ₘ κ).singularPart (ν ⊗ₘ η)
@@ -88,7 +88,7 @@ lemma singularPart_compProd [MeasurableSpace.CountablyGenerated β]
   rw [this]
   abel
 
-lemma singularPart_compProd' [MeasurableSpace.CountablyGenerated β]
+lemma singularPart_compProd' [MeasurableSpace.CountableOrCountablyGenerated α β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
     (μ ⊗ₘ κ).singularPart (ν ⊗ₘ η)
@@ -102,14 +102,14 @@ lemma singularPart_compProd' [MeasurableSpace.CountablyGenerated β]
     exact (kernel.rnDeriv_add_singularPart κ η).symm
   rw [this]
 
-lemma singularPart_compProd_left [MeasurableSpace.CountablyGenerated β]
+lemma singularPart_compProd_left [MeasurableSpace.CountableOrCountablyGenerated α β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ : kernel α β) [IsFiniteKernel κ] :
     (μ ⊗ₘ κ).singularPart (ν ⊗ₘ κ) = μ.singularPart ν ⊗ₘ κ := by
   rw [singularPart_compProd', kernel.singularPart_self]
   simp [Measure.singularPart_zero]
 
-lemma singularPart_compProd_right [MeasurableSpace.CountablyGenerated β]
+lemma singularPart_compProd_right [MeasurableSpace.CountableOrCountablyGenerated α β]
     (μ : Measure α) [IsFiniteMeasure μ]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
     (μ ⊗ₘ κ).singularPart (μ ⊗ₘ η) = μ ⊗ₘ kernel.singularPart κ η := by
@@ -141,7 +141,7 @@ theorem _root_.MeasureTheory.Integrable.integral_compProd' [NormedAddCommGroup E
     Integrable (fun x ↦ ∫ y, f (x, y) ∂(κ x)) μ :=
   hf.integral_compProd
 
-variable [MeasurableSpace.CountablyGenerated β]
+variable [MeasurableSpace.CountableOrCountablyGenerated α β]
 
 lemma f_compProd_congr (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :

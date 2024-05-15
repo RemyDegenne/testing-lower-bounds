@@ -18,7 +18,7 @@ open scoped NNReal ENNReal MeasureTheory Topology ProbabilityTheory
 namespace ProbabilityTheory.kernel
 
 variable {α γ : Type*} {mα : MeasurableSpace α} {mγ : MeasurableSpace γ}
-  [MeasurableSpace.CountablyGenerated γ] {κ η : kernel α γ}
+  [MeasurableSpace.CountableOrCountablyGenerated α γ] {κ η : kernel α γ}
 
 lemma singularPart_self (κ : kernel α γ) [IsFiniteKernel κ] :
     kernel.singularPart κ κ = 0 := by
