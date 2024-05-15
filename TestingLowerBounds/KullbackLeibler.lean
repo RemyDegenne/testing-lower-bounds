@@ -468,7 +468,6 @@ lemma condKL_compProd_meas_eq_top [CountablyGenerated γ] [SFinite μ] {ξ : ker
         positivity
 
 -- TODO: find a better name
--- TODO: generalize this to fdiv
 lemma condKL_compProd_meas [CountablyGenerated γ] [SFinite μ] {ξ : kernel α β} [IsSFiniteKernel ξ]
     {κ η : kernel (α × β) γ} [IsMarkovKernel κ] [IsMarkovKernel η] (h : condKL κ η (μ ⊗ₘ ξ) ≠ ⊤) :
     condKL κ η (μ ⊗ₘ ξ) = ∫ x, (condKL (kernel.snd' κ x) (kernel.snd' η x) (ξ x)).toReal ∂μ := by
@@ -479,7 +478,6 @@ lemma condKL_compProd_meas [CountablyGenerated γ] [SFinite μ] {ξ : kernel α 
   apply integral_congr_ae
   filter_upwards [h.1] with a ha
   simp_rw [condKL_ne_top_iff'.mp ha, EReal.toReal_coe, kernel.snd'_apply]
-
 
 lemma kl_compProd_left [CountablyGenerated β] [IsFiniteMeasure μ] [IsMarkovKernel κ]
     [IsFiniteKernel η] :
