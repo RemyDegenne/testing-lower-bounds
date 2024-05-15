@@ -431,7 +431,7 @@ TODO
   \lean{ProbabilityTheory.condFDiv_ne_top_iff_fDiv_compProd_ne_top}
   \leanok
   \uses{def:fDiv, def:condFDiv}
-  Let $\mu$ be a finite measure on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels, where $\kappa$ is a Markov kernel.
+  Let $\mu$ be a finite measure on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels, such that $\kappa (x) \neq 0 \; \forall x$.
   Then $D_f(\mu \otimes \kappa, \mu \otimes \eta) \ne \infty \iff D_f(\kappa, \eta \mid \mu) \ne \infty$.
 \end{lemma}
 
@@ -444,7 +444,7 @@ TODO
   \lean{ProbabilityTheory.fDiv_compProd_left}
   \leanok
   \uses{def:fDiv, def:condFDiv}
-  Let $\mu$ be a finite measure on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels.
+  Let $\mu$ be a finite measure on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels, such that $\kappa (x) \neq 0 \; \forall x$.
   Then $D_f(\mu \otimes \kappa, \mu \otimes \eta) = D_f(\kappa, \eta \mid \mu)$.
 \end{lemma}
 
@@ -572,7 +572,7 @@ Apply Lemma~\ref{thm:fDiv_compProd_right} with $\kappa$ the constant kernel with
   \lean{ProbabilityTheory.fDiv_comp_le_compProd}
   \leanok
   \uses{def:fDiv}
-  Let $\mu, \nu$ be two finite measures on a standard Borel space $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels.
+  Let $\mu, \nu$ be two finite measures on a standard Borel space $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels.
   $D_f(\kappa \circ \mu, \eta \circ \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \eta)$
 \end{lemma}
 
@@ -586,7 +586,7 @@ By definition, $\kappa \circ \mu$ is the marginal of $\mu \otimes \kappa$ (a mea
   \lean{ProbabilityTheory.fDiv_comp_left_le}
   \leanok
   \uses{def:fDiv, def:condFDiv}
-  Let $\mu$ be a measure on a standard Borel space $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels.
+  Let $\mu$ be a measure on a standard Borel space $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels, such that $\kappa (x) \neq 0 \; \forall x$.
   Then $D_f(\kappa \circ \mu, \eta \circ \mu) \le D_f(\mu \otimes \kappa, \mu \otimes \eta) = D_f(\kappa, \eta \mid \mu)$
 \end{theorem}
 
