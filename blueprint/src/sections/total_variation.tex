@@ -22,7 +22,7 @@
 \begin{proof}
 \begin{align*}
 \TV(\mu, \nu)
-= \nu\left[ \vert \frac{d\mu}{d\nu} - 1 \vert \right] + \frac{1}{2}\mu_{\perp \nu}(\mathcal X).
+= \frac{1}{2}\nu\left[ \vert \frac{d\mu}{d\nu} - 1 \vert \right] + \frac{1}{2}\mu_{\perp \nu}(\mathcal X).
 \end{align*}
 Both terms are nonnegative.
 \end{proof}
@@ -51,12 +51,7 @@ Apply Lemma TODO (fDiv\_le\_zero\_add\_top in the code, not in the blueprint yet
 
 \begin{proof}
 \uses{lem:tv_le_add}
-By Lemma~\ref{lem:tv_le_add},
-\begin{align*}
-\TV(\mu, \nu)
-\le \frac{1}{2}\nu(\mathcal X) + \frac{1}{2}\mu(\mathcal X)
-= 1
-\end{align*}
+By Lemma~\ref{lem:tv_le_add}, $\TV(\mu, \nu) \le \frac{1}{2}\nu(\mathcal X) + \frac{1}{2}\mu(\mathcal X) = 1$~.
 \end{proof}
 
 \begin{lemma}
@@ -65,10 +60,38 @@ By Lemma~\ref{lem:tv_le_add},
   %\leanok
   \uses{def:TV}
   let $\xi$ be a dominating measure of $\mu$ and $\nu$. Then
-  $\TV(\mu, \nu) = \int_x \left\vert \frac{d\mu}{d\xi}(x) - \frac{d\nu}{d\xi}(x) \right\vert \partial\xi$.
+  $\TV(\mu, \nu) = \frac{1}{2}\int_x \left\vert \frac{d\mu}{d\xi}(x) - \frac{d\nu}{d\xi}(x) \right\vert \partial\xi$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof}%\leanok
+\end{proof}
+
+\begin{lemma}
+  \label{lem:one_sub_tv_eq_integral_min}
+  %\lean{}
+  %\leanok
+  \uses{def:TV}
+  For probability measures $\mu, \nu$, and a dominating measure $\xi$,
+  \begin{align*}
+  1 - \TV(\mu, \nu)
+  = \int_x \min\left\{ \frac{d\mu}{d\xi}(x), \frac{d\nu}{d\xi}(x)\right\}\partial \xi
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:tv_eq_integral_abs}
+The key identity is $\min\{x, y\} = \frac{1}{2}\left(x + y - \vert x - y \vert\right)$.
+By Lemma~\ref{lem:tv_eq_integral_abs}, then that identity,
+\begin{align*}
+1 - \TV(\mu, \nu)
+&= 1 - \frac{1}{2}\int_x \left\vert \frac{d\mu}{d\xi}(x) - \frac{d\nu}{d\xi}(x)\right\vert \partial \xi
+\\
+&= 1 - \frac{1}{2}\int_x \frac{d\mu}{d\xi}(x) + \frac{d\nu}{d\xi}(x) - 2\min\left\{ \frac{d\mu}{d\xi}(x), \frac{d\nu}{d\xi}(x)\right\} \partial \xi
+\\
+&= \int_x \min\left\{ \frac{d\mu}{d\xi}(x), \frac{d\nu}{d\xi}(x)\right\}\partial \xi
+\: .
+\end{align*}
 \end{proof}
 
 \begin{lemma}
