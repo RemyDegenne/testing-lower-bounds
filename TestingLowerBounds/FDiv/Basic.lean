@@ -131,8 +131,8 @@ lemma fDiv_zero_measure (ν : Measure α) [IsFiniteMeasure ν] : fDiv f 0 ν = f
     rw [hx]
     simp
   rw [fDiv_of_integrable]
-  · simp only [Measure.singularPart_zero, Measure.zero_toOuterMeasure, OuterMeasure.coe_zero,
-    Pi.zero_apply, EReal.coe_ennreal_zero, mul_zero, add_zero]
+  · simp only [Measure.singularPart_zero, Measure.coe_zero, Pi.zero_apply, EReal.coe_ennreal_zero,
+      mul_zero, add_zero]
     rw [integral_congr_ae this, mul_comm (f 0 : EReal), integral_const, smul_eq_mul, EReal.coe_mul,
       ← EReal.coe_ennreal_toReal (measure_ne_top _ _)]
   · rw [integrable_congr this]
@@ -197,6 +197,7 @@ lemma fDiv_id (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν] :
     rw [EReal.coe_ennreal_toReal h_ne_top]
     norm_cast
     conv_rhs => rw [μ.haveLebesgueDecomposition_add ν, add_comm]
+    simp
   · rw [fDiv_of_not_integrable h_int]
     norm_cast
     symm
@@ -323,8 +324,7 @@ lemma fDiv_of_absolutelyContinuous
       then (↑(∫ x, f ((∂μ/∂ν) x).toReal ∂ν) : EReal) else ⊤ := by
   split_ifs with h_int
   · rw [fDiv_of_integrable h_int, Measure.singularPart_eq_zero_of_ac h]
-    simp only [Measure.zero_toOuterMeasure, OuterMeasure.coe_zero, Pi.zero_apply, mul_zero,
-      ENNReal.zero_toReal, add_zero]
+    simp only [Measure.coe_zero, Pi.zero_apply, mul_zero, ENNReal.zero_toReal, add_zero]
     simp [Measure.singularPart_eq_zero_of_ac h]
   · rw [fDiv_of_not_integrable h_int]
 
@@ -482,7 +482,7 @@ lemma fDiv_add_measure_le (μ₁ μ₂ ν : Measure α) [IsFiniteMeasure μ₁] 
       ((withDensity_absolutelyContinuous _ _).add_left (withDensity_absolutelyContinuous _ _))
       ((Measure.mutuallySingular_singularPart _ _).add_left
         (Measure.mutuallySingular_singularPart _ _)) hf_cvx]
-  simp only [Measure.add_toOuterMeasure, OuterMeasure.coe_add, Pi.add_apply, EReal.coe_ennreal_add]
+  simp only [Measure.coe_add, Pi.add_apply, EReal.coe_ennreal_add]
   conv_rhs => rw [add_comm (μ₁.singularPart ν)]
   rw [fDiv_absolutelyContinuous_add_mutuallySingular (withDensity_absolutelyContinuous _ _)
     (Measure.mutuallySingular_singularPart _ _) hf_cvx]
@@ -694,7 +694,7 @@ lemma le_fDiv_of_ac [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
   by_cases hf_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν
   swap; · rw [fDiv_of_not_integrable hf_int]; exact le_top
   rw [fDiv_of_integrable hf_int, Measure.singularPart_eq_zero_of_ac hμν]
-  simp only [Measure.zero_toOuterMeasure, OuterMeasure.coe_zero, Pi.zero_apply,
+  simp only [Measure.coe_zero, Pi.zero_apply,
     EReal.coe_ennreal_zero, mul_zero, add_zero, EReal.coe_le_coe_iff]
   calc f (μ Set.univ).toReal
     = f (∫ x, (μ.rnDeriv ν x).toReal ∂ν) := by rw [Measure.integral_toReal_rnDeriv hμν]
@@ -709,6 +709,7 @@ lemma f_measure_univ_le_add (μ ν : Measure α) [IsFiniteMeasure μ] [IsProbabi
       ≤ f (ν.withDensity (∂μ/∂ν) Set.univ).toReal + derivAtTop f * μ.singularPart ν Set.univ := by
   have : μ Set.univ = ν.withDensity (∂μ/∂ν) Set.univ + μ.singularPart ν Set.univ := by
     conv_lhs => rw [μ.haveLebesgueDecomposition_add ν, add_comm]
+    simp
   rw [this]
   exact toReal_le_add_derivAtTop hf_cvx (measure_ne_top _ _) (measure_ne_top _ _)
 
@@ -777,13 +778,13 @@ lemma fDiv_restrict_of_integrable (μ ν : Measure α) [IsFiniteMeasure μ] [IsF
 
 section Measurability
 
-lemma measurableSet_integrable_f_kernel_rnDeriv [MeasurableSpace.CountablyGenerated β]
+lemma measurableSet_integrable_f_kernel_rnDeriv [MeasurableSpace.CountableOrCountablyGenerated α β]
     (κ η ξ : kernel α β) [IsFiniteKernel ξ] (hf : StronglyMeasurable f) :
     MeasurableSet {a | Integrable (fun x ↦ f (kernel.rnDeriv κ η a x).toReal) (ξ a)} :=
   measurableSet_kernel_integrable
     (hf.comp_measurable (kernel.measurable_rnDeriv κ η).ennreal_toReal)
 
-lemma measurableSet_integrable_f_rnDeriv [MeasurableSpace.CountablyGenerated β]
+lemma measurableSet_integrable_f_rnDeriv [MeasurableSpace.CountableOrCountablyGenerated α β]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] (hf : StronglyMeasurable f) :
     MeasurableSet {a | Integrable (fun x ↦ f ((∂κ a/∂η a) x).toReal) (η a)} := by
   convert measurableSet_integrable_f_kernel_rnDeriv κ η η hf using 3 with a
@@ -791,7 +792,7 @@ lemma measurableSet_integrable_f_rnDeriv [MeasurableSpace.CountablyGenerated β]
   filter_upwards [kernel.rnDeriv_eq_rnDeriv_measure κ η a] with b hb
   rw [hb]
 
-lemma measurable_integral_f_rnDeriv [MeasurableSpace.CountablyGenerated β]
+lemma measurable_integral_f_rnDeriv [MeasurableSpace.CountableOrCountablyGenerated α β]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] (hf : StronglyMeasurable f) :
     Measurable fun a ↦ ∫ x, f ((∂κ a/∂η a) x).toReal ∂(η a) := by
   have : ∀ a, ∫ x, f ((∂κ a/∂η a) x).toReal ∂η a
@@ -804,7 +805,7 @@ lemma measurable_integral_f_rnDeriv [MeasurableSpace.CountablyGenerated β]
   refine hf.comp_measurable ?_
   exact ((kernel.measurable_rnDeriv κ η).comp measurable_swap).ennreal_toReal
 
-lemma measurable_fDiv [MeasurableSpace.CountablyGenerated β]
+lemma measurable_fDiv [MeasurableSpace.CountableOrCountablyGenerated α β]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
     (hf : StronglyMeasurable f) :
     Measurable (fun a ↦ fDiv f (κ a) (η a)) := by

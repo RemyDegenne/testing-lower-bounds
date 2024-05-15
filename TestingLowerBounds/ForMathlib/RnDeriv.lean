@@ -87,8 +87,7 @@ lemma rnDeriv_div_rnDeriv {ξ : Measure α} [SigmaFinite μ] [SigmaFinite ν] [S
     refine (Measure.AbsolutelyContinuous.add hμ hν).trans ?_
     have : ξ + ξ = (2 : ℝ≥0∞) • ξ := by
       ext
-      simp only [Measure.add_toOuterMeasure, OuterMeasure.coe_add, Pi.add_apply,
-        Measure.smul_toOuterMeasure, OuterMeasure.coe_smul, Pi.smul_apply, smul_eq_mul]
+      simp only [Measure.coe_add, Pi.add_apply, Measure.coe_smul, Pi.smul_apply, smul_eq_mul]
       rw [two_mul]
     rw [this]
     exact Measure.absolutelyContinuous_of_le_smul le_rfl

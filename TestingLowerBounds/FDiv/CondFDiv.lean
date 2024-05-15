@@ -1,9 +1,8 @@
 /-
 Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Rémy Degenne
+Authors: Rémy Degenne, Lorenzo Luccioli
 -/
--- theorem foo (n : Nat) : 0 ≤ n := by exact? -- trick to make exact? work TODO : erase this when we are done
 import Mathlib.MeasureTheory.Order.Group.Lattice
 import TestingLowerBounds.MeasureCompProd
 import TestingLowerBounds.FDiv.Basic
@@ -49,7 +48,9 @@ lemma lintegral_measure_prod_mk_left {f : α → Set β → ℝ≥0∞} (hf : �
   rw [Set.indicator_apply]
   split_ifs with ha <;> simp [ha, hf]
 
-lemma set_lintegral_rnDeriv_mul_withDensity [CountablyGenerated β]
+variable [CountableOrCountablyGenerated α β]
+
+lemma set_lintegral_rnDeriv_mul_withDensity
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
     {s : Set α} (hs : MeasurableSet s) {t : Set β} (ht : MeasurableSet t) :
@@ -70,15 +71,14 @@ lemma set_lintegral_rnDeriv_mul_withDensity [CountablyGenerated β]
   filter_upwards [ha, kernel.rnDeriv_eq_rnDeriv_measure κ η a] with b hb hb' _
   rw [hb, hb']
 
-lemma lintegral_rnDeriv_mul_withDensity [CountablyGenerated β]
-    (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+lemma lintegral_rnDeriv_mul_withDensity (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
     {t : Set β} (ht : MeasurableSet t) :
     ∫⁻ a, (∂μ/∂ν) a * kernel.withDensity η (kernel.rnDeriv κ η) a t ∂ν
       = (ν ⊗ₘ η).withDensity (∂(μ ⊗ₘ κ)/∂(ν ⊗ₘ η)) (Set.univ ×ˢ t) := by
   rw [← set_lintegral_rnDeriv_mul_withDensity _ _ _ _ MeasurableSet.univ ht, set_lintegral_univ]
 
-lemma set_lintegral_rnDeriv_mul_singularPart [CountablyGenerated β]
+lemma set_lintegral_rnDeriv_mul_singularPart
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
     {s : Set α} (hs : MeasurableSet s) {t : Set β} (ht : MeasurableSet t) :
@@ -97,16 +97,15 @@ lemma set_lintegral_rnDeriv_mul_singularPart [CountablyGenerated β]
   filter_upwards [Measure.rnDeriv_withDensity _ (Measure.measurable_rnDeriv μ ν)] with x hx _
   rw [hx, kernel.singularPart_eq_singularPart_measure]
 
-lemma lintegral_rnDeriv_mul_singularPart [CountablyGenerated β]
-    (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+lemma lintegral_rnDeriv_mul_singularPart (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
     {t : Set β} (ht : MeasurableSet t) :
     ∫⁻ a, (∂μ/∂ν) a * (κ a).singularPart (η a) t ∂ν
       = ((ν.withDensity (∂μ/∂ν)) ⊗ₘ κ).singularPart (ν ⊗ₘ η) (Set.univ ×ˢ t) := by
   rw [← set_lintegral_rnDeriv_mul_singularPart _ _ _ _ MeasurableSet.univ ht, set_lintegral_univ]
 
-lemma set_lintegral_withDensity [CountablyGenerated β]
-    (μ : Measure α) [IsFiniteMeasure μ] (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
+lemma set_lintegral_withDensity (μ : Measure α) [IsFiniteMeasure μ]
+    (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
     {s : Set α} (hs : MeasurableSet s) {t : Set β} (ht : MeasurableSet t) :
     ∫⁻ a in s, kernel.withDensity η (kernel.rnDeriv κ η) a t ∂μ
       = (μ ⊗ₘ η).withDensity (∂(μ ⊗ₘ κ)/∂(μ ⊗ₘ η)) (s ×ˢ t) := by
@@ -115,29 +114,28 @@ lemma set_lintegral_withDensity [CountablyGenerated β]
   filter_upwards [μ.rnDeriv_self] with a ha _
   rw [ha, one_mul]
 
-lemma set_lintegral_singularPart [CountablyGenerated β]
-    (μ : Measure α) [IsFiniteMeasure μ] (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
+lemma set_lintegral_singularPart (μ : Measure α) [IsFiniteMeasure μ]
+    (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
     {s : Set α} (hs : MeasurableSet s) {t : Set β} (ht : MeasurableSet t) :
     ∫⁻ a in s, (κ a).singularPart (η a) t ∂μ = (μ ⊗ₘ κ).singularPart (μ ⊗ₘ η) (s ×ˢ t) := by
   rw [singularPart_compProd_right, Measure.compProd_apply (hs.prod ht)]
   simp only [kernel.singularPart_eq_singularPart_measure]
   rw [lintegral_measure_prod_mk_left (fun _ ↦ by simp) hs]
 
-lemma lintegral_withDensity [CountablyGenerated β]
-    (μ : Measure α) [IsFiniteMeasure μ] (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
+lemma lintegral_withDensity (μ : Measure α) [IsFiniteMeasure μ]
+    (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
     {s : Set β} (hs : MeasurableSet s) :
     ∫⁻ a, kernel.withDensity η (kernel.rnDeriv κ η) a s ∂μ
       = (μ ⊗ₘ η).withDensity (∂(μ ⊗ₘ κ)/∂(μ ⊗ₘ η)) (Set.univ ×ˢ s) := by
   rw [← set_lintegral_univ, set_lintegral_withDensity _ _ _ MeasurableSet.univ hs]
 
-lemma lintegral_singularPart [CountablyGenerated β]
-    (μ : Measure α) [IsFiniteMeasure μ] (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
+lemma lintegral_singularPart (μ : Measure α) [IsFiniteMeasure μ]
+    (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
     {s : Set β} (hs : MeasurableSet s) :
     ∫⁻ a, (κ a).singularPart (η a) s ∂μ = (μ ⊗ₘ κ).singularPart (μ ⊗ₘ η) (Set.univ ×ˢ s) := by
   rw [← set_lintegral_univ, set_lintegral_singularPart _ _ _ MeasurableSet.univ hs]
 
-lemma integrable_rnDeriv_mul_withDensity [CountablyGenerated β]
-    (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+lemma integrable_rnDeriv_mul_withDensity (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
     Integrable (fun x ↦
       ((∂μ/∂ν) x).toReal * (kernel.withDensity η (kernel.rnDeriv κ η) x Set.univ).toReal) ν := by
@@ -149,7 +147,7 @@ lemma integrable_rnDeriv_mul_withDensity [CountablyGenerated β]
   rw [lintegral_rnDeriv_mul_withDensity _ _ _ _ MeasurableSet.univ]
   exact measure_lt_top _ _
 
-lemma integrable_rnDeriv_mul_singularPart [CountablyGenerated β]
+lemma integrable_rnDeriv_mul_singularPart
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
     Integrable (fun x ↦ ((∂μ/∂ν) x).toReal * ((κ x).singularPart (η x) Set.univ).toReal) ν := by
@@ -162,7 +160,7 @@ lemma integrable_rnDeriv_mul_singularPart [CountablyGenerated β]
   rw [lintegral_rnDeriv_mul_singularPart _ _ _ _ MeasurableSet.univ]
   exact measure_lt_top _ _
 
-lemma integrable_singularPart [CountablyGenerated β] [IsFiniteMeasure μ]
+lemma integrable_singularPart [IsFiniteMeasure μ]
     [IsFiniteKernel κ] [IsFiniteKernel η] :
     Integrable (fun x ↦ ((κ x).singularPart (η x) Set.univ).toReal) μ := by
   refine integrable_toReal_of_lintegral_ne_top ?_ (ne_of_lt ?_)
@@ -171,7 +169,7 @@ lemma integrable_singularPart [CountablyGenerated β] [IsFiniteMeasure μ]
   rw [lintegral_singularPart _ _ _ MeasurableSet.univ]
   exact measure_lt_top _ _
 
-lemma setIntegral_rnDeriv_mul_withDensity [CountablyGenerated β]
+lemma setIntegral_rnDeriv_mul_withDensity
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
     {s : Set α} (hs : MeasurableSet s) {t : Set β} (ht : MeasurableSet t) :
@@ -187,7 +185,7 @@ lemma setIntegral_rnDeriv_mul_withDensity [CountablyGenerated β]
     filter_upwards [Measure.rnDeriv_lt_top μ ν] with a ha
     exact ENNReal.mul_lt_top ha.ne (measure_ne_top _ _)
 
-lemma integral_rnDeriv_mul_withDensity [CountablyGenerated β]
+lemma integral_rnDeriv_mul_withDensity
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
     {t : Set β} (ht : MeasurableSet t) :
@@ -195,7 +193,7 @@ lemma integral_rnDeriv_mul_withDensity [CountablyGenerated β]
       = ((ν ⊗ₘ η).withDensity (∂(μ ⊗ₘ κ)/∂(ν ⊗ₘ η)) (Set.univ ×ˢ t)).toReal := by
   rw [← setIntegral_rnDeriv_mul_withDensity μ ν κ η MeasurableSet.univ ht, integral_univ]
 
-lemma setIntegral_rnDeriv_mul_singularPart [CountablyGenerated β]
+lemma setIntegral_rnDeriv_mul_singularPart
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
     {s : Set α} (hs : MeasurableSet s) {t : Set β} (ht : MeasurableSet t) :
@@ -212,7 +210,7 @@ lemma setIntegral_rnDeriv_mul_singularPart [CountablyGenerated β]
     filter_upwards [Measure.rnDeriv_lt_top μ ν] with a ha
     exact ENNReal.mul_lt_top ha.ne (measure_ne_top _ _)
 
-lemma integral_rnDeriv_mul_singularPart [CountablyGenerated β]
+lemma integral_rnDeriv_mul_singularPart
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
     {t : Set β} (ht : MeasurableSet t) :
@@ -220,7 +218,7 @@ lemma integral_rnDeriv_mul_singularPart [CountablyGenerated β]
       = (((ν.withDensity (∂μ/∂ν)) ⊗ₘ κ).singularPart (ν ⊗ₘ η) (Set.univ ×ˢ t)).toReal := by
   rw [← setIntegral_rnDeriv_mul_singularPart μ ν κ η MeasurableSet.univ ht, integral_univ]
 
-lemma setIntegral_singularPart [CountablyGenerated β]
+lemma setIntegral_singularPart
     (μ : Measure α) [IsFiniteMeasure μ] (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
     {s : Set α} (hs : MeasurableSet s) {t : Set β} (ht : MeasurableSet t) :
     ∫ a in s, ((κ a).singularPart (η a) t).toReal ∂μ
@@ -230,7 +228,7 @@ lemma setIntegral_singularPart [CountablyGenerated β]
     exact (kernel.measurable_coe _ ht).aemeasurable
   · exact ae_of_all _ (fun _ ↦ measure_lt_top _ _)
 
-lemma integral_singularPart [CountablyGenerated β]
+lemma integral_singularPart
     (μ : Measure α) [IsFiniteMeasure μ] (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
     {s : Set β} (hs : MeasurableSet s) :
     ∫ a, ((κ a).singularPart (η a) s).toReal ∂μ
@@ -251,7 +249,7 @@ lemma fDiv_ae_ne_top_iff [IsFiniteKernel κ] [IsFiniteKernel η] :
 
 /--Equivalence between two possible versions of the second condition for the finiteness of the
 conditional f divergence, the second version is the preferred one.-/
-lemma integrable_fDiv_iff [CountablyGenerated β] [IsFiniteMeasure μ] [IsFiniteKernel κ]
+lemma integrable_fDiv_iff [CountableOrCountablyGenerated α β] [IsFiniteMeasure μ] [IsFiniteKernel κ]
     [IsFiniteKernel η] (h_int : ∀ᵐ a ∂μ, Integrable (fun x ↦ f ((∂κ a/∂η a) x).toReal) (η a))
     (h_ac : derivAtTop f = ⊤ → ∀ᵐ a ∂μ, κ a ≪ η a) :
     Integrable (fun x ↦ (fDiv f (κ x) (η x)).toReal) μ
@@ -327,7 +325,8 @@ lemma condFDiv_of_not_integrable
     condFDiv f κ η μ = ⊤ := if_neg (not_and_of_not_right _ hf)
 
 @[simp]
-lemma condFDiv_of_not_integrable' [CountablyGenerated β] [IsFiniteMeasure μ] [IsFiniteKernel κ]
+lemma condFDiv_of_not_integrable' [CountableOrCountablyGenerated α β] [IsFiniteMeasure μ]
+    [IsFiniteKernel κ]
     [IsFiniteKernel η] (hf : ¬ Integrable (fun a ↦ ∫ b, f ((∂κ a/∂η a) b).toReal ∂η a) μ) :
     condFDiv f κ η μ = ⊤ := by
   by_cases h_top : ∀ᵐ a ∂μ, fDiv f (κ a) (η a) ≠ ⊤
@@ -341,7 +340,7 @@ lemma condFDiv_eq' (hf_ae : ∀ᵐ a ∂μ, fDiv f (κ a) (η a) ≠ ⊤)
     condFDiv f κ η μ = ((μ[fun x ↦ (fDiv f (κ x) (η x)).toReal] : ℝ) : EReal) :=
   if_pos ⟨hf_ae, hf⟩
 
-variable [CountablyGenerated β]
+variable [CountableOrCountablyGenerated α β]
 
 lemma condFDiv_ne_top_iff [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η] :
     condFDiv f κ η μ ≠ ⊤ ↔
@@ -497,7 +496,7 @@ lemma condFDiv_nonneg [IsMarkovKernel κ] [IsMarkovKernel η]
 lemma condFDiv_const' {ξ : Measure β} [IsFiniteMeasure ξ] (h_ne_bot : fDiv f μ ν ≠ ⊥) :
     condFDiv f (kernel.const β μ) (kernel.const β ν) ξ = (fDiv f μ ν) * ξ Set.univ := by
   by_cases hξ_zero : ξ = 0
-  · simp only [hξ_zero, condFDiv_zero_measure, Measure.zero_toOuterMeasure, OuterMeasure.coe_zero,
+  · simp only [hξ_zero, condFDiv_zero_measure, Measure.coe_zero,
       Pi.zero_apply, EReal.coe_ennreal_zero, mul_zero]
   by_cases h_zero : fDiv f μ ν = 0
   · simp only [h_zero, zero_mul]
@@ -527,7 +526,7 @@ section CompProd
 /-! We show that the integrability of the functions used in `fDiv f (μ ⊗ₘ κ) (μ ⊗ₘ η)`
 and in `condFDiv f κ η μ` are equivalent. -/
 
-variable [CountablyGenerated β]
+variable [CountableOrCountablyGenerated α β]
 
 lemma fDiv_compProd_ne_top_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     [IsMarkovKernel κ] [IsFiniteKernel η] (hf : StronglyMeasurable f)
@@ -661,7 +660,7 @@ lemma fDiv_compProd_left (μ : Measure α) [IsFiniteMeasure μ]
       EReal.coe_ennreal_toReal, Set.univ_prod_univ]
     exact measure_ne_top _ _
 
-lemma fDiv_compProd_right [CountablyGenerated β]
+lemma fDiv_compProd_right [CountableOrCountablyGenerated α β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ : kernel α β) [IsMarkovKernel κ] (hf : StronglyMeasurable f)
     (h_cvx : ConvexOn ℝ (Set.Ici 0) f) :
@@ -689,7 +688,7 @@ end CompProd
 
 end Conditional
 
-lemma f_rnDeriv_ae_le_integral [CountablyGenerated β]
+lemma f_rnDeriv_ae_le_integral [CountableOrCountablyGenerated α β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsMarkovKernel η]
     (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0))
@@ -722,7 +721,7 @@ lemma f_rnDeriv_ae_le_integral [CountablyGenerated β]
         rw [← average_eq_integral, ← average_eq_integral]
         exact ConvexOn.map_average_le hf_cvx hf_cont isClosed_Ici (by simp) h_rnDeriv_int h_int'
 
-lemma integrable_f_rnDeriv_mul_kernel [CountablyGenerated β]
+lemma integrable_f_rnDeriv_mul_kernel [CountableOrCountablyGenerated α β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsMarkovKernel η]
     (hf : StronglyMeasurable f)
@@ -754,10 +753,11 @@ lemma integrable_f_rnDeriv_mul_kernel [CountablyGenerated β]
     · rw [hx h0]
   · exact h_int.integral_compProd'
 
-lemma Measure.rnDeriv_measure_compProd_kernel_withDensity [CountablyGenerated β]
+lemma Measure.rnDeriv_measure_compProd_kernel_withDensity [CountableOrCountablyGenerated α β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
-    (∂μ ⊗ₘ (kernel.withDensity η (kernel.rnDeriv κ η))/∂ν ⊗ₘ η) =ᵐ[ν ⊗ₘ η] (∂μ ⊗ₘ κ/∂ν ⊗ₘ η) := by
+    (∂μ ⊗ₘ (kernel.withDensity η (kernel.rnDeriv κ η))/∂ν ⊗ₘ η)
+      =ᵐ[ν ⊗ₘ η] (∂μ ⊗ₘ κ/∂ν ⊗ₘ η) := by
   let κ' := kernel.withDensity η (kernel.rnDeriv κ η)
   have h_ae : ∀ᵐ p ∂(ν ⊗ₘ η), kernel.rnDeriv κ' η p.1 p.2 = kernel.rnDeriv κ η p.1 p.2 := by
     refine kernel.ENNReal.ae_eq_compProd_of_forall_ae_eq ν η ?_ ?_ ?_
@@ -769,7 +769,7 @@ lemma Measure.rnDeriv_measure_compProd_kernel_withDensity [CountablyGenerated β
       kernel.rnDeriv_measure_compProd μ ν κ' η, h_ae] with p h1 h2 h3
   rw [h1, h2, h3]
 
-lemma integrable_f_rnDeriv_mul_withDensity [CountablyGenerated β]
+lemma integrable_f_rnDeriv_mul_withDensity [CountableOrCountablyGenerated α β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsMarkovKernel η]
     (hf : StronglyMeasurable f)
@@ -783,7 +783,7 @@ lemma integrable_f_rnDeriv_mul_withDensity [CountablyGenerated β]
     rw [hx]
   · exact ae_of_all _ (fun _ ↦ kernel.withDensity_absolutelyContinuous _ _)
 
-lemma integral_f_rnDeriv_mul_le_integral [CountablyGenerated β]
+lemma integral_f_rnDeriv_mul_le_integral [CountableOrCountablyGenerated α β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsMarkovKernel η]
     (hf : StronglyMeasurable f)
@@ -800,7 +800,7 @@ lemma integral_f_rnDeriv_mul_le_integral [CountablyGenerated β]
     exact h_int.2
   · exact f_rnDeriv_ae_le_integral μ ν κ η hf_cvx hf_cont h_int hκη
 
-lemma integral_f_rnDeriv_mul_withDensity_le_integral [CountablyGenerated β]
+lemma integral_f_rnDeriv_mul_withDensity_le_integral [CountableOrCountablyGenerated α β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsMarkovKernel η]
     (hf : StronglyMeasurable f)
@@ -822,7 +822,7 @@ lemma integral_f_rnDeriv_mul_withDensity_le_integral [CountablyGenerated β]
         filter_upwards [Measure.rnDeriv_measure_compProd_kernel_withDensity μ ν κ η] with x hx
         rw [hx]
 
-lemma f_rnDeriv_le_add [CountablyGenerated β]
+lemma f_rnDeriv_le_add [CountableOrCountablyGenerated α β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsMarkovKernel κ] [IsFiniteKernel η]
     (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (h_deriv : derivAtTop f = ⊤ → ∀ᵐ a ∂μ, κ a ≪ η a) :
@@ -862,12 +862,12 @@ lemma f_rnDeriv_le_add [CountablyGenerated β]
       unfold_let κ'
       rw [sub_eq_iff_eq_add, ← ENNReal.one_toReal, ← measure_univ (μ := κ a)]
       conv_lhs => rw [← kernel.rnDeriv_add_singularPart κ η, add_comm]
-      simp only [kernel.coeFn_add, Pi.add_apply, Measure.add_toOuterMeasure, OuterMeasure.coe_add]
+      simp only [kernel.coeFn_add, Pi.add_apply, Measure.coe_add]
       rw [ENNReal.toReal_add]
       · exact measure_ne_top _ _
       · exact measure_ne_top _ _
 
-lemma integrable_f_rnDeriv_of_integrable_compProd' [CountablyGenerated β]
+lemma integrable_f_rnDeriv_of_integrable_compProd' [CountableOrCountablyGenerated α β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsMarkovKernel κ] [IsMarkovKernel η]
     (hf : StronglyMeasurable f)
@@ -894,7 +894,7 @@ lemma integrable_f_rnDeriv_of_integrable_compProd' [CountablyGenerated β]
       simp_rw [kernel.singularPart_eq_singularPart_measure]
       exact integrable_rnDeriv_mul_singularPart _ _ _ _
 
-lemma fDiv_ne_top_of_fDiv_compProd_ne_top [CountablyGenerated β]
+lemma fDiv_ne_top_of_fDiv_compProd_ne_top [CountableOrCountablyGenerated α β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsMarkovKernel κ] [IsMarkovKernel η]
     (hf : StronglyMeasurable f)
@@ -909,7 +909,7 @@ lemma fDiv_ne_top_of_fDiv_compProd_ne_top [CountablyGenerated β]
   exact integrable_f_rnDeriv_of_integrable_compProd' μ ν κ η hf hf_cvx hf_cont h_ne_top.1
     (fun h ↦ (h3 h).2)
 
-lemma integral_f_rnDeriv_le_integral_add [CountablyGenerated β]
+lemma integral_f_rnDeriv_le_integral_add [CountableOrCountablyGenerated α β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsMarkovKernel κ] [IsMarkovKernel η]
     (hf : StronglyMeasurable f)
@@ -949,7 +949,7 @@ lemma integral_f_rnDeriv_le_integral_add [CountablyGenerated β]
   simp_rw [mul_assoc]
   rw [integral_mul_left]
 
-lemma le_fDiv_compProd [CountablyGenerated β] (μ ν : Measure α) [IsFiniteMeasure μ]
+lemma le_fDiv_compProd [CountableOrCountablyGenerated α β] (μ ν : Measure α) [IsFiniteMeasure μ]
     [IsFiniteMeasure ν] (κ η : kernel α β) [IsMarkovKernel κ] [IsMarkovKernel η]
     (hf : StronglyMeasurable f) (hf_cvx : ConvexOn ℝ (Set.Ici 0) f)
     (hf_cont : ContinuousOn f (Set.Ici 0)) :
@@ -992,14 +992,14 @@ lemma le_fDiv_compProd [CountablyGenerated β] (μ ν : Measure α) [IsFiniteMea
           ← EReal.coe_ennreal_toReal (measure_ne_top _ _)]
         conv_rhs => rw [Measure.haveLebesgueDecomposition_add μ ν]
         rw [Measure.compProd_add_left, add_comm, Measure.singularPart_add]
-        simp only [Measure.add_toOuterMeasure, OuterMeasure.coe_add, Pi.add_apply]
+        simp only [Measure.coe_add, Pi.add_apply]
         rw [ENNReal.toReal_add (measure_ne_top _ _) (measure_ne_top _ _)]
         simp only [EReal.coe_add]
         norm_cast
         rw [mul_add]
         congr
         rw [singularPart_compProd]
-        simp only [Measure.add_toOuterMeasure, OuterMeasure.coe_add, Pi.add_apply]
+        simp only [Measure.coe_add, Pi.add_apply]
         rw [Measure.compProd_apply MeasurableSet.univ]
         rw [Measure.compProd_apply MeasurableSet.univ]
         simp only [Measure.singularPart_singularPart, Set.preimage_univ]
@@ -1040,7 +1040,7 @@ lemma fDiv_comp_le_compProd [Nonempty α] [StandardBorelSpace α]
   simp_rw [Measure.comp_eq_snd_compProd]
   exact fDiv_snd_le _ _ hf hf_cvx hf_cont
 
-lemma fDiv_comp_left_le [Nonempty α] [StandardBorelSpace α] [CountablyGenerated β]
+lemma fDiv_comp_left_le [Nonempty α] [StandardBorelSpace α] [CountableOrCountablyGenerated α β]
     (μ : Measure α) [IsFiniteMeasure μ]
     (κ η : kernel α β) [IsMarkovKernel κ] [IsMarkovKernel η]
     (hf : StronglyMeasurable f)
@@ -1050,7 +1050,7 @@ lemma fDiv_comp_left_le [Nonempty α] [StandardBorelSpace α] [CountablyGenerate
     ≤ fDiv f (μ ⊗ₘ κ) (μ ⊗ₘ η) := fDiv_comp_le_compProd μ μ κ η hf hf_cvx hf_cont
   _ = condFDiv f κ η μ := fDiv_compProd_left μ κ η hf hf_cvx
 
-lemma fDiv_comp_right_le [Nonempty α] [StandardBorelSpace α] [CountablyGenerated β]
+lemma fDiv_comp_right_le [Nonempty α] [StandardBorelSpace α] [CountableOrCountablyGenerated α β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ : kernel α β) [IsMarkovKernel κ]
     (hf : StronglyMeasurable f)

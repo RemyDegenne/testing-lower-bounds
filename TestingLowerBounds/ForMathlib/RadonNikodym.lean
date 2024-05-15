@@ -18,7 +18,7 @@ open scoped NNReal ENNReal MeasureTheory Topology ProbabilityTheory
 namespace ProbabilityTheory.kernel
 
 variable {α γ : Type*} {mα : MeasurableSpace α} {mγ : MeasurableSpace γ}
-  [MeasurableSpace.CountablyGenerated γ] {κ η : kernel α γ}
+  [MeasurableSpace.CountableOrCountablyGenerated α γ] {κ η : kernel α γ}
 
 lemma singularPart_self (κ : kernel α γ) [IsFiniteKernel κ] :
     kernel.singularPart κ κ = 0 := by
@@ -224,6 +224,7 @@ instance instIsFiniteKernel_singularPart [hκ : IsFiniteKernel κ] [IsFiniteKern
   refine ⟨hκ.bound, hκ.bound_lt_top, fun a ↦ ?_⟩
   have h : withDensity η (rnDeriv κ η) a univ + singularPart κ η a univ = κ a univ := by
     conv_rhs => rw [← rnDeriv_add_singularPart κ η]
+    simp
   exact (self_le_add_left _ _).trans (h.le.trans (measure_le_bound _ _ _))
 
 lemma rnDeriv_add (κ ν η : kernel α γ) [IsFiniteKernel κ] [IsFiniteKernel ν] [IsFiniteKernel η]
