@@ -413,8 +413,7 @@ lemma fDiv_eq_add_withDensity_derivAtTop
     derivAtTop_sub_const hf_cvx]
   simp
 
-lemma fDiv_lt_top_of_ac [SigmaFinite μ] [SigmaFinite ν] (h : μ ≪ ν)
-    (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) :
+lemma fDiv_lt_top_of_ac (h : μ ≪ ν) (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) :
     fDiv f μ ν < ⊤ := by
   classical
   rw [fDiv_of_absolutelyContinuous h, if_pos h_int]
@@ -604,37 +603,30 @@ lemma fDiv_of_derivAtTop_eq_top [SigmaFinite μ] [SigmaFinite ν] (hf : derivAtT
 
 end derivAtTopTop
 
-lemma fDiv_lt_top_of_derivAtTop_ne_top [IsFiniteMeasure μ] [SigmaFinite ν]
-    (hf : derivAtTop f ≠ ⊤) (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) :
+lemma fDiv_lt_top_of_derivAtTop_ne_top [IsFiniteMeasure μ] (hf : derivAtTop f ≠ ⊤)
+    (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) :
     fDiv f μ ν < ⊤ := by
   rw [fDiv_of_integrable h_int]
   refine EReal.add_lt_top ?_ ?_
   · simp
-  · have : μ.singularPart ν Set.univ < (⊤ : EReal) := by
-      rw [← EReal.coe_ennreal_top]
-      norm_cast
-      exact measure_lt_top _ _
-    rw [ne_eq, EReal.mul_eq_top]
+  · rw [ne_eq, EReal.mul_eq_top]
     simp only [derivAtTop_ne_bot, false_and, EReal.coe_ennreal_ne_bot, and_false, hf,
       EReal.coe_ennreal_pos, Measure.measure_univ_pos, ne_eq, EReal.coe_ennreal_eq_top_iff,
       false_or, not_and]
     exact fun _ ↦ measure_ne_top _ _
 
-lemma fDiv_lt_top_iff_of_derivAtTop_ne_top [IsFiniteMeasure μ] [SigmaFinite ν]
-    (hf : derivAtTop f ≠ ⊤) :
+lemma fDiv_lt_top_iff_of_derivAtTop_ne_top [IsFiniteMeasure μ] (hf : derivAtTop f ≠ ⊤) :
     fDiv f μ ν < ⊤ ↔ Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν := by
   refine ⟨fun h ↦ ?_, fDiv_lt_top_of_derivAtTop_ne_top hf⟩
   by_contra h_not_int
   rw [fDiv_of_not_integrable h_not_int] at h
   simp at h
 
-lemma fDiv_ne_top_iff_of_derivAtTop_ne_top [IsFiniteMeasure μ] [SigmaFinite ν]
-    (hf : derivAtTop f ≠ ⊤) :
+lemma fDiv_ne_top_iff_of_derivAtTop_ne_top [IsFiniteMeasure μ] (hf : derivAtTop f ≠ ⊤) :
     fDiv f μ ν ≠ ⊤ ↔ Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν := by
   rw [← fDiv_lt_top_iff_of_derivAtTop_ne_top hf, lt_top_iff_ne_top]
 
-lemma fDiv_eq_top_iff_of_derivAtTop_ne_top [IsFiniteMeasure μ] [SigmaFinite ν]
-    (hf : derivAtTop f ≠ ⊤) :
+lemma fDiv_eq_top_iff_of_derivAtTop_ne_top [IsFiniteMeasure μ] (hf : derivAtTop f ≠ ⊤) :
     fDiv f μ ν = ⊤ ↔ ¬ Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν := by
   rw [← fDiv_ne_top_iff_of_derivAtTop_ne_top hf, not_not]
 
@@ -667,7 +659,7 @@ lemma fDiv_of_ne_top (h : fDiv f μ ν ≠ ⊤) :
   rw [fDiv_of_integrable]
   exact integrable_of_fDiv_ne_top h
 
-lemma toReal_fDiv_of_integrable [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+lemma toReal_fDiv_of_integrable [IsFiniteMeasure μ]
     (hf_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
     (h_deriv : derivAtTop f = ⊤ → μ ≪ ν) :
     (fDiv f μ ν).toReal = ∫ y, f ((∂μ/∂ν) y).toReal ∂ν

@@ -42,6 +42,9 @@ instance (κ : kernel (α × β) γ) (b : β) [IsFiniteKernel κ] : IsFiniteKern
 instance (κ : kernel (α × β) γ) (b : β) [IsSFiniteKernel κ] : IsSFiniteKernel (fst' κ b) := by
   rw [kernel.fst']; infer_instance
 
+instance (κ : kernel (α × β) γ) (a : α) (b : β) [NeZero (κ (a, b))] : NeZero ((fst' κ b) a) := by
+  rw [kernel.fst'_apply]; infer_instance
+
 instance (priority := 100) {κ : kernel (α × β) γ} [∀ b, IsMarkovKernel (fst' κ b)] :
     IsMarkovKernel κ := by
   refine ⟨fun _ ↦ ⟨?_⟩⟩
@@ -80,6 +83,9 @@ instance (κ : kernel (α × β) γ) (a : α) [IsFiniteKernel κ] : IsFiniteKern
 
 instance (κ : kernel (α × β) γ) (a : α) [IsSFiniteKernel κ] : IsSFiniteKernel (snd' κ a) := by
   rw [kernel.snd']; infer_instance
+
+instance (κ : kernel (α × β) γ) (a : α) (b : β) [NeZero (κ (a, b))] : NeZero ((snd' κ a) b) := by
+  rw [kernel.snd'_apply]; infer_instance
 
 instance (priority := 100) {κ : kernel (α × β) γ} [∀ b, IsMarkovKernel (snd' κ b)] :
     IsMarkovKernel κ := by
