@@ -22,7 +22,7 @@
   \lean{ProbabilityTheory.hellingerDiv_ne_top_of_le_one}
   \leanok
   \uses{def:hellingerAlpha}
-  For $\alpha \in (0, 1)$ and finite measures $\mu, \nu$, $\He_\alpha(\mu, \nu) < \infty$.
+  For $\alpha \in (0, 1]$ and finite measures $\mu, \nu$, $\He_\alpha(\mu, \nu) < \infty$.
 \end{lemma}
 
 \begin{proof}\leanok
@@ -50,7 +50,7 @@
   \lean{ProbabilityTheory.integral_rpow_rnDeriv}
   \leanok
   \uses{}
-  For $\mu, \nu$ two sigma-finite measures,
+  For $\alpha \in (0,1)\cup(1, \infty)$, $\mu, \nu$ two sigma-finite measures,
   \begin{align*}
   \int_x \left(\frac{d \mu}{d \nu}(x)\right)^\alpha \partial \nu
   = \int_x \left(\frac{d \nu}{d \mu}(x)\right)^{1 - \alpha} \partial \mu
@@ -60,6 +60,15 @@
 
 \begin{proof}\leanok
 \uses{}
+\begin{align*}
+  \int_x \left(\frac{d \mu}{d \nu}(x)\right)^\alpha \partial \nu
+  &= \int_x \left(\frac{d \mu}{d (\mu + \nu)}(x) \left(\frac{d \nu}{d (\mu + \nu)}(x)\right)^{-1} \right)^\alpha \partial \nu \\
+  &= \int_x \left(\frac{d \mu}{d (\mu + \nu)}(x) \left(\frac{d \nu}{d (\mu + \nu)}(x)\right)^{-1} \right)^\alpha \frac{d \nu}{d (\mu + \nu)}(x) \partial (\mu + \nu) \\
+  &= \int_x \left(\frac{d \mu}{d (\mu + \nu)}(x) \left(\frac{d \nu}{d (\mu + \nu)}(x)\right)^{-1} \right)^{\alpha - 1} \frac{d \mu}{d (\mu + \nu)}(x) \partial (\mu + \nu) \\
+  &= \int_x \left(\frac{d \mu}{d (\mu + \nu)}(x) \left(\frac{d \nu}{d (\mu + \nu)}(x)\right)^{-1} \right)^{\alpha - 1} \partial \mu \\
+  &= \int_x \left(\frac{d \nu}{d \mu}(x)\right)^{1 - \alpha} \partial \mu
+  \: .
+  \end{align*}
 \end{proof}
 
 \begin{lemma}
@@ -78,8 +87,8 @@ Use Lemma~\ref{lem:integral_rpow_rnDeriv}.
 
 \begin{definition}[Conditional Hellinger $\alpha$-divergence]
   \label{def:condHellingerAlpha}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.condHellingerDiv}
+  \leanok
   \uses{def:condFDiv}
   Let $\mu$ be a measure on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels. The conditional Hellinger divergence of order $\alpha \in (0,+\infty) \backslash \{1\}$ between $\kappa$ and $\eta$ conditionally to $\mu$ is
   \begin{align*}
@@ -109,13 +118,13 @@ Apply Theorem~\ref{thm:fDiv_data_proc}.
 
 \begin{lemma}
   \label{lem:hellingerAlpha_nonneg}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.hellingerDiv_nonneg}
+  \leanok
   \uses{def:hellingerAlpha}
   Let $\mu, \nu$ be two probability measures. Then $\He_\alpha(\mu, \nu) \ge 0$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof} \leanok
 \uses{lem:fDiv_nonneg}
 Apply Lemma~\ref{lem:fDiv_nonneg}.
 \end{proof}
