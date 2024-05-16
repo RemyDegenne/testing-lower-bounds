@@ -740,50 +740,23 @@ lemma condFDiv_kernel_snd'_integrable_iff [CountablyGenerated γ] [IsFiniteMeasu
     (hf_cont : ContinuousOn f (Set.Ici 0)) (hf_one : f 1 = 0) :
     Integrable (fun a ↦ (condFDiv f (kernel.snd' κ a) (kernel.snd' η a) (ξ a)).toReal) μ ↔
       Integrable (fun a ↦ ∫ b, |∫ x, f ((∂κ (a, b)/∂η (a, b)) x).toReal ∂η (a, b)| ∂ξ a) μ := by
-  have h_le : ∀ᵐ a ∂μ, ∀ᵐ b ∂ξ a, |∫ (x : γ), f ((∂κ (a, b)/∂η (a, b)) x).toReal ∂η (a, b)|
-      ≤ (fDiv f (κ (a, b)) (η (a, b))).toReal + |(derivAtTop f).toReal| := by
+  have h_le : ∀ᵐ a ∂μ, ∀ᵐ b ∂ξ a, |∫ x, f ((∂κ (a, b)/∂η (a, b)) x).toReal ∂η (a, b)|
+        - (fDiv f (κ (a, b)) (η (a, b))).toReal ≤ |(derivAtTop f).toReal|
+      ∧ (fDiv f (κ (a, b)) (η (a, b))).toReal - |∫ x, f ((∂κ (a, b)/∂η (a, b)) x).toReal ∂η (a, b)|
+        ≤ |(derivAtTop f).toReal| := by
     filter_upwards [fDiv_toReal_eq_ae h_ac h_int] with a ha_ereal_add
     filter_upwards [ha_ereal_add] with b hb_ereal_add
+    apply abs_sub_le_iff.mp
     calc
-      _ = |∫ (x : γ), f ((∂κ (a, b)/∂η (a, b)) x).toReal ∂η (a, b)
-          + (derivAtTop f).toReal * ((κ (a, b)).singularPart (η (a, b)) Set.univ).toReal
-          - (derivAtTop f).toReal * ((κ (a, b)).singularPart (η (a, b)) Set.univ).toReal| := by
-        ring_nf
+      _ = |(|∫ (x : γ), f ((∂κ (a, b)/∂η (a, b)) x).toReal ∂η (a, b)|
+          - |(fDiv f (κ (a, b)) (η (a, b))).toReal|)| := by
+        rw [abs_eq_self.mpr <| EReal.toReal_nonneg (fDiv_nonneg hf_cvx hf_cont hf_one)]
       _ ≤ |∫ (x : γ), f ((∂κ (a, b)/∂η (a, b)) x).toReal ∂η (a, b)
-          + (derivAtTop f).toReal * ((κ (a, b)).singularPart (η (a, b)) Set.univ).toReal|
-          + |(derivAtTop f).toReal * ((κ (a, b)).singularPart (η (a, b)) Set.univ).toReal| :=
-        abs_sub _ _
-      _ = |(fDiv f (κ (a, b)) (η (a, b))).toReal|
-          + |(derivAtTop f).toReal * ((κ (a, b)).singularPart (η (a, b)) Set.univ).toReal| := by
-        congr
-        exact hb_ereal_add.symm
-      _ ≤ (fDiv f (κ (a, b)) (η (a, b))).toReal
-          + |(derivAtTop f).toReal| * ((κ (a, b)) Set.univ).toReal := by
-        gcongr ?_ + ?_
-        · rw [abs_eq_self.mpr <| EReal.toReal_nonneg (fDiv_nonneg hf_cvx hf_cont hf_one)]
-        · rw [abs_mul, ENNReal.abs_toReal]
-          apply mul_le_mul_of_nonneg_left _ (abs_nonneg _)
-          gcongr
-          · exact measure_ne_top (κ (a, b)) Set.univ
-          · exact Measure.singularPart_le (κ (a, b)) (η (a, b)) Set.univ
-      _ = _ := by rw [measure_univ, ENNReal.one_toReal, mul_one]
-  have h_le' : ∀ᵐ a ∂μ, ∀ᵐ b ∂ξ a, (fDiv f (κ (a, b)) (η (a, b))).toReal
-      ≤ |∫ (x : γ), f ((∂κ (a, b)/∂η (a, b)) x).toReal ∂η (a, b)| + |(derivAtTop f).toReal| := by
-    filter_upwards [fDiv_toReal_eq_ae h_ac h_int] with a ha_ereal_add
-    filter_upwards [ha_ereal_add] with b hb_ereal_add
-    calc
-      _ = |(fDiv f (κ (a, b)) (η (a, b))).toReal| :=
-        (abs_eq_self.mpr <| EReal.toReal_nonneg <| fDiv_nonneg hf_cvx hf_cont hf_one).symm
-      _ = |∫ x, f ((∂κ (a, b)/∂η (a, b)) x).toReal ∂η (a, b)
-          + (derivAtTop f).toReal * (((κ (a, b)).singularPart (η (a, b)) Set.univ)).toReal| := by
-        rw [hb_ereal_add]
-      _ ≤ |∫ x, f ((∂κ (a, b)/∂η (a, b)) x).toReal ∂η (a, b)|
-          + |(derivAtTop f).toReal * (((κ (a, b)).singularPart (η (a, b)) Set.univ)).toReal| :=
-        abs_add _ _
-      _ ≤ |∫ x, f ((∂κ (a, b)/∂η (a, b)) x).toReal ∂η (a, b)|
-          + |(derivAtTop f).toReal| * ((κ (a, b)) Set.univ).toReal := by
-        gcongr
-        rw [abs_mul, ENNReal.abs_toReal]
+          - (fDiv f (κ (a, b)) (η (a, b))).toReal| := by
+        exact abs_abs_sub_abs_le_abs_sub _ _
+      _ = |(derivAtTop f).toReal| * ((κ (a, b)).singularPart (η (a, b)) Set.univ).toReal := by
+        rw [hb_ereal_add, sub_add_cancel_left, abs_neg, abs_mul, ENNReal.abs_toReal]
+      _ ≤ |(derivAtTop f).toReal| * ((κ (a, b)) Set.univ).toReal := by
         apply mul_le_mul_of_nonneg_left _ (abs_nonneg _)
         gcongr
         · exact measure_ne_top (κ (a, b)) Set.univ
@@ -805,7 +778,8 @@ lemma condFDiv_kernel_snd'_integrable_iff [CountablyGenerated γ] [IsFiniteMeasu
       exact measurable_integral_f_rnDeriv κ η hf_meas
     · filter_upwards [h_le, h_int2, h_int2'] with a ha_le ha_int2 ha_int2'
       rw [norm_eq_abs, abs_eq_self.mpr <| integral_nonneg <| fun _ ↦ abs_nonneg _]
-      exact integral_mono_ae ha_int2.abs (integrable_add_const_iff.mpr ha_int2') ha_le
+      refine integral_mono_ae ha_int2.abs (integrable_add_const_iff.mpr ha_int2') ?_
+      filter_upwards [ha_le] with a hb_le using by linarith
     apply Integrable.congr (f := fun a ↦ ∫ b, (fDiv f (κ (a, b)) (η (a, b))).toReal ∂ξ a
         + ((ξ a) Set.univ).toReal * |(derivAtTop f).toReal|)
     swap
@@ -822,10 +796,11 @@ lemma condFDiv_kernel_snd'_integrable_iff [CountablyGenerated γ] [IsFiniteMeasu
     rotate_left
     · refine (StronglyMeasurable.integral_kernel_prod_right ?_).aestronglyMeasurable
       exact (measurable_fDiv _ _ hf_meas).ereal_toReal.stronglyMeasurable
-    · filter_upwards [h_le', h_int2, h_int2'] with a ha_le ha_int2 ha_int2'
+    · filter_upwards [h_le, h_int2, h_int2'] with a ha_le ha_int2 ha_int2'
       rw [norm_eq_abs, abs_eq_self.mpr <| integral_nonneg <| fun _ ↦ EReal.toReal_nonneg <|
         fDiv_nonneg hf_cvx hf_cont hf_one]
-      apply integral_mono_ae ha_int2' (integrable_add_const_iff.mpr <| ha_int2.abs) ha_le
+      refine integral_mono_ae ha_int2' (integrable_add_const_iff.mpr <| ha_int2.abs) ?_
+      filter_upwards [ha_le] with a hb_le using by linarith
     apply Integrable.congr (f := fun a ↦ ∫ b, |∫ x, f ((∂κ (a, b)/∂η (a, b)) x).toReal ∂η (a, b)|
       ∂ξ a + ((ξ a) Set.univ).toReal * |(derivAtTop f).toReal|)
     swap
