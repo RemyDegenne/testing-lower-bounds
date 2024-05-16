@@ -146,7 +146,7 @@ lemma exp_mono {a b : EReal} (h : a ≤ b) : exp a ≤ exp b := by
 lemma exp_neg (x : EReal) : exp (-x) = (exp x)⁻¹ := by
   induction' x using EReal.rec with x
   · simp
-  · rw [exp_coe, ← EReal.coe_neg, exp_coe, ← ENNReal.ofReal_inv_of_pos (Real.exp_pos _), 
+  · rw [exp_coe, ← EReal.coe_neg, exp_coe, ← ENNReal.ofReal_inv_of_pos (Real.exp_pos _),
       Real.exp_neg]
   · simp
 
