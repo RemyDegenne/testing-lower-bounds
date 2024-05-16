@@ -720,6 +720,17 @@ lemma fDiv_toReal_eq_ae {ξ : kernel α β} {κ η : kernel (α × β) γ} [IsFi
         Measure.measure_univ_pos, ne_eq, EReal.coe_ennreal_eq_top_iff, false_or, not_and]
       exact fun _ ↦ measure_ne_top _ _
 
+--Maybe there is already something like this in mathlib? I couldn't find it.
+--Is this name (`ProbabilityTheory.Integrable.kernel`) ok?
+lemma Integrable.kernel [IsFiniteKernel κ] [IsFiniteMeasure μ] (s : Set β) (hs : MeasurableSet s) :
+  Integrable (fun x ↦ ((κ x) s).toReal) μ := by
+obtain ⟨C, ⟨hC_finite, hC_le⟩⟩ := IsFiniteKernel.exists_univ_le (κ := κ)
+apply (integrable_const C.toReal).mono'
+· exact kernel.measurable_coe κ hs |>.ennreal_toReal.aestronglyMeasurable
+simp_rw [norm_eq_abs, abs_eq_self.mpr ENNReal.toReal_nonneg, ENNReal.toReal_le_toReal
+  (measure_ne_top _ _) (lt_top_iff_ne_top.mp hC_finite)]
+exact eventually_of_forall <| fun x ↦ (κ x).mono (Set.subset_univ s) |>.trans (hC_le x)
+
 lemma condFDiv_kernel_snd'_integrable_iff [CountablyGenerated γ] [IsFiniteMeasure μ]
     {ξ : kernel α β}  [IsFiniteKernel ξ] {κ η : kernel (α × β) γ} [IsMarkovKernel κ]
     [IsMarkovKernel η] (h_ac : derivAtTop f = ⊤ → ∀ᵐ a ∂μ, ∀ᵐ b ∂ξ a, κ (a, b) ≪ η (a, b))
@@ -784,7 +795,9 @@ lemma condFDiv_kernel_snd'_integrable_iff [CountablyGenerated γ] [IsFiniteMeasu
     exact (integrable_fDiv_iff ha_int ha_ae).mpr ha_int2
   rw [integrable_congr <| condFDiv_snd'_toReal_eq_ae h_ac h_int h_int2]
   refine ⟨fun h ↦ ?_, fun h ↦ ?_⟩
-  · apply Integrable.mono'
+  ·
+    --using `h_le` we reduce the problem to the integrability of a sum of an integral and `f'(∞) * (ξ x) (univ)`
+    apply Integrable.mono'
       (g := fun a ↦ ∫ b, ((fDiv f (κ (a, b)) (η (a, b))).toReal + |(derivAtTop f).toReal|) ∂ξ a)
     rotate_left
     · refine (StronglyMeasurable.integral_kernel_prod_right ?_).aestronglyMeasurable
@@ -798,16 +811,13 @@ lemma condFDiv_kernel_snd'_integrable_iff [CountablyGenerated γ] [IsFiniteMeasu
     swap
     · filter_upwards [h_int2'] with a ha_int2'
       rw [integral_add ha_int2' (integrable_const _), integral_const, smul_eq_mul]
-    apply h.add
-    apply Integrable.mul_const
-    obtain ⟨C, ⟨hC_finite, hC_le⟩⟩ := IsFiniteKernel.exists_univ_le (κ := ξ)
-    apply (integrable_const C.toReal).mono'
-    · exact kernel.measurable_coe ξ MeasurableSet.univ |>.ennreal_toReal.aestronglyMeasurable
-    filter_upwards with a
-    rw [norm_eq_abs, abs_eq_self.mpr ENNReal.toReal_nonneg, ENNReal.toReal_le_toReal
-      (measure_ne_top _ _) (lt_top_iff_ne_top.mp hC_finite)]
-    exact hC_le a
-  · apply Integrable.mono' (g := fun a ↦ ∫ b,
+
+    --we already know the integrability of the integral (hp `h`) and the other part is just a
+    --constant times a finite kernel applied to a fixed set, so it's easy to show that it's integrable
+    exact h.add (Integrable.kernel _ MeasurableSet.univ |>.mul_const _)
+  ·
+    --using `h_le'` we reduce the problem to the integrability of a sum of an integral and `f'(∞) * (ξ x) (univ)`
+    apply Integrable.mono' (g := fun a ↦ ∫ b,
       (|∫ (x : γ), f ((∂κ (a, b)/∂η (a, b)) x).toReal ∂η (a, b)| + |(derivAtTop f).toReal|) ∂ξ a)
     rotate_left
     · refine (StronglyMeasurable.integral_kernel_prod_right ?_).aestronglyMeasurable
@@ -821,14 +831,9 @@ lemma condFDiv_kernel_snd'_integrable_iff [CountablyGenerated γ] [IsFiniteMeasu
     swap
     · filter_upwards [h_int2] with a ha_int2
       rw [integral_add ha_int2.abs (integrable_const _), integral_const, smul_eq_mul]
-    apply h.add
-    apply Integrable.mul_const
-    obtain ⟨C, ⟨hC_finite, hC_le⟩⟩ := IsFiniteKernel.exists_univ_le (κ := ξ)
-    apply (integrable_const C.toReal).mono'
-    · exact kernel.measurable_coe ξ MeasurableSet.univ |>.ennreal_toReal.aestronglyMeasurable
-    simp_rw [norm_eq_abs, abs_eq_self.mpr ENNReal.toReal_nonneg, ENNReal.toReal_le_toReal
-      (measure_ne_top _ _) (lt_top_iff_ne_top.mp hC_finite)]
-    exact eventually_of_forall hC_le
+
+    -- same as above
+    exact h.add (Integrable.kernel _ MeasurableSet.univ |>.mul_const _)
 
 lemma condFDiv_kernel_fst'_integrable_iff [CountablyGenerated γ] {μ : Measure β} [IsFiniteMeasure μ]
     {ξ : kernel β α} [IsFiniteKernel ξ] {κ η : kernel (α × β) γ} [IsMarkovKernel κ]
