@@ -458,11 +458,9 @@ lemma condFDiv_zero_left [IsFiniteMeasure μ] [IsFiniteKernel η] :
     apply MeasureTheory.Integrable.const_mul
     exact kernel.IsFiniteKernel.integrable μ η MeasurableSet.univ
 
-@[simp 1100]
 lemma condFDiv_zero_left' [IsProbabilityMeasure μ] [IsMarkovKernel η] :
     condFDiv f 0 η μ = f 0 := by
-  simp_rw [condFDiv_zero_left, measure_univ, integral_const, measure_univ]
-  norm_num
+  simp
 
 --I also wanted to add something like condKL_zero_right, but it turns out it's not so
 --straightforward to state and prove, and since we don't really need it for now I will leave it out.
