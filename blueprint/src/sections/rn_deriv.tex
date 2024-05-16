@@ -4,7 +4,7 @@
   \label{def:kernel_rnDeriv}
   \lean{ProbabilityTheory.kernel.rnDeriv}
   \leanok
-  %\uses{}
+  \uses{def:kernel, def:finite_kernel}
   Let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels. The Radon-Nikodym derivative of $\kappa$ with respect to $\eta$, denoted by $\frac{d \kappa}{d \eta}$, is a measurable function $\mathcal X \times \mathcal Y \to \mathbb{R}_{+, \infty}$ with $\kappa = \frac{d \kappa}{d \eta} \cdot \eta + \kappa_{\perp \eta}$, where for all $x$, $\kappa_{\perp \eta}(x) \perp \eta(x)$.
 \end{definition}
 
@@ -37,7 +37,7 @@ Apply Lemma~\ref{lem:rnDeriv_unique}.
   \label{lem:rnDeriv_compProd_aux}
   \lean{ProbabilityTheory.kernel.rnDeriv_measure_compProd_aux}
   \leanok
-  \uses{def:kernel_rnDeriv}
+  \uses{def:kernel_rnDeriv, def:measure_compProd}
   Let $\mu, \nu$ be two measures on $\mathcal X$ with $\mu \ll \nu$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels with $\kappa(x) \ll \eta(x)$ for $\nu$-almost all $x$. Then for $(\nu \otimes \eta)$-almost all $(x, y)$, $\frac{d (\mu \otimes \kappa)}{d (\nu \otimes \eta)}(x,y) = \frac{d\mu}{d\nu}(x)\frac{d \kappa}{d \eta}(x,y)$.
   This implies that the equality is true for $\nu$-almost all $x$, for $\eta(x)$-almost all $y$.
 \end{lemma}
