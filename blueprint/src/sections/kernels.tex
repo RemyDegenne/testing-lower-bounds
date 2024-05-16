@@ -1,0 +1,148 @@
+\chapter{Probability transition kernels}
+
+Consider, informally, a process where we first observe a random state (for example the result of a coin flip), and then, depending on the value of that first state, we produce another random value.
+For example, if the coin lands on heads, we roll two dice and observe the sum. If on the other hand the coin lands on tails, we roll only one die and observe the result.
+The law of the second observation is a function of the first observation.
+This function from one space to measures on an other one is a transition kernel.
+To get an usable definition for general measurable spaces, we need to enforce that the function is measurable.
+
+\section{Definition}
+
+\begin{definition}[Measurable space of measures]
+  \label{def:measure_measurableSpace}
+  \lean{MeasureTheory.Measure.instMeasurableSpace}
+  \leanok
+  \uses{}
+  Let $\mathcal B$ be the Borel $\sigma$-algebra on $\mathbb{R}_{+,\infty}$. Let $\mathcal X$ be a measurable space.
+  For a measurable set $s$ of $\mathcal X$, let $(\mu \mapsto \mu(s))^* \mathcal B$ be the $\sigma$-algebra on $\mathcal M(\mathcal X)$ defined by the comap of the evaluation function at $s$.
+  Then $\mathcal M(\mathcal X)$ is a measurable space with $\sigma$-algebra $\bigsqcup_{s} (\mu \mapsto \mu(s))^* \mathcal B$ where the supremum is over all measurable sets $s$.
+\end{definition}
+
+It then makes sense to talk about a measurable function from a measurable space $\mathcal X$ to the measures on another measurable space $\mathcal Y$.
+We now write more explicitly what it means for such a function to be measurable.
+
+\begin{lemma}
+  \label{lem:measurable_measure_fun}
+  \lean{MeasureTheory.Measure.measurable_of_measurable_coe}
+  \leanok
+  \uses{def:measure_measurableSpace}
+  Let $\mathcal X, \mathcal Y$ be measurable spaces, and let $f : \mathcal X \to \mathcal M(\mathcal Y)$ such that for all measurable sets $s$ of $\mathcal X$, the function $x \mapsto f(x)(s)$ is measurable.
+  Then $f$ is measurable.
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{}
+\end{proof}
+
+We now have the tools needed to define probability transition kernels.
+
+\begin{definition}[Kernel]
+  \label{def:kernel}
+  \lean{ProbabilityTheory.kernel}
+  \leanok
+  \uses{def:measure_measurableSpace}
+  Let $\mathcal X, \mathcal Y$ be two measurable spaces.
+  A probability transition kernel (or simply kernel) from $\mathcal X$ to $\mathcal Y$ is a measurable map from $\mathcal X$ to $\mathcal M (\mathcal Y)$, the measurable space of measures on $\mathcal Y$.
+  We write $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ for a kernel $\kappa$ from $\mathcal X$ to $\mathcal Y$.
+\end{definition}
+
+Measures and measurable functions are special cases of kernels. A measure on $\mathcal Y$ can be seen as a constant kernel from any space to $\mathcal Y$.
+A measurable function can be represented by a \emph{deterministic} kernel.
+
+\begin{definition}[Deterministic kernel]
+  \label{def:deterministic_kernel}
+  \lean{ProbabilityTheory.kernel.deterministic}
+  \leanok
+  \uses{def:kernel}
+  The deterministic kernel defined by a measurable function $f : \mathcal X \to \mathcal Y$ is the kernel $d_f: \mathcal X \rightsquigarrow \mathcal Y$ defined by $d_f(x) = \delta(f(x))$, where for any $y \in \mathcal Y$, $\delta(y)$ is the Dirac probability measure at $y$.
+\end{definition}
+
+TODO: extensionality. Two kernels are equal iff... (useful to describe the composition-product further down).
+
+\section{Classes of kernels}
+
+\begin{definition}[Finite kernel]
+  \label{def:finite_kernel}
+  \lean{ProbabilityTheory.IsFiniteKernel}
+  \leanok
+  \uses{def:kernel}
+  A kernel $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ is said to be finite if there exists $\mathcal C < +\infty$ such that for all $x \in \mathcal X$, $\kappa(x)(\mathcal Y) \le C$.
+\end{definition}
+
+\begin{definition}[Markov kernel]
+  \label{def:markov_kernel}
+  \lean{ProbabilityTheory.IsMarkovKernel}
+  \leanok
+  \uses{def:kernel}
+  A kernel $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ is said to be a Markov kernel if for all $x \in \mathcal X$, $\kappa(x)$ is a probability measure.
+\end{definition}
+
+A Markov kernel is finite, with constant $C = 1$.
+
+\begin{definition}[S-Finite kernel]
+  \label{def:sFinite_kernel}
+  \lean{ProbabilityTheory.IsSFiniteKernel}
+  \leanok
+  \uses{def:kernel}
+  A kernel $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ is said to be a s-finite if it is equal to a countable sum of finite kernels.
+\end{definition}
+
+This last, most general class of kernels, is the right assumption to define operations on kernels like their product.
+
+\section{Composition and product}
+
+\begin{definition}[Composition-product]
+  \label{def:kernel_compProd}
+  \lean{ProbabilityTheory.kernel.compProd}
+  \leanok
+  \uses{def:kernel, def:sFinite_kernel}
+  Let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : (\mathcal X \times \mathcal Y) \rightsquigarrow \mathcal Z$ be two s-finite kernels.
+  The composition-product of $\kappa$ and $\eta$ is a kernel $\kappa \otimes \eta : \mathcal X \rightsquigarrow (\mathcal Y \times \mathcal Z)$ such that
+
+  TODO
+\end{definition}
+
+TODO: explanation of that composition-product on an example.
+
+Since a measure is a constant kernel, we can also define the composition-product of a measure and a kernel.
+
+\begin{definition}[Composition-product of a measure and a kernel]
+  \label{def:measure_compProd}
+  \lean{MeasureTheory.Measure.compProd}
+  \leanok
+  \uses{def:kernel_compProd}
+  Let $\mu \in \mathcal M(\mathcal X)$ be an s-finite measure and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be an s-finite kernel.
+  The composition-product of $\mu$ and $\kappa$ is a measure in $\mathcal M(\mathcal X \times \mathcal Y)$ such that
+
+  TODO
+\end{definition}
+
+The name \emph{composition-product} is not standard in the literature, where it can be called either composition or product depending on the source.
+We reserve the name \emph{composition} for an operation that from kernels $\mathcal X \rightsquigarrow \mathcal Y$ and $\mathcal Y \rightsquigarrow \mathcal Z$ produces a kernel $\mathcal X \rightsquigarrow \mathcal Z$, and the name product for the one that takes kernels $\mathcal X \rightsquigarrow \mathcal Y$ and $\mathcal X \rightsquigarrow \mathcal Z$ and produces a kernel $\mathcal X \rightsquigarrow (\mathcal Y \times \mathcal Z)$.
+Both are special cases of the composition-product, which justifies that name.
+
+\begin{definition}[Composition]
+  \label{def:kernel_comp}
+  \lean{ProbabilityTheory.kernel.comp}
+  \leanok
+  \uses{def:kernel}
+  Let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal Y \rightsquigarrow \mathcal Z$ be two kernels.
+  The composition of $\kappa$ and $\eta$ is a kernel $\eta \circ \kappa : \mathcal X \rightsquigarrow \mathcal Z$ such that
+
+  TODO
+\end{definition}
+
+\begin{definition}[Product]
+  \label{def:kernel_prod}
+  \lean{ProbabilityTheory.kernel.prod}
+  \leanok
+  \uses{def:kernel, def:sFinite_kernel}
+  Let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal X \rightsquigarrow \mathcal Z$ be two s-finite kernels.
+  The product of $\kappa$ and $\eta$ is a kernel $\kappa \times \eta : \mathcal X \rightsquigarrow (\mathcal Y \times \mathcal Z)$ such that
+
+  TODO
+\end{definition}
+
+TODO: add compProd of a measure and a kernel.
+
+TODO: add remark on the Giry monad.
