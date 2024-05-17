@@ -768,8 +768,7 @@ lemma condFDiv_kernel_snd'_integrable_iff [CountablyGenerated γ] [IsFiniteMeasu
     exact (integrable_fDiv_iff ha_int ha_ae).mpr ha_int2
   rw [integrable_congr <| condFDiv_snd'_toReal_eq_ae h_ac h_int h_int2]
   refine ⟨fun h ↦ ?_, fun h ↦ ?_⟩
-  ·
-    --using `h_le` we reduce the problem to the integrability of a sum of an integral and `f'(∞) * (ξ x) (univ)`
+  · --using `h_le` we reduce the problem to the integrability of a sum of an integral and `f'(∞) * (ξ x) (univ)`
     apply Integrable.mono'
       (g := fun a ↦ ∫ b, ((fDiv f (κ (a, b)) (η (a, b))).toReal + |(derivAtTop f).toReal|) ∂ξ a)
     rotate_left
@@ -785,12 +784,10 @@ lemma condFDiv_kernel_snd'_integrable_iff [CountablyGenerated γ] [IsFiniteMeasu
     swap
     · filter_upwards [h_int2'] with a ha_int2'
       rw [integral_add ha_int2' (integrable_const _), integral_const, smul_eq_mul]
-
     --we already know the integrability of the integral (hp `h`) and the other part is just a
     --constant times a finite kernel applied to a fixed set, so it's easy to show that it's integrable
     exact h.add (Integrable.kernel _ MeasurableSet.univ |>.mul_const _)
-  ·
-    --using `h_le'` we reduce the problem to the integrability of a sum of an integral and `f'(∞) * (ξ x) (univ)`
+  · --using `h_le'` we reduce the problem to the integrability of a sum of an integral and `f'(∞) * (ξ x) (univ)`
     apply Integrable.mono' (g := fun a ↦ ∫ b,
       (|∫ (x : γ), f ((∂κ (a, b)/∂η (a, b)) x).toReal ∂η (a, b)| + |(derivAtTop f).toReal|) ∂ξ a)
     rotate_left
@@ -806,7 +803,6 @@ lemma condFDiv_kernel_snd'_integrable_iff [CountablyGenerated γ] [IsFiniteMeasu
     swap
     · filter_upwards [h_int2] with a ha_int2
       rw [integral_add ha_int2.abs (integrable_const _), integral_const, smul_eq_mul]
-
     -- same as above
     exact h.add (Integrable.kernel _ MeasurableSet.univ |>.mul_const _)
 
