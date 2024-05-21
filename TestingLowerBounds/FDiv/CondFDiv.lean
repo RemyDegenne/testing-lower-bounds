@@ -1222,8 +1222,8 @@ lemma fDiv_fst_le [Nonempty β] [StandardBorelSpace β]
     (hf : StronglyMeasurable f)
     (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0)) :
     fDiv f μ.fst ν.fst ≤ fDiv f μ ν := by
-  rw [← μ.compProd_fst_condKernel, ← ν.compProd_fst_condKernel, kernel.Measure.fst_compProd,
-    kernel.Measure.fst_compProd]
+  rw [← μ.compProd_fst_condKernel, ← ν.compProd_fst_condKernel, Measure.fst_compProd,
+    Measure.fst_compProd]
   exact le_fDiv_compProd μ.fst ν.fst μ.condKernel ν.condKernel hf hf_cvx hf_cont
 
 lemma fDiv_snd_le [Nonempty α] [StandardBorelSpace α]

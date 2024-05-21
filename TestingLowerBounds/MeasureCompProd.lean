@@ -37,6 +37,11 @@ variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
 Defined using `MeasureTheory.Measure.bind` -/
 scoped[ProbabilityTheory] infixl:100 " ∘ₘ " => MeasureTheory.Measure.bind
 
+lemma Measure.fst_compProd (μ : Measure α) [SFinite μ] (κ : kernel α β) [IsMarkovKernel κ] :
+    (μ ⊗ₘ κ).fst = μ := by
+  ext s
+  rw [Measure.compProd, Measure.fst, ← kernel.fst_apply, kernel.fst_compProd, kernel.const_apply]
+
 lemma Measure.comp_eq_snd_compProd (μ : Measure α) [SFinite μ]
     (κ : kernel α β) [IsSFiniteKernel κ] :
     μ ∘ₘ κ = (μ ⊗ₘ κ).snd := by
@@ -45,6 +50,27 @@ lemma Measure.comp_eq_snd_compProd (μ : Measure α) [SFinite μ]
     Measure.compProd_apply]
   · rfl
   · exact measurable_snd hs
+
+lemma Measure.snd_compProd (μ : Measure α) [SFinite μ] (κ : kernel α β) [IsSFiniteKernel κ] :
+    (μ ⊗ₘ κ).snd = μ ∘ₘ κ := (Measure.comp_eq_snd_compProd μ κ).symm
+
+lemma kernel.compProd_prodMkLeft_eq_comp {γ : Type*} {_ : MeasurableSpace γ}
+    (κ : kernel α β) [IsSFiniteKernel κ] (η : kernel β γ) [IsSFiniteKernel η] :
+    κ ⊗ₖ (prodMkLeft α η) = (deterministic id measurable_id ×ₖ η) ∘ₖ κ := by
+  ext a s hs
+  rw [comp_eq_snd_compProd, compProd_apply _ _ _ hs, snd_apply' _ _ hs, compProd_apply]
+  swap; · exact measurable_snd hs
+  simp only [prodMkLeft_apply, Set.mem_setOf_eq, Set.setOf_mem_eq]
+  simp_rw [prod_apply' _ _ _ hs, deterministic_apply]
+  simp only [id_eq]
+  congr with b
+  rw [lintegral_dirac']
+  exact measurable_measure_prod_mk_left hs
+
+lemma Measure.compProd_eq_comp (μ : Measure α) [SFinite μ] (κ : kernel α β) [IsSFiniteKernel κ] :
+    μ ⊗ₘ κ = μ ∘ₘ (kernel.deterministic id measurable_id ×ₖ κ) := by
+  rw [Measure.compProd, kernel.compProd_prodMkLeft_eq_comp]
+  rfl
 
 section SingularPart
 

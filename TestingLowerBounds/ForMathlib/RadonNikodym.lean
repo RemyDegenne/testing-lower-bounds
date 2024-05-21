@@ -87,25 +87,6 @@ lemma Measure.mutuallySingular_compProd_right (μ ν : Measure α) [SFinite μ] 
     exact hκη a
   simp [h1, h2]
 
-lemma Measure.fst_compProd (μ : Measure α) [SFinite μ] (κ : kernel α γ) [IsMarkovKernel κ] :
-    (μ ⊗ₘ κ).fst = μ := by
-  ext s hs
-  rw [Measure.fst_apply hs, Measure.compProd_apply]
-  swap; · exact measurable_fst hs
-  have : ∀ a, (κ a) (Prod.mk a ⁻¹' (Prod.fst ⁻¹' s)) = s.indicator (fun a ↦ κ a univ) a := by
-    intro a
-    classical
-    rw [indicator_apply]
-    split_ifs with ha
-    · congr with x
-      simp [ha]
-    · suffices Prod.mk a ⁻¹' (Prod.fst ⁻¹' s) = ∅ by rw [this]; simp
-      ext x
-      simp [ha]
-  simp_rw [this]
-  rw [lintegral_indicator _ hs]
-  simp
-
 lemma ae_compProd_of_ae_fst {μ : Measure α} (κ : kernel α γ)
     [SFinite μ] [IsSFiniteKernel κ] {p : α → Prop} (hp : MeasurableSet {x | p x})
     (h : ∀ᵐ a ∂μ, p a) :

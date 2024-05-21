@@ -46,7 +46,7 @@ We now have the tools needed to define probability transition kernels.
   We write $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ for a kernel $\kappa$ from $\mathcal X$ to $\mathcal Y$.
 \end{definition}
 
-Measures and measurable functions are special cases of kernels. A measure on $\mathcal Y$ can be seen as a constant kernel from any space to $\mathcal Y$.
+Measures and measurable functions are special cases of kernels. A measure on $\mathcal Y$ can be seen as a constant kernel from any space to $\mathcal Y$ (for example from a space with 1 element to $\mathcal Y$).
 A measurable function can be represented by a \emph{deterministic} kernel.
 
 \begin{definition}[Deterministic kernel]
@@ -104,7 +104,13 @@ This last, most general class of kernels, is the right assumption to define oper
 
 TODO: explanation of that composition-product on an example.
 
-Since a measure is a constant kernel, we can also define the composition-product of a measure and a kernel.
+The name \emph{composition-product} is not standard in the literature, where it can be called either composition or product depending on the source.
+We reserve the name \emph{composition} for an operation that from kernels $\mathcal X \rightsquigarrow \mathcal Y$ and $\mathcal Y \rightsquigarrow \mathcal Z$ produces a kernel $\mathcal X \rightsquigarrow \mathcal Z$, and the name product for the one that takes kernels $\mathcal X \rightsquigarrow \mathcal Y$ and $\mathcal X \rightsquigarrow \mathcal Z$ and produces a kernel $\mathcal X \rightsquigarrow (\mathcal Y \times \mathcal Z)$.
+Both are special cases of the composition-product, which justifies that name.
+
+The composition-product is defined for $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal X \times \mathcal Y \rightsquigarrow \mathcal Z$, but since a kernel $\mathcal Y \rightsquigarrow \mathcal Z$ can be seen as a kernel $\mathcal X \times \mathcal Y \rightsquigarrow \mathcal Z$ independent of the first coordinate, we abuse notation and also write $\kappa \otimes \xi$ for $\xi : \mathcal Y \rightsquigarrow \mathcal Z$.
+
+Since a measure is a constant kernel from the space with one element, we can also define the composition-product of a measure and a kernel. Note that this definition uses the abuse of notation we just introduced.
 
 \begin{definition}[Composition-product of a measure and a kernel]
   \label{def:measure_compProd}
@@ -112,14 +118,9 @@ Since a measure is a constant kernel, we can also define the composition-product
   \leanok
   \uses{def:kernel_compProd}
   Let $\mu \in \mathcal M(\mathcal X)$ be an s-finite measure and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be an s-finite kernel.
-  The composition-product of $\mu$ and $\kappa$ is a measure in $\mathcal M(\mathcal X \times \mathcal Y)$ such that
-
-  TODO
+  Let $\mathcal U$ be a measurable space with a unique element $u$. Let $\mu_k : \mathcal U \rightsquigarrow \mathcal X$ be the constant kernel with value $\mu$.
+  The composition-product of $\mu$ and $\kappa$ is the measure on $\mathcal M(\mathcal X \times \mathcal Y)$ defined by $(\mu_k \otimes \kappa) (u)$~.
 \end{definition}
-
-The name \emph{composition-product} is not standard in the literature, where it can be called either composition or product depending on the source.
-We reserve the name \emph{composition} for an operation that from kernels $\mathcal X \rightsquigarrow \mathcal Y$ and $\mathcal Y \rightsquigarrow \mathcal Z$ produces a kernel $\mathcal X \rightsquigarrow \mathcal Z$, and the name product for the one that takes kernels $\mathcal X \rightsquigarrow \mathcal Y$ and $\mathcal X \rightsquigarrow \mathcal Z$ and produces a kernel $\mathcal X \rightsquigarrow (\mathcal Y \times \mathcal Z)$.
-Both are special cases of the composition-product, which justifies that name.
 
 \begin{definition}[Composition]
   \label{def:kernel_comp}
@@ -127,10 +128,10 @@ Both are special cases of the composition-product, which justifies that name.
   \leanok
   \uses{def:kernel}
   Let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal Y \rightsquigarrow \mathcal Z$ be two kernels.
-  The composition of $\kappa$ and $\eta$ is a kernel $\eta \circ \kappa : \mathcal X \rightsquigarrow \mathcal Z$ such that
-
-  TODO
+  The composition of $\kappa$ and $\eta$ is the kernel $\eta \circ \kappa : \mathcal X \rightsquigarrow \mathcal Z$ equal to $(\kappa \otimes \eta)_Z$ (TODO explain that notation).
 \end{definition}
+
+We can also define the composition of a measure and a kernel, by $\kappa \circ \mu = (\kappa \circ \mu_k) (u)$, where $\mathcal U$ is a measurable space with a unique element $u$ and $\mu_k : \mathcal U \rightsquigarrow \mathcal X$ is the constant kernel with value $\mu$.
 
 \begin{definition}[Product]
   \label{def:kernel_prod}
@@ -138,11 +139,12 @@ Both are special cases of the composition-product, which justifies that name.
   \leanok
   \uses{def:kernel, def:sFinite_kernel}
   Let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal X \rightsquigarrow \mathcal Z$ be two s-finite kernels.
-  The product of $\kappa$ and $\eta$ is a kernel $\kappa \times \eta : \mathcal X \rightsquigarrow (\mathcal Y \times \mathcal Z)$ such that
+  The product of $\kappa$ and $\eta$ is the kernel $\kappa \times \eta : \mathcal X \rightsquigarrow (\mathcal Y \times \mathcal Z)$ equal to
 
   TODO
 \end{definition}
 
-TODO: add compProd of a measure and a kernel.
+For $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal Y \rightsquigarrow \mathcal Z$ (independent of $\mathcal X$), the composition-product can be written as a composition: $\kappa \otimes \eta = (d_{\text{id}} \times \eta) \circ \kappa$ where $d_{\text{id}}$ is the deterministic kernel for the identity.
+In particular, the composition-product of a measure and a kernel $\kappa$ is the composition of that measure with the kernel $d_{\text{id}} \times \kappa$.
 
 TODO: add remark on the Giry monad.
