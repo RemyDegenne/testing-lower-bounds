@@ -62,9 +62,4 @@ theorem AEStronglyMeasurable.mul_iff_right [TopologicalSpace β] [CommGroup β] 
 theorem AEStronglyMeasurable.mul_iff_left [TopologicalSpace β] [CommGroup β] [ContinuousMul β] [ContinuousInv β] {f g : α → β} (hf : AEStronglyMeasurable f μ) : AEStronglyMeasurable (g * f) μ ↔ AEStronglyMeasurable g μ :=
   mul_comm g f ▸ AEStronglyMeasurable.mul_iff_right hf
 
---maybe they can be put in the same section as:
-#check MeasureTheory.AEStronglyMeasurable.mul
---the ones about measurability can be put in the same section as:
-#check Measurable.add
-
 end MeasureTheory

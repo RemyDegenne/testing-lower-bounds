@@ -15,8 +15,8 @@ section FstSnd
 
 variable {δ : Type*} {mδ : MeasurableSpace δ}
 
---TODO: PR this to mathlib, a suitable place may be just under the following lemma
-#check ProbabilityTheory.kernel.snd_swapRight
+--TODO: PR this to mathlib, a suitable place may be just under
+-- `ProbabilityTheory.kernel.snd_swapRight`
 
 --I try to reproduce the code that is already there for kernel.fst and kernel.snd, but in this case
 --the fst and snd are referred to the domain of the kernel, not the codomain
