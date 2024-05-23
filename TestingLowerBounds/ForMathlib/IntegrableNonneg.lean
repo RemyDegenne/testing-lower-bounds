@@ -44,7 +44,6 @@ lemma integrable_add_iff_of_nonpos {f g : α → ℝ} (h_meas : AEStronglyMeasur
 
 end MeasureTheory
 
---we could put this in the same section as:
-#check MeasureTheory.Integrable.add
+--we could put this in the same section as `MeasureTheory.Integrable.add`
 --or maybe in some other file, if the file L1space is too general, since in this case we are talking about functions on ℝ
 --also, is there some way to generalize this lemma to functions on a more general space?
