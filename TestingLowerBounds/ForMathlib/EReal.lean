@@ -1,7 +1,5 @@
 import Mathlib.Data.Real.EReal
-import Mathlib.Topology.Semicontinuous
-import Mathlib.Topology.Instances.EReal
-import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
+import Mathlib.MeasureTheory.Constructions.BorelSpace.Order
 
 open scoped ENNReal NNReal
 
