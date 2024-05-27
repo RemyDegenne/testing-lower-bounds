@@ -11,14 +11,15 @@ The quality of the estimation is quantified by a loss $\ell' : \mathcal Y \times
 The measure family is described by a kernel $P : \Theta \rightsquigarrow \mathcal X$. We write $P_\theta$ for $P(\theta)$ and $y(\theta)$ for $y(P_\theta)$.
 In \emph{parametric} problems, $\Theta$ is a low-dimensional space. In \emph{nonparametric} problems, $\Theta$ is large, for example $\Theta = \mathcal M (\mathcal X)$ or $\Theta = \mathcal P(\mathcal X)$.
 
+TODO: reorder to define $y: \Theta \to \mathcal Y$ instead of $y : \mathcal M(\mathcal X) \to \mathcal Y$~, since we always write $y(P(\theta))$.
 
-\emph{Example (SBHT - simple binary hypothesis testing):}
+\paragraph{Example: simple binary hypothesis testing (SBHT)}
 
 We say that an estimation problem is a testing problem if $\mathcal Y = \mathcal Z$ is discrete and the loss takes values in $\{0, 1\}$.
 A test is said to be binary if $\mathcal Y$ has two elements.
 A test is simple if $\{\theta \mid y(P_\theta) = y_0\}$ is a singleton for all $y_0 \in \mathcal Y$.
 
-In summary, in a simple binary hypothesis testing, $\Theta = \mathcal Y = \mathcal Z = \{0,1\}$, $y(P_0) = 0$, $y(P_1) = 1$ (that is, $y(\theta) = \theta$). For a deterministic $\hat{y}$, $\ell(y, \hat{y}) = \mathbb{I}\{y \ne \hat{y}\}$, extended to random $\hat{y}$ by taking the expectation.
+In summary, in simple binary hypothesis testing, $\Theta = \mathcal Y = \mathcal Z = \{0,1\}$, $y(P_0) = 0$, $y(P_1) = 1$ (that is, $y(\theta) = \theta$). For $z \in \{0,1\}$, $\ell(y, z) = \mathbb{I}\{y \ne z\}$.
 
 \section{Risk}
 
