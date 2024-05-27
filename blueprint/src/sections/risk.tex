@@ -51,17 +51,29 @@ Let $\hat{\mu}_\theta$ be the law of $\hat{y}(\theta)$. That is, $\hat{\mu} : \m
   \uses{def:bayesianRisk}
   The Bayes risk for prior $\pi \in \mathcal P(\Theta)$ is $\mathcal R_\pi = \inf_{\hat{y} : \mathcal X \rightsquigarrow \mathcal Z} R_\pi(\hat{y})$~.
 
-  The Bayes risk of $P$ is $\mathcal R^*_B = \sup_{\pi \in \mathcal P(\theta)} \mathcal R_\pi \: .$
+  The Bayes risk of $P$ is $\mathcal R^*_B = \sup_{\pi \in \mathcal P(\Theta)} \mathcal R_\pi \: .$
 \end{definition}
 
 \emph{Example (SBHT):} $\mathcal R^*_B = \sup_{\gamma \in [0,1]}\inf_{\hat{y}}\left(\gamma \hat{\mu}_0(\hat{y} \ne 0) + (1 - \gamma) \hat{\mu}_1(\hat{y} \ne 1)\right)$.
 
-\begin{definition}
+\begin{definition}[Bayes estimator]
   \label{def:bayesEstimator}
   %\lean{}
   %\leanok
   \uses{def:bayesRisk}
   An estimator $\hat{y}$ is said to be a Bayes estimator for a prior $\pi \in \mathcal P(\Theta)$ if $R_\pi(\hat{y}) = \mathcal R_\pi$.
+\end{definition}
+
+\begin{definition}[Generalized Bayes estimator]
+  \label{def:genBayesEstimator}
+  %\lean{}
+  %\leanok
+  \uses{def:risk,def:bayesInv}
+  The generalized Bayes estimator for prior $\pi \in \mathcal P(\Theta)$ and kernel $P: \Theta \rightsquigarrow \mathcal X$ is the deterministic estimator $\mathcal X \to \mathcal Z$ given by
+  \begin{align*}
+  x \mapsto \arg\min_z P_\pi^\dagger(x)\left[\theta \mapsto \ell'(y(\theta), z)\right] \: .
+  \end{align*}
+  Here $P_\pi^\dagger$ is the Bayesian inverse of $P$ with respect to $\pi$ (that is, $P_\pi^\dagger(x)$ is the posterior distribution of $\theta$ given $x$).
 \end{definition}
 
 \begin{definition}[Minimax risk]
@@ -87,6 +99,77 @@ For any $\pi \in \mathcal P(\mathcal X)$ and any estimator, $\pi\left[\hat{\mu}_
 \end{proof}
 
 TODO: ``often'', $\mathcal R^*_B = \mathcal R^*$.
+
+\section{Simple binary hypothesis testing}
+
+\begin{definition}
+  \label{def:bayesBinaryRisk}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesRisk}
+  The Bayes binary risk between measures $\mu$ and $\nu$, denoted by $B_\pi(\mu, \nu)$, is the Bayes risk $\mathcal R_\pi$ for $\Theta = \mathcal Y = \mathcal Z = \{0,1\}$, $P$ the kernel sending 0 to $\mu$ and 1 to $\nu$ and prior $(\pi, 1-\pi)$.
+  That is, $B_\pi(\mu, \nu) = \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\pi \mu(\hat{y} = 1) + (1 - \pi) \nu(\hat{y} = 0)\right)$~.
+\end{definition}
+
+\begin{lemma}
+  \label{lem:bayesBinaryRisk_le}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesBinaryRisk}
+  For all probability measures $\mu, \nu$, $B_\pi(\mu, \nu) \le \min\{\pi, 1 - \pi\}$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{def:bayesRisk}
+Since $B_\pi(\mu, \nu)$ is an infimum over estimators, we can find an upper bound by choosing an estimator. We choose for $\hat{y}$ a constant estimator, with value 1 if $1- \pi > \pi$ and 0 otherwise.
+That estimator has Bayesian risk $\min\{\pi, 1 - \pi\}$.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:bayesBinaryRisk_self}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesBinaryRisk}
+  For $\mu \in \mathcal P(\mathcal X)$, $B_\pi(\mu, \mu) = \min\{\pi, 1-\pi\}$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+\end{proof}
+
+\begin{definition}
+  \label{def:deGrootInfo}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesBinaryRisk}
+  The De Groot statistical information between measures $\mu$ and $\nu$ is $I_\pi(\mu, \nu) = \min\{\pi, 1 - \pi\} - B_\pi(\mu, \nu)$.
+\end{definition}
+
+\begin{lemma}
+  \label{lem:deGrootInfo_self}
+  %\lean{}
+  %\leanok
+  \uses{def:deGrootInfo}
+  For $\mu \in \mathcal P(\mathcal X)$, $I_\pi(\mu, \mu) = 0$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:bayesBinaryRisk_self}
+Use Lemma~\ref{lem:bayesBinaryRisk_self}.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:deGrootInfo_nonneg}
+  %\lean{}
+  %\leanok
+  \uses{def:deGrootInfo}
+  For $\mu, \nu \in \mathcal P(\mathcal X)$, $I_\pi(\mu, \nu) \ge 0$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:bayesBinaryRisk_le}
+Use Lemma~\ref{lem:bayesBinaryRisk_le}.
+\end{proof}
 
 \section{Reduction to testing}
 
