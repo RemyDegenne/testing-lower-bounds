@@ -1,0 +1,177 @@
+\chapter{Testing, Estimation, Risk}
+
+In the estimation problem, we are given a family of measures and we want to estimate an unknown parameter for the measure from which we observe samples.
+Let $\mathcal X$ be the measurable space on which the measures are defined and let $y : \mathcal M(\mathcal X) \to \mathcal Y$ be the function which maps a measure to the parameter of interest.
+
+An estimator is a kernel $\hat{y} : \mathcal X \rightsquigarrow \mathcal Z$, where most often $\mathcal Z = \mathcal Y$.
+Note that while $y$ is a function of a measure in $\mathcal M(\mathcal X)$, $\hat{y}$ has domain $\mathcal X$ as the estimation is done based on a sample of the measure, while the measure itself remains unknown.
+In general this is a randomized estimator, but often deterministic estimators (corresponding to deterministic kernels) are enough to attain optimal performance.
+The quality of the estimation is quantified by a loss $\ell' : \mathcal Y \times \mathcal Z \to \mathbb{R}_{+, \infty}$. We write $\ell$ for a loss from $\mathcal Y \times \mathcal Y$ and $\ell'$ in the heterogeneous case.
+
+The measure family is described by a kernel $P : \Theta \rightsquigarrow \mathcal X$. We write $P_\theta$ for $P(\theta)$ and $y(\theta)$ for $y(P_\theta)$.
+In \emph{parametric} problems, $\Theta$ is a low-dimensional space. In \emph{nonparametric} problems, $\Theta$ is large, for example $\Theta = \mathcal M (\mathcal X)$ or $\Theta = \mathcal P(\mathcal X)$.
+
+TODO: reorder to define $y: \Theta \to \mathcal Y$ instead of $y : \mathcal M(\mathcal X) \to \mathcal Y$~, since we always write $y(P(\theta))$.
+
+\paragraph{Example: simple binary hypothesis testing (SBHT)}
+
+We say that an estimation problem is a testing problem if $\mathcal Y = \mathcal Z$ is discrete and the loss takes values in $\{0, 1\}$.
+A test is said to be binary if $\mathcal Y$ has two elements.
+A test is simple if $\{\theta \mid y(P_\theta) = y_0\}$ is a singleton for all $y_0 \in \mathcal Y$.
+
+In summary, in simple binary hypothesis testing, $\Theta = \mathcal Y = \mathcal Z = \{0,1\}$, $y(P_0) = 0$, $y(P_1) = 1$ (that is, $y(\theta) = \theta$). For $z \in \{0,1\}$, $\ell(y, z) = \mathbb{I}\{y \ne z\}$.
+
+\section{Risk}
+
+Let $\hat{\mu}_\theta$ be the law of $\hat{y}(\theta)$. That is, $\hat{\mu} : \mathcal \Theta \rightsquigarrow \mathcal X$ is the kernel $\hat{y} \circ P$.
+
+\begin{definition}[Risk]
+  \label{def:risk}
+  %\lean{}
+  %\leanok
+  %\uses{}
+  The risk of an estimator $\hat{y}$ at $\theta \in \Theta$ is $r_\theta(\hat{y}) = \hat{\mu}_\theta\left[z \mapsto \ell'(y(\theta), z)\right]$~.
+\end{definition}
+
+\emph{Example (SBHT):} $r_\theta(\hat{y}) = \hat{\mu}_\theta(\hat{y}(\theta) \ne y(\theta))$.
+
+
+\begin{definition}[Bayesian risk]
+  \label{def:bayesianRisk}
+  %\lean{}
+  %\leanok
+  \uses{def:risk}
+  The Bayesian risk of an estimator $\hat{y}$ for a prior $\pi \in \mathcal P(\Theta)$ is $R_\pi(\hat{y}) = \pi\left[\theta \mapsto r_\theta(\hat{y})\right]$~.
+\end{definition}
+
+
+\begin{definition}[Bayes risk]
+  \label{def:bayesRisk}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesianRisk}
+  The Bayes risk for prior $\pi \in \mathcal P(\Theta)$ is $\mathcal R_\pi = \inf_{\hat{y} : \mathcal X \rightsquigarrow \mathcal Z} R_\pi(\hat{y})$~.
+
+  The Bayes risk of $P$ is $\mathcal R^*_B = \sup_{\pi \in \mathcal P(\Theta)} \mathcal R_\pi \: .$
+\end{definition}
+
+\emph{Example (SBHT):} $\mathcal R^*_B = \sup_{\gamma \in [0,1]}\inf_{\hat{y}}\left(\gamma \hat{\mu}_0(\hat{y} \ne 0) + (1 - \gamma) \hat{\mu}_1(\hat{y} \ne 1)\right)$.
+
+\begin{definition}[Bayes estimator]
+  \label{def:bayesEstimator}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesRisk}
+  An estimator $\hat{y}$ is said to be a Bayes estimator for a prior $\pi \in \mathcal P(\Theta)$ if $R_\pi(\hat{y}) = \mathcal R_\pi$.
+\end{definition}
+
+\begin{definition}[Generalized Bayes estimator]
+  \label{def:genBayesEstimator}
+  %\lean{}
+  %\leanok
+  \uses{def:risk,def:bayesInv}
+  The generalized Bayes estimator for prior $\pi \in \mathcal P(\Theta)$ and kernel $P: \Theta \rightsquigarrow \mathcal X$ is the deterministic estimator $\mathcal X \to \mathcal Z$ given by
+  \begin{align*}
+  x \mapsto \arg\min_z P_\pi^\dagger(x)\left[\theta \mapsto \ell'(y(\theta), z)\right] \: .
+  \end{align*}
+  Here $P_\pi^\dagger$ is the Bayesian inverse of $P$ with respect to $\pi$ (that is, $P_\pi^\dagger(x)$ is the posterior distribution of $\theta$ given $x$).
+\end{definition}
+
+\begin{definition}[Minimax risk]
+  \label{def:minimaxRisk}
+  %\lean{}
+  %\leanok
+  \uses{def:risk}
+  The minimax risk of $P$ is $\mathcal R^* = \inf_{\hat{y} : \mathcal X \rightsquigarrow \mathcal Z} \sup_{\theta \in \Theta} r_\theta(\hat{y})$~.
+\end{definition}
+
+\emph{Example (SBHT):} $\mathcal R^* = \inf_{\hat{y}} \max\{\hat{\mu}_0(\hat{y} \ne 0), \hat{\mu}_1(\hat{y} \ne 1)\}$.
+
+\begin{lemma}
+  \label{lem:bayesRisk_le_minimaxRisk}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesRisk, def:minimaxRisk}
+  $\mathcal R_B^* \le \mathcal R^*$.
+\end{lemma}
+
+\begin{proof}
+For any $\pi \in \mathcal P(\mathcal X)$ and any estimator, $\pi\left[\hat{\mu}_\theta\left[\ell'(y(\theta), \hat{y}(\theta))\right]\right] \le \sup_{\theta \in \Theta}\hat{\mu}_\theta\left[\ell'(y(\theta), \hat{y}(\theta))\right]$.
+\end{proof}
+
+TODO: ``often'', $\mathcal R^*_B = \mathcal R^*$.
+
+\section{Simple binary hypothesis testing}
+
+\begin{definition}
+  \label{def:bayesBinaryRisk}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesRisk}
+  The Bayes binary risk between measures $\mu$ and $\nu$, denoted by $B_\pi(\mu, \nu)$, is the Bayes risk $\mathcal R_\pi$ for $\Theta = \mathcal Y = \mathcal Z = \{0,1\}$, $P$ the kernel sending 0 to $\mu$ and 1 to $\nu$ and prior $(\pi, 1-\pi)$.
+  That is, $B_\pi(\mu, \nu) = \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\pi \mu(\hat{y} = 1) + (1 - \pi) \nu(\hat{y} = 0)\right)$~.
+\end{definition}
+
+\begin{lemma}
+  \label{lem:bayesBinaryRisk_le}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesBinaryRisk}
+  For all probability measures $\mu, \nu$, $B_\pi(\mu, \nu) \le \min\{\pi, 1 - \pi\}$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{def:bayesRisk}
+Since $B_\pi(\mu, \nu)$ is an infimum over estimators, we can find an upper bound by choosing an estimator. We choose for $\hat{y}$ a constant estimator, with value 1 if $1- \pi > \pi$ and 0 otherwise.
+That estimator has Bayesian risk $\min\{\pi, 1 - \pi\}$.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:bayesBinaryRisk_self}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesBinaryRisk}
+  For $\mu \in \mathcal P(\mathcal X)$, $B_\pi(\mu, \mu) = \min\{\pi, 1-\pi\}$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+\end{proof}
+
+\begin{definition}
+  \label{def:deGrootInfo}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesBinaryRisk}
+  The De Groot statistical information between measures $\mu$ and $\nu$ is $I_\pi(\mu, \nu) = \min\{\pi, 1 - \pi\} - B_\pi(\mu, \nu)$.
+\end{definition}
+
+\begin{lemma}
+  \label{lem:deGrootInfo_self}
+  %\lean{}
+  %\leanok
+  \uses{def:deGrootInfo}
+  For $\mu \in \mathcal P(\mathcal X)$, $I_\pi(\mu, \mu) = 0$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:bayesBinaryRisk_self}
+Use Lemma~\ref{lem:bayesBinaryRisk_self}.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:deGrootInfo_nonneg}
+  %\lean{}
+  %\leanok
+  \uses{def:deGrootInfo}
+  For $\mu, \nu \in \mathcal P(\mathcal X)$, $I_\pi(\mu, \nu) \ge 0$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:bayesBinaryRisk_le}
+Use Lemma~\ref{lem:bayesBinaryRisk_le}.
+\end{proof}
+
+\section{Reduction to testing}
+
+TODO: lower bounds on estimation by reduction to testing problems.
