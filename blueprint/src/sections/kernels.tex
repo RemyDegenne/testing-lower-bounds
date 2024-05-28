@@ -148,3 +148,14 @@ For $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal Y \ri
 In particular, the composition-product of a measure and a kernel $\kappa$ is the composition of that measure with the kernel $d_{\text{id}} \times \kappa$.
 
 TODO: add remark on the Giry monad.
+
+\section{Ordering}
+
+\begin{definition}[Blackwell sufficiency]
+  \label{def:blackwellOrder}
+  %\lean{}
+  %\leanok
+  \uses{def:kernel, def:markov_kernel}
+  We define a partial order on kernels by the following. Let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal X \rightsquigarrow \mathcal Z$ (with same domain as $\kappa$).
+  Then $\kappa$ is Blackwell sufficient for $\eta$, denoted by $\eta \le_B \kappa$, if there exists a Markov kernel $\xi : \mathcal Y \rightsquigarrow \mathcal Z$ such that $\eta = \xi \circ \kappa$.
+\end{definition}
