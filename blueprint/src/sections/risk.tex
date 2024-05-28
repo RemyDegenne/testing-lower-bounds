@@ -108,8 +108,13 @@ TODO: ``often'', $\mathcal R^*_B = \mathcal R^*$.
   %\lean{}
   %\leanok
   \uses{def:bayesRisk}
-  The Bayes binary risk between measures $\mu$ and $\nu$, denoted by $B_\pi(\mu, \nu)$, is the Bayes risk $\mathcal R_\pi$ for $\Theta = \mathcal Y = \mathcal Z = \{0,1\}$, $P$ the kernel sending 0 to $\mu$ and 1 to $\nu$ and prior $(\pi, 1-\pi)$.
-  That is, $B_\pi(\mu, \nu) = \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\pi \mu(\hat{y} = 1) + (1 - \pi) \nu(\hat{y} = 0)\right)$~, in which the infimum is over Markov kernels.
+  The Bayes binary risk between measures $\mu$ and $\nu$, denoted by $B_\pi(\mu, \nu)$ and parametrized by $\pi \in [0,1]$, is the Bayes risk $\mathcal R_\pi$ for $\Theta = \mathcal Y = \mathcal Z = \{0,1\}$, $\ell(y,z) = \mathbb{I}\{y \ne z\}$, $P$ the kernel sending 0 to $\mu$ and 1 to $\nu$ and prior $(\pi, 1-\pi)$.
+  That is,
+  \begin{align*}
+  B_\pi(\mu, \nu) = \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\pi (\hat{y} \circ \mu)(\{1\}) + (1 - \pi) (\hat{y} \circ \nu)(\{0\})\right)
+  \: ,
+  \end{align*}
+  in which the infimum is over Markov kernels.
 \end{definition}
 
 \begin{lemma}
@@ -148,13 +153,6 @@ That estimator has Bayesian risk $\min\{\pi, 1 - \pi\}$.
 
 \begin{proof}%\leanok
 \uses{}
-First we note the following expression for $B_\pi$~:
-\begin{align*}
-B_\pi(\mu, \nu)
-&= \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\pi (\hat{y} \circ \mu)(\{1\}) + (1 - \pi) (\hat{y} \circ \nu)(\{0\})\right)
-\: .
-\end{align*}
-We proceed with the proof.
 \begin{align*}
 B_\pi(\kappa \circ \mu, \kappa \circ \nu)
 &= \inf_{\hat{y} : \mathcal Y \rightsquigarrow \{0,1\}}\left(\pi (\hat{y} \circ \kappa \circ \mu)(\{1\}) + (1 - \pi) (\hat{y} \circ \kappa \circ \nu)(\{0\})\right)
