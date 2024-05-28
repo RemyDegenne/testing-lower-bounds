@@ -611,7 +611,7 @@ lemma integrable_hellingerDiv_iff'_of_lt_one (ha_pos : 0 < a) (ha : a < 1) [IsFi
   integrable_hellingerDiv_iff' ha_pos ha.ne (eventually_of_forall
     (fun _ ↦ integrable_hellingerFun_rnDeriv_of_lt_one ha_pos.le ha)) (not_le_of_gt ha).elim
 
-/-- Conditional Hellinger divergence of order `a`. Meaningful for `a ∈ (0, 1) ∪ (1, ∞)`. -/
+/-- Conditional Hellinger divergence of order `a`. -/
 noncomputable def condHellingerDiv (a : ℝ) (κ η : kernel α β) (μ : Measure α) : EReal :=
   condFDiv (hellingerFun a) κ η μ
 

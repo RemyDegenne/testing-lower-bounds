@@ -29,7 +29,7 @@ namespace ProbabilityTheory
 
 variable {α : Type*} {mα : MeasurableSpace α} {μ ν ν' : Measure α} {s : Set α}
 
-lemma measure_llr_gt_renyiDiv_le_exp [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
+lemma measure_llr_gt_renyiDiv_le_exp [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     {a : ℝ} (ha : 0 < a) (c : ℝ) (h : renyiDiv (1 + a) μ ν ≠ ⊤) :
     (μ {x | EReal.toReal (renyiDiv (1 + a) μ ν) + c < llr μ ν x}).toReal ≤ exp (-a * c) := by
   have hμν : μ ≪ ν := by
@@ -54,7 +54,7 @@ lemma measure_llr_gt_renyiDiv_le_exp [IsFiniteMeasure μ] [IsProbabilityMeasure 
         rw [cgf_llr' ha h]
         ring
 
-lemma measure_sub_le_measure_mul_exp_renyiDiv [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
+lemma measure_sub_le_measure_mul_exp_renyiDiv [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (s : Set α) {a : ℝ} (ha : 0 < a) (c : ℝ) (h : renyiDiv (1 + a) μ ν ≠ ⊤) :
     (μ s).toReal - exp (- a * c) ≤ (ν s).toReal * exp ((renyiDiv (1 + a) μ ν).toReal + c) := by
   have hμν : μ ≪ ν := by
@@ -66,7 +66,7 @@ lemma measure_sub_le_measure_mul_exp_renyiDiv [IsFiniteMeasure μ] [IsProbabilit
   exact measure_llr_gt_renyiDiv_le_exp ha c h
 
 lemma one_sub_exp_le_add_measure_mul_exp_max_renyiDiv [IsProbabilityMeasure μ]
-    [IsProbabilityMeasure ν] [IsProbabilityMeasure ν'] (s : Set α)
+    [IsFiniteMeasure ν] [IsFiniteMeasure ν'] (s : Set α)
     {a : ℝ} (ha : 0 < a) (c : ℝ)
     (hν : renyiDiv (1 + a) μ ν ≠ ⊤) (hν' : renyiDiv (1 + a) μ ν' ≠ ⊤) :
     1 - 2 * exp (- a * c)
@@ -93,7 +93,7 @@ lemma one_sub_exp_le_add_measure_mul_exp_max_renyiDiv [IsProbabilityMeasure μ]
         rw [max_add_add_right]
 
 lemma exp_neg_max_renyiDiv_le_add_measure [IsProbabilityMeasure μ]
-    [IsProbabilityMeasure ν] [IsProbabilityMeasure ν'] (s : Set α)
+    [IsFiniteMeasure ν] [IsFiniteMeasure ν'] (s : Set α)
     {a : ℝ} (ha : 0 < a) (hν : renyiDiv (1 + a) μ ν ≠ ⊤) (hν' : renyiDiv (1 + a) μ ν' ≠ ⊤) :
     2⁻¹ * exp (- max (renyiDiv (1 + a) μ ν).toReal (renyiDiv (1 + a) μ ν').toReal - log 4 / a)
       ≤ (ν s).toReal + (ν' sᶜ).toReal := by
@@ -105,7 +105,7 @@ lemma exp_neg_max_renyiDiv_le_add_measure [IsProbabilityMeasure μ]
   rw [this] at h
   rwa [neg_sub_left, exp_neg, mul_inv_le_iff' (exp_pos _), add_comm (log 4 / a)]
 
-lemma exp_neg_chernoffDiv_le_add_measure [IsProbabilityMeasure ν] [IsProbabilityMeasure ν']
+lemma exp_neg_chernoffDiv_le_add_measure [IsFiniteMeasure ν] [IsFiniteMeasure ν']
     (s : Set α) {a : ℝ} (ha : 0 < a) (h_ne_top : chernoffDiv (1 + a) ν ν' ≠ ⊤) :
     2⁻¹ * exp (- (chernoffDiv (1 + a) ν ν').toReal - log 4 / a)
       ≤ (ν s).toReal + (ν' sᶜ).toReal := by

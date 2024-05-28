@@ -186,7 +186,7 @@ lemma renyiDiv_eq_log_integral (ha_pos : 0 < a) (ha : a < 1)
 with respect to `ν`.
 If `a < 1`, use `renyiDiv_eq_log_integral` instead. -/
 lemma renyiDiv_eq_log_integral_of_ne_top (ha_pos : 0 < a) (ha_ne_one : a ≠ 1) [IsFiniteMeasure μ]
-    [IsProbabilityMeasure ν] (h : renyiDiv a μ ν ≠ ⊤) :
+    [IsFiniteMeasure ν] (h : renyiDiv a μ ν ≠ ⊤) :
     renyiDiv a μ ν = (a - 1)⁻¹ * log (∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν) := by
   cases lt_or_gt_of_ne ha_ne_one with
   | inl ha => exact renyiDiv_eq_log_integral ha_pos ha
@@ -196,17 +196,17 @@ lemma renyiDiv_eq_log_integral_of_ne_top (ha_pos : 0 < a) (ha_ne_one : a ≠ 1) 
     rw [renyiDiv_ne_top_iff_of_one_le ha.le] at h
     rw [renyiDiv_of_one_lt_of_integrable_of_ac ha h.1 h.2]
     congr
-    rw [hellingerDiv_eq_integral_of_ne_top'' ha_pos.ne' ha_ne_one h_ne_top]
+    rw [hellingerDiv_eq_integral_of_ne_top' ha_pos.ne' ha_ne_one h_ne_top]
     rw [EReal.toReal_sub, EReal.toReal_mul, EReal.toReal_coe, EReal.toReal_coe, mul_sub, ← mul_assoc,
-      mul_inv_cancel, one_mul]
+      mul_inv_cancel, one_mul, EReal.toReal_mul, EReal.toReal_coe, ← mul_assoc, mul_inv_cancel (by linarith), one_mul]
     · simp
     · linarith
     · rw [← EReal.coe_mul]
       exact EReal.coe_ne_top _
     · rw [← EReal.coe_mul]
       exact EReal.coe_ne_bot _
-    · exact EReal.coe_ne_top _
-    · exact EReal.coe_ne_bot _
+    · simp [measure_ne_top, EReal.mul_eq_top]
+    · simp [measure_ne_top, EReal.mul_eq_bot]
 
 /-- If `μ ≪ ν`, the Rényi divergence `renyiDiv a μ ν` can be written as the log of an integral
 with respect to `μ`. -/
@@ -224,7 +224,7 @@ lemma renyiDiv_eq_log_integral' (ha_pos : 0 < a) (ha : a < 1) [IsFiniteMeasure �
 with respect to `μ`.
 If `a < 1`, use `renyiDiv_eq_log_integral'` instead. -/
 lemma renyiDiv_eq_log_integral_of_ne_top' (ha_pos : 0 < a) (ha : a ≠ 1) [IsFiniteMeasure μ]
-    [IsProbabilityMeasure ν] (hμν : μ ≪ ν) (h : renyiDiv a μ ν ≠ ⊤) :
+    [IsFiniteMeasure ν] (hμν : μ ≪ ν) (h : renyiDiv a μ ν ≠ ⊤) :
     renyiDiv a μ ν = (a - 1)⁻¹ * log (∫ x, ((∂μ/∂ν) x).toReal ^ (a - 1) ∂μ) := by
   rw [renyiDiv_eq_log_integral_of_ne_top ha_pos ha, integral_rpow_rnDeriv ha_pos ha]
   congr 3
@@ -269,7 +269,7 @@ lemma renyiDiv_symm (ha_pos : 0 < a) (ha : a < 1)
 
 -- todo: `ν ≪ μ` is necessary (?) due to the llr being 0 when `(∂μ/∂ν) x = 0`.
 -- In that case, `exp (llr μ ν x) = 1 ≠ 0 = (∂μ/∂ν) x`.
-lemma coe_cgf_llr (ha_pos : 0 < a) (ha : a < 1) [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
+lemma coe_cgf_llr (ha_pos : 0 < a) (ha : a < 1) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (hνμ : ν ≪ μ) :
     cgf (llr μ ν) ν a = (a - 1) * renyiDiv a μ ν := by
   rw [renyiDiv_eq_log_integral ha_pos ha, ← mul_assoc]
@@ -281,14 +281,14 @@ lemma coe_cgf_llr (ha_pos : 0 < a) (ha : a < 1) [IsFiniteMeasure μ] [IsProbabil
   congr 2
   exact integral_congr_ae (exp_mul_llr hνμ)
 
-lemma cgf_llr (ha_pos : 0 < a) (ha : a < 1) [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
+lemma cgf_llr (ha_pos : 0 < a) (ha : a < 1) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (hνμ : ν ≪ μ) :
     cgf (llr μ ν) ν a = (a - 1) * (renyiDiv a μ ν).toReal := by
   have : (a - 1) * (renyiDiv a μ ν).toReal = ((a - 1) * renyiDiv a μ ν).toReal := by
     rw [EReal.toReal_mul, ← EReal.coe_one, ← EReal.coe_sub, EReal.toReal_coe]
   rw [this, ← coe_cgf_llr ha_pos ha hνμ, EReal.toReal_coe]
 
-lemma coe_cgf_llr' (ha_pos : 0 < a) [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
+lemma coe_cgf_llr' (ha_pos : 0 < a) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (h : renyiDiv (1 + a) μ ν ≠ ⊤) :
     cgf (llr μ ν) μ a = a * renyiDiv (1 + a) μ ν := by
   have hμν : μ ≪ ν := by
@@ -308,7 +308,7 @@ lemma coe_cgf_llr' (ha_pos : 0 < a) [IsFiniteMeasure μ] [IsProbabilityMeasure �
   congr 2
   exact integral_congr_ae (exp_mul_llr' hμν)
 
-lemma cgf_llr' (ha_pos : 0 < a) [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
+lemma cgf_llr' (ha_pos : 0 < a) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (h : renyiDiv (1 + a) μ ν ≠ ⊤) :
     cgf (llr μ ν) μ a = a * (renyiDiv (1 + a) μ ν).toReal := by
   have : a * (renyiDiv (1 + a) μ ν).toReal = (a * renyiDiv (1 + a) μ ν).toReal := by
