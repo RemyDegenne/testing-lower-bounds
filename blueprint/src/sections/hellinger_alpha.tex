@@ -5,10 +5,11 @@
   \lean{ProbabilityTheory.hellingerDiv}
   \leanok
   \uses{def:KL, def:fDiv}
-  Let $\mu, \nu$ be two measures on $\mathcal X$. The Hellinger divergence of order $\alpha \in (0,+\infty)$ between $\mu$ and $\nu$ is
+  Let $\mu, \nu$ be two measures on $\mathcal X$. The Hellinger divergence of order $\alpha \in [0,+\infty)$ between $\mu$ and $\nu$ is
   \begin{align*}
   \He_\alpha(\mu, \nu) = \left\{
   \begin{array}{ll}
+    \nu \{x \mid 0 = \frac{d\mu}{d\nu} x\} & \text{for } \alpha = 0 \\
     \KL(\mu, \nu) & \text{for } \alpha = 1
     \\
     D_{f_\alpha}(\mu, \nu) & \text{for } \alpha \in (0,+\infty) \backslash \{1\}
@@ -18,11 +19,11 @@
 \end{definition}
 
 \begin{lemma}
-  \label{lem:hellingerAlpha_ne_top_of_le_one}
-  \lean{ProbabilityTheory.hellingerDiv_ne_top_of_le_one}
+  \label{lem:hellingerAlpha_ne_top_of_lt_one}
+  \lean{ProbabilityTheory.hellingerDiv_ne_top_of_lt_one}
   \leanok
   \uses{def:hellingerAlpha}
-  For $\alpha \in (0, 1)$ and finite measures $\mu, \nu$, $\He_\alpha(\mu, \nu) < \infty$.
+  For $\alpha \in [0, 1)$ and finite measures $\mu, \nu$, $\He_\alpha(\mu, \nu) < \infty$.
 \end{lemma}
 
 \begin{proof}\leanok
@@ -73,7 +74,7 @@
 
 \begin{lemma}
   \label{lem:hellingerAlpha_symm}
-  \lean{ProbabilityTheory.hellingerDiv_symm}
+  \lean{ProbabilityTheory.hellingerDiv_symm'}
   \leanok
   \uses{def:hellingerAlpha}
   For $\alpha \in (0, 1)$ and finite measures $\mu, \nu$ with $\mu(\mathcal X) = \nu(\mathcal X)$, $(1 - \alpha) \He_\alpha(\mu, \nu) = \alpha \He_{1 - \alpha}(\nu, \mu)$.
@@ -90,7 +91,7 @@ Use Lemma~\ref{lem:integral_rpow_rnDeriv}.
   \lean{ProbabilityTheory.condHellingerDiv}
   \leanok
   \uses{def:condFDiv}
-  Let $\mu$ be a measure on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels. The conditional Hellinger divergence of order $\alpha \in (0,+\infty) \backslash \{1\}$ between $\kappa$ and $\eta$ conditionally to $\mu$ is
+  Let $\mu$ be a measure on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two kernels. The conditional Hellinger divergence of order $\alpha \in (0,+\infty) \backslash \{1\}$ between $\kappa$ and $\eta$ conditionally to $\mu$ is
   \begin{align*}
   \He_\alpha(\kappa, \eta \mid \mu) = D_{f_\alpha}(\kappa, \eta \mid \mu) \: ,
   \end{align*}

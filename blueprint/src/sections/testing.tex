@@ -141,7 +141,7 @@ Use Lemma~\ref{lem:llr_change_measure} with the choice $\KL(\mu, \nu) + \sqrt{\V
   \lean{ProbabilityTheory.measure_llr_gt_renyiDiv_le_exp}
   \leanok
   \uses{def:Renyi}
-  For $\mu$ a finite measure, $\nu$ a probability measure and $\alpha, \beta > 0$,
+  For $\mu, \nu$ finite measures and $\alpha, \beta > 0$,
   \begin{align*}
   \mu\left\{ \log\frac{d \mu}{d \nu} > R_{1+\alpha}(\mu, \nu) + \beta \right\}
   \le e^{- \alpha \beta}
@@ -166,7 +166,7 @@ Then $\mu\left[\left(\frac{d \mu}{d \nu}\right)^\alpha \right] = \nu\left[\left(
   \lean{ProbabilityTheory.measure_sub_le_measure_mul_exp_renyiDiv}
   \leanok
   \uses{def:Renyi}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $E$ be an event on $\mathcal X$. Let $\alpha,\beta > 0$. Then
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $E$ be an event on $\mathcal X$. Let $\alpha,\beta > 0$. Then
   \begin{align*}
   \nu(E) e^{R_{1+\alpha}(\mu, \nu) + \beta} \ge \mu(E) - e^{-\alpha \beta} \: .
   \end{align*}
@@ -195,7 +195,7 @@ Two applications of Lemma~\ref{lem:llr_change_measure}, then sum them and use $\
 
 \begin{lemma}
   \label{lem:change_measure_variance_add}
-  \lean{ProbabilityTheory.one_sub_exp_le_add_measure_mul_exp_max_renyiDiv}
+  \lean{ProbabilityTheory.one_sub_exp_le_add_measure_mul_exp_max_renyiDiv} %TODO: this seems like a mistake, the lemma doesn't correspond to this statement. Moreover, the referenced lean lemma is already linked to the statement below and it's more similar to that, even if not exactly the same.
   \leanok
   \uses{}
   Let $\mu, \nu, \xi$ be three probability measures on $\mathcal X$ and let $E$ be an event on $\mathcal X$. For $\beta > 0$~,

@@ -9,8 +9,8 @@
   \begin{align*}
   R_\alpha(\mu, \nu) = \left\{
  \begin{array}{ll}
-  - \log(\nu\{x \mid \frac{d \mu}{d \nu}(x) > 0\}) & \text{for } \alpha = 0
-  \\
+  % - \log(\nu\{x \mid \frac{d \mu}{d \nu}(x) > 0\}) & \text{for } \alpha = 0 --make a lemma for this
+  % \\
   \KL(\mu, \nu) & \text{for } \alpha = 1
   \\
   \frac{1}{\alpha - 1} \log (1 + (\alpha - 1) \He_\alpha(\mu, \nu)) & \text{for } \alpha \in (0,+\infty) \backslash \{1\}
@@ -19,15 +19,28 @@
 \end{definition}
 
 \begin{lemma}
+  \label{lem:renyiDiv_zero}
+  \lean{ProbabilityTheory.renyiDiv_zero}
+  \leanok
+  \uses{def:Renyi}
+  For $\mu$ a sigma finite measure and $\nu$ a finite measure 
+  \[R_0(\mu, \nu) = - \log(\nu\{x \mid \frac{d \mu}{d \nu}(x) > 0\}) \: .\]
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{def:hellingerAlpha}
+\end{proof}
+
+\begin{lemma}
   \label{lem:renyiDiv_ne_top_of_lt_one}
   \lean{ProbabilityTheory.renyiDiv_ne_top_of_lt_one}
   \leanok
   \uses{def:Renyi}
-  For $\alpha \in (0, 1)$ and finite measures $\mu, \nu$, $R_\alpha(\mu, \nu) < \infty$.
+  For $\alpha \in [0, 1)$ and finite measures $\mu, \nu$, $R_\alpha(\mu, \nu) < \infty$.
 \end{lemma}
 
 \begin{proof}\leanok
-\uses{lem:hellingerAlpha_ne_top_of_le_one}
+\uses{lem:hellingerAlpha_ne_top_of_lt_one}
 \end{proof}
 
 \begin{lemma}
@@ -35,7 +48,7 @@
   \lean{ProbabilityTheory.renyiDiv_eq_log_integral_of_ne_top}
   \leanok
   \uses{def:Renyi}
-  For $\alpha \in (0,1)\cup(1, \infty)$, $\mu$ a finite measure and $\nu$ a probability measure, if $R_\alpha(\mu, \nu) < \infty$ then
+  For $\alpha \in (0,1)\cup(1, \infty)$ and finite measures $\mu, \nu$, if $R_\alpha(\mu, \nu) < \infty$ then
   \begin{align*}
   R_\alpha(\mu, \nu) = \frac{1}{\alpha - 1} \log \int_x \left(\frac{d \mu}{d \nu}(x)\right)^\alpha \partial \nu
   \: .
@@ -51,7 +64,7 @@
   \lean{ProbabilityTheory.renyiDiv_eq_log_integral_of_ne_top'}
   \leanok
   \uses{def:Renyi}
-  For $\alpha \in (0,1)\cup(1, \infty)$, $\mu$ a finite measure and $\nu$ a probability measure, if $R_\alpha(\mu, \nu) < \infty$ and $\mu \ll \nu$ then
+  For $\alpha \in (0,1)\cup(1, \infty)$ and finite measures $\mu, \nu$, if $R_\alpha(\mu, \nu) < \infty$ and $\mu \ll \nu$ then
   \begin{align*}
   R_\alpha(\mu, \nu) = \frac{1}{\alpha - 1} \log \int_x \left(\frac{d \mu}{d \nu}(x)\right)^{\alpha - 1} \partial \mu
   \: .
@@ -64,10 +77,11 @@
 
 \begin{lemma}
   \label{lem:renyi_symm}
-  \lean{ProbabilityTheory.renyiDiv_symm}
+  \lean{ProbabilityTheory.renyiDiv_symm'}
   \leanok
   \uses{def:Renyi}
-  For $\alpha \in (0, 1)$ and finite measures $\mu, \nu$ with $\mu(\mathcal X) = \nu(\mathcal X)$, $(1 - \alpha) R_\alpha(\mu, \nu) = \alpha R_{1 - \alpha}(\nu, \mu)$.
+  For $\alpha \in (0, 1)$ and finite measures $\mu, \nu$ with $\mu(\mathcal X) = \nu(\mathcal X)$, 
+  \[(1 - \alpha) R_\alpha(\mu, \nu) = \alpha R_{1 - \alpha}(\nu, \mu) \: .\]
 \end{lemma}
 
 \begin{proof}\leanok
@@ -103,10 +117,10 @@ Unfold the definitions, using Lemma~\ref{lem:renyi_eq_log_integral'} for the Ré
 
 \begin{definition}[Conditional Rényi divergence]
   \label{def:condRenyi}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.condRenyiDiv}
+  \leanok
   \uses{def:condHellingerAlpha}
-  Let $\mu$ be a measure on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels. The conditional Rényi divergence of order $\alpha \in (0,+\infty) \backslash \{1\}$ between $\kappa$ and $\eta$ conditionally to $\mu$ is
+  Let $\mu$ be a measure on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two kernels. The conditional Rényi divergence of order $\alpha \in (0,+\infty) \backslash \{1\}$ between $\kappa$ and $\eta$ conditionally to $\mu$ is
   \begin{align*}
   R_\alpha(\kappa, \eta \mid \mu) =\frac{1}{\alpha - 1} \log (1 + (\alpha - 1) \He_\alpha(\kappa, \eta \mid \mu)) \: .
   \end{align*}
