@@ -241,8 +241,6 @@ instance : MeasurableMul₂ EReal := by
 
 end EReal
 
-section ENNReal
-
 namespace ENNReal
 
 lemma toEReal_sub {x y : ENNReal} (hy_top : y ≠ ⊤) (h_le : y ≤ x) :
@@ -258,7 +256,5 @@ lemma toEReal_sub {x y : ENNReal} (hy_top : y ≠ ⊤) (h_le : y ≤ x) :
   simp only [EReal.coe_ennreal_ofReal, ge_iff_le, toReal_nonneg, max_eq_left]
   rw [toReal_sub_of_le h_le hx_top]
   exact EReal.coe_sub _ _
-
-
 
 end ENNReal
