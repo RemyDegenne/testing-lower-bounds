@@ -373,6 +373,13 @@ lemma condKL_zero_measure : condKL κ η 0 = 0 := by
   rw [condKL_of_ae_ne_top_of_integrable hf_ae integrable_zero_measure]
   simp only [integral_zero_measure, EReal.coe_zero]
 
+@[simp]
+lemma condKL_isEmpty_left [IsEmpty α] : condKL κ η μ = 0 := by
+  have h : μ = 0 := by
+    ext s
+    exact Set.eq_empty_of_isEmpty s ▸ measure_empty
+  exact h ▸ condKL_zero_measure
+
 lemma condKL_ne_bot (κ η : kernel α β) (μ : Measure α) : condKL κ η μ ≠ ⊥ := by
   rw [condKL]
   split_ifs with h
