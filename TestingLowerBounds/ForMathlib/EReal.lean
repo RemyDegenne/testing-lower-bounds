@@ -245,7 +245,8 @@ section ENNReal
 
 namespace ENNReal
 
-lemma toEReal_sub {x y : ENNReal} (hy_top : y ≠ ⊤) (h_le : y ≤ x) : (x - y).toEReal = x.toEReal - y.toEReal := by
+lemma toEReal_sub {x y : ENNReal} (hy_top : y ≠ ⊤) (h_le : y ≤ x) :
+    (x - y).toEReal = x.toEReal - y.toEReal := by
   by_cases hx_top : x = ⊤
   · lift y to ℝ≥0 using hy_top
     simp only [hx_top, top_sub_coe, EReal.coe_ennreal_top]
