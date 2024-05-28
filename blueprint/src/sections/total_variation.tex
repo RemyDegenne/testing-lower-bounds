@@ -164,3 +164,33 @@ Lemma~\ref{lem:tv_eq_sup_aux} gives $\TV(\mu, \nu) \ge \frac{1}{2} \sup_{f \in \
 
 TODO: extract equality case from the proof of Theorem~\ref{thm:tv_eq_sup_sub_measure}.
 \end{proof}
+
+\section{Properties inherited from f-divergences}
+
+\begin{theorem}[Data-processing]
+  \label{thm:tv_data_proc}
+  %\lean{}
+  %\leanok
+  \uses{def:TV}
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
+  Then $\TV(\kappa \circ \mu, \kappa \circ \nu) \le \TV(\mu, \nu)$.
+\end{theorem}
+
+\begin{proof}
+\uses{thm:fDiv_data_proc}
+Apply Theorem~\ref{thm:fDiv_data_proc}.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:tv_data_proc_event}
+  %\lean{}
+  %\leanok
+  \uses{def:TV}
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $E$ be an event. Let $\mu_E$ and $\nu_E$ be the two Bernoulli distributions with respective means $\mu(E)$ and $\nu(E)$.
+  Then $\TV(\mu, \nu) \ge \TV(\mu_E, \nu_E)$.
+\end{lemma}
+
+\begin{proof}
+\uses{cor:data_proc_event}
+By Corollary~\ref{cor:data_proc_event}, $D_f(\mu, \nu) \ge D_f(\mu_E, \nu_E)$, hence $\TV(\mu, \nu) \ge \TV(\mu_E, \nu_E)$.
+\end{proof}

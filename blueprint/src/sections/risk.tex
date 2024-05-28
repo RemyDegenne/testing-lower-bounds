@@ -3,7 +3,7 @@
 In the estimation problem, we are given a family of measures and we want to estimate an unknown parameter for the measure from which we observe samples.
 Let $\mathcal X$ be the measurable space on which the measures are defined and let $y : \mathcal M(\mathcal X) \to \mathcal Y$ be the function which maps a measure to the parameter of interest.
 
-An estimator is a kernel $\hat{y} : \mathcal X \rightsquigarrow \mathcal Z$, where most often $\mathcal Z = \mathcal Y$.
+An estimator is a Markov kernel $\hat{y} : \mathcal X \rightsquigarrow \mathcal Z$, where most often $\mathcal Z = \mathcal Y$.
 Note that while $y$ is a function of a measure in $\mathcal M(\mathcal X)$, $\hat{y}$ has domain $\mathcal X$ as the estimation is done based on a sample of the measure, while the measure itself remains unknown.
 In general this is a randomized estimator, but often deterministic estimators (corresponding to deterministic kernels) are enough to attain optimal performance.
 The quality of the estimation is quantified by a loss $\ell' : \mathcal Y \times \mathcal Z \to \mathbb{R}_{+, \infty}$. We write $\ell$ for a loss from $\mathcal Y \times \mathcal Y$ and $\ell'$ in the heterogeneous case.
@@ -109,7 +109,7 @@ TODO: ``often'', $\mathcal R^*_B = \mathcal R^*$.
   %\leanok
   \uses{def:bayesRisk}
   The Bayes binary risk between measures $\mu$ and $\nu$, denoted by $B_\pi(\mu, \nu)$, is the Bayes risk $\mathcal R_\pi$ for $\Theta = \mathcal Y = \mathcal Z = \{0,1\}$, $P$ the kernel sending 0 to $\mu$ and 1 to $\nu$ and prior $(\pi, 1-\pi)$.
-  That is, $B_\pi(\mu, \nu) = \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\pi \mu(\hat{y} = 1) + (1 - \pi) \nu(\hat{y} = 0)\right)$~.
+  That is, $B_\pi(\mu, \nu) = \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\pi \mu(\hat{y} = 1) + (1 - \pi) \nu(\hat{y} = 0)\right)$~, in which the infimum is over Markov kernels.
 \end{definition}
 
 \begin{lemma}
@@ -136,6 +136,35 @@ That estimator has Bayesian risk $\min\{\pi, 1 - \pi\}$.
 
 \begin{proof}%\leanok
 \uses{}
+\end{proof}
+
+\begin{theorem}[Data-processing inequality]
+  \label{thm:data_proc_bayesBinaryRisk}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesBinaryRisk}
+  For $\mu, \nu \in \mathcal M(\mathcal X)$ and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ a Markov kernel, $B_\pi(\kappa \circ \mu, \kappa \circ \nu) \ge B_\pi(\mu, \nu)$~.
+\end{theorem}
+
+\begin{proof}%\leanok
+\uses{}
+First we note the following expression for $B_\pi$~:
+\begin{align*}
+B_\pi(\mu, \nu)
+&= \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\pi (\hat{y} \circ \mu)(\{1\}) + (1 - \pi) (\hat{y} \circ \nu)(\{0\})\right)
+\: .
+\end{align*}
+We proceed with the proof.
+\begin{align*}
+B_\pi(\kappa \circ \mu, \kappa \circ \nu)
+&= \inf_{\hat{y} : \mathcal Y \rightsquigarrow \{0,1\}}\left(\pi (\hat{y} \circ \kappa \circ \mu)(\{1\}) + (1 - \pi) (\hat{y} \circ \kappa \circ \nu)(\{0\})\right)
+\\
+&\ge \inf_{\hat{y}' : \mathcal X \rightsquigarrow \{0,1\}}\left(\pi (\hat{y}' \circ \mu)(\{1\}) + (1 - \pi) (\hat{y}' \circ \nu)(\{0\})\right)
+\\
+&= B_\pi(\mu, \nu)
+\: .
+\end{align*}
+The inequality is due to taking an infimum over a larger set: $\{\hat{y} \circ \kappa \mid \hat{y} : \mathcal Y \rightsquigarrow \{0,1\} \text{ Markov}\} \subseteq \{\hat{y}' : \mathcal X \rightsquigarrow \{0,1\} \mid \hat{y} \text{ Markov}\}$~.
 \end{proof}
 
 \begin{definition}
@@ -170,6 +199,146 @@ Use Lemma~\ref{lem:bayesBinaryRisk_self}.
 \begin{proof}%\leanok
 \uses{lem:bayesBinaryRisk_le}
 Use Lemma~\ref{lem:bayesBinaryRisk_le}.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:deGrootInfo_half}
+  %\lean{}
+  %\leanok
+  \uses{def:deGrootInfo, def:TV}
+  For $\mu, \nu \in \mathcal P(\mathcal X)$, $I_{1/2}(\mu, \nu) = \frac{1}{2}\TV(\mu, \nu)$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+
+\end{proof}
+
+\begin{theorem}[Data-processing inequality]
+  \label{thm:data_proc_deGrootInfo}
+  %\lean{}
+  %\leanok
+  \uses{def:deGrootInfo}
+  For $\mu, \nu \in \mathcal M(\mathcal X)$ and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ a Markov kernel, $I_\pi(\kappa \circ \mu, \kappa \circ \nu) \le I_\pi(\mu, \nu)$~.
+\end{theorem}
+
+Note that this theorem is valid for any measurable space: no countability is required.
+
+\begin{proof}%\leanok
+\uses{thm:data_proc_bayesBinaryRisk}
+It suffices to prove $B_\pi(\kappa \circ \mu, \kappa \circ \nu) \ge B_\pi(\mu, \nu)$ since $I_\pi(\mu, \nu) = \min\{\pi, 1 - \pi\} - B_\pi(\mu, \nu)$.
+The inequality was proved in Theorem~\ref{thm:data_proc_bayesBinaryRisk}.
+\end{proof}
+
+TODO: this extends the data-processing inequality for TV to any space.
+
+TODO: once we prove the integral form of any $f$-divergence with respect to the De Groot statistical information, this will extend the data-processing inequality for all $f$-divergences. 
+
+\section{Deficiency}
+
+\begin{definition}[Le Cam deficiency]
+  \label{def:deficiency}
+  %\lean{}
+  %\leanok
+  \uses{def:TV}
+  The Le Cam deficiency of $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ with respect to $\eta : \mathcal X \rightsquigarrow \mathcal Z$ is
+  \begin{align*}
+  \delta_{\TV}(\kappa, \eta) = \inf_{\xi} \sup_{x \in \mathcal X} \TV(\xi \circ \kappa (x), \eta(x)) \: ,
+  \end{align*}
+  in which the infimum is taken over all Markov kernels $\xi : \mathcal Y \rightsquigarrow \mathcal Z$~.
+\end{definition}
+
+TODO: from any divergence on measures $D$, \cite{perrone2023markov} defines a divergence between kernels $\kappa, \kappa' : \mathcal X \rightsquigarrow \mathcal Y$ by $D(\kappa, \kappa') = \sup_{x \in \mathcal X} D(\kappa(x), \eta(x))$.
+If we see measures as kernels from a point space, the divergence between measures-as-kernels coincides with the divergence between the measures.
+With that notation, $\delta_{\TV}(\kappa, \eta) = \inf_{\xi} \TV(\xi \circ \kappa, \eta)$.
+We could also proceed as \cite{raginsky2011shannon} and extend the notion of deficiency to deficiency with respect to a divergence: $\delta_D(\kappa, \eta) = \inf_{\xi} D(\eta, \xi\circ\kappa)$ (note the reversed arguments, which does not matter for the case of $\TV$ since it is symmetric).
+
+\begin{lemma}
+  \label{lem:deficiency_nonneg}
+  %\lean{}
+  %\leanok
+  \uses{def:deficiency}
+  Let $\kappa: \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal X \rightsquigarrow \mathcal Z$. Then $\delta_{\TV}(\kappa, \eta) \ge 0$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:tv_nonneg}
+This is a consequence of Lemma~\ref{lem:tv_nonneg}.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:deficiency_self}
+  %\lean{}
+  %\leanok
+  \uses{def:deficiency}
+  Let $\kappa: \mathcal X \rightsquigarrow \mathcal Y$. Then $\delta_{\TV}(\kappa, \kappa) = 0$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:deficiency_nonneg}
+By Lemma~\ref{lem:deficiency_nonneg}, $0 \le \delta_{\TV}(\kappa, \kappa)$.
+In the infimum that defines $\delta_{\TV}(\kappa, \kappa)$, take $\xi = \textup{id}$ to get an upper bound of 0 on $\delta_{\TV}(\kappa, \kappa)$.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:deficiency_comp}
+  %\lean{}
+  %\leanok
+  \uses{def:deficiency, def:blackwellOrder}
+  Let $\kappa: \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal X \rightsquigarrow \mathcal Z$.
+  If $\eta \le_B \kappa$ (that is, there exists a Markov kernel $\chi : \mathcal Y \rightsquigarrow \mathcal Z$ such that $\eta = \chi \circ \kappa$), then $\delta_{\TV}(\kappa, \eta) = 0$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:deficiency_nonneg}
+In the infimum that defines $\delta_{\TV}(\kappa, \eta)$, take $\xi = \chi$ to get an upper bound of 0 on $\delta_{\TV}(\kappa, \eta)$. The lower bound is Lemma~\ref{lem:deficiency_nonneg}.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:deficiency_antimono_left}
+  %\lean{}
+  %\leanok
+  \uses{def:deficiency, def:blackwellOrder}
+  Let $\kappa: \mathcal X \rightsquigarrow \mathcal Y$, $\eta : \mathcal X \rightsquigarrow \mathcal Z$ and $\zeta : \mathcal X \rightsquigarrow \mathcal W$ be Markov kernels.
+  If $\eta \le_B \kappa$ then $\delta_{\TV}(\kappa, \zeta) \le \delta_{\TV}(\eta, \zeta)$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+Let $\chi$ be a Markov kernel such that $\eta = \chi \circ \kappa$~.
+\begin{align*}
+\delta_{\TV}(\eta, \zeta)
+&= \inf_{\xi} \sup_{x \in \mathcal X} \TV(\xi \circ \eta (x), \zeta(x))
+\\
+&= \inf_\xi \sup_{x \in \mathcal X} \TV(\xi \circ \chi \circ \kappa (x), \zeta(x))
+\: .
+\end{align*}
+Since $\xi \circ \chi$ is a Markov kernel, the infimum over Markov kernels of the form $\xi \circ \chi$ is larger than the infimum over all Markov kernels.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:deficiency_mono_right}
+  %\lean{}
+  %\leanok
+  \uses{def:deficiency, def:blackwellOrder}
+  Let $\kappa: \mathcal X \rightsquigarrow \mathcal Y$, $\eta : \mathcal X \rightsquigarrow \mathcal Z$ and $\zeta : \mathcal X \rightsquigarrow \mathcal W$ be Markov kernels.
+  If $\zeta \le_B \eta$ then $\delta_{\TV}(\kappa, \zeta) \le \delta_{\TV}(\kappa, \eta)$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{thm:tv_data_proc}
+Let $\chi$ be a Markov kernel such that $\zeta = \chi \circ \eta$~.
+\begin{align*}
+\delta_{\TV}(\kappa, \zeta)
+&= \inf_{\xi : \mathcal Y \rightsquigarrow \mathcal W} \sup_{x \in \mathcal X} \TV(\xi \circ \kappa (x), \zeta(x))
+\\
+&= \inf_{\xi : \mathcal Y \rightsquigarrow \mathcal W} \sup_{x \in \mathcal X} \TV(\xi \circ \kappa (x), \chi \circ \eta(x))
+\\
+&\le \inf_{\xi' : \mathcal Y \rightsquigarrow \mathcal Z} \sup_{x \in \mathcal X} \TV(\chi \circ \xi' \circ \kappa (x), \chi \circ \eta(x))
+\: .
+\end{align*}
+By the data-processing inequality for $\TV$ (Theorem \ref{thm:tv_data_proc}), for all $\xi' : \mathcal Y \rightsquigarrow \mathcal Z$, $\TV(\chi \circ \xi' \circ \kappa (x), \chi \circ \eta(x)) \le \TV(\xi' \circ \kappa (x), \eta(x))$.
+This concludes the proof.
 \end{proof}
 
 \section{Reduction to testing}
