@@ -257,6 +257,4 @@ lemma toEReal_sub {x y : ENNReal} (hy_top : y ≠ ⊤) (h_le : y ≤ x) :
   rw [toReal_sub_of_le h_le hx_top]
   exact EReal.coe_sub _ _
 
-
-
 end ENNReal
