@@ -34,7 +34,7 @@ lemma measure_llr_gt_renyiDiv_le_exp [IsFiniteMeasure μ] [IsProbabilityMeasure 
     (μ {x | EReal.toReal (renyiDiv (1 + a) μ ν) + c < llr μ ν x}).toReal ≤ exp (-a * c) := by
   have hμν : μ ≪ ν := by
     by_contra h_not
-    exact h (renyiDiv_of_one_lt_of_not_ac (by linarith) h_not)
+    exact h (renyiDiv_of_one_le_of_not_ac (by linarith) h_not)
   calc (μ {x | EReal.toReal (renyiDiv (1 + a) μ ν) + c < llr μ ν x}).toReal
   _ ≤ (μ {x | EReal.toReal (renyiDiv (1 + a) μ ν) + c ≤ llr μ ν x}).toReal := by
         refine ENNReal.toReal_mono (measure_ne_top _ _) (measure_mono (fun x ↦ ?_))
@@ -44,7 +44,7 @@ lemma measure_llr_gt_renyiDiv_le_exp [IsFiniteMeasure μ] [IsProbabilityMeasure 
         refine measure_ge_le_exp_cgf (X := llr μ ν) (μ := μ) ((renyiDiv (1 + a) μ ν).toReal + c)
           ha.le ?_
         rw [integrable_congr (exp_mul_llr' hμν)]
-        rw [renyiDiv_ne_top_iff_of_one_lt, integrable_hellingerFun_iff_integrable_rpow] at h
+        rw [renyiDiv_ne_top_iff_of_one_le, integrable_hellingerFun_iff_integrable_rpow] at h
         · rw [integrable_rpow_rnDeriv_iff hμν ha]
           exact h.1
         · linarith
@@ -59,7 +59,7 @@ lemma measure_sub_le_measure_mul_exp_renyiDiv [IsFiniteMeasure μ] [IsProbabilit
     (μ s).toReal - exp (- a * c) ≤ (ν s).toReal * exp ((renyiDiv (1 + a) μ ν).toReal + c) := by
   have hμν : μ ≪ ν := by
     by_contra h_not
-    exact h (renyiDiv_of_one_lt_of_not_ac (by linarith) h_not)
+    exact h (renyiDiv_of_one_le_of_not_ac (by linarith) h_not)
   refine le_trans ?_ (measure_sub_le_measure_mul_exp hμν s ((renyiDiv (1 + a) μ ν).toReal + c)
     (measure_ne_top _ _))
   gcongr
@@ -74,10 +74,10 @@ lemma one_sub_exp_le_add_measure_mul_exp_max_renyiDiv [IsProbabilityMeasure μ]
         * exp (max (renyiDiv (1 + a) μ ν).toReal (renyiDiv (1 + a) μ ν').toReal + c) := by
   have hμν : μ ≪ ν := by
     by_contra h_not
-    exact hν (renyiDiv_of_one_lt_of_not_ac (by linarith) h_not)
+    exact hν (renyiDiv_of_one_le_of_not_ac (by linarith) h_not)
   have hμν' : μ ≪ ν' := by
     by_contra h_not
-    exact hν' (renyiDiv_of_one_lt_of_not_ac (by linarith) h_not)
+    exact hν' (renyiDiv_of_one_le_of_not_ac (by linarith) h_not)
   calc 1 - 2 * exp (- a * c)
   _ = 1 - exp (- a * c) - exp (- a * c) := by ring
   _ ≤ 1 - (μ {x | (renyiDiv (1 + a) μ ν).toReal + c < llr μ ν x}).toReal
