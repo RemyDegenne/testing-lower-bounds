@@ -201,7 +201,7 @@ Use Lemma~\ref{lem:bayesBinaryRisk_le}.
 
 TODO: from any divergence on measures $D$, \cite{perrone2023markov} defines a divergence between kernels $\kappa, \kappa' : \mathcal X \rightsquigarrow \mathcal Y$ by $D(\kappa, \kappa') = \sup_{x \in \mathcal X} D(\kappa(x), \eta(x))$.
 If we see measures as kernels from a point space, the divergence between measures-as-kernels coincides with the divergence between the measures.
-With that notation, $\delta_{LC}(\kappa, \eta) = \inf_{\xi} \TV(\xi \circ \kappa, \eta)$.
+With that notation, $\delta_{\TV}(\kappa, \eta) = \inf_{\xi} \TV(\xi \circ \kappa, \eta)$.
 We could also proceed as \cite{raginsky2011shannon} and extend the notion of deficiency to deficiency with respect to a divergence: $\delta_D(\kappa, \eta) = \inf_{\xi} D(\eta, \xi\circ\kappa)$ (note the reversed arguments, which does not matter for the case of $\TV$ since it is symmetric).
 
 \begin{lemma}
