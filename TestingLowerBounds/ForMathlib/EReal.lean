@@ -241,8 +241,6 @@ instance : MeasurableMul₂ EReal := by
 
 end EReal
 
-section ENNReal
-
 namespace ENNReal
 
 lemma toEReal_sub {x y : ENNReal} (hy_top : y ≠ ⊤) (h_le : y ≤ x) :
