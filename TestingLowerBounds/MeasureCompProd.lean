@@ -283,7 +283,7 @@ lemma compProd_const {ν : Measure β} [SFinite ν] [SFinite μ] :
 
 lemma compProd_apply_toReal [SFinite μ] [IsFiniteKernel κ]
     {s : Set (α × β)} (hs : MeasurableSet s) :
-    ((μ ⊗ₘ κ) s).toReal = ∫ x, ((κ x) (Prod.mk x ⁻¹' s)).toReal ∂μ := by
+    ((μ ⊗ₘ κ) s).toReal = ∫ x, (κ x (Prod.mk x ⁻¹' s)).toReal ∂μ := by
   rw [Measure.compProd_apply hs, integral_eq_lintegral_of_nonneg_ae]
   rotate_left
   · exact ae_of_all _ (fun x ↦ by positivity)
