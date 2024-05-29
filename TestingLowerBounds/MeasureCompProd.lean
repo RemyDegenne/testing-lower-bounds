@@ -32,6 +32,42 @@ namespace ProbabilityTheory
 variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
   {μ ν : Measure α} {κ η : kernel α β} {f g : ℝ → ℝ}
 
+lemma kernel.snd_compProd_prodMkLeft {γ : Type*} {_ : MeasurableSpace γ}
+    (κ : kernel α β) (η : kernel β γ) [IsSFiniteKernel κ] [IsSFiniteKernel η] :
+    snd (κ ⊗ₖ prodMkLeft α η) = η ∘ₖ κ := by
+  ext a s hs
+  rw [snd_apply' _ _ hs, compProd_apply, comp_apply' _ _ _ hs]
+  · rfl
+  · exact measurable_snd hs
+
+lemma kernel.compProd_prodMkLeft_eq_comp {γ : Type*} {_ : MeasurableSpace γ}
+    (κ : kernel α β) [IsSFiniteKernel κ] (η : kernel β γ) [IsSFiniteKernel η] :
+    κ ⊗ₖ (prodMkLeft α η) = (deterministic id measurable_id ×ₖ η) ∘ₖ κ := by
+  ext a s hs
+  rw [comp_eq_snd_compProd, compProd_apply _ _ _ hs, snd_apply' _ _ hs, compProd_apply]
+  swap; · exact measurable_snd hs
+  simp only [prodMkLeft_apply, Set.mem_setOf_eq, Set.setOf_mem_eq, prod_apply' _ _ _ hs,
+    deterministic_apply, id_eq]
+  congr with b
+  rw [lintegral_dirac']
+  exact measurable_measure_prod_mk_left hs
+
+lemma kernel.fst_comp {γ δ : Type*} {_ : MeasurableSpace γ} {_ : MeasurableSpace δ}
+    (κ : kernel α β) [IsSFiniteKernel κ] (η : kernel β (γ × δ)) [IsSFiniteKernel η] :
+    fst (η ∘ₖ κ) = fst η ∘ₖ κ := by
+  ext a s hs
+  rw [fst_apply' _ _ hs, comp_apply', comp_apply' _ _ _ hs]
+  · simp_rw [fst_apply' _ _ hs]
+  · exact measurable_fst hs
+
+lemma kernel.snd_comp {γ δ : Type*} {_ : MeasurableSpace γ} {_ : MeasurableSpace δ}
+    (κ : kernel α β) [IsSFiniteKernel κ] (η : kernel β (γ × δ)) [IsSFiniteKernel η] :
+    snd (η ∘ₖ κ) = snd η ∘ₖ κ := by
+  ext a s hs
+  rw [snd_apply' _ _ hs, comp_apply', comp_apply' _ _ _ hs]
+  · simp_rw [snd_apply' _ _ hs]
+  · exact measurable_snd hs
+
 /-- Composition of a measure and a kernel.
 
 Defined using `MeasureTheory.Measure.bind` -/
@@ -54,23 +90,33 @@ lemma Measure.comp_eq_snd_compProd (μ : Measure α) [SFinite μ]
 lemma Measure.snd_compProd (μ : Measure α) [SFinite μ] (κ : kernel α β) [IsSFiniteKernel κ] :
     (μ ⊗ₘ κ).snd = μ ∘ₘ κ := (Measure.comp_eq_snd_compProd μ κ).symm
 
-lemma kernel.compProd_prodMkLeft_eq_comp {γ : Type*} {_ : MeasurableSpace γ}
-    (κ : kernel α β) [IsSFiniteKernel κ] (η : kernel β γ) [IsSFiniteKernel η] :
-    κ ⊗ₖ (prodMkLeft α η) = (deterministic id measurable_id ×ₖ η) ∘ₖ κ := by
-  ext a s hs
-  rw [comp_eq_snd_compProd, compProd_apply _ _ _ hs, snd_apply' _ _ hs, compProd_apply]
-  swap; · exact measurable_snd hs
-  simp only [prodMkLeft_apply, Set.mem_setOf_eq, Set.setOf_mem_eq]
-  simp_rw [prod_apply' _ _ _ hs, deterministic_apply]
-  simp only [id_eq]
-  congr with b
-  rw [lintegral_dirac']
-  exact measurable_measure_prod_mk_left hs
-
 lemma Measure.compProd_eq_comp (μ : Measure α) [SFinite μ] (κ : kernel α β) [IsSFiniteKernel κ] :
     μ ⊗ₘ κ = μ ∘ₘ (kernel.deterministic id measurable_id ×ₖ κ) := by
   rw [Measure.compProd, kernel.compProd_prodMkLeft_eq_comp]
   rfl
+
+/-- The composition product of a measure and a constant kernel is the product between the two
+measures. -/
+@[simp]
+lemma Measure.compProd_const {ν : Measure β} [SFinite μ] [SFinite ν] :
+    μ ⊗ₘ (kernel.const α ν) = μ.prod ν := by
+  ext s hs
+  rw [Measure.compProd_apply hs, Measure.prod_apply hs]
+  simp_rw [kernel.const_apply]
+
+lemma Measure.compProd_apply_toReal [SFinite μ] [IsFiniteKernel κ]
+    {s : Set (α × β)} (hs : MeasurableSet s) :
+    ((μ ⊗ₘ κ) s).toReal = ∫ x, (κ x (Prod.mk x ⁻¹' s)).toReal ∂μ := by
+  rw [Measure.compProd_apply hs, integral_eq_lintegral_of_nonneg_ae]
+  rotate_left
+  · exact ae_of_all _ (fun x ↦ by positivity)
+  · exact (kernel.measurable_kernel_prod_mk_left hs).ennreal_toReal.aestronglyMeasurable
+  congr with x
+  rw [ENNReal.ofReal_toReal (measure_ne_top _ _)]
+
+lemma Measure.compProd_univ_toReal [SFinite μ] [IsFiniteKernel κ] :
+    ((μ ⊗ₘ κ) Set.univ).toReal = ∫ x, (κ x Set.univ).toReal ∂μ :=
+  compProd_apply_toReal MeasurableSet.univ
 
 section SingularPart
 
@@ -271,28 +317,5 @@ lemma integrable_f_rnDeriv_compProd_right_iff [IsFiniteMeasure μ]
     simp [ha]
 
 end Integrable
-
-/--The composition product of a measure and a constant kernel is the product between the two
-measures.-/
-@[simp]
-lemma compProd_const {ν : Measure β} [SFinite ν] [SFinite μ] :
-    μ ⊗ₘ (kernel.const α ν) = μ.prod ν := by
-  ext s hs
-  rw [Measure.compProd_apply hs, Measure.prod_apply hs]
-  simp_rw [kernel.const_apply]
-
-lemma compProd_apply_toReal [SFinite μ] [IsFiniteKernel κ]
-    {s : Set (α × β)} (hs : MeasurableSet s) :
-    ((μ ⊗ₘ κ) s).toReal = ∫ x, (κ x (Prod.mk x ⁻¹' s)).toReal ∂μ := by
-  rw [Measure.compProd_apply hs, integral_eq_lintegral_of_nonneg_ae]
-  rotate_left
-  · exact ae_of_all _ (fun x ↦ by positivity)
-  · exact (kernel.measurable_kernel_prod_mk_left hs).ennreal_toReal.aestronglyMeasurable
-  congr with x
-  rw [ENNReal.ofReal_toReal (measure_ne_top _ _)]
-
-lemma compProd_univ_toReal [SFinite μ] [IsFiniteKernel κ] :
-    ((μ ⊗ₘ κ) Set.univ).toReal = ∫ x, (κ x Set.univ).toReal ∂μ :=
-  compProd_apply_toReal MeasurableSet.univ
 
 end ProbabilityTheory
