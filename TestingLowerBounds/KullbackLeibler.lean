@@ -615,7 +615,7 @@ Moreover in general it is the opposite choice to what is done in fDiv, and in fD
 is much more convenient, because it allows to disregard the singular part inside the definition of
 fDiv when talking about integrability. So I think it may be better to reverse this choice here,
 changing the lemmas like condKL_ne_top_iff from 2 to 2'-/
-lemma kernel.integrable_llr_compProd_iff' [CountableOrCountablyGenerated (α × β) γ]
+lemma kernel.integrable_llr_compProd_iff' [CountableOrCountablyGenerated β γ]
     {κ₁ η₁ : kernel α β} {κ₂ η₂ : kernel (α × β) γ} [IsFiniteKernel κ₁] [IsFiniteKernel η₁]
     [IsMarkovKernel κ₂] [IsMarkovKernel η₂] (a : α) (h_ac : (κ₁ ⊗ₖ κ₂) a ≪ (η₁ ⊗ₖ η₂) a) :
     Integrable (llr ((κ₁ ⊗ₖ κ₂) a) ((η₁ ⊗ₖ η₂) a)) ((κ₁ ⊗ₖ κ₂) a)
@@ -627,16 +627,19 @@ lemma kernel.integrable_llr_compProd_iff' [CountableOrCountablyGenerated (α × 
   have h_ac' := kernel.absolutelyContinuous_compProd_iff a |>.mp h_ac |>.2
   exact integrable_kl_iff h_ac'
 
-lemma kl_compProd_kernel_of_ae_ac_of_ae_integrable [CountableOrCountablyGenerated (α × β) γ]
+lemma kl_compProd_kernel_of_ae_ac_of_ae_integrable [CountableOrCountablyGenerated β γ]
     {κ₁ η₁ : kernel α β} {κ₂ η₂ : kernel (α × β) γ} [IsFiniteKernel κ₁] [IsFiniteKernel η₁]
     [IsMarkovKernel κ₂] [IsMarkovKernel η₂] (h_ac : ∀ᵐ a ∂μ, (κ₁ ⊗ₖ κ₂) a ≪ (η₁ ⊗ₖ η₂) a)
     (h_ae_int : ∀ᵐ a ∂μ, Integrable (llr ((κ₁ ⊗ₖ κ₂) a) ((η₁ ⊗ₖ η₂) a)) ((κ₁ ⊗ₖ κ₂) a)) :
     ∀ᵐ a ∂μ, (kl ((κ₁ ⊗ₖ κ₂) a) ((η₁ ⊗ₖ η₂) a)).toReal
       = (kl (κ₁ a) (η₁ a)).toReal + ∫ b, (kl (κ₂ (a, b)) (η₂ (a, b))).toReal ∂κ₁ a := by
-  by_cases h_empty : Nonempty α
-  swap; simp only [not_nonempty_iff.mp h_empty, IsEmpty.forall_iff, eventually_of_forall]
-  have := countableOrCountablyGenerated_right_of_prod_left_of_nonempty (α := α) (β := β) (γ := γ)
+  -- by_cases h_empty : Nonempty α
+  -- swap; simp only [not_nonempty_iff.mp h_empty, IsEmpty.forall_iff, eventually_of_forall]
+  -- have := countableOrCountablyGenerated_right_of_prod_left_of_nonempty (α := α) (β := β) (γ := γ)
   simp only [eventually_congr (h_ac.mono (fun a h ↦ (kernel.integrable_llr_compProd_iff' a h))),
+
+  -- simp only [eventually_congr (h_ac.mono (fun a h ↦ (kernel.integrable_llr_compProd_iff a h))),
+
     eventually_and] at h_ae_int
   simp only [kernel.absolutelyContinuous_compProd_iff, eventually_and] at h_ac
   filter_upwards [h_ac.1, h_ac.2, h_ae_int.1, h_ae_int.2.1, h_ae_int.2.2] with a ha_ac₁ ha_ac₂
@@ -654,6 +657,12 @@ lemma condKL_compProd_kernel_eq_top [CountableOrCountablyGenerated (α × β) γ
     {κ₂ η₂ : kernel (α × β) γ} [IsMarkovKernel κ₁] [IsMarkovKernel η₁] [IsMarkovKernel κ₂]
     [IsMarkovKernel η₂] [SFinite μ] :
     condKL (κ₁ ⊗ₖ κ₂) (η₁ ⊗ₖ η₂) μ = ⊤ ↔ condKL κ₁ η₁ μ = ⊤ ∨ condKL κ₂ η₂ (μ ⊗ₘ κ₁) = ⊤ := by
+  by_cases h_empty : Nonempty α
+  swap
+  · replace h_empty := not_nonempty_iff.mp h_empty
+    simp only [condKL_isEmpty_left]
+    tauto
+  have := countableOrCountablyGenerated_right_of_prod_left_of_nonempty (α := α) (β := β) (γ := γ)
   simp_rw [condKL_eq_top_iff,
     Measure.ae_compProd_iff (kernel.measurableSet_absolutelyContinuous _ _)]
   by_cases h_ac : ∀ᵐ a ∂μ, (κ₁ ⊗ₖ κ₂) a ≪ (η₁ ⊗ₖ η₂) a
@@ -691,6 +700,11 @@ lemma condKL_compProd_kernel [CountableOrCountablyGenerated (α × β) γ] {κ�
     {κ₂ η₂ : kernel (α × β) γ} [IsMarkovKernel κ₁] [IsMarkovKernel η₁] [IsMarkovKernel κ₂]
     [IsMarkovKernel η₂] [SFinite μ] :
     condKL (κ₁ ⊗ₖ κ₂) (η₁ ⊗ₖ η₂) μ = condKL κ₁ η₁ μ + condKL κ₂ η₂ (μ ⊗ₘ κ₁) := by
+  by_cases h_empty : Nonempty α
+  swap
+  · replace h_empty := not_nonempty_iff.mp h_empty
+    simp only [condKL_isEmpty_left, zero_add]
+  have := countableOrCountablyGenerated_right_of_prod_left_of_nonempty (α := α) (β := β) (γ := γ)
   by_cases hp : condKL (κ₁ ⊗ₖ κ₂) (η₁ ⊗ₖ η₂) μ = ⊤
   · rw [hp]
     rw [condKL_compProd_kernel_eq_top] at hp
