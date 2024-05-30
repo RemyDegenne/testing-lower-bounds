@@ -9,8 +9,6 @@
   \begin{align*}
   R_\alpha(\mu, \nu) = \left\{
  \begin{array}{ll}
-  % - \log(\nu\{x \mid \frac{d \mu}{d \nu}(x) > 0\}) & \text{for } \alpha = 0 --make a lemma for this
-  % \\
   \KL(\mu, \nu) & \text{for } \alpha = 1
   \\
   \frac{1}{\alpha - 1} \log (1 + (\alpha - 1) \He_\alpha(\mu, \nu)) & \text{for } \alpha \in (0,+\infty) \backslash \{1\}
@@ -23,7 +21,7 @@
   \lean{ProbabilityTheory.renyiDiv_zero}
   \leanok
   \uses{def:Renyi}
-  For $\mu$ a sigma finite measure and $\nu$ a finite measure 
+  For $\mu$ a sigma-finite measure and $\nu$ a finite measure 
   \[R_0(\mu, \nu) = - \log(\nu\{x \mid \frac{d \mu}{d \nu}(x) > 0\}) \: .\]
 \end{lemma}
 

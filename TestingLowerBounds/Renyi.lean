@@ -334,12 +334,9 @@ section Conditional
 
 variable {β γ : Type*} {mβ : MeasurableSpace β} {mγ : MeasurableSpace γ} {κ η : kernel α β}
 
---TODO: what convention should we adopt for the names of the variables? we cannot use `a` for the element of `α`, so we cannot adopt the same convention as for kl, on the other hand using `x`for the element of `α` may be confusing and we may need `x` for other cases, such that an element of the product space, or some other mute variable. Shall we change the convention for the parameter then? in this case a possibilty would be `λ`. but it is problematic because of the lambda calculus notation, so could we call the parameter `l`? For now I leave it as `x` but I think we should change it at some point.
 
-/--
-Rényi divergence between two kernels κ and η conditional to a measure μ.
-It is defined as `Rₐ(κ, η | μ) := Rₐ(μ ⊗ₘ κ, μ ⊗ₘ η)`.
--/
+/-- Rényi divergence between two kernels κ and η conditional to a measure μ.
+It is defined as `Rₐ(κ, η | μ) := Rₐ(μ ⊗ₘ κ, μ ⊗ₘ η)`. -/
 noncomputable
 def condRenyiDiv (a : ℝ) (κ η : kernel α β) (μ : Measure α) : EReal :=
   renyiDiv a (μ ⊗ₘ κ) (μ ⊗ₘ η)
@@ -430,15 +427,13 @@ lemma condRenyiDiv_of_not_integrable [CountableOrCountablyGenerated α β] (ha_n
     exfalso
     exact h_int this.2
   · rw [condRenyiDiv_eq_top_iff_of_one_le (le_of_not_lt ha)]
-    right; left
-    exact h_int
+    exact Or.inr (Or.inl h_int)
 
 lemma condRenyiDiv_of_one_le_of_not_ac [CountableOrCountablyGenerated α β] (ha : 1 ≤ a)
     [IsFiniteKernel κ] [IsFiniteKernel η] [IsFiniteMeasure μ] (h_ac : ¬ ∀ᵐ x ∂μ, κ x ≪ η x) :
     condRenyiDiv a κ η μ = ⊤ := by
   rw [condRenyiDiv_eq_top_iff_of_one_le ha]
-  right; right
-  exact h_ac
+  exact Or.inr (Or.inr h_ac)
 
 lemma condRenyiDiv_of_lt_one [CountableOrCountablyGenerated α β] (ha_nonneg : 0 ≤ a)
     (ha_lt_one : a < 1) (κ η : kernel α β) (μ : Measure α) [IsFiniteKernel κ] [∀ x, NeZero (κ x)]

@@ -3,8 +3,6 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
--- theorem foo (n : Nat) : 0 ≤ n := by exact? -- trick to make exact? work TODO : erase this when we are done
-
 import TestingLowerBounds.KullbackLeibler
 import Mathlib.Analysis.Convex.SpecificFunctions.Pow
 import Mathlib.Tactic.FunProp.Measurable
@@ -33,7 +31,6 @@ open Real MeasureTheory Filter
 open scoped ENNReal NNReal Topology
 
 namespace ProbabilityTheory
-
 
 --TODO: try to add these attributes to fun_prop? how to do this?
 attribute [fun_prop] Measure.measurable_rnDeriv Measurable.ennreal_toReal
@@ -105,9 +102,6 @@ lemma integrable_rpow_rnDeriv_iff [SigmaFinite ν] [SigmaFinite μ] (hμν : μ 
 
 section HellingerFun
 
--- noncomputable
--- def hellingerFun (a : ℝ) : ℝ → ℝ := fun x ↦ (a - 1)⁻¹ * (x ^ a - 1)
-
 /--Hellinger function, defined as `x ↦ (a - 1)⁻¹ * (x ^ a - 1)` for `a ∈ (0, 1) ∪ (1, + ∞)`.
 At `0` the function is obtained by contiuity and is the indicator function of `{0}`. At `1` it is
 defined as `x ↦ x * log x`, because in this way we obtain that the Hellinger divergence at `1`
@@ -124,19 +118,17 @@ lemma hellingerFun_zero : hellingerFun 0 = fun x ↦ if x = 0 then 1 else 0 := b
 
 lemma hellingerFun_zero' : hellingerFun 0 = fun x ↦ 0 ^ x := by
   ext x
-  by_cases h : x = 0
-    <;> simp [hellingerFun, h]
+  by_cases h : x = 0 <;> simp [hellingerFun, h]
 
 lemma hellingerFun_zero'' : hellingerFun 0 = Set.indicator {0} 1 := by
   ext x
-  by_cases h : x = 0
-    <;> simp [hellingerFun_zero, h]
+  by_cases h : x = 0 <;> simp [hellingerFun_zero, h]
 
 lemma hellingerFun_one : hellingerFun 1 = fun x ↦ x * log x := by
   ext x
   simp [hellingerFun]
 
-lemma hellingerFun_ne_zero_ne_one (ha_zero : a ≠ 0) (ha_one : a ≠ 1) :
+lemma hellingerFun_of_ne_zero_of_ne_one (ha_zero : a ≠ 0) (ha_one : a ≠ 1) :
     hellingerFun a = fun x ↦ (a - 1)⁻¹ * (x ^ a - 1) := by
   ext x
   simp [hellingerFun, ha_zero, ha_one]
