@@ -633,13 +633,7 @@ lemma kl_compProd_kernel_of_ae_ac_of_ae_integrable [CountableOrCountablyGenerate
     (h_ae_int : ∀ᵐ a ∂μ, Integrable (llr ((κ₁ ⊗ₖ κ₂) a) ((η₁ ⊗ₖ η₂) a)) ((κ₁ ⊗ₖ κ₂) a)) :
     ∀ᵐ a ∂μ, (kl ((κ₁ ⊗ₖ κ₂) a) ((η₁ ⊗ₖ η₂) a)).toReal
       = (kl (κ₁ a) (η₁ a)).toReal + ∫ b, (kl (κ₂ (a, b)) (η₂ (a, b))).toReal ∂κ₁ a := by
-  -- by_cases h_empty : Nonempty α
-  -- swap; simp only [not_nonempty_iff.mp h_empty, IsEmpty.forall_iff, eventually_of_forall]
-  -- have := countableOrCountablyGenerated_right_of_prod_left_of_nonempty (α := α) (β := β) (γ := γ)
   simp only [eventually_congr (h_ac.mono (fun a h ↦ (kernel.integrable_llr_compProd_iff' a h))),
-
-  -- simp only [eventually_congr (h_ac.mono (fun a h ↦ (kernel.integrable_llr_compProd_iff a h))),
-
     eventually_and] at h_ae_int
   simp only [kernel.absolutelyContinuous_compProd_iff, eventually_and] at h_ac
   filter_upwards [h_ac.1, h_ac.2, h_ae_int.1, h_ae_int.2.1, h_ae_int.2.2] with a ha_ac₁ ha_ac₂

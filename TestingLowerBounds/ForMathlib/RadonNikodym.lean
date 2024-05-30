@@ -492,17 +492,12 @@ lemma Measure.absolutelyContinuous_compProd_right_iff
   ⟨absolutelyContinuous_kernel_of_compProd, Measure.absolutelyContinuous_compProd_right _⟩
 
 end MeasureCompProd
---offsprings
--- todo: move to a file about absolute continuity
+
 lemma absolutelyContinuous_compProd_iff {β : Type*} [MeasurableSpace β]
     [MeasurableSpace.CountableOrCountablyGenerated β γ] {κ₁ η₁ : kernel α β}
     {κ₂ η₂ : kernel (α × β) γ} [IsSFiniteKernel κ₁] [IsSFiniteKernel η₁] [IsFiniteKernel κ₂]
     [IsFiniteKernel η₂] (a : α) [∀ b, NeZero (κ₂ (a, b))] :
     (κ₁ ⊗ₖ κ₂) a ≪ (η₁ ⊗ₖ η₂) a ↔ κ₁ a ≪ η₁ a ∧ ∀ᵐ b ∂κ₁ a, κ₂ (a, b) ≪ η₂ (a, b) := by
-  -- by_cases h_empty : Nonempty α
-  -- swap; exact (not_nonempty_iff.mp h_empty |>.false a).elim
-  -- have := MeasurableSpace.countableOrCountablyGenerated_right_of_prod_left_of_nonempty
-  --   (α := α) (β := β) (γ := γ)
   simp_rw [kernel.compProd_apply_eq_compProd_snd', kernel.Measure.absolutelyContinuous_compProd_iff,
     kernel.snd'_apply]
 
