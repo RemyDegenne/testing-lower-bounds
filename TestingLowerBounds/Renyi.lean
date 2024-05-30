@@ -51,7 +51,12 @@ lemma exp_mul_llr' [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν) :
   have h_pos : 0 < ((∂μ/∂ν) x).toReal :=  ENNReal.toReal_pos hx_pos.ne' hx_lt_top.ne
   rw [← log_rpow h_pos, exp_log (rpow_pos_of_pos h_pos _)]
 
-/-- Rényi divergence of order `a`.-/
+/-- Rényi divergence of order `a`. If `a = 1`, it is defined as `kl μ ν`, otherwise as
+`(a - 1)⁻¹ * log (ν(α) + (a - 1) * Hₐ(μ, ν))`.
+If `ν` is a probability measure then this becomes the more usual definition
+`(a - 1)⁻¹ * log (1 + (a - 1) * Hₐ(μ, ν))`, but this definition maintains some useful properties
+also for a general finite measure `ν`, in particular the integral form
+`Rₐ(μ, ν) = (a - 1)⁻¹ * log (∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν)`. -/
 noncomputable def renyiDiv (a : ℝ) (μ ν : Measure α) : EReal :=
   if a = 1 then kl μ ν
   else if hellingerDiv a μ ν ≠ ⊤
