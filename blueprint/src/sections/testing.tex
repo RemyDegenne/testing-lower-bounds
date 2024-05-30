@@ -195,8 +195,8 @@ Two applications of Lemma~\ref{lem:llr_change_measure}, then sum them and use $\
 
 \begin{lemma}
   \label{lem:change_measure_variance_add}
-  \lean{ProbabilityTheory.one_sub_exp_le_add_measure_mul_exp_max_renyiDiv} %TODO: this seems like a mistake, the lemma doesn't correspond to this statement. Moreover, the referenced lean lemma is already linked to the statement below and it's more similar to that, even if not exactly the same.
-  \leanok
+  % \lean{}
+  % \leanok
   \uses{}
   Let $\mu, \nu, \xi$ be three probability measures on $\mathcal X$ and let $E$ be an event on $\mathcal X$. For $\beta > 0$~,
   \begin{align*}
@@ -205,7 +205,7 @@ Two applications of Lemma~\ref{lem:llr_change_measure}, then sum them and use $\
   \end{align*}
 \end{lemma}
 
-\begin{proof}\leanok
+\begin{proof} %\leanok
 \uses{lem:llr_change_measure_add}
 Use Lemma~\ref{lem:llr_change_measure_add} with the choices $\KL(\xi, \mu) + \sqrt{\beta \Var_{\xi}\left[\log\frac{d\xi}{d\mu}\right]}$ and $\KL(\xi, \nu) + \sqrt{\beta \Var_{\xi}\left[\log\frac{d\xi}{d\nu}\right]}$ for $\beta_1$ and $\beta_2$.
 Then use Chebyshev's inequality to bound the probabilities of deviation of the log-likelihood ratios.
