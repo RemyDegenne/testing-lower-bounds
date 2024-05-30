@@ -341,7 +341,8 @@ noncomputable
 def condRenyiDiv (a : ℝ) (κ η : kernel α β) (μ : Measure α) : EReal :=
   renyiDiv a (μ ⊗ₘ κ) (μ ⊗ₘ η)
 
---Maybe this can be stated in a nicer way, but I didn't find a way to do it. It's probably good enough to use `condRenyiDiv_of_lt_one`.
+/-Maybe this can be stated in a nicer way, but I didn't find a way to do it. It's probably good
+enough to use `condRenyiDiv_of_lt_one`.-/
 lemma condRenyiDiv_zero (κ η : kernel α β) (μ : Measure α) [IsFiniteMeasure μ]
     [IsFiniteKernel κ] [IsFiniteKernel η] :
     condRenyiDiv 0 κ η μ = - log ((μ ⊗ₘ η) {x | 0 < (∂μ ⊗ₘ κ/∂μ ⊗ₘ η) x}).toReal := by
