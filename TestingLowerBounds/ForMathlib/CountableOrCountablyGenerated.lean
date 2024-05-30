@@ -4,11 +4,6 @@ namespace MeasurableSpace
 
 variable {α β γ : Type*} [MeasurableSpace α] [MeasurableSpace β] [MeasurableSpace γ]
 
-/-I'm not sure this is the right way to state those facts, maybe they should just be lemmas?
-I cannot put the Nonempty α as a hypothesis because then α would not be mentioned in the thesis
-and that is not allowed in a typeclass instance. Anyway I feel that in this way they are not very
-useful because it seems that the typeclass inference is not able to use them.-/
---solution: state those as lemmas
 
 lemma countable_left_of_prod_of_nonempty [Nonempty β] (h : Countable (α × β)) : Countable α := by
   contrapose h
@@ -20,7 +15,6 @@ lemma countable_right_of_prod_of_nonempty [Nonempty α] (h : Countable (α × β
   rw [not_countable_iff] at *
   infer_instance
 
---TODO: what name should we use? in this name the first 'left' refers to the fact that we are talking about `α`, which is the left factor in the product, the second 'left' refers to the fact that the product is on the left argument of `CountableOrCountablyGenerated`
 lemma countableOrCountablyGenerated_left_of_prod_left_of_nonempty [Nonempty β]
     [h : CountableOrCountablyGenerated (α × β) γ] :
     CountableOrCountablyGenerated α γ := by
@@ -51,7 +45,6 @@ lemma countablyGenerated_right_of_prod_of_nonempty [Nonempty α] (h : CountablyG
   -- contrapose h
   sorry
 
-
 lemma countableOrCountablyGenerated_right_of_prod_right_of_nonempty [Nonempty β]
     [h : CountableOrCountablyGenerated α (β × γ)] :
     CountableOrCountablyGenerated α γ := by
@@ -67,7 +60,6 @@ lemma countableOrCountablyGenerated_left_of_prod_right_of_nonempty [Nonempty γ]
   · infer_instance
   · have := countablyGenerated_left_of_prod_of_nonempty h
     infer_instance
-
 
 instance [Countable (α × β)] : Countable (β × α) :=
   Countable.of_equiv _ (Equiv.prodComm α β)
