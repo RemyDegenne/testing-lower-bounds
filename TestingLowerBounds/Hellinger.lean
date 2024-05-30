@@ -909,7 +909,9 @@ lemma condHellingerDiv_eq_integral'_of_lt_one (ha_pos : 0 < a) (ha : a < 1) [IsF
       filter_upwards with x
       congr
       exact hellingerDiv_eq_integral_of_lt_one' ha_pos ha _ _
-    _ = ∫ x, ((a - 1)⁻¹ * ∫ b, ((∂κ x/∂η x) b).toReal ^ a ∂η x --from here to the end the proof is the same as the one of `condHellingerDiv_eq_integral'_of_one_lt`, consider separating this part as a lemma
+    --from here to the end the proof is the same as the one of
+    --`condHellingerDiv_eq_integral'_of_one_lt`, consider separating this part as a lemma
+    _ = ∫ x, ((a - 1)⁻¹ * ∫ b, ((∂κ x/∂η x) b).toReal ^ a ∂η x
         - (a - 1)⁻¹ * ((η x) Set.univ).toReal) ∂μ := by
       refine integral_congr_ae (eventually_of_forall fun x ↦ ?_)
       dsimp
