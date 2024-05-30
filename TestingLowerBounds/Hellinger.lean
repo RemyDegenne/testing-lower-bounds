@@ -873,7 +873,7 @@ lemma condHellingerDiv_eq_integral'_of_one_lt (ha_ne_zero : a ≠ 0) (ha : 1 < a
       integral_sub (Integrable.const_mul h_int' _)
         (Integrable.const_mul (Integrable.kernel _ MeasurableSet.univ) _)
     _ = _ := by
-      rw [integral_mul_left, integral_mul_left, compProd_univ_toReal]
+      rw [integral_mul_left, integral_mul_left, Measure.compProd_univ_toReal]
 
 lemma condHellingerDiv_eq_integral'_of_one_lt' (ha_ne_zero : a ≠ 0) (ha : 1 < a) [IsFiniteMeasure μ]
     [IsFiniteKernel κ] [IsMarkovKernel η]
@@ -883,7 +883,8 @@ lemma condHellingerDiv_eq_integral'_of_one_lt' (ha_ne_zero : a ≠ 0) (ha : 1 < 
     condHellingerDiv a κ η μ = (a - 1)⁻¹ * ∫ x, ∫ b, ((∂κ x/∂η x) b).toReal ^ a ∂η x ∂μ
       - (a - 1)⁻¹ * (μ Set.univ).toReal := by
   simp_rw [condHellingerDiv_eq_integral'_of_one_lt ha_ne_zero ha h_int h_ac h_int',
-    compProd_univ_toReal, measure_univ, ENNReal.one_toReal, integral_const, smul_eq_mul, mul_one]
+    Measure.compProd_univ_toReal, measure_univ, ENNReal.one_toReal, integral_const, smul_eq_mul,
+    mul_one]
 
 lemma condHellingerDiv_eq_integral'_of_one_lt'' (ha_ne_zero : a ≠ 0) (ha : 1 < a)
     [IsProbabilityMeasure μ] [IsFiniteKernel κ] [IsMarkovKernel η]
@@ -928,14 +929,14 @@ lemma condHellingerDiv_eq_integral'_of_lt_one (ha_pos : 0 < a) (ha : a < 1) [IsF
       integral_sub (Integrable.const_mul h_int' _)
         (Integrable.const_mul (Integrable.kernel _ MeasurableSet.univ) _)
     _ = _ := by
-      rw [integral_mul_left, integral_mul_left, compProd_univ_toReal]
+      rw [integral_mul_left, integral_mul_left, Measure.compProd_univ_toReal]
 
 lemma condHellingerDiv_eq_integral'_of_lt_one' (ha_pos : 0 < a) (ha : a < 1) [IsFiniteMeasure μ]
     [IsFiniteKernel κ] [IsMarkovKernel η]
     (h_int' : Integrable (fun x ↦ ∫ b, ((∂κ x/∂η x) b).toReal ^ a ∂η x) μ) :
     condHellingerDiv a κ η μ = (a - 1)⁻¹ * ∫ x, ∫ b, ((∂κ x/∂η x) b).toReal ^ a ∂η x ∂μ
       - (a - 1)⁻¹ * (μ Set.univ).toReal := by
-  simp_rw [condHellingerDiv_eq_integral'_of_lt_one ha_pos ha h_int', compProd_univ_toReal,
+  simp_rw [condHellingerDiv_eq_integral'_of_lt_one ha_pos ha h_int', Measure.compProd_univ_toReal,
     measure_univ, ENNReal.one_toReal, integral_const, smul_eq_mul, mul_one]
 
 lemma condHellingerDiv_eq_integral'_of_lt_one'' (ha_pos : 0 < a) (ha : a < 1)
