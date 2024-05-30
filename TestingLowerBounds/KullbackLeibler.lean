@@ -724,7 +724,7 @@ variable {β : Type*} {mβ : MeasurableSpace β}
 lemma kl_prod_two' [CountableOrCountablyGenerated α β] {ξ ψ : Measure β} [IsProbabilityMeasure ξ]
     [IsProbabilityMeasure ψ] [IsFiniteMeasure μ] [IsFiniteMeasure ν]:
     kl (μ.prod ξ) (ν.prod ψ) = kl μ ν + kl ξ ψ * (μ Set.univ) := by
-  simp only [← condKL_const, ← kl_compProd, compProd_const]
+  simp only [← condKL_const, ← kl_compProd, Measure.compProd_const]
 
 /--Tensorization property for KL divergence-/
 lemma kl_prod_two [CountableOrCountablyGenerated α β] {ξ ψ : Measure β} [IsProbabilityMeasure ξ]
