@@ -175,7 +175,7 @@ lemma convexOn_hellingerFun (ha_pos : 0 ≤ a) : ConvexOn ℝ (Set.Ici 0) (helli
   · have : hellingerFun a = - (fun x ↦ (1 - a)⁻¹ • (x ^ a - 1)) := by
       ext x
       simp only [Pi.neg_apply]
-      rw [hellingerFun_ne_zero_ne_one ha_pos.ne' ha.ne, smul_eq_mul, ← neg_mul, neg_inv, neg_sub]
+      rw [hellingerFun_of_ne_zero_of_ne_one ha_pos.ne' ha.ne, smul_eq_mul, ← neg_mul, neg_inv, neg_sub]
     rw [this]
     refine ConcaveOn.neg ?_
     exact ((Real.concaveOn_rpow ha_pos.le ha.le).sub (convexOn_const _ (convex_Ici 0))).smul
@@ -223,7 +223,7 @@ lemma integrable_hellingerFun_iff_integrable_rpow (ha_one : a ≠ 1) [IsFiniteMe
     . apply integrableOn_const.mpr
       right
       exact measure_lt_top ν _
-  rw [hellingerFun_ne_zero_ne_one ha_zero ha_one, integrable_const_mul_iff]
+  rw [hellingerFun_of_ne_zero_of_ne_one ha_zero ha_one, integrable_const_mul_iff]
   swap; · simp [sub_eq_zero, ha_one]
   simp_rw [sub_eq_add_neg, integrable_add_const_iff]
 
@@ -415,7 +415,7 @@ lemma hellingerDiv_eq_integral_of_ne_top' (ha_ne_zero : a ≠ 0) (ha_ne_one : a 
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h : hellingerDiv a μ ν ≠ ⊤) :
     hellingerDiv a μ ν = (a - 1)⁻¹ * ∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν - (a - 1)⁻¹ * ν Set.univ := by
   rw [hellingerDiv_eq_integral_of_ne_top h]
-  simp_rw [hellingerFun_ne_zero_ne_one ha_ne_zero ha_ne_one, integral_mul_left]
+  simp_rw [hellingerFun_of_ne_zero_of_ne_one ha_ne_zero ha_ne_one, integral_mul_left]
   rw [integral_sub _ (integrable_const _),
     integral_const, smul_eq_mul, mul_one, mul_sub, EReal.coe_sub, EReal.coe_mul, EReal.coe_mul,
     EReal.coe_ennreal_toReal (measure_ne_top _ _)]
@@ -460,7 +460,7 @@ lemma hellingerDiv_le_of_lt_one (ha_nonneg : 0 ≤ a) (ha : a < 1) (μ ν : Meas
   refine (fDiv_le_zero_add_top (stronglyMeasurable_hellingerFun ha_nonneg)
     (convexOn_hellingerFun ha_nonneg)).trans_eq ?_
   rw [derivAtTop_hellingerFun_of_lt_one ha, zero_mul, add_zero,
-    hellingerFun_ne_zero_ne_one h_zero ha.ne]
+    hellingerFun_of_ne_zero_of_ne_one h_zero ha.ne]
   simp only [zero_sub, mul_neg, mul_one, zero_mul, add_zero, zero_rpow h_zero]
   rw [neg_inv, neg_sub]
 
