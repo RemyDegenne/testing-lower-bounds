@@ -119,7 +119,6 @@ lemma Measure.comp_deterministic_eq_map {f : α → β} (hf : Measurable f) :
   ext s hs
   rw [Measure.bind_apply hs (kernel.measurable _), Measure.map_apply hf hs]
   simp only [kernel.deterministic_apply' hf _ hs]
-  classical
   rw [lintegral_indicator_const_comp hf hs, one_mul]
 
 lemma Measure.comp_id : μ ∘ₘ kernel.id = μ := by
