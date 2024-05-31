@@ -473,13 +473,19 @@ lemma condFDiv_zero_measure : condFDiv f κ η 0 = 0 := by
   simp only [integral_zero_measure, EReal.coe_zero]
 
 @[simp]
-lemma condFDiv_isEmpty_left [IsEmpty α] : condFDiv f κ η μ = 0 := by
-  have h : μ = 0 := by
-    ext s
-    exact Set.eq_empty_of_isEmpty s ▸ measure_empty
-  exact h ▸ condFDiv_zero_measure
+lemma condFDiv_of_isEmpty_left [IsEmpty α] : condFDiv f κ η μ = 0 := by
+  suffices μ = 0 from this ▸ condFDiv_zero_measure
+  ext s
+  exact Set.eq_empty_of_isEmpty s ▸ measure_empty
 
-lemma condFDiv_ne_bot (κ η : kernel α β) (μ : Measure α) : condFDiv f κ η μ ≠ ⊥ := by
+@[simp]
+lemma condFDiv_of_isEmpty_right [IsEmpty β] [IsFiniteKernel κ] (hf_one : f 1 = 0) :
+    condFDiv f κ η μ = 0 := by
+  suffices κ = η from by exact this ▸ condFDiv_self κ _ hf_one
+  ext x s _
+  simp [Set.eq_empty_of_isEmpty s]
+
+  lemma condFDiv_ne_bot (κ η : kernel α β) (μ : Measure α) : condFDiv f κ η μ ≠ ⊥ := by
   rw [condFDiv]
   split_ifs with h
   · simp only [ne_eq, EReal.coe_ne_bot, not_false_eq_true]
@@ -838,7 +844,7 @@ lemma condFDiv_compProd_meas_eq_top [CountableOrCountablyGenerated (α × β) γ
       ↔ ¬ (∀ᵐ a ∂μ, condFDiv f (kernel.snd' κ a) (kernel.snd' η a) (ξ a) ≠ ⊤) ∨
         ¬ Integrable (fun x ↦ (condFDiv f (kernel.snd' κ x) (kernel.snd' η x) (ξ x)).toReal) μ := by
   by_cases h_empty : Nonempty α
-  swap; simp only [isEmpty_prod, not_nonempty_iff.mp h_empty, true_or, condFDiv_isEmpty_left,
+  swap; simp only [isEmpty_prod, not_nonempty_iff.mp h_empty, true_or, condFDiv_of_isEmpty_left,
     EReal.zero_ne_top, IsEmpty.forall_iff, eventually_of_forall, not_true_eq_false,
     Integrable.of_empty, or_self]
   have := countableOrCountablyGenerated_right_of_prod_left_of_nonempty (α := α) (β := β) (γ := γ)
@@ -898,7 +904,7 @@ lemma condFDiv_compProd_meas [CountableOrCountablyGenerated (α × β) γ] [IsFi
     condFDiv f κ η (μ ⊗ₘ ξ)
       = ∫ x, (condFDiv f (kernel.snd' κ x) (kernel.snd' η x) (ξ x)).toReal ∂μ := by
   by_cases h_empty : Nonempty α
-  swap; simp only [isEmpty_prod, not_nonempty_iff.mp h_empty, true_or, condFDiv_isEmpty_left,
+  swap; simp only [isEmpty_prod, not_nonempty_iff.mp h_empty, true_or, condFDiv_of_isEmpty_left,
     integral_of_empty, EReal.coe_zero]
   have := countableOrCountablyGenerated_right_of_prod_left_of_nonempty (α := α) (β := β) (γ := γ)
   have h := (condFDiv_ne_top_iff.mp h_top)
