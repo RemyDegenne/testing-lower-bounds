@@ -86,7 +86,8 @@ lemma integral_rpow_rnDeriv (ha_pos : 0 < a) (ha : a ≠ 1) [SigmaFinite μ] [Si
         rw [add_comm] at hx
         simp only [hx, Pi.div_apply, p, q]
 
-lemma integrable_rpow_rnDeriv_iff [SigmaFinite ν] [SigmaFinite μ] (hμν : μ ≪ ν) (ha : 0 < a) :
+lemma integrable_rpow_rnDeriv_iff [SigmaFinite ν] [SigmaFinite μ] (hμν : μ ≪ ν)
+    {a : ℝ} (ha : 0 < a) :
     Integrable (fun x ↦ ((∂μ/∂ν) x).toReal ^ a) μ
       ↔ Integrable (fun x ↦ ((∂μ/∂ν) x).toReal ^ (1 + a)) ν := by
   rw [← integrable_rnDeriv_smul_iff hμν]
@@ -98,19 +99,6 @@ lemma integrable_rpow_rnDeriv_iff [SigmaFinite ν] [SigmaFinite μ] (hμν : μ 
     rw [zero_rpow]
     linarith
   · rw [rpow_add (ENNReal.toReal_pos h_zero hx), rpow_one]
-
-lemma integral_rpow_rnDeriv_eq_zero_iff_mutuallySingular [SigmaFinite μ] [SigmaFinite ν]
-    (ha_zero : a ≠ 0) (h_int : Integrable (fun x ↦ ((∂μ/∂ν) x).toReal ^ a) ν) :
-    ∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν = 0 ↔ μ ⟂ₘ ν := by
-  rw [← Measure.rnDeriv_eq_zero]
-  have : 0 ≤ fun x ↦ ((∂μ/∂ν) x).toReal ^ a := by
-    intro x
-    simp only [Pi.zero_apply, ENNReal.toReal_nonneg, rpow_nonneg]
-  rw [integral_eq_zero_iff_of_nonneg this h_int]
-  apply Filter.eventually_congr
-  filter_upwards [Measure.rnDeriv_ne_top μ ν] with x hx
-  simp only [Pi.zero_apply, ENNReal.toReal_nonneg]
-  simp_rw [rpow_eq_zero ENNReal.toReal_nonneg ha_zero, ENNReal.toReal_eq_zero_iff, hx, or_false]
 
 section HellingerFun
 
