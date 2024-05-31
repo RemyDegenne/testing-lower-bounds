@@ -5,7 +5,6 @@ Authors: Rémy Degenne
 -/
 import Mathlib.Probability.Kernel.Disintegration.Unique
 import TestingLowerBounds.MeasureCompProd
-import TestingLowerBounds.ForMathlib.KernelComposition
 
 /-!
 
