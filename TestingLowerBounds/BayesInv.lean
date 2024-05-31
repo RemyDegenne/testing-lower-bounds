@@ -174,8 +174,7 @@ lemma compProd_bayesInv'' (κ : kernel α β) (μ : Measure α) [IsFiniteMeasure
       = μ ∘ₘ (kernel.copy α) ∘ₘ (κ ∥ₖ kernel.id) := by
   have h := compProd_bayesInv' κ μ
   rw [kernel.prod_eq_copy_comp_parallelComp, ← Measure.comp_assoc] at h
-  rw [h]
-  rw [← Measure.comp_deterministic_eq_map measurable_swap, kernel.prod_eq_copy_comp_parallelComp,
+  rw [h, ← Measure.comp_deterministic_eq_map measurable_swap, kernel.prod_eq_copy_comp_parallelComp,
     ← Measure.comp_assoc, Measure.comp_assoc, kernel.swap_parallelComp, ← Measure.comp_assoc]
   suffices μ ∘ₘ (kernel.copy α) ∘ₘ (kernel.deterministic Prod.swap measurable_swap)
       = μ ∘ₘ (kernel.copy α) by
@@ -240,6 +239,5 @@ lemma bayesInv_comp [StandardBorelSpace β] [Nonempty β] {η : kernel β γ} [I
         = kernel.deterministic Prod.swap measurable_swap ∘ₖ (kernel.id ∥ₖ κ ∘ₖ kernel.copy α) by
       rw [this]
     rw [← kernel.comp_assoc, kernel.swap_parallelComp, kernel.comp_assoc, kernel.swap_copy]
-
 
 end ProbabilityTheory
