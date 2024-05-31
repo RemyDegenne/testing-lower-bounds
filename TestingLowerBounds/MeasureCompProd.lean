@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import TestingLowerBounds.ForMathlib.RadonNikodym
+import TestingLowerBounds.Kernel.Monoidal
 
 /-!
 
@@ -32,39 +33,6 @@ namespace ProbabilityTheory
 variable {α β γ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {mγ : MeasurableSpace γ}
   {μ ν : Measure α} {κ η : kernel α β} {f g : ℝ → ℝ}
 
-section KernelId
-
-/-- The identity kernel. -/
-protected noncomputable
-def kernel.id : kernel α α := kernel.deterministic id measurable_id
-
-instance : IsMarkovKernel (kernel.id : kernel α α) := by rw [kernel.id]; infer_instance
-
-lemma kernel.id_apply (a : α) : kernel.id a = Measure.dirac a := by
-  rw [kernel.id, deterministic_apply, id_def]
-
-lemma kernel.deterministic_prod_deterministic {f : α → β} {g : α → γ}
-    (hf : Measurable f) (hg : Measurable g) :
-    deterministic f hf ×ₖ deterministic g hg
-      = deterministic (fun a ↦ (f a, g a)) (hf.prod_mk hg) := by
-  ext a
-  simp_rw [prod_apply, deterministic_apply]
-  rw [Measure.dirac_prod_dirac]
-
-@[simp]
-lemma kernel.comp_id : κ ∘ₖ kernel.id = κ := by
-  ext a
-  rw [comp_apply, id_apply, Measure.bind_dirac (kernel.measurable _)]
-
-@[simp]
-lemma kernel.id_comp : kernel.id ∘ₖ κ = κ := by
-  ext a s hs
-  simp_rw [comp_apply, Measure.bind_apply hs (kernel.measurable _), id_apply,
-    Measure.dirac_apply' _ hs]
-  rw [lintegral_indicator_one hs]
-
-end KernelId
-
 lemma kernel.snd_compProd_prodMkLeft {γ : Type*} {_ : MeasurableSpace γ}
     (κ : kernel α β) (η : kernel β γ) [IsSFiniteKernel κ] [IsSFiniteKernel η] :
     snd (κ ⊗ₖ prodMkLeft α η) = η ∘ₖ κ := by
@@ -75,12 +43,12 @@ lemma kernel.snd_compProd_prodMkLeft {γ : Type*} {_ : MeasurableSpace γ}
 
 lemma kernel.compProd_prodMkLeft_eq_comp {γ : Type*} {_ : MeasurableSpace γ}
     (κ : kernel α β) [IsSFiniteKernel κ] (η : kernel β γ) [IsSFiniteKernel η] :
-    κ ⊗ₖ (prodMkLeft α η) = (deterministic id measurable_id ×ₖ η) ∘ₖ κ := by
+    κ ⊗ₖ (prodMkLeft α η) = (kernel.id ×ₖ η) ∘ₖ κ := by
   ext a s hs
   rw [comp_eq_snd_compProd, compProd_apply _ _ _ hs, snd_apply' _ _ hs, compProd_apply]
   swap; · exact measurable_snd hs
   simp only [prodMkLeft_apply, Set.mem_setOf_eq, Set.setOf_mem_eq, prod_apply' _ _ _ hs,
-    deterministic_apply, id_eq]
+    id_apply, id_eq]
   congr with b
   rw [lintegral_dirac']
   exact measurable_measure_prod_mk_left hs

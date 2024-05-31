@@ -40,57 +40,6 @@ section ParallelComp
 
 namespace kernel
 
-noncomputable
-def copy (α : Type*) [MeasurableSpace α] : kernel α (α × α) :=
-  kernel.id ×ₖ kernel.id
-
-instance : IsMarkovKernel (copy α) := by rw [copy]; infer_instance
-
-lemma copy_apply (a : α) : copy α a = Measure.dirac (a, a) := by
-  rw [copy, prod_apply, id_apply, Measure.dirac_prod_dirac]
-
-noncomputable
-def parallelComp (κ : kernel α β) (η : kernel γ δ) : kernel (α × γ) (β × δ) :=
-  (prodMkRight γ κ) ×ₖ (prodMkLeft α η)
-
-scoped[ProbabilityTheory] infixl:100 " ∥ₖ " => ProbabilityTheory.kernel.parallelComp
-
-lemma parallelComp_apply (κ : kernel α β) [IsSFiniteKernel κ]
-    (η : kernel γ δ) [IsSFiniteKernel η] (x : α × γ) :
-    (κ ∥ₖ η) x = (κ x.1).prod (η x.2) := by
-  rw [parallelComp, prod_apply, prodMkRight_apply, prodMkLeft_apply]
-
-instance (κ : kernel α β) [IsSFiniteKernel κ] (η : kernel γ δ) [IsSFiniteKernel η] :
-    IsSFiniteKernel (κ ∥ₖ η) := by
-  rw [parallelComp]; infer_instance
-
-lemma prod_eq_copy_comp_parallelComp (κ : kernel α β) [IsSFiniteKernel κ]
-    (η : kernel α γ) [IsSFiniteKernel η] :
-    κ ×ₖ η = (κ ∥ₖ η) ∘ₖ (copy α) := by
-  ext a s hs
-  simp_rw [prod_apply, comp_apply, copy_apply, Measure.bind_apply hs (kernel.measurable _)]
-  rw [lintegral_dirac']
-  swap; · exact kernel.measurable_coe _ hs
-  rw [parallelComp_apply]
-
-lemma swap_parallelComp {κ : kernel α β} [IsSFiniteKernel κ]
-    {η : kernel γ δ} [IsSFiniteKernel η] :
-    (deterministic Prod.swap measurable_swap) ∘ₖ (κ ∥ₖ η)
-      = (η ∥ₖ κ) ∘ₖ (deterministic Prod.swap measurable_swap) := by
-  ext ac s hs
-  rw [comp_apply, comp_apply, deterministic_apply, parallelComp_apply,
-    Measure.comp_deterministic_eq_map, Measure.prod_swap,
-    Measure.bind_apply hs (kernel.measurable _), lintegral_dirac', parallelComp_apply]
-  · rfl
-  · exact kernel.measurable_coe _ hs
-
-@[simp]
-lemma swap_copy : (deterministic Prod.swap measurable_swap) ∘ₖ (copy α) = copy α := by
-  ext a
-  rw [comp_apply, copy_apply, Measure.comp_deterministic_eq_map,
-    Measure.map_dirac measurable_swap]
-  rfl
-
 lemma _root_.MeasureTheory.Measure.prod_comp_right
     (μ : Measure α) [SFinite μ] (ν : Measure β) [SFinite ν]
     (κ : kernel β γ) [IsSFiniteKernel κ] :
@@ -114,12 +63,12 @@ lemma _root_.MeasureTheory.Measure.prod_comp_left
   have h2 : (μ.prod ν) ∘ₘ (κ ∥ₖ kernel.id) = ((ν.prod μ) ∘ₘ (kernel.id ∥ₖ κ)).map Prod.swap := by
     calc (μ.prod ν) ∘ₘ (κ ∥ₖ kernel.id)
     _ = ((ν.prod μ).map Prod.swap) ∘ₘ (κ ∥ₖ kernel.id) := by rw [Measure.prod_swap]
-    _ = (ν.prod μ) ∘ₘ (deterministic Prod.swap measurable_swap) ∘ₘ (κ ∥ₖ kernel.id) := by
-      rw [Measure.comp_deterministic_eq_map]
-    _ = (ν.prod μ) ∘ₘ (kernel.id ∥ₖ κ) ∘ₘ (deterministic Prod.swap measurable_swap) := by
+    _ = (ν.prod μ) ∘ₘ (swap _ _) ∘ₘ (κ ∥ₖ kernel.id) := by
+      rw [swap, Measure.comp_deterministic_eq_map]
+    _ = (ν.prod μ) ∘ₘ (kernel.id ∥ₖ κ) ∘ₘ (swap _ _) := by
       rw [Measure.comp_assoc, Measure.comp_assoc, swap_parallelComp]
     _ = ((ν.prod μ) ∘ₘ (kernel.id ∥ₖ κ)).map Prod.swap := by
-      rw [Measure.comp_deterministic_eq_map]
+      rw [swap, Measure.comp_deterministic_eq_map]
   rw [← Measure.prod_comp_right, ← h1] at h2
   exact h2.symm
 
@@ -174,10 +123,9 @@ lemma compProd_bayesInv'' (κ : kernel α β) (μ : Measure α) [IsFiniteMeasure
   have h := compProd_bayesInv' κ μ
   rw [kernel.prod_eq_copy_comp_parallelComp, ← Measure.comp_assoc] at h
   rw [h, ← Measure.comp_deterministic_eq_map measurable_swap, kernel.prod_eq_copy_comp_parallelComp,
-    ← Measure.comp_assoc, Measure.comp_assoc, kernel.swap_parallelComp, ← Measure.comp_assoc]
-  suffices μ ∘ₘ (kernel.copy α) ∘ₘ (kernel.deterministic Prod.swap measurable_swap)
-      = μ ∘ₘ (kernel.copy α) by
-    rw [this]
+    ← Measure.comp_assoc, Measure.comp_assoc, ← kernel.swap, kernel.swap_parallelComp,
+    ← Measure.comp_assoc]
+  suffices μ ∘ₘ (kernel.copy α) ∘ₘ (kernel.swap α α) = μ ∘ₘ (kernel.copy α) by rw [this]
   rw [Measure.comp_assoc, kernel.swap_copy]
 
 /-- The Bayesian inverse is unique up to a `μ ∘ₘ κ`-null set. -/
@@ -229,13 +177,12 @@ lemma bayesInv_comp [StandardBorelSpace β] [Nonempty β] {η : kernel β γ} [I
     rw [Measure.comp_assoc, kernel.parallelComp_comm, ← Measure.comp_assoc]
   _ = μ ∘ₘ (kernel.copy α) ∘ₘ (κ ∥ₖ kernel.id) ∘ₘ (η ∥ₖ kernel.id) := by
     rw [compProd_bayesInv'']
-  _ = μ ∘ₘ (kernel.copy α) ∘ₘ (kernel.id ∥ₖ κ) ∘ₘ (kernel.id ∥ₖ η)
-      ∘ₘ (kernel.deterministic Prod.swap measurable_swap) := by
+  _ = μ ∘ₘ (kernel.copy α) ∘ₘ (kernel.id ∥ₖ κ) ∘ₘ (kernel.id ∥ₖ η) ∘ₘ (kernel.swap _ _) := by
     simp_rw [Measure.comp_assoc]
     conv_rhs => rw [← kernel.comp_assoc]
     rw [kernel.swap_parallelComp, kernel.comp_assoc]
     suffices κ ∥ₖ kernel.id ∘ₖ kernel.copy α
-        = kernel.deterministic Prod.swap measurable_swap ∘ₖ (kernel.id ∥ₖ κ ∘ₖ kernel.copy α) by
+        = (kernel.swap α β) ∘ₖ (kernel.id ∥ₖ κ ∘ₖ kernel.copy α) by
       rw [this]
     rw [← kernel.comp_assoc, kernel.swap_parallelComp, kernel.comp_assoc, kernel.swap_copy]
 
