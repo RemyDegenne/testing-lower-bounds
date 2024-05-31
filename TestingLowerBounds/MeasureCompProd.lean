@@ -51,6 +51,18 @@ lemma kernel.deterministic_prod_deterministic {f : α → β} {g : α → γ}
   simp_rw [prod_apply, deterministic_apply]
   rw [Measure.dirac_prod_dirac]
 
+@[simp]
+lemma kernel.comp_id : κ ∘ₖ kernel.id = κ := by
+  ext a
+  rw [comp_apply, id_apply, Measure.bind_dirac (kernel.measurable _)]
+
+@[simp]
+lemma kernel.id_comp : kernel.id ∘ₖ κ = κ := by
+  ext a s hs
+  simp_rw [comp_apply, Measure.bind_apply hs (kernel.measurable _), id_apply,
+    Measure.dirac_apply' _ hs]
+  rw [lintegral_indicator_one hs]
+
 end KernelId
 
 lemma kernel.snd_compProd_prodMkLeft {γ : Type*} {_ : MeasurableSpace γ}
@@ -73,30 +85,32 @@ lemma kernel.compProd_prodMkLeft_eq_comp {γ : Type*} {_ : MeasurableSpace γ}
   rw [lintegral_dirac']
   exact measurable_measure_prod_mk_left hs
 
-lemma kernel.fst_comp {γ δ : Type*} {_ : MeasurableSpace γ} {_ : MeasurableSpace δ}
-    (κ : kernel α β) [IsSFiniteKernel κ] (η : kernel β (γ × δ)) [IsSFiniteKernel η] :
-    fst (η ∘ₖ κ) = fst η ∘ₖ κ := by
+lemma kernel.map_comp {δ : Type*} {_ : MeasurableSpace δ}
+    (κ : kernel α β) [IsSFiniteKernel κ] (η : kernel β γ) [IsSFiniteKernel η]
+    {f : γ → δ} (hf : Measurable f) :
+    kernel.map (η ∘ₖ κ) f hf = (kernel.map η f hf) ∘ₖ κ := by
   ext a s hs
-  rw [fst_apply' _ _ hs, comp_apply', comp_apply' _ _ _ hs]
-  · simp_rw [fst_apply' _ _ hs]
-  · exact measurable_fst hs
+  rw [map_apply' _ hf _ hs, comp_apply', comp_apply' _ _ _ hs]
+  · simp_rw [map_apply' _ hf _ hs]
+  · exact hf hs
 
-lemma kernel.snd_comp {γ δ : Type*} {_ : MeasurableSpace γ} {_ : MeasurableSpace δ}
+lemma kernel.fst_comp {δ : Type*} {_ : MeasurableSpace δ}
     (κ : kernel α β) [IsSFiniteKernel κ] (η : kernel β (γ × δ)) [IsSFiniteKernel η] :
-    snd (η ∘ₖ κ) = snd η ∘ₖ κ := by
-  ext a s hs
-  rw [snd_apply' _ _ hs, comp_apply', comp_apply' _ _ _ hs]
-  · simp_rw [snd_apply' _ _ hs]
-  · exact measurable_snd hs
+    fst (η ∘ₖ κ) = fst η ∘ₖ κ :=
+  kernel.map_comp  κ η measurable_fst
+
+lemma kernel.snd_comp {δ : Type*} {_ : MeasurableSpace δ}
+    (κ : kernel α β) [IsSFiniteKernel κ] (η : kernel β (γ × δ)) [IsSFiniteKernel η] :
+    snd (η ∘ₖ κ) = snd η ∘ₖ κ :=
+  kernel.map_comp  κ η measurable_snd
 
 /-- Composition of a measure and a kernel.
 
 Defined using `MeasureTheory.Measure.bind` -/
 scoped[ProbabilityTheory] infixl:100 " ∘ₘ " => MeasureTheory.Measure.bind
 
-lemma Measure.comp_assoc {γ : Type*} {_ : MeasurableSpace γ} {μ : Measure α} [SFinite μ]
-    {κ : kernel α β} [IsSFiniteKernel κ]
-    {η : kernel β γ} [IsFiniteKernel η] :
+lemma Measure.comp_assoc {μ : Measure α} [SFinite μ]
+    {κ : kernel α β} [IsSFiniteKernel κ] {η : kernel β γ} [IsSFiniteKernel η] :
     μ ∘ₘ κ ∘ₘ η = μ ∘ₘ (η ∘ₖ κ) :=
   Measure.bind_bind (kernel.measurable _) (kernel.measurable _)
 
