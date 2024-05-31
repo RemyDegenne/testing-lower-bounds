@@ -97,12 +97,12 @@ lemma kernel.map_comp {δ : Type*} {_ : MeasurableSpace δ}
 lemma kernel.fst_comp {δ : Type*} {_ : MeasurableSpace δ}
     (κ : kernel α β) [IsSFiniteKernel κ] (η : kernel β (γ × δ)) [IsSFiniteKernel η] :
     fst (η ∘ₖ κ) = fst η ∘ₖ κ :=
-  kernel.map_comp  κ η measurable_fst
+  kernel.map_comp κ η measurable_fst
 
 lemma kernel.snd_comp {δ : Type*} {_ : MeasurableSpace δ}
     (κ : kernel α β) [IsSFiniteKernel κ] (η : kernel β (γ × δ)) [IsSFiniteKernel η] :
     snd (η ∘ₖ κ) = snd η ∘ₖ κ :=
-  kernel.map_comp  κ η measurable_snd
+  kernel.map_comp κ η measurable_snd
 
 /-- Composition of a measure and a kernel.
 
