@@ -6,6 +6,9 @@ Authors: Rémy Degenne
 import TestingLowerBounds.Kernel.Monoidal
 import Mathlib.CategoryTheory.Monoidal.Braided.Basic
 import Mathlib.CategoryTheory.ConcreteCategory.UnbundledHom
+import Mathlib.CategoryTheory.Monad.Kleisli
+import Mathlib.MeasureTheory.Category.MeasCat
+import Mathlib.CategoryTheory.ChosenFiniteProducts
 
 /-!
 
@@ -13,7 +16,7 @@ import Mathlib.CategoryTheory.ConcreteCategory.UnbundledHom
 
 -/
 
-open MeasureTheory CategoryTheory
+open MeasureTheory CategoryTheory Limits
 
 open scoped ENNReal
 
@@ -123,7 +126,176 @@ end SFiniteKernel
 
 end SFiniteKernel
 
-universe u
+universe u v
+
+namespace MeasCat
+
+/-! `MeasCat` is a cartesian symmetric monoidal category. -/
+
+def terminalLimitCone : Limits.LimitCone (Functor.empty MeasCat) where
+  cone :=
+    { pt := MeasCat.of PUnit
+      π := (Functor.uniqueFromEmpty _).hom }
+  isLimit :=
+    { lift := fun _ => ⟨fun _ ↦ PUnit.unit, measurable_const⟩
+      fac := fun _ => by rintro ⟨⟨⟩⟩
+      uniq := fun _ _ _ => rfl }
+
+def binaryProductCone (X Y : MeasCat) : BinaryFan X Y :=
+  CategoryTheory.Limits.BinaryFan.mk (P := MeasCat.of (X × Y))
+    ⟨Prod.fst, measurable_fst⟩ ⟨Prod.snd, measurable_snd⟩
+
+@[simp]
+lemma binaryProductCone_fst (X Y : MeasCat) :
+    (binaryProductCone X Y).fst = ⟨Prod.fst, measurable_fst⟩ := rfl
+
+@[simp]
+theorem binaryProductCone_snd (X Y : MeasCat) :
+    (binaryProductCone X Y).snd = ⟨Prod.snd, measurable_snd⟩ := rfl
+
+instance (X : MeasCat) : MeasurableSpace X := X.str
+
+@[simps]
+def binaryProductLimit (X Y : MeasCat.{u}) : IsLimit (binaryProductCone.{u} X Y) where
+  lift (s : BinaryFan X Y) := ⟨fun x ↦ (s.fst x, s.snd x), by
+    letI : MeasurableSpace
+        ((forget MeasCat).obj (((Functor.const (Discrete WalkingPair)).obj s.pt).obj
+          { as := WalkingPair.left })) :=
+      (((Functor.const (Discrete WalkingPair)).obj s.pt).obj { as := WalkingPair.left }).str
+    letI : MeasurableSpace ((forget MeasCat).obj ((pair X Y).obj { as := WalkingPair.left })) :=
+      ((pair X Y).obj { as := WalkingPair.left }).str
+    letI : MeasurableSpace
+        ((forget MeasCat).obj (((Functor.const (Discrete WalkingPair)).obj s.pt).obj
+          { as := WalkingPair.right })) :=
+      (((Functor.const (Discrete WalkingPair)).obj s.pt).obj { as := WalkingPair.right }).str
+    letI : MeasurableSpace ((forget MeasCat).obj ((pair X Y).obj { as := WalkingPair.right })) :=
+      ((pair X Y).obj { as := WalkingPair.right }).str
+    have h1 : Measurable s.fst := s.fst.2
+    have h2 : Measurable s.snd := s.snd.2
+    exact h1.prod_mk h2⟩
+  fac _ j := Discrete.recOn j fun j => WalkingPair.casesOn j rfl rfl
+  uniq s m w := by
+    refine Subtype.ext ?_
+    simp only [Functor.const_obj_obj, pair_obj_left, pair_obj_right]
+    have h1 := w ⟨WalkingPair.left⟩
+    have h2 := w ⟨WalkingPair.right⟩
+    simp only [pair_obj_left, BinaryFan.π_app_left, binaryProductCone_fst, Functor.const_obj_obj]
+      at h1
+    simp only [pair_obj_right, BinaryFan.π_app_right, binaryProductCone_snd,
+      Functor.const_obj_obj] at h2
+    rw [← h1, ← h2]
+    ext x
+    refine Prod.ext rfl rfl
+
+@[simps]
+def binaryProductLimitCone (X Y : MeasCat) : LimitCone (pair X Y) :=
+  ⟨_, binaryProductLimit X Y⟩
+
+/-- This gives in particular a `SymmetricCategory` instance.
+That is, `MeasCat` is a cartesian symmetric monoidal category. -/
+@[simps]
+instance : ChosenFiniteProducts MeasCat where
+  product X Y := binaryProductLimitCone X Y
+  terminal := terminalLimitCone
+
+example : HasBinaryProducts MeasCat := inferInstance
+example : HasTerminal MeasCat := inferInstance
+example : SymmetricCategory MeasCat := inferInstance
+
+end MeasCat
+
+section CommutativeMonad
+
+open MonoidalCategory
+
+class LeftStrong {C : Type u} [Category.{v} C] [MonoidalCategory C] (T : Monad C) where
+  leftStr : ((𝟭 C : C ⥤ C).prod (T : C ⥤ C)) ⋙ (tensor C) ⟶ (tensor C) ⋙ (T : C ⥤ C)
+  unit_comp (X : C) : (λ_ (T.obj X)).symm.hom ≫ leftStr.app (𝟙_ C, X)
+      = T.map (λ_ X).symm.hom := by aesop_cat
+  assoc (X Y Z : C) : leftStr.app (X ⊗ Y, Z) ≫ T.map (α_ X Y Z).hom
+      = (α_ X Y (T.obj Z)).hom ≫ ((𝟙 X) ⊗ leftStr.app (Y, Z)) ≫ leftStr.app (X, Y ⊗ Z) := by
+    aesop_cat
+  unit_comm (X Y : C) : ((𝟙 X) ⊗ T.η.app Y) ≫ leftStr.app (X, Y) = T.η.app (X ⊗ Y) := by aesop_cat
+  mul_comm (X Y : C) : ((𝟙 X) ⊗ T.μ.app Y) ≫ leftStr.app (X, Y)
+      = leftStr.app (X, T.obj Y) ≫ T.map (leftStr.app (X, Y)) ≫ T.μ.app (X ⊗ Y) := by aesop_cat
+
+/- This is probably false: it probably needs s-finite measures, since
+`measurable_measure_prod_mk_left` (the case where p.2 is constant) requires an s-finite measure.
+Why though? Can we find a counter-example if we don't have the s-finite assumption? -/
+lemma measurable_measure_prod_mk_left' {α β : Type*} [MeasurableSpace α] [MeasurableSpace β]
+    {s : Set (α × β)} (hs : MeasurableSet s) :
+    Measurable fun p : α × Measure β ↦ p.2 (Prod.mk p.1 ⁻¹' s) := by
+  sorry
+
+-- The swap is here to be able to use prod_apply (since the dirac is s-finite).
+-- This is probably false, it probably needs s-finite measures (in that case, remove the swap).
+lemma Measure.measurable_dirac_prod {α β : Type*} [MeasurableSpace α] [MeasurableSpace β] :
+    Measurable (fun (p : α × Measure β) ↦ (p.2.prod (Measure.dirac p.1)).map Prod.swap) := by
+  refine' Measure.measurable_of_measurable_coe _ fun s hs => _
+  simp_rw [Measure.map_apply measurable_swap hs]
+  simp_rw [Measure.prod_apply (measurable_swap hs)]
+  have h_meas : ∀ x, MeasurableSet (Prod.mk x ⁻¹' (Prod.swap ⁻¹' s)) := by
+    intro x
+    exact measurable_prod_mk_left (measurable_swap hs)
+  simp_rw [Measure.dirac_apply' _ (h_meas _)]
+  have : ∀ b : α × Measure β, ∫⁻ x, (Prod.mk x ⁻¹' (Prod.swap ⁻¹' s)).indicator 1 b.1 ∂b.2
+      = b.2 (Prod.mk b.1 ⁻¹' s) := by
+    intro b
+    change ∫⁻ x, (Prod.mk x ⁻¹' (Prod.swap ⁻¹' s)).indicator (fun _ ↦ 1) b.1 ∂b.2 = _
+    classical
+    simp_rw [Set.indicator_apply]
+    simp only [Set.mem_preimage, Prod.swap_prod_mk]
+    have : ∫⁻ x, if (b.1, x) ∈ s then 1 else 0 ∂b.2
+        = ∫⁻ x, (Prod.mk b.1 ⁻¹' s).indicator 1 x ∂b.2 := by
+      simp_rw [Set.indicator_apply]
+      simp
+    rw [this, lintegral_indicator_one]
+    exact measurable_prod_mk_left hs
+  simp_rw [this]
+  exact measurable_measure_prod_mk_left' hs
+
+-- this is probably false, because `Measure.measurable_dirac_prod` probably needs s-finite measures.
+noncomputable
+instance : LeftStrong MeasCat.Giry where
+  leftStr := {
+    app := fun P ↦ ⟨fun p ↦ (p.2.prod (Measure.dirac p.1)).map Prod.swap,
+      Measure.measurable_dirac_prod⟩
+    naturality := fun (P₁, P₂) (Q₁, Q₂) f ↦ by
+      simp only [Functor.comp_obj, Functor.prod_obj, Functor.id_obj, tensor_obj, Functor.comp_map,
+        Functor.prod_map, Functor.id_map, tensor_map]
+      ext x
+      rcases x with ⟨x, p⟩
+      simp only [Functor.comp_obj, Functor.prod_obj, Functor.id_obj, tensor_obj, comp_apply]
+      -- the lines below should be replaced by new simp lemmas?
+      simp only [MeasCat.Giry, MeasCat.Measure, Functor.id_obj, Functor.comp_obj, Functor.prod_obj,
+        tensor_obj]
+      sorry }
+
+class Affine {C : Type u} [Category.{v} C] [MonoidalCategory C] (T : Monad C) where
+  affine : T.obj (𝟙_ C) ≅ 𝟙_ C := by aesop_cat
+
+-- The Giry monad is not affine unless we restrict the measures to probability measures.
+
+end CommutativeMonad
+
+section MarkovCategory
+
+class CopyDiscardCategory (C : Type u) [𝒞 : Category.{u} C] [MonoidalCategory C]
+    extends SymmetricCategory C where
+  -- todo: copy, del
+
+class MarkovCategory (C : Type u) [𝒞 : Category.{u} C] [MonoidalCategory C]
+    extends CopyDiscardCategory C where
+  -- todo: affine
+
+end MarkovCategory
+
+-- todo: not really Stoch because it contains all kernels, not only Markov kernels
+def Stoch := Kleisli MeasCat.Giry
+
+/- TODO: prove that the Kleisli category of a commutative monad on a cartesian symmetric monoidal
+category is a symmetric monoidal category (and a copy-discard category).
+If furthermore the monad is affine, the Kleisli category is a Markov category. -/
 
 def SFiniteCat : Type (u + 1) := Bundled MeasurableSpace
 
@@ -157,11 +329,11 @@ instance : Inhabited SFiniteCat := ⟨SFiniteCat.of Empty⟩
 
 noncomputable
 instance : MonoidalCategoryStruct SFiniteCat where
-  tensorObj X Y := Bundled.of (X × Y)
+  tensorObj X Y := SFiniteCat.of (X × Y)
   whiskerLeft X Y₁ Y₂ κ := SFiniteKernel.parallelComp (SFiniteKernel.id X) κ
   whiskerRight κ Y := SFiniteKernel.parallelComp κ (SFiniteKernel.id Y)
   tensorHom κ η := SFiniteKernel.parallelComp κ η
-  tensorUnit := Bundled.of Unit
+  tensorUnit := SFiniteCat.of Unit
   associator X Y Z := sorry
   leftUnitor X := sorry
   rightUnitor X := sorry
@@ -180,16 +352,24 @@ instance : MonoidalCategory SFiniteCat where
   triangle X Y := sorry
 
 noncomputable
+def swapIso (X Y : SFiniteCat) :
+    (MonoidalCategory.tensorObj X Y) ≅ (MonoidalCategory.tensorObj Y X) where
+  hom := sorry
+  inv := sorry
+  hom_inv_id := sorry
+  inv_hom_id := sorry
+
+noncomputable
 instance : BraidedCategory SFiniteCat where
   braiding X Y := sorry
-  braiding_naturality_right := sorry
-  braiding_naturality_left := sorry
-  hexagon_forward := sorry
-  hexagon_reverse := sorry
+  braiding_naturality_right X Y Z κ := sorry
+  braiding_naturality_left κ Z := sorry
+  hexagon_forward X Y Z := sorry
+  hexagon_reverse X Y Z := sorry
 
 noncomputable
 instance : SymmetricCategory SFiniteCat where
-  symmetry := sorry
+  symmetry X Y := sorry
 
 end SFiniteCat
 
