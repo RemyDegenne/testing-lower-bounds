@@ -5,7 +5,6 @@ Authors: Rémy Degenne
 -/
 import TestingLowerBounds.Kernel.Monoidal
 import Mathlib.CategoryTheory.Monoidal.Braided.Basic
-import Mathlib.CategoryTheory.ConcreteCategory.UnbundledHom
 import Mathlib.CategoryTheory.Monad.Kleisli
 import Mathlib.MeasureTheory.Category.MeasCat
 import Mathlib.CategoryTheory.ChosenFiniteProducts
@@ -16,7 +15,7 @@ import Mathlib.CategoryTheory.ChosenFiniteProducts
 
 -/
 
-open MeasureTheory CategoryTheory Limits
+open MeasureTheory CategoryTheory MonoidalCategory Limits
 
 open scoped ENNReal
 
@@ -141,7 +140,7 @@ def terminalLimitCone : Limits.LimitCone (Functor.empty MeasCat) where
       fac := fun _ => by rintro ⟨⟨⟩⟩
       uniq := fun _ _ _ => rfl }
 
-def binaryProductCone (X Y : MeasCat) : BinaryFan X Y :=
+def binaryProductCone (X Y : MeasCat.{u}) : BinaryFan X Y :=
   CategoryTheory.Limits.BinaryFan.mk (P := MeasCat.of (X × Y))
     ⟨Prod.fst, measurable_fst⟩ ⟨Prod.snd, measurable_snd⟩
 
@@ -153,10 +152,10 @@ lemma binaryProductCone_fst (X Y : MeasCat) :
 theorem binaryProductCone_snd (X Y : MeasCat) :
     (binaryProductCone X Y).snd = ⟨Prod.snd, measurable_snd⟩ := rfl
 
-instance (X : MeasCat) : MeasurableSpace X := X.str
+attribute [local instance] ConcreteCategory.instFunLike
 
 @[simps]
-def binaryProductLimit (X Y : MeasCat.{u}) : IsLimit (binaryProductCone.{u} X Y) where
+def binaryProductLimit (X Y : MeasCat) : IsLimit (binaryProductCone X Y) where
   lift (s : BinaryFan X Y) := ⟨fun x ↦ (s.fst x, s.snd x), by
     letI : MeasurableSpace
         ((forget MeasCat).obj (((Functor.const (Discrete WalkingPair)).obj s.pt).obj
@@ -189,7 +188,7 @@ def binaryProductLimit (X Y : MeasCat.{u}) : IsLimit (binaryProductCone.{u} X Y)
 
 @[simps]
 def binaryProductLimitCone (X Y : MeasCat) : LimitCone (pair X Y) :=
-  ⟨_, binaryProductLimit X Y⟩
+  ⟨binaryProductCone X Y, binaryProductLimit X Y⟩
 
 /-- This gives in particular a `SymmetricCategory` instance.
 That is, `MeasCat` is a cartesian symmetric monoidal category. -/
@@ -198,15 +197,56 @@ instance : ChosenFiniteProducts MeasCat where
   product X Y := binaryProductLimitCone X Y
   terminal := terminalLimitCone
 
-example : HasBinaryProducts MeasCat := inferInstance
-example : HasTerminal MeasCat := inferInstance
-example : SymmetricCategory MeasCat := inferInstance
+@[simp]
+theorem tensor_apply {W X Y Z : MeasCat} (f : W ⟶ X) (g : Y ⟶ Z)
+    (p : @tensorObj MeasCat _ _ W Y) :
+    (f ⊗ g) p = (f p.1, g p.2) :=
+  rfl
+
+@[simp]
+theorem whiskerLeft_apply (X : MeasCat) {Y Z : MeasCat} (f : Y ⟶ Z)
+    (p : @tensorObj MeasCat _ _ X Y) :
+    (X ◁ f) p = (p.1, f p.2) :=
+  rfl
+
+@[simp]
+theorem whiskerRight_apply {Y Z : MeasCat} (f : Y ⟶ Z) (X : MeasCat) (p : @tensorObj MeasCat _ _ Y X) :
+    (f ▷ X) p = (f p.1, p.2) :=
+  rfl
+
+@[simp]
+theorem leftUnitor_hom_apply {X : MeasCat} {x : X} {p : PUnit} :
+    (λ_ X).hom (p, x) = x :=
+  rfl
+
+@[simp]
+theorem leftUnitor_inv_apply {X : MeasCat} {x : X} :
+    ((λ_ X).inv : X ⟶ 𝟙_ MeasCat ⊗ X) x = (PUnit.unit, x) :=
+  rfl
+
+@[simp]
+theorem rightUnitor_hom_apply {X : MeasCat} {x : X} {p : PUnit} :
+    (ρ_ X).hom (x, p) = x :=
+  rfl
+
+@[simp]
+theorem rightUnitor_inv_apply {X : MeasCat} {x : X} :
+    ((ρ_ X).inv : X ⟶ X ⊗ 𝟙_ MeasCat) x = (x, PUnit.unit) :=
+  rfl
+
+@[simp]
+theorem associator_hom_apply {X Y Z : MeasCat} {x : X} {y : Y} {z : Z} :
+    (α_ X Y Z).hom ((x, y), z) = (x, (y, z)) :=
+  rfl
+
+@[simp]
+theorem associator_inv_apply {X Y Z : MeasCat.{u}} {x : X} {y : Y} {z : Z} :
+    (α_ X Y Z).inv (x, (y, z)) = ((x, y), z) :=
+  rfl
 
 end MeasCat
 
 section CommutativeMonad
-
-open MonoidalCategory
 
 class LeftStrong {C : Type u} [Category.{v} C] [MonoidalCategory C] (T : Monad C) where
   leftStr : ((𝟭 C : C ⥤ C).prod (T : C ⥤ C)) ⋙ (tensor C) ⟶ (tensor C) ⋙ (T : C ⥤ C)
@@ -227,48 +267,26 @@ lemma measurable_measure_prod_mk_left' {α β : Type*} [MeasurableSpace α] [Mea
     Measurable fun p : α × Measure β ↦ p.2 (Prod.mk p.1 ⁻¹' s) := by
   sorry
 
--- The swap is here to be able to use prod_apply (since the dirac is s-finite).
--- This is probably false, it probably needs s-finite measures (in that case, remove the swap).
-lemma Measure.measurable_dirac_prod {α β : Type*} [MeasurableSpace α] [MeasurableSpace β] :
-    Measurable (fun (p : α × Measure β) ↦ (p.2.prod (Measure.dirac p.1)).map Prod.swap) := by
+-- This is probably false, it probably needs s-finite measures.
+lemma Measure.measurable_map_prod_mk {α β : Type*} [MeasurableSpace α] [MeasurableSpace β] :
+    Measurable (fun (p : α × Measure β) ↦ p.2.map (Prod.mk p.1)) := by
   refine' Measure.measurable_of_measurable_coe _ fun s hs => _
-  simp_rw [Measure.map_apply measurable_swap hs]
-  simp_rw [Measure.prod_apply (measurable_swap hs)]
-  have h_meas : ∀ x, MeasurableSet (Prod.mk x ⁻¹' (Prod.swap ⁻¹' s)) := by
-    intro x
-    exact measurable_prod_mk_left (measurable_swap hs)
-  simp_rw [Measure.dirac_apply' _ (h_meas _)]
-  have : ∀ b : α × Measure β, ∫⁻ x, (Prod.mk x ⁻¹' (Prod.swap ⁻¹' s)).indicator 1 b.1 ∂b.2
-      = b.2 (Prod.mk b.1 ⁻¹' s) := by
-    intro b
-    change ∫⁻ x, (Prod.mk x ⁻¹' (Prod.swap ⁻¹' s)).indicator (fun _ ↦ 1) b.1 ∂b.2 = _
-    classical
-    simp_rw [Set.indicator_apply]
-    simp only [Set.mem_preimage, Prod.swap_prod_mk]
-    have : ∫⁻ x, if (b.1, x) ∈ s then 1 else 0 ∂b.2
-        = ∫⁻ x, (Prod.mk b.1 ⁻¹' s).indicator 1 x ∂b.2 := by
-      simp_rw [Set.indicator_apply]
-      simp
-    rw [this, lintegral_indicator_one]
-    exact measurable_prod_mk_left hs
-  simp_rw [this]
+  simp_rw [Measure.map_apply measurable_prod_mk_left hs]
   exact measurable_measure_prod_mk_left' hs
 
--- this is probably false, because `Measure.measurable_dirac_prod` probably needs s-finite measures.
+-- this is probably false, because `Measure.measurable_map_prod_mk` probably needs s-finite measures.
 noncomputable
 instance : LeftStrong MeasCat.Giry where
   leftStr := {
-    app := fun P ↦ ⟨fun p ↦ (p.2.prod (Measure.dirac p.1)).map Prod.swap,
-      Measure.measurable_dirac_prod⟩
+    app := fun P ↦ ⟨fun p ↦ p.2.map (Prod.mk p.1), Measure.measurable_map_prod_mk⟩
     naturality := fun (P₁, P₂) (Q₁, Q₂) f ↦ by
       simp only [Functor.comp_obj, Functor.prod_obj, Functor.id_obj, tensor_obj, Functor.comp_map,
         Functor.prod_map, Functor.id_map, tensor_map]
+      simp [MeasCat.Giry, MeasCat.Measure] -- todo: add API
       ext x
-      rcases x with ⟨x, p⟩
-      simp only [Functor.comp_obj, Functor.prod_obj, Functor.id_obj, tensor_obj, comp_apply]
-      -- the lines below should be replaced by new simp lemmas?
-      simp only [MeasCat.Giry, MeasCat.Measure, Functor.id_obj, Functor.comp_obj, Functor.prod_obj,
-        tensor_obj]
+      simp only [Functor.comp_obj, Functor.prod_obj, Functor.id_obj, tensor_obj, comp_apply,
+        MeasCat.tensor_apply]
+      -- up to the weird types: rw [Measure.map_map] twice should do it
       sorry }
 
 class Affine {C : Type u} [Category.{v} C] [MonoidalCategory C] (T : Monad C) where
