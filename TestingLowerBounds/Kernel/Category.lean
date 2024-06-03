@@ -254,14 +254,33 @@ section CommutativeMonad
 
 class LeftStrong {C : Type u} [Category.{v} C] [MonoidalCategory C] (T : Monad C) where
   leftStr : ((𝟭 C : C ⥤ C).prod (T : C ⥤ C)) ⋙ (tensor C) ⟶ (tensor C) ⋙ (T : C ⥤ C)
-  unit_comp (X : C) : (λ_ (T.obj X)).symm.hom ≫ leftStr.app (𝟙_ C, X)
+  left_unit_comp (X : C) : (λ_ (T.obj X)).symm.hom ≫ leftStr.app (𝟙_ C, X)
       = T.map (λ_ X).symm.hom := by aesop_cat
-  assoc (X Y Z : C) : leftStr.app (X ⊗ Y, Z) ≫ T.map (α_ X Y Z).hom
-      = (α_ X Y (T.obj Z)).hom ≫ ((𝟙 X) ⊗ leftStr.app (Y, Z)) ≫ leftStr.app (X, Y ⊗ Z) := by
+  left_assoc (X Y Z : C) : leftStr.app (X ⊗ Y, Z) ≫ T.map (α_ X Y Z).hom
+      = (α_ X Y (T.obj Z)).hom ≫ (𝟙 X ⊗ leftStr.app (Y, Z)) ≫ leftStr.app (X, Y ⊗ Z) := by
     aesop_cat
-  unit_comm (X Y : C) : ((𝟙 X) ⊗ T.η.app Y) ≫ leftStr.app (X, Y) = T.η.app (X ⊗ Y) := by aesop_cat
-  mul_comm (X Y : C) : ((𝟙 X) ⊗ T.μ.app Y) ≫ leftStr.app (X, Y)
+  left_unit_comm (X Y : C) : (𝟙 X ⊗ T.η.app Y) ≫ leftStr.app (X, Y) = T.η.app (X ⊗ Y) := by
+    aesop_cat
+  left_mul_comm (X Y : C) : (𝟙 X ⊗ T.μ.app Y) ≫ leftStr.app (X, Y)
       = leftStr.app (X, T.obj Y) ≫ T.map (leftStr.app (X, Y)) ≫ T.μ.app (X ⊗ Y) := by aesop_cat
+
+class RightStrong {C : Type u} [Category.{v} C] [MonoidalCategory C] (T : Monad C) where
+  rightStr : ((T : C ⥤ C).prod (𝟭 C : C ⥤ C)) ⋙ (tensor C) ⟶ (tensor C) ⋙ (T : C ⥤ C)
+  right_unit_comp (X : C) : (ρ_ (T.obj X)).symm.hom ≫ rightStr.app (X, 𝟙_ C)
+      = T.map (ρ_ X).symm.hom := by aesop_cat
+  right_assoc (X Y Z : C) : rightStr.app (X, Y ⊗ Z) ≫ T.map (α_ X Y Z).inv
+      = (α_ (T.obj X) Y Z).inv ≫ (rightStr.app (X, Y) ⊗ 𝟙 Z) ≫ rightStr.app (X ⊗ Y, Z) := by
+    aesop_cat
+  right_unit_comm (X Y : C) : (T.η.app X ⊗ 𝟙 Y) ≫ rightStr.app (X, Y) = T.η.app (X ⊗ Y) := by
+    aesop_cat
+  right_mul_comm (X Y : C) : (T.μ.app X ⊗ 𝟙 Y) ≫ rightStr.app (X, Y)
+      = rightStr.app (T.obj X, Y) ≫ T.map (rightStr.app (X, Y)) ≫ T.μ.app (X ⊗ Y) := by aesop_cat
+
+class Strong {C : Type u} [Category.{v} C] [MonoidalCategory C] (T : Monad C)
+    extends LeftStrong T, RightStrong T where
+  left_right_comm (X Y Z : C) : (leftStr.app (X, Y) ⊗ 𝟙 Z) ≫ rightStr.app (X ⊗ Y, Z)
+    = (α_ X (T.obj Y) Z).hom ≫ (𝟙 X ⊗ rightStr.app (Y, Z)) ≫ leftStr.app (X, Y ⊗ Z)
+      ≫ T.map (α_ _ _ _).inv := by aesop_cat
 
 /- This is probably false: it probably needs s-finite measures, since
 `measurable_measure_prod_mk_left` (the case where p.2 is constant) requires an s-finite measure.
