@@ -278,9 +278,14 @@ class RightStrong {C : Type u} [Category.{v} C] [MonoidalCategory C] (T : Monad 
 
 class Strong {C : Type u} [Category.{v} C] [MonoidalCategory C] (T : Monad C)
     extends LeftStrong T, RightStrong T where
-  left_right_comm (X Y Z : C) : (leftStr.app (X, Y) ⊗ 𝟙 Z) ≫ rightStr.app (X ⊗ Y, Z)
+  left_right (X Y Z : C) : (leftStr.app (X, Y) ⊗ 𝟙 Z) ≫ rightStr.app (X ⊗ Y, Z)
     = (α_ X (T.obj Y) Z).hom ≫ (𝟙 X ⊗ rightStr.app (Y, Z)) ≫ leftStr.app (X, Y ⊗ Z)
       ≫ T.map (α_ _ _ _).inv := by aesop_cat
+
+class CommutativeMonad {C : Type u} [Category.{v} C] [MonoidalCategory C] (T : Monad C)
+    extends Strong T where
+  comm (X Y : C) : leftStr.app (T.obj X, Y) ≫ T.map (rightStr.app (X, Y)) ≫ T.μ.app (X ⊗ Y)
+    = rightStr.app (X, T.obj Y) ≫ T.map (leftStr.app (X, Y)) ≫ T.μ.app (X ⊗ Y) := by aesop_cat
 
 /- This is probably false: it probably needs s-finite measures, since
 `measurable_measure_prod_mk_left` (the case where p.2 is constant) requires an s-finite measure.
