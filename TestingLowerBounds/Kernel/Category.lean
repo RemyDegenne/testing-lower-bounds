@@ -646,10 +646,8 @@ lemma Kleisli.whiskerLeft_comp [Strong T] (X : Kleisli T) {Y₁ Y₂ Y₃ : Klei
     X ◁ (f ≫ g) = (X ◁ f) ≫ (X ◁ g) := by
   simp only [comp_def, Category.assoc, whiskerLeft_def, Functor.id_obj, Monad.unit_dStr_left,
     MonoidalCategory.whiskerLeft_comp, Functor.map_comp]
-  congr 1
-  slice_rhs 1 2 => rw [← T.lStr_naturality_id_left]
+  slice_rhs 2 3 => rw [← T.lStr_naturality_id_left]
   simp only [Category.assoc]
-  congr 1
   rw [T.lStr_mul_comm]
   rfl
 
@@ -659,10 +657,8 @@ lemma Kleisli.comp_whiskerRight [CommutativeMonad T] {Y₁ Y₂ Y₃ : Kleisli T
     (f ≫ g) ▷ X = f ▷ X ≫ g ▷ X := by
   simp only [comp_def, Category.assoc, whiskerRight_def, Monad.unit_dStr_right, comp_whiskerRight,
     MonoidalCategory.comp_whiskerRight, Functor.map_comp]
-  congr 1
-  slice_rhs 1 2 => rw [← T.rStr_naturality_id_right]
+  slice_rhs 2 3 => rw [← T.rStr_naturality_id_right]
   simp only [Category.assoc]
-  congr 1
   rw [T.rStr_mul_comm]
   rfl
 
@@ -672,16 +668,12 @@ lemma Kleisli.whisker_exchange [CommutativeMonad T] {W X Y Z : Kleisli T}
   simp only [whiskerLeft_def, Functor.id_obj, Monad.unit_dStr_left, whiskerRight_def,
     Monad.unit_dStr_right]
   simp only [comp_def, Functor.map_comp, ← Category.assoc]
-  congr 1
   slice_rhs 2 3 => rw [← T.rStr_naturality_id_left]
-  simp only [← Category.assoc]
-  rw [← MonoidalCategory.whisker_exchange]
+  slice_rhs 1 2 => rw [← MonoidalCategory.whisker_exchange]
+  slice_lhs 2 3 => rw [← T.lStr_naturality_id_right]
   simp only [Category.assoc]
-  congr 1
-  slice_lhs 1 2 => rw [← T.lStr_naturality_id_right]
-  simp only [Category.assoc]
-  congr 1
-  sorry
+  congr 2
+  exact T.lStr_rStr_comm X Z
 
 lemma todo' (X Y : C) :
     (α_ X (𝟙_ C) Y).hom ≫ T.η.app (X ⊗ 𝟙_ C ⊗ Y) ≫ T.map (X ◁ (λ_ Y).hom)
