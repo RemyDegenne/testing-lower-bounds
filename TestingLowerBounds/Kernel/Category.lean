@@ -755,8 +755,17 @@ instance [BraidedCategory C] [CommutativeMonad T] : BraidedCategory (Kleisli T) 
   hexagon_forward X Y Z := sorry
   hexagon_reverse X Y Z := sorry
 
+lemma Kleisli.braiding_def [BraidedCategory C] [CommutativeMonad T] (X Y : Kleisli T) :
+    β_ X Y = (Kleisli.Adjunction.toKleisli T).mapIso (@BraidedCategory.braiding C _ _ _ X Y) := rfl
+
 instance [SymmetricCategory C] [CommutativeMonad T] : SymmetricCategory (Kleisli T) where
-  symmetry X Y := sorry
+  symmetry X Y := by
+    simp only [Kleisli.tensorObj_def, Kleisli.braiding_def, Functor.mapIso_hom,
+      Kleisli.Adjunction.toKleisli_map, Kleisli.comp_def, Functor.map_comp, Category.assoc,
+      Monad.right_unit, Category.comp_id]
+    rw [← T.η.naturality]
+    simp only [Functor.id_obj, Functor.id_map, SymmetricCategory.symmetry_assoc]
+    rfl
 
 end Kleisli
 
