@@ -394,6 +394,14 @@ class CommutativeMonad {C : Type u} [Category.{v} C] [MonoidalCategory C] (T : M
   comm (X Y : C) : leftStr.app (T.obj X, Y) ≫ T.map (rightStr.app (X, Y)) ≫ T.μ.app (X ⊗ Y)
     = rightStr.app (X, T.obj Y) ≫ T.map (leftStr.app (X, Y)) ≫ T.μ.app (X ⊗ Y) := by aesop_cat
 
+-- TODO: does that class make sense?
+class SymmetricMonad {C : Type u} [Category.{v} C] [MonoidalCategory C]
+    [SymmetricCategory C] (T : Monad C) extends CommutativeMonad T where
+  braiding_left_right (X Y : C) : leftStr.app (X, Y) ≫ T.map (β_ X Y).hom
+      = (β_ X (T.obj Y)).hom ≫ rightStr.app (Y, X) := by aesop_cat
+  braiding_right_left (X Y : C) : rightStr.app (X, Y) ≫ T.map (β_ X Y).hom
+      = (β_ (T.obj X) Y).hom ≫ leftStr.app (Y, X) := by aesop_cat
+
 section LeftRightStrength
 
 variable {C : Type u} [Category.{v} C] [MonoidalCategory C]
@@ -533,6 +541,16 @@ lemma Monad.unit_dStr_right (T : Monad C) [CommutativeMonad T] (X : C) {Y₁ Y�
     (f : Y₁ ⟶ T.obj Y₂) :
     (f ⊗ T.η.app X) ≫ T.dStr Y₂ X = f ▷ X ≫ T.rStr Y₂ X := by
   simp [tensorHom_def]
+
+@[simp]
+lemma Monad.lStr_comp_braiding (T : Monad C) [SymmetricCategory C] [SymmetricMonad T] (X Y : C) :
+    T.lStr X Y ≫ T.map (β_ X Y).hom = (β_ X (T.obj Y)).hom ≫ T.rStr Y X :=
+  SymmetricMonad.braiding_left_right _ _
+
+@[simp]
+lemma Monad.rStr_comp_braiding (T : Monad C) [SymmetricCategory C] [SymmetricMonad T] (X Y : C) :
+    T.rStr X Y ≫ T.map (β_ X Y).hom = (β_ (T.obj X) Y).hom ≫ T.lStr Y X :=
+  SymmetricMonad.braiding_right_left _ _
 
 end LeftRightStrength
 
@@ -733,8 +751,7 @@ instance [CommutativeMonad T] : MonoidalCategory (Kleisli T) where
     slice_lhs 2 3 => rw [← T.map_comp]
     rw [← T.map_comp]
     rw [todo]
-    simp only [Category.assoc]
-    rw [← h]
+    slice_lhs 3 4 => rw [← h]
     simp only [pentagon_assoc]
   triangle X Y := by
     simp only [Kleisli.associator_def, Functor.mapIso_hom, Kleisli.Adjunction.toKleisli_map,
@@ -747,17 +764,7 @@ instance [CommutativeMonad T] : MonoidalCategory (Kleisli T) where
     simp only [Kleisli.tensorObj_def, Monad.right_unit, Category.comp_id]
     exact todo' _ _
 
-@[simp] -- todo: not provable and should be turned into a class?
-lemma Monad.lStr_comp_braiding [SymmetricCategory C] [CommutativeMonad T] (X Y : C) :
-    T.lStr X Y ≫ T.map (β_ X Y).hom = (β_ X (T.obj Y)).hom ≫ T.rStr Y X := by
-  sorry
-
-@[simp] -- todo: not provable and should be turned into a class?
-lemma Monad.rStr_comp_braiding [SymmetricCategory C] [CommutativeMonad T] (X Y : C) :
-    T.rStr X Y ≫ T.map (β_ X Y).hom = (β_ (T.obj X) Y).hom ≫ T.lStr Y X := by
-  sorry
-
-instance [SymmetricCategory C] [CommutativeMonad T] : BraidedCategory (Kleisli T) where
+instance [SymmetricCategory C] [SymmetricMonad T] : BraidedCategory (Kleisli T) where
   braiding X Y := (Kleisli.Adjunction.toKleisli T).mapIso
     (@BraidedCategory.braiding C _ _ _ X Y)
   braiding_naturality_right X Y Z f := by
@@ -825,10 +832,10 @@ instance [SymmetricCategory C] [CommutativeMonad T] : BraidedCategory (Kleisli T
     slice_rhs 1 2 => rw [← T.map_comp, ← hη]
     simp
 
-lemma Kleisli.braiding_def [SymmetricCategory C] [CommutativeMonad T] (X Y : Kleisli T) :
+lemma Kleisli.braiding_def [SymmetricCategory C] [SymmetricMonad T] (X Y : Kleisli T) :
     β_ X Y = (Kleisli.Adjunction.toKleisli T).mapIso (@BraidedCategory.braiding C _ _ _ X Y) := rfl
 
-instance [SymmetricCategory C] [CommutativeMonad T] : SymmetricCategory (Kleisli T) where
+instance [SymmetricCategory C] [SymmetricMonad T] : SymmetricCategory (Kleisli T) where
   symmetry X Y := by
     simp only [Kleisli.tensorObj_def, Kleisli.braiding_def, Functor.mapIso_hom,
       Kleisli.Adjunction.toKleisli_map, Kleisli.comp_def, Functor.map_comp, Category.assoc,
