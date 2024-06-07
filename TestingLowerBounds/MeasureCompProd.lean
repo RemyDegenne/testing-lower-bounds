@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import TestingLowerBounds.ForMathlib.RadonNikodym
+import TestingLowerBounds.ForMathlib.SFinite
+
 
 /-!
 
@@ -317,5 +319,40 @@ lemma integrable_f_rnDeriv_compProd_right_iff [IsFiniteMeasure μ]
     simp [ha]
 
 end Integrable
+
+/--The composition product of a measure and a constant kernel is the product between the two
+measures.-/
+@[simp]
+lemma compProd_const {ν : Measure β} [SFinite ν] [SFinite μ] :
+    μ ⊗ₘ (kernel.const α ν) = μ.prod ν := by
+  ext s hs
+  rw [Measure.compProd_apply hs, Measure.prod_apply hs]
+  simp_rw [kernel.const_apply]
+
+lemma compProd_apply_toReal [SFinite μ] [IsFiniteKernel κ]
+    {s : Set (α × β)} (hs : MeasurableSet s) :
+    ((μ ⊗ₘ κ) s).toReal = ∫ x, (κ x (Prod.mk x ⁻¹' s)).toReal ∂μ := by
+  rw [Measure.compProd_apply hs, integral_eq_lintegral_of_nonneg_ae]
+  rotate_left
+  · exact ae_of_all _ (fun x ↦ by positivity)
+  · exact (kernel.measurable_kernel_prod_mk_left hs).ennreal_toReal.aestronglyMeasurable
+  congr with x
+  rw [ENNReal.ofReal_toReal (measure_ne_top _ _)]
+
+lemma compProd_univ_toReal [SFinite μ] [IsFiniteKernel κ] :
+    ((μ ⊗ₘ κ) Set.univ).toReal = ∫ x, (κ x Set.univ).toReal ∂μ :=
+  compProd_apply_toReal MeasurableSet.univ
+
+instance [SFinite μ] [IsSFiniteKernel κ] : SFinite (μ ∘ₘ κ) := by
+  rw [Measure.comp_eq_snd_compProd]
+  infer_instance
+
+instance [IsFiniteMeasure μ] [IsFiniteKernel κ] : IsFiniteMeasure (μ ∘ₘ κ) := by
+  rw [Measure.comp_eq_snd_compProd]
+  infer_instance
+
+instance [IsProbabilityMeasure μ] [IsMarkovKernel κ] : IsProbabilityMeasure (μ ∘ₘ κ) := by
+  rw [Measure.comp_eq_snd_compProd]
+  infer_instance
 
 end ProbabilityTheory
