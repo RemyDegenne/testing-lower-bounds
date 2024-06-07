@@ -81,29 +81,29 @@ Since $\KL$ is an f-divergence, every inequality for f-divergences can be transl
 
 \begin{theorem}[Marginals]
   \label{thm:kl_fst_le}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.kl_fst_le, ProbabilityTheory.kl_snd_le}
+  \leanok
   \uses{def:KL}
   Let $\mu$ and $\nu$ be two measures on $\mathcal X \times \mathcal Y$ where $\mathcal Y$ is standard Borel, and let $\mu_X, \nu_X$ be their marginals on $\mathcal X$.
   Then $\KL(\mu_X, \nu_X) \le \KL(\mu, \nu)$.
   Similarly, for $\mathcal X$ standard Borel and $\mu_Y, \nu_Y$ the marginals on $\mathcal Y$, $\KL(\mu_Y, \nu_Y) \le \KL(\mu, \nu)$.
 \end{theorem}
 
-\begin{proof}
+\begin{proof} \leanok
 \uses{thm:fDiv_fst_le, lem:kl_eq_fDiv}
 Apply Theorem~\ref{thm:fDiv_fst_le}.
 \end{proof}
 
 \begin{theorem}[Data-processing]
   \label{thm:kl_data_proc}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.kl_comp_right_le}
+  \leanok
   \uses{def:KL}
   Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
   Then $\KL(\kappa \circ \mu, \kappa \circ \nu) \le \KL(\mu, \nu)$.
 \end{theorem}
 
-\begin{proof}
+\begin{proof} \leanok
 \uses{thm:fDiv_data_proc, lem:kl_eq_fDiv}
 Apply Theorem~\ref{thm:fDiv_data_proc}.
 \end{proof}
@@ -252,10 +252,11 @@ Write $\mu = \mu_X \otimes \mu_{Y|X}$ and $\nu = \nu_X \otimes \nu_{Y|X}$, then 
   $$\KL(\mu_1\times \mu_2, \nu_1 \times \nu_2) = \KL(\mu_1, \nu_1) + \KL(\mu_2, \nu_2) \mu_1 (\mathcal X) \: .$$
 \end{lemma}
 
-\begin{proof}
+\begin{proof} \leanok
 \uses{thm:kl_compProd, lem:condKL_const}
 Write $\mu_1 \times \mu_2$ and $\nu_1 \times \nu_2$ as composition products of a measure and a constant kernel, then apply the chain rule (Theorem~\ref{thm:kl_compProd}) and Lemma~\ref{lem:condKL_const}.
 \end{proof}
+ 
 \begin{theorem}[Tensorization]
   \label{thm:kl_prod_two}
   \lean{ProbabilityTheory.kl_prod_two}
