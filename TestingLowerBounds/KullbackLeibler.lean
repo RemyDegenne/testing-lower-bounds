@@ -192,16 +192,29 @@ lemma kl_ge_mul_log (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure �
   · rw [ENNReal.toReal_ne_zero]
     simp [hν, measure_ne_top ν]
 
-lemma kl_nonneg (μ ν : Measure α) [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
+lemma kl_nonneg' (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (h : μ Set.univ ≥ ν Set.univ) :
     0 ≤ kl μ ν := by
   by_cases hμν : μ ≪ ν
   swap; · rw [kl_of_not_ac hμν]; simp
   by_cases h_int : Integrable (llr μ ν) μ
   swap; · rw [kl_of_not_integrable h_int]; simp
   calc 0
-    = ((μ Set.univ).toReal : EReal) * log ((μ Set.univ).toReal / (ν Set.univ).toReal) := by simp
+    ≤ ((μ Set.univ).toReal : EReal) * log ((μ Set.univ).toReal / (ν Set.univ).toReal) := by
+        by_cases h_zero : NeZero ν
+        swap; · simp [not_neZero.mp h_zero]
+        refine mul_nonneg (EReal.coe_nonneg.mpr ENNReal.toReal_nonneg) ?_
+        norm_cast
+        refine log_nonneg ((one_le_div ?_).mpr ?_)
+        · exact ENNReal.toReal_pos (NeZero.ne' _).symm (measure_ne_top _ _)
+        · gcongr
+          exact measure_ne_top _ _
   _ ≤ kl μ ν := kl_ge_mul_log _ _
 
+lemma kl_nonneg (μ ν : Measure α) [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
+    0 ≤ kl μ ν := kl_nonneg' μ ν (by simp)
+
+-- This is wrong as it is stated, infact `kl μ ν` is zero also if `μ = 0`.
 lemma kl_eq_zero_iff [SigmaFinite μ] [SigmaFinite ν] : kl μ ν = 0 ↔ μ = ν := by
   constructor <;> intro h
   · by_cases hμν : μ ≪ ν
@@ -398,7 +411,28 @@ lemma condKL_const {ξ : Measure β} [IsFiniteMeasure ξ] [IsFiniteMeasure μ] [
   rw [condKL_eq_condFDiv, kl_eq_fDiv]
   exact condFDiv_const
 
+lemma kl_fst_le [Nonempty β] [StandardBorelSpace β]
+    (μ ν : Measure (α × β)) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
+    kl μ.fst ν.fst ≤ kl μ ν := by
+  simp_rw [kl_eq_fDiv]
+  exact fDiv_fst_le _ _ continuous_mul_log.stronglyMeasurable convexOn_mul_log
+    continuous_mul_log.continuousOn
+
+lemma kl_snd_le [Nonempty α] [StandardBorelSpace α]
+    (μ ν : Measure (α × β)) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
+    kl μ.snd ν.snd ≤ kl μ ν := by
+  simp_rw [kl_eq_fDiv]
+  exact fDiv_snd_le _ _ continuous_mul_log.stronglyMeasurable convexOn_mul_log
+    continuous_mul_log.continuousOn
+
 section CompProd
+
+lemma le_kl_compProd [CountableOrCountablyGenerated α β] (μ ν : Measure α) [IsFiniteMeasure μ]
+    [IsFiniteMeasure ν] (κ η : kernel α β) [IsMarkovKernel κ] [IsMarkovKernel η] :
+    kl μ ν ≤ kl (μ ⊗ₘ κ) (ν ⊗ₘ η) := by
+  simp_rw [kl_eq_fDiv]
+  exact le_fDiv_compProd μ ν κ η continuous_mul_log.stronglyMeasurable
+    convexOn_mul_log continuous_mul_log.continuousOn
 
 /- TODO: the following lemma may be generalized, infact the hypothesys of being markov kernels is
 only used to prove that
@@ -499,8 +533,8 @@ lemma condKL_compProd_meas [CountableOrCountablyGenerated (α × β) γ] [SFinit
   filter_upwards [h.1] with a ha
   simp_rw [condKL_ne_top_iff'.mp ha, EReal.toReal_coe, kernel.snd'_apply]
 
-lemma kl_compProd_left [CountableOrCountablyGenerated α β] [IsFiniteMeasure μ] [IsMarkovKernel κ]
-    [IsFiniteKernel η] :
+lemma kl_compProd_left [CountableOrCountablyGenerated α β]
+    [IsFiniteMeasure μ] [IsFiniteKernel κ] [∀ x, NeZero (κ x)] [IsFiniteKernel η] :
     kl (μ ⊗ₘ κ) (μ ⊗ₘ η) = condKL κ η μ := by
   rw [kl_eq_fDiv, condKL_eq_condFDiv]
   exact fDiv_compProd_left μ κ η continuous_mul_log.stronglyMeasurable convexOn_mul_log
@@ -733,9 +767,10 @@ lemma kl_prod_two [CountableOrCountablyGenerated α β] {ξ ψ : Measure β} [Is
   simp only [kl_prod_two', measure_univ, EReal.coe_ennreal_one, mul_one]
 
 --TODO: put this in the right place, maybe PR to mathlib, just after MeasurableEquiv.piCongrLeft?
+-- The following 3 lemmas have been PRed, see #13311
 lemma MeasurableEquiv.piCongrLeft_apply_apply {ι ι' : Type*} (e : ι ≃ ι') {β : ι' → Type*}
     [∀ i', MeasurableSpace (β i')] (x : (i : ι) → β (e i)) (i : ι) :
-    (MeasurableEquiv.piCongrLeft (fun i' => β i') e) x (e i) = x i := by
+    (MeasurableEquiv.piCongrLeft (fun i' ↦ β i') e) x (e i) = x i := by
   rw [MeasurableEquiv.piCongrLeft, MeasurableEquiv.coe_mk, Equiv.piCongrLeft_apply_apply]
 
 lemma Measure.pi_map_piCongrLeft {ι ι' : Type*} [hι : Fintype ι] [hι' : Fintype ι'] (e : ι ≃ ι')
@@ -751,10 +786,8 @@ lemma Measure.pi_map_piCongrLeft {ι ι' : Type*} [hι : Fintype ι] [hι' : Fin
   have : e_meas ⁻¹' Set.pi Set.univ s = Set.pi Set.univ s' := by
     ext x
     simp only [Set.mem_preimage, Set.mem_pi, Set.mem_univ, forall_true_left, s']
-    apply (e.forall_congr _).symm
-    intro i
-    convert Iff.rfl
-    exact MeasurableEquiv.piCongrLeft_apply_apply e x i
+    refine (e.forall_congr ?_).symm
+    simp_rw [MeasurableEquiv.piCongrLeft_apply_apply e x _, implies_true]
   rw [this, Measure.pi_pi, Finset.prod_equiv e.symm]
   · simp only [Finset.mem_univ, implies_true]
   intro i _
@@ -824,5 +857,38 @@ lemma kl_pi_const {ι : Type*} [hι : Fintype ι] [CountablyGenerated α]
   rw [kl_pi, Finset.sum_const, (Finset.card_eq_iff_eq_univ _).mpr rfl, EReal.nsmul_eq_mul]
 
 end Tensorization
+
+section DataProcessingInequality
+
+variable {β : Type*} {mβ : MeasurableSpace β} {κ η : kernel α β}
+
+
+lemma kl_comp_le_compProd [Nonempty α] [StandardBorelSpace α]
+    (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
+    kl (μ ∘ₘ κ) (ν ∘ₘ η) ≤ kl (μ ⊗ₘ κ) (ν ⊗ₘ η) := by
+  simp_rw [kl_eq_fDiv]
+  exact fDiv_comp_le_compProd μ ν κ η continuous_mul_log.stronglyMeasurable
+    convexOn_mul_log continuous_mul_log.continuousOn
+
+lemma kl_comp_left_le [Nonempty α] [StandardBorelSpace α] [CountableOrCountablyGenerated α β]
+    (μ : Measure α) [IsFiniteMeasure μ]
+    (κ η : kernel α β) [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] :
+    kl (μ ∘ₘ κ) (μ ∘ₘ η) ≤ condKL κ η μ := by
+  rw [kl_eq_fDiv, condKL_eq_condFDiv]
+  exact fDiv_comp_left_le μ κ η continuous_mul_log.stronglyMeasurable
+    convexOn_mul_log continuous_mul_log.continuousOn
+
+/--The Data Processing Inequality for the Kullback-Leibler divergence. -/
+lemma kl_comp_right_le [Nonempty α] [StandardBorelSpace α] [CountableOrCountablyGenerated α β]
+    (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (κ : kernel α β) [IsMarkovKernel κ] :
+    kl (μ ∘ₘ κ) (ν ∘ₘ κ) ≤ kl μ ν := by
+  simp_rw [kl_eq_fDiv]
+  exact fDiv_comp_right_le μ ν κ continuous_mul_log.stronglyMeasurable
+    convexOn_mul_log continuous_mul_log.continuousOn
+
+end DataProcessingInequality
+
 
 end ProbabilityTheory
