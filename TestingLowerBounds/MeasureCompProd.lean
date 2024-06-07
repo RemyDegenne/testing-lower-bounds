@@ -147,7 +147,7 @@ lemma singularPart_compProd'' [MeasurableSpace.CountableOrCountablyGenerated α 
       (kernel.singularPart κ η) η
   · rw [Measure.singularPart_eq_self]
     exact kernel.Measure.mutuallySingular_compProd_right (ν.withDensity (∂μ/∂ν)) ν
-      (kernel.mutuallySingular_singularPart _ _)
+      (eventually_of_forall <| kernel.mutuallySingular_singularPart _ _)
 
 lemma singularPart_compProd [MeasurableSpace.CountableOrCountablyGenerated α β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
