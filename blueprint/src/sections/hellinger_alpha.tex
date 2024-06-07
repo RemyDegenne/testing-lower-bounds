@@ -105,14 +105,14 @@ Since $\He_\alpha$ is an f-divergence, every inequality for f-divergences can be
 
 \begin{theorem}[Data-processing]
   \label{thm:hellingerAlpha_data_proc}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.hellingerDiv_comp_right_le}
+  \leanok
   \uses{def:hellingerAlpha}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
+  Let $\alpha > 0$, $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
   Then $\He_\alpha(\kappa \circ \mu, \kappa \circ \nu) \le \He_\alpha(\mu, \nu)$.
 \end{theorem}
 
-\begin{proof}
+\begin{proof} \leanok
 \uses{thm:fDiv_data_proc}
 Apply Theorem~\ref{thm:fDiv_data_proc}.
 \end{proof}
