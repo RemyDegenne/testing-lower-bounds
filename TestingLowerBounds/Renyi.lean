@@ -192,8 +192,8 @@ lemma renyiDiv_eq_top_iff_mutuallySingular_of_lt_one (ha_nonneg : 0 ≤ a) (ha :
   rw [renyiDiv_of_ne_one ha.ne, EReal.mul_eq_top,
     ← toENNReal_meas_univ_add_mul_hellingerDiv_eq_zero_iff_of_lt_one ha_nonneg ha]
   simp [ha, not_lt_of_gt ha]
-
-lemma renyiDiv_ne_bot_of_le_one (ha : a ≤ 1) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
+--offspring
+lemma renyiDiv_ne_bot_of_le_one (ha : a ≤ 1) [IsFiniteMeasure ν] :
     renyiDiv a μ ν ≠ ⊥ := by
   by_cases ha_one : a = 1
   · rw [ha_one, renyiDiv_one]
@@ -562,8 +562,8 @@ lemma renyiDiv_comp_le_compProd [Nonempty α] [StandardBorelSpace α] (ha_pos : 
     (hellingerDiv_comp_le_compProd ha_pos μ ν κ η)
 
 lemma renyiDiv_comp_left_le [Nonempty α] [StandardBorelSpace α]
-    [CountableOrCountablyGenerated α β] (ha_pos : 0 < a) (μ : Measure α) [IsFiniteMeasure μ]
-    (κ η : kernel α β) [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] :
+    (ha_pos : 0 < a) (μ : Measure α) [IsFiniteMeasure μ]
+    (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
     renyiDiv a (μ ∘ₘ κ) (μ ∘ₘ η) ≤ condRenyiDiv a κ η μ :=
   le_renyiDiv_of_le_hellingerDiv (Measure.snd_compProd μ η ▸ Measure.snd_univ)
     (hellingerDiv_comp_le_compProd ha_pos μ μ κ η)

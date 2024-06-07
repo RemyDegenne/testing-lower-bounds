@@ -702,8 +702,7 @@ lemma toENNReal_meas_univ_add_mul_hellingerDiv_eq_zero_iff_of_one_lt (ha : 1 < a
     EReal.toENNReal_eq_zero_iff]
   exact LE.le.le_iff_eq (meas_univ_add_mul_hellingerDiv_nonneg (by positivity) μ ν)
 
-lemma meas_univ_add_mul_hellingerDiv_ne_top_of_lt_one (ha : a < 1)
-    [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
+lemma meas_univ_add_mul_hellingerDiv_ne_top_of_lt_one (ha : a < 1) [IsFiniteMeasure ν] :
     ↑(ν Set.univ) + (a - 1) * hellingerDiv a μ ν ≠ ⊤ := by
   apply EReal.add_ne_top
   · simp [measure_ne_top]
@@ -957,8 +956,7 @@ lemma condHellingerDiv_zero_eq [CountableOrCountablyGenerated α β]
       ⟨eventually_of_forall (fun _ ↦ integrable_hellingerFun_zero), by simp⟩)
     integrable_hellingerDiv_zero
 
-lemma condHellingerDiv_zero_of_ae_integrable_of_integrable
-    [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η]
+lemma condHellingerDiv_zero_of_ae_integrable_of_integrable [IsFiniteKernel κ] [IsFiniteKernel η]
     (h_int2 : Integrable (fun x ↦ (hellingerDiv 0 (κ x) (η x)).toReal) μ) :
     condHellingerDiv 0 κ η μ = ∫ x, (hellingerDiv 0 (κ x) (η x)).toReal ∂μ :=
   condHellingerDiv_of_ae_finite_of_integrable
