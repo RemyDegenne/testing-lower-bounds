@@ -186,34 +186,6 @@ lemma renyiDiv_ne_top_iff_of_one_lt (ha : 1 < a) [SigmaFinite μ] [IsFiniteMeasu
   rw [ne_eq, renyiDiv_eq_top_iff_of_one_lt ha]
   simp
 
--- the only advantage of these two lemmas over the previous ones is that they also work for `a = 1`,
--- but I don't think it's worth it to keep them, it's probaly better to switch to the convention of
--- using only `(fun x ↦ ((∂μ/∂ν) x).toReal ^ a)` and not `hellingerFun`
-
--- lemma renyiDiv_eq_top_iff_of_one_le (ha : 1 ≤ a) (μ ν : Measure α)
---     [SigmaFinite μ] [IsFiniteMeasure ν] :
---     renyiDiv a μ ν = ⊤
---       ↔ ¬ Integrable (fun x ↦ hellingerFun a ((∂μ/∂ν) x).toReal) ν ∨ ¬ μ ≪ ν := by
---   rw [renyiDiv_eq_top_iff_hellingerDiv_eq_top_of_one_le ha, hellingerDiv_eq_top_iff_of_one_le ha]
-
--- lemma renyiDiv_ne_top_iff_of_one_le (ha : 1 ≤ a) (μ ν : Measure α)
---     [SigmaFinite μ] [IsFiniteMeasure ν] :
---     renyiDiv a μ ν ≠ ⊤
---       ↔ Integrable (fun x ↦ hellingerFun a ((∂μ/∂ν) x).toReal) ν ∧ μ ≪ ν := by
---   rw [ne_eq, renyiDiv_eq_top_iff_hellingerDiv_eq_top_of_one_le ha,
---     hellingerDiv_eq_top_iff_of_one_le ha]
---   push_neg
---   rfl
-
-
-/-TODO: prove that this ↓ holds forall a, we can use the monotonocity of the Renyi div, but we would
-have to prove it before.
-Maybe it's not true actually, see `Theorem 24` of the paper `Renyi divergence and Kullback-Leibler divergence`.
-It says that `μ ⟂ ν` is equivalent to the fact that for every a `Rₐ(μ, ν) = ⊤`, but it may happen
-that `Rₐ(μ, ν) = ⊤` for some `a ≥ 1`, but not for all `a`, it may not imply that `μ ⟂ ν`. Actually
-this is most likely the case, otherwise we would have that `Rₐ(μ, ν) = ⊤` for some `a` iff
-`Rₐ(μ, ν) = ⊤` for all `a`, which  think is not true.
--/
 lemma renyiDiv_eq_top_iff_mutuallySingular_of_lt_one (ha_nonneg : 0 ≤ a) (ha : a < 1)
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     renyiDiv a μ ν = ⊤ ↔ μ ⟂ₘ ν := by
@@ -246,9 +218,6 @@ lemma renyiDiv_ne_bot [hμ : NeZero μ] [IsFiniteMeasure μ] [IsFiniteMeasure ν
   rcases le_or_lt a 1 with (ha | ha)
   · exact renyiDiv_ne_bot_of_le_one ha
   · exact (renyiDiv_eq_bot_iff_of_one_lt ha).mp.mt hμ.out
-
--- lemma renyiDiv_eq_top_iff_of_one_lt (ha : 1 < a) [SigmaFinite μ] [IsFiniteMeasure ν] :
---     renyiDiv a μ ν = ⊤ ↔ ¬ Integrable (fun x ↦ ((∂μ/∂ν) x).toReal ^ a) ν ∨ ¬ μ ≪ ν := by
 
 /- TODO: it may be possible to handle also the cases where `ν` is infinite in many of the lemmas
 in this section, since in this case, if `a < 1`, then `Rₐ(μ, ν) = ⊥`, it is likely possible to
