@@ -861,10 +861,7 @@ and `η` are all finite and `a ∈ (0, 1) ∪ (1, +∞)`.
 Consider the following conditions:
 1. `condHellingerDiv a κ η μ ≠ ⊤`
 2. `condHellingerDiv a κ η μ = ∫ x, (hellingerDiv a (κ x) (η x)).toReal ∂μ`
-TODO: change 3.a to something like `∀ᵐ x ∂μ, Integrable (fun b ↦ ((∂κ x/∂η x) b).toReal ^ a) (η x)`
-  use `integrable_hellingerFun_iff_integrable_rpow`
-
-3.a `∀ᵐ x ∂μ, Integrable (fun b ↦ hellingerFun a ((∂κ x/∂η x) b).toReal) (η x)` (`h_int`)
+3.a `∀ᵐ x ∂μ, Integrable (fun b ↦ ((∂κ x/∂η x) b).toReal ^ a) (η x)` (`h_int`)
 3.b `∀ᵐ x ∂μ, (κ x) ≪ (η x)` (`h_ac`)
 3.c `Integrable (fun x ↦ ∫ b, ((∂κ x/∂η x) b).toReal ^ a ∂η x) μ` (`h_int'`)
 4. `condHellingerDiv a κ η μ = (a - 1)⁻¹ * ∫ x, ∫ b, ((∂κ x/∂η x) b).toReal ^ a ∂η x ∂μ - (a - 1)⁻¹ * ((μ ⊗ₘ η) Set.univ).toReal`
@@ -876,7 +873,7 @@ Then the following hold:
   - 2. ↔ 3.a ∧ 3.b ∧ 3.c (`condHellingerDiv_eq_integral_iff_of_one_lt`)
   - 3.a ∧ 3.b ∧ 3.c → 4. (`condHellingerDiv_eq_integral'_of_one_lt`)
 - if `a < 1`:
-  - 1. ↔ 3.c (`condHellingerDiv_ne_top_iff_of_lt_one`)
+  - 1. ↔ 3.c (`condHellingerDiv_ne_top_iff_of_lt_one'`)
   - 2. ↔ 3.c (`condHellingerDiv_eq_integral_iff_of_lt_one`)
   - 3.c → 4. (`condHellingerDiv_eq_integral'_of_lt_one`)
 
@@ -1037,8 +1034,6 @@ lemma condHellingerDiv_eq_top_iff' (ha_pos : 0 < a) (ha_ne_one : a ≠ 1)
         ∨ ¬ Integrable (fun x ↦ ∫ b, ((∂κ x/∂η x) b).toReal ^ a ∂η x) μ := by
   rw [← not_not (a := _ = ⊤), ← ne_eq, condHellingerDiv_ne_top_iff' ha_pos ha_ne_one]
   tauto
-
-#check integrable_hellingerFun_iff_integrable_rpow --continue to refactor this file
 
 lemma condHellingerDiv_ne_top_iff_of_one_lt (ha : 1 < a)
     [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η] :
