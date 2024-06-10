@@ -315,18 +315,6 @@ theorem toENNReal_le_toENNReal {x y : EReal} (h : x ≤ y) : x.toENNReal ≤ y.t
 
 end EReal
 
-noncomputable instance : HMul ℝ ℝ≥0∞ EReal where
-  hMul x y := (x : EReal) * y
-
-noncomputable instance : HMul ℝ≥0∞ ℝ EReal where
-  hMul x y := (x : EReal) * y
-
-noncomputable instance : HAdd ℝ ℝ≥0∞ EReal where
-  hAdd x y := (x : EReal) + y
-
-noncomputable instance : HAdd ℝ≥0∞ ℝ EReal where
-  hAdd x y := (x : EReal) + y
-
 namespace ENNReal
 
 lemma toEReal_sub {x y : ENNReal} (hy_top : y ≠ ⊤) (h_le : y ≤ x) :
