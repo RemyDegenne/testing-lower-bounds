@@ -5,7 +5,7 @@ namespace MeasureTheory.Measure
 variable {α β : Type*} {m0 : MeasurableSpace α} {m1 : MeasurableSpace β}
   {μ : Measure α} {ρ : Measure (α × β)}
 
---TODO: put this in `Mathlib.MeasureTheory.Measure.Typeclasses`, inside the `SFinite` section
+--TODO: remove. Already exists in Mathlib.MeasureTheory.Measure.AEMeasurable
 instance [SFinite μ] (f : α → β) : SFinite (μ.map f) := by
   by_cases hf : AEMeasurable f μ
   · rw [← sum_sFiniteSeq μ, map_sum]
