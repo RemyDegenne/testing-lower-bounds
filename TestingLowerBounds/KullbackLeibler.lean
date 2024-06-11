@@ -214,15 +214,17 @@ lemma kl_nonneg' (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
 lemma kl_nonneg (μ ν : Measure α) [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
     0 ≤ kl μ ν := kl_nonneg' μ ν (by simp)
 
--- This is wrong as it is stated, infact `kl μ ν` is zero also if `μ = 0`.
-lemma kl_eq_zero_iff [SigmaFinite μ] [SigmaFinite ν] : kl μ ν = 0 ↔ μ = ν := by
+-- We may need to modify the hypotheses of this lemma, maybe `μ Set.univ ≥ ν Set.univ` is enough,
+-- like in the previous lemma, and we probably need finiteness of the measures.
+lemma kl_eq_zero_iff [SigmaFinite μ] [SigmaFinite ν] (h : μ Set.univ = ν Set.univ) :
+  kl μ ν = 0 ↔ μ = ν := by
   constructor <;> intro h
   · by_cases hμν : μ ≪ ν
     swap; · rw [kl_of_not_ac hμν] at h; simp_all only [EReal.top_ne_zero]
     by_cases h_int : Integrable (llr μ ν) μ
     swap; · rw [kl_of_not_integrable h_int] at h; simp_all only [EReal.top_ne_zero]
     sorry -- TODO : decide what proof strategy to use here, maybe we could use the fact that
-    -- jensen's inequality is an equality iff the function is constant a.e., but I don't know wether
+    -- jensen's inequality is an equality iff the function is constant a.e., but I don't know whether
     -- this is in mathlib
   · exact h ▸ kl_self ν
 
