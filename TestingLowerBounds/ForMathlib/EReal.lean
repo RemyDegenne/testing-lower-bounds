@@ -112,12 +112,12 @@ lemma add_sub_cancel (x : EReal) (y : ℝ) : x + y - y = x := by
 lemma add_sub_cancel' (x : EReal) (y : ℝ) : y + x - y = x := by
   rw [add_comm, EReal.add_sub_cancel]
 
-lemma neg_add {x y : EReal} (h1 : (x ≠ ⊥) ∨ (y ≠ ⊤)) (h2 : (x ≠ ⊤) ∨ (y ≠ ⊥)) :
+lemma neg_add {x y : EReal} (h1 : x ≠ ⊥ ∨ y ≠ ⊤) (h2 : x ≠ ⊤ ∨ y ≠ ⊥) :
     - (x + y) = - x - y := by
   induction x using EReal.rec <;> induction y using EReal.rec <;> try tauto
   rw [← coe_add, ← coe_neg, ← coe_neg, ← coe_sub, neg_add']
 
-lemma neg_sub {x y : EReal} (h1 : (x ≠ ⊥) ∨ (y ≠ ⊥)) (h2 : (x ≠ ⊤) ∨ (y ≠ ⊤)) :
+lemma neg_sub {x y : EReal} (h1 : x ≠ ⊥ ∨ y ≠ ⊥) (h2 : x ≠ ⊤ ∨ y ≠ ⊤) :
     - (x - y) = - x + y := by
   rw [sub_eq_add_neg, neg_add _ _, sub_eq_add_neg, neg_neg] <;> simp_all
 
@@ -314,18 +314,6 @@ theorem toENNReal_le_toENNReal {x y : EReal} (h : x ≤ y) : x.toENNReal ≤ y.t
   · simp_all
 
 end EReal
-
-noncomputable instance : HMul ℝ ℝ≥0∞ EReal where
-  hMul x y := (x : EReal) * y
-
-noncomputable instance : HMul ℝ≥0∞ ℝ EReal where
-  hMul x y := (x : EReal) * y
-
-noncomputable instance : HAdd ℝ ℝ≥0∞ EReal where
-  hAdd x y := (x : EReal) + y
-
-noncomputable instance : HAdd ℝ≥0∞ ℝ EReal where
-  hAdd x y := (x : EReal) + y
 
 namespace ENNReal
 
