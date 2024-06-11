@@ -861,7 +861,13 @@ lemma measurable_measure_prod_mk_left' {α β : Type*} [MeasurableSpace α] [Mea
 lemma measurable_measure_prod_mk_left'' {α β : Type*} [MeasurableSpace α] [MeasurableSpace β]
     {s : Set (α × β)} (hs : MeasurableSet s) :
     Measurable fun p : α × SFiniteMeasure β ↦ p.2 (Prod.mk p.1 ⁻¹' s) := by
-  sorry
+  let κ : kernel (α × SFiniteMeasure β) β := ⟨Subtype.val ∘ Prod.snd,
+    measurable_subtype_coe.comp measurable_snd⟩
+  have : IsSFiniteKernel κ := by
+    sorry
+  let s' := {((a, ν), b) : (α × SFiniteMeasure β) × β | (a, b) ∈ s}
+  have hs' : MeasurableSet s' := (measurable_fst.fst.prod_mk measurable_snd) hs
+  exact kernel.measurable_kernel_prod_mk_left (κ := κ) hs'
 
 -- This is probably false, it probably needs s-finite measures.
 lemma Measure.measurable_map_prod_mk {α β : Type*} [MeasurableSpace α] [MeasurableSpace β] :
