@@ -99,13 +99,13 @@ lemma measure_sub_le_measure_mul_exp [SigmaFinite μ] [IsFiniteMeasure ν] (hμ�
         rw [ENNReal.toReal_le_toReal]
         · exact le_measure_diff
         · exact (tsub_le_self.trans_lt (Ne.lt_top hμs)).ne
-        · exact ((measure_mono (Set.inter_subset_left _ _)).trans_lt (Ne.lt_top hμs)).ne
+        · exact ((measure_mono Set.inter_subset_left).trans_lt (Ne.lt_top hμs)).ne
   _ = (μ (s ∩ {x | llr μ ν x ≤ c})).toReal * rexp (-c) := by congr with x; simp
   _ = ∫ _ in s ∩ {x | llr μ ν x ≤ c}, exp (- c) ∂μ := by rw [setIntegral_const _, smul_eq_mul]
   _ ≤ ∫ x in s ∩ {x | llr μ ν x ≤ c}, exp (- llr μ ν x) ∂μ := by
         refine setIntegral_mono_ae_restrict ?_ ?_ ?_
         · simp only [integrableOn_const]
-          exact Or.inr ((measure_mono (Set.inter_subset_left _ _)).trans_lt (Ne.lt_top hμs))
+          exact Or.inr ((measure_mono Set.inter_subset_left).trans_lt (Ne.lt_top hμs))
         · refine Integrable.integrableOn ?_
           refine (integrable_congr (exp_neg_llr hμν)).mpr ?_
           exact Measure.integrable_toReal_rnDeriv
@@ -116,11 +116,11 @@ lemma measure_sub_le_measure_mul_exp [SigmaFinite μ] [IsFiniteMeasure ν] (hμ�
           · exact (measurable_llr _ _).neg.exp measurableSet_Ici
   _ ≤ (ν (s ∩ {x | llr μ ν x ≤ c})).toReal := by
         refine setIntegral_exp_neg_llr_le hμν ?_
-        exact ((measure_mono (Set.inter_subset_left _ _)).trans_lt (measure_lt_top _ _)).ne
+        exact ((measure_mono Set.inter_subset_left).trans_lt (measure_lt_top _ _)).ne
   _ ≤ (ν s).toReal := by
         rw [ENNReal.toReal_le_toReal _ (measure_ne_top _ _)]
-        · exact measure_mono (Set.inter_subset_left _ _)
-        · exact ((measure_mono (Set.inter_subset_left _ _)).trans_lt (measure_lt_top _ _)).ne
+        · exact measure_mono Set.inter_subset_left
+        · exact ((measure_mono Set.inter_subset_left).trans_lt (measure_lt_top _ _)).ne
 
 lemma measure_sub_le_measure_mul_exp' [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hμν : μ ≪ ν)
     (s : Set α) (c : ℝ) (hμc : μ {x | c < llr μ ν x} ≠ ∞) :
