@@ -346,7 +346,7 @@ lemma coe_cgf_llr_of_lt_one (ha_pos : 0 < a) (ha : a < 1)
     exact hν.out <| Measure.eq_zero_of_absolutelyContinuous_of_mutuallySingular hνμ h.symm
   rw [EReal.log_ofReal_of_pos]
   swap
-  · refine integral_rpow_rnDeriv_pos_iff_mutuallySingular ha_pos.ne' ?_ |>.mpr h_ms
+  · refine integral_rpow_rnDeriv_pos_iff_not_mutuallySingular ha_pos.ne' ?_ |>.mpr h_ms
     exact integrable_rpow_rnDeriv_of_lt_one ha_pos.le ha
   congr 2
   exact integral_congr_ae (exp_mul_llr hνμ)
@@ -378,7 +378,7 @@ lemma coe_cgf_llr' (ha_pos : 0 < a) [hν : NeZero μ] [IsFiniteMeasure μ] [IsFi
   · rw [← integral_rnDeriv_smul hμν]
     simp_rw [smul_eq_mul, mul_comm ((∂μ/∂ν) _).toReal,
       ← Real.rpow_add_one' ENNReal.toReal_nonneg (by linarith), add_comm a]
-    exact integral_rpow_rnDeriv_pos_iff_mutuallySingular (by linarith) h_int |>.mpr h_ms
+    exact integral_rpow_rnDeriv_pos_iff_not_mutuallySingular (by linarith) h_int |>.mpr h_ms
   congr 2
   refine integral_congr_ae (exp_mul_llr' hμν)
 
