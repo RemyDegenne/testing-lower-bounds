@@ -22,14 +22,6 @@ variable {α β γ δ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace
   {μ : Measure α} [IsFiniteMeasure μ]
   {κ : kernel α β} [IsFiniteKernel κ]
 
-lemma deterministic_prod_deterministic {f : α → β} {g : α → γ}
-    (hf : Measurable f) (hg : Measurable g) :
-    deterministic f hf ×ₖ deterministic g hg
-      = deterministic (fun a ↦ (f a, g a)) (hf.prod_mk hg) := by
-  ext a
-  simp_rw [prod_apply, deterministic_apply]
-  rw [Measure.dirac_prod_dirac]
-
 section KernelId
 
 /-- The identity kernel. -/
@@ -52,6 +44,18 @@ lemma id_comp : kernel.id ∘ₖ κ = κ := by
   simp_rw [comp_apply, Measure.bind_apply hs (kernel.measurable _), id_apply,
     Measure.dirac_apply' _ hs]
   rw [lintegral_indicator_one hs]
+
+lemma compProd_prodMkLeft_eq_comp
+    (κ : kernel α β) [IsSFiniteKernel κ] (η : kernel β γ) [IsSFiniteKernel η] :
+    κ ⊗ₖ (prodMkLeft α η) = (kernel.id ×ₖ η) ∘ₖ κ := by
+  ext a s hs
+  rw [comp_eq_snd_compProd, compProd_apply _ _ _ hs, snd_apply' _ _ hs, compProd_apply]
+  swap; · exact measurable_snd hs
+  simp only [prodMkLeft_apply, Set.mem_setOf_eq, Set.setOf_mem_eq, prod_apply' _ _ _ hs,
+    id_apply, id_eq]
+  congr with b
+  rw [lintegral_dirac']
+  exact measurable_measure_prod_mk_left hs
 
 end KernelId
 
