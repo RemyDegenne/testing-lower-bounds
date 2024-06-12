@@ -36,64 +36,6 @@ variable {α β γ δ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace
     {mγ : MeasurableSpace γ} {mδ : MeasurableSpace δ}
     {κ : kernel α β} {μ : Measure α} [IsFiniteMeasure μ] [IsFiniteKernel κ]
 
-section ParallelComp
-
-namespace kernel
-
-lemma _root_.MeasureTheory.Measure.prod_comp_right
-    (μ : Measure α) [SFinite μ] (ν : Measure β) [SFinite ν]
-    (κ : kernel β γ) [IsSFiniteKernel κ] :
-    μ.prod (ν ∘ₘ κ) = (μ.prod ν) ∘ₘ (kernel.id ∥ₖ κ) := by
-  ext s hs
-  rw [Measure.prod_apply hs, Measure.bind_apply hs (kernel.measurable _)]
-  simp_rw [Measure.bind_apply (measurable_prod_mk_left hs) (kernel.measurable _)]
-  rw [MeasureTheory.lintegral_prod]
-  swap; · exact (kernel.measurable_coe _ hs).aemeasurable
-  congr with a
-  congr with b
-  rw [parallelComp_apply, kernel.id_apply, Measure.prod_apply hs, lintegral_dirac']
-  exact measurable_measure_prod_mk_left hs
-
-lemma _root_.MeasureTheory.Measure.prod_comp_left
-    (μ : Measure α) [SFinite μ] (ν : Measure β) [SFinite ν]
-    (κ : kernel α γ) [IsSFiniteKernel κ] :
-    (μ ∘ₘ κ).prod ν = (μ.prod ν) ∘ₘ (κ ∥ₖ kernel.id) := by
-  have h1 : (μ ∘ₘ κ).prod ν = (ν.prod (μ ∘ₘ κ)).map Prod.swap := by
-    rw [Measure.prod_swap]
-  have h2 : (μ.prod ν) ∘ₘ (κ ∥ₖ kernel.id) = ((ν.prod μ) ∘ₘ (kernel.id ∥ₖ κ)).map Prod.swap := by
-    calc (μ.prod ν) ∘ₘ (κ ∥ₖ kernel.id)
-    _ = ((ν.prod μ).map Prod.swap) ∘ₘ (κ ∥ₖ kernel.id) := by rw [Measure.prod_swap]
-    _ = (ν.prod μ) ∘ₘ (swap _ _) ∘ₘ (κ ∥ₖ kernel.id) := by
-      rw [swap, Measure.comp_deterministic_eq_map]
-    _ = (ν.prod μ) ∘ₘ (kernel.id ∥ₖ κ) ∘ₘ (swap _ _) := by
-      rw [Measure.comp_assoc, Measure.comp_assoc, swap_parallelComp]
-    _ = ((ν.prod μ) ∘ₘ (kernel.id ∥ₖ κ)).map Prod.swap := by
-      rw [swap, Measure.comp_deterministic_eq_map]
-  rw [← Measure.prod_comp_right, ← h1] at h2
-  exact h2.symm
-
-lemma parallelComp_comp_right {α' : Type*} {_ : MeasurableSpace α'}
-    (κ : kernel α β) [IsSFiniteKernel κ]
-    (η : kernel α' γ) [IsSFiniteKernel η] (ξ : kernel γ δ) [IsSFiniteKernel ξ] :
-    κ ∥ₖ (ξ ∘ₖ η) = (kernel.id ∥ₖ ξ) ∘ₖ (κ ∥ₖ η) := by
-  ext a
-  rw [parallelComp_apply, comp_apply, comp_apply, parallelComp_apply, Measure.prod_comp_right]
-
-lemma parallelComp_comp_left {α' : Type*} {_ : MeasurableSpace α'}
-    (κ : kernel α β) [IsSFiniteKernel κ]
-    (η : kernel α' γ) [IsSFiniteKernel η] (ξ : kernel γ δ) [IsSFiniteKernel ξ] :
-    (ξ ∘ₖ η) ∥ₖ κ = (ξ ∥ₖ kernel.id) ∘ₖ (η ∥ₖ κ) := by
-  ext a
-  rw [parallelComp_apply, comp_apply, comp_apply, parallelComp_apply, Measure.prod_comp_left]
-
-lemma parallelComp_comm (κ : kernel α β) [IsSFiniteKernel κ] (η : kernel γ δ) [IsSFiniteKernel η] :
-    (kernel.id ∥ₖ κ) ∘ₖ (η ∥ₖ kernel.id) = (η ∥ₖ kernel.id) ∘ₖ (kernel.id ∥ₖ κ) := by
-  rw [← parallelComp_comp_right, ← parallelComp_comp_left, comp_id, comp_id]
-
-end kernel
-
-end ParallelComp
-
 variable [StandardBorelSpace α] [Nonempty α]
 
 /-- Bayesian inverse of the kernel `κ` with respect to the measure `μ`. -/

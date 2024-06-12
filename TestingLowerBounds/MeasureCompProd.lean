@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import TestingLowerBounds.ForMathlib.RadonNikodym
+import TestingLowerBounds.Kernel.Basic
 import TestingLowerBounds.Kernel.Monoidal
 import TestingLowerBounds.ForMathlib.SFinite
 
@@ -34,45 +35,6 @@ namespace ProbabilityTheory
 
 variable {α β γ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {mγ : MeasurableSpace γ}
   {μ ν : Measure α} {κ η : kernel α β} {f g : ℝ → ℝ}
-
-lemma kernel.snd_compProd_prodMkLeft {γ : Type*} {_ : MeasurableSpace γ}
-    (κ : kernel α β) (η : kernel β γ) [IsSFiniteKernel κ] [IsSFiniteKernel η] :
-    snd (κ ⊗ₖ prodMkLeft α η) = η ∘ₖ κ := by
-  ext a s hs
-  rw [snd_apply' _ _ hs, compProd_apply, comp_apply' _ _ _ hs]
-  · rfl
-  · exact measurable_snd hs
-
-lemma kernel.compProd_prodMkLeft_eq_comp {γ : Type*} {_ : MeasurableSpace γ}
-    (κ : kernel α β) [IsSFiniteKernel κ] (η : kernel β γ) [IsSFiniteKernel η] :
-    κ ⊗ₖ (prodMkLeft α η) = (kernel.id ×ₖ η) ∘ₖ κ := by
-  ext a s hs
-  rw [comp_eq_snd_compProd, compProd_apply _ _ _ hs, snd_apply' _ _ hs, compProd_apply]
-  swap; · exact measurable_snd hs
-  simp only [prodMkLeft_apply, Set.mem_setOf_eq, Set.setOf_mem_eq, prod_apply' _ _ _ hs,
-    id_apply, id_eq]
-  congr with b
-  rw [lintegral_dirac']
-  exact measurable_measure_prod_mk_left hs
-
-lemma kernel.map_comp {δ : Type*} {_ : MeasurableSpace δ}
-    (κ : kernel α β) [IsSFiniteKernel κ] (η : kernel β γ) [IsSFiniteKernel η]
-    {f : γ → δ} (hf : Measurable f) :
-    kernel.map (η ∘ₖ κ) f hf = (kernel.map η f hf) ∘ₖ κ := by
-  ext a s hs
-  rw [map_apply' _ hf _ hs, comp_apply', comp_apply' _ _ _ hs]
-  · simp_rw [map_apply' _ hf _ hs]
-  · exact hf hs
-
-lemma kernel.fst_comp {δ : Type*} {_ : MeasurableSpace δ}
-    (κ : kernel α β) [IsSFiniteKernel κ] (η : kernel β (γ × δ)) [IsSFiniteKernel η] :
-    fst (η ∘ₖ κ) = fst η ∘ₖ κ :=
-  kernel.map_comp κ η measurable_fst
-
-lemma kernel.snd_comp {δ : Type*} {_ : MeasurableSpace δ}
-    (κ : kernel α β) [IsSFiniteKernel κ] (η : kernel β (γ × δ)) [IsSFiniteKernel η] :
-    snd (η ∘ₖ κ) = snd η ∘ₖ κ :=
-  kernel.map_comp κ η measurable_snd
 
 /-- Composition of a measure and a kernel.
 
@@ -195,6 +157,66 @@ lemma Measure.fst_swap_compProd [SFinite μ] [IsSFiniteKernel κ] :
     ((μ ⊗ₘ κ).map Prod.swap).fst = μ ∘ₘ κ := by
   rw [Measure.comp_eq_snd_compProd]
   simp
+
+section ParallelComp
+
+namespace kernel
+
+variable {δ : Type*} {mδ : MeasurableSpace δ}
+
+lemma _root_.MeasureTheory.Measure.prod_comp_right
+    (μ : Measure α) [SFinite μ] (ν : Measure β) [SFinite ν]
+    (κ : kernel β γ) [IsSFiniteKernel κ] :
+    μ.prod (ν ∘ₘ κ) = (μ.prod ν) ∘ₘ (kernel.id ∥ₖ κ) := by
+  ext s hs
+  rw [Measure.prod_apply hs, Measure.bind_apply hs (kernel.measurable _)]
+  simp_rw [Measure.bind_apply (measurable_prod_mk_left hs) (kernel.measurable _)]
+  rw [MeasureTheory.lintegral_prod]
+  swap; · exact (kernel.measurable_coe _ hs).aemeasurable
+  congr with a
+  congr with b
+  rw [parallelComp_apply, kernel.id_apply, Measure.prod_apply hs, lintegral_dirac']
+  exact measurable_measure_prod_mk_left hs
+
+lemma _root_.MeasureTheory.Measure.prod_comp_left
+    (μ : Measure α) [SFinite μ] (ν : Measure β) [SFinite ν]
+    (κ : kernel α γ) [IsSFiniteKernel κ] :
+    (μ ∘ₘ κ).prod ν = (μ.prod ν) ∘ₘ (κ ∥ₖ kernel.id) := by
+  have h1 : (μ ∘ₘ κ).prod ν = (ν.prod (μ ∘ₘ κ)).map Prod.swap := by
+    rw [Measure.prod_swap]
+  have h2 : (μ.prod ν) ∘ₘ (κ ∥ₖ kernel.id) = ((ν.prod μ) ∘ₘ (kernel.id ∥ₖ κ)).map Prod.swap := by
+    calc (μ.prod ν) ∘ₘ (κ ∥ₖ kernel.id)
+    _ = ((ν.prod μ).map Prod.swap) ∘ₘ (κ ∥ₖ kernel.id) := by rw [Measure.prod_swap]
+    _ = (ν.prod μ) ∘ₘ (swap _ _) ∘ₘ (κ ∥ₖ kernel.id) := by
+      rw [swap, Measure.comp_deterministic_eq_map]
+    _ = (ν.prod μ) ∘ₘ (kernel.id ∥ₖ κ) ∘ₘ (swap _ _) := by
+      rw [Measure.comp_assoc, Measure.comp_assoc, swap_parallelComp]
+    _ = ((ν.prod μ) ∘ₘ (kernel.id ∥ₖ κ)).map Prod.swap := by
+      rw [swap, Measure.comp_deterministic_eq_map]
+  rw [← Measure.prod_comp_right, ← h1] at h2
+  exact h2.symm
+
+lemma parallelComp_comp_right {α' : Type*} {_ : MeasurableSpace α'}
+    (κ : kernel α β) [IsSFiniteKernel κ]
+    (η : kernel α' γ) [IsSFiniteKernel η] (ξ : kernel γ δ) [IsSFiniteKernel ξ] :
+    κ ∥ₖ (ξ ∘ₖ η) = (kernel.id ∥ₖ ξ) ∘ₖ (κ ∥ₖ η) := by
+  ext a
+  rw [parallelComp_apply, comp_apply, comp_apply, parallelComp_apply, Measure.prod_comp_right]
+
+lemma parallelComp_comp_left {α' : Type*} {_ : MeasurableSpace α'}
+    (κ : kernel α β) [IsSFiniteKernel κ]
+    (η : kernel α' γ) [IsSFiniteKernel η] (ξ : kernel γ δ) [IsSFiniteKernel ξ] :
+    (ξ ∘ₖ η) ∥ₖ κ = (ξ ∥ₖ kernel.id) ∘ₖ (η ∥ₖ κ) := by
+  ext a
+  rw [parallelComp_apply, comp_apply, comp_apply, parallelComp_apply, Measure.prod_comp_left]
+
+lemma parallelComp_comm (κ : kernel α β) [IsSFiniteKernel κ] (η : kernel γ δ) [IsSFiniteKernel η] :
+    (kernel.id ∥ₖ κ) ∘ₖ (η ∥ₖ kernel.id) = (η ∥ₖ kernel.id) ∘ₖ (kernel.id ∥ₖ κ) := by
+  rw [← parallelComp_comp_right, ← parallelComp_comp_left, comp_id, comp_id]
+
+end kernel
+
+end ParallelComp
 
 section SingularPart
 
