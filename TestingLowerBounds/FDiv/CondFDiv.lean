@@ -8,6 +8,7 @@ import TestingLowerBounds.MeasureCompProd
 import TestingLowerBounds.FDiv.Basic
 import Mathlib.Probability.Kernel.Disintegration.Basic
 import TestingLowerBounds.ForMathlib.KernelFstSnd
+import TestingLowerBounds.ForMathlib.Integrable_of_empty
 
 /-!
 
@@ -326,8 +327,8 @@ lemma condFDiv_of_not_integrable
 
 @[simp]
 lemma condFDiv_of_not_integrable' [CountableOrCountablyGenerated α β] [IsFiniteMeasure μ]
-    [IsFiniteKernel κ]
-    [IsFiniteKernel η] (hf : ¬ Integrable (fun a ↦ ∫ b, f ((∂κ a/∂η a) b).toReal ∂η a) μ) :
+    [IsFiniteKernel κ] [IsFiniteKernel η]
+    (hf : ¬ Integrable (fun a ↦ ∫ b, f ((∂κ a/∂η a) b).toReal ∂η a) μ) :
     condFDiv f κ η μ = ⊤ := by
   by_cases h_top : ∀ᵐ a ∂μ, fDiv f (κ a) (η a) ≠ ⊤
   swap; exact condFDiv_of_not_ae_finite h_top
@@ -471,7 +472,20 @@ lemma condFDiv_zero_measure : condFDiv f κ η 0 = 0 := by
   rw [condFDiv_eq' hf_ae integrable_zero_measure]
   simp only [integral_zero_measure, EReal.coe_zero]
 
-lemma condFDiv_ne_bot (κ η : kernel α β) (μ : Measure α) : condFDiv f κ η μ ≠ ⊥ := by
+@[simp]
+lemma condFDiv_of_isEmpty_left [IsEmpty α] : condFDiv f κ η μ = 0 := by
+  suffices μ = 0 from this ▸ condFDiv_zero_measure
+  ext s
+  exact Set.eq_empty_of_isEmpty s ▸ measure_empty
+
+@[simp]
+lemma condFDiv_of_isEmpty_right [IsEmpty β] [IsFiniteKernel κ] (hf_one : f 1 = 0) :
+    condFDiv f κ η μ = 0 := by
+  suffices κ = η from by exact this ▸ condFDiv_self κ _ hf_one
+  ext x s _
+  simp [Set.eq_empty_of_isEmpty s]
+
+  lemma condFDiv_ne_bot (κ η : kernel α β) (μ : Measure α) : condFDiv f κ η μ ≠ ⊥ := by
   rw [condFDiv]
   split_ifs with h
   · simp only [ne_eq, EReal.coe_ne_bot, not_false_eq_true]
@@ -683,7 +697,7 @@ lemma fDiv_compProd_right [CountableOrCountablyGenerated α β]
 
 variable {γ : Type*} [MeasurableSpace γ]
 
-lemma condFDiv_snd'_toReal_eq_ae [CountablyGenerated γ] {ξ : kernel α β}
+lemma condFDiv_snd'_toReal_eq_ae [CountableOrCountablyGenerated β γ] {ξ : kernel α β}
     [IsFiniteKernel ξ] {κ η : kernel (α × β) γ} [IsFiniteKernel κ] [IsFiniteKernel η]
     (h_ac : derivAtTop f = ⊤ → ∀ᵐ a ∂μ, ∀ᵐ b ∂ξ a, κ (a, b) ≪ η (a, b))
     (h_int : ∀ᵐ a ∂μ, ∀ᵐ b ∂ξ a, Integrable (fun x ↦ f ((∂κ (a, b)/∂η (a, b)) x).toReal) (η (a, b)))
@@ -729,15 +743,19 @@ simp_rw [norm_eq_abs, abs_eq_self.mpr ENNReal.toReal_nonneg, ENNReal.toReal_le_t
   (measure_ne_top _ _) (lt_top_iff_ne_top.mp hC_finite)]
 exact eventually_of_forall <| fun x ↦ (κ x).mono (Set.subset_univ s) |>.trans (hC_le x)
 
-lemma condFDiv_kernel_snd'_integrable_iff [CountablyGenerated γ] [IsFiniteMeasure μ]
-    {ξ : kernel α β}  [IsFiniteKernel ξ] {κ η : kernel (α × β) γ} [IsMarkovKernel κ]
-    [IsMarkovKernel η] (h_ac : derivAtTop f = ⊤ → ∀ᵐ a ∂μ, ∀ᵐ b ∂ξ a, κ (a, b) ≪ η (a, b))
+lemma condFDiv_kernel_snd'_integrable_iff [CountableOrCountablyGenerated (α × β) γ]
+    [IsFiniteMeasure μ] {ξ : kernel α β}  [IsFiniteKernel ξ]
+    {κ η : kernel (α × β) γ} [IsMarkovKernel κ] [IsMarkovKernel η]
+    (h_ac : derivAtTop f = ⊤ → ∀ᵐ a ∂μ, ∀ᵐ b ∂ξ a, κ (a, b) ≪ η (a, b))
     (h_int : ∀ᵐ a ∂μ, ∀ᵐ b ∂ξ a, Integrable (fun x ↦ f ((∂κ (a, b)/∂η (a, b)) x).toReal) (η (a, b)))
     (h_int2 : ∀ᵐ a ∂μ, Integrable (fun b ↦ ∫ x, f ((∂κ (a, b)/∂η (a, b)) x).toReal ∂η (a, b)) (ξ a))
     (hf_meas : StronglyMeasurable f) (hf_cvx : ConvexOn ℝ (Set.Ici 0) f)
     (hf_cont : ContinuousOn f (Set.Ici 0)) (hf_one : f 1 = 0) :
     Integrable (fun a ↦ (condFDiv f (kernel.snd' κ a) (kernel.snd' η a) (ξ a)).toReal) μ ↔
       Integrable (fun a ↦ ∫ b, |∫ x, f ((∂κ (a, b)/∂η (a, b)) x).toReal ∂η (a, b)| ∂ξ a) μ := by
+  by_cases h_empty : Nonempty α
+  swap; simp only [not_nonempty_iff.mp h_empty, Integrable.of_isEmpty]
+  have := countableOrCountablyGenerated_right_of_prod_left_of_nonempty (α := α) (β := β) (γ := γ)
   have h_le : ∀ᵐ a ∂μ, ∀ᵐ b ∂ξ a, |∫ x, f ((∂κ (a, b)/∂η (a, b)) x).toReal ∂η (a, b)|
         - (fDiv f (κ (a, b)) (η (a, b))).toReal ≤ |(derivAtTop f).toReal|
       ∧ (fDiv f (κ (a, b)) (η (a, b))).toReal - |∫ x, f ((∂κ (a, b)/∂η (a, b)) x).toReal ∂η (a, b)|
@@ -804,9 +822,10 @@ lemma condFDiv_kernel_snd'_integrable_iff [CountablyGenerated γ] [IsFiniteMeasu
     -- same as above
     exact h.add (Integrable.kernel _ MeasurableSet.univ |>.mul_const _)
 
-lemma condFDiv_kernel_fst'_integrable_iff [CountablyGenerated γ] {μ : Measure β} [IsFiniteMeasure μ]
-    {ξ : kernel β α} [IsFiniteKernel ξ] {κ η : kernel (α × β) γ} [IsMarkovKernel κ]
-    [IsMarkovKernel η] (h_ac : derivAtTop f = ⊤ → ∀ᵐ b ∂μ, ∀ᵐ a ∂ξ b, κ (a, b) ≪ η (a, b))
+lemma condFDiv_kernel_fst'_integrable_iff [CountableOrCountablyGenerated (α × β) γ]
+    {μ : Measure β} [IsFiniteMeasure μ] {ξ : kernel β α} [IsFiniteKernel ξ]
+    {κ η : kernel (α × β) γ} [IsMarkovKernel κ] [IsMarkovKernel η]
+    (h_ac : derivAtTop f = ⊤ → ∀ᵐ b ∂μ, ∀ᵐ a ∂ξ b, κ (a, b) ≪ η (a, b))
     (h_int : ∀ᵐ b ∂μ, ∀ᵐ a ∂ξ b, Integrable (fun x ↦ f ((∂κ (a, b)/∂η (a, b)) x).toReal) (η (a, b)))
     (h_int2 : ∀ᵐ b ∂μ, Integrable (fun a ↦ ∫ x, f ((∂κ (a, b)/∂η (a, b)) x).toReal ∂η (a, b)) (ξ b))
     (hf_meas : StronglyMeasurable f) (hf_cvx : ConvexOn ℝ (Set.Ici 0) f)
@@ -816,13 +835,19 @@ lemma condFDiv_kernel_fst'_integrable_iff [CountablyGenerated γ] {μ : Measure 
   simp_rw [← kernel.snd'_swapRight]
   exact condFDiv_kernel_snd'_integrable_iff h_ac h_int h_int2 hf_meas hf_cvx hf_cont hf_one
 
-lemma condFDiv_compProd_meas_eq_top [CountablyGenerated γ] [IsFiniteMeasure μ] {ξ : kernel α β}
-    [IsFiniteKernel ξ] {κ η : kernel (α × β) γ} [IsMarkovKernel κ] [IsMarkovKernel η]
+lemma condFDiv_compProd_meas_eq_top [CountableOrCountablyGenerated (α × β) γ] [IsFiniteMeasure μ]
+    {ξ : kernel α β} [IsFiniteKernel ξ]
+    {κ η : kernel (α × β) γ} [IsMarkovKernel κ] [IsMarkovKernel η]
     (hf_meas : StronglyMeasurable f) (hf_cvx : ConvexOn ℝ (Set.Ici 0) f)
     (hf_cont : ContinuousOn f (Set.Ici 0)) (hf_one : f 1 = 0) :
     condFDiv f κ η (μ ⊗ₘ ξ) = ⊤
       ↔ ¬ (∀ᵐ a ∂μ, condFDiv f (kernel.snd' κ a) (kernel.snd' η a) (ξ a) ≠ ⊤) ∨
         ¬ Integrable (fun x ↦ (condFDiv f (kernel.snd' κ x) (kernel.snd' η x) (ξ x)).toReal) μ := by
+  by_cases h_empty : Nonempty α
+  swap; simp only [isEmpty_prod, not_nonempty_iff.mp h_empty, true_or, condFDiv_of_isEmpty_left,
+    EReal.zero_ne_top, IsEmpty.forall_iff, eventually_of_forall, not_true_eq_false,
+    Integrable.of_isEmpty, or_self]
+  have := countableOrCountablyGenerated_right_of_prod_left_of_nonempty (α := α) (β := β) (γ := γ)
   rw [condFDiv_eq_top_iff]
   constructor
   · by_cases h_ac : derivAtTop f = ⊤ → ∀ᵐ x ∂(μ ⊗ₘ ξ), κ x ≪ η x
@@ -871,13 +896,17 @@ lemma condFDiv_compProd_meas_eq_top [CountablyGenerated γ] [IsFiniteMeasure μ]
     exact ⟨ha_int, ⟨ha_int2, ha_ae⟩⟩
 
 -- -- TODO: find a better name
-lemma condFDiv_compProd_meas [CountablyGenerated γ] [IsFiniteMeasure μ] {ξ : kernel α β}
+lemma condFDiv_compProd_meas [CountableOrCountablyGenerated (α × β) γ] [IsFiniteMeasure μ] {ξ : kernel α β}
     [IsFiniteKernel ξ] {κ η : kernel (α × β) γ} [IsMarkovKernel κ] [IsMarkovKernel η]
     (hf_meas : StronglyMeasurable f) (hf_cvx : ConvexOn ℝ (Set.Ici 0) f)
     (hf_cont : ContinuousOn f (Set.Ici 0)) (hf_one : f 1 = 0)
     (h_top : condFDiv f κ η (μ ⊗ₘ ξ) ≠ ⊤) :
     condFDiv f κ η (μ ⊗ₘ ξ)
       = ∫ x, (condFDiv f (kernel.snd' κ x) (kernel.snd' η x) (ξ x)).toReal ∂μ := by
+  by_cases h_empty : Nonempty α
+  swap; simp only [isEmpty_prod, not_nonempty_iff.mp h_empty, true_or, condFDiv_of_isEmpty_left,
+    integral_of_isEmpty, EReal.coe_zero]
+  have := countableOrCountablyGenerated_right_of_prod_left_of_nonempty (α := α) (β := β) (γ := γ)
   have h := (condFDiv_ne_top_iff.mp h_top)
   rw [condFDiv_ne_top_iff'.mp h_top,
     Measure.integral_compProd <| (integrable_fDiv_iff h.1 h.2.2).mpr h.2.1]
