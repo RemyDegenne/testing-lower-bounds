@@ -73,7 +73,11 @@ lemma integrable_rpow_rnDeriv_compProd_right_iff [CountableOrCountablyGenerated 
 If `ν` is a probability measure then this becomes the more usual definition
 `(a - 1)⁻¹ * log (1 + (a - 1) * Hₐ(μ, ν))`, but this definition maintains some useful properties
 also for a general finite measure `ν`, in particular the integral form
-`Rₐ(μ, ν) = (a - 1)⁻¹ * log (∫ x, ((∂μ/∂ν) x) ^ a ∂ν)`. -/
+`Rₐ(μ, ν) = (a - 1)⁻¹ * log (∫ x, ((∂μ/∂ν) x) ^ a ∂ν)`.
+We use EReal.log instead of Real.log, because it is monotone on `ℝ≥0∞`, while the real log is
+monotone only on `(0, ∞)` (`Real.log 0 = 0`). This allows us to transfer inequalities from the
+Hellinger divergence to the Rényi divergence. -/
+
 noncomputable def renyiDiv (a : ℝ) (μ ν : Measure α) : EReal :=
   if a = 1 then kl μ ν
   else (a - 1)⁻¹ * EReal.log ((↑(ν Set.univ) + (a - 1) * (hellingerDiv a μ ν)).toENNReal)
@@ -104,7 +108,7 @@ lemma renyiDiv_zero_measure (ν : Measure α) [IsFiniteMeasure ν] :
     renyiDiv a 0 ν = sign (a - 1) * ⊥ := by
   by_cases ha : a = 1
   · simp [ha]
-  rw_mod_cast [renyiDiv_of_ne_one ha, hellingerDiv_zero_measure, ← mul_assoc, ← neg_sub a 1,
+  rw_mod_cast [renyiDiv_of_ne_one ha, hellingerDiv_zero_measure_left, ← mul_assoc, ← neg_sub a 1,
     ← neg_inv, ← neg_mul_eq_mul_neg, mul_inv_cancel (sub_ne_zero.mpr ha)]
   simp only [EReal.coe_neg, EReal.coe_one, neg_mul, one_mul, ← sub_eq_add_neg,
     EReal.sub_self_le_zero, EReal.toENNReal_of_nonpos, EReal.log_zero]
