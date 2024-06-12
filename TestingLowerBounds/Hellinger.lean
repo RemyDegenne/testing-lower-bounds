@@ -99,18 +99,23 @@ lemma integrable_rpow_rnDeriv_iff [SigmaFinite ν] [SigmaFinite μ] (hμν : μ 
     linarith
   · rw [rpow_add (ENNReal.toReal_pos h_zero hx), rpow_one]
 
+lemma integral_fun_rnDeriv_eq_zero_iff_mutuallySingular [SigmaFinite μ] [SigmaFinite ν]
+    {f : ENNReal → ℝ} (hf_nonneg : ∀ x, 0 ≤ f x) (hf_zero : ∀ x, f x = 0 ↔ x = 0 ∨ x = ⊤)
+    (h_int : Integrable (f ∘ (∂μ/∂ν)) ν) :
+    ∫ x, f ((∂μ/∂ν) x) ∂ν = 0 ↔ μ ⟂ₘ ν := by
+  rw [← Measure.rnDeriv_eq_zero, integral_eq_zero_iff_of_nonneg (fun _ ↦ hf_nonneg _) h_int]
+  apply Filter.eventually_congr
+  filter_upwards [Measure.rnDeriv_ne_top μ ν] with x hx
+  simp only [Pi.zero_apply, hf_zero, hx, or_false]
+
 lemma integral_rpow_rnDeriv_eq_zero_iff_mutuallySingular [SigmaFinite μ] [SigmaFinite ν]
     (ha_zero : a ≠ 0) (h_int : Integrable (fun x ↦ ((∂μ/∂ν) x).toReal ^ a) ν) :
     ∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν = 0 ↔ μ ⟂ₘ ν := by
-  rw [← Measure.rnDeriv_eq_zero]
-  have : 0 ≤ fun x ↦ ((∂μ/∂ν) x).toReal ^ a := by
+  have h_nonneg : ∀ (x : ENNReal), 0 ≤ x.toReal ^ a := by
     intro x
     simp only [Pi.zero_apply, ENNReal.toReal_nonneg, rpow_nonneg]
-  rw [integral_eq_zero_iff_of_nonneg this h_int]
-  apply Filter.eventually_congr
-  filter_upwards [Measure.rnDeriv_ne_top μ ν] with x hx
-  simp only [Pi.zero_apply, ENNReal.toReal_nonneg]
-  simp_rw [rpow_eq_zero ENNReal.toReal_nonneg ha_zero, ENNReal.toReal_eq_zero_iff, hx, or_false]
+  refine integral_fun_rnDeriv_eq_zero_iff_mutuallySingular h_nonneg (fun x ↦ ?_) h_int
+  rw [rpow_eq_zero ENNReal.toReal_nonneg ha_zero, ENNReal.toReal_eq_zero_iff]
 
 lemma integral_rpow_rnDeriv_pos_iff_mutuallySingular [SigmaFinite μ] [SigmaFinite ν]
     (ha_zero : a ≠ 0) (h_int : Integrable (fun x ↦ ((∂μ/∂ν) x).toReal ^ a) ν) :
