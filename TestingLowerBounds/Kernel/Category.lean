@@ -10,6 +10,7 @@ import Mathlib.MeasureTheory.Category.MeasCat
 import Mathlib.CategoryTheory.ChosenFiniteProducts
 import Mathlib.CategoryTheory.Monoidal.Comon_
 import Mathlib.MeasureTheory.Measure.FiniteMeasure
+import Mathlib.MeasureTheory.Measure.ProbabilityMeasure
 
 /-!
 
@@ -129,6 +130,9 @@ instance : MeasurableSpace (SFiniteMeasure Ω) := Subtype.instMeasurableSpace
 end MeasureTheory.SFiniteMeasure
 
 instance {Ω : Type*} [MeasurableSpace Ω] : MeasurableSpace (FiniteMeasure Ω) :=
+  Subtype.instMeasurableSpace
+
+instance {Ω : Type*} [MeasurableSpace Ω] : MeasurableSpace (ProbabilityMeasure Ω) :=
   Subtype.instMeasurableSpace
 
 namespace ProbabilityTheory
@@ -866,6 +870,20 @@ lemma measurable_measure_prod_mk_left'' {α β : Type*} [MeasurableSpace α] [Me
   have : IsSFiniteKernel κ := by
     sorry
   let s' := {((a, ν), b) : (α × SFiniteMeasure β) × β | (a, b) ∈ s}
+  have hs' : MeasurableSet s' := (measurable_fst.fst.prod_mk measurable_snd) hs
+  exact kernel.measurable_kernel_prod_mk_left (κ := κ) hs'
+
+lemma measurable_measure_prod_mk_left''' {α β : Type*} [MeasurableSpace α] [MeasurableSpace β]
+    {s : Set (α × β)} (hs : MeasurableSet s) :
+    Measurable fun p : α × ProbabilityMeasure β ↦ (p.2 : Measure β) (Prod.mk p.1 ⁻¹' s) := by
+  let κ : kernel (α × ProbabilityMeasure β) β := ⟨Subtype.val ∘ Prod.snd,
+    measurable_subtype_coe.comp measurable_snd⟩
+  have : IsMarkovKernel κ := by
+    constructor
+    intro p
+    change IsProbabilityMeasure p.2
+    infer_instance
+  let s' := {((a, _), b) : (α × ProbabilityMeasure β) × β | (a, b) ∈ s}
   have hs' : MeasurableSet s' := (measurable_fst.fst.prod_mk measurable_snd) hs
   exact kernel.measurable_kernel_prod_mk_left (κ := κ) hs'
 
