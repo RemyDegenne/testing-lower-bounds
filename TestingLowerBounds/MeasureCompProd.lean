@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import TestingLowerBounds.ForMathlib.RadonNikodym
+import TestingLowerBounds.Kernel.Basic
+import TestingLowerBounds.Kernel.Monoidal
 import TestingLowerBounds.ForMathlib.SFinite
 
 
@@ -31,54 +33,28 @@ open scoped ENNReal NNReal Topology
 
 namespace ProbabilityTheory
 
-variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
+variable {α β γ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {mγ : MeasurableSpace γ}
   {μ ν : Measure α} {κ η : kernel α β} {f g : ℝ → ℝ}
-
-lemma kernel.snd_compProd_prodMkLeft {γ : Type*} {_ : MeasurableSpace γ}
-    (κ : kernel α β) (η : kernel β γ) [IsSFiniteKernel κ] [IsSFiniteKernel η] :
-    snd (κ ⊗ₖ prodMkLeft α η) = η ∘ₖ κ := by
-  ext a s hs
-  rw [snd_apply' _ _ hs, compProd_apply, comp_apply' _ _ _ hs]
-  · rfl
-  · exact measurable_snd hs
-
-lemma kernel.compProd_prodMkLeft_eq_comp {γ : Type*} {_ : MeasurableSpace γ}
-    (κ : kernel α β) [IsSFiniteKernel κ] (η : kernel β γ) [IsSFiniteKernel η] :
-    κ ⊗ₖ (prodMkLeft α η) = (deterministic id measurable_id ×ₖ η) ∘ₖ κ := by
-  ext a s hs
-  rw [comp_eq_snd_compProd, compProd_apply _ _ _ hs, snd_apply' _ _ hs, compProd_apply]
-  swap; · exact measurable_snd hs
-  simp only [prodMkLeft_apply, Set.mem_setOf_eq, Set.setOf_mem_eq, prod_apply' _ _ _ hs,
-    deterministic_apply, id_eq]
-  congr with b
-  rw [lintegral_dirac']
-  exact measurable_measure_prod_mk_left hs
-
-lemma kernel.fst_comp {γ δ : Type*} {_ : MeasurableSpace γ} {_ : MeasurableSpace δ}
-    (κ : kernel α β) [IsSFiniteKernel κ] (η : kernel β (γ × δ)) [IsSFiniteKernel η] :
-    fst (η ∘ₖ κ) = fst η ∘ₖ κ := by
-  ext a s hs
-  rw [fst_apply' _ _ hs, comp_apply', comp_apply' _ _ _ hs]
-  · simp_rw [fst_apply' _ _ hs]
-  · exact measurable_fst hs
-
-lemma kernel.snd_comp {γ δ : Type*} {_ : MeasurableSpace γ} {_ : MeasurableSpace δ}
-    (κ : kernel α β) [IsSFiniteKernel κ] (η : kernel β (γ × δ)) [IsSFiniteKernel η] :
-    snd (η ∘ₖ κ) = snd η ∘ₖ κ := by
-  ext a s hs
-  rw [snd_apply' _ _ hs, comp_apply', comp_apply' _ _ _ hs]
-  · simp_rw [snd_apply' _ _ hs]
-  · exact measurable_snd hs
 
 /-- Composition of a measure and a kernel.
 
 Defined using `MeasureTheory.Measure.bind` -/
 scoped[ProbabilityTheory] infixl:100 " ∘ₘ " => MeasureTheory.Measure.bind
 
-lemma Measure.fst_compProd (μ : Measure α) [SFinite μ] (κ : kernel α β) [IsMarkovKernel κ] :
-    (μ ⊗ₘ κ).fst = μ := by
-  ext s
-  rw [Measure.compProd, Measure.fst, ← kernel.fst_apply, kernel.fst_compProd, kernel.const_apply]
+lemma Measure.comp_assoc {μ : Measure α} [SFinite μ]
+    {κ : kernel α β} [IsSFiniteKernel κ] {η : kernel β γ} [IsSFiniteKernel η] :
+    μ ∘ₘ κ ∘ₘ η = μ ∘ₘ (η ∘ₖ κ) :=
+  Measure.bind_bind (kernel.measurable _) (kernel.measurable _)
+
+lemma Measure.comp_deterministic_eq_map {f : α → β} (hf : Measurable f) :
+    μ ∘ₘ kernel.deterministic f hf = μ.map f := by
+  ext s hs
+  rw [Measure.bind_apply hs (kernel.measurable _), Measure.map_apply hf hs]
+  simp only [kernel.deterministic_apply' hf _ hs]
+  rw [lintegral_indicator_const_comp hf hs, one_mul]
+
+lemma Measure.comp_id : μ ∘ₘ kernel.id = μ := by
+  rw [kernel.id, Measure.comp_deterministic_eq_map, Measure.map_id]
 
 lemma Measure.comp_eq_snd_compProd (μ : Measure α) [SFinite μ]
     (κ : kernel α β) [IsSFiniteKernel κ] :
@@ -89,12 +65,22 @@ lemma Measure.comp_eq_snd_compProd (μ : Measure α) [SFinite μ]
   · rfl
   · exact measurable_snd hs
 
+lemma Measure.fst_compProd (μ : Measure α) [SFinite μ] (κ : kernel α β) [IsMarkovKernel κ] :
+    (μ ⊗ₘ κ).fst = μ := by
+  ext s
+  rw [Measure.compProd, Measure.fst, ← kernel.fst_apply, kernel.fst_compProd, kernel.const_apply]
+
 lemma Measure.snd_compProd (μ : Measure α) [SFinite μ] (κ : kernel α β) [IsSFiniteKernel κ] :
     (μ ⊗ₘ κ).snd = μ ∘ₘ κ := (Measure.comp_eq_snd_compProd μ κ).symm
 
 lemma Measure.compProd_eq_comp (μ : Measure α) [SFinite μ] (κ : kernel α β) [IsSFiniteKernel κ] :
-    μ ⊗ₘ κ = μ ∘ₘ (kernel.deterministic id measurable_id ×ₖ κ) := by
+    μ ⊗ₘ κ = μ ∘ₘ (kernel.id ×ₖ κ) := by
   rw [Measure.compProd, kernel.compProd_prodMkLeft_eq_comp]
+  rfl
+
+lemma Measure.compProd_id [SFinite μ] : μ ⊗ₘ kernel.id = μ.map (fun x ↦ (x, x)) := by
+  rw [Measure.compProd_eq_comp, kernel.id, kernel.deterministic_prod_deterministic,
+    Measure.comp_deterministic_eq_map]
   rfl
 
 /-- The composition product of a measure and a constant kernel is the product between the two
@@ -119,6 +105,118 @@ lemma Measure.compProd_apply_toReal [SFinite μ] [IsFiniteKernel κ]
 lemma Measure.compProd_univ_toReal [SFinite μ] [IsFiniteKernel κ] :
     ((μ ⊗ₘ κ) Set.univ).toReal = ∫ x, (κ x Set.univ).toReal ∂μ :=
   compProd_apply_toReal MeasurableSet.univ
+
+lemma Measure.fst_sum {ι : Type*} (μ : ι → Measure (α × β)) :
+    (Measure.sum μ).fst = Measure.sum (fun n ↦ (μ n).fst) := by
+  ext s hs
+  rw [Measure.fst_apply hs, Measure.sum_apply, Measure.sum_apply _ hs]
+  · congr with i
+    rw [Measure.fst_apply hs]
+  · exact measurable_fst hs
+
+lemma Measure.snd_sum {ι : Type*} (μ : ι → Measure (α × β)) :
+    (Measure.sum μ).snd = Measure.sum (fun n ↦ (μ n).snd) := by
+  ext s hs
+  rw [Measure.snd_apply hs, Measure.sum_apply, Measure.sum_apply _ hs]
+  · congr with i
+    rw [Measure.snd_apply hs]
+  · exact measurable_snd hs
+
+instance {μ : Measure (α × β)} [SFinite μ] : SFinite μ.fst :=
+  ⟨fun n ↦ (sFiniteSeq μ n).fst, inferInstance, by rw [← Measure.fst_sum, sum_sFiniteSeq μ]⟩
+
+instance {μ : Measure (α × β)} [SFinite μ] : SFinite μ.snd :=
+  ⟨fun n ↦ (sFiniteSeq μ n).snd, inferInstance, by rw [← Measure.snd_sum, sum_sFiniteSeq μ]⟩
+
+instance {μ : Measure α} [SFinite μ] {κ : kernel α β} [IsSFiniteKernel κ] : SFinite (μ ∘ₘ κ) := by
+  rw [Measure.comp_eq_snd_compProd]
+  infer_instance
+
+instance {μ : Measure α} [IsFiniteMeasure μ] {κ : kernel α β} [IsFiniteKernel κ] :
+    IsFiniteMeasure (μ ∘ₘ κ) := by
+  rw [Measure.comp_eq_snd_compProd]
+  infer_instance
+
+instance {μ : Measure α} [IsProbabilityMeasure μ] {κ : kernel α β} [IsMarkovKernel κ] :
+    IsProbabilityMeasure (μ ∘ₘ κ) := by
+  rw [Measure.comp_eq_snd_compProd]
+  infer_instance
+
+@[simp]
+lemma Measure.fst_map_swap {μ : Measure (α × β)} : (μ.map Prod.swap).fst = μ.snd := by
+  rw [Measure.fst, Measure.map_map measurable_fst measurable_swap]
+  congr
+
+@[simp]
+lemma Measure.snd_map_swap {μ : Measure (α × β)} : (μ.map Prod.swap).snd = μ.fst := by
+  rw [Measure.snd, Measure.map_map measurable_snd measurable_swap]
+  congr
+
+@[simp]
+lemma Measure.fst_swap_compProd [SFinite μ] [IsSFiniteKernel κ] :
+    ((μ ⊗ₘ κ).map Prod.swap).fst = μ ∘ₘ κ := by
+  rw [Measure.comp_eq_snd_compProd]
+  simp
+
+section ParallelComp
+
+namespace kernel
+
+variable {δ : Type*} {mδ : MeasurableSpace δ}
+
+lemma _root_.MeasureTheory.Measure.prod_comp_right
+    (μ : Measure α) [SFinite μ] (ν : Measure β) [SFinite ν]
+    (κ : kernel β γ) [IsSFiniteKernel κ] :
+    μ.prod (ν ∘ₘ κ) = (μ.prod ν) ∘ₘ (kernel.id ∥ₖ κ) := by
+  ext s hs
+  rw [Measure.prod_apply hs, Measure.bind_apply hs (kernel.measurable _)]
+  simp_rw [Measure.bind_apply (measurable_prod_mk_left hs) (kernel.measurable _)]
+  rw [MeasureTheory.lintegral_prod]
+  swap; · exact (kernel.measurable_coe _ hs).aemeasurable
+  congr with a
+  congr with b
+  rw [parallelComp_apply, kernel.id_apply, Measure.prod_apply hs, lintegral_dirac']
+  exact measurable_measure_prod_mk_left hs
+
+lemma _root_.MeasureTheory.Measure.prod_comp_left
+    (μ : Measure α) [SFinite μ] (ν : Measure β) [SFinite ν]
+    (κ : kernel α γ) [IsSFiniteKernel κ] :
+    (μ ∘ₘ κ).prod ν = (μ.prod ν) ∘ₘ (κ ∥ₖ kernel.id) := by
+  have h1 : (μ ∘ₘ κ).prod ν = (ν.prod (μ ∘ₘ κ)).map Prod.swap := by
+    rw [Measure.prod_swap]
+  have h2 : (μ.prod ν) ∘ₘ (κ ∥ₖ kernel.id) = ((ν.prod μ) ∘ₘ (kernel.id ∥ₖ κ)).map Prod.swap := by
+    calc (μ.prod ν) ∘ₘ (κ ∥ₖ kernel.id)
+    _ = ((ν.prod μ).map Prod.swap) ∘ₘ (κ ∥ₖ kernel.id) := by rw [Measure.prod_swap]
+    _ = (ν.prod μ) ∘ₘ (swap _ _) ∘ₘ (κ ∥ₖ kernel.id) := by
+      rw [swap, Measure.comp_deterministic_eq_map]
+    _ = (ν.prod μ) ∘ₘ (kernel.id ∥ₖ κ) ∘ₘ (swap _ _) := by
+      rw [Measure.comp_assoc, Measure.comp_assoc, swap_parallelComp]
+    _ = ((ν.prod μ) ∘ₘ (kernel.id ∥ₖ κ)).map Prod.swap := by
+      rw [swap, Measure.comp_deterministic_eq_map]
+  rw [← Measure.prod_comp_right, ← h1] at h2
+  exact h2.symm
+
+lemma parallelComp_comp_right {α' : Type*} {_ : MeasurableSpace α'}
+    (κ : kernel α β) [IsSFiniteKernel κ]
+    (η : kernel α' γ) [IsSFiniteKernel η] (ξ : kernel γ δ) [IsSFiniteKernel ξ] :
+    κ ∥ₖ (ξ ∘ₖ η) = (kernel.id ∥ₖ ξ) ∘ₖ (κ ∥ₖ η) := by
+  ext a
+  rw [parallelComp_apply, comp_apply, comp_apply, parallelComp_apply, Measure.prod_comp_right]
+
+lemma parallelComp_comp_left {α' : Type*} {_ : MeasurableSpace α'}
+    (κ : kernel α β) [IsSFiniteKernel κ]
+    (η : kernel α' γ) [IsSFiniteKernel η] (ξ : kernel γ δ) [IsSFiniteKernel ξ] :
+    (ξ ∘ₖ η) ∥ₖ κ = (ξ ∥ₖ kernel.id) ∘ₖ (η ∥ₖ κ) := by
+  ext a
+  rw [parallelComp_apply, comp_apply, comp_apply, parallelComp_apply, Measure.prod_comp_left]
+
+lemma parallelComp_comm (κ : kernel α β) [IsSFiniteKernel κ] (η : kernel γ δ) [IsSFiniteKernel η] :
+    (kernel.id ∥ₖ κ) ∘ₖ (η ∥ₖ kernel.id) = (η ∥ₖ kernel.id) ∘ₖ (kernel.id ∥ₖ κ) := by
+  rw [← parallelComp_comp_right, ← parallelComp_comp_left, comp_id, comp_id]
+
+end kernel
+
+end ParallelComp
 
 section SingularPart
 
