@@ -9,8 +9,6 @@ import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
 import TestingLowerBounds.ForMathlib.LogLikelihoodRatioCompProd
 import TestingLowerBounds.ForMathlib.IntegralCongr2
 import TestingLowerBounds.ForMathlib.KernelFstSnd
-import TestingLowerBounds.ForMathlib.Measurable
-import TestingLowerBounds.ForMathlib.IntegrableNonneg
 import TestingLowerBounds.ForMathlib.CountableOrCountablyGenerated
 
 /-!

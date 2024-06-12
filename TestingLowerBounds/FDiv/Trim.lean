@@ -66,7 +66,7 @@ lemma integrable_f_rnDeriv_trim [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : 
     ?_ ?_ ?_ ?_ ?_
   · refine (hf.comp_measurable ?_).aestronglyMeasurable
     exact @Measurable.ennreal_toReal _ m _ (Measure.measurable_rnDeriv _ _)
-  · exact @ae_of_all _ m _ _ (fun x ↦ h _ ENNReal.toReal_nonneg)
+  · exact ae_of_all _ (fun x ↦ h _ ENNReal.toReal_nonneg)
   · exact f_rnDeriv_trim_le hm hμν hf hf_cvx hf_cont h_int
   · refine (Integrable.const_mul ?_ _).add (integrable_const _)
     exact Measure.integrable_toReal_rnDeriv

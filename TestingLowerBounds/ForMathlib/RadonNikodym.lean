@@ -485,7 +485,7 @@ lemma Measure.absolutelyContinuous_of_compProd {μ ν : Measure α} {κ η : ker
   rw [Measure.compProd_apply_prod hs MeasurableSet.univ, lintegral_eq_zero_iff] at h2
   swap; · exact kernel.measurable_coe _ MeasurableSet.univ
   by_contra hμs
-  have : NeBot (μ.restrict s).ae := by simp [hμs]
+  have : NeBot (ae (μ.restrict s)) := by simp [hμs]
   obtain ⟨a, ha⟩ : ∃ a, κ a univ = 0 := h2.exists
   refine absurd ha ?_
   simp only [Measure.measure_univ_eq_zero]
