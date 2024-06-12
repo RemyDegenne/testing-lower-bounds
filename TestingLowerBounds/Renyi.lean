@@ -104,7 +104,7 @@ lemma renyiDiv_of_ne_one (ha_ne_one : a ≠ 1) (μ ν : Measure α) :
   rw [renyiDiv, if_neg ha_ne_one]
 
 @[simp]
-lemma renyiDiv_zero_measure (ν : Measure α) [IsFiniteMeasure ν] :
+lemma renyiDiv_zero_measure_left (ν : Measure α) [IsFiniteMeasure ν] :
     renyiDiv a 0 ν = sign (a - 1) * ⊥ := by
   by_cases ha : a = 1
   · simp [ha]
@@ -196,7 +196,7 @@ lemma renyiDiv_eq_top_iff_mutuallySingular_of_lt_one (ha_nonneg : 0 ≤ a) (ha :
   rw [renyiDiv_of_ne_one ha.ne, EReal.mul_eq_top,
     ← toENNReal_meas_univ_add_mul_hellingerDiv_eq_zero_iff_of_lt_one ha_nonneg ha]
   simp [ha, not_lt_of_gt ha]
---offspring
+
 lemma renyiDiv_ne_bot_of_le_one (ha : a ≤ 1) [IsFiniteMeasure ν] :
     renyiDiv a μ ν ≠ ⊥ := by
   by_cases ha_one : a = 1
@@ -255,7 +255,7 @@ lemma renyiDiv_of_one_le_of_not_ac (ha : 1 ≤ a) (h_ac : ¬ μ ≪ ν)
 
 end RenyiEq
 
-lemma renyiDiv_eq_top_forall_of_eq_top_of_lt_one (ha_nonneg : 0 ≤ a) (ha : a < 1) [NeZero μ]
+lemma forall_renyiDiv_eq_top_of_eq_top_of_lt_one (ha_nonneg : 0 ≤ a) (ha : a < 1) [NeZero μ]
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h : renyiDiv a μ ν = ⊤) :
     ∀ a', 0 ≤ a' → renyiDiv a' μ ν = ⊤ := by
   rw [renyiDiv_eq_top_iff_mutuallySingular_of_lt_one ha_nonneg ha] at h
