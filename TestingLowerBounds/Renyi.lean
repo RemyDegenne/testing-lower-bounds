@@ -345,15 +345,13 @@ lemma coe_cgf_llr_of_lt_one (ha_pos : 0 < a) (ha : a < 1)
     cgf (llr μ ν) ν a = (a - 1) * renyiDiv a μ ν := by
   rw_mod_cast [renyiDiv_eq_log_integral_of_lt_one ha_pos ha, ← mul_assoc,
     mul_inv_cancel (by linarith), one_mul, cgf, mgf]
-  have h_ms : ¬ μ ⟂ₘ ν := by
-    intro h
-    exact hν.out <| Measure.eq_zero_of_absolutelyContinuous_of_mutuallySingular hνμ h.symm
+  have h_ms : ¬ μ ⟂ₘ ν :=
+    fun h ↦ hν.out <| Measure.eq_zero_of_absolutelyContinuous_of_mutuallySingular hνμ h.symm
   rw [EReal.log_ofReal_of_pos]
   swap
   · refine integral_rpow_rnDeriv_pos_iff_not_mutuallySingular ha_pos.ne' ?_ |>.mpr h_ms
     exact integrable_rpow_rnDeriv_of_lt_one ha_pos.le ha
-  congr 2
-  exact integral_congr_ae (exp_mul_llr hνμ)
+  rw [integral_congr_ae (exp_mul_llr hνμ)]
 
 lemma cgf_llr_of_lt_one (ha_pos : 0 < a) (ha : a < 1)
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hνμ : ν ≪ μ) :
@@ -374,18 +372,12 @@ lemma coe_cgf_llr' (ha_pos : 0 < a) [hν : NeZero μ] [IsFiniteMeasure μ] [IsFi
     cgf (llr μ ν) μ a = a * renyiDiv (1 + a) μ ν := by
   rw_mod_cast [renyiDiv_eq_log_integral' (by linarith) (by linarith) h_int hμν, ← mul_assoc,
     add_sub_cancel_left, mul_inv_cancel ha_pos.ne', one_mul, cgf, mgf]
-  have h_ms : ¬ μ ⟂ₘ ν := by
-    intro h
-    exact hν.out <| Measure.eq_zero_of_absolutelyContinuous_of_mutuallySingular hμν h
-  rw [EReal.log_ofReal_of_pos]
-  swap;
-  · rw [← integral_rnDeriv_smul hμν]
-    simp_rw [smul_eq_mul, mul_comm ((∂μ/∂ν) _).toReal,
-      ← Real.rpow_add_one' ENNReal.toReal_nonneg (by linarith), add_comm a]
-    exact integral_rpow_rnDeriv_pos_iff_not_mutuallySingular (by linarith) h_int |>.mpr h_ms
-  congr 2
-  refine integral_congr_ae (exp_mul_llr' hμν)
-
+  have h_ms : ¬ μ ⟂ₘ ν :=
+    fun h ↦ hν.out <| Measure.eq_zero_of_absolutelyContinuous_of_mutuallySingular hμν h
+  rw [EReal.log_ofReal_of_pos _, integral_congr_ae (exp_mul_llr' hμν)]
+  simp_rw [← integral_rnDeriv_smul hμν, smul_eq_mul, mul_comm ((∂μ/∂ν) _).toReal,
+    ← Real.rpow_add_one' ENNReal.toReal_nonneg (by linarith), add_comm a]
+  exact integral_rpow_rnDeriv_pos_iff_not_mutuallySingular (by linarith) h_int |>.mpr h_ms
 
 lemma cgf_llr' (ha_pos : 0 < a) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (h_int : Integrable (fun x ↦ ((∂μ/∂ν) x).toReal ^ (1 + a)) ν) (hμν : μ ≪ ν) :
