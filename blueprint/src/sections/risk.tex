@@ -108,8 +108,13 @@ TODO: ``often'', $\mathcal R^*_B = \mathcal R^*$.
   %\lean{}
   %\leanok
   \uses{def:bayesRisk}
-  The Bayes binary risk between measures $\mu$ and $\nu$, denoted by $B_\pi(\mu, \nu)$, is the Bayes risk $\mathcal R_\pi$ for $\Theta = \mathcal Y = \mathcal Z = \{0,1\}$, $P$ the kernel sending 0 to $\mu$ and 1 to $\nu$ and prior $(\pi, 1-\pi)$.
-  That is, $B_\pi(\mu, \nu) = \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\pi \mu(\hat{y} = 1) + (1 - \pi) \nu(\hat{y} = 0)\right)$~, in which the infimum is over Markov kernels.
+  The Bayes binary risk between measures $\mu$ and $\nu$, denoted by $B_\pi(\mu, \nu)$ and parametrized by $\pi \in [0,1]$, is the Bayes risk $\mathcal R_\pi$ for $\Theta = \mathcal Y = \mathcal Z = \{0,1\}$, $\ell(y,z) = \mathbb{I}\{y \ne z\}$, $P$ the kernel sending 0 to $\mu$ and 1 to $\nu$ and prior $(\pi, 1-\pi)$.
+  That is,
+  \begin{align*}
+  B_\pi(\mu, \nu) = \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\pi (\hat{y} \circ \mu)(\{1\}) + (1 - \pi) (\hat{y} \circ \nu)(\{0\})\right)
+  \: ,
+  \end{align*}
+  in which the infimum is over Markov kernels.
 \end{definition}
 
 \begin{lemma}
@@ -148,13 +153,6 @@ That estimator has Bayesian risk $\min\{\pi, 1 - \pi\}$.
 
 \begin{proof}%\leanok
 \uses{}
-First we note the following expression for $B_\pi$~:
-\begin{align*}
-B_\pi(\mu, \nu)
-&= \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\pi (\hat{y} \circ \mu)(\{1\}) + (1 - \pi) (\hat{y} \circ \nu)(\{0\})\right)
-\: .
-\end{align*}
-We proceed with the proof.
 \begin{align*}
 B_\pi(\kappa \circ \mu, \kappa \circ \nu)
 &= \inf_{\hat{y} : \mathcal Y \rightsquigarrow \{0,1\}}\left(\pi (\hat{y} \circ \kappa \circ \mu)(\{1\}) + (1 - \pi) (\hat{y} \circ \kappa \circ \nu)(\{0\})\right)
@@ -233,6 +231,92 @@ The inequality was proved in Theorem~\ref{thm:data_proc_bayesBinaryRisk}.
 TODO: this extends the data-processing inequality for TV to any space.
 
 TODO: once we prove the integral form of any $f$-divergence with respect to the De Groot statistical information, this will extend the data-processing inequality for all $f$-divergences. 
+
+\begin{definition}
+  \label{def:deGrootFun}
+  %\lean{}
+  %\leanok
+  \uses{}
+  For $\pi \in (0,1)$ let $\psi_\pi : \mathbb{R} \to \mathbb{R}$ be the function defined by
+  \begin{align*}
+  \psi_\pi(x) &= \pi \max\left\{0, x - \frac{1 - \pi}{\pi}\right\} & \text{ for } \pi &\le 1/2 \: ,
+  \\
+  \psi_\pi(x) &= \pi \max\left\{0, \frac{1 - \pi}{\pi} - x\right\} & \text{ for } \pi &> 1/2 \: .
+  \end{align*}
+\end{definition}
+
+\begin{lemma}
+  \label{lem:deGrootInfo_eq_fDiv}
+  %\lean{}
+  %\leanok
+  \uses{def:deGrootInfo, def:deGrootFun}
+  The De Groot statistical information $I_\pi$ is an $f$-divergence for the function $\psi_\pi$.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+
+\end{proof}
+
+\subsection{Integral representation of $f$-divergences}
+
+\begin{definition}
+  \label{def:curvatureMeasure}
+  %\lean{}
+  %\leanok
+  \uses{}
+  Let $f: \mathbb{R} \to \mathbb{R}$ be a convex function. Then $f'_+(x) \coloneqq \lim_{y \downarrow x}\frac{f(y) - f(x)}{y - x}$ is a Stieltjes function (a monotone right continuous function) and it defines a measure $\gamma_f$ on $\mathbb{R}$ by $\gamma_f((x,y]) \coloneqq f'_+(y) - f'_+(x)$~. \cite{liese2012phi} calls $\gamma_f$ the curvature measure of $\phi$.
+\end{definition}
+
+\begin{lemma}
+  \label{lem:convex_taylor_gt}
+  %\lean{}
+  %\leanok
+  \uses{def:curvatureMeasure}
+  For $f: \mathbb{R} \to \mathbb{R}$ a convex function and $x,y \in \mathbb{R}$ with $x < y$,
+  \begin{align*}
+  f(y) - f(x) - (y - x)f'_+(x) = \int_{z \in (x,y]} (y - z) \partial \gamma_f \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+
+\end{proof}
+
+\begin{lemma}
+  \label{lem:convex_taylor_lt}
+  %\lean{}
+  %\leanok
+  \uses{def:curvatureMeasure}
+  For $f: \mathbb{R} \to \mathbb{R}$ a convex function and $x,y \in \mathbb{R}$ with $y < x$,
+  \begin{align*}
+  f(y) - f(x) - (y - x)f'_+(x) = \int_{z \in (y,x]} (z - y) \partial \gamma_f \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+
+\end{proof}
+
+TODO: define $\Gamma_f$.
+
+\begin{theorem}[\cite{liese2006divergences,liese2012phi}]
+  \label{thm:fDiv_eq_integral}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv, def:curvatureMeasure}
+  \begin{align*}
+  D_f(\mu, \nu) = f(1) \nu(\mathcal X) + f'_+(1)(\mu(\mathcal X) - \nu(\mathcal X)) + \int_\pi I_\pi(\mu, \nu) \partial\Gamma_f \: .
+  \end{align*}
+  
+\end{theorem}
+
+\begin{proof}%\leanok
+\uses{}
+
+\end{proof}
 
 \section{Deficiency}
 
