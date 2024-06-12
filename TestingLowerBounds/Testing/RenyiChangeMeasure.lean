@@ -29,12 +29,12 @@ namespace ProbabilityTheory
 
 variable {α : Type*} {mα : MeasurableSpace α} {μ ν ν' : Measure α} {s : Set α}
 
-lemma measure_llr_gt_renyiDiv_le_exp [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
+lemma measure_llr_gt_renyiDiv_le_exp [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     {a : ℝ} (ha : 0 < a) (c : ℝ) (h : renyiDiv (1 + a) μ ν ≠ ⊤) :
     (μ {x | EReal.toReal (renyiDiv (1 + a) μ ν) + c < llr μ ν x}).toReal ≤ exp (-a * c) := by
   have hμν : μ ≪ ν := by
     by_contra h_not
-    exact h (renyiDiv_of_one_lt_of_not_ac (by linarith) h_not)
+    exact h (renyiDiv_of_one_le_of_not_ac (by linarith) h_not)
   calc (μ {x | EReal.toReal (renyiDiv (1 + a) μ ν) + c < llr μ ν x}).toReal
   _ ≤ (μ {x | EReal.toReal (renyiDiv (1 + a) μ ν) + c ≤ llr μ ν x}).toReal := by
         refine ENNReal.toReal_mono (measure_ne_top _ _) (measure_mono (fun x ↦ ?_))
@@ -44,7 +44,7 @@ lemma measure_llr_gt_renyiDiv_le_exp [IsFiniteMeasure μ] [IsProbabilityMeasure 
         refine measure_ge_le_exp_cgf (X := llr μ ν) (μ := μ) ((renyiDiv (1 + a) μ ν).toReal + c)
           ha.le ?_
         rw [integrable_congr (exp_mul_llr' hμν)]
-        rw [renyiDiv_ne_top_iff_of_one_lt, integrable_hellingerFun_iff_integrable_rpow] at h
+        rw [renyiDiv_ne_top_iff_of_one_le, integrable_hellingerFun_iff_integrable_rpow] at h
         · rw [integrable_rpow_rnDeriv_iff hμν ha]
           exact h.1
         · linarith
@@ -54,19 +54,19 @@ lemma measure_llr_gt_renyiDiv_le_exp [IsFiniteMeasure μ] [IsProbabilityMeasure 
         rw [cgf_llr' ha h]
         ring
 
-lemma measure_sub_le_measure_mul_exp_renyiDiv [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
+lemma measure_sub_le_measure_mul_exp_renyiDiv [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (s : Set α) {a : ℝ} (ha : 0 < a) (c : ℝ) (h : renyiDiv (1 + a) μ ν ≠ ⊤) :
     (μ s).toReal - exp (- a * c) ≤ (ν s).toReal * exp ((renyiDiv (1 + a) μ ν).toReal + c) := by
   have hμν : μ ≪ ν := by
     by_contra h_not
-    exact h (renyiDiv_of_one_lt_of_not_ac (by linarith) h_not)
+    exact h (renyiDiv_of_one_le_of_not_ac (by linarith) h_not)
   refine le_trans ?_ (measure_sub_le_measure_mul_exp hμν s ((renyiDiv (1 + a) μ ν).toReal + c)
     (measure_ne_top _ _))
   gcongr
   exact measure_llr_gt_renyiDiv_le_exp ha c h
 
 lemma one_sub_exp_le_add_measure_mul_exp_max_renyiDiv [IsProbabilityMeasure μ]
-    [IsProbabilityMeasure ν] [IsProbabilityMeasure ν'] (s : Set α)
+    [IsFiniteMeasure ν] [IsFiniteMeasure ν'] (s : Set α)
     {a : ℝ} (ha : 0 < a) (c : ℝ)
     (hν : renyiDiv (1 + a) μ ν ≠ ⊤) (hν' : renyiDiv (1 + a) μ ν' ≠ ⊤) :
     1 - 2 * exp (- a * c)
@@ -74,10 +74,10 @@ lemma one_sub_exp_le_add_measure_mul_exp_max_renyiDiv [IsProbabilityMeasure μ]
         * exp (max (renyiDiv (1 + a) μ ν).toReal (renyiDiv (1 + a) μ ν').toReal + c) := by
   have hμν : μ ≪ ν := by
     by_contra h_not
-    exact hν (renyiDiv_of_one_lt_of_not_ac (by linarith) h_not)
+    exact hν (renyiDiv_of_one_le_of_not_ac (by linarith) h_not)
   have hμν' : μ ≪ ν' := by
     by_contra h_not
-    exact hν' (renyiDiv_of_one_lt_of_not_ac (by linarith) h_not)
+    exact hν' (renyiDiv_of_one_le_of_not_ac (by linarith) h_not)
   calc 1 - 2 * exp (- a * c)
   _ = 1 - exp (- a * c) - exp (- a * c) := by ring
   _ ≤ 1 - (μ {x | (renyiDiv (1 + a) μ ν).toReal + c < llr μ ν x}).toReal
@@ -93,7 +93,7 @@ lemma one_sub_exp_le_add_measure_mul_exp_max_renyiDiv [IsProbabilityMeasure μ]
         rw [max_add_add_right]
 
 lemma exp_neg_max_renyiDiv_le_add_measure [IsProbabilityMeasure μ]
-    [IsProbabilityMeasure ν] [IsProbabilityMeasure ν'] (s : Set α)
+    [IsFiniteMeasure ν] [IsFiniteMeasure ν'] (s : Set α)
     {a : ℝ} (ha : 0 < a) (hν : renyiDiv (1 + a) μ ν ≠ ⊤) (hν' : renyiDiv (1 + a) μ ν' ≠ ⊤) :
     2⁻¹ * exp (- max (renyiDiv (1 + a) μ ν).toReal (renyiDiv (1 + a) μ ν').toReal - log 4 / a)
       ≤ (ν s).toReal + (ν' sᶜ).toReal := by
@@ -105,7 +105,7 @@ lemma exp_neg_max_renyiDiv_le_add_measure [IsProbabilityMeasure μ]
   rw [this] at h
   rwa [neg_sub_left, exp_neg, mul_inv_le_iff' (exp_pos _), add_comm (log 4 / a)]
 
-lemma exp_neg_chernoffDiv_le_add_measure [IsProbabilityMeasure ν] [IsProbabilityMeasure ν']
+lemma exp_neg_chernoffDiv_le_add_measure [IsFiniteMeasure ν] [IsFiniteMeasure ν']
     (s : Set α) {a : ℝ} (ha : 0 < a) (h_ne_top : chernoffDiv (1 + a) ν ν' ≠ ⊤) :
     2⁻¹ * exp (- (chernoffDiv (1 + a) ν ν').toReal - log 4 / a)
       ≤ (ν s).toReal + (ν' sᶜ).toReal := by

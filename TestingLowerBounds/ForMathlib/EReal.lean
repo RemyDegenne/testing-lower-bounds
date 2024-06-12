@@ -72,6 +72,11 @@ lemma mul_eq_bot (a b : EReal) :
   · simp [hx.le, EReal.coe_mul_bot_of_neg hx]
   · simp
 
+lemma add_ne_top {x y : EReal} (hx : x ≠ ⊤) (hy : y ≠ ⊤) : x + y ≠ ⊤ := by
+  induction x using EReal.rec <;> tauto
+  induction y using EReal.rec <;> tauto
+  exact ne_of_beq_false rfl
+
 lemma coe_mul_add_of_nonneg {x : ℝ} (hx_nonneg : 0 ≤ x) (y z : EReal) :
     x * (y + z) = x * y + x * z := by
   by_cases hx0 : x = 0
@@ -106,6 +111,22 @@ lemma add_sub_cancel (x : EReal) (y : ℝ) : x + y - y = x := by
 
 lemma add_sub_cancel' (x : EReal) (y : ℝ) : y + x - y = x := by
   rw [add_comm, EReal.add_sub_cancel]
+
+lemma neg_add {x y : EReal} (h1 : x ≠ ⊥ ∨ y ≠ ⊤) (h2 : x ≠ ⊤ ∨ y ≠ ⊥) :
+    - (x + y) = - x - y := by
+  induction x using EReal.rec <;> induction y using EReal.rec <;> try tauto
+  rw [← coe_add, ← coe_neg, ← coe_neg, ← coe_sub, neg_add']
+
+lemma neg_sub {x y : EReal} (h1 : x ≠ ⊥ ∨ y ≠ ⊥) (h2 : x ≠ ⊤ ∨ y ≠ ⊤) :
+    - (x - y) = - x + y := by
+  rw [sub_eq_add_neg, neg_add _ _, sub_eq_add_neg, neg_neg] <;> simp_all
+
+@[simp]
+lemma sub_self {x : EReal} (h_top : x ≠ ⊤) (h_bot : x ≠ ⊥) : x - x = 0 := by
+  induction x using EReal.rec <;> simp_all [← coe_sub]
+
+lemma sub_self_le_zero {x : EReal} : x - x ≤ 0 := by
+  induction x using EReal.rec <;> simp
 
 lemma top_add_of_ne_bot {x : EReal} (hx : x ≠ ⊥) : ⊤ + x = ⊤ := by
   by_cases hx_top : x = ⊤
@@ -239,4 +260,75 @@ instance : MeasurableMul₂ EReal := by
   constructor
   sorry
 
+/-- Reinterpret an EReal number `x` as an ENNReal number. Returns `0` if `x < 0`. -/
+noncomputable def toENNReal (x : EReal) : ENNReal :=
+  if x = ⊤ then ⊤
+  else ENNReal.ofReal x.toReal
+
+@[simp]
+theorem toENNReal_top : (⊤ : EReal).toENNReal = ⊤ := rfl
+
+@[simp]
+theorem toENNReal_eq_top_iff {x : EReal} : x.toENNReal = ⊤ ↔ x = ⊤ := by
+  by_cases h : x = ⊤
+  · simp [h]
+  · simp [h, toENNReal]
+
+@[simp]
+theorem toENNReal_of_nonpos {x : EReal} (hx : x ≤ 0) : x.toENNReal = 0 := by
+  rw [toENNReal, if_neg ?_]
+  exact ENNReal.ofReal_of_nonpos (toReal_nonpos hx)
+  intro h
+  rw [h, top_le_iff] at hx
+  exact zero_ne_top hx
+
+theorem toENNReal_eq_zero_iff {x : EReal} : x.toENNReal = 0 ↔ x ≤ 0 := by
+  induction' x using EReal.rec with x <;> simp [toENNReal]
+
+@[simp]
+theorem coe_toENNReal {x : EReal} (hx : 0 ≤ x) : (x.toENNReal : EReal) = x := by
+  rw [toENNReal]
+  by_cases h_top : x = ⊤
+  · rw [if_pos h_top, h_top]
+    rfl
+  rw [if_neg h_top]
+  simp only [coe_ennreal_ofReal, ge_iff_le, hx, toReal_nonneg, max_eq_left]
+  exact coe_toReal h_top fun _ ↦ by simp_all only [le_bot_iff, zero_ne_bot]
+
+@[simp]
+theorem toENNReal_coe {x : ENNReal} : (x : EReal).toENNReal = x := by
+  by_cases h_top : x = ⊤
+  · rw [h_top, coe_ennreal_top, toENNReal_top]
+  rw [toENNReal, if_neg _, toReal_coe_ennreal, ENNReal.ofReal_toReal_eq_iff]
+  · exact h_top
+  · simp [h_top]
+
+theorem toENNReal_le_toENNReal {x y : EReal} (h : x ≤ y) : x.toENNReal ≤ y.toENNReal := by
+  induction' x using EReal.rec with x
+  · simp
+  · by_cases hy_top : y = ⊤
+    · simp [hy_top]
+    simp_all [h, toENNReal]
+    refine ENNReal.ofReal_le_ofReal ?_
+    refine EReal.toReal_le_toReal h (coe_ne_bot x) hy_top
+  · simp_all
+
 end EReal
+
+namespace ENNReal
+
+lemma toEReal_sub {x y : ENNReal} (hy_top : y ≠ ⊤) (h_le : y ≤ x) :
+    (x - y).toEReal = x.toEReal - y.toEReal := by
+  by_cases hx_top : x = ⊤
+  · lift y to ℝ≥0 using hy_top
+    simp only [hx_top, top_sub_coe, EReal.coe_ennreal_top]
+    norm_cast
+  have h_top : x - y ≠ ⊤ := by
+    simp only [ne_eq, sub_eq_top_iff, hx_top, hy_top, not_false_eq_true, and_true]
+  nth_rw 2 [← ENNReal.ofReal_toReal_eq_iff.mpr hy_top, ← ENNReal.ofReal_toReal_eq_iff.mpr hx_top]
+  rw [← ENNReal.ofReal_toReal_eq_iff.mpr h_top]
+  simp only [EReal.coe_ennreal_ofReal, ge_iff_le, toReal_nonneg, max_eq_left]
+  rw [toReal_sub_of_le h_le hx_top]
+  exact EReal.coe_sub _ _
+
+end ENNReal
