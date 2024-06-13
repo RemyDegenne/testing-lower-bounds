@@ -214,8 +214,8 @@ nonnegative. -/
 lemma kl_nonneg (μ ν : Measure α) [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
     0 ≤ kl μ ν := kl_nonneg' μ ν (by simp)
 
-/-- **Converse Gibbs' inequality**: the Kullback-Leibler divergence between two probability
-distributions is zero if and only if the two distributions are equal. -/
+/-- **Converse Gibbs' inequality**: the Kullback-Leibler divergence between two finite measures is
+zero if and only if the two distributions are equal. -/
 lemma kl_eq_zero_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_mass : μ Set.univ = ν Set.univ) :
     kl μ ν = 0 ↔ μ = ν := by
   refine ⟨fun h ↦ ?_, fun h ↦ h ▸ kl_self ν⟩
@@ -239,6 +239,11 @@ lemma kl_eq_zero_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_mass : μ Set.
     or_false] at h_eq
   exact (Measure.rnDeriv_eq_one_iff_eq hμν).mp <| ENNReal.eventuallyEq_of_toReal_eventuallyEq
     (Measure.rnDeriv_ne_top _ _) (eventually_of_forall fun _ ↦ ENNReal.one_ne_top) h_eq
+
+/-- **Converse Gibbs' inequality**: the Kullback-Leibler divergence between two probability
+distributions is zero if and only if the two distributions are equal. -/
+lemma kl_eq_zero_iff' [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
+    kl μ ν = 0 ↔ μ = ν := kl_eq_zero_iff (by simp)
 
 end kl_nonneg
 
