@@ -12,11 +12,24 @@
 \end{definition}
 
 \begin{lemma}
-  \label{lem:deGrootInfo_half}
+  \label{lem:TV_eq_deGrootInfo_half}
   %\lean{}
   %\leanok
   \uses{def:deGrootInfo, def:TV}
-  For $\mu, \nu \in \mathcal P(\mathcal X)$, $I_{1/2}(\mu, \nu) = \frac{1}{2}\TV(\mu, \nu)$~.
+  For $\mu, \nu \in \mathcal P(\mathcal X)$, $\TV(\mu, \nu) = 2 I_{1/2}(\mu, \nu)$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+
+\end{proof}
+
+\begin{lemma}
+  \label{lem:TV_eq_eGamma_one}
+  %\lean{}
+  %\leanok
+  \uses{def:deGrootInfo, def:TV}
+  For $\mu, \nu \in \mathcal P(\mathcal X)$, $\TV(\mu, \nu) = E_1(\mu, \nu)$~.
 \end{lemma}
 
 \begin{proof}%\leanok
