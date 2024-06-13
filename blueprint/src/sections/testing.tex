@@ -1,4 +1,4 @@
-\chapter{Testing error lower bounds}
+\section{Testing error lower bounds}
 
 In simple hypothesis testing, a sample from an unknown measure on $\mathcal X$ among $\{\mu, \nu\}$ is observed, and the goal of the test is to return the measure from which the sample came.
 In typical scenarios, $\mathcal X$ is a product space $\mathcal Y^n$, $\mu$ and $\nu$ are product measures and the observation is a collection of $n$ i.i.d. samples.
@@ -30,7 +30,7 @@ By Theorem~\ref{thm:tv_eq_sup_sub_measure},
 
 The drawback of $\TV$ is that it is not easy to manipulate. In particular, it does not tensorize. In order to quantify error probabilities on product spaces like $\mu^{\otimes n}(E) + \nu^{\otimes n}(E^c)$, we use other divergences.
 
-\section{Generic lower bounds}
+\subsection{Generic lower bounds}
 
 \begin{lemma}
   \label{lem:testing_bound_renyi_mean}
@@ -78,7 +78,7 @@ R_\alpha(\mu_E, \nu_E)
 The inequality is an application of Lemma~\ref{lem:testing_bound_renyi_mean} for $\alpha = 1/2$. The equality is Lemma~\ref{lem:renyi_half_eq_log_hellinger}.
 \end{proof}
 
-\section{Change of measure}
+\subsection{Change of measure}
 
 \begin{lemma}
   \label{lem:llr_change_measure}
@@ -229,7 +229,7 @@ Then apply Lemma~\ref{lem:renyi_chernoff_bound}.
 \end{proof}
 
 
-\section{Lower bounds on the maximum}
+\subsection{Lower bounds on the maximum}
 
 \begin{lemma}
   \label{lem:testing_bound_tv_hellinger_max}
@@ -284,7 +284,7 @@ Use Lemma~\ref{lem:testing_bound_renyi_mean} and remark that $\mu(E)^\alpha + \n
 \end{proof}
 
 
-\section{Product spaces}
+\subsection{Product spaces}
 
 \begin{corollary}
   \label{cor:testing_bound_renyi_n}

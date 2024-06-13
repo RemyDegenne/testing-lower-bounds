@@ -1,4 +1,4 @@
-\chapter{Hockey-stick divergence}
+\subsection{Hockey-stick divergence}
 
 \begin{definition}[$E_\gamma$ or hockey-stick divergence]
   \label{def:eGamma}
@@ -10,3 +10,18 @@
   E_\gamma(\mu, \nu) = D_{f_\gamma}(\mu, \nu) \quad \text{with } f_\gamma: x \mapsto \max\{0, x - \gamma\} \: .
   \end{align*}
 \end{definition}
+
+\begin{lemma}
+  \label{lem:eGamma_eq_deGrootInfo}
+  %\lean{}
+  %\leanok
+  \uses{def:eGamma, def:deGrootInfo}
+  For $\gamma \ge 1$ and $\mu, \nu \in \mathcal M(\mathcal X)$, $E_\gamma(\mu, \nu) = (\gamma + 1) I_{(\gamma + 1)^{-1}}(\mu, \nu)$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+
+\end{proof}
+
+TODO: $E_\gamma$ is related to a risk for testing with costs.

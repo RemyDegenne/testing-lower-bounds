@@ -1,0 +1,29 @@
+\subsection{De Groot statistical information}
+
+The De Groot statistical information was introduced in Definition~\ref{def:deGrootInfo}.
+
+\begin{definition}
+  \label{def:deGrootFun}
+  %\lean{}
+  %\leanok
+  \uses{}
+  For $\pi \in (0,1)$ let $\psi_\pi : \mathbb{R} \to \mathbb{R}$ be the function defined by
+  \begin{align*}
+  \psi_\pi(x) &= \pi \max\left\{0, x - \frac{1 - \pi}{\pi}\right\} & \text{ for } \pi &\le 1/2 \: ,
+  \\
+  \psi_\pi(x) &= \pi \max\left\{0, \frac{1 - \pi}{\pi} - x\right\} & \text{ for } \pi &> 1/2 \: .
+  \end{align*}
+\end{definition}
+
+\begin{lemma}
+  \label{lem:deGrootInfo_eq_fDiv}
+  %\lean{}
+  %\leanok
+  \uses{def:deGrootInfo, def:deGrootFun}
+  The De Groot statistical information $I_\pi$ is an $f$-divergence for the function $\psi_\pi$.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+
+\end{proof}
