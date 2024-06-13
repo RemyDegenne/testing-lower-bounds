@@ -198,20 +198,6 @@ Use Lemma~\ref{lem:bayesBinaryRisk_self}.
 Use Lemma~\ref{lem:bayesBinaryRisk_le}.
 \end{proof}
 
-TODO: move the next lemma.
-\begin{lemma}
-  \label{lem:deGrootInfo_half}
-  %\lean{}
-  %\leanok
-  \uses{def:deGrootInfo, def:TV}
-  For $\mu, \nu \in \mathcal P(\mathcal X)$, $I_{1/2}(\mu, \nu) = \frac{1}{2}\TV(\mu, \nu)$~.
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{}
-
-\end{proof}
-
 \begin{theorem}[Data-processing inequality]
   \label{thm:data_proc_deGrootInfo}
   %\lean{}
@@ -232,35 +218,10 @@ TODO: this extends the data-processing inequality for TV to any space.
 
 TODO: once we prove the integral form of any $f$-divergence with respect to the De Groot statistical information, this will extend the data-processing inequality for all $f$-divergences. 
 
-\begin{definition}
-  \label{def:deGrootFun}
-  %\lean{}
-  %\leanok
-  \uses{}
-  For $\pi \in (0,1)$ let $\psi_\pi : \mathbb{R} \to \mathbb{R}$ be the function defined by
-  \begin{align*}
-  \psi_\pi(x) &= \pi \max\left\{0, x - \frac{1 - \pi}{\pi}\right\} & \text{ for } \pi &\le 1/2 \: ,
-  \\
-  \psi_\pi(x) &= \pi \max\left\{0, \frac{1 - \pi}{\pi} - x\right\} & \text{ for } \pi &> 1/2 \: .
-  \end{align*}
-\end{definition}
-
-TODO: move the next lemma.
-
-\begin{lemma}
-  \label{lem:deGrootInfo_eq_fDiv}
-  %\lean{}
-  %\leanok
-  \uses{def:deGrootInfo, def:deGrootFun}
-  The De Groot statistical information $I_\pi$ is an $f$-divergence for the function $\psi_\pi$.
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{}
-
-\end{proof}
-
 \section{Deficiency}
+
+TODO: this part is not used elsewhere for now, and should perhaps be deleted.
+In any case, it should be placed somewhere after the definition of$\TV$.
 
 \begin{definition}[Le Cam deficiency]
   \label{def:deficiency}
