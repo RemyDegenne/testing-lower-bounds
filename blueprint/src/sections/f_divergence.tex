@@ -1,6 +1,6 @@
-\chapter{f-divergences}
+\section{f-divergences}
 
-\section{Definition and basic properties}
+\subsection{Definition and basic properties}
 
 Everywhere in this document, the functions used in divergences are assumed measurable, continuous and convex on $[0, +\infty)$.
 For such a function $f : \mathbb{R} \to \mathbb{R}$, we write $f'(\infty) = \lim_{x \to +\infty} f(x)/x$ (which can be infinite).
@@ -241,7 +241,7 @@ f(\mu(\mathcal X))
 Apply Lemma~\ref{lem:le_fDiv} and use $f(\mu(\mathcal X)) = f(1) = 0$.
 \end{proof}
 
-\section{Data-processing inequality: sigma-algebras}
+\subsection{Data-processing inequality: sigma-algebras}
 
 For $\mathcal A$ a sub-$\sigma$-algebra and $\mu$ a measure, we write $\mathcal \mu_{| \mathcal A}$ for the measure restricted to the $\sigma$-algebra.
 
@@ -339,7 +339,7 @@ D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A})
 \uses{thm:fDiv_trim_le}
 \end{proof}
 
-\section{Conditional f-divergence}
+\subsection{Conditional f-divergence}
 
 \begin{definition}[Conditional f-divergence]
   \label{def:condFDiv}
@@ -471,7 +471,7 @@ D_f(\mu \otimes \kappa, \mu \otimes \eta)
 \end{align*}
 \end{proof}
 
-\section{Data-processing inequality}
+\subsection{Data-processing inequality}
 
 \begin{theorem}
   \label{thm:fDiv_le_compProd}
@@ -637,7 +637,7 @@ $D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu, \nu)$ by Theorem~\ref{thm:
 For the other inequality, remark that $\mu = (\kappa \circ \mu)_X$ (and similarly for $\nu$). Hence by Theorem~\ref{thm:fDiv_fst_le} $D_f(\mu, \nu) \le D_f(\kappa \circ \mu, \kappa \circ \nu)$.
 \end{proof}
 
-\section{Convexity}
+\subsection{Convexity}
 
 \begin{theorem}[Joint convexity]
   \label{thm:fDiv_convex}
@@ -664,13 +664,77 @@ D_f(\kappa \circ \xi, \eta \circ \xi)
 By Theorem~\ref{thm:fDiv_comp_le_condFDiv}, $D_f(\kappa \circ \xi, \eta \circ \xi) \le D_f(\xi \otimes \kappa, \xi \otimes \eta)$.
 \end{proof}
 
-\section{Variational representations}
+\subsection{Variational representations}
 
 TODO
 
-\section{Comparisons between divergences}
 
-Specific divergences are discussed in the next chapters. This section contains general tools that can be used to compare $D_f$ and $D_g$ for two functions $f$ and $g$.
+\subsection{Integral representation of $f$-divergences}
+
+TODO: move this subsection earlier?
+
+\begin{definition}
+  \label{def:curvatureMeasure}
+  %\lean{}
+  %\leanok
+  \uses{}
+  Let $f: \mathbb{R} \to \mathbb{R}$ be a convex function. Then $f'_+(x) \coloneqq \lim_{y \downarrow x}\frac{f(y) - f(x)}{y - x}$ is a Stieltjes function (a monotone right continuous function) and it defines a measure $\gamma_f$ on $\mathbb{R}$ by $\gamma_f((x,y]) \coloneqq f'_+(y) - f'_+(x)$~. \cite{liese2012phi} calls $\gamma_f$ the curvature measure of $\phi$.
+\end{definition}
+
+\begin{lemma}
+  \label{lem:convex_taylor_gt}
+  %\lean{}
+  %\leanok
+  \uses{def:curvatureMeasure}
+  For $f: \mathbb{R} \to \mathbb{R}$ a convex function and $x,y \in \mathbb{R}$ with $x < y$,
+  \begin{align*}
+  f(y) - f(x) - (y - x)f'_+(x) = \int_{z \in (x,y]} (y - z) \partial \gamma_f \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+
+\end{proof}
+
+\begin{lemma}
+  \label{lem:convex_taylor_lt}
+  %\lean{}
+  %\leanok
+  \uses{def:curvatureMeasure}
+  For $f: \mathbb{R} \to \mathbb{R}$ a convex function and $x,y \in \mathbb{R}$ with $y < x$,
+  \begin{align*}
+  f(y) - f(x) - (y - x)f'_+(x) = \int_{z \in (y,x]} (z - y) \partial \gamma_f \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+
+\end{proof}
+
+TODO: define $\Gamma_f$.
+
+\begin{theorem}[\cite{liese2006divergences,liese2012phi}]
+  \label{thm:fDiv_eq_integral}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv, def:curvatureMeasure}
+  \begin{align*}
+  D_f(\mu, \nu) = f(1) \nu(\mathcal X) + f'_+(1)(\mu(\mathcal X) - \nu(\mathcal X)) + \int_\pi I_\pi(\mu, \nu) \partial\Gamma_f \: .
+  \end{align*}
+  
+\end{theorem}
+
+\begin{proof}%\leanok
+\uses{}
+
+\end{proof}
+
+
+\subsection{Comparisons between divergences}
+
+Specific divergences are discussed in the next sections. We collate here general tools that can be used to compare $D_f$ and $D_g$ for two functions $f$ and $g$.
 
 \begin{lemma}
   \label{lem:fDiv_mono_fun}

@@ -1,25 +1,24 @@
 \chapter{Testing, Estimation, Risk}
 
 In the estimation problem, we are given a family of measures and we want to estimate an unknown parameter for the measure from which we observe samples.
-Let $\mathcal X$ be the measurable space on which the measures are defined and let $y : \mathcal M(\mathcal X) \to \mathcal Y$ be the function which maps a measure to the parameter of interest.
+Let $\mathcal X$ be the measurable space on which the measures are defined.
+The measure family is described by a kernel $P : \Theta \rightsquigarrow \mathcal X$. We write $P_\theta$ for $P(\theta)$.
+In \emph{parametric} problems, $\Theta$ is a low-dimensional space. In \emph{nonparametric} problems $\Theta$ is large, for example $\Theta = \mathcal M (\mathcal X)$ or $\Theta = \mathcal P(\mathcal X)$.
+
+The goal of the estimation task is to find from the observation of samples of $P_\theta$ for an unknown $\theta$ the value of a function $y : \Theta \to \mathcal Y$~, which maps the parameter $\theta$ to the quantity we are interested in. For example, $y(\theta)$ might be the expected value of the distribution $P_\theta$.
 
 An estimator is a Markov kernel $\hat{y} : \mathcal X \rightsquigarrow \mathcal Z$, where most often $\mathcal Z = \mathcal Y$.
-Note that while $y$ is a function of a measure in $\mathcal M(\mathcal X)$, $\hat{y}$ has domain $\mathcal X$ as the estimation is done based on a sample of the measure, while the measure itself remains unknown.
+Note that while $y$ is a function of a parameter in $\Theta$, $\hat{y}$ has domain $\mathcal X$ as the estimation is done based on a sample of the measure, while the measure itself and its parameter remain unknown.
 In general this is a randomized estimator, but often deterministic estimators (corresponding to deterministic kernels) are enough to attain optimal performance.
-The quality of the estimation is quantified by a loss $\ell' : \mathcal Y \times \mathcal Z \to \mathbb{R}_{+, \infty}$. We write $\ell$ for a loss from $\mathcal Y \times \mathcal Y$ and $\ell'$ in the heterogeneous case.
-
-The measure family is described by a kernel $P : \Theta \rightsquigarrow \mathcal X$. We write $P_\theta$ for $P(\theta)$ and $y(\theta)$ for $y(P_\theta)$.
-In \emph{parametric} problems, $\Theta$ is a low-dimensional space. In \emph{nonparametric} problems, $\Theta$ is large, for example $\Theta = \mathcal M (\mathcal X)$ or $\Theta = \mathcal P(\mathcal X)$.
-
-TODO: reorder to define $y: \Theta \to \mathcal Y$ instead of $y : \mathcal M(\mathcal X) \to \mathcal Y$~, since we always write $y(P(\theta))$.
+The quality of the estimation is quantified by a loss $\ell' : \mathcal Y \times \mathcal Z \to \mathbb{R}_{+, \infty}$. We write $\ell$ for a loss on $\mathcal Y \times \mathcal Y$ and $\ell'$ in the heterogeneous case.
 
 \paragraph{Example: simple binary hypothesis testing (SBHT)}
 
 We say that an estimation problem is a testing problem if $\mathcal Y = \mathcal Z$ is discrete and the loss takes values in $\{0, 1\}$.
 A test is said to be binary if $\mathcal Y$ has two elements.
-A test is simple if $\{\theta \mid y(P_\theta) = y_0\}$ is a singleton for all $y_0 \in \mathcal Y$.
+A test is simple if $\{\theta \mid y(\theta) = y_0\}$ is a singleton for all $y_0 \in \mathcal Y$.
 
-In summary, in simple binary hypothesis testing, $\Theta = \mathcal Y = \mathcal Z = \{0,1\}$, $y(P_0) = 0$, $y(P_1) = 1$ (that is, $y(\theta) = \theta$). For $z \in \{0,1\}$, $\ell(y, z) = \mathbb{I}\{y \ne z\}$.
+In summary, in simple binary hypothesis testing, $\Theta = \mathcal Y = \mathcal Z = \{0,1\}$, $y(0) = 0$, $y(1) = 1$ (that is, $y$ is the identity). For $z \in \{0,1\}$, $\ell(y, z) = \mathbb{I}\{y \ne z\}$.
 
 \section{Risk}
 
@@ -199,6 +198,7 @@ Use Lemma~\ref{lem:bayesBinaryRisk_self}.
 Use Lemma~\ref{lem:bayesBinaryRisk_le}.
 \end{proof}
 
+TODO: move the next lemma.
 \begin{lemma}
   \label{lem:deGrootInfo_half}
   %\lean{}
@@ -245,6 +245,8 @@ TODO: once we prove the integral form of any $f$-divergence with respect to the 
   \end{align*}
 \end{definition}
 
+TODO: move the next lemma.
+
 \begin{lemma}
   \label{lem:deGrootInfo_eq_fDiv}
   %\lean{}
@@ -252,66 +254,6 @@ TODO: once we prove the integral form of any $f$-divergence with respect to the 
   \uses{def:deGrootInfo, def:deGrootFun}
   The De Groot statistical information $I_\pi$ is an $f$-divergence for the function $\psi_\pi$.
 \end{lemma}
-
-\begin{proof}%\leanok
-\uses{}
-
-\end{proof}
-
-\subsection{Integral representation of $f$-divergences}
-
-\begin{definition}
-  \label{def:curvatureMeasure}
-  %\lean{}
-  %\leanok
-  \uses{}
-  Let $f: \mathbb{R} \to \mathbb{R}$ be a convex function. Then $f'_+(x) \coloneqq \lim_{y \downarrow x}\frac{f(y) - f(x)}{y - x}$ is a Stieltjes function (a monotone right continuous function) and it defines a measure $\gamma_f$ on $\mathbb{R}$ by $\gamma_f((x,y]) \coloneqq f'_+(y) - f'_+(x)$~. \cite{liese2012phi} calls $\gamma_f$ the curvature measure of $\phi$.
-\end{definition}
-
-\begin{lemma}
-  \label{lem:convex_taylor_gt}
-  %\lean{}
-  %\leanok
-  \uses{def:curvatureMeasure}
-  For $f: \mathbb{R} \to \mathbb{R}$ a convex function and $x,y \in \mathbb{R}$ with $x < y$,
-  \begin{align*}
-  f(y) - f(x) - (y - x)f'_+(x) = \int_{z \in (x,y]} (y - z) \partial \gamma_f \: .
-  \end{align*}
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{}
-
-\end{proof}
-
-\begin{lemma}
-  \label{lem:convex_taylor_lt}
-  %\lean{}
-  %\leanok
-  \uses{def:curvatureMeasure}
-  For $f: \mathbb{R} \to \mathbb{R}$ a convex function and $x,y \in \mathbb{R}$ with $y < x$,
-  \begin{align*}
-  f(y) - f(x) - (y - x)f'_+(x) = \int_{z \in (y,x]} (z - y) \partial \gamma_f \: .
-  \end{align*}
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{}
-
-\end{proof}
-
-TODO: define $\Gamma_f$.
-
-\begin{theorem}[\cite{liese2006divergences,liese2012phi}]
-  \label{thm:fDiv_eq_integral}
-  %\lean{}
-  %\leanok
-  \uses{def:fDiv, def:curvatureMeasure}
-  \begin{align*}
-  D_f(\mu, \nu) = f(1) \nu(\mathcal X) + f'_+(1)(\mu(\mathcal X) - \nu(\mathcal X)) + \int_\pi I_\pi(\mu, \nu) \partial\Gamma_f \: .
-  \end{align*}
-  
-\end{theorem}
 
 \begin{proof}%\leanok
 \uses{}

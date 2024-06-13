@@ -1,4 +1,4 @@
-\chapter{Rényi divergences}
+\section{Rényi divergences}
 
 \begin{definition}[Rényi divergence]
   \label{def:Renyi}
@@ -124,7 +124,7 @@ Unfold the definitions, using Lemma~\ref{lem:renyi_eq_log_integral'} for the Ré
   \end{align*}
 \end{definition}
 
-\section{Properties inherited from f-divergences}
+\subsection{Properties inherited from f-divergences}
 
 Since Rényi divergences are monotone transfomations of f-divergences, every inequality for f-divergences can be translated to Rényi divergences.
 
@@ -156,7 +156,7 @@ The function $x \mapsto \frac{1}{\alpha - 1}\log (1 + (\alpha - 1)x)$ is non-dec
 By Corollary~\ref{cor:data_proc_event}, $D_f(\mu, \nu) \ge D_f(\mu_E, \nu_E)$, hence $R_\alpha(\mu, \nu) \ge R_\alpha(\mu_E, \nu_E)$.
 \end{proof}
 
-\section{Comparisons between orders}
+\subsection{Comparisons between orders}
 
 \begin{lemma}
   \label{lem:renyi_tendsto_renyi_zero}
@@ -213,7 +213,7 @@ By Corollary~\ref{cor:data_proc_event}, $D_f(\mu, \nu) \ge D_f(\mu_E, \nu_E)$, h
 \begin{proof}
 \end{proof}
 
-\section{The tilted measure}
+\subsection{The tilted measure}
 
 \begin{definition}
   \label{def:renyiMeasure}
@@ -309,7 +309,7 @@ We have then $(1 - \alpha) R_\alpha(\mu, \nu) \le \inf_{\xi \in \mathcal P(\math
 Corollary~\ref{cor:renyi_eq_add_kl} proves the other inequality.
 \end{proof}
 
-\section{Chain rule and tensorization}
+\subsection{Chain rule and tensorization}
 
 \begin{theorem}[Chain rule]
   \label{thm:renyi_chain_rule}
