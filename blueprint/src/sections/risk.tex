@@ -142,6 +142,19 @@ That estimator has Bayesian risk $\min\{\pi, 1 - \pi\}$.
 \uses{}
 \end{proof}
 
+\begin{lemma}
+  \label{lem:bayesBinaryRisk_symm}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesBinaryRisk}
+  For $\mu, \nu \in \mathcal M(\mathcal X)$ and $\pi \in [0,1]$, $B_\pi(\mu, \nu) = B_{1 - \pi}(\nu, \mu)$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+
+\end{proof}
+
 \begin{theorem}[Data-processing inequality]
   \label{thm:data_proc_bayesBinaryRisk}
   %\lean{}
@@ -196,6 +209,19 @@ Use Lemma~\ref{lem:bayesBinaryRisk_self}.
 \begin{proof}%\leanok
 \uses{lem:bayesBinaryRisk_le}
 Use Lemma~\ref{lem:bayesBinaryRisk_le}.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:deGrootInfo_symm}
+  %\lean{}
+  %\leanok
+  \uses{def:deGrootInfo}
+  For $\mu, \nu \in \mathcal M(\mathcal X)$ and $\pi \in [0,1]$, $I_\pi(\mu, \nu) = I_{1 - \pi}(\nu, \mu)$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:bayesBinaryRisk_symm}
+Use Lemma~\ref{lem:bayesBinaryRisk_symm}.
 \end{proof}
 
 \begin{theorem}[Data-processing inequality]

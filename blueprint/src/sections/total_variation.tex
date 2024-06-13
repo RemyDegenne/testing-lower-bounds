@@ -28,13 +28,13 @@
   \label{lem:TV_eq_eGamma_one}
   %\lean{}
   %\leanok
-  \uses{def:deGrootInfo, def:TV}
+  \uses{def:eGamma, def:TV}
   For $\mu, \nu \in \mathcal P(\mathcal X)$, $\TV(\mu, \nu) = E_1(\mu, \nu)$~.
 \end{lemma}
 
 \begin{proof}%\leanok
-\uses{}
-
+\uses{lem:TV_eq_deGrootInfo_half, lem:eGamma_eq_deGrootInfo}
+Combine Lemma~\ref{lem:TV_eq_deGrootInfo_half} and Lemma~\ref{lem:eGamma_eq_deGrootInfo}.
 \end{proof}
 
 \begin{lemma}
