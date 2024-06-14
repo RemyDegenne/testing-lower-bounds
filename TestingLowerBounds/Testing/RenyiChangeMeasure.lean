@@ -35,6 +35,7 @@ lemma measure_llr_gt_renyiDiv_le_exp [IsFiniteMeasure μ] [IsFiniteMeasure ν]
   have hμν : μ ≪ ν := by
     by_contra h_not
     exact h (renyiDiv_of_one_le_of_not_ac (by linarith) h_not)
+  rw [renyiDiv_ne_top_iff_of_one_lt (by linarith)] at h
   calc (μ {x | EReal.toReal (renyiDiv (1 + a) μ ν) + c < llr μ ν x}).toReal
   _ ≤ (μ {x | EReal.toReal (renyiDiv (1 + a) μ ν) + c ≤ llr μ ν x}).toReal := by
         refine ENNReal.toReal_mono (measure_ne_top _ _) (measure_mono (fun x ↦ ?_))
@@ -44,14 +45,11 @@ lemma measure_llr_gt_renyiDiv_le_exp [IsFiniteMeasure μ] [IsFiniteMeasure ν]
         refine measure_ge_le_exp_cgf (X := llr μ ν) (μ := μ) ((renyiDiv (1 + a) μ ν).toReal + c)
           ha.le ?_
         rw [integrable_congr (exp_mul_llr' hμν)]
-        rw [renyiDiv_ne_top_iff_of_one_le, integrable_hellingerFun_iff_integrable_rpow] at h
         · rw [integrable_rpow_rnDeriv_iff hμν ha]
           exact h.1
-        · linarith
-        · linarith
   _ = exp (-a * c) := by
         congr
-        rw [cgf_llr' ha h]
+        rw [cgf_llr' ha h.1 h.2]
         ring
 
 lemma measure_sub_le_measure_mul_exp_renyiDiv [IsFiniteMeasure μ] [IsFiniteMeasure ν]
