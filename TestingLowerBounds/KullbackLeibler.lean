@@ -217,28 +217,9 @@ lemma kl_nonneg (μ ν : Measure α) [IsProbabilityMeasure μ] [IsProbabilityMea
 /-- **Converse Gibbs' inequality**: the Kullback-Leibler divergence between two finite measures is
 zero if and only if the two distributions are equal. -/
 lemma kl_eq_zero_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_mass : μ Set.univ = ν Set.univ) :
-    kl μ ν = 0 ↔ μ = ν := by
-  refine ⟨fun h ↦ ?_, fun h ↦ h ▸ kl_self ν⟩
-  by_cases hμν : μ ≪ ν
-  swap; · rw [kl_of_not_ac hμν] at h; simp_all only [EReal.top_ne_zero]
-  by_cases h_int : Integrable (llr μ ν) μ
-  swap; · rw [kl_of_not_integrable h_int] at h; simp_all only [EReal.top_ne_zero]
-  by_cases hμ_zero : μ = 0
-  · rw [hμ_zero] at h_mass ⊢
-    rw [Measure.measure_univ_eq_zero.mp h_mass.symm]
-  classical
-  rw [kl_eq_fDiv, fDiv_of_derivAtTop_eq_top derivAtTop_mul_log,
-      if_pos ⟨(integrable_rnDeriv_mul_log_iff hμν).mpr h_int, hμν⟩, EReal.coe_eq_zero,] at h
-  have h_eq := StrictConvexOn.ae_eq_const_or_map_average_lt Real.strictConvexOn_mul_log
-    Real.continuous_mul_log.continuousOn isClosed_Ici (by simp) Measure.integrable_toReal_rnDeriv
-    (integrable_rnDeriv_mul_log_iff hμν |>.mpr h_int)
-  simp only [average, integral_smul_measure, smul_eq_mul, h, mul_zero, ← h_mass] at h_eq
-  rw [Measure.integral_toReal_rnDeriv hμν, ← ENNReal.toReal_mul,
-    ENNReal.inv_mul_cancel (Measure.measure_univ_ne_zero.mpr hμ_zero) (measure_ne_top μ _)] at h_eq
-  simp only [ENNReal.one_toReal, Function.const_one, log_one, mul_zero, lt_self_iff_false,
-    or_false] at h_eq
-  exact (Measure.rnDeriv_eq_one_iff_eq hμν).mp <| ENNReal.eventuallyEq_of_toReal_eventuallyEq
-    (Measure.rnDeriv_ne_top _ _) (eventually_of_forall fun _ ↦ ENNReal.one_ne_top) h_eq
+    kl μ ν = 0 ↔ μ = ν :=
+  kl_eq_fDiv (μ := μ) (ν := ν) ▸ fDiv_eq_zero_iff h_mass derivAtTop_mul_log
+    Real.strictConvexOn_mul_log Real.continuous_mul_log.continuousOn (by norm_num)
 
 /-- **Converse Gibbs' inequality**: the Kullback-Leibler divergence between two probability
 distributions is zero if and only if the two distributions are equal. -/
