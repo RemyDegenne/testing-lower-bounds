@@ -159,3 +159,93 @@ TODO: add remark on the Giry monad.
   We define a partial order on kernels by the following. Let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal X \rightsquigarrow \mathcal Z$ (with same domain as $\kappa$).
   Then $\kappa$ is Blackwell sufficient for $\eta$, denoted by $\eta \le_B \kappa$, if there exists a Markov kernel $\xi : \mathcal Y \rightsquigarrow \mathcal Z$ such that $\eta = \xi \circ \kappa$.
 \end{definition}
+
+\section{Bayesian inverse of a kernel}
+
+\begin{definition}
+  \label{def:bayesInv}
+  \lean{ProbabilityTheory.bayesInv}
+  \leanok
+  \uses{def:kernel_comp, def:measure_compProd}
+  For $\mu \in \mathcal M(\mathcal X)$ and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$, a Bayesian inverse of $\kappa$ is a Markov kernel $\kappa_\mu^\dagger : \mathcal Y \rightsquigarrow \mathcal X$ such that $\mu \otimes \kappa = ((\kappa \circ \mu) \otimes \kappa_\mu^\dagger)_\leftrightarrow$ in which $(\cdot)_\leftrightarrow$ denotes swapping the two coordinates.
+  If such an inverse exists it is unique up to a $(\kappa \circ \mu)$-null set, and we talk about \emph{the} Bayesian inverse of $\kappa$ with respect to $\mu$.
+  For $\mathcal X$ standard Borel, $\mu$ and $\kappa$ s-finite, the Bayesian inverse exists and is obtained by disintegration of the measure $\mu \otimes \kappa$ on $\mathcal X \times \mathcal Y$ into a measure $\kappa \circ \mu \in \mathcal M(\mathcal Y)$ and a Markov kernel $\kappa_\mu^\dagger: \mathcal Y \rightsquigarrow \mathcal X$.
+\end{definition}
+
+The bayesian interpretation of this definition is that $\mu$ represents a prior over a parameter and $\kappa$ gives the distribution of data given the parameter. $\kappa \circ \mu$ is the distribution of the data, and $\kappa_\mu^\dagger$ gives the posterior distribution of the parameter given the data.
+
+See \cite{clerc2017pointless} and \cite{dahlqvist2018borel} for a category theory point of view on Bayesian inversion.
+
+\begin{lemma}[a.e.-uniqueness of the Bayesian inverse]
+  \label{lem:eq_bayesInv_of_compProd_eq}
+  \lean{ProbabilityTheory.eq_bayesInv_of_compProd_eq}
+  \leanok
+  \uses{def:bayesInv}
+  Let $\mu \in \mathcal M(\mathcal X)$ be a finite measure and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a finite kernel.
+  If $\eta : \mathcal Y \rightsquigarrow \mathcal X$ is such that $\mu \otimes \kappa = ((\kappa \circ \mu) \otimes \eta)_\leftrightarrow$, then $\eta(y) = \kappa_\mu^\dagger(y)$ for $(\kappa \circ \mu)$-almost all $y$.
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{}
+TODO: uniqueness of the conditional kernel.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:bayesInv_comp_self}
+  \lean{ProbabilityTheory.bayesInv_comp_self}
+  \leanok
+  \uses{def:bayesInv}
+  For $\mu \in \mathcal M(\mathcal X)$ s-finite, $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ a Markov kernel and $\kappa_\mu^\dagger$ the Bayesian inverse of $\kappa$ with respect to $\mu$, these objects satisfy the equality $\kappa_\mu^\dagger \circ \kappa \circ \mu = \mu$.
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{}
+The measure $\kappa_\mu^\dagger \circ (\kappa \circ \mu)$ is the projection on $\mathcal X$ of $(\kappa \circ \mu) \otimes \kappa_\mu^\dagger$. But $(\kappa \circ \mu) \otimes \kappa_\mu^\dagger = (\mu \otimes \kappa)_\leftrightarrow$ by definition of the Bayesian inverse. Since $\kappa$ is a Markov kernel, the projection on $\mathcal X$ of that measure is simply $\mu$.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:bayesInv_self}
+  \lean{ProbabilityTheory.bayesInv_bayesInv}
+  \leanok
+  \uses{def:bayesInv}
+  For $\mathcal X$ and $\mathcal Y$ two standard Borel spaces, $\mu \in \mathcal M(\mathcal X)$ s-finite and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ a Markov kernel, $(\kappa_\mu^\dagger)_{\kappa \circ \mu}^\dagger = \kappa$ ($\mu$-a.e.).
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{lem:bayesInv_comp_self, lem:eq_bayesInv_of_compProd_eq}
+By uniqueness of the disintegration, it suffices to show that $(\kappa \circ \mu) \otimes \kappa_\mu^\dagger = ((\kappa_\mu^\dagger \circ \kappa \circ \mu) \otimes \kappa)_\leftrightarrow$~.
+By Lemma~\ref{lem:bayesInv_comp_self}, $\kappa_\mu^\dagger \circ \kappa \circ \mu = \mu$ and we need to prove $(\kappa \circ \mu) \otimes \kappa_\mu^\dagger = (\mu \otimes \kappa)_\leftrightarrow$~.
+This is true by definition of $\kappa_\mu^\dagger$~.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:bayesInv_id}
+  \lean{ProbabilityTheory.bayesInv_id}
+  \leanok
+  \uses{def:bayesInv}
+  Let $\mu \in \mathcal M (\mathcal X)$ and let $\textup{id} : \mathcal X \rightsquigarrow \mathcal X$ be the identity kernel. Then $\textup{id}_\mu^\dagger = \textup{id}$.
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{lem:eq_bayesInv_of_compProd_eq}
+It suffices to show that $\mu \otimes \textup{id} = ((\textup{id} \circ \mu) \otimes \textup{id})_\leftrightarrow$~, which is clear.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:bayesInv_comp}
+  \lean{ProbabilityTheory.bayesInv_comp}
+  \leanok
+  \uses{def:bayesInv,def:kernel_comp}
+  Let $\mu \in \mathcal M(\mathcal X)$, $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal Y \rightsquigarrow \mathcal Z$. Then $(\eta \circ \kappa \circ \mu)$-a.e.,
+  \begin{align*}
+  (\eta \circ \kappa)_\mu^\dagger = \kappa_{\mu}^\dagger \circ \eta_{\kappa \circ \mu}^\dagger
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{lem:eq_bayesInv_of_compProd_eq}
+It suffices to show that $\mu \otimes (\eta \circ \kappa) = ((\eta \circ \kappa \circ \mu) \otimes (\kappa_{\mu}^\dagger \circ \eta_{\kappa \circ \mu}^\dagger))_\leftrightarrow$.
+
+TODO: transcribe the code.
+\end{proof}

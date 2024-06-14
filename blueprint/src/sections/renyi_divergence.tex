@@ -1,4 +1,4 @@
-\chapter{Rényi divergences}
+\section{Rényi divergences}
 
 \begin{definition}[Rényi divergence]
   \label{def:Renyi}
@@ -127,7 +127,9 @@ Unfold the definitions, using Lemma~\ref{lem:renyi_eq_log_integral'} for the Ré
   \end{align*}
 \end{definition}
 
-\section{Properties inherited from f-divergences}
+TODO: the reasons for this definition is that it is equal to $R_\alpha(\mu \otimes \kappa, \mu \otimes \eta)$, which is the generic conditional divergence definition, and also that this is the definition for which we have a chain rule.
+
+\subsection{Properties inherited from f-divergences}
 
 Since Rényi divergences are monotone transfomations of f-divergences, every inequality for f-divergences can be translated to Rényi divergences.
 
@@ -159,7 +161,7 @@ The function $x \mapsto \frac{1}{\alpha - 1}\log (1 + (\alpha - 1)x)$ is non-dec
 By Corollary~\ref{cor:data_proc_event}, $D_f(\mu, \nu) \ge D_f(\mu_E, \nu_E)$, hence $R_\alpha(\mu, \nu) \ge R_\alpha(\mu_E, \nu_E)$.
 \end{proof}
 
-\section{Comparisons between orders}
+\subsection{Comparisons between orders}
 
 \begin{lemma}
   \label{lem:renyi_tendsto_renyi_zero}
@@ -216,7 +218,7 @@ By Corollary~\ref{cor:data_proc_event}, $D_f(\mu, \nu) \ge D_f(\mu_E, \nu_E)$, h
 \begin{proof}
 \end{proof}
 
-\section{The tilted measure}
+\subsection{The tilted measure}
 
 \begin{definition}
   \label{def:renyiMeasure}
@@ -312,7 +314,7 @@ We have then $(1 - \alpha) R_\alpha(\mu, \nu) \le \inf_{\xi \in \mathcal P(\math
 Corollary~\ref{cor:renyi_eq_add_kl} proves the other inequality.
 \end{proof}
 
-\section{Chain rule and tensorization}
+\subsection{Chain rule and tensorization}
 
 \begin{theorem}[Chain rule]
   \label{thm:renyi_chain_rule}
@@ -332,7 +334,7 @@ Corollary~\ref{cor:renyi_eq_add_kl} proves the other inequality.
   %\lean{}
   %\leanok
   \uses{def:Renyi}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ and $\xi, \lambda$ be two measures on $\mathcal Y$.
+  Let $\mu, \nu \in \mathcal P(\mathcal X)$ and $\xi, \lambda \in \mathcal P(\mathcal Y)$.
   Then $R_\alpha(\mu \times \xi, \nu \times \lambda) = R_\alpha(\mu, \nu) + R_\alpha(\xi, \lambda)$.
 \end{corollary}
 
@@ -346,7 +348,7 @@ Apply Theorem~\ref{thm:renyi_chain_rule} (the product of measures is a special c
   %\lean{}
   %\leanok
   \uses{def:Renyi}
-  Let $I$ be a finite index set. Let $(\mu_i)_{i \in I}, (\nu_i)_{i \in I}$ be measures on measurable spaces $(\mathcal X_i)_{i \in I}$.
+  Let $I$ be a finite index set. Let $(\mu_i)_{i \in I}, (\nu_i)_{i \in I}$ be probability measures on measurable spaces $(\mathcal X_i)_{i \in I}$.
   Then $R_\alpha (\prod_{i \in I} \mu_i, \prod_{i \in I} \nu_i) = \sum_{i \in I} R_\alpha(\mu_i, \nu_i)$.
 \end{theorem}
 
@@ -360,7 +362,7 @@ Induction over the finite index set, using Corollary~\ref{cor:renyi_prod_two}.
   %\lean{}
   %\leanok
   \uses{def:Renyi}
-  Let $\mu, \nu$ be two measures on $\mathcal X$. Let $n \in \mathbb{N}$ and write $\mu^{\otimes n}$ for the product measure on $\mathcal X^n$ of $n$ times $\mu$.
+  Let $\mu, \nu$ be two probability measures on $\mathcal X$. Let $n \in \mathbb{N}$ and write $\mu^{\otimes n}$ for the product measure on $\mathcal X^n$ of $n$ times $\mu$.
   Then $R_\alpha(\mu^{\otimes n}, \nu^{\otimes n}) = n R_\alpha(\mu, \nu)$.
 \end{corollary}
 
@@ -374,7 +376,7 @@ Apply Theorem~\ref{thm:renyi_prod}.
   %\lean{}
   %\leanok
   \uses{def:Renyi}
-  Let $I$ be a countable index set. Let $(\mu_i)_{i \in I}, (\nu_i)_{i \in I}$ be measures on measurable spaces $(\mathcal X_i)_{i \in I}$.
+  Let $I$ be a countable index set. Let $(\mu_i)_{i \in I}, (\nu_i)_{i \in I}$ be probability measures on measurable spaces $(\mathcal X_i)_{i \in I}$.
   Then $R_\alpha (\prod_{i \in I} \mu_i, \prod_{i \in I} \nu_i) = \sum_{i \in I} R_\alpha(\mu_i, \nu_i)$.
 \end{theorem}
 

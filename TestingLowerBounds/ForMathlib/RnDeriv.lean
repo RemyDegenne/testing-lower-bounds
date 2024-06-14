@@ -163,7 +163,7 @@ lemma measure_inter_compl_singularPartSet (μ ν : Measure α) [SigmaFinite μ] 
           ← restrict_restrict measurableSet_singularPartSet.compl,
           lintegral_add_compl _ measurableSet_singularPartSet]
   _ = ∫⁻ x in t ∩ (singularPartSet μ ν)ᶜ, rnDeriv μ ν x ∂ν := by
-        rw [set_lintegral_measure_zero _ _ (measure_mono_null (Set.inter_subset_left _ _) ?_),
+        rw [set_lintegral_measure_zero _ _ (measure_mono_null Set.inter_subset_left ?_),
           Set.inter_comm, zero_add]
         exact measure_singularPartSet _ _
 
@@ -240,7 +240,7 @@ lemma ae_rnDeriv_ne_zero_imp_of_ae_aux [SigmaFinite μ] [SigmaFinite ν] {p : α
         zero_mul]
       rw [← Measure.restrict_singularPartSet_eq_singularPart, Measure.restrict_restrict hs,
         Measure.set_lintegral_rnDeriv hμν]
-      exact measure_mono_null (Set.inter_subset_right _ _) (Measure.measure_singularPartSet _ _)
+      exact measure_mono_null Set.inter_subset_right (Measure.measure_singularPartSet _ _)
     filter_upwards [this] with x hx h_absurd using absurd hx h_absurd
   · have h_ac : μ.withDensity (ν.rnDeriv μ) ≪ μ := withDensity_absolutelyContinuous _ _
     rw [← Measure.haveLebesgueDecomposition_add ν μ]

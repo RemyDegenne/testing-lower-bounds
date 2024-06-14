@@ -1,4 +1,4 @@
-\chapter{Kullback-Leibler divergence}
+\section{Kullback-Leibler divergence}
 
 \begin{definition}[Kullback-Leibler divergence]
   \label{def:KL}
@@ -48,7 +48,7 @@ Simple computation.
 Simple computation.
 \end{proof}
 
-\section{Properties inherited from f-divergences}
+\subsection{Properties inherited from f-divergences}
 
 Since $\KL$ is an f-divergence, every inequality for f-divergences can be translated to $\KL$.
 
@@ -195,14 +195,14 @@ Then using 1.\ we can conclude that $x \mapsto \int_y \log \frac{d \kappa(x)}{d 
 
 
 
-\section{Chain rule and tensorization}
+\subsection{Chain rule and tensorization}
 
 \begin{theorem}[Chain rule, kernel version]
   \label{thm:kl_compProd}
   \lean{ProbabilityTheory.kl_compProd}
   \leanok
   \uses{def:KL, def:condKL}
-  The chain rule for the KL divergence. Let $\mu, \nu$ be two finite measures on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ two Markov kernels.
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ two Markov kernels.
   Then $\KL(\mu \otimes \kappa, \nu \otimes \eta) = \KL(\mu, \nu) + \KL(\kappa, \eta \mid \mu)$.
 \end{theorem}
 
@@ -262,7 +262,7 @@ Write $\mu_1 \times \mu_2$ and $\nu_1 \times \nu_2$ as composition products of a
   \lean{ProbabilityTheory.kl_prod_two}
   \leanok
   \uses{def:KL}
-  For $\mu_1$ probability measure on $\mathcal X$, $\nu_1$ finite measure on $\mathcal{X}$ and $\mu_2, \nu_2$ two probability measures on $\mathcal Y$,
+  For $\mu_1$ a probability measure on $\mathcal X$, $\nu_1$ a finite measure on $\mathcal{X}$ and $\mu_2, \nu_2$ two probability measures on $\mathcal Y$,
   \begin{align*}
   \KL(\mu_1 \times \mu_2, \nu_1 \times \nu_2) = \KL(\mu_1, \nu_1) + \KL(\mu_2 \times \nu_2) \: .
   \end{align*}

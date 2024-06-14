@@ -1,25 +1,24 @@
 \chapter{Testing, Estimation, Risk}
 
 In the estimation problem, we are given a family of measures and we want to estimate an unknown parameter for the measure from which we observe samples.
-Let $\mathcal X$ be the measurable space on which the measures are defined and let $y : \mathcal M(\mathcal X) \to \mathcal Y$ be the function which maps a measure to the parameter of interest.
+Let $\mathcal X$ be the measurable space on which the measures are defined.
+The measure family is described by a kernel $P : \Theta \rightsquigarrow \mathcal X$. We write $P_\theta$ for $P(\theta)$.
+In \emph{parametric} problems, $\Theta$ is a low-dimensional space. In \emph{nonparametric} problems $\Theta$ is large, for example $\Theta = \mathcal M (\mathcal X)$ or $\Theta = \mathcal P(\mathcal X)$.
+
+The goal of the estimation task is to find from the observation of samples of $P_\theta$ for an unknown $\theta$ the value of a function $y : \Theta \to \mathcal Y$~, which maps the parameter $\theta$ to the quantity we are interested in. For example, $y(\theta)$ might be the expected value of the distribution $P_\theta$.
 
 An estimator is a Markov kernel $\hat{y} : \mathcal X \rightsquigarrow \mathcal Z$, where most often $\mathcal Z = \mathcal Y$.
-Note that while $y$ is a function of a measure in $\mathcal M(\mathcal X)$, $\hat{y}$ has domain $\mathcal X$ as the estimation is done based on a sample of the measure, while the measure itself remains unknown.
+Note that while $y$ is a function of a parameter in $\Theta$, $\hat{y}$ has domain $\mathcal X$ as the estimation is done based on a sample of the measure, while the measure itself and its parameter remain unknown.
 In general this is a randomized estimator, but often deterministic estimators (corresponding to deterministic kernels) are enough to attain optimal performance.
-The quality of the estimation is quantified by a loss $\ell' : \mathcal Y \times \mathcal Z \to \mathbb{R}_{+, \infty}$. We write $\ell$ for a loss from $\mathcal Y \times \mathcal Y$ and $\ell'$ in the heterogeneous case.
-
-The measure family is described by a kernel $P : \Theta \rightsquigarrow \mathcal X$. We write $P_\theta$ for $P(\theta)$ and $y(\theta)$ for $y(P_\theta)$.
-In \emph{parametric} problems, $\Theta$ is a low-dimensional space. In \emph{nonparametric} problems, $\Theta$ is large, for example $\Theta = \mathcal M (\mathcal X)$ or $\Theta = \mathcal P(\mathcal X)$.
-
-TODO: reorder to define $y: \Theta \to \mathcal Y$ instead of $y : \mathcal M(\mathcal X) \to \mathcal Y$~, since we always write $y(P(\theta))$.
+The quality of the estimation is quantified by a loss $\ell' : \mathcal Y \times \mathcal Z \to \mathbb{R}_{+, \infty}$. We write $\ell$ for a loss on $\mathcal Y \times \mathcal Y$ and $\ell'$ in the heterogeneous case.
 
 \paragraph{Example: simple binary hypothesis testing (SBHT)}
 
 We say that an estimation problem is a testing problem if $\mathcal Y = \mathcal Z$ is discrete and the loss takes values in $\{0, 1\}$.
 A test is said to be binary if $\mathcal Y$ has two elements.
-A test is simple if $\{\theta \mid y(P_\theta) = y_0\}$ is a singleton for all $y_0 \in \mathcal Y$.
+A test is simple if $\{\theta \mid y(\theta) = y_0\}$ is a singleton for all $y_0 \in \mathcal Y$.
 
-In summary, in simple binary hypothesis testing, $\Theta = \mathcal Y = \mathcal Z = \{0,1\}$, $y(P_0) = 0$, $y(P_1) = 1$ (that is, $y(\theta) = \theta$). For $z \in \{0,1\}$, $\ell(y, z) = \mathbb{I}\{y \ne z\}$.
+In summary, in simple binary hypothesis testing, $\Theta = \mathcal Y = \mathcal Z = \{0,1\}$, $y(0) = 0$, $y(1) = 1$ (that is, $y$ is the identity). For $z \in \{0,1\}$, $\ell(y, z) = \mathbb{I}\{y \ne z\}$.
 
 \section{Risk}
 
@@ -108,8 +107,13 @@ TODO: ``often'', $\mathcal R^*_B = \mathcal R^*$.
   %\lean{}
   %\leanok
   \uses{def:bayesRisk}
-  The Bayes binary risk between measures $\mu$ and $\nu$, denoted by $B_\pi(\mu, \nu)$, is the Bayes risk $\mathcal R_\pi$ for $\Theta = \mathcal Y = \mathcal Z = \{0,1\}$, $P$ the kernel sending 0 to $\mu$ and 1 to $\nu$ and prior $(\pi, 1-\pi)$.
-  That is, $B_\pi(\mu, \nu) = \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\pi \mu(\hat{y} = 1) + (1 - \pi) \nu(\hat{y} = 0)\right)$~, in which the infimum is over Markov kernels.
+  The Bayes binary risk between measures $\mu$ and $\nu$, denoted by $B_\pi(\mu, \nu)$ and parametrized by $\pi \in [0,1]$, is the Bayes risk $\mathcal R_\pi$ for $\Theta = \mathcal Y = \mathcal Z = \{0,1\}$, $\ell(y,z) = \mathbb{I}\{y \ne z\}$, $P$ the kernel sending 0 to $\mu$ and 1 to $\nu$ and prior $(\pi, 1-\pi)$.
+  That is,
+  \begin{align*}
+  B_\pi(\mu, \nu) = \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\pi (\hat{y} \circ \mu)(\{1\}) + (1 - \pi) (\hat{y} \circ \nu)(\{0\})\right)
+  \: ,
+  \end{align*}
+  in which the infimum is over Markov kernels.
 \end{definition}
 
 \begin{lemma}
@@ -138,6 +142,19 @@ That estimator has Bayesian risk $\min\{\pi, 1 - \pi\}$.
 \uses{}
 \end{proof}
 
+\begin{lemma}
+  \label{lem:bayesBinaryRisk_symm}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesBinaryRisk}
+  For $\mu, \nu \in \mathcal M(\mathcal X)$ and $\pi \in [0,1]$, $B_\pi(\mu, \nu) = B_{1 - \pi}(\nu, \mu)$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+
+\end{proof}
+
 \begin{theorem}[Data-processing inequality]
   \label{thm:data_proc_bayesBinaryRisk}
   %\lean{}
@@ -148,13 +165,6 @@ That estimator has Bayesian risk $\min\{\pi, 1 - \pi\}$.
 
 \begin{proof}%\leanok
 \uses{}
-First we note the following expression for $B_\pi$~:
-\begin{align*}
-B_\pi(\mu, \nu)
-&= \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\pi (\hat{y} \circ \mu)(\{1\}) + (1 - \pi) (\hat{y} \circ \nu)(\{0\})\right)
-\: .
-\end{align*}
-We proceed with the proof.
 \begin{align*}
 B_\pi(\kappa \circ \mu, \kappa \circ \nu)
 &= \inf_{\hat{y} : \mathcal Y \rightsquigarrow \{0,1\}}\left(\pi (\hat{y} \circ \kappa \circ \mu)(\{1\}) + (1 - \pi) (\hat{y} \circ \kappa \circ \nu)(\{0\})\right)
@@ -202,16 +212,16 @@ Use Lemma~\ref{lem:bayesBinaryRisk_le}.
 \end{proof}
 
 \begin{lemma}
-  \label{lem:deGrootInfo_half}
+  \label{lem:deGrootInfo_symm}
   %\lean{}
   %\leanok
-  \uses{def:deGrootInfo, def:TV}
-  For $\mu, \nu \in \mathcal P(\mathcal X)$, $I_{1/2}(\mu, \nu) = \frac{1}{2}\TV(\mu, \nu)$~.
+  \uses{def:deGrootInfo}
+  For $\mu, \nu \in \mathcal M(\mathcal X)$ and $\pi \in [0,1]$, $I_\pi(\mu, \nu) = I_{1 - \pi}(\nu, \mu)$~.
 \end{lemma}
 
 \begin{proof}%\leanok
-\uses{}
-
+\uses{lem:bayesBinaryRisk_symm}
+Use Lemma~\ref{lem:bayesBinaryRisk_symm}.
 \end{proof}
 
 \begin{theorem}[Data-processing inequality]
@@ -235,6 +245,9 @@ TODO: this extends the data-processing inequality for TV to any space.
 TODO: once we prove the integral form of any $f$-divergence with respect to the De Groot statistical information, this will extend the data-processing inequality for all $f$-divergences. 
 
 \section{Deficiency}
+
+TODO: this part is not used elsewhere for now, and should perhaps be deleted.
+In any case, it should be placed somewhere after the definition of$\TV$.
 
 \begin{definition}[Le Cam deficiency]
   \label{def:deficiency}
