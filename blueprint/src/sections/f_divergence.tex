@@ -241,6 +241,20 @@ f(\mu(\mathcal X))
 Apply Lemma~\ref{lem:le_fDiv} and use $f(\mu(\mathcal X)) = f(1) = 0$.
 \end{proof}
 
+\begin{lemma}
+  \label{lem:fDiv_eq_zero_iff}
+  \lean{ProbabilityTheory.fDiv_eq_zero_iff'}
+  \leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two probability measures, $f'(\infty) = + \infty$ and $f(1) = 0$. Then $D_f(\mu, \nu) = 0$ if and only if $\mu = \nu$.
+\end{lemma}
+
+\begin{proof}\leanok
+  \uses{lem:fDiv_self}
+  If $\mu = \nu$ apply Lemma~\ref{lem:fDiv_self}.
+  For the other direction use the strict version of Jensen's inequality.
+\end{proof}
+
 \subsection{Data-processing inequality: sigma-algebras}
 
 For $\mathcal A$ a sub-$\sigma$-algebra and $\mu$ a measure, we write $\mathcal \mu_{| \mathcal A}$ for the measure restricted to the $\sigma$-algebra.

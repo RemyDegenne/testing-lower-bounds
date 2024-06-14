@@ -142,8 +142,8 @@ Apply Lemma~\ref{lem:kl_ge} and use $\mu(\mathcal X) = \nu (\mathcal X)$.
 \end{lemma}
 
 \begin{proof}\leanok
-\uses{lem:kl_eq_fDiv}
-Use the strict version of Jensen's inequality.
+\uses{lem:kl_eq_fDiv, lem:fDiv_eq_zero_iff}
+KL is an f-divergence thanks to Lemma~\ref{lem:kl_eq_fDiv}, then apply Lemma~\ref{lem:fDiv_eq_zero_iff}.
 \end{proof}
 
 \begin{lemma}
