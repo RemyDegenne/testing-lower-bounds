@@ -209,22 +209,22 @@ lemma kl_nonneg' (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
           exact measure_ne_top _ _
   _ ≤ kl μ ν := kl_ge_mul_log _ _
 
+/-- **Gibbs' inequality**: the Kullback-Leibler divergence between two probability distributions is
+nonnegative. -/
 lemma kl_nonneg (μ ν : Measure α) [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
     0 ≤ kl μ ν := kl_nonneg' μ ν (by simp)
 
--- We may need to modify the hypotheses of this lemma, maybe `μ Set.univ ≥ ν Set.univ` is enough,
--- like in the previous lemma, and we probably need finiteness of the measures.
-lemma kl_eq_zero_iff [SigmaFinite μ] [SigmaFinite ν] (h : μ Set.univ = ν Set.univ) :
-  kl μ ν = 0 ↔ μ = ν := by
-  constructor <;> intro h
-  · by_cases hμν : μ ≪ ν
-    swap; · rw [kl_of_not_ac hμν] at h; simp_all only [EReal.top_ne_zero]
-    by_cases h_int : Integrable (llr μ ν) μ
-    swap; · rw [kl_of_not_integrable h_int] at h; simp_all only [EReal.top_ne_zero]
-    sorry -- TODO : decide what proof strategy to use here, maybe we could use the fact that
-    -- jensen's inequality is an equality iff the function is constant a.e., but I don't know whether
-    -- this is in mathlib
-  · exact h ▸ kl_self ν
+/-- **Converse Gibbs' inequality**: the Kullback-Leibler divergence between two finite measures is
+zero if and only if the two distributions are equal. -/
+lemma kl_eq_zero_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_mass : μ Set.univ = ν Set.univ) :
+    kl μ ν = 0 ↔ μ = ν :=
+  kl_eq_fDiv (μ := μ) (ν := ν) ▸ fDiv_eq_zero_iff h_mass derivAtTop_mul_log
+    Real.strictConvexOn_mul_log Real.continuous_mul_log.continuousOn (by norm_num)
+
+/-- **Converse Gibbs' inequality**: the Kullback-Leibler divergence between two probability
+distributions is zero if and only if the two distributions are equal. -/
+lemma kl_eq_zero_iff' [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
+    kl μ ν = 0 ↔ μ = ν := kl_eq_zero_iff (by simp)
 
 end kl_nonneg
 

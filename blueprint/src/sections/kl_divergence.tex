@@ -120,7 +120,7 @@ Apply Theorem~\ref{thm:fDiv_data_proc}.
 \uses{lem:le_fDiv, lem:kl_eq_fDiv}
 \end{proof}
 
-\begin{lemma}
+\begin{lemma}[Gibbs' inequality]
   \label{lem:kl_nonneg}
   \lean{ProbabilityTheory.kl_nonneg}
   \leanok
@@ -131,6 +131,19 @@ Apply Theorem~\ref{thm:fDiv_data_proc}.
 \begin{proof}\leanok
 \uses{lem:kl_ge}
 Apply Lemma~\ref{lem:kl_ge} and use $\mu(\mathcal X) = \nu (\mathcal X)$.
+\end{proof}
+
+\begin{lemma}[Converse Gibbs' inequality]
+  \label{lem:kl_eq_zero_iff}
+  \lean{ProbabilityTheory.kl_eq_zero_iff'}
+  \leanok
+  \uses{def:KL}
+  Let $\mu, \nu$ be two probability measures. Then $\KL(\mu, \nu) = 0$ if and only if $\mu = \nu$.
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{lem:kl_eq_fDiv, lem:fDiv_eq_zero_iff}
+KL is an f-divergence thanks to Lemma~\ref{lem:kl_eq_fDiv}, then apply Lemma~\ref{lem:fDiv_eq_zero_iff}.
 \end{proof}
 
 \begin{lemma}
