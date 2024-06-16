@@ -141,7 +141,7 @@ TODO: ``often'', $\mathcal R^*_B = \mathcal R^*$.
   \lean{ProbabilityTheory.bayesBinaryRisk_le_min}
   \leanok
   \uses{def:bayesBinaryRisk}
-  For all probability measures $\mu, \nu$, $B_\pi(\mu, \nu) \le \min\{\pi, 1 - \pi\}$~.
+  For all measures $\mu, \nu$, $B_\pi(\mu, \nu) \le \min\{\pi, 1 - \pi\}$~.
 \end{lemma}
 
 \begin{proof}%\leanok
@@ -155,7 +155,7 @@ That estimator has Bayesian risk $\min\{\pi, 1 - \pi\}$.
   \lean{ProbabilityTheory.bayesBinaryRisk_self}
   \leanok
   \uses{def:bayesBinaryRisk}
-  For $\mu \in \mathcal P(\mathcal X)$, $B_\pi(\mu, \mu) = \min\{\pi, 1-\pi\}$~.
+  For $\mu \in \mathcal M(\mathcal X)$, $B_\pi(\mu, \mu) = \min\{\pi, 1-\pi\}$~.
 \end{lemma}
 
 \begin{proof}%\leanok
@@ -201,7 +201,7 @@ Apply Theorem~\ref{thm:data_proc_bayesRisk}.
   %\lean{}
   %\leanok
   \uses{def:deGrootInfo}
-  For $\mu \in \mathcal P(\mathcal X)$, $I_\pi(\mu, \mu) = 0$~.
+  For $\mu \in \mathcal M(\mathcal X)$, $I_\pi(\mu, \mu) = 0$~.
 \end{lemma}
 
 \begin{proof}%\leanok
@@ -214,7 +214,7 @@ Use Lemma~\ref{lem:bayesBinaryRisk_self}.
   %\lean{}
   %\leanok
   \uses{def:deGrootInfo}
-  For $\mu, \nu \in \mathcal P(\mathcal X)$, $I_\pi(\mu, \nu) \ge 0$~.
+  For $\mu, \nu \in \mathcal M(\mathcal X)$, $I_\pi(\mu, \nu) \ge 0$~.
 \end{lemma}
 
 \begin{proof}%\leanok
