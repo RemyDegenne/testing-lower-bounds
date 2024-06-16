@@ -106,6 +106,9 @@ lemma risk_simpleBinaryHypTest_false (μ ν : Measure 𝒳) (κ : kernel 𝒳 Bo
       exact absurd (h2.symm.trans h1) Bool.false_ne_true
   _ = (μ ∘ₘ ⇑κ) {true} := lintegral_indicator_one (measurableSet_singleton _)
 
+-- TODO: in the definition below, remove the `p ≤ 1` hypothesis?
+
+/-- The Bayes risk of simple binary hypothesis testing with respect to a Bernoulli prior. -/
 noncomputable
 def bayesBinaryRisk (μ ν : Measure 𝒳) (p : ℝ≥0∞) (hp : p ≤ 1) : ℝ≥0∞ :=
   bayesRiskPrior (simpleBinaryHypTest μ ν) (PMF.bernoulli p hp).toMeasure
@@ -133,6 +136,10 @@ lemma bayesBinaryRisk_self (μ : Measure 𝒳) (hp : p ≤ 1) :
 
 lemma bayesBinaryRisk_le_min (μ ν : Measure 𝒳) (hp : p ≤ 1) :
     bayesBinaryRisk μ ν p hp ≤ min p (1 - p) := by
+  sorry
+
+lemma bayesBinaryRisk_symm (μ ν : Measure 𝒳) (hp : p ≤ 1) :
+    bayesBinaryRisk μ ν p hp = bayesBinaryRisk ν μ (1 - p) tsub_le_self := by
   sorry
 
 end ProbabilityTheory
