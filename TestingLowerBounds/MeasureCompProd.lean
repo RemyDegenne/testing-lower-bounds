@@ -6,7 +6,6 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 import TestingLowerBounds.ForMathlib.RadonNikodym
 import TestingLowerBounds.Kernel.Basic
 import TestingLowerBounds.Kernel.Monoidal
-import TestingLowerBounds.ForMathlib.SFinite
 
 
 /-!

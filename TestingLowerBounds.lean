@@ -16,7 +16,6 @@ import TestingLowerBounds.ForMathlib.LogLikelihoodRatioCompProd
 import TestingLowerBounds.ForMathlib.Measure
 import TestingLowerBounds.ForMathlib.RadonNikodym
 import TestingLowerBounds.ForMathlib.RnDeriv
-import TestingLowerBounds.ForMathlib.SFinite
 import TestingLowerBounds.Hellinger
 import TestingLowerBounds.Kernel.Basic
 import TestingLowerBounds.Kernel.Monoidal
