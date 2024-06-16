@@ -1,4 +1,4 @@
-\chapter{Total variation distance}
+\subsection{Total variation distance}
 
 \begin{definition}[TV distance]
   \label{def:TV}
@@ -10,6 +10,32 @@
   \TV(\mu, \nu) = D_f(\mu, \nu) \quad \text{with } f: x \mapsto \frac{1}{2}\vert x - 1 \vert \: .
   \end{align*}
 \end{definition}
+
+\begin{lemma}
+  \label{lem:TV_eq_deGrootInfo_half}
+  %\lean{}
+  %\leanok
+  \uses{def:deGrootInfo, def:TV}
+  For $\mu, \nu \in \mathcal P(\mathcal X)$, $\TV(\mu, \nu) = 2 I_{1/2}(\mu, \nu)$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+
+\end{proof}
+
+\begin{lemma}
+  \label{lem:TV_eq_eGamma_one}
+  %\lean{}
+  %\leanok
+  \uses{def:eGamma, def:TV}
+  For $\mu, \nu \in \mathcal P(\mathcal X)$, $\TV(\mu, \nu) = E_1(\mu, \nu)$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:TV_eq_deGrootInfo_half, lem:eGamma_eq_deGrootInfo}
+Combine Lemma~\ref{lem:TV_eq_deGrootInfo_half} and Lemma~\ref{lem:eGamma_eq_deGrootInfo}.
+\end{proof}
 
 \begin{lemma}
   \label{lem:tv_nonneg}
@@ -165,7 +191,7 @@ Lemma~\ref{lem:tv_eq_sup_aux} gives $\TV(\mu, \nu) \ge \frac{1}{2} \sup_{f \in \
 TODO: extract equality case from the proof of Theorem~\ref{thm:tv_eq_sup_sub_measure}.
 \end{proof}
 
-\section{Properties inherited from f-divergences}
+\subsubsection{Properties inherited from f-divergences}
 
 \begin{theorem}[Data-processing]
   \label{thm:tv_data_proc}

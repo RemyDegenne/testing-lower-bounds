@@ -1,17 +1,17 @@
-\chapter{Rényi divergences}
+\section{Rényi divergences}
 
 \begin{definition}[Rényi divergence]
   \label{def:Renyi}
   \lean{ProbabilityTheory.renyiDiv}
   \leanok
   \uses{def:KL, def:hellingerAlpha}
-  Let $\mu, \nu$ be two measures on $\mathcal X$. The Rényi divergence of order $\alpha \in [0,+\infty)$ between $\mu$ and $\nu$ is
+  Let $\mu, \nu$ be two measures on $\mathcal X$. The Rényi divergence of order $\alpha \in \mathbb{R}$ between $\mu$ and $\nu$ is
   \begin{align*}
   R_\alpha(\mu, \nu) = \left\{
  \begin{array}{ll}
   \KL(\mu, \nu) & \text{for } \alpha = 1
   \\
-  \frac{1}{\alpha - 1} \log (1 + (\alpha - 1) \He_\alpha(\mu, \nu)) & \text{for } \alpha \in (0,+\infty) \backslash \{1\}
+  \frac{1}{\alpha - 1} \log (\nu(\mathcal X)  + (\alpha - 1) \He_\alpha(\mu, \nu)) & \text{for } \alpha \neq 1
   \end{array}\right.
   \end{align*}
 \end{definition}
@@ -30,11 +30,12 @@
 \end{proof}
 
 \begin{lemma}
-  \label{lem:renyiDiv_ne_top_of_lt_one}
-  \lean{ProbabilityTheory.renyiDiv_ne_top_of_lt_one}
+  \label{lem:renyiDiv_eq_top_iff_mutuallySingular_of_lt_one}
+  \lean{ProbabilityTheory.renyiDiv_eq_top_iff_mutuallySingular_of_lt_one}
   \leanok
   \uses{def:Renyi}
-  For $\alpha \in [0, 1)$ and finite measures $\mu, \nu$, $R_\alpha(\mu, \nu) < \infty$.
+  For $\alpha \in [0, 1)$ and finite measures $\mu, \nu$, 
+  \[R_\alpha(\mu, \nu) = \infty \iff \mu \perp \nu \: .\]
 \end{lemma}
 
 \begin{proof}\leanok
@@ -43,10 +44,11 @@
 
 \begin{lemma}
   \label{lem:renyi_eq_log_integral}
-  \lean{ProbabilityTheory.renyiDiv_eq_log_integral_of_ne_top}
+  \lean{ProbabilityTheory.renyiDiv_eq_log_integral}
   \leanok
   \uses{def:Renyi}
-  For $\alpha \in (0,1)\cup(1, \infty)$ and finite measures $\mu, \nu$, if $R_\alpha(\mu, \nu) < \infty$ then
+  For $\alpha \in (0,1)\cup(1, \infty)$ and finite measures $\mu, \nu$, if 
+  $\left(\frac{d \mu}{d \nu}\right)^\alpha$ is integrable with respect to $\nu$ and $\mu \ll \nu$ then
   \begin{align*}
   R_\alpha(\mu, \nu) = \frac{1}{\alpha - 1} \log \int_x \left(\frac{d \mu}{d \nu}(x)\right)^\alpha \partial \nu
   \: .
@@ -59,10 +61,11 @@
 
 \begin{lemma}
   \label{lem:renyi_eq_log_integral'}
-  \lean{ProbabilityTheory.renyiDiv_eq_log_integral_of_ne_top'}
+  \lean{ProbabilityTheory.renyiDiv_eq_log_integral'}
   \leanok
   \uses{def:Renyi}
-  For $\alpha \in (0,1)\cup(1, \infty)$ and finite measures $\mu, \nu$, if $R_\alpha(\mu, \nu) < \infty$ and $\mu \ll \nu$ then
+  For $\alpha \in (0,1)\cup(1, \infty)$ and finite measures $\mu, \nu$, if 
+  $\left(\frac{d \mu}{d \nu}\right)^\alpha$ is integrable with respect to $\nu$ and $\mu \ll \nu$ then
   \begin{align*}
   R_\alpha(\mu, \nu) = \frac{1}{\alpha - 1} \log \int_x \left(\frac{d \mu}{d \nu}(x)\right)^{\alpha - 1} \partial \mu
   \: .
@@ -89,7 +92,7 @@ Use Lemma~\ref{lem:hellingerAlpha_symm}.
 
 \begin{lemma}
   \label{lem:renyi_cgf}
-  \lean{ProbabilityTheory.cgf_llr}
+  \lean{ProbabilityTheory.cgf_llr_of_lt_one}
   \leanok
   \uses{def:Renyi}
   The cumulant generating function of $\log\frac{d\mu}{d\nu}$ under $\nu$ is $\alpha \mapsto (\alpha - 1) R_\alpha(\mu, \nu)$.
@@ -124,20 +127,22 @@ Unfold the definitions, using Lemma~\ref{lem:renyi_eq_log_integral'} for the Ré
   \end{align*}
 \end{definition}
 
-\section{Properties inherited from f-divergences}
+TODO: the reasons for this definition is that it is equal to $R_\alpha(\mu \otimes \kappa, \mu \otimes \eta)$, which is the generic conditional divergence definition, and also that this is the definition for which we have a chain rule.
+
+\subsection{Properties inherited from f-divergences}
 
 Since Rényi divergences are monotone transfomations of f-divergences, every inequality for f-divergences can be translated to Rényi divergences.
 
 \begin{theorem}[Data-processing]
   \label{thm:renyi_data_proc}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.renyiDiv_comp_right_le}
+  \leanok
   \uses{def:Renyi}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
   Then $R_\alpha(\kappa \circ \mu, \kappa \circ \nu) \le R_\alpha(\mu, \nu)$.
 \end{theorem}
 
-\begin{proof}
+\begin{proof} \leanok
 \uses{thm:fDiv_data_proc}
 The function $x \mapsto \frac{1}{\alpha - 1}\log (1 + (\alpha - 1)x)$ is non-decreasing and $D_f$ satisfies the DPI (Theorem~\ref{thm:fDiv_data_proc}), hence we get the DPI for $R_\alpha$.
 \end{proof}
@@ -156,7 +161,7 @@ The function $x \mapsto \frac{1}{\alpha - 1}\log (1 + (\alpha - 1)x)$ is non-dec
 By Corollary~\ref{cor:data_proc_event}, $D_f(\mu, \nu) \ge D_f(\mu_E, \nu_E)$, hence $R_\alpha(\mu, \nu) \ge R_\alpha(\mu_E, \nu_E)$.
 \end{proof}
 
-\section{Comparisons between orders}
+\subsection{Comparisons between orders}
 
 \begin{lemma}
   \label{lem:renyi_tendsto_renyi_zero}
@@ -213,7 +218,7 @@ By Corollary~\ref{cor:data_proc_event}, $D_f(\mu, \nu) \ge D_f(\mu_E, \nu_E)$, h
 \begin{proof}
 \end{proof}
 
-\section{The tilted measure}
+\subsection{The tilted measure}
 
 \begin{definition}
   \label{def:renyiMeasure}
@@ -309,7 +314,7 @@ We have then $(1 - \alpha) R_\alpha(\mu, \nu) \le \inf_{\xi \in \mathcal P(\math
 Corollary~\ref{cor:renyi_eq_add_kl} proves the other inequality.
 \end{proof}
 
-\section{Chain rule and tensorization}
+\subsection{Chain rule and tensorization}
 
 \begin{theorem}[Chain rule]
   \label{thm:renyi_chain_rule}
@@ -329,7 +334,7 @@ Corollary~\ref{cor:renyi_eq_add_kl} proves the other inequality.
   %\lean{}
   %\leanok
   \uses{def:Renyi}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ and $\xi, \lambda$ be two measures on $\mathcal Y$.
+  Let $\mu, \nu \in \mathcal P(\mathcal X)$ and $\xi, \lambda \in \mathcal P(\mathcal Y)$.
   Then $R_\alpha(\mu \times \xi, \nu \times \lambda) = R_\alpha(\mu, \nu) + R_\alpha(\xi, \lambda)$.
 \end{corollary}
 
@@ -343,7 +348,7 @@ Apply Theorem~\ref{thm:renyi_chain_rule} (the product of measures is a special c
   %\lean{}
   %\leanok
   \uses{def:Renyi}
-  Let $I$ be a finite index set. Let $(\mu_i)_{i \in I}, (\nu_i)_{i \in I}$ be measures on measurable spaces $(\mathcal X_i)_{i \in I}$.
+  Let $I$ be a finite index set. Let $(\mu_i)_{i \in I}, (\nu_i)_{i \in I}$ be probability measures on measurable spaces $(\mathcal X_i)_{i \in I}$.
   Then $R_\alpha (\prod_{i \in I} \mu_i, \prod_{i \in I} \nu_i) = \sum_{i \in I} R_\alpha(\mu_i, \nu_i)$.
 \end{theorem}
 
@@ -357,7 +362,7 @@ Induction over the finite index set, using Corollary~\ref{cor:renyi_prod_two}.
   %\lean{}
   %\leanok
   \uses{def:Renyi}
-  Let $\mu, \nu$ be two measures on $\mathcal X$. Let $n \in \mathbb{N}$ and write $\mu^{\otimes n}$ for the product measure on $\mathcal X^n$ of $n$ times $\mu$.
+  Let $\mu, \nu$ be two probability measures on $\mathcal X$. Let $n \in \mathbb{N}$ and write $\mu^{\otimes n}$ for the product measure on $\mathcal X^n$ of $n$ times $\mu$.
   Then $R_\alpha(\mu^{\otimes n}, \nu^{\otimes n}) = n R_\alpha(\mu, \nu)$.
 \end{corollary}
 
@@ -371,7 +376,7 @@ Apply Theorem~\ref{thm:renyi_prod}.
   %\lean{}
   %\leanok
   \uses{def:Renyi}
-  Let $I$ be a countable index set. Let $(\mu_i)_{i \in I}, (\nu_i)_{i \in I}$ be measures on measurable spaces $(\mathcal X_i)_{i \in I}$.
+  Let $I$ be a countable index set. Let $(\mu_i)_{i \in I}, (\nu_i)_{i \in I}$ be probability measures on measurable spaces $(\mathcal X_i)_{i \in I}$.
   Then $R_\alpha (\prod_{i \in I} \mu_i, \prod_{i \in I} \nu_i) = \sum_{i \in I} R_\alpha(\mu_i, \nu_i)$.
 \end{theorem}
 
