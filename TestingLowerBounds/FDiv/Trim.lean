@@ -119,7 +119,7 @@ lemma fDiv_trim_le [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ mα)
     (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0)) :
     fDiv f (μ.trim hm) (ν.trim hm) ≤ fDiv f μ ν := by
   have h1 : μ.trim hm = (ν.withDensity (∂μ/∂ν)).trim hm + (μ.singularPart ν).trim hm := by
-    conv_lhs => rw [μ.haveLebesgueDecomposition_add ν, add_comm, Measure.trim_add]
+    conv_lhs => rw [μ.haveLebesgueDecomposition_add ν, add_comm, trim_add]
   rw [h1, fDiv_eq_add_withDensity_derivAtTop μ ν hf_cvx]
   refine (fDiv_add_measure_le _ _ _ hf hf_cvx).trans ?_
   refine add_le_add ?_ ?_
