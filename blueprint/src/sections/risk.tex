@@ -26,9 +26,9 @@ Let $\hat{\mu}_\theta$ be the law of $\hat{y}(\theta)$. That is, $\hat{\mu} : \m
 
 \begin{definition}[Risk]
   \label{def:risk}
-  %\lean{}
-  %\leanok
-  %\uses{}
+  \lean{ProbabilityTheory.risk}
+  \leanok
+  \uses{def:kernel_comp}
   The risk of an estimator $\hat{y}$ at $\theta \in \Theta$ is $r_\theta(\hat{y}) = \hat{\mu}_\theta\left[z \mapsto \ell'(y(\theta), z)\right]$~.
 \end{definition}
 
@@ -37,8 +37,8 @@ Let $\hat{\mu}_\theta$ be the law of $\hat{y}(\theta)$. That is, $\hat{\mu} : \m
 
 \begin{definition}[Bayesian risk]
   \label{def:bayesianRisk}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.bayesianRisk}
+  \leanok
   \uses{def:risk}
   The Bayesian risk of an estimator $\hat{y}$ for a prior $\pi \in \mathcal P(\Theta)$ is $R_\pi(\hat{y}) = \pi\left[\theta \mapsto r_\theta(\hat{y})\right]$~.
 \end{definition}
@@ -46,20 +46,40 @@ Let $\hat{\mu}_\theta$ be the law of $\hat{y}(\theta)$. That is, $\hat{\mu} : \m
 
 \begin{definition}[Bayes risk]
   \label{def:bayesRisk}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.bayesRisk}
+  \leanok
   \uses{def:bayesianRisk}
-  The Bayes risk for prior $\pi \in \mathcal P(\Theta)$ is $\mathcal R_\pi = \inf_{\hat{y} : \mathcal X \rightsquigarrow \mathcal Z} R_\pi(\hat{y})$~.
+  The Bayes risk for prior $\pi \in \mathcal P(\Theta)$ is $\mathcal R_\pi = \inf_{\hat{y} : \mathcal X \rightsquigarrow \mathcal Z} R_\pi(\hat{y})$~, where the infimum is over Markov kernels.
 
   The Bayes risk of $P$ is $\mathcal R^*_B = \sup_{\pi \in \mathcal P(\Theta)} \mathcal R_\pi \: .$
 \end{definition}
 
 \emph{Example (SBHT):} $\mathcal R^*_B = \sup_{\gamma \in [0,1]}\inf_{\hat{y}}\left(\gamma \hat{\mu}_0(\hat{y} \ne 0) + (1 - \gamma) \hat{\mu}_1(\hat{y} \ne 1)\right)$.
 
+\begin{theorem}[Data-processing inequality]
+  \label{thm:data_proc_bayesRisk}
+  \lean{ProbabilityTheory.bayesRiskPrior_le_bayesRiskPrior_comp}
+  \leanok
+  \uses{def:bayesRisk}
+  For $P : \Theta \rightsquigarrow \mathcal X$ and $\kappa : \mathcal X \rightsquigarrow \mathcal X'$ a Markov kernel, the risk $\mathcal R_\pi$ of $\kappa \circ P$ is larger than $\mathcal R_\pi$ for $P$.
+\end{theorem}
+
+\begin{proof}\leanok
+\uses{}
+The risk $\mathcal R_\pi$ of $\kappa \circ P$ is
+\begin{align*}
+\inf_{\hat{y} : \mathcal X' \rightsquigarrow \mathcal Z} \pi\left[\theta \mapsto (\hat{y} \circ \kappa \circ P)(\theta)\left[z \mapsto \ell'(y(\theta), z)\right]\right]
+&\le \inf_{\hat{y} : \mathcal X \rightsquigarrow \mathcal Z} \pi\left[\theta \mapsto (\hat{y} \circ P)(\theta)\left[z \mapsto \ell'(y(\theta), z)\right]\right]
+\: .
+\end{align*}
+The inequality is due to taking an infimum over a larger set: $\{\hat{y} \circ \kappa \mid \hat{y} : \mathcal X' \rightsquigarrow \{0,1\} \text{ Markov}\} \subseteq \{\hat{y}' : \mathcal X \rightsquigarrow \{0,1\} \mid \hat{y} \text{ Markov}\}$~.
+\end{proof}
+
+
 \begin{definition}[Bayes estimator]
   \label{def:bayesEstimator}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.IsBayesEstimator}
+  \leanok
   \uses{def:bayesRisk}
   An estimator $\hat{y}$ is said to be a Bayes estimator for a prior $\pi \in \mathcal P(\Theta)$ if $R_\pi(\hat{y}) = \mathcal R_\pi$.
 \end{definition}
@@ -78,8 +98,8 @@ Let $\hat{\mu}_\theta$ be the law of $\hat{y}(\theta)$. That is, $\hat{\mu} : \m
 
 \begin{definition}[Minimax risk]
   \label{def:minimaxRisk}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.minimaxRisk}
+  \leanok
   \uses{def:risk}
   The minimax risk of $P$ is $\mathcal R^* = \inf_{\hat{y} : \mathcal X \rightsquigarrow \mathcal Z} \sup_{\theta \in \Theta} r_\theta(\hat{y})$~.
 \end{definition}
@@ -88,13 +108,13 @@ Let $\hat{\mu}_\theta$ be the law of $\hat{y}(\theta)$. That is, $\hat{\mu} : \m
 
 \begin{lemma}
   \label{lem:bayesRisk_le_minimaxRisk}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.bayesRisk_le_minimaxRisk}
+  \leanok
   \uses{def:bayesRisk, def:minimaxRisk}
   $\mathcal R_B^* \le \mathcal R^*$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof}\leanok
 For any $\pi \in \mathcal P(\mathcal X)$ and any estimator, $\pi\left[\hat{\mu}_\theta\left[\ell'(y(\theta), \hat{y}(\theta))\right]\right] \le \sup_{\theta \in \Theta}\hat{\mu}_\theta\left[\ell'(y(\theta), \hat{y}(\theta))\right]$.
 \end{proof}
 
@@ -104,8 +124,8 @@ TODO: ``often'', $\mathcal R^*_B = \mathcal R^*$.
 
 \begin{definition}
   \label{def:bayesBinaryRisk}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.bayesBinaryRisk}
+  \leanok
   \uses{def:bayesRisk}
   The Bayes binary risk between measures $\mu$ and $\nu$, denoted by $B_\pi(\mu, \nu)$ and parametrized by $\pi \in [0,1]$, is the Bayes risk $\mathcal R_\pi$ for $\Theta = \mathcal Y = \mathcal Z = \{0,1\}$, $\ell(y,z) = \mathbb{I}\{y \ne z\}$, $P$ the kernel sending 0 to $\mu$ and 1 to $\nu$ and prior $(\pi, 1-\pi)$.
   That is,
@@ -118,10 +138,10 @@ TODO: ``often'', $\mathcal R^*_B = \mathcal R^*$.
 
 \begin{lemma}
   \label{lem:bayesBinaryRisk_le}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.bayesBinaryRisk_le_min}
+  \leanok
   \uses{def:bayesBinaryRisk}
-  For all probability measures $\mu, \nu$, $B_\pi(\mu, \nu) \le \min\{\pi, 1 - \pi\}$~.
+  For all measures $\mu, \nu$, $B_\pi(\mu, \nu) \le \min\{\pi, 1 - \pi\}$~.
 \end{lemma}
 
 \begin{proof}%\leanok
@@ -132,10 +152,10 @@ That estimator has Bayesian risk $\min\{\pi, 1 - \pi\}$.
 
 \begin{lemma}
   \label{lem:bayesBinaryRisk_self}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.bayesBinaryRisk_self}
+  \leanok
   \uses{def:bayesBinaryRisk}
-  For $\mu \in \mathcal P(\mathcal X)$, $B_\pi(\mu, \mu) = \min\{\pi, 1-\pi\}$~.
+  For $\mu \in \mathcal M(\mathcal X)$, $B_\pi(\mu, \mu) = \min\{\pi, 1-\pi\}$~.
 \end{lemma}
 
 \begin{proof}%\leanok
@@ -144,8 +164,8 @@ That estimator has Bayesian risk $\min\{\pi, 1 - \pi\}$.
 
 \begin{lemma}
   \label{lem:bayesBinaryRisk_symm}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.bayesBinaryRisk_symm}
+  \leanok
   \uses{def:bayesBinaryRisk}
   For $\mu, \nu \in \mathcal M(\mathcal X)$ and $\pi \in [0,1]$, $B_\pi(\mu, \nu) = B_{1 - \pi}(\nu, \mu)$~.
 \end{lemma}
@@ -157,30 +177,21 @@ That estimator has Bayesian risk $\min\{\pi, 1 - \pi\}$.
 
 \begin{theorem}[Data-processing inequality]
   \label{thm:data_proc_bayesBinaryRisk}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.bayesBinaryRisk_le_bayesBinaryRisk_comp}
+  \leanok
   \uses{def:bayesBinaryRisk}
   For $\mu, \nu \in \mathcal M(\mathcal X)$ and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ a Markov kernel, $B_\pi(\kappa \circ \mu, \kappa \circ \nu) \ge B_\pi(\mu, \nu)$~.
 \end{theorem}
 
-\begin{proof}%\leanok
-\uses{}
-\begin{align*}
-B_\pi(\kappa \circ \mu, \kappa \circ \nu)
-&= \inf_{\hat{y} : \mathcal Y \rightsquigarrow \{0,1\}}\left(\pi (\hat{y} \circ \kappa \circ \mu)(\{1\}) + (1 - \pi) (\hat{y} \circ \kappa \circ \nu)(\{0\})\right)
-\\
-&\ge \inf_{\hat{y}' : \mathcal X \rightsquigarrow \{0,1\}}\left(\pi (\hat{y}' \circ \mu)(\{1\}) + (1 - \pi) (\hat{y}' \circ \nu)(\{0\})\right)
-\\
-&= B_\pi(\mu, \nu)
-\: .
-\end{align*}
-The inequality is due to taking an infimum over a larger set: $\{\hat{y} \circ \kappa \mid \hat{y} : \mathcal Y \rightsquigarrow \{0,1\} \text{ Markov}\} \subseteq \{\hat{y}' : \mathcal X \rightsquigarrow \{0,1\} \mid \hat{y} \text{ Markov}\}$~.
+\begin{proof}\leanok
+\uses{thm:data_proc_bayesRisk}
+Apply Theorem~\ref{thm:data_proc_bayesRisk}.
 \end{proof}
 
 \begin{definition}
   \label{def:deGrootInfo}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.deGrootInfo}
+  \leanok
   \uses{def:bayesBinaryRisk}
   The DeGroot statistical information between measures $\mu$ and $\nu$ is $I_\pi(\mu, \nu) = \min\{\pi, 1 - \pi\} - B_\pi(\mu, \nu)$.
 \end{definition}
@@ -190,7 +201,7 @@ The inequality is due to taking an infimum over a larger set: $\{\hat{y} \circ \
   %\lean{}
   %\leanok
   \uses{def:deGrootInfo}
-  For $\mu \in \mathcal P(\mathcal X)$, $I_\pi(\mu, \mu) = 0$~.
+  For $\mu \in \mathcal M(\mathcal X)$, $I_\pi(\mu, \mu) = 0$~.
 \end{lemma}
 
 \begin{proof}%\leanok
@@ -203,7 +214,7 @@ Use Lemma~\ref{lem:bayesBinaryRisk_self}.
   %\lean{}
   %\leanok
   \uses{def:deGrootInfo}
-  For $\mu, \nu \in \mathcal P(\mathcal X)$, $I_\pi(\mu, \nu) \ge 0$~.
+  For $\mu, \nu \in \mathcal M(\mathcal X)$, $I_\pi(\mu, \nu) \ge 0$~.
 \end{lemma}
 
 \begin{proof}%\leanok
@@ -226,15 +237,15 @@ Use Lemma~\ref{lem:bayesBinaryRisk_symm}.
 
 \begin{theorem}[Data-processing inequality]
   \label{thm:data_proc_deGrootInfo}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.deGrootInfo_comp_le}
+  \leanok
   \uses{def:deGrootInfo}
   For $\mu, \nu \in \mathcal M(\mathcal X)$ and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ a Markov kernel, $I_\pi(\kappa \circ \mu, \kappa \circ \nu) \le I_\pi(\mu, \nu)$~.
 \end{theorem}
 
 Note that this theorem is valid for any measurable space: no countability is required.
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{thm:data_proc_bayesBinaryRisk}
 It suffices to prove $B_\pi(\kappa \circ \mu, \kappa \circ \nu) \ge B_\pi(\mu, \nu)$ since $I_\pi(\mu, \nu) = \min\{\pi, 1 - \pi\} - B_\pi(\mu, \nu)$.
 The inequality was proved in Theorem~\ref{thm:data_proc_bayesBinaryRisk}.
