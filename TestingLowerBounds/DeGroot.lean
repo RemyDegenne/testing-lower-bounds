@@ -40,6 +40,6 @@ def deGrootInfo (μ ν : Measure 𝒳) (p : ℝ≥0∞) (hp : p ≤ 1) : ℝ≥0
 lemma deGrootInfo_comp_le (μ ν : Measure 𝒳) (p : ℝ≥0∞) (hp : p ≤ 1)
     (η : kernel 𝒳 𝒳') [IsMarkovKernel η] :
     deGrootInfo (μ ∘ₘ η) (ν ∘ₘ η) p hp ≤ deGrootInfo μ ν p hp :=
-  tsub_le_tsub le_rfl (bayesBinaryRisk_le_bayesBinaryRisk_comp _ _ _ _ _)
+  tsub_le_tsub le_rfl (bayesBinaryRisk_le_bayesBinaryRisk_comp _ _ _ _)
 
 end ProbabilityTheory
