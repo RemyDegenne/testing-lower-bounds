@@ -1,6 +1,7 @@
 import TestingLowerBounds.BayesInv
 import TestingLowerBounds.Chernoff
 import TestingLowerBounds.Convex
+import TestingLowerBounds.DeGroot
 import TestingLowerBounds.DerivAtTop
 import TestingLowerBounds.FDiv.Basic
 import TestingLowerBounds.FDiv.CondFDiv
@@ -23,6 +24,8 @@ import TestingLowerBounds.KullbackLeibler
 import TestingLowerBounds.MeasureCompProd
 import TestingLowerBounds.Renyi
 import TestingLowerBounds.SqHellinger
+import TestingLowerBounds.Testing.Binary
 import TestingLowerBounds.Testing.ChangeMeasure
 import TestingLowerBounds.Testing.RenyiChangeMeasure
+import TestingLowerBounds.Testing.Risk
 import TestingLowerBounds.TotalVariation
