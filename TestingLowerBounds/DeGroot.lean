@@ -42,4 +42,10 @@ lemma deGrootInfo_comp_le (μ ν : Measure 𝒳) (p : ℝ≥0∞) (hp : p ≤ 1)
     deGrootInfo (μ ∘ₘ η) (ν ∘ₘ η) p hp ≤ deGrootInfo μ ν p hp :=
   tsub_le_tsub le_rfl (bayesBinaryRisk_le_bayesBinaryRisk_comp _ _ _ _)
 
+noncomputable
+def deGrootFunLeft (p : ℝ) (x : ℝ) : ℝ := p * max 0 (x - (1 - p)/p)
+
+noncomputable
+def deGrootFunRight (p : ℝ) (x : ℝ) : ℝ := p * max 0 ((1 - p)/p - x)
+
 end ProbabilityTheory

@@ -696,6 +696,19 @@ TODO: move this subsection earlier?
 \end{definition}
 
 \begin{lemma}
+  \label{lem:curvatureMeasure_mul}
+  %\lean{}
+  %\leanok
+  \uses{def:curvatureMeasure}
+  For $a \ge 0$ and $f: \mathbb{R} \to \mathbb{R}$ a convex function, the curvature measure of $af$ is $\gamma_{af} = a \gamma_f$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+
+\end{proof}
+
+\begin{lemma}
   \label{lem:convex_taylor_gt}
   %\lean{}
   %\leanok
@@ -724,6 +737,53 @@ TODO: move this subsection earlier?
 
 \begin{proof}%\leanok
 \uses{}
+
+\end{proof}
+
+\begin{definition}
+  \label{def:eGammaFun}
+  %\lean{}
+  %\leanok
+  \uses{}
+  For $\gamma \in [1, +\infty)$ let $\phi_\gamma : \mathbb{R} \to \mathbb{R}$ be the function defined by $\phi_\gamma(x) = \max\left\{0, x - \gamma\right\}$~.
+\end{definition}
+
+\begin{definition}
+  \label{def:deGrootFun}
+  %\lean{}
+  %\leanok
+  \uses{}
+  For $\pi \in (0,1)$ let $\psi_\pi : \mathbb{R} \to \mathbb{R}$ be the function defined by
+  \begin{align*}
+  \psi_\pi(x) &= \pi \max\left\{0, x - \frac{1 - \pi}{\pi}\right\} & \text{ for } \pi &\le 1/2 \: ,
+  \\
+  \psi_\pi(x) &= \pi \max\left\{0, \frac{1 - \pi}{\pi} - x\right\} & \text{ for } \pi &> 1/2 \: .
+  \end{align*}
+\end{definition}
+
+\begin{lemma}
+  \label{lem:curvatureMeasure_eGammaFun}
+  %\lean{}
+  %\leanok
+  \uses{def:curvatureMeasure, def:eGammaFun}
+  The curvature measure of the function $\phi_\gamma$ is $\gamma_{\phi_\gamma} = \delta_\gamma$~, the Dirac measure at $\gamma$.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+
+\end{proof}
+
+\begin{lemma}
+  \label{lem:curvatureMeasure_deGrootFun}
+  %\lean{}
+  %\leanok
+  \uses{def:curvatureMeasure, def:deGrootFun}
+  The curvature measure of the function $\psi_\pi$ is $\gamma_{\psi_\pi} = \pi\delta_{(1 - \pi)/\pi}$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:curvatureMeasure_eGammaFun, lem:curvatureMeasure_mul}
 
 \end{proof}
 
