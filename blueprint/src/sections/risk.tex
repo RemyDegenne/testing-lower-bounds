@@ -12,6 +12,8 @@ Note that while $y$ is a function of a parameter in $\Theta$, $\hat{y}$ has doma
 In general this is a randomized estimator, but often deterministic estimators (corresponding to deterministic kernels) are enough to attain optimal performance.
 The quality of the estimation is quantified by a loss $\ell' : \mathcal Y \times \mathcal Z \to \mathbb{R}_{+, \infty}$. We write $\ell$ for a loss on $\mathcal Y \times \mathcal Y$ and $\ell'$ in the heterogeneous case.
 
+In short, an estimation problem is specified by the data $(P, y, \ell')$.
+
 \paragraph{Example: simple binary hypothesis testing (SBHT)}
 
 We say that an estimation problem is a testing problem if $\mathcal Y = \mathcal Z$ is discrete and the loss takes values in $\{0, 1\}$.
@@ -29,7 +31,7 @@ Let $\hat{\mu}_\theta$ be the law of $\hat{y}(\theta)$. That is, $\hat{\mu} : \m
   \lean{ProbabilityTheory.risk}
   \leanok
   \uses{def:kernel_comp}
-  The risk of an estimator $\hat{y}$ at $\theta \in \Theta$ is $r_\theta(\hat{y}) = \hat{\mu}_\theta\left[z \mapsto \ell'(y(\theta), z)\right]$~.
+  The risk of an estimator $\hat{y}$ on the estimation problem $(P, y, \ell')$ at $\theta \in \Theta$ is $r_\theta(\hat{y}) = \hat{\mu}_\theta\left[z \mapsto \ell'(y(\theta), z)\right]$~.
 \end{definition}
 
 \emph{Example (SBHT):} $r_\theta(\hat{y}) = \hat{\mu}_\theta(\hat{y}(\theta) \ne y(\theta))$.
@@ -40,7 +42,7 @@ Let $\hat{\mu}_\theta$ be the law of $\hat{y}(\theta)$. That is, $\hat{\mu} : \m
   \lean{ProbabilityTheory.bayesianRisk}
   \leanok
   \uses{def:risk}
-  The Bayesian risk of an estimator $\hat{y}$ for a prior $\pi \in \mathcal P(\Theta)$ is $R_\pi(\hat{y}) = \pi\left[\theta \mapsto r_\theta(\hat{y})\right]$~.
+  The Bayesian risk of an estimator $\hat{y}$ on $(P, y, \ell')$ for a prior $\pi \in \mathcal M(\Theta)$ is $R_\pi(\hat{y}) = \pi\left[\theta \mapsto r_\theta(\hat{y})\right]$~.
 \end{definition}
 
 
@@ -49,9 +51,9 @@ Let $\hat{\mu}_\theta$ be the law of $\hat{y}(\theta)$. That is, $\hat{\mu} : \m
   \lean{ProbabilityTheory.bayesRisk}
   \leanok
   \uses{def:bayesianRisk}
-  The Bayes risk for prior $\pi \in \mathcal P(\Theta)$ is $\mathcal R_\pi = \inf_{\hat{y} : \mathcal X \rightsquigarrow \mathcal Z} R_\pi(\hat{y})$~, where the infimum is over Markov kernels.
+  The Bayes risk of $(P, y, \ell')$ for prior $\pi \in \mathcal M(\Theta)$ is $\mathcal R_\pi = \inf_{\hat{y} : \mathcal X \rightsquigarrow \mathcal Z} R_\pi(\hat{y})$~, where the infimum is over Markov kernels.
 
-  The Bayes risk of $P$ is $\mathcal R^*_B = \sup_{\pi \in \mathcal P(\Theta)} \mathcal R_\pi \: .$
+  The Bayes risk of $(P, y, \ell')$ is $\mathcal R^*_B = \sup_{\pi \in \mathcal P(\Theta)} \mathcal R_\pi \: .$
 \end{definition}
 
 \emph{Example (SBHT):} $\mathcal R^*_B = \sup_{\gamma \in [0,1]}\inf_{\hat{y}}\left(\gamma \hat{\mu}_0(\hat{y} \ne 0) + (1 - \gamma) \hat{\mu}_1(\hat{y} \ne 1)\right)$.
@@ -61,7 +63,7 @@ Let $\hat{\mu}_\theta$ be the law of $\hat{y}(\theta)$. That is, $\hat{\mu} : \m
   \lean{ProbabilityTheory.bayesRiskPrior_le_bayesRiskPrior_comp}
   \leanok
   \uses{def:bayesRisk}
-  For $P : \Theta \rightsquigarrow \mathcal X$ and $\kappa : \mathcal X \rightsquigarrow \mathcal X'$ a Markov kernel, the risk $\mathcal R_\pi$ of $\kappa \circ P$ is larger than $\mathcal R_\pi$ for $P$.
+  For $P : \Theta \rightsquigarrow \mathcal X$ and $\kappa : \mathcal X \rightsquigarrow \mathcal X'$ a Markov kernel, the risk $\mathcal R_\pi$ of $(\kappa \circ P, y, \ell')$ is larger than $\mathcal R_\pi$ for $(P, y, \ell')$.
 \end{theorem}
 
 \begin{proof}\leanok
@@ -69,7 +71,7 @@ Let $\hat{\mu}_\theta$ be the law of $\hat{y}(\theta)$. That is, $\hat{\mu} : \m
 The risk $\mathcal R_\pi$ of $\kappa \circ P$ is
 \begin{align*}
 \inf_{\hat{y} : \mathcal X' \rightsquigarrow \mathcal Z} \pi\left[\theta \mapsto (\hat{y} \circ \kappa \circ P)(\theta)\left[z \mapsto \ell'(y(\theta), z)\right]\right]
-&\le \inf_{\hat{y} : \mathcal X \rightsquigarrow \mathcal Z} \pi\left[\theta \mapsto (\hat{y} \circ P)(\theta)\left[z \mapsto \ell'(y(\theta), z)\right]\right]
+&\ge \inf_{\hat{y} : \mathcal X \rightsquigarrow \mathcal Z} \pi\left[\theta \mapsto (\hat{y} \circ P)(\theta)\left[z \mapsto \ell'(y(\theta), z)\right]\right]
 \: .
 \end{align*}
 The inequality is due to taking an infimum over a larger set: $\{\hat{y} \circ \kappa \mid \hat{y} : \mathcal X' \rightsquigarrow \{0,1\} \text{ Markov}\} \subseteq \{\hat{y}' : \mathcal X \rightsquigarrow \{0,1\} \mid \hat{y} \text{ Markov}\}$~.
@@ -101,7 +103,7 @@ The inequality is due to taking an infimum over a larger set: $\{\hat{y} \circ \
   \lean{ProbabilityTheory.minimaxRisk}
   \leanok
   \uses{def:risk}
-  The minimax risk of $P$ is $\mathcal R^* = \inf_{\hat{y} : \mathcal X \rightsquigarrow \mathcal Z} \sup_{\theta \in \Theta} r_\theta(\hat{y})$~.
+  The minimax risk of $(P, y, \ell')$ is $\mathcal R^* = \inf_{\hat{y} : \mathcal X \rightsquigarrow \mathcal Z} \sup_{\theta \in \Theta} r_\theta(\hat{y})$~.
 \end{definition}
 
 \emph{Example (SBHT):} $\mathcal R^* = \inf_{\hat{y}} \max\{\hat{\mu}_0(\hat{y} \ne 0), \hat{\mu}_1(\hat{y} \ne 1)\}$.
