@@ -686,6 +686,7 @@ TODO
 \subsection{Integral representation of $f$-divergences}
 
 TODO: move this subsection earlier?
+It will be used to obtain the most general data-processing inequality.
 
 \begin{definition}
   \label{def:curvatureMeasure}
@@ -807,6 +808,36 @@ The case of $x < 1$ is similar.
 \begin{proof}%\leanok
 \uses{}
 
+\end{proof}
+
+The following theorem is inspired from \cite{liese2006divergences,liese2012phi} but gives a different integral representation.
+
+TODO: The $E_\gamma$ divergence is not defined yet. We need to move some things around.
+
+\begin{theorem}
+  \label{thm:fDiv_eq_integral_eGamma}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv, def:curvatureMeasure, def:eGamma}
+  \begin{align*}
+  D_f(\mu, \nu) = f(1) \nu(\mathcal X) + f'_+(1)(\mu(\mathcal X) - \nu(\mathcal X)) + \int_y E_y(\mu, \nu) \partial\gamma_f \: .
+  \end{align*}
+  
+\end{theorem}
+
+\begin{proof}%\leanok
+\uses{cor:convex_taylor_one}
+We prove the result for $f(1) = 0$ and $f'_+(1) = 0$. The general case is then a consequence of Lemma TODO.
+
+From Corollary~\ref{cor:convex_taylor_eGammaFun} we get that $f(x) = \int_y \phi_y(x) \partial\gamma_f$~.
+From this and the theorem of Fubini,
+\begin{align*}
+\int_x f\left( \frac{d \mu}{d \nu}(x) \right) \partial\nu
+= \int_{x} \int_{y} \phi_y \left(\frac{d \mu}{d \nu}(x) \right) \partial\gamma_f \partial\nu
+= \int_{y} \int_{x} \phi_y \left(\frac{d \mu}{d \nu}(x) \right) \partial\nu \partial\gamma_f
+\: .
+\end{align*}
+The inner integral is a divergence: $\int_{x} \phi_y \left(\frac{d \mu}{d \nu}(x) \right) \partial\nu = E_y(\mu, \nu)$~.
 \end{proof}
 
 \begin{definition}
