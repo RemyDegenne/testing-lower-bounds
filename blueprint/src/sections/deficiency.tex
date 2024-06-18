@@ -1,0 +1,108 @@
+\chapter{Deficiency}
+
+TODO: this part is not used elsewhere for now, and should perhaps be deleted.
+
+\begin{definition}[Le Cam deficiency]
+  \label{def:deficiency}
+  %\lean{}
+  %\leanok
+  \uses{def:TV}
+  The Le Cam deficiency of $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ with respect to $\eta : \mathcal X \rightsquigarrow \mathcal Z$ is
+  \begin{align*}
+  \delta_{\TV}(\kappa, \eta) = \inf_{\xi} \sup_{x \in \mathcal X} \TV(\xi \circ \kappa (x), \eta(x)) \: ,
+  \end{align*}
+  in which the infimum is taken over all Markov kernels $\xi : \mathcal Y \rightsquigarrow \mathcal Z$~.
+\end{definition}
+
+TODO: from any divergence on measures $D$, \cite{perrone2023markov} defines a divergence between kernels $\kappa, \kappa' : \mathcal X \rightsquigarrow \mathcal Y$ by $D(\kappa, \kappa') = \sup_{x \in \mathcal X} D(\kappa(x), \eta(x))$.
+If we see measures as kernels from a point space, the divergence between measures-as-kernels coincides with the divergence between the measures.
+With that notation, $\delta_{\TV}(\kappa, \eta) = \inf_{\xi} \TV(\xi \circ \kappa, \eta)$.
+We could also proceed as \cite{raginsky2011shannon} and extend the notion of deficiency to deficiency with respect to a divergence: $\delta_D(\kappa, \eta) = \inf_{\xi} D(\eta, \xi\circ\kappa)$ (note the reversed arguments, which does not matter for the case of $\TV$ since it is symmetric).
+
+\begin{lemma}
+  \label{lem:deficiency_nonneg}
+  %\lean{}
+  %\leanok
+  \uses{def:deficiency}
+  Let $\kappa: \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal X \rightsquigarrow \mathcal Z$. Then $\delta_{\TV}(\kappa, \eta) \ge 0$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:tv_nonneg}
+This is a consequence of Lemma~\ref{lem:tv_nonneg}.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:deficiency_self}
+  %\lean{}
+  %\leanok
+  \uses{def:deficiency}
+  Let $\kappa: \mathcal X \rightsquigarrow \mathcal Y$. Then $\delta_{\TV}(\kappa, \kappa) = 0$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:deficiency_nonneg}
+By Lemma~\ref{lem:deficiency_nonneg}, $0 \le \delta_{\TV}(\kappa, \kappa)$.
+In the infimum that defines $\delta_{\TV}(\kappa, \kappa)$, take $\xi = \textup{id}$ to get an upper bound of 0 on $\delta_{\TV}(\kappa, \kappa)$.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:deficiency_comp}
+  %\lean{}
+  %\leanok
+  \uses{def:deficiency, def:blackwellOrder}
+  Let $\kappa: \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal X \rightsquigarrow \mathcal Z$.
+  If $\eta \le_B \kappa$ (that is, there exists a Markov kernel $\chi : \mathcal Y \rightsquigarrow \mathcal Z$ such that $\eta = \chi \circ \kappa$), then $\delta_{\TV}(\kappa, \eta) = 0$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:deficiency_nonneg}
+In the infimum that defines $\delta_{\TV}(\kappa, \eta)$, take $\xi = \chi$ to get an upper bound of 0 on $\delta_{\TV}(\kappa, \eta)$. The lower bound is Lemma~\ref{lem:deficiency_nonneg}.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:deficiency_antimono_left}
+  %\lean{}
+  %\leanok
+  \uses{def:deficiency, def:blackwellOrder}
+  Let $\kappa: \mathcal X \rightsquigarrow \mathcal Y$, $\eta : \mathcal X \rightsquigarrow \mathcal Z$ and $\zeta : \mathcal X \rightsquigarrow \mathcal W$ be Markov kernels.
+  If $\eta \le_B \kappa$ then $\delta_{\TV}(\kappa, \zeta) \le \delta_{\TV}(\eta, \zeta)$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+Let $\chi$ be a Markov kernel such that $\eta = \chi \circ \kappa$~.
+\begin{align*}
+\delta_{\TV}(\eta, \zeta)
+&= \inf_{\xi} \sup_{x \in \mathcal X} \TV(\xi \circ \eta (x), \zeta(x))
+\\
+&= \inf_\xi \sup_{x \in \mathcal X} \TV(\xi \circ \chi \circ \kappa (x), \zeta(x))
+\: .
+\end{align*}
+Since $\xi \circ \chi$ is a Markov kernel, the infimum over Markov kernels of the form $\xi \circ \chi$ is larger than the infimum over all Markov kernels.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:deficiency_mono_right}
+  %\lean{}
+  %\leanok
+  \uses{def:deficiency, def:blackwellOrder}
+  Let $\kappa: \mathcal X \rightsquigarrow \mathcal Y$, $\eta : \mathcal X \rightsquigarrow \mathcal Z$ and $\zeta : \mathcal X \rightsquigarrow \mathcal W$ be Markov kernels.
+  If $\zeta \le_B \eta$ then $\delta_{\TV}(\kappa, \zeta) \le \delta_{\TV}(\kappa, \eta)$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{thm:tv_data_proc}
+Let $\chi$ be a Markov kernel such that $\zeta = \chi \circ \eta$~.
+\begin{align*}
+\delta_{\TV}(\kappa, \zeta)
+&= \inf_{\xi : \mathcal Y \rightsquigarrow \mathcal W} \sup_{x \in \mathcal X} \TV(\xi \circ \kappa (x), \zeta(x))
+\\
+&= \inf_{\xi : \mathcal Y \rightsquigarrow \mathcal W} \sup_{x \in \mathcal X} \TV(\xi \circ \kappa (x), \chi \circ \eta(x))
+\\
+&\le \inf_{\xi' : \mathcal Y \rightsquigarrow \mathcal Z} \sup_{x \in \mathcal X} \TV(\chi \circ \xi' \circ \kappa (x), \chi \circ \eta(x))
+\: .
+\end{align*}
+By the data-processing inequality for $\TV$ (Theorem \ref{thm:tv_data_proc}), for all $\xi' : \mathcal Y \rightsquigarrow \mathcal Z$, $\TV(\chi \circ \xi' \circ \kappa (x), \chi \circ \eta(x)) \le \TV(\xi' \circ \kappa (x), \eta(x))$.
+This concludes the proof.
+\end{proof}
