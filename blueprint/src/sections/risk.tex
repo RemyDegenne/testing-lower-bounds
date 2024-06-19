@@ -166,7 +166,35 @@ R^P_\pi(\hat{y})
   TODO: is this measurable? Does the argmin exist? (under which assumptions?)
 \end{definition}
 
-TODO: when it exists, that estimator is a Bayes estimator.
+\begin{lemma}
+  \label{lem:bayesianRisk_genBayesEstimator}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesianRisk, def:genBayesEstimator}
+  The Bayesian risk of the generalized Bayes estimator $\hat{y}_B$ is
+  \begin{align*}
+  R_\pi(\hat{y}_B) = (P \circ \pi)\left[x \mapsto \inf_{z \in \mathcal Z} P_\pi^\dagger(x) \left[\theta \mapsto \ell'(y(\theta), z)\right]\right]
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:bayesianRisk_bayesInv}
+Start from the equality of Lemma~\ref{lem:bayesianRisk_bayesInv} and use the definition of the generalized Bayes estimator.
+\end{proof}
+
+\begin{theorem}
+  \label{thm:isBayesEstimator_genBayesEstimator}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesEstimator, def:genBayesEstimator}
+  When the generalized Bayes estimator is well defined, it is a Bayes estimator.
+\end{theorem}
+
+\begin{proof}%\leanok
+\uses{lem:bayesianRisk_ge_inf_bayesInv, lem:bayesianRisk_genBayesEstimator}
+By Lemma~\ref{lem:bayesianRisk_ge_inf_bayesInv}, the Bayesian risk of the generalized Bayes estimator obtained in Lemma~\ref{lem:bayesianRisk_genBayesEstimator} is a lower bound for the Bayesian risk.
+\end{proof}
 
 \begin{theorem}[Data-processing inequality]
   \label{thm:data_proc_bayesRisk}
@@ -191,7 +219,6 @@ The inequality is due to taking an infimum over a larger set: $\{\hat{y} \circ \
 \subsection{Bayes risk increase}
 
 The following is a new definition, which is a natural generalization of the DeGroot statistical information.
-TODO: it seems linked with the idea of deficiency.
 
 \begin{definition}
   \label{def:riskIncrease}
@@ -274,9 +301,11 @@ Finally, $d_{\mathcal X'} \circ \kappa = d_{\mathcal X}$.
 
 \section{Simple binary hypothesis testing}
 
-TODO: rework that section to use the Bayes risk increase.
+TODO: rework this section to use the Bayes risk increase.
 
-\subsection{Bayes risk}
+In this section, for a measure $\xi$ on $\{0,1\}$, we write $\xi_0$ for $\xi(\{0\})$ and $\xi_1$ for $\xi(\{1\})$~. We sometimes write $(a,b)$ for the measure $\xi$ on $\{0,1\}$ with $\xi_0 = a$ and $\xi_1 = b$.
+
+\subsection{Bayes risk of a prior}
 
 \begin{definition}
   \label{def:bayesBinaryRisk}
@@ -286,7 +315,7 @@ TODO: rework that section to use the Bayes risk increase.
   The Bayes binary risk between measures $\mu$ and $\nu$ with respect to prior $\xi \in \mathcal M(\{0,1\})$, denoted by $\mathcal B_\xi(\mu, \nu)$, is the Bayes risk $\mathcal R^P_\xi$ for $\Theta = \mathcal Y = \mathcal Z = \{0,1\}$, $\ell(y,z) = \mathbb{I}\{y \ne z\}$, $P$ the kernel sending 0 to $\mu$ and 1 to $\nu$ and prior $\xi$.
   That is,
   \begin{align*}
-  \mathcal B_\xi(\mu, \nu) = \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\xi(\{0\}) (\hat{y} \circ \mu)(\{1\}) + \xi(\{1\}) (\hat{y} \circ \nu)(\{0\})\right)
+  \mathcal B_\xi(\mu, \nu) = \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\xi_0 (\hat{y} \circ \mu)(\{1\}) + \xi_1 (\hat{y} \circ \nu)(\{0\})\right)
   \: ,
   \end{align*}
   in which the infimum is over Markov kernels.
@@ -299,14 +328,14 @@ TODO: rework that section to use the Bayes risk increase.
   \lean{ProbabilityTheory.bayesBinaryRisk_le_min}
   \leanok
   \uses{def:bayesBinaryRisk}
-  For all measures $\mu, \nu$, $\mathcal B_\xi(\mu, \nu) \le \min\{\xi(\{0\}), \xi(\{1\})\}$ and $B_\pi(\mu, \nu) \le \min\{\pi, 1 - \pi\}$~.
+  For all measures $\mu, \nu$, $\mathcal B_\xi(\mu, \nu) \le \min\{\xi_0, \xi_1\}$ and $B_\pi(\mu, \nu) \le \min\{\pi, 1 - \pi\}$~.
 \end{lemma}
 
 \begin{proof}%\leanok
 \uses{def:bayesRisk}
 Since $\mathcal B_\xi(\mu, \nu)$ is an infimum over estimators, we can find an upper bound by choosing an estimator.
-We choose for $\hat{y}$ a constant estimator, with value 1 if $\xi(\{1\}) > \xi(\{0\})$ and 0 otherwise.
-That estimator has Bayesian risk $\min\{\xi(\{0\}), \xi(\{1\})\}$.
+We choose for $\hat{y}$ a constant estimator, with value 1 if $\xi_1 > \xi_0$ and 0 otherwise.
+That estimator has Bayesian risk $\min\{\xi_0, \xi_1\}$.
 \end{proof}
 
 \begin{lemma}
@@ -314,7 +343,7 @@ That estimator has Bayesian risk $\min\{\xi(\{0\}), \xi(\{1\})\}$.
   \lean{ProbabilityTheory.bayesBinaryRisk_self}
   \leanok
   \uses{def:bayesBinaryRisk}
-  For $\mu \in \mathcal M(\mathcal X)$, $\mathcal B_\xi(\mu, \mu) = \min\{\xi(\{0\}), \xi(\{1\})\}$ and $B_\pi(\mu, \mu) = \min\{\pi, 1-\pi\}$~.
+  For $\mu \in \mathcal M(\mathcal X)$, $\mathcal B_\xi(\mu, \mu) = \min\{\xi_0, \xi_1\}$ and $B_\pi(\mu, \mu) = \min\{\pi, 1-\pi\}$~.
 \end{lemma}
 
 \begin{proof}%\leanok
@@ -326,7 +355,7 @@ That estimator has Bayesian risk $\min\{\xi(\{0\}), \xi(\{1\})\}$.
   \lean{ProbabilityTheory.bayesBinaryRisk_symm}
   \leanok
   \uses{def:bayesBinaryRisk}
-  For $\mu, \nu \in \mathcal M(\mathcal X)$ and $\xi \in \mathcal M(\{0,1\})$, $\mathcal B_\xi(\mu, \nu) = \mathcal B_{\xi_{\leftrightarrow}}(\nu, \mu)$ where $\xi_{\leftrightarrow} \in \mathcal M(\{0,1\})$ is such that $\xi_{\leftrightarrow}(\{0\}) = \xi(\{1\})$ and $\xi_{\leftrightarrow}(\{1\}) = \xi(\{0\})$.
+  For $\mu, \nu \in \mathcal M(\mathcal X)$ and $\xi \in \mathcal M(\{0,1\})$, $\mathcal B_\xi(\mu, \nu) = \mathcal B_{\xi_{\leftrightarrow}}(\nu, \mu)$ where $\xi_{\leftrightarrow} \in \mathcal M(\{0,1\})$ is such that $\xi_{\leftrightarrow}(\{0\}) = \xi_1$ and $\xi_{\leftrightarrow}(\{1\}) = \xi_0$.
   For $\pi \in [0,1]$, $B_\pi(\mu, \nu) = B_{1 - \pi}(\nu, \mu)$~.
 \end{lemma}
 
@@ -348,7 +377,74 @@ That estimator has Bayesian risk $\min\{\xi(\{0\}), \xi(\{1\})\}$.
 Apply Theorem~\ref{thm:data_proc_bayesRisk}.
 \end{proof}
 
-TODO: Bayes estimator, value of the Bayes risk.
+\begin{lemma}
+  \label{lem:bayesInv_bayesBinaryRisk}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesInv, def:bayesBinaryRisk}
+  The Bayesian inverse of the kernel $P$ in simple binary hypothesis testing with prior $\xi \in \mathcal M(\{0,1\})$ is $P_\xi^\dagger(x) = \left(\xi_0\frac{d \mu}{d(P \circ \xi)}(x), \xi_1\frac{d \nu}{d(P \circ \xi)}(x)\right)$.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:eq_bayesInv_of_compProd_eq}
+
+\end{proof}
+
+\begin{lemma}
+  \label{lem:genBayesEstimator_bayesBinaryRisk}
+  %\lean{}
+  %\leanok
+  \uses{def:genBayesEstimator, def:bayesBinaryRisk}
+  The generalized Bayes estimator for the Bayes binary risk with prior $\xi \in \mathcal M(\{0,1\})$ is $x \mapsto \text{if } \xi_1\frac{d \nu}{d(P \circ \xi)}(x) \le \xi_0\frac{d \mu}{d(P \circ \xi)}(x) \text{ then } 0 \text{ else } 1$.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:bayesInv_bayesBinaryRisk}
+The generalized Bayes estimator is defined by
+\begin{align*}
+x \mapsto \arg\min_z P_\xi^\dagger(x)\left[\theta \mapsto \ell'(y(\theta), z)\right] \: .
+\end{align*}
+For the simple binary hypothesis testing problem,
+\begin{align*}
+P_\xi^\dagger(x)\left[\theta \mapsto \ell'(y(\theta), z)\right]
+&= P_\xi^\dagger(x)(\theta \ne z)
+\: .
+\end{align*}
+For $z = 0$, this is $P_\xi^\dagger(x)(\{1\})$ and for $z = 1$, this is $P_\xi^\dagger(x)(\{0\})$.
+The generalized Bayes estimator is $x \mapsto \text{if } P_\xi^\dagger(x)(\{1\}) \le P_\xi^\dagger(x)(\{0\}) \text{ then } 0 \text{ else } 1$.
+
+The expression of the lemma statement is obtained by replacing $P_\xi^\dagger$ by its value (Lemma~\ref{lem:bayesInv_bayesBinaryRisk}).
+\end{proof}
+
+\begin{theorem}
+  \label{thm:bayesBinaryRisk_eq}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesBinaryRisk}
+  The Bayes risk of simple binary hypothesis testing for prior $\xi \in \mathcal M(\{0,1\})$ is
+  \begin{align*}
+  \mathcal B_\xi(\mu, \nu) = (P \circ \xi)\left[x \mapsto \min \left\{\xi_0\frac{d \mu}{d(P \circ \xi)}(x), \xi_1\frac{d \nu}{d(P \circ \xi)}(x)\right\}\right]
+  \: .
+  \end{align*}
+  Here, $P \circ \xi = \xi_0 \mu + \xi_1 \nu$~.
+  
+\end{theorem}
+
+\begin{proof}%\leanok
+\uses{lem:bayesianRisk_genBayesEstimator, thm:isBayesEstimator_genBayesEstimator, lem:bayesInv_bayesBinaryRisk}
+By Theorem~\ref{thm:isBayesEstimator_genBayesEstimator}, the generalized Bayes estimator is a Bayes estimator, hence it suffices to compute its Bayesian risk.
+By Lemma~\ref{lem:bayesianRisk_genBayesEstimator},
+\begin{align*}
+R_\xi(\hat{y}_B)
+&= (P \circ \xi)\left[x \mapsto \inf_{z \in \mathcal Z} P_\xi^\dagger(x) \left[\theta \mapsto \ell'(y(\theta), z)\right]\right]
+\\
+&= (P \circ \xi)\left[x \mapsto \min \left\{P_\xi^\dagger(x)(\{0\}), P_\xi^\dagger(x)(\{1\})\right\}\right]
+\\
+&= (P \circ \xi)\left[x \mapsto \min \left\{\xi_0\frac{d \mu}{d(P \circ \xi)}(x), \xi_1\frac{d \nu}{d(P \circ \xi)}(x)\right\}\right]
+\: .
+\end{align*}
+The last line is obtained by replacing $P_\xi^\dagger$ by its value (Lemma~\ref{lem:bayesInv_bayesBinaryRisk}).
+\end{proof}
 
 \subsection{Statistical divergences between measures}
 
@@ -357,8 +453,8 @@ TODO: Bayes estimator, value of the Bayes risk.
   %\lean{}
   %\leanok
   \uses{def:bayesBinaryRisk, def:riskIncrease}
-  The statistical information between measures $\mu$ and $\nu$ with respect to prior $\xi \in \mathcal M(\{0,1\})$ is $\mathcal I_\xi(\mu, \nu) = \min\{\xi(\{0\}), \xi(\{1\})\} - \mathcal B_\xi(\mu, \nu)$.
-  This is the risk increase $I_\pi^P(d_{\mathcal X})$ in the binary hypothesis testing problem for $d_{\mathcal X} : \mathcal X \rightsquigarrow *$ the Markov kernel to the point space.
+  The statistical information between measures $\mu$ and $\nu$ with respect to prior $\xi \in \mathcal M(\{0,1\})$ is $\mathcal I_\xi(\mu, \nu) = \min\{\xi_0, \xi_1\} - \mathcal B_\xi(\mu, \nu)$.
+  This is the risk increase $I_\xi^P(d_{\mathcal X})$ in the binary hypothesis testing problem for $d_{\mathcal X} : \mathcal X \rightsquigarrow *$ the Markov kernel to the point space.
 \end{definition}
 
 The statistical information is the difference between the minimal risk of an estimator that does not depend on the data and that of a Bayes estimator.
@@ -413,7 +509,7 @@ Use Lemma~\ref{lem:bayesBinaryRisk_symm}.
 
 \begin{proof}%\leanok
 \uses{thm:data_proc_bayesBinaryRisk, lem:riskIncrease_comp_del}
-It suffices to prove $\mathcal B_\xi(\kappa \circ \mu, \kappa \circ \nu) \ge \mathcal B_\xi(\mu, \nu)$ since $\mathcal I_\xi(\mu, \nu) = \min\{\xi(\{0\}), \xi(\{1\})\} - \mathcal B_\xi(\mu, \nu)$.
+It suffices to prove $\mathcal B_\xi(\kappa \circ \mu, \kappa \circ \nu) \ge \mathcal B_\xi(\mu, \nu)$ since $\mathcal I_\xi(\mu, \nu) = \min\{\xi_0, \xi_1\} - \mathcal B_\xi(\mu, \nu)$.
 The inequality was proved in Theorem~\ref{thm:data_proc_bayesBinaryRisk}.
 
 Alternatively, we can use Lemma~\ref{lem:riskIncrease_comp_del}.
@@ -426,7 +522,7 @@ Alternatively, we can use Lemma~\ref{lem:riskIncrease_comp_del}.
   \leanok
   \uses{def:bayesBinaryRisk, def:statInfo}
   The DeGroot statistical information between measures $\mu$ and $\nu$ for $\pi \in [0,1]$ is $I_\pi(\mu, \nu) = \min\{\pi, 1 - \pi\} - B_\pi(\mu, \nu)$.
-  That is, $I_\pi(\mu, \nu) = \mathcal I_\xi(\mu, \nu)$ for a prior $\xi$ with $\xi(\{0\}) = \pi$ and $\xi(\{1\}) = 1-\pi$~.
+  That is, $I_\pi(\mu, \nu) = \mathcal I_\xi(\mu, \nu)$ for a prior $\xi$ with $\xi_0 = \pi$ and $\xi_1 = 1-\pi$~.
 \end{definition}
 
 \begin{lemma}
