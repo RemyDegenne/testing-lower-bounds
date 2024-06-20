@@ -201,7 +201,7 @@ By Lemma~\ref{lem:bayesianRisk_ge_inf_bayesInv}, the Bayesian risk of the genera
   \lean{ProbabilityTheory.bayesRiskPrior_le_bayesRiskPrior_comp}
   \leanok
   \uses{def:bayesRisk}
-  For $P : \Theta \rightsquigarrow \mathcal X$ and $\kappa : \mathcal X \rightsquigarrow \mathcal X'$ a Markov kernel, the risk $\mathcal R^{\kappa \circ P}_\pi$ of $(\kappa \circ P, y, \ell')$ is larger than $\mathcal R^P_\pi$ for $(P, y, \ell')$.
+  For $P : \Theta \rightsquigarrow \mathcal X$ and $\kappa : \mathcal X \rightsquigarrow \mathcal X'$ a Markov kernel, $\mathcal R^{\kappa \circ P}_\pi \ge \mathcal R^{P}_\pi$ (where the estimation problems differ only in the kernel).
 \end{theorem}
 
 \begin{proof}\leanok
@@ -214,6 +214,61 @@ The risk $\mathcal R^{\kappa \circ P}_\pi$ is
 \end{align*}
 The inequality is due to taking an infimum over a larger set: $\{\hat{y} \circ \kappa \mid \hat{y} : \mathcal X' \rightsquigarrow \{0,1\} \text{ Markov}\} \subseteq \{\hat{y}' : \mathcal X \rightsquigarrow \{0,1\} \mid \hat{y} \text{ Markov}\}$~.
 \end{proof}
+
+\begin{lemma}
+  \label{lem:bayesRisk_compProd_le_fst}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesRisk}
+  For $P : \Theta \rightsquigarrow \mathcal X$ and $\kappa : \Theta \times \mathcal X \rightsquigarrow \mathcal X'$ a Markov kernel, $\mathcal R^{P \otimes \kappa}_\pi \le \mathcal R^{P}_\pi$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{thm:data_proc_bayesRisk}
+Use Theorem~\ref{thm:data_proc_bayesRisk}: $P$ is the composition of $P \otimes \kappa$ and the deterministic kernel $\mathcal X \times \mathcal X' \rightsquigarrow \mathcal X$ that forgets the second value.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:bayesRisk_compProd_le_snd}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesRisk}
+  For $P : \Theta \rightsquigarrow \mathcal X$ and $\kappa : \Theta \times \mathcal X \rightsquigarrow \mathcal X'$ a Markov kernel, $\mathcal R^{P \otimes \kappa}_\pi \le \mathcal R^{(P \otimes \kappa)_{\mathcal X'}}_\pi$~, in which $(P \otimes \kappa)_{\mathcal X'} : \mathcal \Theta \rightsquigarrow \mathcal X'$ is the kernel obtained by marginalizing over $\mathcal X$ in the output of $P \otimes \kappa$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{thm:data_proc_bayesRisk}
+Use Theorem~\ref{thm:data_proc_bayesRisk}: $(P \otimes \kappa)_{\mathcal X'}$ is the composition of $P \otimes \kappa$ and the deterministic kernel $\mathcal X \times \mathcal X' \rightsquigarrow \mathcal X'$ that forgets the first value.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:bayesRisk_concave}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesRisk}
+  The Bayes risk $\mathcal R_\pi^P$ is concave in $P : \Theta \rightsquigarrow \mathcal X$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+The infimum of a sum is larger than the sum of the infimums:
+\begin{align*}
+\mathcal R_\pi^{\lambda P_1 + (1 - \lambda)P_2}
+&= \inf_{\hat{y} : \mathcal X \rightsquigarrow \mathcal Z} (\pi \otimes (\hat{y} \circ (\lambda P_1 + (1 - \lambda)P_2)))\left[(\theta, z) \mapsto \ell'(y(\theta), z)\right]
+\\
+&= \inf_{\hat{y} : \mathcal X \rightsquigarrow \mathcal Z}  \left( \lambda (\pi \otimes (\hat{y} \circ P_1))\left[(\theta, z) \mapsto \ell'(y(\theta), z)\right] \right.
+  \\&\qquad \left. + (1 - \lambda) (\pi \otimes (\hat{y} \circ P_2))\left[(\theta, z) \mapsto \ell'(y(\theta), z)\right] \right)
+\\
+&\ge \lambda \inf_{\hat{y} : \mathcal X \rightsquigarrow \mathcal Z} (\pi \otimes (\hat{y} \circ P_1))\left[(\theta, z) \mapsto \ell'(y(\theta), z)\right]
+  \\&\qquad + (1 - \lambda) \inf_{\hat{y} : \mathcal X \rightsquigarrow \mathcal Z} (\pi \otimes (\hat{y} \circ P_2))\left[(\theta, z) \mapsto \ell'(y(\theta), z)\right]
+\\
+&= \lambda \mathcal R_\pi^{P_1} + (1 - \lambda)\mathcal R_\pi^{P_2}
+\: .
+\end{align*}
+
+\end{proof}
+
+
 
 
 \subsection{Bayes risk increase}
@@ -382,7 +437,7 @@ Apply Theorem~\ref{thm:data_proc_bayesRisk}.
   %\lean{}
   %\leanok
   \uses{def:bayesInv, def:bayesBinaryRisk}
-  The Bayesian inverse of the kernel $P$ in simple binary hypothesis testing with prior $\xi \in \mathcal M(\{0,1\})$ is $P_\xi^\dagger(x) = \left(\xi_0\frac{d \mu}{d(P \circ \xi)}(x), \xi_1\frac{d \nu}{d(P \circ \xi)}(x)\right)$.
+  The Bayesian inverse of the kernel $P$ in simple binary hypothesis testing with prior $\xi \in \mathcal M(\{0,1\})$ is $P_\xi^\dagger(x) = \left(\xi_0\frac{d \mu}{d(P \circ \xi)}(x), \xi_1\frac{d \nu}{d(P \circ \xi)}(x)\right)$ (almost surely w.r.t. $P \circ \xi = \xi_0 \mu + \xi_1 \nu$).
 \end{lemma}
 
 \begin{proof}%\leanok
@@ -426,8 +481,6 @@ The expression of the lemma statement is obtained by replacing $P_\xi^\dagger$ b
   \mathcal B_\xi(\mu, \nu) = (P \circ \xi)\left[x \mapsto \min \left\{\xi_0\frac{d \mu}{d(P \circ \xi)}(x), \xi_1\frac{d \nu}{d(P \circ \xi)}(x)\right\}\right]
   \: .
   \end{align*}
-  Here, $P \circ \xi = \xi_0 \mu + \xi_1 \nu$~.
-  
 \end{theorem}
 
 \begin{proof}%\leanok
