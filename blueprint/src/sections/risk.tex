@@ -97,7 +97,7 @@ TODO: ``often'', $\mathcal R^*_B = \mathcal R^*$.
   %\lean{}
   %\leanok
   \uses{def:bayesRisk}
-  The Bayes risk of a prior $\pi \in \mathcal M(\Theta)$ on $(P, y, \ell')$ satisfies
+  The Bayes risk of a prior $\pi \in \mathcal M(\Theta)$ on $(P, y, \ell')$ with $P$ a Markov kernel satisfies
   \begin{align*}
   \mathcal R^P_\pi \le \inf_{z \in \mathcal Z} \pi\left[ \theta \mapsto \ell'(y(\theta), z) \right]
   \: .
@@ -108,6 +108,8 @@ TODO: ``often'', $\mathcal R^*_B = \mathcal R^*$.
 \uses{}
 The infimum over all Markov kernels in the definition of the Bayes risk of $\pi$ is bounded from above by the infimum restricted to constant, deterministic Markov kernels.
 \end{proof}
+
+\paragraph{Generalized Bayes estimator}
 
 \begin{lemma}
   \label{lem:bayesianRisk_bayesInv}
@@ -196,6 +198,8 @@ Start from the equality of Lemma~\ref{lem:bayesianRisk_bayesInv} and use the def
 By Lemma~\ref{lem:bayesianRisk_ge_inf_bayesInv}, the Bayesian risk of the generalized Bayes estimator obtained in Lemma~\ref{lem:bayesianRisk_genBayesEstimator} is a lower bound for the Bayesian risk.
 \end{proof}
 
+\paragraph{Data-processing inequality and consequences}
+
 \begin{theorem}[Data-processing inequality]
   \label{thm:data_proc_bayesRisk}
   \lean{ProbabilityTheory.bayesRiskPrior_le_bayesRiskPrior_comp}
@@ -208,11 +212,15 @@ By Lemma~\ref{lem:bayesianRisk_ge_inf_bayesInv}, the Bayesian risk of the genera
 \uses{}
 The risk $\mathcal R^{\kappa \circ P}_\pi$ is
 \begin{align*}
-\inf_{\hat{y} : \mathcal X' \rightsquigarrow \mathcal Z} (\pi \otimes (\hat{y} \circ \kappa \circ P))\left[(\theta, z) \mapsto \ell'(y(\theta), z)\right]
+\mathcal R^{\kappa \circ P}_\pi
+&= \inf_{\hat{y} : \mathcal X' \rightsquigarrow \mathcal Z} (\pi \otimes (\hat{y} \circ \kappa \circ P))\left[(\theta, z) \mapsto \ell'(y(\theta), z)\right]
+\\
 &\ge \inf_{\hat{y} : \mathcal X \rightsquigarrow \mathcal Z} (\pi \otimes (\hat{y} \circ P))\left[(\theta, z) \mapsto \ell'(y(\theta), z)\right]
+\\
+&= \mathcal R^{P}_\pi
 \: .
 \end{align*}
-The inequality is due to taking an infimum over a larger set: $\{\hat{y} \circ \kappa \mid \hat{y} : \mathcal X' \rightsquigarrow \{0,1\} \text{ Markov}\} \subseteq \{\hat{y}' : \mathcal X \rightsquigarrow \{0,1\} \mid \hat{y} \text{ Markov}\}$~.
+The inequality is due to taking an infimum over a larger set: $\{\hat{y} \circ \kappa \mid \hat{y} : \mathcal X' \rightsquigarrow \mathcal Z \text{ Markov}\} \subseteq \{\hat{y}' : \mathcal X \rightsquigarrow \mathcal Z \mid \hat{y} \text{ Markov}\}$~.
 \end{proof}
 
 \begin{lemma}
@@ -280,7 +288,7 @@ The following is a new definition, which is a natural generalization of the DeGr
   %\lean{}
   %\leanok
   \uses{def:bayesRisk}
-  The Bayes risk increase $I^P_{\pi}(\kappa)$ of kernel $\kappa : \mathcal X \rightsquigarrow \mathcal X'$ with respect to the estimation problem $(P, y, \ell')$ and the prior $\pi \in \mathcal M(\Theta)$ is the difference of the risk $\mathcal R_\pi$ of $(\kappa \circ P, y, \ell')$ and that of $(P, y, \ell')$. That is,
+  The Bayes risk increase $I^P_{\pi}(\kappa)$ of a kernel $\kappa : \mathcal X \rightsquigarrow \mathcal X'$ with respect to the estimation problem $(P, y, \ell')$ and the prior $\pi \in \mathcal M(\Theta)$ is the difference of the Bayes risk of $(\kappa \circ P, y, \ell')$ and that of $(P, y, \ell')$. That is,
   \begin{align*}
   I^P_{\pi}(\kappa)
   &= \mathcal R^{\kappa \circ P}_\pi - \mathcal R^P_\pi
@@ -291,7 +299,7 @@ The following is a new definition, which is a natural generalization of the DeGr
   \end{align*}
 \end{definition}
 
-In particular, if we take $\kappa : \mathcal X \rightsquigarrow *$ equal to the Markov kernel to the point space, we recover a difference between the risk of the best constant kernel and the Bayes estimator, as in the DeGroot statistical information.
+In particular, if we take $\kappa : \mathcal X \rightsquigarrow *$ equal to the Markov kernel to the point space (denoted by $d_{\mathcal X}$, for ``discard'' kernel), we get $I^P_{\pi}(d_{\mathcal X}) = \mathcal R^{d_{\mathcal X} \circ P}_\pi - \mathcal R^P_\pi$, where $d_{\mathcal X} \circ P = d_\Theta$ if $P$ is a Markov kernel. We recover a difference between the risk of the best constant kernel and the Bayes estimator, as in the DeGroot statistical information.
 
 The risk increase quantifies how much risk we accrue by forgetting information due to the composition with $\kappa$.
 
