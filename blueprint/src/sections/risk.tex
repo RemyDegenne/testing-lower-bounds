@@ -189,7 +189,7 @@ Start from the equality of Lemma~\ref{lem:bayesianRisk_bayesInv} and use the def
   \label{thm:isBayesEstimator_genBayesEstimator}
   %\lean{}
   %\leanok
-  \uses{def:bayesEstimator, def:genBayesEstimator}
+  \uses{def:bayesEstimator, def:genBayesEstimator, def:bayesRisk}
   When the generalized Bayes estimator is well defined, it is a Bayes estimator. The value of the Bayes risk with respect to the prior $\pi \in \mathcal M(\Theta)$ is then
   \begin{align*}
   \mathcal R_\pi = (P \circ \pi)\left[x \mapsto \inf_{z \in \mathcal Z} P_\pi^\dagger(x) \left[\theta \mapsto \ell'(y(\theta), z)\right]\right]
@@ -372,6 +372,36 @@ TODO: rework this section to use the Bayes risk increase.
 
 In this section, for a measure $\xi$ on $\{0,1\}$, we write $\xi_0$ for $\xi(\{0\})$ and $\xi_1$ for $\xi(\{1\})$~. We sometimes write $(a,b)$ for the measure $\xi$ on $\{0,1\}$ with $\xi_0 = a$ and $\xi_1 = b$.
 
+\begin{lemma}
+  \label{lem:bayesInv_binary}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesInv}
+  The Bayesian inverse of a kernel $P : \{0,1\} \rightsquigarrow \mathcal X$ with respect to a prior $\xi \in \mathcal M(\{0,1\})$ is $P_\xi^\dagger(x) = \left(\xi_0\frac{d P(0)}{d(P \circ \xi)}(x), \xi_1\frac{d P(1)}{d(P \circ \xi)}(x)\right)$ (almost surely w.r.t. $P \circ \xi = \xi_0 P(0) + \xi_1 P(1)$).
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:eq_bayesInv_of_compProd_eq}
+
+\end{proof}
+
+\begin{lemma}
+  \label{lem:bayesRisk_binary}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesRisk}
+  For $\Theta = \{0,1\}$, the Bayes risk of a prior $\xi \in \mathcal M(\{0,1\})$ is
+  \begin{align*}
+  \mathcal R_\xi = (P \circ \xi)\left[x \mapsto \inf_{z \in \mathcal Z} \left( \xi_0\frac{d P(0)}{d(P \circ \xi)}(x)\ell'(y(0), z) + \xi_1\frac{d P(1)}{d(P \circ \xi)}(x)\ell'(y(1), z) \right) \right]
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:bayesInv_binary, thm:isBayesEstimator_genBayesEstimator}
+Use Theorem~\ref{thm:isBayesEstimator_genBayesEstimator}, with the value of $P_\xi^\dagger$ given by Lemma~\ref{lem:bayesInv_binary}.
+\end{proof}
+
 \subsection{Bayes risk of a prior}
 
 \begin{definition}
@@ -460,19 +490,6 @@ Apply Theorem~\ref{thm:data_proc_bayesRisk}.
 \end{proof}
 
 \begin{lemma}
-  \label{lem:bayesInv_bayesBinaryRisk}
-  %\lean{}
-  %\leanok
-  \uses{def:bayesInv, def:bayesBinaryRisk}
-  The Bayesian inverse of the kernel $P$ in simple binary hypothesis testing with prior $\xi \in \mathcal M(\{0,1\})$ is $P_\xi^\dagger(x) = \left(\xi_0\frac{d \mu}{d(P \circ \xi)}(x), \xi_1\frac{d \nu}{d(P \circ \xi)}(x)\right)$ (almost surely w.r.t. $P \circ \xi = \xi_0 \mu + \xi_1 \nu$).
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{lem:eq_bayesInv_of_compProd_eq}
-
-\end{proof}
-
-\begin{lemma}
   \label{lem:genBayesEstimator_bayesBinaryRisk}
   %\lean{}
   %\leanok
@@ -481,7 +498,7 @@ Apply Theorem~\ref{thm:data_proc_bayesRisk}.
 \end{lemma}
 
 \begin{proof}%\leanok
-\uses{lem:bayesInv_bayesBinaryRisk}
+\uses{lem:bayesInv_binary}
 The generalized Bayes estimator is defined by
 \begin{align*}
 x \mapsto \arg\min_z P_\xi^\dagger(x)\left[\theta \mapsto \ell'(y(\theta), z)\right] \: .
@@ -495,7 +512,7 @@ P_\xi^\dagger(x)\left[\theta \mapsto \ell'(y(\theta), z)\right]
 For $z = 0$, this is $P_\xi^\dagger(x)(\{1\})$ and for $z = 1$, this is $P_\xi^\dagger(x)(\{0\})$.
 The generalized Bayes estimator is $x \mapsto \text{if } P_\xi^\dagger(x)(\{1\}) \le P_\xi^\dagger(x)(\{0\}) \text{ then } 0 \text{ else } 1$.
 
-The expression of the lemma statement is obtained by replacing $P_\xi^\dagger$ by its value (Lemma~\ref{lem:bayesInv_bayesBinaryRisk}).
+The expression of the lemma statement is obtained by replacing $P_\xi^\dagger$ by its value (Lemma~\ref{lem:bayesInv_binary}).
 \end{proof}
 
 \begin{theorem}
@@ -511,7 +528,7 @@ The expression of the lemma statement is obtained by replacing $P_\xi^\dagger$ b
 \end{theorem}
 
 \begin{proof}%\leanok
-\uses{lem:bayesianRisk_genBayesEstimator, thm:isBayesEstimator_genBayesEstimator, lem:bayesInv_bayesBinaryRisk}
+\uses{lem:bayesianRisk_genBayesEstimator, thm:isBayesEstimator_genBayesEstimator, lem:bayesInv_binary}
 By Theorem~\ref{thm:isBayesEstimator_genBayesEstimator}, the generalized Bayes estimator is a Bayes estimator, hence it suffices to compute its Bayesian risk.
 By Lemma~\ref{lem:bayesianRisk_genBayesEstimator},
 \begin{align*}
@@ -523,7 +540,7 @@ R_\xi(\hat{y}_B)
 &= (P \circ \xi)\left[x \mapsto \min \left\{\xi_0\frac{d \mu}{d(P \circ \xi)}(x), \xi_1\frac{d \nu}{d(P \circ \xi)}(x)\right\}\right]
 \: .
 \end{align*}
-The last line is obtained by replacing $P_\xi^\dagger$ by its value (Lemma~\ref{lem:bayesInv_bayesBinaryRisk}).
+The last line is obtained by replacing $P_\xi^\dagger$ by its value (Lemma~\ref{lem:bayesInv_binary}).
 \end{proof}
 
 \begin{corollary}
