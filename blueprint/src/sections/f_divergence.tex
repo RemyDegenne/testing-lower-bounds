@@ -255,107 +255,11 @@ Apply Lemma~\ref{lem:le_fDiv} and use $f(\mu(\mathcal X)) = f(1) = 0$.
   For the other direction use the strict version of Jensen's inequality.
 \end{proof}
 
-\subsection{Data-processing inequality: sigma-algebras}
 
-For $\mathcal A$ a sub-$\sigma$-algebra and $\mu$ a measure, we write $\mathcal \mu_{| \mathcal A}$ for the measure restricted to the $\sigma$-algebra.
-
-\begin{lemma}
-  \label{lem:rnDeriv_trim_of_ac}
-  \lean{MeasureTheory.Measure.toReal_rnDeriv_trim_of_ac}
-  \leanok
-  %\uses{}
-  Let $\mu, \nu$ be two finite measures on $\mathcal X$ with $\mu \ll \nu$ and let $\mathcal A$ be a sub-$\sigma$-algebra of $\mathcal X$.
-  Then $\frac{d \mu_{| \mathcal A}}{d \nu_{| \mathcal A}}$ is $\nu_{| \mathcal A}$-almost everywhere (hence also $\nu$-a.e.) equal to $\nu\left[ \frac{d \mu}{d \nu} \mid \mathcal A\right]$.
-\end{lemma}
-
-\begin{proof}\leanok
-\end{proof}
-
-\begin{lemma}
-  \label{lem:fDiv_trim_le_of_ac}
-  \lean{ProbabilityTheory.fDiv_trim_le_of_ac}
-  \leanok
-  \uses{def:fDiv}
-  Let $\mu, \nu$ be two finite measures on $\mathcal X$ with $\mu \ll \nu$ and let $\mathcal A$ be a sub-$\sigma$-algebra of $\mathcal X$. Then
-  $D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A}) \le D_f(\mu, \nu)$.
-\end{lemma}
-
-\begin{proof}\leanok
-\uses{thm:condexp_jensen, lem:rnDeriv_trim_of_ac}
-Since $\mu \ll \nu$, $\mu_{| \mathcal A} \ll \nu_{| \mathcal A}$ and
-\begin{align*}
-D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A})
-&= \int_x f \left( \frac{d \mu_{| \mathcal A}}{d \nu_{| \mathcal A}}(x) \right) \partial\nu_{| \mathcal A} \: .
-\end{align*}
-Since $f \left( \frac{d \mu_{| \mathcal A}}{d \nu_{| \mathcal A}} \right)$ is $\mathcal A$-measurable, this integral is equal to the integral w.r.t. $\nu$.
-By Lemma~\ref{lem:rnDeriv_trim_of_ac}, this is equal to $\int_x f \left( \nu\left[ \frac{d \mu}{d \nu} \mid \mathcal A\right] (x) \right) \partial\nu$.
-
-By Theorem~\ref{thm:condexp_jensen}, $f \left( \nu\left[ \frac{d \mu}{d \nu} \mid \mathcal A\right] (x) \right) \le \nu\left[ f \circ \frac{d \mu}{d \nu} \mid \mathcal A\right] (x)$ almost everywhere.
-Finally
-\begin{align*}
-D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A})
-&= \int_x f \left( \nu\left[ \frac{d \mu}{d \nu} \mid \mathcal A\right] (x) \right) \partial\nu
-\\
-&\le \int_x \nu\left[ f \circ \frac{d \mu}{d \nu} \mid \mathcal A\right] (x) \partial\nu
-\\
-&= \int_x f \left( \frac{d \mu}{d \nu} (x) \right) \partial\nu
-\\
-&= D_f(\mu, \nu)
-\: .
-\end{align*}
-
-\end{proof}
-
-\begin{theorem}
-  \label{thm:fDiv_trim_le}
-  \lean{ProbabilityTheory.fDiv_trim_le}
-  \leanok
-  \uses{def:fDiv}
-  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\mathcal A$ be a sub-$\sigma$-algebra of $\mathcal X$. Then
-  $D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A}) \le D_f(\mu, \nu)$.
-\end{theorem}
-
-\begin{proof}\leanok
-\uses{lem:fDiv_trim_le_of_ac, lem:fDiv_add_measure_le}
-We decompose $\mu_{| \mathcal A}$ into two parts: $\mu_{| \mathcal A} = (\frac{d\mu}{d\nu}\cdot \nu)_{| \mathcal A} + (\mu_{\perp \nu})_{| \mathcal A}$~. 
-We have $(\frac{d\mu}{d\nu}\cdot \nu)_{| \mathcal A} \ll \nu_{| \mathcal A}$.
-By Lemma~\ref{lem:fDiv_add_measure_le},
-\begin{align*}
-D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A})
-\le D_f\left((\frac{d\mu}{d\nu}\cdot \nu)_{| \mathcal A}, \nu_{| \mathcal A}\right)
-  + (\mu_{\perp \nu})_{| \mathcal A}(\mathcal X) f'(\infty)
-\: .
-\end{align*}
-Then we apply Lemma~\ref{lem:fDiv_trim_le_of_ac} to the first term to get
-\begin{align*}
-D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A})
-&\le D_f\left(\frac{d\mu}{d\nu}\cdot \nu, \nu\right)
-  + (\mu_{\perp \nu})_{| \mathcal A}(\mathcal X) f'(\infty)
-\\
-&= D_f\left(\frac{d\mu}{d\nu}\cdot \nu, \nu\right)
-  + \mu_{\perp \nu}(\mathcal X) f'(\infty)
-\\
-&= D_f(\mu, \nu)
-\: .
-\end{align*}
-\end{proof}
-
-\begin{theorem}
-  \label{thm:iSup_fDiv_trim}
-  %\lean{}
-  %\leanok
-  \uses{def:fDiv}
-  Let $\mu, \nu$ be two finite measures on $\mathcal X$. Then
-  $\sup_{\mathcal A \text{ finite}} D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A}) = D_f(\mu, \nu)$.
-\end{theorem}
-
-\begin{proof}
-\uses{thm:fDiv_trim_le}
-\end{proof}
 
 \subsection{Conditional f-divergence}
 
-TODO: replace the definition by $D(\mu \otimes \kappa, \mu \otimes \eta)$, which allows for more a general proof of the "conditioning increases divergence".
+TODO: replace the definition by $D(\mu \otimes \kappa, \mu \otimes \eta)$, which allows for more a general proof of the ``conditioning increases divergence'' inequality.
 
 \begin{definition}[Conditional f-divergence]
   \label{def:condFDiv}
@@ -487,7 +391,289 @@ D_f(\mu \otimes \kappa, \mu \otimes \eta)
 \end{align*}
 \end{proof}
 
-\subsection{Data-processing inequality}
+
+
+\subsection{Integral representation of $f$-divergences}
+
+
+\begin{definition}
+  \label{def:curvatureMeasure}
+  %\lean{}
+  %\leanok
+  \uses{}
+  Let $f: \mathbb{R} \to \mathbb{R}$ be a convex function. Then $f'_+(x) \coloneqq \lim_{y \downarrow x}\frac{f(y) - f(x)}{y - x}$ is a Stieltjes function (a monotone right continuous function) and it defines a measure $\gamma_f$ on $\mathbb{R}$ by $\gamma_f((x,y]) \coloneqq f'_+(y) - f'_+(x)$~. \cite{liese2012phi} calls $\gamma_f$ the curvature measure of $f$.
+\end{definition}
+
+\begin{lemma}
+  \label{lem:curvatureMeasure_mul}
+  %\lean{}
+  %\leanok
+  \uses{def:curvatureMeasure}
+  For $a \ge 0$ and $f: \mathbb{R} \to \mathbb{R}$ a convex function, the curvature measure of $af$ is $\gamma_{af} = a \gamma_f$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+
+\end{proof}
+
+\begin{lemma}
+  \label{lem:convex_taylor_gt}
+  %\lean{}
+  %\leanok
+  \uses{def:curvatureMeasure}
+  For $f: \mathbb{R} \to \mathbb{R}$ a convex function and $x,y \in \mathbb{R}$ with $x < y$,
+  \begin{align*}
+  f(y) - f(x) - (y - x)f'_+(x) = \int_{z \in (x,y]} (y - z) \partial \gamma_f \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+
+\end{proof}
+
+\begin{lemma}
+  \label{lem:convex_taylor_lt}
+  %\lean{}
+  %\leanok
+  \uses{def:curvatureMeasure}
+  For $f: \mathbb{R} \to \mathbb{R}$ a convex function and $x,y \in \mathbb{R}$ with $y < x$,
+  \begin{align*}
+  f(y) - f(x) - (y - x)f'_+(x) = \int_{z \in (y,x]} (z - y) \partial \gamma_f \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+
+\end{proof}
+
+\begin{corollary}
+  \label{cor:convex_taylor_one}
+  %\lean{}
+  %\leanok
+  \uses{def:curvatureMeasure}
+  For $f: \mathbb{R} \to \mathbb{R}$ a convex function with $f(1) = 0$ and $f'_+(1) = 0$~, for all $x \in \mathbb{R}$~,
+  \begin{align*}
+  f(x) &= \int_{y \in (x, 1]} (y - x) \partial\gamma_f & \text{ for } x \le 1 \: ,
+  \\
+  f(x) &= \int_{y \in (1, x]} (x - y) \partial\gamma_f & \text{ for } x > 1 \: ,
+  \end{align*}
+\end{corollary}
+
+\begin{proof}%\leanok
+\uses{lem:convex_taylor_lt, lem:convex_taylor_gt}
+
+\end{proof}
+
+\begin{definition}
+  \label{def:statInfoFun}
+  %\lean{}
+  %\leanok
+  \uses{}
+  For $a,b \in (0, +\infty)$ let $\phi_{a,b} : \mathbb{R} \to \mathbb{R}$ be the function defined by
+  \begin{align*}
+  \phi_{a,b}(x) &= \max\left\{0, a x - b \right\} & \text{ for } a \le b \: ,
+  \\
+  \phi_{a,b}(x) &= \max\left\{0, b - a x \right\} & \text{ for } a > b \: .
+  \end{align*}
+\end{definition}
+
+\begin{corollary}
+  \label{cor:convex_taylor_statInfoFun}
+  %\lean{}
+  %\leanok
+  \uses{def:curvatureMeasure, def:statInfoFun}
+  For $f: \mathbb{R} \to \mathbb{R}$ a convex function with $f(1) = 0$ and $f'_+(1) = 0$~, for all $x \in \mathbb{R}$~,
+  \begin{align*}
+  f(x) &= \int_{y} \phi_{1,y}(x) \partial\gamma_f \: .
+  \end{align*}
+\end{corollary}
+
+\begin{proof}%\leanok
+\uses{cor:convex_taylor_one}
+By Corollary~\ref{cor:convex_taylor_one}, for $x > 1$,
+\begin{align*}
+f(x) = \int_{y \in (1, x]} (x - y) \partial\gamma_f
+&= \int_{y \in (1, +\infty)} \max\{0, x - y\} \partial\gamma_f
+= \int_{y \in (1, +\infty)} \phi_{1,y}(x) \partial\gamma_f
+\: .
+\end{align*}
+That final integral is equal to $\int_y \phi_{1,y}(x) \partial\gamma_f$ (without the restriction to $(1, +\infty)$) because $\phi_{1,y}(x)$ is zero outside of $(1, +\infty)$ for $x \ge 1$.
+
+The case of $x < 1$ is similar.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:curvatureMeasure_statInfoFun}
+  %\lean{}
+  %\leanok
+  \uses{def:curvatureMeasure, def:statInfoFun}
+  The curvature measure of the function $\phi_{a,b}$ is $\gamma_{\phi_{a,b}} = a\delta_{b/a}$~, where $\delta_x$ is the Dirac measure at $x$.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+
+\end{proof}
+
+The following theorem is inspired from \cite{liese2006divergences,liese2012phi} but gives a different integral representation.
+
+\begin{theorem}
+  \label{thm:fDiv_eq_integral_eGamma}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv, def:curvatureMeasure, def:eGamma}
+  For $\mu, \nu \in \mathcal M(\mathcal X)$,
+  \begin{align*}
+  D_f(\mu, \nu) = f(1) \nu(\mathcal X) + f'_+(1)(\mu(\mathcal X) - \nu(\mathcal X)) + \int_y D_{\phi_{1,y}}(\mu, \nu) \partial\gamma_f \: .
+  \end{align*}
+\end{theorem}
+
+For probability measures, $D_{\phi_{1,y}}(\mu, \nu) = E_y(\mu, \nu)$~, but these functions can differ if $\mu$ and $\nu$ are finite measures with different masses.
+
+\begin{proof}%\leanok
+\uses{cor:convex_taylor_statInfoFun}
+TODO: this proof ignores the non-integral part of divergences and should be fixed.
+
+We prove the result for $f(1) = 0$ and $f'_+(1) = 0$. The general case is then a consequence of Lemma TODO.
+
+From Corollary~\ref{cor:convex_taylor_statInfoFun} we get that $f(x) = \int_y \phi_{1,y}(x) \partial\gamma_f$~.
+From this and the theorem of Fubini,
+\begin{align*}
+\int_x f\left( \frac{d \mu}{d \nu}(x) \right) \partial\nu
+= \int_{x} \int_{y} \phi_{1,y} \left(\frac{d \mu}{d \nu}(x) \right) \partial\gamma_f \partial\nu
+= \int_{y} \int_{x} \phi_{1,y} \left(\frac{d \mu}{d \nu}(x) \right) \partial\nu \partial\gamma_f
+\: .
+\end{align*}
+The inner integral is a divergence: $\int_{x} \phi_{1,y} \left(\frac{d \mu}{d \nu}(x) \right) \partial\nu = D_{\phi_{1,y}}(\mu, \nu)$~.
+\end{proof}
+
+TODO: define $\Gamma_f$.
+
+TODO: in the lemma below, $I_\pi(\mu, \nu)$ is the correct value for probability measures, but in general it should be replaced by $D_{\phi_{\pi, 1 - \pi}}(\mu, \nu)$~.
+These functions can differ if $\mu$ and $\nu$ are finite measures with different masses.
+
+\begin{theorem}[\cite{liese2006divergences,liese2012phi}]
+  \label{thm:fDiv_eq_integral}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv, def:curvatureMeasure, def:deGrootInfo}
+  \begin{align*}
+  D_f(\mu, \nu) = f(1) \nu(\mathcal X) + f'_+(1)(\mu(\mathcal X) - \nu(\mathcal X)) + \int_\pi I_\pi(\mu, \nu) \partial\Gamma_f \: .
+  \end{align*}
+  
+\end{theorem}
+
+\begin{proof}%\leanok
+\uses{thm:fDiv_eq_integral_eGamma}
+
+\end{proof}
+
+
+
+\subsection{Data-processing inequality: sigma-algebras}
+
+For $\mathcal A$ a sub-$\sigma$-algebra and $\mu$ a measure, we write $\mathcal \mu_{| \mathcal A}$ for the measure restricted to the $\sigma$-algebra.
+
+\begin{lemma}
+  \label{lem:rnDeriv_trim_of_ac}
+  \lean{MeasureTheory.Measure.toReal_rnDeriv_trim_of_ac}
+  \leanok
+  %\uses{}
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ with $\mu \ll \nu$ and let $\mathcal A$ be a sub-$\sigma$-algebra of $\mathcal X$.
+  Then $\frac{d \mu_{| \mathcal A}}{d \nu_{| \mathcal A}}$ is $\nu_{| \mathcal A}$-almost everywhere (hence also $\nu$-a.e.) equal to $\nu\left[ \frac{d \mu}{d \nu} \mid \mathcal A\right]$.
+\end{lemma}
+
+\begin{proof}\leanok
+\end{proof}
+
+\begin{lemma}
+  \label{lem:fDiv_trim_le_of_ac}
+  \lean{ProbabilityTheory.fDiv_trim_le_of_ac}
+  \leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ with $\mu \ll \nu$ and let $\mathcal A$ be a sub-$\sigma$-algebra of $\mathcal X$. Then
+  $D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A}) \le D_f(\mu, \nu)$.
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{thm:condexp_jensen, lem:rnDeriv_trim_of_ac}
+Since $\mu \ll \nu$, $\mu_{| \mathcal A} \ll \nu_{| \mathcal A}$ and
+\begin{align*}
+D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A})
+&= \int_x f \left( \frac{d \mu_{| \mathcal A}}{d \nu_{| \mathcal A}}(x) \right) \partial\nu_{| \mathcal A} \: .
+\end{align*}
+Since $f \left( \frac{d \mu_{| \mathcal A}}{d \nu_{| \mathcal A}} \right)$ is $\mathcal A$-measurable, this integral is equal to the integral w.r.t. $\nu$.
+By Lemma~\ref{lem:rnDeriv_trim_of_ac}, this is equal to $\int_x f \left( \nu\left[ \frac{d \mu}{d \nu} \mid \mathcal A\right] (x) \right) \partial\nu$.
+
+By Theorem~\ref{thm:condexp_jensen}, $f \left( \nu\left[ \frac{d \mu}{d \nu} \mid \mathcal A\right] (x) \right) \le \nu\left[ f \circ \frac{d \mu}{d \nu} \mid \mathcal A\right] (x)$ almost everywhere.
+Finally
+\begin{align*}
+D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A})
+&= \int_x f \left( \nu\left[ \frac{d \mu}{d \nu} \mid \mathcal A\right] (x) \right) \partial\nu
+\\
+&\le \int_x \nu\left[ f \circ \frac{d \mu}{d \nu} \mid \mathcal A\right] (x) \partial\nu
+\\
+&= \int_x f \left( \frac{d \mu}{d \nu} (x) \right) \partial\nu
+\\
+&= D_f(\mu, \nu)
+\: .
+\end{align*}
+
+\end{proof}
+
+\begin{theorem}
+  \label{thm:fDiv_trim_le}
+  \lean{ProbabilityTheory.fDiv_trim_le}
+  \leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\mathcal A$ be a sub-$\sigma$-algebra of $\mathcal X$. Then
+  $D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A}) \le D_f(\mu, \nu)$.
+\end{theorem}
+
+\begin{proof}\leanok
+\uses{lem:fDiv_trim_le_of_ac, lem:fDiv_add_measure_le}
+We decompose $\mu_{| \mathcal A}$ into two parts: $\mu_{| \mathcal A} = (\frac{d\mu}{d\nu}\cdot \nu)_{| \mathcal A} + (\mu_{\perp \nu})_{| \mathcal A}$~. 
+We have $(\frac{d\mu}{d\nu}\cdot \nu)_{| \mathcal A} \ll \nu_{| \mathcal A}$.
+By Lemma~\ref{lem:fDiv_add_measure_le},
+\begin{align*}
+D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A})
+\le D_f\left((\frac{d\mu}{d\nu}\cdot \nu)_{| \mathcal A}, \nu_{| \mathcal A}\right)
+  + (\mu_{\perp \nu})_{| \mathcal A}(\mathcal X) f'(\infty)
+\: .
+\end{align*}
+Then we apply Lemma~\ref{lem:fDiv_trim_le_of_ac} to the first term to get
+\begin{align*}
+D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A})
+&\le D_f\left(\frac{d\mu}{d\nu}\cdot \nu, \nu\right)
+  + (\mu_{\perp \nu})_{| \mathcal A}(\mathcal X) f'(\infty)
+\\
+&= D_f\left(\frac{d\mu}{d\nu}\cdot \nu, \nu\right)
+  + \mu_{\perp \nu}(\mathcal X) f'(\infty)
+\\
+&= D_f(\mu, \nu)
+\: .
+\end{align*}
+\end{proof}
+
+\begin{theorem}
+  \label{thm:iSup_fDiv_trim}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$. Then
+  $\sup_{\mathcal A \text{ finite}} D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A}) = D_f(\mu, \nu)$.
+\end{theorem}
+
+\begin{proof}
+\uses{thm:fDiv_trim_le}
+\end{proof}
+
+
+
+\subsection{Data-processing inequality: kernel proof}
 
 \begin{theorem}
   \label{thm:fDiv_le_compProd}
@@ -653,6 +839,98 @@ $D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu, \nu)$ by Theorem~\ref{thm:
 For the other inequality, remark that $\mu = (\kappa \circ \mu)_X$ (and similarly for $\nu$). Hence by Theorem~\ref{thm:fDiv_fst_le} $D_f(\mu, \nu) \le D_f(\kappa \circ \mu, \kappa \circ \nu)$.
 \end{proof}
 
+
+
+
+\subsection{Data-processing inequality: general measurable spaces}
+
+\begin{lemma}
+  \label{lem:fDiv_phi_data_proc}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv, def:statInfoFun}
+  Let $a,b \in (0, +\infty)$. Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
+  Then $D_{\phi_{a,b}}(\kappa \circ \mu, \kappa \circ \nu) \le D_{\phi_{a,b}}(\mu, \nu)$.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{thm:data_proc_statInfo, thm:statInfo_eq_integral}
+By Theorem~\ref{thm:statInfo_eq_integral}, if two measures have same mass then the statistical information $\mathcal I_{(a,b)}(\mu, \nu)$ is equal to $D_{\phi_{a,b}}(\mu, \nu)$.
+
+Let $\alpha = \frac{\mu(\mathcal X)}{\nu(\mathcal X)}$. Since $\alpha^{-1}\mu$ and $\nu$ have same mass, we have
+\begin{align*}
+D_{\phi_{a,b}}(\mu, \nu)
+&= \alpha D_{\phi_{a,b/\alpha}}(\alpha^{-1}\mu, \nu)
+= \alpha \mathcal I_{(a, b/\alpha)}(\alpha^{-1}\mu, \nu)
+\: .
+\end{align*}
+
+The divergence $\mathcal I_{(a,b/\alpha)}$ satisfies the data-processing inequality (Theorem~\ref{thm:data_proc_statInfo}).
+For a Markov kernel $\kappa$, $\frac{(\kappa \circ \mu)(\mathcal X)}{( \kappa \circ \nu)(\mathcal X)} = \frac{\mu(\mathcal X)}{\nu(\mathcal X)} = \alpha$, hence
+\begin{align*}
+D_{\phi_{a,b}}(\kappa \circ \mu, \kappa \circ \nu)
+&= \alpha \mathcal I_{(a, b/\alpha)}(\alpha^{-1}\kappa \circ \mu, \kappa \circ \nu)
+\\
+&= \alpha \mathcal I_{(a, b/\alpha)}(\kappa \circ (\alpha^{-1}\mu), \kappa \circ \nu)
+\\
+&\le \alpha \mathcal I_{(a, b/\alpha)}(\alpha^{-1}\mu, \nu)
+\\
+&= D_{\phi_{a,b}}(\mu, \nu)
+\: .
+\end{align*}
+\end{proof}
+
+\begin{theorem}[Data-processing]
+  \label{thm:fDiv_data_proc_2}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
+  Then $D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu, \nu)$.
+\end{theorem}
+
+\begin{proof}%\leanok
+\uses{thm:fDiv_eq_integral_eGamma, thm:data_proc_eGamma}
+By Theorem~\ref{thm:fDiv_eq_integral_eGamma},
+\begin{align*}
+D_f(\mu, \nu) = f(1) \nu(\mathcal X) + f'_+(1) (\mu(\mathcal X) - \nu (\mathcal X)) + \int_y D_{\phi_{1,y}}(\mu, \nu) \partial\gamma_f \: .
+\end{align*}
+The first two terms are unchanged by composition with a Markov kernel. It thus suffices to prove the data processing inequality for the divergences $D_{\phi_{1, \gamma}}$. This was done in Lemma~\ref{lem:fDiv_phi_data_proc}.
+\end{proof}
+
+
+\begin{theorem}
+  \label{thm:fDiv_le_compProd_2}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels.
+  Then $D_f(\mu, \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \eta)$.
+\end{theorem}
+
+\begin{proof}%\leanok
+\uses{thm:fDiv_data_proc_2}
+
+\end{proof}
+
+
+\begin{theorem}
+  \label{thm:fDiv_comp_le_compProd_2}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels.
+  Then $D_f(\kappa \circ \mu, \eta \circ \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \eta)$.
+\end{theorem}
+
+\begin{proof}%\leanok
+\uses{thm:fDiv_data_proc_2}
+
+\end{proof}
+
+
+
+
 \subsection{Convexity}
 
 \begin{theorem}[Joint convexity]
@@ -680,185 +958,7 @@ D_f(\kappa \circ \xi, \eta \circ \xi)
 By Theorem~\ref{thm:fDiv_comp_le_condFDiv}, $D_f(\kappa \circ \xi, \eta \circ \xi) \le D_f(\xi \otimes \kappa, \xi \otimes \eta)$.
 \end{proof}
 
-\subsection{Integral representation of $f$-divergences}
 
-TODO: move this subsection earlier?
-It will be used to obtain the most general data-processing inequality.
-
-\begin{definition}
-  \label{def:curvatureMeasure}
-  %\lean{}
-  %\leanok
-  \uses{}
-  Let $f: \mathbb{R} \to \mathbb{R}$ be a convex function. Then $f'_+(x) \coloneqq \lim_{y \downarrow x}\frac{f(y) - f(x)}{y - x}$ is a Stieltjes function (a monotone right continuous function) and it defines a measure $\gamma_f$ on $\mathbb{R}$ by $\gamma_f((x,y]) \coloneqq f'_+(y) - f'_+(x)$~. \cite{liese2012phi} calls $\gamma_f$ the curvature measure of $f$.
-\end{definition}
-
-\begin{lemma}
-  \label{lem:curvatureMeasure_mul}
-  %\lean{}
-  %\leanok
-  \uses{def:curvatureMeasure}
-  For $a \ge 0$ and $f: \mathbb{R} \to \mathbb{R}$ a convex function, the curvature measure of $af$ is $\gamma_{af} = a \gamma_f$~.
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{}
-
-\end{proof}
-
-\begin{lemma}
-  \label{lem:convex_taylor_gt}
-  %\lean{}
-  %\leanok
-  \uses{def:curvatureMeasure}
-  For $f: \mathbb{R} \to \mathbb{R}$ a convex function and $x,y \in \mathbb{R}$ with $x < y$,
-  \begin{align*}
-  f(y) - f(x) - (y - x)f'_+(x) = \int_{z \in (x,y]} (y - z) \partial \gamma_f \: .
-  \end{align*}
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{}
-
-\end{proof}
-
-\begin{lemma}
-  \label{lem:convex_taylor_lt}
-  %\lean{}
-  %\leanok
-  \uses{def:curvatureMeasure}
-  For $f: \mathbb{R} \to \mathbb{R}$ a convex function and $x,y \in \mathbb{R}$ with $y < x$,
-  \begin{align*}
-  f(y) - f(x) - (y - x)f'_+(x) = \int_{z \in (y,x]} (z - y) \partial \gamma_f \: .
-  \end{align*}
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{}
-
-\end{proof}
-
-\begin{corollary}
-  \label{cor:convex_taylor_one}
-  %\lean{}
-  %\leanok
-  \uses{def:curvatureMeasure}
-  For $f: \mathbb{R} \to \mathbb{R}$ a convex function with $f(1) = 0$ and $f'_+(1) = 0$~, for all $x \in \mathbb{R}$~,
-  \begin{align*}
-  f(x) &= \int_{y \in (x, 1]} (y - x) \partial\gamma_f & \text{ for } x \le 1 \: ,
-  \\
-  f(x) &= \int_{y \in (1, x]} (x - y) \partial\gamma_f & \text{ for } x > 1 \: ,
-  \end{align*}
-\end{corollary}
-
-\begin{proof}%\leanok
-\uses{lem:convex_taylor_lt, lem:convex_taylor_gt}
-
-\end{proof}
-
-\begin{definition}
-  \label{def:statInfoFun}
-  %\lean{}
-  %\leanok
-  \uses{}
-  For $a,b \in (0, +\infty)$ let $\phi_{a,b} : \mathbb{R} \to \mathbb{R}$ be the function defined by
-  \begin{align*}
-  \phi_{a,b}(x) &= \max\left\{0, a x - b \right\} & \text{ for } a \le b \: ,
-  \\
-  \phi_{a,b}(x) &= \max\left\{0, b - a x \right\} & \text{ for } a > b \: .
-  \end{align*}
-\end{definition}
-
-\begin{corollary}
-  \label{cor:convex_taylor_statInfoFun}
-  %\lean{}
-  %\leanok
-  \uses{def:curvatureMeasure, def:statInfoFun}
-  For $f: \mathbb{R} \to \mathbb{R}$ a convex function with $f(1) = 0$ and $f'_+(1) = 0$~, for all $x \in \mathbb{R}$~,
-  \begin{align*}
-  f(x) &= \int_{y} \phi_{1,y}(x) \partial\gamma_f \: .
-  \end{align*}
-\end{corollary}
-
-\begin{proof}%\leanok
-\uses{cor:convex_taylor_one}
-By Corollary~\ref{cor:convex_taylor_one}, for $x > 1$,
-\begin{align*}
-f(x) = \int_{y \in (1, x]} (x - y) \partial\gamma_f
-&= \int_{y \in (1, +\infty)} \max\{0, x - y\} \partial\gamma_f
-= \int_{y \in (1, +\infty)} \phi_{1,y}(x) \partial\gamma_f
-\: .
-\end{align*}
-That final integral is equal to $\int_y \phi_{1,y}(x) \partial\gamma_f$ (without the restriction to $(1, +\infty)$) because $\phi_{1,y}(x)$ is zero outside of $(1, +\infty)$ for $x \ge 1$.
-
-The case of $x < 1$ is similar.
-\end{proof}
-
-\begin{lemma}
-  \label{lem:curvatureMeasure_statInfoFun}
-  %\lean{}
-  %\leanok
-  \uses{def:curvatureMeasure, def:statInfoFun}
-  The curvature measure of the function $\phi_{a,b}$ is $\gamma_{\phi_{a,b}} = a\delta_{b/a}$~, where $\delta_x$ is the Dirac measure at $x$.
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{}
-
-\end{proof}
-
-The following theorem is inspired from \cite{liese2006divergences,liese2012phi} but gives a different integral representation.
-
-\begin{theorem}
-  \label{thm:fDiv_eq_integral_eGamma}
-  %\lean{}
-  %\leanok
-  \uses{def:fDiv, def:curvatureMeasure, def:eGamma}
-  For $\mu, \nu \in \mathcal M(\mathcal X)$,
-  \begin{align*}
-  D_f(\mu, \nu) = f(1) \nu(\mathcal X) + f'_+(1)(\mu(\mathcal X) - \nu(\mathcal X)) + \int_y D_{\phi_{1,y}}(\mu, \nu) \partial\gamma_f \: .
-  \end{align*}
-\end{theorem}
-
-For probability measures, $D_{\phi_{1,y}}(\mu, \nu) = E_y(\mu, \nu)$~, but these functions can differ if $\mu$ and $\nu$ are finite measures with different masses.
-
-\begin{proof}%\leanok
-\uses{cor:convex_taylor_one}
-TODO: this proof ignores the non-integral part of divergences and should be fixed.
-
-We prove the result for $f(1) = 0$ and $f'_+(1) = 0$. The general case is then a consequence of Lemma TODO.
-
-From Corollary~\ref{cor:convex_taylor_statInfoFun} we get that $f(x) = \int_y \phi_{1,y}(x) \partial\gamma_f$~.
-From this and the theorem of Fubini,
-\begin{align*}
-\int_x f\left( \frac{d \mu}{d \nu}(x) \right) \partial\nu
-= \int_{x} \int_{y} \phi_{1,y} \left(\frac{d \mu}{d \nu}(x) \right) \partial\gamma_f \partial\nu
-= \int_{y} \int_{x} \phi_{1,y} \left(\frac{d \mu}{d \nu}(x) \right) \partial\nu \partial\gamma_f
-\: .
-\end{align*}
-The inner integral is a divergence: $\int_{x} \phi_{1,y} \left(\frac{d \mu}{d \nu}(x) \right) \partial\nu = D_{\phi_{1,y}}(\mu, \nu)$~.
-\end{proof}
-
-TODO: define $\Gamma_f$.
-
-TODO: in the lemma below, $I_\pi(\mu, \nu)$ is the correct value for probability measures, but in general it should be replaced by $D_{\phi_{\pi, 1 - \pi}}(\mu, \nu)$~.
-These functions can differ if $\mu$ and $\nu$ are finite measures with different masses.
-
-\begin{theorem}[\cite{liese2006divergences,liese2012phi}]
-  \label{thm:fDiv_eq_integral}
-  %\lean{}
-  %\leanok
-  \uses{def:fDiv, def:curvatureMeasure, def:deGrootInfo}
-  \begin{align*}
-  D_f(\mu, \nu) = f(1) \nu(\mathcal X) + f'_+(1)(\mu(\mathcal X) - \nu(\mathcal X)) + \int_\pi I_\pi(\mu, \nu) \partial\Gamma_f \: .
-  \end{align*}
-  
-\end{theorem}
-
-\begin{proof}%\leanok
-\uses{thm:fDiv_eq_integral_eGamma}
-
-\end{proof}
 
 
 \subsection{Variational representations}
