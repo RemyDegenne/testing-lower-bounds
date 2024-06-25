@@ -885,7 +885,7 @@ D_{\phi_{a,b}}(\kappa \circ \mu, \kappa \circ \nu)
   %\lean{}
   %\leanok
   \uses{def:fDiv}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
   Then $D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu, \nu)$.
 \end{theorem}
 
@@ -897,6 +897,38 @@ D_f(\mu, \nu) = f(1) \nu(\mathcal X) + f'_+(1) (\mu(\mathcal X) - \nu (\mathcal 
 \end{align*}
 The first two terms are unchanged by composition with a Markov kernel. It thus suffices to prove the data processing inequality for the divergences $D_{\phi_{1, \gamma}}$. This was done in Lemma~\ref{lem:fDiv_phi_data_proc}.
 \end{proof}
+
+
+\begin{theorem}
+  \label{thm:fDiv_le_compProd_2}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels.
+  Then $D_f(\mu, \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \eta)$.
+\end{theorem}
+
+\begin{proof}%\leanok
+\uses{thm:fDiv_data_proc_2}
+
+\end{proof}
+
+
+\begin{theorem}
+  \label{thm:fDiv_comp_le_compProd_2}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels.
+  Then $D_f(\kappa \circ \mu, \eta \circ \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \eta)$.
+\end{theorem}
+
+\begin{proof}%\leanok
+\uses{thm:fDiv_data_proc_2}
+
+\end{proof}
+
+
 
 
 \subsection{Convexity}
