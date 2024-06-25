@@ -526,6 +526,22 @@ R_\xi(\hat{y}_B)
 The last line is obtained by replacing $P_\xi^\dagger$ by its value (Lemma~\ref{lem:bayesInv_bayesBinaryRisk}).
 \end{proof}
 
+\begin{corollary}
+  \label{cor:bayesBinaryRisk_eq_abs}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesBinaryRisk}
+  \begin{align*}
+  \mathcal B_\xi(\mu, \nu) = \frac{1}{2}\left((P \circ \xi)(\mathcal X) -  (P \circ \xi)\left[x \mapsto \left\vert \xi_0\frac{d \mu}{d(P \circ \xi)}(x) - \xi_1\frac{d \nu}{d(P \circ \xi)}(x)\right\vert\right] \right)
+  \: .
+  \end{align*}
+\end{corollary}
+
+\begin{proof}%\leanok
+\uses{}
+\end{proof}
+
+
 \section{Reduction to testing}
 
 TODO: lower bounds on estimation by reduction to testing problems.
