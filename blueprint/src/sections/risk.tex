@@ -97,7 +97,7 @@ TODO: ``often'', $\mathcal R^*_B = \mathcal R^*$.
   %\lean{}
   %\leanok
   \uses{def:bayesRisk}
-  The Bayes risk of a prior $\pi \in \mathcal M(\Theta)$ on $(P, y, \ell')$ satisfies
+  The Bayes risk of a prior $\pi \in \mathcal M(\Theta)$ on $(P, y, \ell')$ with $P$ a Markov kernel satisfies
   \begin{align*}
   \mathcal R^P_\pi \le \inf_{z \in \mathcal Z} \pi\left[ \theta \mapsto \ell'(y(\theta), z) \right]
   \: .
@@ -108,6 +108,8 @@ TODO: ``often'', $\mathcal R^*_B = \mathcal R^*$.
 \uses{}
 The infimum over all Markov kernels in the definition of the Bayes risk of $\pi$ is bounded from above by the infimum restricted to constant, deterministic Markov kernels.
 \end{proof}
+
+\paragraph{Generalized Bayes estimator}
 
 \begin{lemma}
   \label{lem:bayesianRisk_bayesInv}
@@ -188,13 +190,19 @@ Start from the equality of Lemma~\ref{lem:bayesianRisk_bayesInv} and use the def
   %\lean{}
   %\leanok
   \uses{def:bayesEstimator, def:genBayesEstimator}
-  When the generalized Bayes estimator is well defined, it is a Bayes estimator.
+  When the generalized Bayes estimator is well defined, it is a Bayes estimator. The value of the Bayes risk with respect to the prior $\pi \in \mathcal M(\Theta)$ is then
+  \begin{align*}
+  \mathcal R_\pi = (P \circ \pi)\left[x \mapsto \inf_{z \in \mathcal Z} P_\pi^\dagger(x) \left[\theta \mapsto \ell'(y(\theta), z)\right]\right]
+  \: .
+  \end{align*}
 \end{theorem}
 
 \begin{proof}%\leanok
 \uses{lem:bayesianRisk_ge_inf_bayesInv, lem:bayesianRisk_genBayesEstimator}
 By Lemma~\ref{lem:bayesianRisk_ge_inf_bayesInv}, the Bayesian risk of the generalized Bayes estimator obtained in Lemma~\ref{lem:bayesianRisk_genBayesEstimator} is a lower bound for the Bayesian risk.
 \end{proof}
+
+\paragraph{Data-processing inequality and consequences}
 
 \begin{theorem}[Data-processing inequality]
   \label{thm:data_proc_bayesRisk}
@@ -208,11 +216,15 @@ By Lemma~\ref{lem:bayesianRisk_ge_inf_bayesInv}, the Bayesian risk of the genera
 \uses{}
 The risk $\mathcal R^{\kappa \circ P}_\pi$ is
 \begin{align*}
-\inf_{\hat{y} : \mathcal X' \rightsquigarrow \mathcal Z} (\pi \otimes (\hat{y} \circ \kappa \circ P))\left[(\theta, z) \mapsto \ell'(y(\theta), z)\right]
+\mathcal R^{\kappa \circ P}_\pi
+&= \inf_{\hat{y} : \mathcal X' \rightsquigarrow \mathcal Z} (\pi \otimes (\hat{y} \circ \kappa \circ P))\left[(\theta, z) \mapsto \ell'(y(\theta), z)\right]
+\\
 &\ge \inf_{\hat{y} : \mathcal X \rightsquigarrow \mathcal Z} (\pi \otimes (\hat{y} \circ P))\left[(\theta, z) \mapsto \ell'(y(\theta), z)\right]
+\\
+&= \mathcal R^{P}_\pi
 \: .
 \end{align*}
-The inequality is due to taking an infimum over a larger set: $\{\hat{y} \circ \kappa \mid \hat{y} : \mathcal X' \rightsquigarrow \{0,1\} \text{ Markov}\} \subseteq \{\hat{y}' : \mathcal X \rightsquigarrow \{0,1\} \mid \hat{y} \text{ Markov}\}$~.
+The inequality is due to taking an infimum over a larger set: $\{\hat{y} \circ \kappa \mid \hat{y} : \mathcal X' \rightsquigarrow \mathcal Z \text{ Markov}\} \subseteq \{\hat{y}' : \mathcal X \rightsquigarrow \mathcal Z \mid \hat{y} \text{ Markov}\}$~.
 \end{proof}
 
 \begin{lemma}
@@ -265,7 +277,7 @@ The infimum of a sum is larger than the sum of the infimums:
 &= \lambda \mathcal R_\pi^{P_1} + (1 - \lambda)\mathcal R_\pi^{P_2}
 \: .
 \end{align*}
-
+TODO: can we build kernels such that this lemma is a consequence of one of the lemmas above?
 \end{proof}
 
 
@@ -280,7 +292,7 @@ The following is a new definition, which is a natural generalization of the DeGr
   %\lean{}
   %\leanok
   \uses{def:bayesRisk}
-  The Bayes risk increase $I^P_{\pi}(\kappa)$ of kernel $\kappa : \mathcal X \rightsquigarrow \mathcal X'$ with respect to the estimation problem $(P, y, \ell')$ and the prior $\pi \in \mathcal M(\Theta)$ is the difference of the risk $\mathcal R_\pi$ of $(\kappa \circ P, y, \ell')$ and that of $(P, y, \ell')$. That is,
+  The Bayes risk increase $I^P_{\pi}(\kappa)$ of a kernel $\kappa : \mathcal X \rightsquigarrow \mathcal X'$ with respect to the estimation problem $(P, y, \ell')$ and the prior $\pi \in \mathcal M(\Theta)$ is the difference of the Bayes risk of $(\kappa \circ P, y, \ell')$ and that of $(P, y, \ell')$. That is,
   \begin{align*}
   I^P_{\pi}(\kappa)
   &= \mathcal R^{\kappa \circ P}_\pi - \mathcal R^P_\pi
@@ -291,7 +303,7 @@ The following is a new definition, which is a natural generalization of the DeGr
   \end{align*}
 \end{definition}
 
-In particular, if we take $\kappa : \mathcal X \rightsquigarrow *$ equal to the Markov kernel to the point space, we recover a difference between the risk of the best constant kernel and the Bayes estimator, as in the DeGroot statistical information.
+In particular, if we take $\kappa : \mathcal X \rightsquigarrow *$ equal to the Markov kernel to the point space (denoted by $d_{\mathcal X}$, for ``discard'' kernel), we get $I^P_{\pi}(d_{\mathcal X}) = \mathcal R^{d_{\mathcal X} \circ P}_\pi - \mathcal R^P_\pi$, where $d_{\mathcal X} \circ P = d_\Theta$ if $P$ is a Markov kernel. We recover a difference between the risk of the best constant kernel and the Bayes estimator, as in the DeGroot statistical information.
 
 The risk increase quantifies how much risk we accrue by forgetting information due to the composition with $\kappa$.
 
@@ -351,7 +363,7 @@ I_\pi^P(d_{\mathcal X'} \circ \kappa)
 \ge I_\pi^{\kappa \circ P}(d_{\mathcal X'})
 \: .
 \end{align*}
-Finally, $d_{\mathcal X'} \circ \kappa = d_{\mathcal X}$.
+Finally, $d_{\mathcal X'} \circ \kappa = d_{\mathcal X}$ since $\kappa$ is a Markov kernel.
 \end{proof}
 
 \section{Simple binary hypothesis testing}
@@ -378,19 +390,34 @@ In this section, for a measure $\xi$ on $\{0,1\}$, we write $\xi_0$ for $\xi(\{0
   If the prior is a probability measure with weights $(\pi, 1 - \pi)$, we write $B_\pi(\mu, \nu) = \mathcal B_{(\pi, 1 - \pi)}(\mu, \nu)$~.
 \end{definition}
 
+Thanks to the following lemma, we can prove properties of the Bayes binary risk for non-zero finite measures by considering only probability measures.
+
+\begin{lemma}
+  \label{lem:bayesBinaryRisk_mul}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesRisk}
+  For all $a, b > 0$, $\mathcal B_\xi(\mu, \nu) = \mathcal B_{(a \xi_0, b \xi_1)}(a^{-1} \mu, b^{-1} \nu)$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+
+\end{proof}
+
 \begin{lemma}
   \label{lem:bayesBinaryRisk_le}
   \lean{ProbabilityTheory.bayesBinaryRisk_le_min}
   \leanok
   \uses{def:bayesBinaryRisk}
-  For all measures $\mu, \nu$, $\mathcal B_\xi(\mu, \nu) \le \min\{\xi_0, \xi_1\}$ and $B_\pi(\mu, \nu) \le \min\{\pi, 1 - \pi\}$~.
+  For all measures $\mu, \nu$, $\mathcal B_\xi(\mu, \nu) \le \min\{\xi_0 \mu(\mathcal X), \xi_1 \nu(\mathcal X)\}$~.
 \end{lemma}
 
 \begin{proof}%\leanok
 \uses{def:bayesRisk}
 Since $\mathcal B_\xi(\mu, \nu)$ is an infimum over estimators, we can find an upper bound by choosing an estimator.
 We choose for $\hat{y}$ a constant estimator, with value 1 if $\xi_1 > \xi_0$ and 0 otherwise.
-That estimator has Bayesian risk $\min\{\xi_0, \xi_1\}$.
+That estimator has Bayesian risk $\min\{\xi_0, \xi_1\}$ (for probability measures).
 \end{proof}
 
 \begin{lemma}
@@ -398,7 +425,7 @@ That estimator has Bayesian risk $\min\{\xi_0, \xi_1\}$.
   \lean{ProbabilityTheory.bayesBinaryRisk_self}
   \leanok
   \uses{def:bayesBinaryRisk}
-  For $\mu \in \mathcal M(\mathcal X)$, $\mathcal B_\xi(\mu, \mu) = \min\{\xi_0, \xi_1\}$ and $B_\pi(\mu, \mu) = \min\{\pi, 1-\pi\}$~.
+  For $\mu \in \mathcal M(\mathcal X)$, $\mathcal B_\xi(\mu, \mu) = \min\{\xi_0, \xi_1\} \mu(\mathcal X)$~.
 \end{lemma}
 
 \begin{proof}%\leanok
@@ -498,139 +525,6 @@ R_\xi(\hat{y}_B)
 \end{align*}
 The last line is obtained by replacing $P_\xi^\dagger$ by its value (Lemma~\ref{lem:bayesInv_bayesBinaryRisk}).
 \end{proof}
-
-\subsection{Statistical divergences between measures}
-
-\begin{definition}
-  \label{def:statInfo}
-  %\lean{}
-  %\leanok
-  \uses{def:bayesBinaryRisk, def:riskIncrease}
-  The statistical information between measures $\mu$ and $\nu$ with respect to prior $\xi \in \mathcal M(\{0,1\})$ is $\mathcal I_\xi(\mu, \nu) = \min\{\xi_0, \xi_1\} - \mathcal B_\xi(\mu, \nu)$.
-  This is the risk increase $I_\xi^P(d_{\mathcal X})$ in the binary hypothesis testing problem for $d_{\mathcal X} : \mathcal X \rightsquigarrow *$ the Markov kernel to the point space.
-\end{definition}
-
-The statistical information is the difference between the minimal risk of an estimator that does not depend on the data and that of a Bayes estimator.
-This is a simple generalization of both the DeGroot statistical information as well as the hockey-stick (or $E_\gamma$) divergence.
-
-\begin{lemma}
-  \label{lem:statInfo_self}
-  %\lean{}
-  %\leanok
-  \uses{def:statInfo}
-  For $\mu \in \mathcal M(\mathcal X)$, $\mathcal I_\xi(\mu, \mu) = 0$~.
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{lem:bayesBinaryRisk_self}
-Use Lemma~\ref{lem:bayesBinaryRisk_self}.
-\end{proof}
-
-\begin{lemma}
-  \label{lem:statInfo_nonneg}
-  %\lean{}
-  %\leanok
-  \uses{def:statInfo}
-  For $\mu, \nu \in \mathcal M(\mathcal X)$, $\mathcal I_\xi(\mu, \nu) \ge 0$~.
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{lem:bayesBinaryRisk_le}
-Use Lemma~\ref{lem:bayesBinaryRisk_le}.
-\end{proof}
-
-\begin{lemma}
-  \label{lem:statInfo_symm}
-  %\lean{}
-  %\leanok
-  \uses{def:statInfo}
-  For $\mu, \nu \in \mathcal M(\mathcal X)$ and $\xi \in \mathcal M(\{0,1\})$, $\mathcal I_\xi(\mu, \nu) = \mathcal I_{\xi_\leftrightarrow}(\nu, \mu)$~.
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{lem:bayesBinaryRisk_symm}
-Use Lemma~\ref{lem:bayesBinaryRisk_symm}.
-\end{proof}
-
-\begin{theorem}[Data-processing inequality]
-  \label{thm:data_proc_statInfo}
-  %\lean{ProbabilityTheory.}
-  %\leanok
-  \uses{def:statInfo}
-  For $\mu, \nu \in \mathcal M(\mathcal X)$, $\xi \in \mathcal M(\{0,1\})$ and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ a Markov kernel, $\mathcal I_\xi(\kappa \circ \mu, \kappa \circ \nu) \le \mathcal I_\xi(\mu, \nu)$~.
-\end{theorem}
-
-\begin{proof}%\leanok
-\uses{thm:data_proc_bayesBinaryRisk, lem:riskIncrease_comp_del}
-It suffices to prove $\mathcal B_\xi(\kappa \circ \mu, \kappa \circ \nu) \ge \mathcal B_\xi(\mu, \nu)$ since $\mathcal I_\xi(\mu, \nu) = \min\{\xi_0, \xi_1\} - \mathcal B_\xi(\mu, \nu)$.
-The inequality was proved in Theorem~\ref{thm:data_proc_bayesBinaryRisk}.
-
-Alternatively, we can use Lemma~\ref{lem:riskIncrease_comp_del}.
-\end{proof}
-
-
-\begin{definition}
-  \label{def:deGrootInfo}
-  \lean{ProbabilityTheory.deGrootInfo}
-  \leanok
-  \uses{def:bayesBinaryRisk, def:statInfo}
-  The DeGroot statistical information between measures $\mu$ and $\nu$ for $\pi \in [0,1]$ is $I_\pi(\mu, \nu) = \min\{\pi, 1 - \pi\} - B_\pi(\mu, \nu)$.
-  That is, $I_\pi(\mu, \nu) = \mathcal I_\xi(\mu, \nu)$ for a prior $\xi$ with $\xi_0 = \pi$ and $\xi_1 = 1-\pi$~.
-\end{definition}
-
-\begin{lemma}
-  \label{lem:deGrootInfo_self}
-  %\lean{}
-  %\leanok
-  \uses{def:deGrootInfo}
-  For $\mu \in \mathcal M(\mathcal X)$, $I_\pi(\mu, \mu) = 0$~.
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{lem:statInfo_self}
-Use Lemma~\ref{lem:statInfo_self}.
-\end{proof}
-
-\begin{lemma}
-  \label{lem:deGrootInfo_nonneg}
-  %\lean{}
-  %\leanok
-  \uses{def:deGrootInfo}
-  For $\mu, \nu \in \mathcal M(\mathcal X)$, $I_\pi(\mu, \nu) \ge 0$~.
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{lem:statInfo_nonneg}
-Use Lemma~\ref{lem:statInfo_nonneg}.
-\end{proof}
-
-\begin{lemma}
-  \label{lem:deGrootInfo_symm}
-  %\lean{}
-  %\leanok
-  \uses{def:deGrootInfo}
-  For $\mu, \nu \in \mathcal M(\mathcal X)$ and $\pi \in [0,1]$, $I_\pi(\mu, \nu) = I_{1 - \pi}(\nu, \mu)$~.
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{lem:statInfo_symm}
-Use Lemma~\ref{lem:statInfo_symm}.
-\end{proof}
-
-\begin{theorem}[Data-processing inequality]
-  \label{thm:data_proc_deGrootInfo}
-  \lean{ProbabilityTheory.deGrootInfo_comp_le}
-  \leanok
-  \uses{def:deGrootInfo}
-  For $\mu, \nu \in \mathcal M(\mathcal X)$ and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ a Markov kernel, $I_\pi(\kappa \circ \mu, \kappa \circ \nu) \le I_\pi(\mu, \nu)$~.
-\end{theorem}
-
-\begin{proof}\leanok
-\uses{thm:data_proc_statInfo}
-Apply Theorem~\ref{thm:data_proc_statInfo}.
-\end{proof}
-
-TODO: once we prove the integral form of any $f$-divergence with respect to the DeGroot statistical information, this will extend the data-processing inequality for all $f$-divergences. 
 
 \section{Reduction to testing}
 

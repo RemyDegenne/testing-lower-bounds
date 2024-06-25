@@ -355,6 +355,8 @@ D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A})
 
 \subsection{Conditional f-divergence}
 
+TODO: replace the definition by $D(\mu \otimes \kappa, \mu \otimes \eta)$, which allows for more a general proof of the "conditioning increases divergence".
+
 \begin{definition}[Conditional f-divergence]
   \label{def:condFDiv}
   \lean{ProbabilityTheory.condFDiv}
@@ -678,11 +680,6 @@ D_f(\kappa \circ \xi, \eta \circ \xi)
 By Theorem~\ref{thm:fDiv_comp_le_condFDiv}, $D_f(\kappa \circ \xi, \eta \circ \xi) \le D_f(\xi \otimes \kappa, \xi \otimes \eta)$.
 \end{proof}
 
-\subsection{Variational representations}
-
-TODO
-
-
 \subsection{Integral representation of $f$-divergences}
 
 TODO: move this subsection earlier?
@@ -693,7 +690,7 @@ It will be used to obtain the most general data-processing inequality.
   %\lean{}
   %\leanok
   \uses{}
-  Let $f: \mathbb{R} \to \mathbb{R}$ be a convex function. Then $f'_+(x) \coloneqq \lim_{y \downarrow x}\frac{f(y) - f(x)}{y - x}$ is a Stieltjes function (a monotone right continuous function) and it defines a measure $\gamma_f$ on $\mathbb{R}$ by $\gamma_f((x,y]) \coloneqq f'_+(y) - f'_+(x)$~. \cite{liese2012phi} calls $\gamma_f$ the curvature measure of $\phi$.
+  Let $f: \mathbb{R} \to \mathbb{R}$ be a convex function. Then $f'_+(x) \coloneqq \lim_{y \downarrow x}\frac{f(y) - f(x)}{y - x}$ is a Stieltjes function (a monotone right continuous function) and it defines a measure $\gamma_f$ on $\mathbb{R}$ by $\gamma_f((x,y]) \coloneqq f'_+(y) - f'_+(x)$~. \cite{liese2012phi} calls $\gamma_f$ the curvature measure of $f$.
 \end{definition}
 
 \begin{lemma}
@@ -760,26 +757,26 @@ It will be used to obtain the most general data-processing inequality.
 \end{proof}
 
 \begin{definition}
-  \label{def:eGammaFun}
+  \label{def:statInfoFun}
   %\lean{}
   %\leanok
   \uses{}
-  For $\gamma \in (0, +\infty)$ let $\phi_\gamma : \mathbb{R} \to \mathbb{R}$ be the function defined by
+  For $a,b \in (0, +\infty)$ let $\phi_{a,b} : \mathbb{R} \to \mathbb{R}$ be the function defined by
   \begin{align*}
-  \phi_\gamma(x) &= \max\left\{0, x - \gamma \right\} & \text{ for } \gamma \ge 1 \: ,
+  \phi_{a,b}(x) &= \max\left\{0, a x - b \right\} & \text{ for } a \le b \: ,
   \\
-  \phi_\gamma(x) &= \max\left\{0, \gamma - x \right\} & \text{ for } \gamma < 1 \: .
+  \phi_{a,b}(x) &= \max\left\{0, b - a x \right\} & \text{ for } a > b \: .
   \end{align*}
 \end{definition}
 
 \begin{corollary}
-  \label{cor:convex_taylor_eGammaFun}
+  \label{cor:convex_taylor_statInfoFun}
   %\lean{}
   %\leanok
-  \uses{def:curvatureMeasure, def:eGammaFun}
+  \uses{def:curvatureMeasure, def:statInfoFun}
   For $f: \mathbb{R} \to \mathbb{R}$ a convex function with $f(1) = 0$ and $f'_+(1) = 0$~, for all $x \in \mathbb{R}$~,
   \begin{align*}
-  f(x) &= \int_{y} \phi_y(x) \partial\gamma_f \: .
+  f(x) &= \int_{y} \phi_{1,y}(x) \partial\gamma_f \: .
   \end{align*}
 \end{corollary}
 
@@ -789,20 +786,20 @@ By Corollary~\ref{cor:convex_taylor_one}, for $x > 1$,
 \begin{align*}
 f(x) = \int_{y \in (1, x]} (x - y) \partial\gamma_f
 &= \int_{y \in (1, +\infty)} \max\{0, x - y\} \partial\gamma_f
-= \int_{y \in (1, +\infty)} \phi_y(x) \partial\gamma_f
+= \int_{y \in (1, +\infty)} \phi_{1,y}(x) \partial\gamma_f
 \: .
 \end{align*}
-That final integral is equal to $\int_y \phi_y(x) \partial\gamma_f$ (without the restriction to $(1, +\infty)$) because $\phi_y(x)$ is zero outside of $(1, +\infty)$ for $x \ge 1$.
+That final integral is equal to $\int_y \phi_{1,y}(x) \partial\gamma_f$ (without the restriction to $(1, +\infty)$) because $\phi_{1,y}(x)$ is zero outside of $(1, +\infty)$ for $x \ge 1$.
 
 The case of $x < 1$ is similar.
 \end{proof}
 
 \begin{lemma}
-  \label{lem:curvatureMeasure_eGammaFun}
+  \label{lem:curvatureMeasure_statInfoFun}
   %\lean{}
   %\leanok
-  \uses{def:curvatureMeasure, def:eGammaFun}
-  The curvature measure of the function $\phi_\gamma$ is $\gamma_{\phi_\gamma} = \delta_\gamma$~, the Dirac measure at $\gamma$.
+  \uses{def:curvatureMeasure, def:statInfoFun}
+  The curvature measure of the function $\phi_{a,b}$ is $\gamma_{\phi_{a,b}} = a\delta_{b/a}$~, where $\delta_x$ is the Dirac measure at $x$.
 \end{lemma}
 
 \begin{proof}%\leanok
@@ -812,61 +809,40 @@ The case of $x < 1$ is similar.
 
 The following theorem is inspired from \cite{liese2006divergences,liese2012phi} but gives a different integral representation.
 
-TODO: The $E_\gamma$ divergence is not defined yet. We need to move some things around.
-
 \begin{theorem}
   \label{thm:fDiv_eq_integral_eGamma}
   %\lean{}
   %\leanok
   \uses{def:fDiv, def:curvatureMeasure, def:eGamma}
+  For $\mu, \nu \in \mathcal M(\mathcal X)$,
   \begin{align*}
-  D_f(\mu, \nu) = f(1) \nu(\mathcal X) + f'_+(1)(\mu(\mathcal X) - \nu(\mathcal X)) + \int_y E_y(\mu, \nu) \partial\gamma_f \: .
+  D_f(\mu, \nu) = f(1) \nu(\mathcal X) + f'_+(1)(\mu(\mathcal X) - \nu(\mathcal X)) + \int_y D_{\phi_{1,y}}(\mu, \nu) \partial\gamma_f \: .
   \end{align*}
-  
 \end{theorem}
+
+For probability measures, $D_{\phi_{1,y}}(\mu, \nu) = E_y(\mu, \nu)$~, but these functions can differ if $\mu$ and $\nu$ are finite measures with different masses.
 
 \begin{proof}%\leanok
 \uses{cor:convex_taylor_one}
+TODO: this proof ignores the non-integral part of divergences and should be fixed.
+
 We prove the result for $f(1) = 0$ and $f'_+(1) = 0$. The general case is then a consequence of Lemma TODO.
 
-From Corollary~\ref{cor:convex_taylor_eGammaFun} we get that $f(x) = \int_y \phi_y(x) \partial\gamma_f$~.
+From Corollary~\ref{cor:convex_taylor_statInfoFun} we get that $f(x) = \int_y \phi_{1,y}(x) \partial\gamma_f$~.
 From this and the theorem of Fubini,
 \begin{align*}
 \int_x f\left( \frac{d \mu}{d \nu}(x) \right) \partial\nu
-= \int_{x} \int_{y} \phi_y \left(\frac{d \mu}{d \nu}(x) \right) \partial\gamma_f \partial\nu
-= \int_{y} \int_{x} \phi_y \left(\frac{d \mu}{d \nu}(x) \right) \partial\nu \partial\gamma_f
+= \int_{x} \int_{y} \phi_{1,y} \left(\frac{d \mu}{d \nu}(x) \right) \partial\gamma_f \partial\nu
+= \int_{y} \int_{x} \phi_{1,y} \left(\frac{d \mu}{d \nu}(x) \right) \partial\nu \partial\gamma_f
 \: .
 \end{align*}
-The inner integral is a divergence: $\int_{x} \phi_y \left(\frac{d \mu}{d \nu}(x) \right) \partial\nu = E_y(\mu, \nu)$~.
-\end{proof}
-
-\begin{definition}
-  \label{def:deGrootFun}
-  %\lean{}
-  %\leanok
-  \uses{}
-  For $\pi \in (0,1)$ let $\psi_\pi : \mathbb{R} \to \mathbb{R}$ be the function defined by
-  \begin{align*}
-  \psi_\pi(x) &= \pi \max\left\{0, x - \frac{1 - \pi}{\pi}\right\} & \text{ for } \pi &\le 1/2 \: ,
-  \\
-  \psi_\pi(x) &= \pi \max\left\{0, \frac{1 - \pi}{\pi} - x\right\} & \text{ for } \pi &> 1/2 \: .
-  \end{align*}
-\end{definition}
-
-\begin{lemma}
-  \label{lem:curvatureMeasure_deGrootFun}
-  %\lean{}
-  %\leanok
-  \uses{def:curvatureMeasure, def:deGrootFun}
-  The curvature measure of the function $\psi_\pi$ is $\gamma_{\psi_\pi} = \pi\delta_{(1 - \pi)/\pi}$~.
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{lem:curvatureMeasure_eGammaFun, lem:curvatureMeasure_mul}
-
+The inner integral is a divergence: $\int_{x} \phi_{1,y} \left(\frac{d \mu}{d \nu}(x) \right) \partial\nu = D_{\phi_{1,y}}(\mu, \nu)$~.
 \end{proof}
 
 TODO: define $\Gamma_f$.
+
+TODO: in the lemma below, $I_\pi(\mu, \nu)$ is the correct value for probability measures, but in general it should be replaced by $D_{\phi_{\pi, 1 - \pi}}(\mu, \nu)$~.
+These functions can differ if $\mu$ and $\nu$ are finite measures with different masses.
 
 \begin{theorem}[\cite{liese2006divergences,liese2012phi}]
   \label{thm:fDiv_eq_integral}
@@ -880,21 +856,14 @@ TODO: define $\Gamma_f$.
 \end{theorem}
 
 \begin{proof}%\leanok
-\uses{cor:convex_taylor_one}
-We prove the result for $f(1) = 0$ and $f'_+(1) = 0$. The general case is then a consequence of Lemma TODO.
-
-From Corollary~\ref{cor:convex_taylor_eGammaFun} we get that $f(x) = \int_y \phi_y(x) \partial\gamma_f$~.
-From this and the theorem of Fubini,
-\begin{align*}
-\int_x f\left( \frac{d \mu}{d \nu}(x) \right) \partial\nu
-&= \int_{x} \int_{y} \phi_y \left(\frac{d \mu}{d \nu}(x) \right) \partial\gamma_f \partial\nu
-\\
-&= \int_{y} \int_{x} \phi_y \left(\frac{d \mu}{d \nu}(x) \right) \partial\nu \partial\gamma_f
-\: .
-\end{align*}
-
+\uses{thm:fDiv_eq_integral_eGamma}
 
 \end{proof}
+
+
+\subsection{Variational representations}
+
+TODO
 
 
 \subsection{Comparisons between divergences}
