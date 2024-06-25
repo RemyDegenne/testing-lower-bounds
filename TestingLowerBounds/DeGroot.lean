@@ -31,6 +31,10 @@ namespace ProbabilityTheory
 variable {𝒳 𝒳' : Type*} {m𝒳 : MeasurableSpace 𝒳} {m𝒳' : MeasurableSpace 𝒳'}
   {μ ν : Measure 𝒳} {p : ℝ≥0∞}
 
+noncomputable
+def statInfo (μ ν : Measure 𝒳) (π : Measure Bool) : ℝ≥0∞ :=
+  min (π {false}) (π {true}) - bayesRiskPrior (simpleBinaryHypTest μ ν) π
+
 /-- The DeGroot statistical information between two measures, for prior Bernoulli `p`. -/
 noncomputable
 def deGrootInfo (μ ν : Measure 𝒳) (p : ℝ≥0∞) (hp : p ≤ 1) : ℝ≥0∞ :=
