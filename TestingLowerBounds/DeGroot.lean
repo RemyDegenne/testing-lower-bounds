@@ -33,7 +33,7 @@ variable {𝒳 𝒳' : Type*} {m𝒳 : MeasurableSpace 𝒳} {m𝒳' : Measurabl
 
 noncomputable
 def statInfo (μ ν : Measure 𝒳) (π : Measure Bool) : ℝ≥0∞ :=
-  min (π {false} * μ Set.univ) (π {true} * μ Set.univ) - bayesRiskPrior (simpleBinaryHypTest μ ν) π
+  min (π {false} * μ Set.univ) (π {true} * μ Set.univ) - bayesBinaryRisk' μ ν π
 
 /-- **Data processing inequality** for the statistical information. -/
 lemma statInfo_comp_le (μ ν : Measure 𝒳) (π : Measure Bool) (η : kernel 𝒳 𝒳') [IsMarkovKernel η] :

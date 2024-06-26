@@ -35,6 +35,8 @@ variable {Θ 𝒳 𝒳' 𝒴 𝒵 : Type*} {mΘ : MeasurableSpace Θ} {m𝒳 : M
   {m𝒳' : MeasurableSpace 𝒳'} {m𝒴 : MeasurableSpace 𝒴} {m𝒵 : MeasurableSpace 𝒵}
   {μ ν : Measure 𝒳} {p : ℝ≥0∞}
 
+section TwoHypKernel
+
 /-- The kernel that sends `false` to `μ` and `true` to `ν`. -/
 def twoHypKernel (μ ν : Measure 𝒳) : kernel Bool 𝒳 where
   val := fun b ↦ bif b then ν else μ
@@ -175,6 +177,10 @@ lemma bayesInv_twoHypKernel (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFinit
   · simp only [cond_true]
     sorry
 
+end TwoHypKernel
+
+section SimpleBinaryHypTest
+
 @[simps]
 noncomputable
 def simpleBinaryHypTest (μ ν : Measure 𝒳) : estimationProblem Bool 𝒳 Bool Bool where
@@ -227,6 +233,8 @@ lemma risk_simpleBinaryHypTest_false (μ ν : Measure 𝒳) (κ : kernel 𝒳 Bo
       exact absurd (h2.symm.trans h1) Bool.false_ne_true
   _ = (μ ∘ₘ ⇑κ) {true} := lintegral_indicator_one (measurableSet_singleton _)
 
+end SimpleBinaryHypTest
+
 /-- The Bayes risk of simple binary hypothesis testing with respect to a prior. -/
 noncomputable
 def bayesBinaryRisk' (μ ν : Measure 𝒳) (π : Measure Bool) : ℝ≥0∞ :=
@@ -255,6 +263,25 @@ lemma bayesBinaryRisk'_self (μ : Measure 𝒳) (π : Measure Bool) :
 
 lemma bayesBinaryRisk'_le_min (μ ν : Measure 𝒳) (π : Measure Bool) :
     bayesBinaryRisk' μ ν π ≤ min (π {true} * μ Set.univ) (π {false} * ν Set.univ) := by
+  sorry
+
+lemma bayesBinaryRisk'_dirac (a b : ℝ≥0∞) (x : 𝒳) (π : Measure Bool) :
+    bayesBinaryRisk' (a • Measure.dirac x) (b • Measure.dirac x) π
+      = min (π {true} * b) (π {false} * a) := by
+  rw [bayesBinaryRisk'_eq]
+  have (κ : kernel 𝒳 Bool) [IsMarkovKernel κ] :
+      π {true} * ((b • Measure.dirac x) ∘ₘ κ) {false}
+        + π {false} * ((a • Measure.dirac x) ∘ₘ κ) {true}
+      = (π {true} * b) * κ x {false} + (π {false} * a) * κ x {true} := by
+    have (b : ℝ≥0∞) : (b • Measure.dirac x) ∘ₘ κ = b • κ x := by
+      ext s hs
+      simp only [Measure.bind_apply hs (kernel.measurable _), lintegral_smul_measure,
+        Measure.smul_apply, smul_eq_mul]
+      rw [lintegral_dirac']
+      exact kernel.measurable_coe _ hs
+    simp_rw [this]
+    simp only [Measure.smul_apply, smul_eq_mul, mul_assoc]
+  simp_rw [this]
   sorry
 
 -- TODO: in the definition below, remove the `p ≤ 1` hypothesis?
