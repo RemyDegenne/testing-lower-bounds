@@ -74,6 +74,7 @@ end Copy
 
 section Discard
 
+/-- The Markov kernel to the `Unit` type. -/
 noncomputable
 def discard (α : Type*) [MeasurableSpace α] : kernel α Unit :=
   kernel.deterministic (fun _ ↦ ()) measurable_const
@@ -84,8 +85,8 @@ instance : IsMarkovKernel (discard α) := by rw [discard]; infer_instance
 lemma discard_apply (a : α) : discard α a = Measure.dirac () := deterministic_apply _ _
 
 @[simp]
-lemma comp_discard (κ : kernel α β) [IsMarkovKernel κ] :
-    discard β ∘ₖ κ = discard α := by ext a s hs; simp [comp_apply' _ _ _ hs]
+lemma comp_discard (κ : kernel α β) [IsMarkovKernel κ] : discard β ∘ₖ κ = discard α := by
+  ext a s hs; simp [comp_apply' _ _ _ hs]
 
 end Discard
 
