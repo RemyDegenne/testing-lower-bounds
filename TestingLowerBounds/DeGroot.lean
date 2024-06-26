@@ -33,7 +33,14 @@ variable {𝒳 𝒳' : Type*} {m𝒳 : MeasurableSpace 𝒳} {m𝒳' : Measurabl
 
 noncomputable
 def statInfo (μ ν : Measure 𝒳) (π : Measure Bool) : ℝ≥0∞ :=
-  min (π {false}) (π {true}) - bayesRiskPrior (simpleBinaryHypTest μ ν) π
+  min (π {false} * μ Set.univ) (π {true} * μ Set.univ) - bayesRiskPrior (simpleBinaryHypTest μ ν) π
+
+/-- **Data processing inequality** for the statistical information. -/
+lemma statInfo_comp_le (μ ν : Measure 𝒳) (π : Measure Bool) (η : kernel 𝒳 𝒳') [IsMarkovKernel η] :
+    statInfo (μ ∘ₘ η) (ν ∘ₘ η) π ≤ statInfo μ ν π := by
+  refine tsub_le_tsub ?_ (bayesBinaryRisk'_le_bayesBinaryRisk'_comp _ _ _ _)
+  rw [Measure.bind_apply MeasurableSet.univ (kernel.measurable _)]
+  simp
 
 /-- The DeGroot statistical information between two measures, for prior Bernoulli `p`. -/
 noncomputable

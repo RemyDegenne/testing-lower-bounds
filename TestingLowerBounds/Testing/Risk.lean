@@ -34,6 +34,8 @@ variable {Θ Θ' 𝒳 𝒳' 𝒳'' 𝒴 𝒵 : Type*} {mΘ : MeasurableSpace Θ}
   {m𝒴 : MeasurableSpace 𝒴} {m𝒵 : MeasurableSpace 𝒵}
   {μ ν : Measure 𝒳}
 
+section EstimationProblem
+
 /-- An estimation problem: a kernel `P` from a parameter space `Θ` to a sample space `𝒳`,
 an objective function `y` on the parameter space and a cost function `ℓ`. -/
 @[ext]
@@ -71,10 +73,15 @@ lemma estimationProblem.comp_comp (E : estimationProblem Θ 𝒳 𝒴 𝒵) (κ 
     (E.comp κ).comp η = E.comp (η ∘ₖ κ) := by
   ext <;> simp [kernel.comp_assoc]
 
+end EstimationProblem
+
+/-- The risk of an estimator `κ` on an estimation problem `E` at the parameter `θ`. -/
 noncomputable
 def risk (E : estimationProblem Θ 𝒳 𝒴 𝒵) (κ : kernel 𝒳 𝒵) (θ : Θ) : ℝ≥0∞ :=
   ∫⁻ z, E.ℓ (E.y θ, z) ∂((κ ∘ₖ E.P) θ)
 
+/-- The bayesian risk of an estimator `κ` on an estimation problem `E` with respect to
+a prior `π`. -/
 noncomputable
 def bayesianRisk (E : estimationProblem Θ 𝒳 𝒴 𝒵) (κ : kernel 𝒳 𝒵) (π : Measure Θ) : ℝ≥0∞ :=
   ∫⁻ θ, risk E κ θ ∂π
@@ -103,6 +110,8 @@ lemma bayesianRisk_comap_measurableEquiv (E : estimationProblem Θ 𝒳 𝒴 �
     refine E.ℓ_meas.comp ?_
     exact (E.y_meas.comp (e.symm.measurable.comp measurable_fst)).prod_mk measurable_snd
 
+/-- The Bayes risk of an estimation problem `E` with respect to a prior `π`, defined as the infimum
+of the Bayesian risks of all estimators. -/
 noncomputable
 def bayesRiskPrior (E : estimationProblem Θ 𝒳 𝒴 𝒵) (π : Measure Θ) : ℝ≥0∞ :=
   ⨅ (κ : kernel 𝒳 𝒵) (_ : IsMarkovKernel κ), bayesianRisk E κ π
@@ -118,13 +127,18 @@ lemma bayesRiskPrior_le_bayesRiskPrior_comp (E : estimationProblem Θ 𝒳 𝒴 
   rw [← kernel.comp_assoc κ η]
   exact iInf_le_of_le (κ ∘ₖ η) (iInf_le_of_le inferInstance le_rfl)
 
+/-- An estimator is a Bayes estimator for a prior `π` if it attains the Bayes risk for `π`. -/
 def IsBayesEstimator (E : estimationProblem Θ 𝒳 𝒴 𝒵) (κ : kernel 𝒳 𝒵) (π : Measure Θ) : Prop :=
   bayesianRisk E κ π = bayesRiskPrior E π
 
+/-- The Bayes risk of an estimation problem `E`, defined as the supremum over priors of the Bayes
+risk of `E` with respect to the prior. -/
 noncomputable
 def bayesRisk (E : estimationProblem Θ 𝒳 𝒴 𝒵) : ℝ≥0∞ :=
   ⨆ (π : Measure Θ) (_ : IsProbabilityMeasure π), bayesRiskPrior E π
 
+/-- The Bayes risk of an estimation problem `E`, defined as the infimum over estimators of the
+maximal risk of the estimator. -/
 noncomputable
 def minimaxRisk (E : estimationProblem Θ 𝒳 𝒴 𝒵) : ℝ≥0∞ :=
   ⨅ (κ : kernel 𝒳 𝒵) (_ : IsMarkovKernel κ), ⨆ θ, risk E κ θ
