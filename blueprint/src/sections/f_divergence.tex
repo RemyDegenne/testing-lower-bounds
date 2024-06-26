@@ -676,7 +676,7 @@ D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A})
 \subsection{Data-processing inequality: kernel proof}
 
 \begin{theorem}
-  \label{thm:fDiv_le_compProd}
+  \label{thm:fDiv_le_compProd_1}
   \lean{ProbabilityTheory.le_fDiv_compProd}
   \leanok
   \uses{def:fDiv}
@@ -713,7 +713,7 @@ D_f(\mu \otimes \kappa, \nu \otimes \eta)
 \end{proof}
 
 \begin{theorem}[Marginals]
-  \label{thm:fDiv_fst_le}
+  \label{thm:fDiv_fst_le_1}
   \lean{ProbabilityTheory.fDiv_fst_le}
   \leanok
   \uses{def:fDiv}
@@ -723,13 +723,13 @@ D_f(\mu \otimes \kappa, \nu \otimes \eta)
 \end{theorem}
 
 \begin{proof}\leanok
-\uses{thm:fDiv_le_compProd, lem:fDiv_map_measurableEmbedding}
-We introduce conditional kernels and write $D(\mu, \nu) = D(\mu_X \otimes \mu_{Y|X}, \nu_X \otimes \nu_{Y|X})$. Then apply Theorem~\ref{thm:fDiv_le_compProd}.
+\uses{thm:fDiv_le_compProd_1, lem:fDiv_map_measurableEmbedding}
+We introduce conditional kernels and write $D(\mu, \nu) = D(\mu_X \otimes \mu_{Y|X}, \nu_X \otimes \nu_{Y|X})$. Then apply Theorem~\ref{thm:fDiv_le_compProd_1}.
 For the second statement, we need Lemma~\ref{lem:fDiv_map_measurableEmbedding} to swap the role of the two coordinates.
 \end{proof}
 
 \begin{lemma}[Composition-product with a kernel]
-  \label{thm:fDiv_compProd_right}
+  \label{thm:fDiv_compProd_right_1}
   \lean{ProbabilityTheory.fDiv_compProd_right}
   \leanok
   \uses{def:fDiv}
@@ -756,7 +756,7 @@ D_f(\mu \otimes \kappa, \nu \otimes \kappa)
 \end{proof}
 
 \begin{corollary}
-  \label{cor:fDiv_prod_right}
+  \label{cor:fDiv_prod_right_1}
   %\lean{}
   %\leanok
   \uses{def:fDiv}
@@ -765,12 +765,12 @@ D_f(\mu \otimes \kappa, \nu \otimes \kappa)
 \end{corollary}
 
 \begin{proof}
-\uses{thm:fDiv_compProd_right}
-Apply Lemma~\ref{thm:fDiv_compProd_right} with $\kappa$ the constant kernel with value $\xi$.
+\uses{thm:fDiv_compProd_right_1}
+Apply Lemma~\ref{thm:fDiv_compProd_right_1} with $\kappa$ the constant kernel with value $\xi$.
 \end{proof}
 
 \begin{lemma}
-  \label{lem:fDiv_comp_le_compProd}
+  \label{lem:fDiv_comp_le_compProd_1}
   \lean{ProbabilityTheory.fDiv_comp_le_compProd}
   \leanok
   \uses{def:fDiv}
@@ -779,12 +779,12 @@ Apply Lemma~\ref{thm:fDiv_compProd_right} with $\kappa$ the constant kernel with
 \end{lemma}
 
 \begin{proof}\leanok
-\uses{thm:fDiv_fst_le}
-By definition, $\kappa \circ \mu$ is the marginal of $\mu \otimes \kappa$ (a measure on $\mathcal X \times \mathcal Y$) on $\mathcal Y$, and similarly for the other measure. Hence by Theorem~\ref{thm:fDiv_fst_le}, $D_f(\kappa \circ \mu, \eta \circ \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \eta)$. 
+\uses{thm:fDiv_fst_le_1}
+By definition, $\kappa \circ \mu$ is the marginal of $\mu \otimes \kappa$ (a measure on $\mathcal X \times \mathcal Y$) on $\mathcal Y$, and similarly for the other measure. Hence by Theorem~\ref{thm:fDiv_fst_le_1}, $D_f(\kappa \circ \mu, \eta \circ \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \eta)$. 
 \end{proof}
 
 \begin{theorem}[Conditioning increases f-divergence]
-  \label{thm:fDiv_comp_le_condFDiv}
+  \label{thm:fDiv_comp_le_condFDiv_1}
   \lean{ProbabilityTheory.fDiv_comp_left_le}
   \leanok
   \uses{def:fDiv, def:condFDiv}
@@ -793,12 +793,12 @@ By definition, $\kappa \circ \mu$ is the marginal of $\mu \otimes \kappa$ (a mea
 \end{theorem}
 
 \begin{proof}\leanok
-\uses{lem:fDiv_comp_le_compProd, lem:fDiv_compProd_left}
-By Lemma~\ref{lem:fDiv_comp_le_compProd}, $D_f(\kappa \circ \mu, \eta \circ \mu) \le D_f(\mu \otimes \kappa, \mu \otimes \eta)$. This is equal to $D_f(\kappa, \eta \mid \mu)$ by Lemma~\ref{lem:fDiv_compProd_left}.
+\uses{lem:fDiv_comp_le_compProd_1, lem:fDiv_compProd_left}
+By Lemma~\ref{lem:fDiv_comp_le_compProd_1}, $D_f(\kappa \circ \mu, \eta \circ \mu) \le D_f(\mu \otimes \kappa, \mu \otimes \eta)$. This is equal to $D_f(\kappa, \eta \mid \mu)$ by Lemma~\ref{lem:fDiv_compProd_left}.
 \end{proof}
 
 \begin{theorem}[Data-processing]
-  \label{thm:fDiv_data_proc}
+  \label{thm:fDiv_data_proc_1}
   \lean{ProbabilityTheory.fDiv_comp_right_le}
   \leanok
   \uses{def:fDiv}
@@ -807,8 +807,8 @@ By Lemma~\ref{lem:fDiv_comp_le_compProd}, $D_f(\kappa \circ \mu, \eta \circ \mu)
 \end{theorem}
 
 \begin{proof}\leanok
-\uses{lem:fDiv_comp_le_compProd, thm:fDiv_compProd_right}
-By Lemma~\ref{lem:fDiv_comp_le_compProd}, $D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \kappa)$. Then the latter is equal to $D_f(\mu, \nu)$ by Lemma~\ref{thm:fDiv_compProd_right}.
+\uses{lem:fDiv_comp_le_compProd_1, thm:fDiv_compProd_right_1}
+By Lemma~\ref{lem:fDiv_comp_le_compProd_1}, $D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \kappa)$. Then the latter is equal to $D_f(\mu, \nu)$ by Lemma~\ref{thm:fDiv_compProd_right_1}.
 \end{proof}
 
 
@@ -821,8 +821,8 @@ By Lemma~\ref{lem:fDiv_comp_le_compProd}, $D_f(\kappa \circ \mu, \kappa \circ \n
 \end{corollary}
 
 \begin{proof}
-\uses{thm:fDiv_data_proc}
-Use the deterministic kernel $\kappa : \mathcal X \rightsquigarrow \{0, 1\}$ with $\kappa(x) = \delta_1 \mathbb{I}\{x \in E\} + \delta_0 \mathbb{I}\{x \notin E\}$ in Theorem~\ref{thm:fDiv_data_proc}.
+\uses{thm:fDiv_data_proc_1}
+Use the deterministic kernel $\kappa : \mathcal X \rightsquigarrow \{0, 1\}$ with $\kappa(x) = \delta_1 \mathbb{I}\{x \in E\} + \delta_0 \mathbb{I}\{x \notin E\}$ in Theorem~\ref{thm:fDiv_data_proc_1}.
 \end{proof}
 
 \begin{lemma}
@@ -834,9 +834,9 @@ Use the deterministic kernel $\kappa : \mathcal X \rightsquigarrow \{0, 1\}$ wit
 \end{lemma}
 
 \begin{proof}
-\uses{thm:fDiv_data_proc, thm:fDiv_fst_le}
-$D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu, \nu)$ by Theorem~\ref{thm:fDiv_data_proc}.
-For the other inequality, remark that $\mu = (\kappa \circ \mu)_X$ (and similarly for $\nu$). Hence by Theorem~\ref{thm:fDiv_fst_le} $D_f(\mu, \nu) \le D_f(\kappa \circ \mu, \kappa \circ \nu)$.
+\uses{thm:fDiv_data_proc_1, thm:fDiv_fst_le_1}
+$D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu, \nu)$ by Theorem~\ref{thm:fDiv_data_proc_1}.
+For the other inequality, remark that $\mu = (\kappa \circ \mu)_X$ (and similarly for $\nu$). Hence by Theorem~\ref{thm:fDiv_fst_le_1} $D_f(\mu, \nu) \le D_f(\kappa \circ \mu, \kappa \circ \nu)$.
 \end{proof}
 
 
@@ -890,7 +890,7 @@ D_{\phi_{a,b}}(\kappa \circ \mu, \kappa \circ \nu)
 \end{theorem}
 
 \begin{proof}%\leanok
-\uses{thm:fDiv_eq_integral_eGamma, thm:data_proc_eGamma}
+\uses{thm:fDiv_eq_integral_eGamma, lem:fDiv_phi_data_proc}
 By Theorem~\ref{thm:fDiv_eq_integral_eGamma},
 \begin{align*}
 D_f(\mu, \nu) = f(1) \nu(\mathcal X) + f'_+(1) (\mu(\mathcal X) - \nu (\mathcal X)) + \int_y D_{\phi_{1,y}}(\mu, \nu) \partial\gamma_f \: .
@@ -929,7 +929,35 @@ The first two terms are unchanged by composition with a Markov kernel. It thus s
 \end{proof}
 
 
+\begin{theorem}[Conditioning increases f-divergence]
+  \label{thm:fDiv_comp_le_condFDiv_2}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv, def:condFDiv}
+  Let $\mu$ be a finite measure $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels.
+  Then $D_f(\kappa \circ \mu, \eta \circ \mu) \le D_f(\mu \otimes \kappa, \mu \otimes \eta)$~.
+\end{theorem}
 
+\begin{proof}%\leanok
+\uses{thm:fDiv_comp_le_compProd_2}
+This is a particular case of Theorem~\ref{thm:fDiv_comp_le_compProd_2}.
+\end{proof}
+
+
+\begin{theorem}[Marginals]
+  \label{thm:fDiv_fst_le_2}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  Let $\mu$ and $\nu$ be two measures on $\mathcal X \times \mathcal Y$, and let $\mu_X, \nu_X$ be their marginals on $\mathcal X$.
+  Then $D_f(\mu_X, \nu_X) \le D_f(\mu, \nu)$.
+  Similarly, for $\mu_Y, \nu_Y$ the marginals on $\mathcal Y$, $D_f(\mu_Y, \nu_Y) \le D_f(\mu, \nu)$.
+\end{theorem}
+
+\begin{proof}%\leanok
+\uses{thm:fDiv_data_proc_2}
+
+\end{proof}
 
 \subsection{Convexity}
 
@@ -942,7 +970,7 @@ The first two terms are unchanged by composition with a Markov kernel. It thus s
 \end{theorem}
 
 \begin{proof}
-\uses{thm:fDiv_comp_le_condFDiv}
+\uses{thm:fDiv_comp_le_condFDiv_2}
 Let $\mu_0, \mu_1, \nu_0, \nu_1$ be four measures. Let $\lambda \in [0,1]$. Let $\xi$ be the probability measure on $\{0,1\}$ with $\xi(\{1\}) = \lambda$.
 Let $\kappa$ be the kernel $\{0,1\} \rightsquigarrow \mathcal X$ defined by $\kappa(0) = \mu_0$ and $\kappa(1) = \mu_1$.
 Let $\eta$ be the kernel $\{0,1\} \rightsquigarrow \mathcal X$ defined by $\eta(0) = \nu_0$ and $\eta(1) = \nu_1$.
@@ -955,7 +983,7 @@ D_f(\kappa \circ \xi, \eta \circ \xi)
 &= D_f((1 - \lambda)\mu_0 + \lambda \mu_1, (1 - \lambda)\nu_0 + \lambda \nu_1)
 \: .
 \end{align*}
-By Theorem~\ref{thm:fDiv_comp_le_condFDiv}, $D_f(\kappa \circ \xi, \eta \circ \xi) \le D_f(\xi \otimes \kappa, \xi \otimes \eta)$.
+By Theorem~\ref{thm:fDiv_comp_le_condFDiv_2}, $D_f(\kappa \circ \xi, \eta \circ \xi) \le D_f(\xi \otimes \kappa, \xi \otimes \eta)$.
 \end{proof}
 
 
