@@ -37,3 +37,16 @@ This is a reformulation of Lemma~\ref{lem:deGrootInfo_eq_integral}.
 \uses{lem:eGamma_eq_integral}
 This is a reformulation of Lemma~\ref{lem:eGamma_eq_integral}.
 \end{proof}
+
+\begin{lemma}
+  \label{lem:tv_eq_fDiv}
+  %\lean{}
+  %\leanok
+  \uses{def:TV, def:fDiv}
+  On probability measures, the total variation distance $\TV$ is an $f$-divergence for the function $x \mapsto \frac{1}{2}\vert x - 1 \vert$.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:tv_eq_integral_abs}
+This is a reformulation of Lemma~\ref{lem:tv_eq_integral_abs}.
+\end{proof}

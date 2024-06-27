@@ -1,124 +1,6 @@
 \subsection{Total variation distance}
 
-\begin{definition}[TV distance]
-  \label{def:TV}
-  \lean{ProbabilityTheory.tv}
-  \leanok
-  \uses{def:fDiv}
-  Let $\mu, \nu$ be two measures on $\mathcal X$. The total variation distance between $\mu$ and $\nu$ is
-  \begin{align*}
-  \TV(\mu, \nu) = D_f(\mu, \nu) \quad \text{with } f: x \mapsto \frac{1}{2}\vert x - 1 \vert \: .
-  \end{align*}
-\end{definition}
-
-\begin{lemma}
-  \label{lem:TV_eq_deGrootInfo_half}
-  %\lean{}
-  %\leanok
-  \uses{def:deGrootInfo, def:TV}
-  For $\mu, \nu \in \mathcal P(\mathcal X)$, $\TV(\mu, \nu) = 2 I_{1/2}(\mu, \nu)$~.
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{}
-
-\end{proof}
-
-\begin{lemma}
-  \label{lem:TV_eq_eGamma_one}
-  %\lean{}
-  %\leanok
-  \uses{def:eGamma, def:TV}
-  For $\mu, \nu \in \mathcal P(\mathcal X)$, $\TV(\mu, \nu) = E_1(\mu, \nu)$~.
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{}
-
-\end{proof}
-
-\begin{lemma}
-  \label{lem:tv_nonneg}
-  %\lean{}
-  %\leanok
-  \uses{def:TV}
-  $\TV(\mu, \nu) \ge 0$.
-\end{lemma}
-
-\begin{proof}
-\begin{align*}
-\TV(\mu, \nu)
-= \frac{1}{2}\nu\left[ \vert \frac{d\mu}{d\nu} - 1 \vert \right] + \frac{1}{2}\mu_{\perp \nu}(\mathcal X).
-\end{align*}
-Both terms are nonnegative.
-\end{proof}
-
-\begin{lemma}
-  \label{lem:tv_le_add}
-  %\lean{}
-  %\leanok
-  \uses{def:TV}
-  $\TV(\mu, \nu) \le \frac{1}{2}\nu(\mathcal X) + \frac{1}{2}\mu(\mathcal X)$.
-\end{lemma}
-
-\begin{proof}
-Apply Lemma TODO (fDiv\_le\_zero\_add\_top in the code, not in the blueprint yet).
-\end{proof}
-
-
-\begin{lemma}
-  \label{lem:tv_le_one}
-  %\lean{}
-  %\leanok
-  \uses{def:TV}
-  For probability measures,
-  $\TV(\mu, \nu) \le 1$.
-\end{lemma}
-
-\begin{proof}
-\uses{lem:tv_le_add}
-By Lemma~\ref{lem:tv_le_add}, $\TV(\mu, \nu) \le \frac{1}{2}\nu(\mathcal X) + \frac{1}{2}\mu(\mathcal X) = 1$~.
-\end{proof}
-
-\begin{lemma}
-  \label{lem:tv_eq_integral_abs}
-  %\lean{}
-  %\leanok
-  \uses{def:TV}
-  let $\xi$ be a dominating measure of $\mu$ and $\nu$. Then
-  $\TV(\mu, \nu) = \frac{1}{2}\int_x \left\vert \frac{d\mu}{d\xi}(x) - \frac{d\nu}{d\xi}(x) \right\vert \partial\xi$.
-\end{lemma}
-
-\begin{proof}%\leanok
-\end{proof}
-
-\begin{lemma}
-  \label{lem:one_sub_tv_eq_integral_min}
-  %\lean{}
-  %\leanok
-  \uses{def:TV}
-  For probability measures $\mu, \nu$, and a dominating measure $\xi$,
-  \begin{align*}
-  1 - \TV(\mu, \nu)
-  = \int_x \min\left\{ \frac{d\mu}{d\xi}(x), \frac{d\nu}{d\xi}(x)\right\}\partial \xi
-  \: .
-  \end{align*}
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{lem:tv_eq_integral_abs}
-The key identity is $\min\{x, y\} = \frac{1}{2}\left(x + y - \vert x - y \vert\right)$.
-By Lemma~\ref{lem:tv_eq_integral_abs}, then that identity,
-\begin{align*}
-1 - \TV(\mu, \nu)
-&= 1 - \frac{1}{2}\int_x \left\vert \frac{d\mu}{d\xi}(x) - \frac{d\nu}{d\xi}(x)\right\vert \partial \xi
-\\
-&= 1 - \frac{1}{2}\int_x \frac{d\mu}{d\xi}(x) + \frac{d\nu}{d\xi}(x) - 2\min\left\{ \frac{d\mu}{d\xi}(x), \frac{d\nu}{d\xi}(x)\right\} \partial \xi
-\\
-&= \int_x \min\left\{ \frac{d\mu}{d\xi}(x), \frac{d\nu}{d\xi}(x)\right\}\partial \xi
-\: .
-\end{align*}
-\end{proof}
+TODO: this should be adapted to the new TV definition. This section is a draft.
 
 \begin{lemma}
   \label{lem:tv_eq_sup_aux}
@@ -126,11 +8,11 @@ By Lemma~\ref{lem:tv_eq_integral_abs}, then that identity,
   %\leanok
   \uses{def:TV}
   Let $\mathcal F = \{f : \mathcal X \to \mathbb{R} \mid \Vert f \Vert_\infty \le 1\}$.
-  Then $\frac{1}{2} \sup_{f \in \mathcal F} \left( \mu[f] - \nu[f] \right) \le \TV(\mu, \nu)$.
+  Then for $\mu, \nu $ with $\mu(\mathcal X) = \nu(\mathcal X)$, $\frac{1}{2} \sup_{f \in \mathcal F} \left( \mu[f] - \nu[f] \right) \le \TV(\mu, \nu)$.
 \end{lemma}
 
 \begin{proof}
-\uses{lem:tv_eq_integral_abs}
+\uses{lem:tv_eq_integral_abs_sub}
 Let $p,q$ be the respective densities of $\mu, \nu$ with respect to $\xi=\mu+\nu$.
 For any $f \in \mathcal F$,
 \begin{align*}
@@ -142,7 +24,7 @@ For any $f \in \mathcal F$,
 = 2 \TV(\mu, \nu)
 \: .
 \end{align*}
-The last equality is Lemma~\ref{lem:tv_eq_integral_abs}.
+The last equality is Lemma~\ref{lem:tv_eq_integral_abs_sub}.
 \end{proof}
 
 \begin{theorem}
@@ -192,20 +74,6 @@ TODO: extract equality case from the proof of Theorem~\ref{thm:tv_eq_sup_sub_mea
 \end{proof}
 
 \subsubsection{Properties inherited from f-divergences}
-
-\begin{theorem}[Data-processing]
-  \label{thm:tv_data_proc}
-  %\lean{}
-  %\leanok
-  \uses{def:TV}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
-  Then $\TV(\kappa \circ \mu, \kappa \circ \nu) \le \TV(\mu, \nu)$.
-\end{theorem}
-
-\begin{proof}
-\uses{thm:fDiv_data_proc_2}
-Apply Theorem~\ref{thm:fDiv_data_proc_2}.
-\end{proof}
 
 \begin{lemma}
   \label{lem:tv_data_proc_event}
