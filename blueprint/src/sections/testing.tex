@@ -13,19 +13,12 @@ For the sum $\mu(E) + \nu(E^c)$, the value of the optimal test is exactly $1 - \
   %\lean{}
   %\leanok
   \uses{def:TV}
-  Let $\mu, \nu$ be two probability measures on $\mathcal X$. Then $\inf_{E \text{ event}}\{\mu(E) + \nu(E^c)\} = 1 - \TV(\mu, \nu)$~.
+  Let $\mu, \nu$ be two probability measures. Then $\inf_{E \text{ event}}\{\mu(E) + \nu(E^c)\} = 1 - \TV(\mu, \nu)$~.
 \end{theorem}
 
 \begin{proof}
-\uses{thm:tv_eq_sup_sub_measure}
-By Theorem~\ref{thm:tv_eq_sup_sub_measure},
-\begin{align*}
--TV(\mu, \nu)
-= -\sup_{E \text{ event}} \left( \mu(E) - \nu(E) \right)
-=\inf_{E \text{ event}} \left(\nu(E) - \mu(E) \right)
-= \inf_{E \text{ event}} \left( \nu(E) + \mu(E^c) \right) - 1
-\: .
-\end{align*}
+\uses{lem:tv_eq_sub_inf_event}
+This is a special case of Lemma~\ref{lem:tv_eq_sub_inf_event}.
 \end{proof}
 
 The drawback of $\TV$ is that it is not easy to manipulate. In particular, it does not tensorize. In order to quantify error probabilities on product spaces like $\mu^{\otimes n}(E) + \nu^{\otimes n}(E^c)$, we use other divergences.
