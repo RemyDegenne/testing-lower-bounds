@@ -1,6 +1,10 @@
 A divergence between measures is a function which maps two measures on any common space $\mathcal X$ to a value in $[-\infty, +\infty]$.
 For two probability measures $\mu$ and $\nu$, we will want the divergence $D(\mu, \nu)$ to be non-negative and to be zero if $\mu = \nu$~: divergences are meant to be notions of dissimilarity between measures.
 
+We will pay particular attention to how the divergence behaves with respect to transformations of the measures.
+For a Markov kernel $\kappa : \mathcal X \rightsquigarrow \mathcal Y$~, a fundamental property of all divergences we will consider is the \emph{data-processing inequality}, which states that $D(\kappa \circ \mu, \kappa \circ \nu) \le D(\mu, \nu)$.
+That is, processing data with a (possibly random) common transformation $\kappa$ can only lose information about the difference between the two measures.
+
 \section{Statistical divergences}
 
 \begin{definition}
@@ -91,6 +95,21 @@ It suffices to prove $\mathcal B_\xi(\kappa \circ \mu, \kappa \circ \nu) \ge \ma
 The inequality was proved in Theorem~\ref{thm:data_proc_bayesBinaryRisk}.
 
 Alternatively, we can use Lemma~\ref{lem:riskIncrease_comp_del}.
+\end{proof}
+
+
+\begin{corollary}
+  \label{cor:statInfo_data_proc_event}
+  %\lean{}
+  %\leanok
+  \uses{def:statInfo}
+  Let $\mu, \nu$ be two measures on $\mathcal X$, $\xi \in \mathcal M(\{0,1\})$ and let $E$ be an event on $\mathcal X$. Let $\mu_E$ and $\nu_E$ be the two Bernoulli distributions with respective means $\mu(E)$ and $\nu(E)$.
+  Then $\mathcal I_\xi(\mu, \nu) \ge \mathcal I_\xi(\mu_E, \nu_E)$.
+\end{corollary}
+
+\begin{proof}
+\uses{thm:data_proc_statInfo}
+Apply Theorem~\ref{thm:data_proc_statInfo} to the deterministic kernel $\mathcal X \rightsquigarrow \{0,1\}$ given by the function $x \mapsto \mathbb{I}\{x \in E\}$.
 \end{proof}
 
 
@@ -635,8 +654,7 @@ The bayes estimator is a function of the form $x \mapsto \mathbb{I}\{x \in E\}$ 
   Then $\TV(\mu, \nu) \ge \TV(\mu_E, \nu_E)$.
 \end{lemma}
 
-TODO: write a version of this for $\mathcal I_\xi(\mu, \nu)$.
-
 \begin{proof}
-\uses{}
+\uses{cor:statInfo_data_proc_event}
+Apply Corollary~\ref{cor:statInfo_data_proc_event}.
 \end{proof}

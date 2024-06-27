@@ -549,6 +549,31 @@ The generalized Bayes estimator is $x \mapsto \text{if } P_\xi^\dagger(x)(\{1\})
 The expression of the lemma statement is obtained by replacing $P_\xi^\dagger$ by its value (Lemma~\ref{lem:bayesInv_binary}).
 \end{proof}
 
+
+\begin{lemma}
+  \label{lem:bayesBinaryRisk_eq_event}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesRisk}
+  \begin{align*}
+  \mathcal B_\xi(\mu, \nu) = \inf_{E \text{ event}} \left( \xi_0 \mu(E) + \xi_1 \nu(E^c) \right) \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:genBayesEstimator_bayesBinaryRisk}
+By definition,
+\begin{align*}
+\mathcal B_\xi(\mu, \nu)
+= \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\xi_0 (\hat{y} \circ \mu)(\{1\}) + \xi_1 (\hat{y} \circ \nu)(\{0\})\right)
+\: .
+\end{align*}
+If we restrict the infimum to deterministic kernels corresponding to functions of the form $x \mapsto \mathbb{I}\{x \in E\}$, we get that $\mathcal B_\xi(\mu, \nu)$ is bounded from above by the expression for which we want to show equality.
+
+Since the Bayes estimator has that shape (Lemma~\ref{lem:genBayesEstimator_bayesBinaryRisk}), $\mathcal B_\xi(\mu, \nu)$ is also greater than the infimum and we have equality.
+\end{proof}
+
+
 \begin{theorem}
   \label{thm:bayesBinaryRisk_eq}
   %\lean{}
@@ -593,29 +618,6 @@ The last line is obtained by replacing $P_\xi^\dagger$ by its value (Lemma~\ref{
 Use Theorem~\ref{thm:bayesBinaryRisk_eq} and the equality $\min\{a,b\} = \frac{1}{2}(a + b - \vert a - b \vert)$.
 \end{proof}
 
-
-\begin{lemma}
-  \label{lem:bayesBinaryRisk_eq_event}
-  %\lean{}
-  %\leanok
-  \uses{def:bayesRisk}
-  \begin{align*}
-  \mathcal B_\xi(\mu, \nu) = \inf_{E \text{ event}} \left( \xi_0 \mu(E) + \xi_1 \nu(E^c) \right) \: .
-  \end{align*}
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{lem:genBayesEstimator_bayesBinaryRisk}
-By definition,
-\begin{align*}
-\mathcal B_\xi(\mu, \nu)
-= \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\xi_0 (\hat{y} \circ \mu)(\{1\}) + \xi_1 (\hat{y} \circ \nu)(\{0\})\right)
-\: .
-\end{align*}
-If we restrict the infimum to deterministic kernels corresponding to functions of the form $x \mapsto \mathbb{I}\{x \in E\}$, we get that $\mathcal B_\xi(\mu, \nu)$ is bounded from above by the expression for which we want to show equality.
-
-Since the Bayes estimator has that shape (Lemma~\ref{lem:genBayesEstimator_bayesBinaryRisk}), $\mathcal B_\xi(\mu, \nu)$ is also greater than the infimum and we have equality.
-\end{proof}
 
 
 \section{Reduction to testing}
