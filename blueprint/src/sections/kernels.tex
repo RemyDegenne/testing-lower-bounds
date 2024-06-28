@@ -76,6 +76,8 @@ TODO: extensionality. Two kernels are equal iff... (useful to describe the compo
   A kernel $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ is said to be finite if there exists $\mathcal C < +\infty$ such that for all $x \in \mathcal X$, $\kappa(x)(\mathcal Y) \le C$.
 \end{definition}
 
+Note the uniform bound: it is not enough to have $\kappa(x)(\mathcal Y) < \infty$ for all $x \in \mathcal X$. TODO: why? This is required for composition of finite kernels to still be finite (iirc): be precise about that.
+
 \begin{definition}[Markov kernel]
   \label{def:markov_kernel}
   \lean{ProbabilityTheory.IsMarkovKernel}
@@ -154,7 +156,14 @@ We can also define the composition of a measure and a kernel, by $\kappa \circ \
 For $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal Y \rightsquigarrow \mathcal Z$ (independent of $\mathcal X$), the composition-product can be written as a composition: $\kappa \otimes \eta = (d_{\text{id}} \times \eta) \circ \kappa$ where $d_{\text{id}}$ is the deterministic kernel for the identity.
 In particular, the composition-product of a measure and a kernel $\kappa$ is the composition of that measure with the kernel $d_{\text{id}} \times \kappa$.
 
-TODO: add remark on the Giry monad.
+TODO: parallel product (tensor product in the category theory vocabulary).
+
+\section{Copy-discard and Markov categories}
+
+TODO
+
+Operations that are derived from the others: product (copy + parallel product), composition-product (complicated diagram).
+
 
 \section{Ordering}
 
