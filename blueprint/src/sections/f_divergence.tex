@@ -959,6 +959,9 @@ This is a particular case of Theorem~\ref{thm:fDiv_comp_le_compProd_2}.
 
 \end{proof}
 
+
+
+
 \subsection{Convexity}
 
 \begin{theorem}[Joint convexity]
@@ -992,6 +995,8 @@ By Theorem~\ref{thm:fDiv_comp_le_condFDiv_2}, $D_f(\kappa \circ \xi, \eta \circ 
 \subsection{Variational representations}
 
 TODO
+
+
 
 
 \subsection{Comparisons between divergences}
@@ -1050,6 +1055,101 @@ As $\varepsilon \to 0$, $\alpha$ also tends to 0 and
 = \frac{f(t)}{g(t)}
 \: .
 \end{align*}
+\end{proof}
+
+\paragraph{Bretagnolle-Huber inequalities}
+
+\begin{theorem}
+  \label{thm:bh_fDiv}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv, def:TV}
+  Let $\mu, \nu \in \mathcal P(\mathcal X)$. If $f(1) = 0$,
+  \begin{align*}
+  D_f(\mu, \nu)
+  &\ge f(1 + \TV(\mu, \nu)) + f(1 - \TV(\mu, \nu))
+  \: , \\
+  \text{ and }
+  D_f(\mu, \nu)
+  &\ge (1 + \TV(\mu, \nu))f\left(\frac{1}{1 + \TV(\mu, \nu)}\right) + (1 - \TV(\mu, \nu))f\left(\frac{1}{1 - \TV(\mu, \nu)}\right)
+  \: .
+  \end{align*}
+\end{theorem}
+
+\begin{proof}%\leanok
+\uses{lem:tv_eq_integral}
+Let $V: x \mapsto \max\left\{0, \frac{d\mu}{d\nu}(x) - 1\right\}$ and $W: x \mapsto \max\left\{0, 1 - \frac{d\mu}{d\nu}(x)\right\}$~.
+Then one of $1+V$ and $1-W$ is equal to $\frac{d\mu}{d\nu}$ and the other is equal to 1.
+Since $f(1) = 0$, we obtain $f(\frac{d\mu}{d\nu}) = f(1+V) + f(1-W)$~.
+The $f$-divergence is then
+\begin{align*}
+D_f(\mu, \nu)
+&= \nu[f(\frac{d\mu}{d\nu})] + f'(\infty)\mu_{\perp \nu}(\mathcal X)
+\\
+&= \nu\left[f(1+V) + f'(\infty)\mu_{\perp \nu}(\mathcal X)\right] + \nu\left[f(1 - W)\right]
+\: .
+\end{align*}
+By convexity of $f$, $f(1+V) + f'(\infty)\mu_{\perp \nu}(\mathcal X) \ge f(1+V + \mu_{\perp \nu}(\mathcal X))$~. Using convexity again, we get
+\begin{align*}
+D_f(\mu, \nu)
+&\ge f(1+ \nu[V] + \mu_{\perp \nu}(\mathcal X)) + f(1 - \nu[W])
+\: .
+\end{align*}
+By Lemma~\ref{lem:tv_eq_integral}, $\nu[V] + \mu_{\perp \nu}(\mathcal X) = \nu[W] = \TV(\mu, \nu)$. We obtain the first equality.
+
+To get the second equality, remark that $D_f(\mu, \nu) = D_{x\mapsto xf(1/x)}(\nu, \mu)$ (Theorem TODO), apply the first inequality to that function and use the symmetry of $\TV$.
+\end{proof}
+
+\begin{corollary}[Bretagnolle-Huber inequality]
+  \label{cor:bh_kl}
+  %\lean{}
+  %\leanok
+  \uses{def:KL, def:TV}
+  TODO: move this somewhere after the definition of $KL$.
+
+  For $\mu, \nu \in \mathcal P(\mathcal X)$,
+  \begin{align*}
+  \KL(\mu, \nu)
+  &\ge - \log(1 - \TV^2(\mu, \nu))
+  \: , \\
+  \text{or equivalently, }
+  \TV(\mu, \nu)
+  &\le \sqrt{1 - \exp\left(-\KL(\mu, \nu) \right)}
+  \: .
+  \end{align*}
+\end{corollary}
+
+\begin{proof}%\leanok
+\uses{thm:bh_fDiv}
+Use the second inequality of Theorem~\ref{thm:bh_fDiv}, for $f: x \mapsto x \log x$~.
+\end{proof}
+
+\begin{corollary}
+  \label{cor:cor:bh_hellingerAlpha}
+  %\lean{}
+  %\leanok
+  \uses{def:hellingerAlpha, def:TV}
+  TODO: move this somewhere after the definition of $\He_\alpha$.
+
+  Let $\mu, \nu \in \mathcal P(\mathcal X)$. For $\alpha > 0$,
+  \begin{align*}
+  \He_{1+\alpha}(\mu, \nu)
+  &\ge \frac{1}{\alpha} \left( (1 - \TV(\mu, \nu))^{-\alpha} - 2 \right)
+  \: , \\
+  \text{or equivalently, }
+  1 - \TV(\mu, \nu)
+  &\ge \exp\left(-\frac{1}{\alpha} \log \left( 2 + \alpha \He_{1+\alpha}(\mu, \nu) \right)\right)
+  \: .
+  \end{align*}
+\end{corollary}
+
+\begin{proof}%\leanok
+\uses{thm:bh_fDiv}
+Use the second inequality of Theorem~\ref{thm:bh_fDiv}, for $f: x \mapsto \frac{x^{1+\alpha} - 1}{\alpha}$ to get
+\begin{align*}
+\He_{1+\alpha}(\mu, \nu) \ge \frac{1}{\alpha} \left((1 + \TV(\mu, \nu))^{-\alpha} + (1 - \TV(\mu, \nu))^{-\alpha} - 2 \right) \: .
+\end{align*}
+We then neglect one term: $(1 + \TV(\mu, \nu))^{-\alpha} \ge 0$.
 \end{proof}
 
 

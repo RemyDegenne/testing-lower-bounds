@@ -54,8 +54,15 @@ A measurable function can be represented by a \emph{deterministic} kernel.
   \lean{ProbabilityTheory.kernel.deterministic}
   \leanok
   \uses{def:kernel}
-  The deterministic kernel defined by a measurable function $f : \mathcal X \to \mathcal Y$ is the kernel $d_f: \mathcal X \rightsquigarrow \mathcal Y$ defined by $d_f(x) = \delta(f(x))$, where for any $y \in \mathcal Y$, $\delta(y)$ is the Dirac probability measure at $y$.
+  The deterministic kernel defined by a measurable function $f : \mathcal X \to \mathcal Y$ is the kernel $d_f: \mathcal X \rightsquigarrow \mathcal Y$ defined by $d_f(x) = \delta_{f(x)}$, where for any $y \in \mathcal Y$, $\delta_y$ is the Dirac probability measure at $y$.
 \end{definition}
+
+A few deterministic kernels are particularly useful.
+\begin{itemize}
+  \item The identity kernel, deterministic kernel given by the identity function.
+  \item The copy kernel $c_{\mathcal X} : \mathcal X \rightsquigarrow \mathcal X \times \mathcal X$, from the function $x \mapsto (x, x)$.
+  \item The discard kernel $d_{\mathcal X}$ (TODO: conflicts with deterministic kernel notation). This is a kernel from $\mathcal X$ to $*$, the space with one point, corresponding to the constant function.
+\end{itemize}
 
 TODO: extensionality. Two kernels are equal iff... (useful to describe the composition-product further down).
 
@@ -68,6 +75,8 @@ TODO: extensionality. Two kernels are equal iff... (useful to describe the compo
   \uses{def:kernel}
   A kernel $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ is said to be finite if there exists $\mathcal C < +\infty$ such that for all $x \in \mathcal X$, $\kappa(x)(\mathcal Y) \le C$.
 \end{definition}
+
+Note the uniform bound: it is not enough to have $\kappa(x)(\mathcal Y) < \infty$ for all $x \in \mathcal X$. TODO: why? This is required for composition of finite kernels to still be finite (iirc): be precise about that.
 
 \begin{definition}[Markov kernel]
   \label{def:markov_kernel}
@@ -147,7 +156,14 @@ We can also define the composition of a measure and a kernel, by $\kappa \circ \
 For $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal Y \rightsquigarrow \mathcal Z$ (independent of $\mathcal X$), the composition-product can be written as a composition: $\kappa \otimes \eta = (d_{\text{id}} \times \eta) \circ \kappa$ where $d_{\text{id}}$ is the deterministic kernel for the identity.
 In particular, the composition-product of a measure and a kernel $\kappa$ is the composition of that measure with the kernel $d_{\text{id}} \times \kappa$.
 
-TODO: add remark on the Giry monad.
+TODO: parallel product (tensor product in the category theory vocabulary).
+
+\section{Copy-discard and Markov categories}
+
+TODO
+
+Operations that are derived from the others: product (copy + parallel product), composition-product (complicated diagram).
+
 
 \section{Ordering}
 
