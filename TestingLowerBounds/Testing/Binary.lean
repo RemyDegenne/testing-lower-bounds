@@ -80,7 +80,7 @@ lemma measure_comp_twoHypKernel (μ ν : Measure 𝒳) (π : Measure Bool) :
     cond_false, Measure.coe_add, Measure.coe_smul, Pi.add_apply, Pi.smul_apply, smul_eq_mul]
   congr 1 <;> rw [mul_comm]
 
-lemma todo (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+lemma sum_smul_rnDeriv_twoHypKernel (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (π : Measure Bool) [IsFiniteMeasure π] :
     (π {true} • ν.rnDeriv (π ∘ₘ twoHypKernel μ ν) + π {false} • (μ.rnDeriv (π ∘ₘ twoHypKernel μ ν)))
       =ᵐ[π ∘ₘ ⇑(twoHypKernel μ ν)] 1 := by
@@ -96,11 +96,11 @@ lemma todo (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
   simp only [Pi.add_apply, Pi.smul_apply, smul_eq_mul, Pi.one_apply] at h1 h2 h3 h4 ⊢
   rw [← h1, ← h2, ← h3, ← measure_comp_twoHypKernel, h4]
 
-lemma todo' (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+lemma sum_smul_rnDeriv_twoHypKernel' (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (π : Measure Bool) [IsFiniteMeasure π] :
     ∀ᵐ x ∂(π ∘ₘ ⇑(twoHypKernel μ ν)), π {true} * ν.rnDeriv (π ∘ₘ twoHypKernel μ ν) x
       + π {false} * (μ.rnDeriv (π ∘ₘ twoHypKernel μ ν)) x = 1 := by
-  filter_upwards [todo μ ν π] with x hx
+  filter_upwards [sum_smul_rnDeriv_twoHypKernel μ ν π] with x hx
   simpa using hx
 
 noncomputable
@@ -136,7 +136,7 @@ lemma twoHypKernelInv_apply_ae (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFi
     ∀ᵐ x ∂(π ∘ₘ ⇑(twoHypKernel μ ν)), twoHypKernelInv μ ν π x
       = (π {true} * ν.rnDeriv (π ∘ₘ twoHypKernel μ ν) x) • Measure.dirac true
         + (π {false} * μ.rnDeriv (π ∘ₘ twoHypKernel μ ν) x) • Measure.dirac false := by
-  filter_upwards [todo' μ ν π] with x hx
+  filter_upwards [sum_smul_rnDeriv_twoHypKernel' μ ν π] with x hx
   rw [twoHypKernelInv_apply, if_pos hx]
 
 lemma twoHypKernelInv_apply' (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
