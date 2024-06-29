@@ -1,6 +1,10 @@
 A divergence between measures is a function which maps two measures on any common space $\mathcal X$ to a value in $[-\infty, +\infty]$.
 For two probability measures $\mu$ and $\nu$, we will want the divergence $D(\mu, \nu)$ to be non-negative and to be zero if $\mu = \nu$~: divergences are meant to be notions of dissimilarity between measures.
 
+We will pay particular attention to how the divergence behaves with respect to transformations of the measures.
+For a Markov kernel $\kappa : \mathcal X \rightsquigarrow \mathcal Y$~, a fundamental property of all divergences we will consider is the \emph{data-processing inequality}, which states that $D(\kappa \circ \mu, \kappa \circ \nu) \le D(\mu, \nu)$.
+That is, processing data with a (possibly random) common transformation $\kappa$ can only lose information about the difference between the two measures.
+
 \section{Statistical divergences}
 
 \begin{definition}
@@ -42,6 +46,21 @@ Use Lemma~\ref{lem:bayesBinaryRisk_self}.
 Use Lemma~\ref{lem:bayesBinaryRisk_le}.
 \end{proof}
 
+
+\begin{lemma}
+  \label{lem:statInfo_le}
+  %\lean{}
+  %\leanok
+  \uses{def:statInfo}
+  For $\mu, \nu \in \mathcal M(\mathcal X)$, $\mathcal I_\xi(\mu, \nu) \le \min\{\xi_0 \mu(\mathcal X), \xi_1 \nu(\mathcal X)\}$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:bayesBinaryRisk_nonneg}
+Use Lemma~\ref{lem:bayesBinaryRisk_nonneg}.
+\end{proof}
+
+
 \begin{lemma}
   \label{lem:statInfo_symm}
   %\lean{}
@@ -77,6 +96,64 @@ The inequality was proved in Theorem~\ref{thm:data_proc_bayesBinaryRisk}.
 
 Alternatively, we can use Lemma~\ref{lem:riskIncrease_comp_del}.
 \end{proof}
+
+
+\begin{corollary}
+  \label{cor:statInfo_data_proc_event}
+  %\lean{}
+  %\leanok
+  \uses{def:statInfo}
+  Let $\mu, \nu$ be two measures on $\mathcal X$, $\xi \in \mathcal M(\{0,1\})$ and let $E$ be an event on $\mathcal X$. Let $\mu_E$ and $\nu_E$ be the two Bernoulli distributions with respective means $\mu(E)$ and $\nu(E)$.
+  Then $\mathcal I_\xi(\mu, \nu) \ge \mathcal I_\xi(\mu_E, \nu_E)$.
+\end{corollary}
+
+\begin{proof}
+\uses{thm:data_proc_statInfo}
+Apply Theorem~\ref{thm:data_proc_statInfo} to the deterministic kernel $\mathcal X \rightsquigarrow \{0,1\}$ given by the function $x \mapsto \mathbb{I}\{x \in E\}$.
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:statInfo_eq_sub_min}
+  %\lean{}
+  %\leanok
+  \uses{def:statInfo}
+  For finite measures $\mu, \nu$ and $\xi \in \mathcal M(\{0,1\})$, for any measure $\zeta$ with $\mu \ll \zeta$ and $\nu \ll \zeta$~,
+  \begin{align*}
+  \mathcal I_\xi(\mu, \nu)
+  &= \min\{\xi_0\mu(\mathcal X), \xi_1\nu(\mathcal X)\} - \zeta\left[x \mapsto \min \left\{\xi_0\frac{d \mu}{d\zeta}(x), \xi_1\frac{d \nu}{d\zeta}(x)\right\}\right]
+  \: .
+  \end{align*}
+  This holds in particular for $\zeta = P \circ \xi$.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{thm:bayesBinaryRisk_eq}
+Apply Theorem~\ref{thm:bayesBinaryRisk_eq} to get that result for $\zeta = P \circ \xi$. Then for other $\zeta$ with $\mu \ll \zeta$ and $\nu \ll \zeta$~, use $\frac{d \mu}{d\zeta} = \frac{d \mu}{d(P \circ \xi)} / \frac{d (P \circ \xi)}{d\zeta}$~.
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:statInfo_eq_integral_abs_sub}
+  %\lean{}
+  %\leanok
+  \uses{def:statInfo}
+  For finite measures $\mu, \nu$ and $\xi \in \mathcal M(\{0,1\})$, for any measure $\zeta$ with $\mu \ll \zeta$ and $\nu \ll \zeta$~,
+  \begin{align*}
+  \mathcal I_\xi(\mu, \nu)
+  &= - \frac{1}{2} \left\vert \xi_0\mu(\mathcal X) - \xi_1\nu(\mathcal X) \right\vert + 
+    \zeta\left[x \mapsto \left\vert \xi_0\frac{d \mu}{d\zeta}(x) - \xi_1\frac{d \nu}{d\zeta}(x)\right\vert\right] 
+  \: .
+  \end{align*}
+  This holds in particular for $\zeta = P \circ \xi$.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{cor:bayesBinaryRisk_eq_abs}
+Apply Corollary~\ref{cor:bayesBinaryRisk_eq_abs} and write $\min\{\xi_0\mu(\mathcal X), \xi_1\nu(\mathcal X)\} = \frac{1}{2}\left((P \circ \xi)(\mathcal X) - \left\vert \xi_0\mu(\mathcal X) - \xi_1\nu(\mathcal X) \right\vert \right)$ to get the result for $\zeta = P \circ \xi$.
+The result for other $\zeta$ follows from simple manipulations of Radon-Nikodym derivatives.
+\end{proof}
+
 
 \begin{theorem}[Integral form of the statistical information]
   \label{thm:statInfo_eq_integral}
@@ -127,6 +204,43 @@ If on the other hand $\xi_0\mu(\mathcal X) \ge \xi_1\nu(\mathcal X)$~, with simi
 \end{align*}
 \end{proof}
 
+\begin{corollary}
+  \label{cor:statInfo_eq_integral_abs}
+  %\lean{}
+  %\leanok
+  \uses{def:statInfo}
+  For finite measures $\mu, \nu$ and $\xi \in \mathcal M(\{0,1\})$,
+  \begin{align*}
+  \mathcal I_\xi(\mu, \nu)
+  &= -\frac{1}{2} \left\vert\xi_0 \mu(\mathcal X) - \xi_1 \nu(\mathcal X)\right\vert + \frac{1}{2}\left( \nu\left[ x \mapsto \left\vert\xi_0\frac{d \mu}{d\nu}(x) - \xi_1 \right\vert \right]  + \xi_0 \mu_{\perp \nu}(\mathcal X)\right)
+  \: .
+  \end{align*}
+\end{corollary}
+
+\begin{proof}%\leanok
+\uses{thm:statInfo_eq_integral}
+Start from Theorem~\ref{thm:statInfo_eq_integral}, then use $\max\{a,b\} = \frac{1}{2}\left( a + b + \vert a - b \vert \right)$~.
+The two cases of Theorem~\ref{thm:statInfo_eq_integral} lead to the same expression.
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:statInfo_eq_sub_inf_event}
+  %\lean{}
+  %\leanok
+  \uses{def:statInfo}
+  For finite measures $\mu, \nu$ and $\xi \in \mathcal M(\{0,1\})$,
+  \begin{align*}
+  \mathcal I_\xi(\mu, \nu)
+  &= \min\{\xi_0 \mu(\mathcal X), \xi_1 \nu(\mathcal X)\} - \inf_{E \text{ event}} \left( \xi_0 \mu(E) + \xi_1 \nu(E^c) \right)
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:bayesBinaryRisk_eq_event}
+This is a direct application of Lemma~\ref{lem:bayesBinaryRisk_eq_event}.
+\end{proof}
 
 \subsection{DeGroot statistical information}
 
@@ -214,6 +328,9 @@ Apply Theorem~\ref{thm:data_proc_statInfo}.
 Apply Theorem~\ref{thm:statInfo_eq_integral}.
 \end{proof}
 
+
+
+
 \subsection{Hockey-stick divergence}
 
 
@@ -287,4 +404,257 @@ Apply Theorem~\ref{thm:data_proc_statInfo}.
 \begin{proof}%\leanok
 \uses{thm:statInfo_eq_integral}
 Apply Theorem~\ref{thm:statInfo_eq_integral}.
+\end{proof}
+
+
+
+\subsection{Total variation distance}
+
+\begin{definition}
+  \label{def:TV}
+  %\lean{}
+  %\leanok
+  \uses{def:statInfo}
+  The total variation distance between finite measures $\mu$ and $\nu$ is $\TV(\mu, \nu) = \mathcal I_{(1,1)}(\mu, \nu)$~.
+\end{definition}
+
+This is also equal to $2 I_{1/2}(\mu, \nu)$ and to $E_1(\mu, \nu)$.
+
+\begin{lemma}
+  \label{lem:tv_self}
+  %\lean{}
+  %\leanok
+  \uses{def:TV}
+  For $\mu \in \mathcal M(\mathcal X)$, $\TV(\mu, \mu) = 0$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:statInfo_self}
+Use Lemma~\ref{lem:statInfo_self}.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:tv_nonneg}
+  %\lean{}
+  %\leanok
+  \uses{def:TV}
+  For $\mu, \nu \in \mathcal M(\mathcal X)$, $\TV(\mu, \nu) \ge 0$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:statInfo_nonneg}
+Use Lemma~\ref{lem:statInfo_nonneg}.
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:tv_le}
+  %\lean{}
+  %\leanok
+  \uses{def:TV}
+  For $\mu, \nu \in \mathcal M(\mathcal X)$, $\TV(\mu, \nu) \le \min\{\mu(\mathcal X), \nu(\mathcal X)\}$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:statInfo_le}
+Use Lemma~\ref{lem:statInfo_le}.
+\end{proof}
+
+
+\begin{theorem}[Data-processing inequality]
+  \label{thm:tv_data_proc}
+  %\lean{ProbabilityTheory.}
+  %\leanok
+  \uses{def:TV}
+  For $\mu, \nu \in \mathcal M(\mathcal X)$ and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ a Markov kernel, $\TV(\kappa \circ \mu, \kappa \circ \nu) \le \TV(\mu, \nu)$~.
+\end{theorem}
+
+\begin{proof}%\leanok
+\uses{thm:data_proc_statInfo}
+Apply Theorem~\ref{thm:data_proc_statInfo}.
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:tv_eq_sub_min}
+  %\lean{}
+  %\leanok
+  \uses{def:TV}
+  For finite measures $\mu, \nu$, for any measure $\zeta$ with $\mu \ll \zeta$ and $\nu \ll \zeta$~,
+  \begin{align*}
+  \TV(\mu, \nu)
+  &= \min\{\mu(\mathcal X), \nu(\mathcal X)\} - \zeta\left[x \mapsto \min \left\{\frac{d \mu}{d\zeta}(x), \frac{d \nu}{d\zeta}(x)\right\}\right]
+  \: .
+  \end{align*}
+  This holds in particular for $\zeta = P \circ \xi$.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:statInfo_eq_sub_min}
+Apply Lemma~\ref{lem:statInfo_eq_sub_min}.
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:tv_eq_integral_abs_sub}
+  %\lean{}
+  %\leanok
+  \uses{def:TV}
+  For finite measures $\mu, \nu$, for any measure $\zeta$ with $\mu \ll \zeta$ and $\nu \ll \zeta$~,
+  \begin{align*}
+  \TV(\mu, \nu)
+  &= - \frac{1}{2} \left\vert \mu(\mathcal X) - \nu(\mathcal X) \right\vert + 
+    \zeta\left[x \mapsto \left\vert \frac{d \mu}{d\zeta}(x) - \frac{d \nu}{d\zeta}(x)\right\vert\right] 
+  \: .
+  \end{align*}
+  This holds in particular for $\zeta = P \circ \xi$.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:statInfo_eq_integral_abs_sub}
+Apply Lemma~\ref{lem:statInfo_eq_integral_abs_sub}.
+\end{proof}
+
+
+\begin{lemma}[Integral form of the total variation distance]
+  \label{lem:tv_eq_integral}
+  %\lean{}
+  %\leanok
+  \uses{def:TV}
+  For finite measures $\mu, \nu$,
+  \begin{align*}
+  \TV(\mu, \nu)
+  &= \nu\left[ x \mapsto \max \left\{0 , \frac{d \mu}{d\nu}(x) - 1 \right\} \right] + \mu_{\perp \nu}(\mathcal X) & \text{ if } \mu(\mathcal X) \le \nu(\mathcal X)
+  \: , \\
+  \TV(\mu, \nu)
+  &= \nu\left[ x \mapsto \max \left\{0 , 1 - \frac{d \mu}{d\nu}(x) \right\} \right] & \text{ if } \mu(\mathcal X) \ge \nu(\mathcal X)
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{thm:statInfo_eq_integral}
+Apply Theorem~\ref{thm:statInfo_eq_integral}.
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:tv_eq_integral_abs}
+  %\lean{}
+  %\leanok
+  \uses{def:TV}
+  For finite measures $\mu, \nu$,
+  \begin{align*}
+  \TV(\mu, \nu)
+  &= -\frac{1}{2} \left\vert \mu(\mathcal X) - \nu(\mathcal X)\right\vert + \frac{1}{2}\left( \nu\left[ x \mapsto \left\vert \frac{d \mu}{d\nu}(x) - 1 \right\vert \right]  + \mu_{\perp \nu}(\mathcal X)\right)
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{cor:statInfo_eq_integral_abs}
+Apply Corollary~\ref{cor:statInfo_eq_integral_abs}.
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:tv_eq_sub_inf_event}
+  %\lean{}
+  %\leanok
+  \uses{def:TV}
+  For finite measures $\mu, \nu$,
+  \begin{align*}
+  \TV(\mu, \nu)
+  &= \min\{\mu(\mathcal X), \nu(\mathcal X)\} - \inf_{E \text{ event}} \left( \mu(E) + \nu(E^c) \right)
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:statInfo_eq_sub_inf_event}
+Apply Lemma~\ref{lem:statInfo_eq_sub_inf_event}.
+\end{proof}
+
+
+\begin{theorem}
+  \label{thm:tv_eq_sup_sub_measure}
+  %\lean{}
+  %\leanok
+  \uses{}
+  Let $\mu, \nu$ be two measures on $\mathcal X$ with $\mu(\mathcal X) = \nu(\mathcal X)$.\\
+  Then $TV(\mu, \nu) = \sup_{E \text{ event}} \left( \mu(E) - \nu(E) \right)$.
+\end{theorem}
+
+\begin{proof}%\leanok
+\uses{lem:tv_eq_sub_inf_event}
+Starting from Lemma~\ref{lem:tv_eq_sub_inf_event},
+\begin{align*}
+\TV(\mu, \nu)
+&= \min\{\mu(\mathcal X), \nu(\mathcal X)\} - \inf_{E \text{ event}} \left( \mu(E) + \nu(E^c) \right)
+\\
+&= \mu(\mathcal X) - \inf_{E \text{ event}} \left( \mu(E^c) + \nu(E) \right)
+\\
+&= \mu(\mathcal X) - \mu(\mathcal X) - \inf_{E \text{ event}} \left( -\mu(E) + \nu(E) \right)
+\\
+&= \sup_{E \text{ event}} \left( \mu(E) - \nu(E) \right)
+\: .
+\end{align*}
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:tv_eq_sup_aux}
+  %\lean{}
+  %\leanok
+  \uses{def:TV}
+  Let $\mathcal F = \{f : \mathcal X \to \mathbb{R} \mid \Vert f \Vert_\infty \le 1\}$.
+  Then for $\mu, \nu $ with $\mu(\mathcal X) = \nu(\mathcal X)$, $\frac{1}{2} \sup_{f \in \mathcal F} \left( \mu[f] - \nu[f] \right) \le \TV(\mu, \nu)$.
+\end{lemma}
+
+\begin{proof}
+\uses{lem:tv_eq_integral_abs_sub}
+Let $p,q$ be the respective densities of $\mu, \nu$ with respect to $\xi=\mu+\nu$.
+For any $f \in \mathcal F$,
+\begin{align*}
+\mu[f] - \nu[f]
+= \int_x f(x)(p(x) - q(x)) \partial\xi
+&\le \int_x \Vert f(x) \Vert_\infty \vert p(x) - q(x) \vert \partial\xi
+\\
+&\le \int_x \vert p(x) - q(x) \vert \partial\xi
+= 2 \TV(\mu, \nu)
+\: .
+\end{align*}
+The last equality is Lemma~\ref{lem:tv_eq_integral_abs_sub}.
+\end{proof}
+
+
+\begin{theorem}
+  \label{thm:tv_eq_sup_sub_integral}
+  %\lean{}
+  %\leanok
+  \uses{def:TV}
+  Let $\mathcal F = \{f : \mathcal X \to \mathbb{R} \mid \Vert f \Vert_\infty \le 1\}$.
+  Then $\TV(\mu, \nu) = \frac{1}{2} \sup_{f \in \mathcal F} \left( \mu[f] - \nu[f] \right)$.
+\end{theorem}
+
+\begin{proof}
+\uses{lem:tv_eq_sup_aux, thm:tv_eq_sup_sub_measure}
+Lemma~\ref{lem:tv_eq_sup_aux} gives $\TV(\mu, \nu) \ge \frac{1}{2} \sup_{f \in \mathcal F} \left( \mu[f] - \nu[f] \right)$.
+
+The bayes estimator is a function of the form $x \mapsto \mathbb{I}\{x \in E\}$ for some event $E$, hence it belongs to $\mathcal F$. This gives equality.
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:tv_data_proc_event}
+  %\lean{}
+  %\leanok
+  \uses{def:TV}
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $E$ be an event. Let $\mu_E$ and $\nu_E$ be the two Bernoulli distributions with respective means $\mu(E)$ and $\nu(E)$.
+  Then $\TV(\mu, \nu) \ge \TV(\mu_E, \nu_E)$.
+\end{lemma}
+
+\begin{proof}
+\uses{cor:statInfo_data_proc_event}
+Apply Corollary~\ref{cor:statInfo_data_proc_event}.
 \end{proof}

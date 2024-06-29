@@ -103,6 +103,9 @@ For any $\pi \in \mathcal P(\mathcal X)$ and any estimator, $\pi\left[\hat{\mu}_
 
 TODO: ``often'', $\mathcal R^*_B = \mathcal R^*$.
 
+
+
+
 \subsection{Properties of the Bayes risk of a prior}
 
 \begin{lemma}
@@ -379,9 +382,12 @@ I_\pi^P(d_{\mathcal X'} \circ \kappa)
 Finally, $d_{\mathcal X'} \circ \kappa = d_{\mathcal X}$ since $\kappa$ is a Markov kernel.
 \end{proof}
 
+
+
+
 \section{Simple binary hypothesis testing}
 
-TODO: rework this section to use the Bayes risk increase.
+TODO: rework this section to use the Bayes risk increase?
 
 In this section, for a measure $\xi$ on $\{0,1\}$, we write $\xi_0$ for $\xi(\{0\})$ and $\xi_1$ for $\xi(\{1\})$~. We sometimes write $(a,b)$ for the measure $\xi$ on $\{0,1\}$ with $\xi_0 = a$ and $\xi_1 = b$.
 
@@ -414,6 +420,8 @@ In this section, for a measure $\xi$ on $\{0,1\}$, we write $\xi_0$ for $\xi(\{0
 \uses{lem:bayesInv_binary, thm:isBayesEstimator_genBayesEstimator}
 Use Theorem~\ref{thm:isBayesEstimator_genBayesEstimator}, with the value of $P_\xi^\dagger$ given by Lemma~\ref{lem:bayesInv_binary}.
 \end{proof}
+
+
 
 \subsection{Bayes risk of a prior}
 
@@ -449,6 +457,19 @@ Thanks to the following lemma, we can prove properties of the Bayes binary risk 
 \end{proof}
 
 \begin{lemma}
+  \label{lem:bayesBinaryRisk_nonneg}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesBinaryRisk}
+  For all measures $\mu, \nu$, $\mathcal B_\xi(\mu, \nu) \ge 0$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+It is an infimum of non-negative values.
+\end{proof}
+
+\begin{lemma}
   \label{lem:bayesBinaryRisk_le}
   \lean{ProbabilityTheory.bayesBinaryRisk_le_min}
   \leanok
@@ -457,7 +478,7 @@ Thanks to the following lemma, we can prove properties of the Bayes binary risk 
 \end{lemma}
 
 \begin{proof}%\leanok
-\uses{def:bayesRisk}
+\uses{}
 Since $\mathcal B_\xi(\mu, \nu)$ is an infimum over estimators, we can find an upper bound by choosing an estimator.
 We choose for $\hat{y}$ a constant estimator, with value 1 if $\xi_1 > \xi_0$ and 0 otherwise.
 That estimator has Bayesian risk $\min\{\xi_0, \xi_1\}$ (for probability measures).
@@ -528,6 +549,31 @@ The generalized Bayes estimator is $x \mapsto \text{if } P_\xi^\dagger(x)(\{1\})
 The expression of the lemma statement is obtained by replacing $P_\xi^\dagger$ by its value (Lemma~\ref{lem:bayesInv_binary}).
 \end{proof}
 
+
+\begin{lemma}
+  \label{lem:bayesBinaryRisk_eq_event}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesRisk}
+  \begin{align*}
+  \mathcal B_\xi(\mu, \nu) = \inf_{E \text{ event}} \left( \xi_0 \mu(E) + \xi_1 \nu(E^c) \right) \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:genBayesEstimator_bayesBinaryRisk}
+By definition,
+\begin{align*}
+\mathcal B_\xi(\mu, \nu)
+= \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\xi_0 (\hat{y} \circ \mu)(\{1\}) + \xi_1 (\hat{y} \circ \nu)(\{0\})\right)
+\: .
+\end{align*}
+If we restrict the infimum to deterministic kernels corresponding to functions of the form $x \mapsto \mathbb{I}\{x \in E\}$, we get that $\mathcal B_\xi(\mu, \nu)$ is bounded from above by the expression for which we want to show equality.
+
+Since the Bayes estimator has that shape (Lemma~\ref{lem:genBayesEstimator_bayesBinaryRisk}), $\mathcal B_\xi(\mu, \nu)$ is also greater than the infimum and we have equality.
+\end{proof}
+
+
 \begin{theorem}
   \label{thm:bayesBinaryRisk_eq}
   %\lean{}
@@ -568,8 +614,10 @@ The last line is obtained by replacing $P_\xi^\dagger$ by its value (Lemma~\ref{
 \end{corollary}
 
 \begin{proof}%\leanok
-\uses{}
+\uses{thm:bayesBinaryRisk_eq}
+Use Theorem~\ref{thm:bayesBinaryRisk_eq} and the equality $\min\{a,b\} = \frac{1}{2}(a + b - \vert a - b \vert)$.
 \end{proof}
+
 
 
 \section{Reduction to testing}
