@@ -237,38 +237,38 @@ end SimpleBinaryHypTest
 
 /-- The Bayes risk of simple binary hypothesis testing with respect to a prior. -/
 noncomputable
-def bayesBinaryRisk' (μ ν : Measure 𝒳) (π : Measure Bool) : ℝ≥0∞ :=
+def bayesBinaryRisk (μ ν : Measure 𝒳) (π : Measure Bool) : ℝ≥0∞ :=
   bayesRiskPrior (simpleBinaryHypTest μ ν) π
 
-lemma bayesBinaryRisk'_eq (μ ν : Measure 𝒳) (π : Measure Bool) :
-    bayesBinaryRisk' μ ν π
+lemma bayesBinaryRisk_eq (μ ν : Measure 𝒳) (π : Measure Bool) :
+    bayesBinaryRisk μ ν π
       = ⨅ (κ : kernel 𝒳 Bool) (_ : IsMarkovKernel κ),
         π {true} * (ν ∘ₘ κ) {false} + π {false} * (μ ∘ₘ κ) {true} := by
-  rw [bayesBinaryRisk', bayesRiskPrior]
+  rw [bayesBinaryRisk, bayesRiskPrior]
   congr with κ
   congr with _
   rw [bayesianRisk, lintegral_fintype, mul_comm (π {false}), mul_comm (π {true})]
   simp
 
 /-- **Data processing inequality** for the Bayes binary risk. -/
-lemma bayesBinaryRisk'_le_bayesBinaryRisk'_comp (μ ν : Measure 𝒳) (π : Measure Bool)
+lemma bayesBinaryRisk_le_bayesBinaryRisk_comp (μ ν : Measure 𝒳) (π : Measure Bool)
     (η : kernel 𝒳 𝒳') [IsMarkovKernel η] :
-    bayesBinaryRisk' μ ν π ≤ bayesBinaryRisk' (μ ∘ₘ η) (ν ∘ₘ η) π :=
-  (bayesRiskPrior_le_bayesRiskPrior_comp _ _ η).trans_eq (by simp [bayesBinaryRisk'])
+    bayesBinaryRisk μ ν π ≤ bayesBinaryRisk (μ ∘ₘ η) (ν ∘ₘ η) π :=
+  (bayesRiskPrior_le_bayesRiskPrior_comp _ _ η).trans_eq (by simp [bayesBinaryRisk])
 
-lemma bayesBinaryRisk'_self (μ : Measure 𝒳) (π : Measure Bool) :
-    bayesBinaryRisk' μ μ π = min (π {true}) (π {false}) * μ Set.univ := by
-  rw [bayesBinaryRisk'_eq]
+lemma bayesBinaryRisk_self (μ : Measure 𝒳) (π : Measure Bool) :
+    bayesBinaryRisk μ μ π = min (π {true}) (π {false}) * μ Set.univ := by
+  rw [bayesBinaryRisk_eq]
   sorry
 
-lemma bayesBinaryRisk'_le_min (μ ν : Measure 𝒳) (π : Measure Bool) :
-    bayesBinaryRisk' μ ν π ≤ min (π {true} * μ Set.univ) (π {false} * ν Set.univ) := by
+lemma bayesBinaryRisk_le_min (μ ν : Measure 𝒳) (π : Measure Bool) :
+    bayesBinaryRisk μ ν π ≤ min (π {true} * μ Set.univ) (π {false} * ν Set.univ) := by
   sorry
 
-lemma bayesBinaryRisk'_dirac (a b : ℝ≥0∞) (x : 𝒳) (π : Measure Bool) :
-    bayesBinaryRisk' (a • Measure.dirac x) (b • Measure.dirac x) π
+lemma bayesBinaryRisk_dirac (a b : ℝ≥0∞) (x : 𝒳) (π : Measure Bool) :
+    bayesBinaryRisk (a • Measure.dirac x) (b • Measure.dirac x) π
       = min (π {true} * b) (π {false} * a) := by
-  rw [bayesBinaryRisk'_eq]
+  rw [bayesBinaryRisk_eq]
   have (κ : kernel 𝒳 Bool) [IsMarkovKernel κ] :
       π {true} * ((b • Measure.dirac x) ∘ₘ κ) {false}
         + π {false} * ((a • Measure.dirac x) ∘ₘ κ) {true}
@@ -282,41 +282,6 @@ lemma bayesBinaryRisk'_dirac (a b : ℝ≥0∞) (x : 𝒳) (π : Measure Bool) :
     simp_rw [this]
     simp only [Measure.smul_apply, smul_eq_mul, mul_assoc]
   simp_rw [this]
-  sorry
-
--- TODO: in the definition below, remove the `p ≤ 1` hypothesis?
-
-/-- The Bayes risk of simple binary hypothesis testing with respect to a Bernoulli prior. -/
-noncomputable
-def bayesBinaryRisk (μ ν : Measure 𝒳) (p : ℝ≥0∞) (hp : p ≤ 1) : ℝ≥0∞ :=
-  bayesBinaryRisk' μ ν (PMF.bernoulli p hp).toMeasure
-
-lemma bayesBinaryRisk_eq (μ ν : Measure 𝒳) (hp : p ≤ 1) :
-    bayesBinaryRisk μ ν p hp
-      = ⨅ (κ : kernel 𝒳 Bool) (_ : IsMarkovKernel κ),
-        p * (ν ∘ₘ κ) {false} + (1 - p) * (μ ∘ₘ κ) {true} := by
-  rw [bayesBinaryRisk, bayesBinaryRisk'_eq]
-  simp
-
-/-- **Data processing inequality** for the Bayes binary risk. -/
-lemma bayesBinaryRisk_le_bayesBinaryRisk_comp (μ ν : Measure 𝒳) (hp : p ≤ 1)
-    (η : kernel 𝒳 𝒳') [IsMarkovKernel η] :
-    bayesBinaryRisk μ ν p hp ≤ bayesBinaryRisk (μ ∘ₘ η) (ν ∘ₘ η) p hp :=
-  bayesBinaryRisk'_le_bayesBinaryRisk'_comp _ _ _ _
-
-lemma bayesBinaryRisk_self (μ : Measure 𝒳) (hp : p ≤ 1) :
-    bayesBinaryRisk μ μ p hp = min p (1 - p) * μ Set.univ := by
-  rw [bayesBinaryRisk, bayesBinaryRisk'_self]
-  simp
-
-lemma bayesBinaryRisk_le_min (μ ν : Measure 𝒳) (hp : p ≤ 1) :
-    bayesBinaryRisk μ ν p hp ≤ min (p * μ Set.univ) ((1 - p) * ν Set.univ) := by
-  rw [bayesBinaryRisk]
-  refine (bayesBinaryRisk'_le_min _ _ _).trans_eq ?_
-  simp
-
-lemma bayesBinaryRisk_symm (μ ν : Measure 𝒳) (hp : p ≤ 1) :
-    bayesBinaryRisk μ ν p hp = bayesBinaryRisk ν μ (1 - p) tsub_le_self := by
   sorry
 
 end ProbabilityTheory

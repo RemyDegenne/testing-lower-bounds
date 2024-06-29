@@ -1,7 +1,9 @@
 import TestingLowerBounds.BayesInv
 import TestingLowerBounds.Chernoff
 import TestingLowerBounds.Convex
-import TestingLowerBounds.DeGroot
+import TestingLowerBounds.Divergences.DeGroot
+import TestingLowerBounds.Divergences.EGamma
+import TestingLowerBounds.Divergences.StatInfo
 import TestingLowerBounds.DerivAtTop
 import TestingLowerBounds.FDiv.Basic
 import TestingLowerBounds.FDiv.CondFDiv
