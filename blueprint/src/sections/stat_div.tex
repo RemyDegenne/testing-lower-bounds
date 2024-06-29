@@ -9,8 +9,8 @@ That is, processing data with a (possibly random) common transformation $\kappa$
 
 \begin{definition}
   \label{def:statInfo}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.statInfo}
+  \leanok
   \uses{def:bayesBinaryRisk, def:riskIncrease}
   The statistical information between measures $\mu$ and $\nu$ with respect to prior $\xi \in \mathcal M(\{0,1\})$ is
   $\mathcal I_\xi(\mu, \nu) = \min\{\xi_0 \mu(\mathcal X), \xi_1 \nu(\mathcal X)\} - \mathcal B_\xi(\mu, \nu)$.
@@ -76,13 +76,13 @@ Use Lemma~\ref{lem:bayesBinaryRisk_symm}.
 
 \begin{theorem}[Data-processing inequality]
   \label{thm:data_proc_statInfo}
-  %\lean{ProbabilityTheory.}
-  %\leanok
+  \lean{ProbabilityTheory.statInfo_comp_le}
+  \leanok
   \uses{def:statInfo}
   For $\mu, \nu \in \mathcal M(\mathcal X)$, $\xi \in \mathcal M(\{0,1\})$ and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ a Markov kernel, $\mathcal I_\xi(\kappa \circ \mu, \kappa \circ \nu) \le \mathcal I_\xi(\mu, \nu)$~.
 \end{theorem}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{thm:data_proc_bayesBinaryRisk, lem:riskIncrease_comp_del}
 Since $\kappa$ is a Markov kernel,
 \begin{align*}
@@ -256,8 +256,8 @@ TODO: we could also call the more general statistical information defined above 
 
 \begin{lemma}
   \label{lem:deGrootInfo_self}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.deGrootInfo}
+  \leanok
   \uses{def:deGrootInfo}
   For $\mu \in \mathcal M(\mathcal X)$, $I_\pi(\mu, \mu) = 0$~.
 \end{lemma}
@@ -336,8 +336,8 @@ Apply Theorem~\ref{thm:statInfo_eq_integral}.
 
 \begin{definition}
   \label{def:eGamma}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.eGamma}
+  \leanok
   \uses{def:statInfo}
   The $E_\gamma$ or hockey-stick divergence between finite measures $\mu$ and $\nu$ for $\gamma \in (0,+\infty)$ is $E_\gamma(\mu, \nu) = \mathcal I_{(1,\gamma)}(\mu, \nu)$~.
 \end{definition}
@@ -374,13 +374,13 @@ Use Lemma~\ref{lem:statInfo_nonneg}.
 
 \begin{theorem}[Data-processing inequality]
   \label{thm:data_proc_eGamma}
-  %\lean{ProbabilityTheory.}
-  %\leanok
+  \lean{ProbabilityTheory.eGamma_comp_le}
+  \leanok
   \uses{def:eGamma}
   For $\mu, \nu \in \mathcal M(\mathcal X)$ and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ a Markov kernel, $E_\gamma(\kappa \circ \mu, \kappa \circ \nu) \le E_\gamma(\mu, \nu)$~.
 \end{theorem}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{thm:data_proc_statInfo}
 Apply Theorem~\ref{thm:data_proc_statInfo}.
 \end{proof}
