@@ -493,7 +493,16 @@ That estimator has Bayesian risk $\min\{\xi_0 \mu(\mathcal X), \xi_1 \nu(\mathca
 \end{lemma}
 
 \begin{proof}%\leanok
-\uses{}
+\uses{lem:bayesBinaryRisk_le}
+\begin{align*}
+  \mathcal B_\xi(\mu, \mu) &= \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\xi_0 (\hat{y} \circ \mu)(\{1\}) + \xi_1 (\hat{y} \circ \mu)(\{0\})\right) \\
+  &\ge \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\min\{\xi_0, \xi_1\} (\hat{y} \circ \mu)(\{1\}) + \min\{\xi_0, \xi_1\} (\hat{y} \circ \mu)(\{0\})\right) \\
+  &= \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\min\{\xi_0, \xi_1\} (\hat{y} \circ \mu)(\{0, 1\})\right) \\
+  &= \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\min\{\xi_0, \xi_1\} \mu (\mathcal X)\right) \\
+  &= \min\{\xi_0, \xi_1\} \mu (\mathcal X)
+\end{align*}
+Then we conclude using
+
 \end{proof}
 
 \begin{lemma}
