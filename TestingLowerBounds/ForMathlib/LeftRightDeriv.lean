@@ -60,9 +60,8 @@ section Slope
 
 variable {𝕜 : Type*} [LinearOrderedField 𝕜] {s : Set 𝕜} {f : 𝕜 → 𝕜} {x : 𝕜}
 
---this could be put either in `Mathlib.Analysis.Convex.Slope` or in `Mathlib.LinearAlgebra.AffineSpace.Slope`, but either way I would have to import the other file. Maybe there is some more suitable file that already imports both.
--- try to do a draft PR in mathlib adding it to Convex.Slope, the github bot should tell us how much of a change it is to add the import, then we can decide if it's worth it
-lemma slope_mono (hfc : ConvexOn 𝕜 s f) (hx : x ∈ s) : MonotoneOn (slope f x) (s \ {x}) := --in the PR
+--This has already been merged in Mathlib, see #14015. When we bump remove this
+lemma slope_mono (hfc : ConvexOn 𝕜 s f) (hx : x ∈ s) : MonotoneOn (slope f x) (s \ {x}) :=
   (slope_fun_def_field f _).symm ▸ fun _ hy _ hz hz' ↦ hfc.secant_mono hx (mem_of_mem_diff hy)
     (mem_of_mem_diff hz) (not_mem_of_mem_diff hy :) (not_mem_of_mem_diff hz :) hz'
 
