@@ -34,25 +34,6 @@ lemma MonotoneOn.tendsto_nhdsWithin_Ioo_right {α β : Type*} [LinearOrder α] [
     refine mem_of_superset (Ioo_mem_nhdsWithin_Ioi' xz) fun w hw => ?_
     exact (Mf ⟨hw.1, hw.2.trans zy⟩ ⟨xz, zy⟩ hw.2.le).trans_lt zm
 
--- attempt at proving the right version passing through the left one, it compiles but it seems more complicated than just adapting the other proof
--- lemma MonotoneOn.tendsto_nhdsWithin_Ioo_right' {α β : Type*} [LinearOrder α] [TopologicalSpace α]
---     [OrderTopology α] [ConditionallyCompleteLinearOrder β] [TopologicalSpace β] [OrderTopology β]
---     {f : α → β} {x y : α} (h_nonempty : (Ioo x y).Nonempty) (Mf : MonotoneOn f (Ioo x y))
---     (h_bdd : BddBelow (f '' Ioo x y)) :
---     Tendsto f (𝓝[>] x) (𝓝 (sInf (f '' Ioo x y))) := by
---   set Ioo' := OrderDual.ofDual ⁻¹' Set.Ioo x y with Ioo'_def
---   rw [← Set.dual_Ioo] at Ioo'_def
---   have Mf' : MonotoneOn (⇑OrderDual.toDual ∘ f ∘ ⇑OrderDual.ofDual) Ioo' := Mf.dual
---   rw [Ioo'_def] at Mf'
---   convert MonotoneOn.tendsto_nhdsWithin_Ioo_left (α := αᵒᵈ) (β := βᵒᵈ) ?_ Mf' ?_ using 1
---   · simp_rw [image_comp, dual_Ioo, Equiv.image_preimage,
---       show OrderDual.toDual '' (f '' Ioo x y) = OrderDual.ofDual ⁻¹' (f '' Ioo x y) from
---       (OrderDual.toDual.eq_preimage_iff_image_eq _ _).mp rfl]
---     rfl
---   · simpa only [dual_Ioo]
---   · rwa [← bddBelow_preimage_toDual, image_comp, Equiv.preimage_image, Set.dual_Ioo, image_comp,
---       Equiv.image_preimage]
-
 lemma MonotoneOn.tendsto_nhdsWithin_Iio {α β : Type*} [LinearOrder α] [TopologicalSpace α]
     [OrderTopology α] [ConditionallyCompleteLinearOrder β] [TopologicalSpace β] [OrderTopology β]
     {f : α → β} {x : α} (Mf : MonotoneOn f (Iio x)) (h_bdd : BddAbove (f '' Iio x)) :
