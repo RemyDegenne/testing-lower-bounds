@@ -844,6 +844,53 @@ For the other inequality, remark that $\mu = (\kappa \circ \mu)_X$ (and similarl
 
 \subsection{Data-processing inequality: general measurable spaces}
 
+
+\begin{lemma}
+  \label{lem:fDiv_statInfoFun_eq}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv, def:statInfoFun}
+  Let $a,b \in (0, +\infty)$ and let $\mu, \nu$ be two measures on $\mathcal X$.
+  \begin{align*}
+  D_{\phi_{a,b}}(\mu, \nu)
+  &= \text{sign}(b-a)\frac{1}{2}(a \mu(\mathcal X) - b \nu(\mathcal X)) + \frac{1}{2}\nu\left[ \left\vert a \frac{d\mu}{d\nu} - b \right\vert \right] + \frac{1}{2}a \mu_{\perp \nu}(\mathcal X)
+  \: ,
+  \end{align*}
+  in which $\text{sign}(b-a)$ is $1$ if $b-a > 0$, $-1$ if $b-a < 0$ and the inequality is true for both values $1$ and $-1$ for $a=b$.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+If $a \le b$,
+\begin{align*}
+D_{\phi_{a,b}}(\mu, \nu)
+&= \nu\left[ \max\{0, a \frac{d\mu}{d\nu} - b\} \right] + a \mu_{\perp \nu}(\mathcal X)
+\\
+&= \frac{1}{2}(a \mu_{\parallel \nu}(\mathcal X) - b \nu(\mathcal X)) + \frac{1}{2}\nu\left[ \left\vert a \frac{d\mu}{d\nu} - b \right\vert \right] + a \mu_{\perp \nu}(\mathcal X)
+\\
+&= \frac{1}{2}(a \mu(\mathcal X) - b \nu(\mathcal X)) + \frac{1}{2}\nu\left[ \left\vert a \frac{d\mu}{d\nu} - b \right\vert \right] + \frac{1}{2}a \mu_{\perp \nu}(\mathcal X)
+\: . 
+\end{align*}
+Similar computations lead to the result for $b \le a$.
+\end{proof}
+
+\begin{corollary}
+  \label{cor:fDiv_statInfoFun_eq_statInfo}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv, def:statInfoFun, def:statInfo}
+  Let $a,b \in (0, +\infty)$ and let $\mu, \nu$ be two measures on $\mathcal X$.
+  \begin{align*}
+  D_{\phi_{a,b}}(\mu, \nu) = \mathcal I_{(a,b)}(\mu, \nu) + \frac{1}{2} \left\vert a \mu(\mathcal X) - b \nu(\mathcal X) \right\vert + \text{sign}(b-a)\frac{1}{2}(a \mu(\mathcal X) - b \nu(\mathcal X))
+  \: .
+  \end{align*}
+\end{corollary}
+
+\begin{proof}%\leanok
+\uses{lem:fDiv_statInfoFun_eq, cor:statInfo_eq_integral_abs}
+Combine Lemma~\ref{lem:fDiv_statInfoFun_eq} and Corollary~\ref{cor:statInfo_eq_integral_abs}.
+\end{proof}
+
 \begin{lemma}
   \label{lem:fDiv_phi_data_proc}
   %\lean{}
@@ -854,30 +901,13 @@ For the other inequality, remark that $\mu = (\kappa \circ \mu)_X$ (and similarl
 \end{lemma}
 
 \begin{proof}%\leanok
-\uses{thm:data_proc_statInfo, thm:statInfo_eq_integral}
-By Theorem~\ref{thm:statInfo_eq_integral}, if two measures have same mass then the statistical information $\mathcal I_{(a,b)}(\mu, \nu)$ is equal to $D_{\phi_{a,b}}(\mu, \nu)$.
-
-Let $\alpha = \frac{\mu(\mathcal X)}{\nu(\mathcal X)}$. Since $\alpha^{-1}\mu$ and $\nu$ have same mass, we have
+\uses{thm:data_proc_statInfo, cor:fDiv_statInfoFun_eq_statInfo}
+By Corollary~\ref{cor:fDiv_statInfoFun_eq_statInfo},
 \begin{align*}
-D_{\phi_{a,b}}(\mu, \nu)
-&= \alpha D_{\phi_{a,b/\alpha}}(\alpha^{-1}\mu, \nu)
-= \alpha \mathcal I_{(a, b/\alpha)}(\alpha^{-1}\mu, \nu)
+D_{\phi_{a,b}}(\mu, \nu) = \mathcal I_{(a,b)}(\mu, \nu) + \frac{1}{2} \left\vert a \mu(\mathcal X) - b \nu(\mathcal X) \right\vert + \text{sign}(b-a)\frac{1}{2}(a \mu(\mathcal X) - b \nu(\mathcal X))
 \: .
 \end{align*}
-
-The divergence $\mathcal I_{(a,b/\alpha)}$ satisfies the data-processing inequality (Theorem~\ref{thm:data_proc_statInfo}).
-For a Markov kernel $\kappa$, $\frac{(\kappa \circ \mu)(\mathcal X)}{( \kappa \circ \nu)(\mathcal X)} = \frac{\mu(\mathcal X)}{\nu(\mathcal X)} = \alpha$, hence
-\begin{align*}
-D_{\phi_{a,b}}(\kappa \circ \mu, \kappa \circ \nu)
-&= \alpha \mathcal I_{(a, b/\alpha)}(\alpha^{-1}\kappa \circ \mu, \kappa \circ \nu)
-\\
-&= \alpha \mathcal I_{(a, b/\alpha)}(\kappa \circ (\alpha^{-1}\mu), \kappa \circ \nu)
-\\
-&\le \alpha \mathcal I_{(a, b/\alpha)}(\alpha^{-1}\mu, \nu)
-\\
-&= D_{\phi_{a,b}}(\mu, \nu)
-\: .
-\end{align*}
+The statistical information satisfies the data-processing inequality (Theorem~\ref{thm:data_proc_statInfo}) and the other terms are invariant by composition with a Markov kernel, hence $D_{\phi_{a,b}}$ also satisfies the data-processing inequality.
 \end{proof}
 
 \begin{theorem}[Data-processing]

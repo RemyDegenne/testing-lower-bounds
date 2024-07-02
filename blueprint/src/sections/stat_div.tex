@@ -242,6 +242,29 @@ The two cases of Theorem~\ref{thm:statInfo_eq_integral} lead to the same express
 This is a direct application of Lemma~\ref{lem:bayesBinaryRisk_eq_event}.
 \end{proof}
 
+
+\begin{lemma}
+  \label{lem:statInfo_eq_sup_event}
+  %\lean{}
+  %\leanok
+  \uses{def:statInfo}
+  For finite measures $\mu, \nu$ and $\xi \in \mathcal M(\{0,1\})$,
+  \begin{align*}
+  \mathcal I_\xi(\mu, \nu)
+  &= - \max\{0, \xi_1 \nu(\mathcal X) - \xi_0 \mu(\mathcal X) \} + \sup_{E \text{ event}} \left( \xi_1 \nu(E) - \xi_0 \mu(E) \right)
+  \\
+  &= - \max\{0, \xi_0 \mu(\mathcal X) - \xi_1 \nu(\mathcal X) \} + \sup_{E \text{ event}} \left( \xi_0 \mu(E) - \xi_1 \nu(E) \right)
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:statInfo_eq_sub_inf_event}
+
+\end{proof}
+
+
+
 \subsection{DeGroot statistical information}
 
 TODO: we could also call the more general statistical information defined above the DeGroot statistical information.
