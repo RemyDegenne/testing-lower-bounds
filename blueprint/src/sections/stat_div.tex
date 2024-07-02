@@ -142,7 +142,7 @@ Apply Theorem~\ref{thm:bayesBinaryRisk_eq} to get that result for $\zeta = P \ci
   \begin{align*}
   \mathcal I_\xi(\mu, \nu)
   &= - \frac{1}{2} \left\vert \xi_0\mu(\mathcal X) - \xi_1\nu(\mathcal X) \right\vert + 
-    \zeta\left[x \mapsto \left\vert \xi_0\frac{d \mu}{d\zeta}(x) - \xi_1\frac{d \nu}{d\zeta}(x)\right\vert\right] 
+  \frac{1}{2} \zeta\left[x \mapsto \left\vert \xi_0\frac{d \mu}{d\zeta}(x) - \xi_1\frac{d \nu}{d\zeta}(x)\right\vert\right] 
   \: .
   \end{align*}
   This holds in particular for $\zeta = P \circ \xi$.
@@ -527,7 +527,7 @@ Apply Lemma~\ref{lem:statInfo_eq_sub_min}.
   \begin{align*}
   \TV(\mu, \nu)
   &= - \frac{1}{2} \left\vert \mu(\mathcal X) - \nu(\mathcal X) \right\vert + 
-    \zeta\left[x \mapsto \left\vert \frac{d \mu}{d\zeta}(x) - \frac{d \nu}{d\zeta}(x)\right\vert\right] 
+  \frac{1}{2} \zeta\left[x \mapsto \left\vert \frac{d \mu}{d\zeta}(x) - \frac{d \nu}{d\zeta}(x)\right\vert\right] 
   \: .
   \end{align*}
   This holds in particular for $\zeta = P \circ \xi$.
@@ -604,7 +604,7 @@ Apply Lemma~\ref{lem:statInfo_eq_sub_inf_event}.
   %\lean{}
   %\leanok
   \uses{}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ with $\mu(\mathcal X) = \nu(\mathcal X)$.\\
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ with $\mu(\mathcal X) \leq \nu(\mathcal X)$.\\
   Then $TV(\mu, \nu) = \sup_{E \text{ event}} \left( \mu(E) - \nu(E) \right)$.
 \end{theorem}
 
@@ -631,7 +631,7 @@ Starting from Lemma~\ref{lem:tv_eq_sub_inf_event},
   %\leanok
   \uses{def:TV}
   Let $\mathcal F = \{f : \mathcal X \to \mathbb{R} \mid \Vert f \Vert_\infty \le 1\}$.
-  Then for $\mu, \nu $ with $\mu(\mathcal X) = \nu(\mathcal X)$, $\frac{1}{2} \sup_{f \in \mathcal F} \left( \mu[f] - \nu[f] \right) \le \TV(\mu, \nu)$.
+  Then for $\mu, \nu$ finite measures with $\mu(\mathcal X) = \nu(\mathcal X)$, $\frac{1}{2} \sup_{f \in \mathcal F} \left( \mu[f] - \nu[f] \right) \le \TV(\mu, \nu)$.
 \end{lemma}
 
 \begin{proof}
@@ -657,7 +657,7 @@ The last equality is Lemma~\ref{lem:tv_eq_integral_abs_sub}.
   %\leanok
   \uses{def:TV}
   Let $\mathcal F = \{f : \mathcal X \to \mathbb{R} \mid \Vert f \Vert_\infty \le 1\}$.
-  Then $\TV(\mu, \nu) = \frac{1}{2} \sup_{f \in \mathcal F} \left( \mu[f] - \nu[f] \right)$.
+  Then for $\mu, \nu$ finite measures with $\mu(\mathcal X) = \nu(\mathcal X)$, $\TV(\mu, \nu) = \frac{1}{2} \sup_{f \in \mathcal F} \left( \mu[f] - \nu[f] \right)$.
 \end{theorem}
 
 \begin{proof}
