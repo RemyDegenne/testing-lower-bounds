@@ -14,6 +14,8 @@ open Set Filter Topology
 
 open scoped ENNReal NNReal
 
+variable {f : ℝ → ℝ}
+
 /-- The right derivative of a real function. -/
 noncomputable
 def rightDeriv (f : ℝ → ℝ) : ℝ → ℝ := fun x ↦ derivWithin f (Ioi x) x
@@ -69,7 +71,7 @@ lemma bddBelow_slope_Ioi_of_convexOn (hfc : ConvexOn ℝ univ f) (x : ℝ) :
   simp_rw [mem_Ici, ← hz']
   exact slope_mono hfc trivial (by simp) ⟨trivial, hz.ne'⟩ (by linarith)
 
-lemma bddAbove_slope_Iio_of_convexOn {f : ℝ → ℝ} (hfc : ConvexOn ℝ univ f) (x : ℝ) :
+lemma bddAbove_slope_Iio_of_convexOn (hfc : ConvexOn ℝ univ f) (x : ℝ) :
     BddAbove (slope f x '' Iio x) := by
   refine bddAbove_iff_subset_Iic.mpr ⟨(slope f x (x + 1)), fun y ⟨z, (hz : z < x), hz'⟩ ↦ ?_⟩
   simp_rw [mem_Iic, ← hz']
@@ -77,10 +79,8 @@ lemma bddAbove_slope_Iio_of_convexOn {f : ℝ → ℝ} (hfc : ConvexOn ℝ univ 
 
 end Slope
 
-variable {f : ℝ → ℝ} (hfc : ConvexOn ℝ univ f)
-
 -- TODO: this can be generalized to a set S, where the function is convex, but I still need to figure out what hp to require, since the minimal assumption I think is that there exist a right interval of x that is contained in S (so x itself does not have to be in S), i.e. (x, y) ⊆ S, I don't know if. To generalize we will need MonotoneOn.tendsto_nhdsWithin_Ioo_right. However there are dirrerent kinds of sufficient conditions that could be given, for example S open and x in S or x in the interior of S. Discuss this with Remy. Maybe the minimal hp I described is not sufficient, I also need to assure some kind of boundedness of the slope, this should be assured if x is in the interior of S, because then we can take a point to the left of x but still inside S and use the monotonicity of the solpe in S, but can we do better? For now we can leave it like this
-lemma hasRightDerivAt_of_convexOn (x : ℝ) :
+lemma hasRightDerivAt_of_convexOn (hfc : ConvexOn ℝ univ f) (x : ℝ) :
     HasDerivWithinAt f (sInf (slope f x '' Ioi x)) (Ioi x) x := by
   simp_rw [hasDerivWithinAt_iff_tendsto_slope]
   simp only [mem_Ioi, lt_self_iff_false, not_false_eq_true, diff_singleton_eq_self]
@@ -91,14 +91,14 @@ lemma hasRightDerivAt_of_convexOn (x : ℝ) :
       (Ne.symm (ne_of_lt hz)) hz'.le
   exact MonotoneOn.tendsto_nhdsWithin_Ioi h_mono (bddBelow_slope_Ioi_of_convexOn hfc x)
 
-lemma differentiableWithinAt_Ioi_of_convexOn (x : ℝ) : DifferentiableWithinAt ℝ f (Ioi x) x :=
+lemma differentiableWithinAt_Ioi_of_convexOn (hfc : ConvexOn ℝ univ f) (x : ℝ) : DifferentiableWithinAt ℝ f (Ioi x) x :=
   (hasRightDerivAt_of_convexOn hfc x).differentiableWithinAt
 
-lemma hadDerivWithinAt_rightDeriv_of_convexOn (x : ℝ) :
+lemma hadDerivWithinAt_rightDeriv_of_convexOn (hfc : ConvexOn ℝ univ f) (x : ℝ) :
     HasDerivWithinAt f (rightDeriv f x) (Ioi x) x :=
   (differentiableWithinAt_Ioi_of_convexOn hfc x).hasDerivWithinAt
 
-lemma hasLeftDerivAt_of_convexOn (x : ℝ) :
+lemma hasLeftDerivAt_of_convexOn (hfc : ConvexOn ℝ univ f) (x : ℝ) :
     HasDerivWithinAt f (sSup (slope f x '' Iio x)) (Iio x) x := by
   simp_rw [hasDerivWithinAt_iff_tendsto_slope]
   simp only [mem_Iio, lt_self_iff_false, not_false_eq_true, diff_singleton_eq_self]
@@ -109,20 +109,20 @@ lemma hasLeftDerivAt_of_convexOn (x : ℝ) :
       (Ne.symm (ne_of_gt hz)) hz'.le
   exact MonotoneOn.tendsto_nhdsWithin_Iio h_mono (bddAbove_slope_Iio_of_convexOn hfc x)
 
-lemma differentiableWithinAt_Iio_of_convexOn (x : ℝ) : DifferentiableWithinAt ℝ f (Iio x) x :=
+lemma differentiableWithinAt_Iio_of_convexOn (hfc : ConvexOn ℝ univ f) (x : ℝ) : DifferentiableWithinAt ℝ f (Iio x) x :=
   (hasLeftDerivAt_of_convexOn hfc x).differentiableWithinAt
 
-lemma hadDerivWithinAt_leftDeriv_of_convexOn (x : ℝ) :
+lemma hadDerivWithinAt_leftDeriv_of_convexOn (hfc : ConvexOn ℝ univ f) (x : ℝ) :
     HasDerivWithinAt f (leftDeriv f x) (Iio x) x :=
   (differentiableWithinAt_Iio_of_convexOn hfc x).hasDerivWithinAt
 
-lemma rightDeriv_eq_sInf_slope_of_convexOn (x : ℝ) : rightDeriv f x = sInf (slope f x '' Ioi x) :=
+lemma rightDeriv_eq_sInf_slope_of_convexOn (hfc : ConvexOn ℝ univ f) (x : ℝ) : rightDeriv f x = sInf (slope f x '' Ioi x) :=
   (hasRightDerivAt_of_convexOn hfc x).derivWithin (uniqueDiffWithinAt_Ioi x)
 
-lemma leftDeriv_eq_sSup_slope_of_convexOn (x : ℝ) : leftDeriv f x = sSup (slope f x '' Iio x) :=
+lemma leftDeriv_eq_sSup_slope_of_convexOn (hfc : ConvexOn ℝ univ f) (x : ℝ) : leftDeriv f x = sSup (slope f x '' Iio x) :=
   (hasLeftDerivAt_of_convexOn hfc x).derivWithin (uniqueDiffWithinAt_Iio x)
 
-lemma rightDeriv_mono : Monotone (rightDeriv f) := by
+lemma rightDeriv_mono (hfc : ConvexOn ℝ univ f) : Monotone (rightDeriv f) := by
   intro x y hxy
   rcases eq_or_lt_of_le hxy with rfl | hxy; · rfl
   simp_rw [rightDeriv_eq_sInf_slope_of_convexOn hfc]
@@ -132,13 +132,13 @@ lemma rightDeriv_mono : Monotone (rightDeriv f) := by
   rw [slope_comm]
   exact slope_mono hfc trivial ⟨trivial, hxy.ne⟩ ⟨trivial, Ne.symm (ne_of_lt yz)⟩ (hxy.trans yz).le
 
-lemma leftDeriv_mono : Monotone (leftDeriv f) := by
+lemma leftDeriv_mono (hfc : ConvexOn ℝ univ f) : Monotone (leftDeriv f) := by
   rw [leftDeriv_eq_rightDeriv]
   change Monotone (- rightDeriv (f ∘ Neg.neg) ∘ Neg.neg)
   refine (Monotone.comp_antitone ?_ fun _ _ h ↦ neg_le_neg_iff.mpr h).neg
   exact rightDeriv_mono (ConvexOn.comp_neg hfc)
 
-lemma leftDeriv_le_rightDeriv : leftDeriv f ≤ rightDeriv f := by
+lemma leftDeriv_le_rightDeriv (hfc : ConvexOn ℝ univ f) : leftDeriv f ≤ rightDeriv f := by
   intro x
   rw [rightDeriv_eq_sInf_slope_of_convexOn hfc, leftDeriv_eq_sSup_slope_of_convexOn hfc]
   refine csSup_le nonempty_of_nonempty_subtype ?_
@@ -147,7 +147,7 @@ lemma leftDeriv_le_rightDeriv : leftDeriv f ≤ rightDeriv f := by
   rintro _ ⟨y, xy, rfl⟩
   exact slope_mono hfc trivial ⟨trivial, zx.ne⟩ ⟨trivial, (Ne.symm (ne_of_lt xy))⟩ (zx.trans xy).le
 
-lemma rightDeriv_right_continuous_of_convexOn (w : ℝ) :
+lemma rightDeriv_right_continuous_of_convexOn (hfc : ConvexOn ℝ univ f) (w : ℝ) :
     ContinuousWithinAt (rightDeriv f) (Ici w) w := by
   simp_rw [← continuousWithinAt_Ioi_iff_Ici, ContinuousWithinAt]
   have h_lim := MonotoneOn.tendsto_nhdsWithin_Ioi ((rightDeriv_mono hfc).monotoneOn (Ioi w))
@@ -173,7 +173,7 @@ lemma rightDeriv_right_continuous_of_convexOn (w : ℝ) :
   · exact ge_of_tendsto h_lim <| eventually_nhdsWithin_of_forall
       fun y hy ↦ rightDeriv_mono hfc (le_of_lt hy)
 
-lemma leftDeriv_left_continuous_convexOn (w : ℝ) : ContinuousWithinAt (leftDeriv f) (Iic w) w := by
+lemma leftDeriv_left_continuous_convexOn (hfc : ConvexOn ℝ univ f) (w : ℝ) : ContinuousWithinAt (leftDeriv f) (Iic w) w := by
   have h_map : MapsTo Neg.neg (Iic w) (Ici (-w)) := fun _ (h : _ ≤ w) ↦ (neg_le_neg_iff.mpr h)
   rw [leftDeriv_eq_rightDeriv]
   change ContinuousWithinAt (- rightDeriv (f ∘ Neg.neg) ∘ Neg.neg) (Iic w) w
