@@ -85,10 +85,9 @@ lemma hasRightDerivAt (hfc : ConvexOn ℝ univ f) (x : ℝ) :
   simp_rw [hasDerivWithinAt_iff_tendsto_slope]
   simp only [mem_Ioi, lt_self_iff_false, not_false_eq_true, diff_singleton_eq_self]
   have h_mono : MonotoneOn (slope f x) (Ioi x) := by
-    refine monotoneOn_iff_forall_lt.mpr fun y hy z hz hz' ↦ ?_
+    refine monotoneOn_iff_forall_lt.mpr fun y (hy : x < y) z (hz : x < z) hz' ↦ ?_
     simp_rw [slope_def_field]
-    exact ConvexOn.secant_mono hfc trivial trivial trivial (Ne.symm (ne_of_lt hy))
-      (Ne.symm (ne_of_lt hz)) hz'.le
+    exact hfc.secant_mono trivial trivial trivial hy.ne' hz.ne' hz'.le
   exact MonotoneOn.tendsto_nhdsWithin_Ioi h_mono (bddBelow_slope_Ioi hfc x)
 
 lemma differentiableWithinAt_Ioi (hfc : ConvexOn ℝ univ f) (x : ℝ) :
@@ -104,10 +103,9 @@ lemma hasLeftDerivAt (hfc : ConvexOn ℝ univ f) (x : ℝ) :
   simp_rw [hasDerivWithinAt_iff_tendsto_slope]
   simp only [mem_Iio, lt_self_iff_false, not_false_eq_true, diff_singleton_eq_self]
   have h_mono : MonotoneOn (slope f x) (Iio x) := by
-    refine monotoneOn_iff_forall_lt.mpr fun y hy z hz hz' ↦ ?_
+    refine monotoneOn_iff_forall_lt.mpr fun y (hy : y < x) z (hz : z < x) hz' ↦ ?_
     simp_rw [slope_def_field]
-    exact ConvexOn.secant_mono hfc trivial trivial trivial (Ne.symm (ne_of_gt hy))
-      (Ne.symm (ne_of_gt hz)) hz'.le
+    exact hfc.secant_mono trivial trivial trivial hy.ne hz.ne hz'.le
   exact MonotoneOn.tendsto_nhdsWithin_Iio h_mono (bddAbove_slope_Iio hfc x)
 
 lemma differentiableWithinAt_Iio (hfc : ConvexOn ℝ univ f) (x : ℝ) :
@@ -132,9 +130,9 @@ lemma rightDeriv_mono (hfc : ConvexOn ℝ univ f) : Monotone (rightDeriv f) := b
   simp_rw [hfc.rightDeriv_eq_sInf_slope]
   refine csInf_le_of_le (b := slope f x y) (bddBelow_slope_Ioi hfc x)
     ⟨y, by simp [hxy]⟩ (le_csInf nonempty_of_nonempty_subtype ?_)
-  rintro _ ⟨z, yz, rfl⟩
+  rintro _ ⟨z, (yz : y < z), rfl⟩
   rw [slope_comm]
-  exact slope_mono hfc trivial ⟨trivial, hxy.ne⟩ ⟨trivial, Ne.symm (ne_of_lt yz)⟩ (hxy.trans yz).le
+  exact slope_mono hfc trivial ⟨trivial, hxy.ne⟩ ⟨trivial, yz.ne'⟩ (hxy.trans yz).le
 
 lemma leftDeriv_mono (hfc : ConvexOn ℝ univ f) : Monotone (leftDeriv f) := by
   rw [leftDeriv_eq_rightDeriv]
@@ -148,8 +146,8 @@ lemma leftDeriv_le_rightDeriv (hfc : ConvexOn ℝ univ f) : leftDeriv f ≤ righ
   refine csSup_le nonempty_of_nonempty_subtype ?_
   rintro _ ⟨z, (zx : z < x), rfl⟩
   refine le_csInf nonempty_of_nonempty_subtype ?_
-  rintro _ ⟨y, xy, rfl⟩
-  exact slope_mono hfc trivial ⟨trivial, zx.ne⟩ ⟨trivial, (Ne.symm (ne_of_lt xy))⟩ (zx.trans xy).le
+  rintro _ ⟨y, (xy : x < y), rfl⟩
+  exact slope_mono hfc trivial ⟨trivial, zx.ne⟩ ⟨trivial, xy.ne'⟩ (zx.trans xy).le
 
 lemma rightDeriv_right_continuous (hfc : ConvexOn ℝ univ f) (w : ℝ) :
     ContinuousWithinAt (rightDeriv f) (Ici w) w := by
@@ -165,8 +163,7 @@ lemma rightDeriv_right_continuous (hfc : ConvexOn ℝ univ f) (w : ℝ) :
     have slope_lim : Tendsto (slope f y) (𝓝[>] w) (𝓝 (slope f y w)) := by
       have hf_cont : ContinuousWithinAt f (Ioi w) w := -- I would like to replace this with a lemma that derives the continuity from the convexity, it seems that this result is still not in mathlib, see https://leanprover.zulipchat.com/#narrow/stream/116395-maths/topic/Continuity.20.20of.20convex.20functions, they are in the process of proving it in the LeanCamCombi project
         DifferentiableWithinAt.continuousWithinAt (hfc.differentiableWithinAt_Ioi w)
-      exact ((continuousWithinAt_id.sub continuousWithinAt_const).inv₀
-        (sub_ne_zero.2 <| ne_of_lt wy)).smul
+      exact ((continuousWithinAt_id.sub continuousWithinAt_const).inv₀ (sub_ne_zero.2 wy.ne)).smul
         (hf_cont.sub continuousWithinAt_const) |>.tendsto
     rw [slope_comm] at slope_lim
     refine le_of_tendsto_of_tendsto h_lim slope_lim ?_
@@ -181,9 +178,7 @@ lemma leftDeriv_left_continuous (hfc : ConvexOn ℝ univ f) (w : ℝ) :
     ContinuousWithinAt (leftDeriv f) (Iic w) w := by
   have h_map : MapsTo Neg.neg (Iic w) (Ici (-w)) := fun _ (h : _ ≤ w) ↦ (neg_le_neg_iff.mpr h)
   rw [leftDeriv_eq_rightDeriv]
-  change ContinuousWithinAt (- rightDeriv (f ∘ Neg.neg) ∘ Neg.neg) (Iic w) w
-  refine ContinuousWithinAt.comp ?_ continuousWithinAt_neg h_map |>.neg
-  exact hfc.comp_neg.rightDeriv_right_continuous (-w)
+  exact (hfc.comp_neg.rightDeriv_right_continuous _).comp continuousWithinAt_neg h_map |>.neg
 
 /-- The right derivative of a convex real function is a Stieltjes function. -/
 noncomputable
