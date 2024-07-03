@@ -32,7 +32,7 @@ namespace ProbabilityTheory
 
 variable {α : Type*} {mα : MeasurableSpace α} {μ ν ν' : Measure α} {s : Set α}
 
-lemma set_lintegral_nnnorm_exp_neg_llr_le [SigmaFinite ν] [SigmaFinite μ]
+lemma setLIntegral_nnnorm_exp_neg_llr_le [SigmaFinite ν] [SigmaFinite μ]
     (hμν : μ ≪ ν) (s : Set α) :
     ∫⁻ a in s, ‖rexp (-llr μ ν a)‖₊ ∂μ ≤ ν s := by
   set t := toMeasurable ν s
@@ -59,7 +59,7 @@ lemma integrableOn_exp_neg_llr [SigmaFinite ν] [SigmaFinite μ] (hμν : μ ≪
     exact (measurable_llr _ _).neg.exp.stronglyMeasurable
   · rw [hasFiniteIntegral_def]
     calc ∫⁻ a in s, ‖rexp (-llr μ ν a)‖₊ ∂μ
-      ≤ ν s := set_lintegral_nnnorm_exp_neg_llr_le hμν s
+      ≤ ν s := setLIntegral_nnnorm_exp_neg_llr_le hμν s
     _ < ∞ := hνs.lt_top
 
 lemma setIntegral_exp_neg_llr_le [SigmaFinite ν] [SigmaFinite μ] (hμν : μ ≪ ν) (hνs : ν s ≠ ∞) :

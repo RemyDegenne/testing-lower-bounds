@@ -290,7 +290,7 @@ lemma withDensity_rnDeriv_le (κ η : kernel α γ) [IsFiniteKernel κ] [IsFinit
 
 section MeasureCompProd
 
-lemma set_lintegral_prod_rnDeriv {μ ν : Measure α} {κ η : kernel α γ}
+lemma setLIntegral_prod_rnDeriv {μ ν : Measure α} {κ η : kernel α γ}
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] [IsFiniteKernel κ] [IsFiniteKernel η]
     (hμν : μ ≪ ν) (hκη : ∀ᵐ a ∂ν, κ a ≪ η a)
     {s : Set α} (hs : MeasurableSet s) {t : Set γ} (ht : MeasurableSet t) :
@@ -330,7 +330,7 @@ lemma rnDeriv_measure_compProd_aux {μ ν : Measure α} {κ η : kernel α γ}
     exact Measure.absolutelyContinuous_compProd hμν (hμν hκη)
   have : ∀ s t, MeasurableSet s → MeasurableSet t →
       ∫⁻ x in s, ∫⁻ y in t, (∂μ/∂ν) x * rnDeriv κ η x y ∂(η x) ∂ν = (μ ⊗ₘ κ) (s ×ˢ t) :=
-    fun _ _ hs ht ↦ set_lintegral_prod_rnDeriv hμν hκη hs ht
+    fun _ _ hs ht ↦ setLIntegral_prod_rnDeriv hμν hκη hs ht
   intro s hs
   apply MeasurableSpace.induction_on_inter generateFrom_prod.symm isPiSystem_prod _ _ _ _ hs
   · simp
