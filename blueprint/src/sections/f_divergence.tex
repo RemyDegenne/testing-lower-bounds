@@ -940,9 +940,25 @@ The first two terms are unchanged by composition with a Markov kernel. It thus s
 
 \begin{proof}%\leanok
 \uses{thm:fDiv_data_proc_2}
-
+Since $\kappa$ is a Markov kernel, $\mu$ is the composition of $\mu \otimes \kappa$ and the deterministic kernel for the function $(x,y) \mapsto x$. The same applies for $\nu$ and $\nu \otimes \eta$.
+The result is then an application of the data-processing inequality, Theorem~\ref{thm:fDiv_data_proc_2}.
 \end{proof}
 
+
+\begin{lemma}[Composition-product with a kernel]
+  \label{thm:fDiv_compProd_right_2}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
+  Then $D_f(\mu \otimes \kappa, \nu \otimes \kappa) = D_f(\mu, \nu)$.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{thm:fDiv_le_compProd_2, thm:fDiv_data_proc_2}
+By Theorem~\ref{thm:fDiv_le_compProd_2}, $D_f(\mu, \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \kappa)$.
+For the reverse inequality, remark that $\mu \otimes \kappa = (\text{id} \times \kappa) \circ \mu$ where $\text{id}$ is the identity kernel and apply the data-processing inequality (Theorem~\ref{thm:fDiv_data_proc_2}). 
+\end{proof}
 
 \begin{theorem}
   \label{thm:fDiv_comp_le_compProd_2}
@@ -955,7 +971,8 @@ The first two terms are unchanged by composition with a Markov kernel. It thus s
 
 \begin{proof}%\leanok
 \uses{thm:fDiv_data_proc_2}
-
+$\kappa \circ \mu$ is the composition of $\mu \otimes \kappa$ and the deterministic kernel for the function $(x,y) \mapsto y$. The same applies for $\eta \circ \nu$ and $\nu \otimes \eta$.
+The result is then an application of the data-processing inequality, Theorem~\ref{thm:fDiv_data_proc_2}.
 \end{proof}
 
 
@@ -986,7 +1003,8 @@ This is a particular case of Theorem~\ref{thm:fDiv_comp_le_compProd_2}.
 
 \begin{proof}%\leanok
 \uses{thm:fDiv_data_proc_2}
-
+The measure $\mu_X$ is the composition of $\mu$ and the deterministic kernel for the function $(x,y) \mapsto x$, and similarly $\mu_Y$ is the composition of $\mu$ and a deterministic kernel.
+The results are both applications of the data-processing inequality, Theorem~\ref{thm:fDiv_data_proc_2}.
 \end{proof}
 
 
