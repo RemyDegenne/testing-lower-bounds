@@ -32,7 +32,7 @@ namespace ProbabilityTheory
 
 variable {α : Type*} {mα : MeasurableSpace α} {μ ν ν' : Measure α} {s : Set α}
 
-lemma set_lintegral_nnnorm_exp_neg_llr_le [SigmaFinite ν] [SigmaFinite μ]
+lemma setLIntegral_nnnorm_exp_neg_llr_le [SigmaFinite ν] [SigmaFinite μ]
     (hμν : μ ≪ ν) (s : Set α) :
     ∫⁻ a in s, ‖rexp (-llr μ ν a)‖₊ ∂μ ≤ ν s := by
   set t := toMeasurable ν s
@@ -40,15 +40,15 @@ lemma set_lintegral_nnnorm_exp_neg_llr_le [SigmaFinite ν] [SigmaFinite μ]
   calc ∫⁻ a in s, ‖rexp (-llr μ ν a)‖₊ ∂μ
       ≤ ∫⁻ a in t, ‖rexp (-llr μ ν a)‖₊ ∂μ := lintegral_mono_set (subset_toMeasurable ν s)
     _ = ∫⁻ a in t, ‖(ν.rnDeriv μ a).toReal‖₊ ∂μ := by
-        refine set_lintegral_congr_fun ht ?_
+        refine setLIntegral_congr_fun ht ?_
         filter_upwards [exp_neg_llr hμν] with x hx _
         rw [hx]
     _ = ∫⁻ a in t, ν.rnDeriv μ a ∂μ := by
-        refine set_lintegral_congr_fun ht ?_
+        refine setLIntegral_congr_fun ht ?_
         filter_upwards [Measure.rnDeriv_ne_top ν μ] with x hx _
         rw [← ofReal_norm_eq_coe_nnnorm]
         simp [hx]
-    _ ≤ ν t := Measure.set_lintegral_rnDeriv_le t
+    _ ≤ ν t := Measure.setLIntegral_rnDeriv_le t
     _ = ν s := measure_toMeasurable s
 
 lemma integrableOn_exp_neg_llr [SigmaFinite ν] [SigmaFinite μ] (hμν : μ ≪ ν) (hνs : ν s ≠ ∞) :
@@ -59,7 +59,7 @@ lemma integrableOn_exp_neg_llr [SigmaFinite ν] [SigmaFinite μ] (hμν : μ ≪
     exact (measurable_llr _ _).neg.exp.stronglyMeasurable
   · rw [hasFiniteIntegral_def]
     calc ∫⁻ a in s, ‖rexp (-llr μ ν a)‖₊ ∂μ
-      ≤ ν s := set_lintegral_nnnorm_exp_neg_llr_le hμν s
+      ≤ ν s := setLIntegral_nnnorm_exp_neg_llr_le hμν s
     _ < ∞ := hνs.lt_top
 
 lemma setIntegral_exp_neg_llr_le [SigmaFinite ν] [SigmaFinite μ] (hμν : μ ≪ ν) (hνs : ν s ≠ ∞) :

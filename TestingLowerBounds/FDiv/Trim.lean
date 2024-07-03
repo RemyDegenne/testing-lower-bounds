@@ -108,7 +108,7 @@ lemma fDiv_trim_le_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ m
   classical
   rw [fDiv_of_absolutelyContinuous hμν, if_pos h_int]
   norm_cast
-  conv_rhs => rw [← integral_condexp hm h_int]
+  conv_rhs => rw [← integral_condexp hm]
   refine integral_mono_ae (integrable_f_condexp_rnDeriv hm hμν hf hf_cvx hf_cont h_int) ?_ ?_
   · exact integrable_condexp
   refine ae_of_ae_trim hm ?_
