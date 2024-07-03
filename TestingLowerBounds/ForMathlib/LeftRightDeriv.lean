@@ -91,12 +91,13 @@ lemma hasRightDerivAt_of_convexOn (hfc : ConvexOn ℝ univ f) (x : ℝ) :
       (Ne.symm (ne_of_lt hz)) hz'.le
   exact MonotoneOn.tendsto_nhdsWithin_Ioi h_mono (bddBelow_slope_Ioi_of_convexOn hfc x)
 
-lemma differentiableWithinAt_Ioi_of_convexOn (hfc : ConvexOn ℝ univ f) (x : ℝ) : DifferentiableWithinAt ℝ f (Ioi x) x :=
-  (hasRightDerivAt_of_convexOn hfc x).differentiableWithinAt
+lemma differentiableWithinAt_Ioi_of_convexOn (hfc : ConvexOn ℝ univ f) (x : ℝ) :
+    DifferentiableWithinAt ℝ f (Ioi x) x :=
+  (hfc.hasRightDerivAt_of_convexOn x).differentiableWithinAt
 
 lemma hadDerivWithinAt_rightDeriv_of_convexOn (hfc : ConvexOn ℝ univ f) (x : ℝ) :
     HasDerivWithinAt f (rightDeriv f x) (Ioi x) x :=
-  (differentiableWithinAt_Ioi_of_convexOn hfc x).hasDerivWithinAt
+  (hfc.differentiableWithinAt_Ioi_of_convexOn x).hasDerivWithinAt
 
 lemma hasLeftDerivAt_of_convexOn (hfc : ConvexOn ℝ univ f) (x : ℝ) :
     HasDerivWithinAt f (sSup (slope f x '' Iio x)) (Iio x) x := by
@@ -109,23 +110,26 @@ lemma hasLeftDerivAt_of_convexOn (hfc : ConvexOn ℝ univ f) (x : ℝ) :
       (Ne.symm (ne_of_gt hz)) hz'.le
   exact MonotoneOn.tendsto_nhdsWithin_Iio h_mono (bddAbove_slope_Iio_of_convexOn hfc x)
 
-lemma differentiableWithinAt_Iio_of_convexOn (hfc : ConvexOn ℝ univ f) (x : ℝ) : DifferentiableWithinAt ℝ f (Iio x) x :=
-  (hasLeftDerivAt_of_convexOn hfc x).differentiableWithinAt
+lemma differentiableWithinAt_Iio_of_convexOn (hfc : ConvexOn ℝ univ f) (x : ℝ) :
+    DifferentiableWithinAt ℝ f (Iio x) x :=
+  (hfc.hasLeftDerivAt_of_convexOn x).differentiableWithinAt
 
 lemma hadDerivWithinAt_leftDeriv_of_convexOn (hfc : ConvexOn ℝ univ f) (x : ℝ) :
     HasDerivWithinAt f (leftDeriv f x) (Iio x) x :=
-  (differentiableWithinAt_Iio_of_convexOn hfc x).hasDerivWithinAt
+  (hfc.differentiableWithinAt_Iio_of_convexOn x).hasDerivWithinAt
 
-lemma rightDeriv_eq_sInf_slope_of_convexOn (hfc : ConvexOn ℝ univ f) (x : ℝ) : rightDeriv f x = sInf (slope f x '' Ioi x) :=
-  (hasRightDerivAt_of_convexOn hfc x).derivWithin (uniqueDiffWithinAt_Ioi x)
+lemma rightDeriv_eq_sInf_slope_of_convexOn (hfc : ConvexOn ℝ univ f) (x : ℝ) :
+    rightDeriv f x = sInf (slope f x '' Ioi x) :=
+  (hfc.hasRightDerivAt_of_convexOn x).derivWithin (uniqueDiffWithinAt_Ioi x)
 
-lemma leftDeriv_eq_sSup_slope_of_convexOn (hfc : ConvexOn ℝ univ f) (x : ℝ) : leftDeriv f x = sSup (slope f x '' Iio x) :=
-  (hasLeftDerivAt_of_convexOn hfc x).derivWithin (uniqueDiffWithinAt_Iio x)
+lemma leftDeriv_eq_sSup_slope_of_convexOn (hfc : ConvexOn ℝ univ f) (x : ℝ) :
+    leftDeriv f x = sSup (slope f x '' Iio x) :=
+  (hfc.hasLeftDerivAt_of_convexOn x).derivWithin (uniqueDiffWithinAt_Iio x)
 
 lemma rightDeriv_mono (hfc : ConvexOn ℝ univ f) : Monotone (rightDeriv f) := by
   intro x y hxy
   rcases eq_or_lt_of_le hxy with rfl | hxy; · rfl
-  simp_rw [rightDeriv_eq_sInf_slope_of_convexOn hfc]
+  simp_rw [hfc.rightDeriv_eq_sInf_slope_of_convexOn]
   refine csInf_le_of_le (b := slope f x y) (bddBelow_slope_Ioi_of_convexOn hfc x)
     ⟨y, by simp [hxy]⟩ (le_csInf nonempty_of_nonempty_subtype ?_)
   rintro _ ⟨z, yz, rfl⟩
@@ -136,11 +140,11 @@ lemma leftDeriv_mono (hfc : ConvexOn ℝ univ f) : Monotone (leftDeriv f) := by
   rw [leftDeriv_eq_rightDeriv]
   change Monotone (- rightDeriv (f ∘ Neg.neg) ∘ Neg.neg)
   refine (Monotone.comp_antitone ?_ fun _ _ h ↦ neg_le_neg_iff.mpr h).neg
-  exact rightDeriv_mono (ConvexOn.comp_neg hfc)
+  exact hfc.comp_neg.rightDeriv_mono
 
 lemma leftDeriv_le_rightDeriv (hfc : ConvexOn ℝ univ f) : leftDeriv f ≤ rightDeriv f := by
   intro x
-  rw [rightDeriv_eq_sInf_slope_of_convexOn hfc, leftDeriv_eq_sSup_slope_of_convexOn hfc]
+  rw [hfc.rightDeriv_eq_sInf_slope_of_convexOn, hfc.leftDeriv_eq_sSup_slope_of_convexOn]
   refine csSup_le nonempty_of_nonempty_subtype ?_
   rintro _ ⟨z, (zx : z < x), rfl⟩
   refine le_csInf nonempty_of_nonempty_subtype ?_
@@ -150,17 +154,17 @@ lemma leftDeriv_le_rightDeriv (hfc : ConvexOn ℝ univ f) : leftDeriv f ≤ righ
 lemma rightDeriv_right_continuous_of_convexOn (hfc : ConvexOn ℝ univ f) (w : ℝ) :
     ContinuousWithinAt (rightDeriv f) (Ici w) w := by
   simp_rw [← continuousWithinAt_Ioi_iff_Ici, ContinuousWithinAt]
-  have h_lim := MonotoneOn.tendsto_nhdsWithin_Ioi ((rightDeriv_mono hfc).monotoneOn (Ioi w))
-    (Monotone.map_bddBelow (rightDeriv_mono hfc) bddBelow_Ioi)
+  have h_lim := MonotoneOn.tendsto_nhdsWithin_Ioi (hfc.rightDeriv_mono.monotoneOn (Ioi w))
+    (Monotone.map_bddBelow hfc.rightDeriv_mono bddBelow_Ioi)
   set l := sInf (rightDeriv f '' Ioi w)
   convert h_lim
   refine (LE.le.le_iff_eq ?_).mp ?_ --any better way to split an equality goal into the two inequalitites?
-  · rw [rightDeriv_eq_sInf_slope_of_convexOn hfc]
+  · rw [hfc.rightDeriv_eq_sInf_slope_of_convexOn]
     refine le_csInf nonempty_of_nonempty_subtype ?_ --is there any way to avoid the rintro here? if I just use fun inside the refine it does not work, it seems that the rfl inside the pattern is not supported by the refine tactic
     rintro _ ⟨y, (wy : w < y), rfl⟩
     have slope_lim : Tendsto (slope f y) (𝓝[>] w) (𝓝 (slope f y w)) := by
       have hf_cont : ContinuousWithinAt f (Ioi w) w := -- I would like to replace this with a lemma that derives the continuity from the convexity, it seems that this result is still not in mathlib, see https://leanprover.zulipchat.com/#narrow/stream/116395-maths/topic/Continuity.20.20of.20convex.20functions, they are in the process of proving it in the LeanCamCombi project
-        DifferentiableWithinAt.continuousWithinAt (differentiableWithinAt_Ioi_of_convexOn hfc w)
+        DifferentiableWithinAt.continuousWithinAt (hfc.differentiableWithinAt_Ioi_of_convexOn w)
       exact ((continuousWithinAt_id.sub continuousWithinAt_const).inv₀
         (sub_ne_zero.2 <| ne_of_lt wy)).smul
         (hf_cont.sub continuousWithinAt_const) |>.tendsto
@@ -168,24 +172,25 @@ lemma rightDeriv_right_continuous_of_convexOn (hfc : ConvexOn ℝ univ f) (w : �
     refine le_of_tendsto_of_tendsto h_lim slope_lim ?_
     rw [← nhdsWithin_Ioo_eq_nhdsWithin_Ioi wy]
     refine eventually_nhdsWithin_of_forall fun z hz ↦ ?_
-    rw [slope_comm, rightDeriv_eq_sInf_slope_of_convexOn hfc]
+    rw [slope_comm, hfc.rightDeriv_eq_sInf_slope_of_convexOn]
     exact csInf_le (bddBelow_slope_Ioi_of_convexOn hfc z) ⟨y, hz.2, rfl⟩
   · exact ge_of_tendsto h_lim <| eventually_nhdsWithin_of_forall
-      fun y hy ↦ rightDeriv_mono hfc (le_of_lt hy)
+      fun y (hy : w < y) ↦ hfc.rightDeriv_mono hy.le
 
-lemma leftDeriv_left_continuous_convexOn (hfc : ConvexOn ℝ univ f) (w : ℝ) : ContinuousWithinAt (leftDeriv f) (Iic w) w := by
+lemma leftDeriv_left_continuous_convexOn (hfc : ConvexOn ℝ univ f) (w : ℝ) :
+    ContinuousWithinAt (leftDeriv f) (Iic w) w := by
   have h_map : MapsTo Neg.neg (Iic w) (Ici (-w)) := fun _ (h : _ ≤ w) ↦ (neg_le_neg_iff.mpr h)
   rw [leftDeriv_eq_rightDeriv]
   change ContinuousWithinAt (- rightDeriv (f ∘ Neg.neg) ∘ Neg.neg) (Iic w) w
   refine ContinuousWithinAt.comp ?_ continuousWithinAt_neg h_map |>.neg
-  exact rightDeriv_right_continuous_of_convexOn hfc.comp_neg (-w)
+  exact hfc.comp_neg.rightDeriv_right_continuous_of_convexOn (-w)
 
 /-- The right derivative of a convex real function is a Stieltjes function. -/
 noncomputable
 def rightDerivStieltjes (f : ℝ → ℝ) (hf : ConvexOn ℝ univ f) :
     StieltjesFunction where
   toFun := rightDeriv f
-  mono' _ _ := fun h ↦ ConvexOn.rightDeriv_mono hf h
-  right_continuous' _ := ConvexOn.rightDeriv_right_continuous_of_convexOn hf _
+  mono' _ _ := fun h ↦ hf.rightDeriv_mono h
+  right_continuous' _ := hf.rightDeriv_right_continuous_of_convexOn _
 
 end ConvexOn
