@@ -5,7 +5,6 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import TestingLowerBounds.KullbackLeibler
 import Mathlib.Analysis.Convex.SpecificFunctions.Pow
-import Mathlib.Tactic.FunProp.Measurable
 
 /-!
 # Helliger divergence
@@ -161,16 +160,16 @@ lemma hellingerFun_of_ne_zero_of_ne_one (ha_zero : a ≠ 0) (ha_one : a ≠ 1) :
   ext x
   simp [hellingerFun, ha_zero, ha_one]
 
-lemma continuous_rpow_const (ha_pos : 0 < a) : Continuous fun (x : ℝ) ↦ x ^ a := by
+lemma continuous_rpow_const (ha_nonneg : 0 ≤ a) : Continuous fun (x : ℝ) ↦ x ^ a := by
   rw [continuous_iff_continuousAt]
-  exact fun _ ↦ continuousAt_rpow_const _ _ (Or.inr ha_pos)
+  exact fun _ ↦ continuousAt_rpow_const _ _ (Or.inr ha_nonneg)
 
 lemma continuous_hellingerFun (ha_pos : 0 < a) : Continuous (hellingerFun a) := by
   by_cases ha_eq : a = 1
   · rw [ha_eq, hellingerFun_one]
     simp [Real.continuous_mul_log]
   rw [hellingerFun, if_neg ha_pos.ne', if_neg ha_eq]
-  exact continuous_const.mul ((continuous_rpow_const ha_pos).sub continuous_const)
+  exact continuous_const.mul ((continuous_rpow_const ha_pos.le).sub continuous_const)
 
 lemma stronglyMeasurable_hellingerFun (ha_nonneg : 0 ≤ a) :
     StronglyMeasurable (hellingerFun a) := by

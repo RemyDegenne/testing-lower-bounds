@@ -64,11 +64,11 @@ lemma set_lintegral_rnDeriv_mul_withDensity
     exact kernel.measurable_rnDeriv _ _
   simp_rw [this]
   rw [withDensity_apply _ (hs.prod ht),
-    Measure.set_lintegral_compProd (Measure.measurable_rnDeriv _ _) hs ht]
-  refine set_lintegral_congr_fun hs ?_
+    Measure.setLIntegral_compProd (Measure.measurable_rnDeriv _ _) hs ht]
+  refine setLIntegral_congr_fun hs ?_
   filter_upwards [kernel.rnDeriv_measure_compProd' μ ν κ η] with a ha _
   rw [← lintegral_const_mul _ (kernel.measurable_rnDeriv_right _ _ _)]
-  refine set_lintegral_congr_fun ht ?_
+  refine setLIntegral_congr_fun ht ?_
   filter_upwards [ha, kernel.rnDeriv_eq_rnDeriv_measure κ η a] with b hb hb' _
   rw [hb, hb']
 
@@ -77,7 +77,7 @@ lemma lintegral_rnDeriv_mul_withDensity (μ ν : Measure α) [IsFiniteMeasure μ
     {t : Set β} (ht : MeasurableSet t) :
     ∫⁻ a, (∂μ/∂ν) a * kernel.withDensity η (kernel.rnDeriv κ η) a t ∂ν
       = (ν ⊗ₘ η).withDensity (∂(μ ⊗ₘ κ)/∂(ν ⊗ₘ η)) (Set.univ ×ˢ t) := by
-  rw [← set_lintegral_rnDeriv_mul_withDensity _ _ _ _ MeasurableSet.univ ht, set_lintegral_univ]
+  rw [← set_lintegral_rnDeriv_mul_withDensity _ _ _ _ MeasurableSet.univ ht, setLIntegral_univ]
 
 lemma set_lintegral_rnDeriv_mul_singularPart
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
@@ -92,9 +92,9 @@ lemma set_lintegral_rnDeriv_mul_singularPart
   have : Measure.withDensity ν (∂Measure.withDensity ν (∂μ/∂ν)/∂ν)
       = Measure.withDensity ν (∂μ/∂ν) :=
     withDensity_congr_ae (Measure.rnDeriv_withDensity _ (Measure.measurable_rnDeriv _ _))
-  rw [this, ← set_lintegral_rnDeriv_mul (μ := ν.withDensity (∂μ/∂ν)) (ν := ν)
+  rw [this, ← setLIntegral_rnDeriv_mul (μ := ν.withDensity (∂μ/∂ν)) (ν := ν)
     (withDensity_absolutelyContinuous _ _) (kernel.measurable_coe _ ht).aemeasurable hs]
-  refine set_lintegral_congr_fun hs ?_
+  refine setLIntegral_congr_fun hs ?_
   filter_upwards [Measure.rnDeriv_withDensity _ (Measure.measurable_rnDeriv μ ν)] with x hx _
   rw [hx, kernel.singularPart_eq_singularPart_measure]
 
@@ -103,7 +103,7 @@ lemma lintegral_rnDeriv_mul_singularPart (μ ν : Measure α) [IsFiniteMeasure �
     {t : Set β} (ht : MeasurableSet t) :
     ∫⁻ a, (∂μ/∂ν) a * (κ a).singularPart (η a) t ∂ν
       = ((ν.withDensity (∂μ/∂ν)) ⊗ₘ κ).singularPart (ν ⊗ₘ η) (Set.univ ×ˢ t) := by
-  rw [← set_lintegral_rnDeriv_mul_singularPart _ _ _ _ MeasurableSet.univ ht, set_lintegral_univ]
+  rw [← set_lintegral_rnDeriv_mul_singularPart _ _ _ _ MeasurableSet.univ ht, setLIntegral_univ]
 
 lemma set_lintegral_withDensity (μ : Measure α) [IsFiniteMeasure μ]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
@@ -111,7 +111,7 @@ lemma set_lintegral_withDensity (μ : Measure α) [IsFiniteMeasure μ]
     ∫⁻ a in s, kernel.withDensity η (kernel.rnDeriv κ η) a t ∂μ
       = (μ ⊗ₘ η).withDensity (∂(μ ⊗ₘ κ)/∂(μ ⊗ₘ η)) (s ×ˢ t) := by
   rw [← set_lintegral_rnDeriv_mul_withDensity μ μ κ η hs ht]
-  refine set_lintegral_congr_fun hs ?_
+  refine setLIntegral_congr_fun hs ?_
   filter_upwards [μ.rnDeriv_self] with a ha _
   rw [ha, one_mul]
 
@@ -128,13 +128,13 @@ lemma lintegral_withDensity (μ : Measure α) [IsFiniteMeasure μ]
     {s : Set β} (hs : MeasurableSet s) :
     ∫⁻ a, kernel.withDensity η (kernel.rnDeriv κ η) a s ∂μ
       = (μ ⊗ₘ η).withDensity (∂(μ ⊗ₘ κ)/∂(μ ⊗ₘ η)) (Set.univ ×ˢ s) := by
-  rw [← set_lintegral_univ, set_lintegral_withDensity _ _ _ MeasurableSet.univ hs]
+  rw [← setLIntegral_univ, set_lintegral_withDensity _ _ _ MeasurableSet.univ hs]
 
 lemma lintegral_singularPart (μ : Measure α) [IsFiniteMeasure μ]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
     {s : Set β} (hs : MeasurableSet s) :
     ∫⁻ a, (κ a).singularPart (η a) s ∂μ = (μ ⊗ₘ κ).singularPart (μ ⊗ₘ η) (Set.univ ×ˢ s) := by
-  rw [← set_lintegral_univ, set_lintegral_singularPart _ _ _ MeasurableSet.univ hs]
+  rw [← setLIntegral_univ, set_lintegral_singularPart _ _ _ MeasurableSet.univ hs]
 
 lemma integrable_rnDeriv_mul_withDensity (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
