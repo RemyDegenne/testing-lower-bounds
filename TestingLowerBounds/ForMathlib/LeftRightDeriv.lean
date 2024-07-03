@@ -182,7 +182,7 @@ lemma leftDeriv_left_continuous (hfc : ConvexOn ℝ univ f) (w : ℝ) :
 
 /-- The right derivative of a convex real function is a Stieltjes function. -/
 noncomputable
-def rightDerivStieltjes (f : ℝ → ℝ) (hf : ConvexOn ℝ univ f) :
+def rightDerivStieltjes {f : ℝ → ℝ} (hf : ConvexOn ℝ univ f) :
     StieltjesFunction where
   toFun := rightDeriv f
   mono' _ _ := fun h ↦ hf.rightDeriv_mono h
