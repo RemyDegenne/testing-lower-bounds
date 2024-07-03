@@ -156,7 +156,9 @@ lemma rightDeriv_right_continuous (hfc : ConvexOn ℝ univ f) (w : ℝ) :
     (Monotone.map_bddBelow hfc.rightDeriv_mono bddBelow_Ioi)
   set l := sInf (rightDeriv f '' Ioi w)
   convert h_lim
-  refine (LE.le.le_iff_eq ?_).mp ?_ --any better way to split an equality goal into the two inequalitites?
+  apply le_antisymm
+  · exact ge_of_tendsto h_lim <| eventually_nhdsWithin_of_forall
+      fun y (hy : w < y) ↦ hfc.rightDeriv_mono hy.le
   · rw [hfc.rightDeriv_eq_sInf_slope]
     refine le_csInf nonempty_of_nonempty_subtype ?_ --is there any way to avoid the rintro here? if I just use fun inside the refine it does not work, it seems that the rfl inside the pattern is not supported by the refine tactic
     rintro _ ⟨y, (wy : w < y), rfl⟩
@@ -171,8 +173,6 @@ lemma rightDeriv_right_continuous (hfc : ConvexOn ℝ univ f) (w : ℝ) :
     refine eventually_nhdsWithin_of_forall fun z hz ↦ ?_
     rw [slope_comm, hfc.rightDeriv_eq_sInf_slope]
     exact csInf_le (bddBelow_slope_Ioi hfc z) ⟨y, hz.2, rfl⟩
-  · exact ge_of_tendsto h_lim <| eventually_nhdsWithin_of_forall
-      fun y (hy : w < y) ↦ hfc.rightDeriv_mono hy.le
 
 lemma leftDeriv_left_continuous (hfc : ConvexOn ℝ univ f) (w : ℝ) :
     ContinuousWithinAt (leftDeriv f) (Iic w) w := by
