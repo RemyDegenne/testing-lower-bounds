@@ -63,14 +63,7 @@ namespace ConvexOn
 
 section Slope
 
-variable {𝕜 : Type*} [LinearOrderedField 𝕜] {s : Set 𝕜} {f : 𝕜 → 𝕜} {x : 𝕜}
-
---This has already been merged in Mathlib, see #14015. When we bump remove this
-lemma slope_mono (hfc : ConvexOn 𝕜 s f) (hx : x ∈ s) : MonotoneOn (slope f x) (s \ {x}) :=
-  (slope_fun_def_field f _).symm ▸ fun _ hy _ hz hz' ↦ hfc.secant_mono hx (mem_of_mem_diff hy)
-    (mem_of_mem_diff hz) (not_mem_of_mem_diff hy :) (not_mem_of_mem_diff hz :) hz'
-
-lemma bddBelow_slope_Ioi_of_convexOn {f : ℝ → ℝ} (hfc : ConvexOn ℝ univ f) (x : ℝ) :
+lemma bddBelow_slope_Ioi_of_convexOn (hfc : ConvexOn ℝ univ f) (x : ℝ) :
     BddBelow (slope f x '' Ioi x) := by
   refine bddBelow_iff_subset_Ici.mpr ⟨(slope f x (x - 1)), fun y ⟨z, (hz : x < z), hz'⟩ ↦ ?_⟩
   simp_rw [mem_Ici, ← hz']
