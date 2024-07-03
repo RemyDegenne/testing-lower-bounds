@@ -25,7 +25,8 @@ def leftDeriv (f : ℝ → ℝ) : ℝ → ℝ := fun x ↦ derivWithin f (Iio x)
 lemma leftDeriv_def (f : ℝ → ℝ) (x : ℝ) : leftDeriv f x = derivWithin f (Iio x) x := rfl
 
 lemma rightDeriv_eq_leftDeriv_apply (f : ℝ → ℝ) (x : ℝ) :
-    rightDeriv f x = - leftDeriv (f ∘ Neg.neg) (-x) := by
+    rightDeriv f x = - leftDeriv (fun x ↦ f (-x)) (-x) := by
+  change rightDeriv f x = -leftDeriv (f ∘ Neg.neg) (-x)
   have h_map : MapsTo Neg.neg (Iio (-x)) (Ioi x) := fun _ (h : _ < -x) ↦ lt_neg_of_lt_neg h
   have h_map' : MapsTo Neg.neg (Ioi x) (Iio (-x)) := fun _ (h : x < _) ↦ neg_lt_neg h
   by_cases hf_diff : DifferentiableWithinAt ℝ f (Ioi x) x
@@ -42,15 +43,17 @@ lemma rightDeriv_eq_leftDeriv_apply (f : ℝ → ℝ) (x : ℝ) :
   swap; · exact uniqueDiffWithinAt_Iio _
   simp only [mul_neg, mul_one, neg_neg]
 
-lemma rightDeriv_eq_leftDeriv (f : ℝ → ℝ) : rightDeriv f = - leftDeriv (f ∘ Neg.neg) ∘ Neg.neg := by
+lemma rightDeriv_eq_leftDeriv (f : ℝ → ℝ) :
+    rightDeriv f = fun x ↦ - leftDeriv (fun y ↦ f (-y)) (-x) := by
   ext x
   simp [rightDeriv_eq_leftDeriv_apply]
 
 lemma leftDeriv_eq_rightDeriv_apply (f : ℝ → ℝ) (x : ℝ) :
-    leftDeriv f x = - rightDeriv (f ∘ Neg.neg) (-x) := by
+    leftDeriv f x = - rightDeriv (fun y ↦ f (-y)) (-x) := by
   simp [rightDeriv_eq_leftDeriv_apply, Function.comp.assoc]
 
-lemma leftDeriv_eq_rightDeriv (f : ℝ → ℝ) : leftDeriv f = - rightDeriv (f ∘ Neg.neg) ∘ Neg.neg := by
+lemma leftDeriv_eq_rightDeriv (f : ℝ → ℝ) :
+    leftDeriv f = fun x ↦ - rightDeriv (fun y ↦ f (-y)) (-x) := by
   ext x
   simp [leftDeriv_eq_rightDeriv_apply]
 
@@ -136,6 +139,7 @@ lemma rightDeriv_mono : Monotone (rightDeriv f) := by
 
 lemma leftDeriv_mono : Monotone (leftDeriv f) := by
   rw [leftDeriv_eq_rightDeriv]
+  change Monotone (- rightDeriv (f ∘ Neg.neg) ∘ Neg.neg)
   refine (Monotone.comp_antitone ?_ fun _ _ h ↦ neg_le_neg_iff.mpr h).neg
   exact rightDeriv_mono (ConvexOn.comp_neg hfc)
 
@@ -177,6 +181,7 @@ lemma rightDeriv_right_continuous_of_convexOn (w : ℝ) :
 lemma leftDeriv_left_continuous_convexOn (w : ℝ) : ContinuousWithinAt (leftDeriv f) (Iic w) w := by
   have h_map : MapsTo Neg.neg (Iic w) (Ici (-w)) := fun _ (h : _ ≤ w) ↦ (neg_le_neg_iff.mpr h)
   rw [leftDeriv_eq_rightDeriv]
+  change ContinuousWithinAt (- rightDeriv (f ∘ Neg.neg) ∘ Neg.neg) (Iic w) w
   refine ContinuousWithinAt.comp ?_ continuousWithinAt_neg h_map |>.neg
   exact rightDeriv_right_continuous_of_convexOn hfc.comp_neg (-w)
 
