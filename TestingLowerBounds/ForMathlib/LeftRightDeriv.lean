@@ -14,11 +14,13 @@ open Set Filter Topology
 
 open scoped ENNReal NNReal
 
+/-- The right derivative of a real function. -/
 noncomputable
 def rightDeriv (f : ℝ → ℝ) : ℝ → ℝ := fun x ↦ derivWithin f (Ioi x) x
 
 lemma rightDeriv_def (f : ℝ → ℝ) (x : ℝ) : rightDeriv f x = derivWithin f (Ioi x) x := rfl
 
+/-- The left derivative of a real function. -/
 noncomputable
 def leftDeriv (f : ℝ → ℝ) : ℝ → ℝ := fun x ↦ derivWithin f (Iio x) x
 
@@ -187,6 +189,7 @@ lemma leftDeriv_left_continuous_convexOn (w : ℝ) : ContinuousWithinAt (leftDer
 
 end ConvexOn
 
+/-- The right derivative of a convex real function is a Stieltjes function. -/
 noncomputable
 def StieltjesFunction.rightDeriv_of_convex (f : ℝ → ℝ) (hf : ConvexOn ℝ univ f) :
     StieltjesFunction where
