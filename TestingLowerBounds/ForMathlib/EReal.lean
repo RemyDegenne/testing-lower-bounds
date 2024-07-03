@@ -128,38 +128,6 @@ lemma sub_self {x : EReal} (h_top : x ≠ ⊤) (h_bot : x ≠ ⊥) : x - x = 0 :
 lemma sub_self_le_zero {x : EReal} : x - x ≤ 0 := by
   induction x using EReal.rec <;> simp
 
--- lemma top_add_of_ne_bot {x : EReal} (hx : x ≠ ⊥) : ⊤ + x = ⊤ := by
---   by_cases hx_top : x = ⊤
---   · simp [hx_top]
---   · lift x to ℝ using ⟨hx_top, hx⟩
---     simp
-
--- lemma add_top_of_ne_bot {x : EReal} (hx : x ≠ ⊥) : x + ⊤ = ⊤ := by
---   rw [add_comm, top_add_of_ne_bot hx]
-
--- lemma add_pos {x y : EReal} (hx : 0 < x) (hy : 0 < y) : 0 < x + y := by
---   induction' x, y using EReal.induction₂_symm with x y h x _ y _ _ _ x y
---   · rw [add_comm]
---     exact h hy hx
---   · simp
---   · simp
---   · simp
---   · simp
---   · simp only [add_bot, not_lt_bot]
---     exact not_lt_bot hy
---   · simp only [add_bot, not_lt_bot]
---     exact not_lt_bot hy
---   · norm_cast
---     refine _root_.add_pos ?_ ?_
---     · exact mod_cast hx
---     · exact mod_cast hy
---   · simp only [zero_add, not_lt_bot]
---     exact not_lt_bot hy
---   · simp only [add_bot, not_lt_bot]
---     exact not_lt_bot hy
---   · simp only [add_bot, not_lt_bot]
---     exact not_lt_bot hy
-
 lemma top_mul_add_of_nonneg {x y : EReal} (hx : 0 ≤ x) (hy : 0 ≤ y) :
     ⊤ * (x + y) = ⊤ * x + ⊤ * y := by
   induction' x, y using EReal.induction₂_symm with x y h x h y h _ _ x y
