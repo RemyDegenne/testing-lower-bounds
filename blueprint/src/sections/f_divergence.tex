@@ -573,7 +573,20 @@ These functions can differ if $\mu$ and $\nu$ are finite measures with different
 
 
 
-\subsection{Data-processing inequality: sigma-algebras}
+
+\subsection{Data-processing inequality}
+
+This section contains three proofs of the data-processing inequality for $f$-divergences.
+That inequality states that for $\mu, \nu$ two measures on $\mathcal X$ and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ a Markov kernel, $D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu, \nu)$.
+\begin{enumerate}
+  \item A first proof deals only with measurable functions (or deterministic kernels): in that case the inequality is equivalent to an inequality about restrictions of the measures to sub-$\sigma$-algebras.
+  \item A second proof deals with the general case and uses Radon-Nikodym derivatives of kernels. This restrict its applicability to measurable spaces that satisfy some particular countability assumptions.
+  \item The last proof uses the representation of $f$-divergence as an integral over statistical (risk-based) divergences, then uses the data-processing inequality for those divergences.
+\end{enumerate}
+
+
+
+\subsubsection{Sigma-algebras}
 
 For $\mathcal A$ a sub-$\sigma$-algebra and $\mu$ a measure, we write $\mathcal \mu_{| \mathcal A}$ for the measure restricted to the $\sigma$-algebra.
 
@@ -673,7 +686,7 @@ D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A})
 
 
 
-\subsection{Data-processing inequality: kernel proof}
+\subsubsection{Kernel proof}
 
 \begin{theorem}
   \label{thm:fDiv_le_compProd_1}
@@ -842,7 +855,7 @@ For the other inequality, remark that $\mu = (\kappa \circ \mu)_X$ (and similarl
 
 
 
-\subsection{Data-processing inequality: general measurable spaces}
+\subsubsection{General measurable spaces}
 
 
 \begin{lemma}
@@ -1200,6 +1213,10 @@ Use the second inequality of Theorem~\ref{thm:bh_fDiv}, for $f: x \mapsto \frac{
 We then neglect one term: $(1 + \TV(\mu, \nu))^{-\alpha} \ge 0$.
 \end{proof}
 
+
+\paragraph{Joint range}
+
+TODO \cite{harremoes2011pairs}
 
 
 \subsection{Statistical divergences}
