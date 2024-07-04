@@ -5,10 +5,10 @@ Let $\mathcal X$ be the measurable space on which the measures are defined.
 The measure family is described by a kernel $P : \Theta \rightsquigarrow \mathcal X$. We write $P_\theta$ for $P(\theta)$.
 In \emph{parametric} problems, $\Theta$ is a low-dimensional space. In \emph{nonparametric} problems $\Theta$ is large, for example $\Theta = \mathcal M (\mathcal X)$ or $\Theta = \mathcal P(\mathcal X)$.
 
-The goal of the estimation task is to find from the observation of samples of $P_\theta$ for an unknown $\theta$ the value of a function $y : \Theta \to \mathcal Y$~, which maps the parameter $\theta$ to the quantity we are interested in. For example, $y(\theta)$ might be the expected value of the distribution $P_\theta$.
+The goal of the estimation task is to find, given the observation of samples of $P_\theta$ for an unknown $\theta$, the value of a function $y : \Theta \to \mathcal Y$~, which maps the parameter $\theta$ to the quantity we are interested in. For example, $y(\theta)$ might be the expected value of the distribution $P_\theta$.
 
 An estimator is a Markov kernel $\hat{y} : \mathcal X \rightsquigarrow \mathcal Z$, where most often $\mathcal Z = \mathcal Y$.
-Note that while $y$ is a function of a parameter in $\Theta$, $\hat{y}$ has domain $\mathcal X$ as the estimation is done based on a sample of the measure, while the measure itself and its parameter remain unknown.
+Note that, while $y$ is a function of a parameter in $\Theta$, $\hat{y}$ has domain $\mathcal X$ as the estimation is done based on a sample of the measure, while the measure itself and its parameter remain unknown.
 In general this is a randomized estimator, but often deterministic estimators (corresponding to deterministic kernels) are enough to attain optimal performance.
 The quality of the estimation is quantified by a loss $\ell' : \mathcal Y \times \mathcal Z \to \mathbb{R}_{+, \infty}$. We write $\ell$ for a loss on $\mathcal Y \times \mathcal Y$ and $\ell'$ in the heterogeneous case.
 
@@ -31,9 +31,9 @@ In short, an estimation problem is specified by the data $(P, y, \ell')$.
 
 We say that an estimation problem is a testing problem if $\mathcal Y = \mathcal Z$ is discrete and the loss takes values in $\{0, 1\}$.
 A test is said to be binary if $\mathcal Y$ has two elements.
-A test is simple if $\{\theta \mid y(\theta) = y_0\}$ is a singleton for all $y_0 \in \mathcal Y$.
+A test is simple if $\{\theta \mid y(\theta) = y_0\}$ is a singleton for all $y_0 \in \mathcal Y$, i.e. $y$ is bijective.
 
-In summary, in simple binary hypothesis testing, $\Theta = \mathcal Y = \mathcal Z = \{0,1\}$, $y(0) = 0$, $y(1) = 1$ (that is, $y$ is the identity). For $z \in \{0,1\}$, $\ell(y, z) = \mathbb{I}\{y \ne z\}$.
+In summary, in simple binary hypothesis testing, $\Theta = \mathcal Y = \mathcal Z = \{0,1\}$, $y(0) = 0$, $y(1) = 1$ (that is, $y$ is the identity). For $y_0, z \in \{0,1\}$, $\ell(y_0, z) = \mathbb{I}\{y_0 \ne z\}$.
 
 \section{Risk}
 
@@ -191,7 +191,7 @@ R^P_\pi(\hat{y})
   \uses{def:bayesianRisk, def:genBayesEstimator}
   The Bayesian risk of the generalized Bayes estimator $\hat{y}_B$ is
   \begin{align*}
-  R_\pi(\hat{y}_B) = (P \circ \pi)\left[x \mapsto \inf_{z \in \mathcal Z} P_\pi^\dagger(x) \left[\theta \mapsto \ell'(y(\theta), z)\right]\right]
+  R^P_\pi(\hat{y}_B) = (P \circ \pi)\left[x \mapsto \inf_{z \in \mathcal Z} P_\pi^\dagger(x) \left[\theta \mapsto \ell'(y(\theta), z)\right]\right]
   \: .
   \end{align*}
 \end{lemma}
@@ -208,7 +208,7 @@ Start from the equality of Lemma~\ref{lem:bayesianRisk_bayesInv} and use the def
   \uses{def:bayesEstimator, def:genBayesEstimator, def:bayesRisk}
   When the generalized Bayes estimator is well defined, it is a Bayes estimator. The value of the Bayes risk with respect to the prior $\pi \in \mathcal M(\Theta)$ is then
   \begin{align*}
-  \mathcal R_\pi = (P \circ \pi)\left[x \mapsto \inf_{z \in \mathcal Z} P_\pi^\dagger(x) \left[\theta \mapsto \ell'(y(\theta), z)\right]\right]
+  \mathcal R^P_\pi = (P \circ \pi)\left[x \mapsto \inf_{z \in \mathcal Z} P_\pi^\dagger(x) \left[\theta \mapsto \ell'(y(\theta), z)\right]\right]
   \: .
   \end{align*}
 \end{theorem}
@@ -411,7 +411,7 @@ In this section, for a measure $\xi$ on $\{0,1\}$, we write $\xi_0$ for $\xi(\{0
   \uses{def:bayesRisk}
   For $\Theta = \{0,1\}$, the Bayes risk of a prior $\xi \in \mathcal M(\{0,1\})$ is
   \begin{align*}
-  \mathcal R_\xi = (P \circ \xi)\left[x \mapsto \inf_{z \in \mathcal Z} \left( \xi_0\frac{d P(0)}{d(P \circ \xi)}(x)\ell'(y(0), z) + \xi_1\frac{d P(1)}{d(P \circ \xi)}(x)\ell'(y(1), z) \right) \right]
+  \mathcal R^P_\xi = (P \circ \xi)\left[x \mapsto \inf_{z \in \mathcal Z} \left( \xi_0\frac{d P(0)}{d(P \circ \xi)}(x)\ell'(y(0), z) + \xi_1\frac{d P(1)}{d(P \circ \xi)}(x)\ell'(y(1), z) \right) \right]
   \: .
   \end{align*}
 \end{lemma}
@@ -496,8 +496,8 @@ It is an infimum of non-negative values.
 \begin{proof}%\leanok
 \uses{}
 Since $\mathcal B_\xi(\mu, \nu)$ is an infimum over estimators, we can find an upper bound by choosing an estimator.
-We choose for $\hat{y}$ a constant estimator, with value 1 if $\xi_1 > \xi_0$ and 0 otherwise.
-That estimator has Bayesian risk $\min\{\xi_0, \xi_1\}$ (for probability measures).
+We choose for $\hat{y}$ a constant estimator, with value 1 if $\xi_1 \nu(\mathcal X)\xi_1 > \xi_0 \mu(\mathcal X)$ and 0 otherwise.
+That estimator has Bayesian risk $\min\{\xi_0 \mu(\mathcal X), \xi_1 \nu(\mathcal X)\}$.
 \end{proof}
 
 \begin{lemma}
@@ -509,7 +509,16 @@ That estimator has Bayesian risk $\min\{\xi_0, \xi_1\}$ (for probability measure
 \end{lemma}
 
 \begin{proof}%\leanok
-\uses{}
+\uses{lem:bayesBinaryRisk_le}
+\begin{align*}
+  \mathcal B_\xi(\mu, \mu) &= \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\xi_0 (\hat{y} \circ \mu)(\{1\}) + \xi_1 (\hat{y} \circ \mu)(\{0\})\right) \\
+  &\ge \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\min\{\xi_0, \xi_1\} (\hat{y} \circ \mu)(\{1\}) + \min\{\xi_0, \xi_1\} (\hat{y} \circ \mu)(\{0\})\right) \\
+  &= \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\min\{\xi_0, \xi_1\} (\hat{y} \circ \mu)(\{0, 1\})\right) \\
+  &= \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\min\{\xi_0, \xi_1\} \mu (\mathcal X)\right) \\
+  &= \min\{\xi_0, \xi_1\} \mu (\mathcal X)
+\end{align*}
+Then we conclude using Lemma~\ref{lem:bayesBinaryRisk_le}.
+
 \end{proof}
 
 \begin{lemma}
@@ -544,7 +553,7 @@ Apply Theorem~\ref{thm:data_proc_bayesRisk}.
   %\lean{}
   %\leanok
   \uses{def:genBayesEstimator, def:bayesBinaryRisk}
-  The generalized Bayes estimator for the Bayes binary risk with prior $\xi \in \mathcal M(\{0,1\})$ is $x \mapsto \text{if } \xi_1\frac{d \nu}{d(P \circ \xi)}(x) \le \xi_0\frac{d \mu}{d(P \circ \xi)}(x) \text{ then } 0 \text{ else } 1$.
+  The generalized Bayes estimator for the Bayes binary risk with prior $\xi \in \mathcal M(\{0,1\})$ is $x \mapsto \text{if } \xi_1\frac{d \nu}{d(P \circ \xi)}(x) \le \xi_0\frac{d \mu}{d(P \circ \xi)}(x) \text{ then } 0 \text{ else } 1$, i.e. it is equal to $\mathbb{I}_E$ for $E = \{x \mid \xi_1\frac{d \nu}{d(P \circ \xi)}(x) > \xi_0\frac{d \mu}{d(P \circ \xi)}(x)\}$~.
 \end{lemma}
 
 \begin{proof}%\leanok

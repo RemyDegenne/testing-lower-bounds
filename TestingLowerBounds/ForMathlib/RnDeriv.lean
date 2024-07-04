@@ -119,10 +119,10 @@ lemma measure_singularPartSet (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite
   have hν_ac : ν ≪ μ + ν := by rw [add_comm]; exact rfl.absolutelyContinuous.add_right _
   have h1 : ∫⁻ x in s, ν.rnDeriv (μ + ν) x ∂(μ + ν) = 0 := by
     calc ∫⁻ x in s, ν.rnDeriv (μ + ν) x ∂(μ + ν)
-      = ∫⁻ _ in s, 0 ∂(μ + ν) := set_lintegral_congr_fun hs (ae_of_all _ (fun _ hx ↦ hx))
+      = ∫⁻ _ in s, 0 ∂(μ + ν) := setLIntegral_congr_fun hs (ae_of_all _ (fun _ hx ↦ hx))
     _ = 0 := lintegral_zero
   have h2 : ∫⁻ x in s, ν.rnDeriv (μ + ν) x ∂(μ + ν) = ν s :=
-    Measure.set_lintegral_rnDeriv hν_ac _
+    Measure.setLIntegral_rnDeriv hν_ac _
   exact h2.symm.trans h1
 
 lemma measure_inter_compl_singularPartSet' (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν]
@@ -136,17 +136,17 @@ lemma measure_inter_compl_singularPartSet' (μ ν : Measure α) [SigmaFinite μ]
     have : ∫⁻ x in t ∩ sᶜ,
           ν.rnDeriv (μ + ν) x * (μ.rnDeriv (μ + ν) x / ν.rnDeriv (μ + ν) x) ∂(μ + ν)
         = ∫⁻ x in t ∩ sᶜ, μ.rnDeriv (μ + ν) x ∂(μ + ν) := by
-      refine set_lintegral_congr_fun (ht.inter hs.compl) ?_
+      refine setLIntegral_congr_fun (ht.inter hs.compl) ?_
       filter_upwards [Measure.rnDeriv_lt_top ν (μ + ν)] with x hx_top hx
       rw [div_eq_mul_inv, mul_comm, mul_assoc, ENNReal.inv_mul_cancel, mul_one]
       · simp only [Set.mem_inter_iff, Set.mem_compl_iff, Set.mem_setOf_eq, s] at hx
         exact hx.2
       · exact hx_top.ne
-    rw [this, Measure.set_lintegral_rnDeriv (rfl.absolutelyContinuous.add_right _)]
-  rw [this, set_lintegral_rnDeriv_mul hν_ac _ (ht.inter hs.compl)]
+    rw [this, Measure.setLIntegral_rnDeriv (rfl.absolutelyContinuous.add_right _)]
+  rw [this, setLIntegral_rnDeriv_mul hν_ac _ (ht.inter hs.compl)]
   swap
   · exact ((Measure.measurable_rnDeriv _ _).div (Measure.measurable_rnDeriv _ _)).aemeasurable
-  refine set_lintegral_congr_fun (ht.inter hs.compl) ?_
+  refine setLIntegral_congr_fun (ht.inter hs.compl) ?_
   filter_upwards [Measure.rnDeriv_eq_div μ ν] with x hx
   rw [hx]
   exact fun _ ↦ rfl
@@ -163,7 +163,7 @@ lemma measure_inter_compl_singularPartSet (μ ν : Measure α) [SigmaFinite μ] 
           ← restrict_restrict measurableSet_singularPartSet.compl,
           lintegral_add_compl _ measurableSet_singularPartSet]
   _ = ∫⁻ x in t ∩ (singularPartSet μ ν)ᶜ, rnDeriv μ ν x ∂ν := by
-        rw [set_lintegral_measure_zero _ _ (measure_mono_null Set.inter_subset_left ?_),
+        rw [setLIntegral_measure_zero _ _ (measure_mono_null Set.inter_subset_left ?_),
           Set.inter_comm, zero_add]
         exact measure_singularPartSet _ _
 
@@ -234,12 +234,12 @@ lemma ae_rnDeriv_ne_zero_imp_of_ae_aux [SigmaFinite μ] [SigmaFinite ν] {p : α
   constructor
   · rw [← Measure.haveLebesgueDecomposition_add ν μ]
     have : ∀ᵐ x ∂(ν.singularPart μ), μ.rnDeriv ν x = 0 := by
-      refine ae_eq_of_forall_set_lintegral_eq_of_sigmaFinite (Measure.measurable_rnDeriv _ _)
+      refine ae_eq_of_forall_setLIntegral_eq_of_sigmaFinite (Measure.measurable_rnDeriv _ _)
         measurable_const (fun s hs _ ↦ ?_)
       simp only [lintegral_const, MeasurableSet.univ, Measure.restrict_apply, Set.univ_inter,
         zero_mul]
       rw [← Measure.restrict_singularPartSet_eq_singularPart, Measure.restrict_restrict hs,
-        Measure.set_lintegral_rnDeriv hμν]
+        Measure.setLIntegral_rnDeriv hμν]
       exact measure_mono_null Set.inter_subset_right (Measure.measure_singularPartSet _ _)
     filter_upwards [this] with x hx h_absurd using absurd hx h_absurd
   · have h_ac : μ.withDensity (ν.rnDeriv μ) ≪ μ := withDensity_absolutelyContinuous _ _
@@ -281,8 +281,8 @@ lemma ae_integrable_of_ae_integrable_mul_rnDeriv {κ : α → Measure β} [Sigma
 lemma rnDeriv_le_one_iff_le [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν) :
     μ.rnDeriv ν ≤ᵐ[ν] 1 ↔ μ ≤ ν := by
   refine ⟨fun h s ↦ ?_, fun h ↦ rnDeriv_le_one_of_le h⟩
-  rw [← withDensity_rnDeriv_eq _ _ hμν, withDensity_apply', ← set_lintegral_one]
-  exact MeasureTheory.set_lintegral_mono_ae (measurable_rnDeriv _ _) measurable_const
+  rw [← withDensity_rnDeriv_eq _ _ hμν, withDensity_apply', ← setLIntegral_one]
+  exact MeasureTheory.setLIntegral_mono_ae (measurable_rnDeriv _ _) measurable_const
     (h.mono fun _ hh _ ↦ hh)
 
 -- in mathlib this lemma could be put just before `MeasureTheory.Measure.rnDeriv_eq_zero_of_mutuallySingular`
