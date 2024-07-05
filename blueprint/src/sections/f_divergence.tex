@@ -573,7 +573,20 @@ These functions can differ if $\mu$ and $\nu$ are finite measures with different
 
 
 
-\subsection{Data-processing inequality: sigma-algebras}
+
+\subsection{Data-processing inequality}
+
+This section contains three proofs of the data-processing inequality for $f$-divergences.
+That inequality states that for $\mu, \nu$ two measures on $\mathcal X$ and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ a Markov kernel, $D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu, \nu)$.
+\begin{enumerate}
+  \item A first proof deals only with measurable functions (or deterministic kernels): in that case the inequality is equivalent to an inequality about restrictions of the measures to sub-$\sigma$-algebras.
+  \item A second proof deals with the general case and uses Radon-Nikodym derivatives of kernels. This restrict its applicability to measurable spaces that satisfy some particular countability assumptions.
+  \item The last proof uses the representation of $f$-divergence as an integral over statistical (risk-based) divergences, then uses the data-processing inequality for those divergences.
+\end{enumerate}
+
+
+
+\subsubsection{Sigma-algebras}
 
 For $\mathcal A$ a sub-$\sigma$-algebra and $\mu$ a measure, we write $\mathcal \mu_{| \mathcal A}$ for the measure restricted to the $\sigma$-algebra.
 
@@ -673,7 +686,7 @@ D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A})
 
 
 
-\subsection{Data-processing inequality: kernel proof}
+\subsubsection{Kernel proof}
 
 \begin{theorem}
   \label{thm:fDiv_le_compProd_1}
@@ -842,7 +855,7 @@ For the other inequality, remark that $\mu = (\kappa \circ \mu)_X$ (and similarl
 
 
 
-\subsection{Data-processing inequality: general measurable spaces}
+\subsubsection{General measurable spaces}
 
 
 \begin{lemma}
@@ -940,9 +953,25 @@ The first two terms are unchanged by composition with a Markov kernel. It thus s
 
 \begin{proof}%\leanok
 \uses{thm:fDiv_data_proc_2}
-
+Since $\kappa$ is a Markov kernel, $\mu$ is the composition of $\mu \otimes \kappa$ and the deterministic kernel for the function $(x,y) \mapsto x$. The same applies for $\nu$ and $\nu \otimes \eta$.
+The result is then an application of the data-processing inequality, Theorem~\ref{thm:fDiv_data_proc_2}.
 \end{proof}
 
+
+\begin{lemma}[Composition-product with a kernel]
+  \label{thm:fDiv_compProd_right_2}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
+  Then $D_f(\mu \otimes \kappa, \nu \otimes \kappa) = D_f(\mu, \nu)$.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{thm:fDiv_le_compProd_2, thm:fDiv_data_proc_2}
+By Theorem~\ref{thm:fDiv_le_compProd_2}, $D_f(\mu, \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \kappa)$.
+For the reverse inequality, remark that $\mu \otimes \kappa = (\text{id} \times \kappa) \circ \mu$ where $\text{id}$ is the identity kernel and apply the data-processing inequality (Theorem~\ref{thm:fDiv_data_proc_2}). 
+\end{proof}
 
 \begin{theorem}
   \label{thm:fDiv_comp_le_compProd_2}
@@ -955,7 +984,8 @@ The first two terms are unchanged by composition with a Markov kernel. It thus s
 
 \begin{proof}%\leanok
 \uses{thm:fDiv_data_proc_2}
-
+$\kappa \circ \mu$ is the composition of $\mu \otimes \kappa$ and the deterministic kernel for the function $(x,y) \mapsto y$. The same applies for $\eta \circ \nu$ and $\nu \otimes \eta$.
+The result is then an application of the data-processing inequality, Theorem~\ref{thm:fDiv_data_proc_2}.
 \end{proof}
 
 
@@ -986,7 +1016,8 @@ This is a particular case of Theorem~\ref{thm:fDiv_comp_le_compProd_2}.
 
 \begin{proof}%\leanok
 \uses{thm:fDiv_data_proc_2}
-
+The measure $\mu_X$ is the composition of $\mu$ and the deterministic kernel for the function $(x,y) \mapsto x$, and similarly $\mu_Y$ is the composition of $\mu$ and a deterministic kernel.
+The results are both applications of the data-processing inequality, Theorem~\ref{thm:fDiv_data_proc_2}.
 \end{proof}
 
 
@@ -1044,6 +1075,31 @@ Specific divergences are discussed in the next sections. We collate here general
 \begin{proof}
 Monotonicity of the integral and of $f \mapsto f'(\infty)$.
 \end{proof}
+
+
+\begin{lemma}
+  \label{lem:fDiv_le_of_deriv2_le}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  If $f(1) = 0$, $g(1) = 0$, $f'(1) = 0$, $g'(1) = 0$, and both $f$ and $g$ have a second derivative, then
+  \begin{align*}
+  D_f(\mu, \nu) \le \sup_x \frac{f''(x)}{g''(x)} D_g(\mu, \nu)
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:fDiv_mono_fun}
+By Taylor with integral remainder, if $f'' \le \beta g''$,
+\begin{align*}
+f(x) = \int_1^x f''(t) (x - t) dt
+\le \beta \int_1^x g''(t) (x - t) dt
+= \beta g(x)
+\: .
+\end{align*}
+Then use Lemma~\ref{lem:fDiv_mono_fun}.
+\end{proof}
+
 
 \begin{theorem}[\cite{sason2016f}]
   \label{thm:fDiv_eq_sup_mul_fDiv}
@@ -1182,6 +1238,10 @@ Use the second inequality of Theorem~\ref{thm:bh_fDiv}, for $f: x \mapsto \frac{
 We then neglect one term: $(1 + \TV(\mu, \nu))^{-\alpha} \ge 0$.
 \end{proof}
 
+
+\paragraph{Joint range}
+
+TODO \cite{harremoes2011pairs}
 
 
 \subsection{Statistical divergences}

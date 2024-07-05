@@ -1,0 +1,171 @@
+\section{Jensen-Shannon divergence}
+
+\begin{definition}[Jensen-Shannon divergence]
+  \label{def:jensenShannon}
+  %\lean{}
+  %\leanok
+  \uses{def:KL}
+  The Jensen-Shannon divergence indexed by $\alpha \in (0,1)$ between two measures $\mu$ and $\nu$ is
+  \begin{align*}
+    \JS_\alpha(\mu, \nu) = \alpha \KL(\mu, \alpha \mu + (1 - \alpha)\nu) + (1 - \alpha) \KL(\nu, \alpha \mu + (1 - \alpha)\nu) \: .
+  \end{align*}
+\end{definition}
+
+
+\begin{lemma}
+  \label{lem:jensenShannon_eq_kl}
+  %\lean{}
+  %\leanok
+  \uses{def:jensenShannon, def:KL}
+  Let $\mu, \nu \in \mathcal P(\mathcal X)$ and let $\alpha \in (0, 1)$. Let $\pi_\alpha = (\alpha, 1 - \alpha) \in \mathcal P(\{0,1\})$ and let $P : \{0,1\} \rightsquigarrow \mathcal X$ be the kernel with $P(0) = \mu$ and $P(1) = \nu$. Then
+  \begin{align*}
+  \JS_\alpha(\mu, ¸\nu) = \KL(\pi_\alpha \otimes P, \pi_\alpha \times (P \circ \pi_\alpha)) \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:jensenShannon_eq_fDiv}
+  %\lean{}
+  %\leanok
+  \uses{def:jensenShannon, def:KL}
+  $\JS_\alpha$ is an $f$-divergence for $f(x) = \alpha x \log(x) - (\alpha x + 1 - \alpha) \log (\alpha x + 1 - \alpha)$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+TODO: add lemmas about $D_f(\alpha \mu + (1 - \alpha) \nu, \nu)$ being an f-div, and same thing for an average on the other side.
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:jensenShannon_symm}
+  %\lean{}
+  %\leanok
+  \uses{def:jensenShannon}
+  For $\alpha \in (0,1)$ and $\mu, \nu \in \mathcal M(\mathcal X)$,
+  \begin{align*}
+  \JS_\alpha(\mu, \nu) = \JS_{1 - \alpha}(\nu, \mu) \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+Immediate from the definition.
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:jensenShannon_eq_inf_add_kl}
+  %\lean{}
+  %\leanok
+  \uses{def:jensenShannon, def:KL}
+  Let $\mu, \nu \in \mathcal P(\mathcal X)$ and let $\alpha \in (0, 1)$. Then
+  \begin{align*}
+  \JS_\alpha(\mu, \nu) = \inf_{\xi \in \mathcal P(\mathcal X)}\left( \alpha \KL(\mu, \xi) + (1 - \alpha)\KL(\nu, \xi) \right) \: .
+  \end{align*}
+  The infimum is attained at $\xi = \alpha \mu + (1 - \alpha) \nu$.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:jensenShannon_eq_inf_kl}
+  %\lean{}
+  %\leanok
+  \uses{def:jensenShannon, def:KL}
+  Let $\mu, \nu \in \mathcal P(\mathcal X)$ and let $\alpha \in (0, 1)$. Let $\pi_\alpha = (\alpha, 1 - \alpha) \in \mathcal P(\{0,1\})$ and let $P : \{0,1\} \rightsquigarrow \mathcal X$ be the kernel with $P(0) = \mu$ and $P(1) = \nu$. Then
+  \begin{align*}
+  \JS_\alpha(\mu, \nu) = \inf_{\xi \in \mathcal P(\mathcal X)} \KL\left( \pi_\alpha \otimes P, \pi_\alpha \times \xi \right) \: .
+  \end{align*}
+  The infimum is attained at $\xi = \alpha \mu + (1 - \alpha) \nu$.
+\end{lemma}
+
+Compare with Lemma~\ref{lem:renyi_eq_inf_kl} on the Rényi divergence.
+
+\begin{proof}%\leanok
+\uses{}
+
+\end{proof}
+
+
+
+\subsection{Comparisons with other divergences}
+
+\begin{lemma}
+  \label{lem:jensenShannon_le_hellingerAlpha}
+  %\lean{}
+  %\leanok
+  \uses{def:jensenShannon, def:hellingerAlpha}
+  For $\mu, \nu \in \mathcal P(\mathcal X)$ and $\alpha, \lambda \in (0,1)$~,
+  \begin{align*}
+  \JS_\alpha(\mu, \nu) \le \frac{(1 - \alpha)^{1 - \lambda} \alpha^\lambda}{\lambda^{1 - \lambda} (1 - \lambda)^\lambda} (1 - \lambda)\He_\lambda(\mu, \nu) \: .
+  \end{align*}
+  In particular,
+  \begin{align*}
+  \JS_\alpha(\mu, \nu)
+  &\le \left(\frac{1 - \alpha}{\alpha}\right)^{1 - 2 \alpha} (1 - \alpha)\He_\alpha(\mu, \nu)
+  \: , \\
+  \JS_\alpha(\mu, \nu)
+  &\le \alpha \He_{1 - \alpha}(\mu, \nu)
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:fDiv_le_of_deriv2_le, lem:jensenShannon_eq_fDiv}
+The main tool is Lemma~\ref{lem:fDiv_le_of_deriv2_le}.
+$\JS_\alpha$ is an $f$-divergence with function $f(x) = \alpha x \log(x) - (\alpha x + 1 - \alpha) \log (\alpha x + 1 - \alpha)$. On probability measures, $(1 - \lambda)\He_\lambda$ is an $f$-divergence with function $g(x) = 1 - x^\lambda + \lambda(x-1)$.
+These two functions satisfy $f(1) = 0$, $g(1) = 0$, $f'(1) = 0$, $g'(1) = 0$ and have second derivatives, hence Lemma~\ref{lem:fDiv_le_of_deriv2_le} applies and to obtain the inequality it suffices to compute $\sup_x\frac{f''(x)}{g''(x)}$~.
+\begin{align*}
+f''(x)
+&= \frac{\alpha(1 - \alpha)}{x(\alpha x + 1 - \alpha)}
+\: , \\
+g''(x)
+&= \lambda (1 - \lambda) x^{\lambda - 2}
+\: .
+\end{align*}
+Let $h(x) = \frac{f''(x)}{g''(x)} = \frac{\alpha (1 - \alpha)}{\lambda (1 - \lambda)} \frac{x^{1 - \lambda}}{\alpha x + 1 - \alpha}$~. Its maximum is attained at a point where $h'(x) = 0$.
+\begin{align*}
+h'(x) = \frac{\alpha (1 - \alpha)}{\lambda (1 - \lambda)} \frac{(1 - \alpha)(1 - \lambda)x^{-\lambda} - \alpha \lambda x^{1 - \lambda}}{(\alpha x + 1 - \alpha)^2}
+\: .
+\end{align*}
+The optimum for $h$ is attained at $x = \frac{(1 - \alpha)(1 - \lambda)}{\alpha \lambda}$ and the maximal value of $h$ is $\frac{(1 - \alpha)^{1 - \lambda} \alpha^\lambda}{\lambda^{1 - \lambda} (1 - \lambda)^\lambda}$~.
+\end{proof}
+
+
+\begin{corollary}
+  \label{cor:jensenShannon_le_hellingerAlpha_of_le_half}
+  %\lean{}
+  %\leanok
+  \uses{def:jensenShannon, def:hellingerAlpha}
+  For $\mu, \nu \in \mathcal P(\mathcal X)$ and $\alpha \in (0,1)$, $\lambda \le 1/2$~,
+  \begin{align*}
+  \JS_\alpha(\mu, \nu)
+  &\le \alpha^{1 - \lambda} \He_{1 - \lambda}(\mu, \nu)
+  \: .
+  \end{align*}
+\end{corollary}
+
+\begin{proof}%\leanok
+\uses{lem:jensenShannon_le_hellingerAlpha}
+By Lemma~\ref{lem:jensenShannon_le_hellingerAlpha} for $\alpha$ and $1 - \lambda$,
+\begin{align*}
+\JS_\alpha(\mu, \nu)
+&\le \frac{(1 - \alpha)^{\lambda} \alpha^{1 - \lambda}}{\lambda^{1 - \lambda} (1 - \lambda)^\lambda} \lambda \He_{1 - \lambda}(\mu, \nu)
+\\
+&= \alpha^{1 - \lambda} (1 - \alpha)^\lambda \left(\frac{\lambda}{1 - \lambda}\right)^\lambda \He_{1 - \lambda}(\mu, \nu)
+\: .
+\end{align*}
+To get the result, use $1 - \alpha \le 1$ and $\frac{\lambda}{1 - \lambda} \le 1$ since it is increasing in $\lambda$ with value 1 at $\lambda = 1/2$.
+
+\end{proof}

@@ -1,0 +1,95 @@
+
+\paragraph{Definitions}
+
+\begin{definition}
+  \label{def:fMutualInfo}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  The $f$-mutual information associated with an $f$-divergence is, for $\rho \in \mathcal M(\mathcal X \times \mathcal Y)$~,
+  \begin{align*}
+  I_f(\rho) = D_f(\rho, \rho_X \times \rho_Y) \: .
+  \end{align*}
+\end{definition}
+
+TODO: discuss the relation of this definition and the usual $I_f(X, Y)$ notation.
+
+
+\begin{definition}
+  \label{def:mutualInfo}
+  %\lean{}
+  %\leanok
+  \uses{def:KL}
+  The mutual information is, for $\rho \in \mathcal M(\mathcal X \times \mathcal Y)$~,
+  \begin{align*}
+  I(\rho) = \KL(\rho, \rho_X \times \rho_Y) \: .
+  \end{align*}
+  This is the $f$-mutual information for $f(x) = x \log(x)$.
+\end{definition}
+
+
+\begin{definition}
+  \label{def:condFMutualInfo}
+  %\lean{}
+  %\leanok
+  \uses{def:condFDiv}
+  Let $\kappa : \mathcal Z \rightsquigarrow \mathcal X \times \mathcal Y$. The conditional $f$-mutual information of $\kappa$ with respect to $\nu \in \mathcal M(\mathcal Z)$ is
+  \begin{align*}
+  I_f(\kappa \mid \nu) = D_f(\kappa, \kappa_X \times \kappa_Y \mid \nu)
+  \end{align*}
+  where $\kappa_X : \mathcal Z \rightsquigarrow \mathcal X$ is obtained from $\kappa$ by composition with the kernel that projects on the space $\mathcal X$, and similarly for $\kappa_Y$.
+\end{definition}
+
+
+\begin{definition}
+  \label{def:condMutualInfo}
+  %\lean{}
+  %\leanok
+  \uses{def:condKL}
+  Let $\kappa : \mathcal Z \rightsquigarrow \mathcal X \times \mathcal Y$. The conditional mutual information of $\kappa$ with respect to $\nu \in \mathcal M(\mathcal Z)$ is
+  \begin{align*}
+  I(\kappa \mid \nu) = \KL(\kappa, \kappa_X \times \kappa_Y \mid \nu) \: .
+  \end{align*}
+  This is $I_f(\kappa \mid \nu)$ for $f(x) = x \log(x)$.
+\end{definition}
+
+
+\paragraph{Properties}
+
+\begin{lemma}
+  \label{lem:fMutualInfo_eq_condFDiv}
+  %\lean{}
+  %\leanok
+  \uses{def:fMutualInfo, def:fDiv, def:condFDiv}
+  For $\mu \in \mathcal M(\mathcal X)$ and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ a Markov kernel,
+  \begin{align*}
+  I_f(\mu \otimes \kappa)
+  = D_f(\mu \otimes \kappa, \mu \times (\kappa \circ \mu))
+  = D_f(\kappa, \kappa \circ \mu \mid \mu)
+  \: ,
+  \end{align*}
+  where in the conditional divergence the measure $\kappa \circ \mu$ should be understood as the constant kernel from $\mathcal X$ to $\mathcal Y$ with that value.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+The first equality is the definition of $I_f$, together with $(\mu \otimes \kappa)_X = \mu$ (since $\kappa$ is Markov) and $(\mu \otimes \kappa)_Y = \kappa \circ \mu$.
+The second equality is from $D_f(\kappa, \eta \mid \mu) = D_f(\mu \otimes \kappa, \mu \otimes \eta)$. (TODO: now from a lemma, soon by definition).
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:mutualInfo_eq_jensenShannon}
+  %\lean{}
+  %\leanok
+  \uses{def:mutualInfo, def:jensenShannon}
+  Let $\mu, \nu \in \mathcal P(\mathcal X)$ and let $\alpha \in (0, 1)$. Let $\pi_\alpha = (\alpha, 1 - \alpha) \in \mathcal P(\{0,1\})$ and let $P : \{0,1\} \rightsquigarrow \mathcal X$ be the kernel with $P(0) = \mu$ and $P(1) = \nu$. Then
+  \begin{align*}
+  I(\pi_\alpha \otimes P) = \JS_\alpha(\mu, \nu) \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:jensenShannon_eq_kl, lem:fMutualInfo_eq_condFDiv}
+Use Lemma~\ref{lem:fMutualInfo_eq_condFDiv} and Lemma~\ref{lem:jensenShannon_eq_kl}.
+\end{proof}
