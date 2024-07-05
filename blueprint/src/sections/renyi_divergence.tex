@@ -293,9 +293,10 @@ Apply Lemma~\ref{lem:kl_renyiMeasure_eq} to $\xi = \mu^{(\alpha, \nu)}$.
 
 \begin{lemma}
   \label{lem:renyi_eq_inf_add_kl}
+  %\lean{}
   %\leanok
   \uses{def:Renyi, def:KL}
-  Let $\mu, \nu, \xi$ be three probability measures on $\mathcal X$ and let $\alpha \in (0, 1)$. Then
+  Let $\mu, \nu$ be two probability measures on $\mathcal X$ and let $\alpha \in (0, 1)$. Then
   \begin{align*}
   (1 - \alpha) R_\alpha(\mu, \nu) = \inf_{\xi \in \mathcal P(\mathcal X)}\left( \alpha \KL(\xi, \mu) + (1 - \alpha)\KL(\xi, \nu) \right) \: .
   \end{align*}
@@ -312,6 +313,31 @@ By Lemma~\ref{lem:kl_renyiMeasure_eq} and Lemma~\ref{lem:kl_nonneg}, for all $\x
 \end{align*}
 We have then $(1 - \alpha) R_\alpha(\mu, \nu) \le \inf_{\xi \in \mathcal P(\mathcal X)}\left( \alpha \KL(\xi, \mu) + (1 - \alpha)\KL(\xi, \nu) \right)$.
 Corollary~\ref{cor:renyi_eq_add_kl} proves the other inequality.
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:renyi_eq_inf_kl}
+  %\lean{}
+  %\leanok
+  \uses{def:Renyi, def:KL}
+  Let $\mu, \nu \in \mathcal P(\mathcal X)$ and let $\alpha \in (0, 1)$. Let $\pi_\alpha = (\alpha, 1 - \alpha) \in \mathcal P(\{0,1\})$ and let $P : \{0,1\} \rightsquigarrow \mathcal X$ be the kernel with $P(0) = \mu$ and $P(1) = \nu$. Then
+  \begin{align*}
+  (1 - \alpha) R_\alpha(\mu, \nu) = \inf_{\xi \in \mathcal P(\mathcal X)} \KL\left( \pi_\alpha \times \xi, \pi_\alpha \otimes P \right) \: .
+  \end{align*}
+  The infimum is attained at $\xi = \mu^{(\alpha, \nu)}$.
+\end{lemma}
+
+Compare with Lemma~\ref{lem:jensenShannon_eq_inf_kl} on the Jensen-Shannon divergence.
+
+\begin{proof}%\leanok
+\uses{lem:renyi_eq_inf_add_kl}
+\begin{align*}
+\KL\left( \pi_\alpha \times \xi, \pi_\alpha \otimes P \right)
+&= \alpha \KL(\xi, \mu) + (1 - \alpha) \KL(\xi, \nu)
+\: .
+\end{align*}
+The result is a rephrasing of Lemma~\ref{lem:renyi_eq_inf_add_kl}.
 \end{proof}
 
 \subsection{Chain rule and tensorization}
