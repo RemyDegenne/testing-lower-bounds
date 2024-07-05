@@ -1076,6 +1076,31 @@ Specific divergences are discussed in the next sections. We collate here general
 Monotonicity of the integral and of $f \mapsto f'(\infty)$.
 \end{proof}
 
+
+\begin{lemma}
+  \label{lem:fDiv_le_of_deriv2_le}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  If $f(1) = 0$, $g(1) = 0$, $f'(1) = 0$, $g'(1) = 0$, and both $f$ and $g$ have a second derivative, then
+  \begin{align*}
+  D_f(\mu, \nu) \le \sup_x \frac{f''(x)}{g''(x)} D_g(\mu, \nu)
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:fDiv_mono_fun}
+By Taylor with integral remainder, if $f'' \le \beta g''$,
+\begin{align*}
+f(x) = \int_1^x f''(t) (x - t) dt
+\le \beta \int_1^x g''(t) (x - t) dt
+= \beta g(x)
+\: .
+\end{align*}
+Then use Lemma~\ref{lem:fDiv_mono_fun}.
+\end{proof}
+
+
 \begin{theorem}[\cite{sason2016f}]
   \label{thm:fDiv_eq_sup_mul_fDiv}
   %\lean{}
