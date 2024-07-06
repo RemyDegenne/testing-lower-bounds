@@ -362,7 +362,24 @@ Since $\beta > 0$ is arbitrary, we can take a supremum over $\beta$ on the right
 
 \section{Sample complexity}
 
-In a sequence of estimation tasks $(P^{\otimes n}, y, \ell')$ for $n \in \mathbb{N}$, the sample complexity is the minimal $n$ such that the risk (Bayes risk, minimax risk...) for the kernel $P^{\otimes n}$ is less than a desired value.
+An estimation problem of the shape $(P^{\otimes n}, y, \ell')$ corresponds to estimating from $n$ i.i.d. samples of the distribution. From the data-processing inequality, we get that the risk (Bayes risk, minimax risk...) decreases with the number of samples (Lemma~\ref{lem:bayesRisk_mono_prod} for example).
+Intuitively, having more information allows for better estimation.
+
+In a sequence of estimation tasks $(P^{\otimes n}, y, \ell')$ for $n \in \mathbb{N}$, the \emph{sample complexity} is the minimal $n$ such that the risk is less than a desired value.
+
+\begin{lemma}
+  \label{lem:bayesRisk_mono_prod}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesRisk}
+  If $n \le m$ then $\mathcal R_\pi^{P^{\otimes n}} \ge \mathcal R_\pi^{P^{\otimes m}}$.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{thm:data_proc_bayesRisk}
+Use the data-processing inequality, Theorem~\ref{thm:data_proc_bayesRisk}.
+\end{proof}
+
 
 \begin{definition}
   \label{def:priorSampleComplexity}
@@ -376,15 +393,45 @@ In a sequence of estimation tasks $(P^{\otimes n}, y, \ell')$ for $n \in \mathbb
 \end{definition}
 
 
-\begin{lemma}
-  \label{lem:bayesRisk_mono_prod}
+\begin{definition}
+  \label{def:binaryPriorSampleComplexity}
   %\lean{}
   %\leanok
-  \uses{def:bayesRisk}
-  If $n \le m$ then $\mathcal R_\pi^{P^{\otimes n}} \ge \mathcal R_\pi^{P^{\otimes m}}$.
+  \uses{def:bayesBinaryRisk, def:priorSampleComplexity}
+  The sample complexity of simple binary hypothesis testing with prior $(\pi, 1 - \pi) \in \mathcal P(\{0, 1\})$ at risk level $\delta \in \mathbb{R}_{+, \infty}$ is
+  \begin{align*}
+  n(\mu, \nu, \pi, \delta) = \min\{n \in \mathbb{N} \mid B_\pi(\mu^{\otimes n}, \nu^{\otimes n}) \le \delta\} \: .
+  \end{align*}
+  This is the sample complexity $n_\xi^P(\delta)$ specialized to simple binary hypothesis testing.
+\end{definition}
+
+
+\begin{lemma}
+  \label{lem:binaryPriorSampleComplexity_le_renyi}
+  %\lean{}
+  %\leanok
+  \uses{def:Renyi, def:binaryPriorSampleComplexity}
+  The sample complexity of simple binary hypothesis testing satisfies $n(\mu, \nu, \pi, \delta) \le n_0$~, with $n_0$ the smallest natural number such that
+  \begin{align*}
+  \log\frac{1}{\delta}
+  \le \sup_{\alpha \in (0,1)} \left( n_0 (1 - \alpha)R_\alpha(\mu, \nu) + \alpha\log\frac{1}{\pi} + (1 - \alpha)\log\frac{1}{1 - \pi} \right)
+  \end{align*}
 \end{lemma}
 
 \begin{proof}%\leanok
-\uses{thm:data_proc_bayesRisk}
-Use the data-processing inequality, Theorem~\ref{thm:data_proc_bayesRisk}.
+\uses{cor:bayesBinaryRisk_le_exp_renyi, lem:renyi_prod_n}
+It suffices to show that $B_\pi(\mu^{\otimes n_0}, \nu^{\otimes n_0}) \le \delta$~.
+By Corollary~\ref{cor:bayesBinaryRisk_le_exp_renyi}, for all $\alpha \in (0,1)$,
+\begin{align*}
+B_\pi(\mu^{\otimes n_0}, \nu^{\otimes n_0})
+&\le \pi^{\alpha} (1 - \pi)^{1 - \alpha}e^{- (1 - \alpha)R_\alpha(\mu^{\otimes n_0}, \nu^{\otimes n_0})}
+\: .
+\end{align*}
+The Rényi divergence tensorizes: $R_\alpha(\mu^{\otimes n_0}, \nu^{\otimes n_0}) = n_0 R_\alpha(\mu, \nu)$~.
+\begin{align*}
+B_\pi(\mu^{\otimes n_0}, \nu^{\otimes n_0})
+&\le \exp\left(- \left( n_0 (1 - \alpha)R_\alpha(\mu, \nu) + \alpha\log\frac{1}{\pi} + (1 - \alpha)\log\frac{1}{1 - \pi} \right) \right)
+\: .
+\end{align*}
+By definition, $n_0$ is such that the infimum over $\alpha$ of the right hand side is less than $\delta$.
 \end{proof}
