@@ -38,8 +38,12 @@
 \end{lemma}
 
 \begin{proof}%\leanok
-\uses{}
-TODO: add lemmas about $D_f(\alpha \mu + (1 - \alpha) \nu, \nu)$ being an f-div, and same thing for an average on the other side.
+\uses{lem:fDiv_add_smul_right, lem:fDiv_add_smul_right', lem:fDiv_add, lem:fDiv_mul}
+$(\mu, \nu) \mapsto \KL(\mu, \alpha \mu + (1 - \alpha) \nu)$ is an $f$-divergence for the function $x \mapsto x\log\left(\frac{x}{\alpha x + 1 - \alpha}\right)$ (Lemma~\ref{lem:fDiv_add_smul_right}).
+
+$(\mu, \nu) \mapsto \KL(\nu, \alpha \mu + (1 - \alpha) \nu)$ is an $f$-divergence for the function $x \mapsto x\log\left(\frac{1}{\alpha x + 1 - \alpha}\right)$ (Lemma~\ref{lem:fDiv_add_smul_right'}).
+
+By Lemmas~\ref{lem:fDiv_mul} and \ref{lem:fDiv_add}, we obtain the result.
 \end{proof}
 
 
