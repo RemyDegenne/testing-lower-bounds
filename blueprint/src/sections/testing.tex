@@ -420,9 +420,6 @@ Use the data-processing inequality, Theorem~\ref{thm:data_proc_bayesRisk}.
 \end{proof}
 
 
-The next results are adapted from \cite{pensia2024sample}.
-
-
 \begin{lemma}
   \label{lem:binaryPriorSampleComplexity_le_renyi}
   %\lean{}
@@ -455,6 +452,21 @@ By definition, $n_0$ is such that the infimum over $\alpha$ of the right hand si
 
 
 \begin{lemma}
+  \label{lem:bayesBinaryRisk_bernoulli}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesBinaryRisk}
+  Let $\hat{y}_B$ be the generalized Bayes estimator for simple binary hypothesis testing.
+  The distribution $\ell \circ (\mathrm{id} \parallel \hat{y}_B) \circ (\pi \otimes P)$ (in which $\ell$ stands for the associated deterministic kernel) is a Bernoulli with mean $\mathcal B_\pi(\mu, \nu)$.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+
+\end{proof}
+
+
+\begin{lemma}[\cite{pensia2024sample}]
   \label{lem:sub_bayesBinaryRisk_le_jensenShannon}
   %\lean{}
   %\leanok
@@ -467,12 +479,12 @@ By definition, $n_0$ is such that the infimum over $\alpha$ of the right hand si
 \end{lemma}
 
 \begin{proof}%\leanok
-\uses{thm:kl_data_proc, thm:kl_compProd, lem:jensenShannon_prod_n, lem:jensenShannon_eq_kl}
+\uses{thm:kl_data_proc, thm:kl_compProd, lem:jensenShannon_prod_n, lem:jensenShannon_eq_kl, lem:bayesBinaryRisk_bernoulli}
 
 TODO: split lemmas out of this proof.
 
 Let $P : \{0,1\} \rightsquigarrow \mathcal X$ be the kernel with $P(0) = \mu$ and $P(1) = \nu$.
-Let $u \in \mathcal P(\{0,1\})$ be the probability distribution with $u_0 = 1/2$. We write $\pi_\alpha$ for the probability measure on $\{0,1\}$ with $\pi_0 = \alpha$. By Theorem~\ref{thm:kl_compProd} and Lemma~\ref{lem:jensenShannon_eq_kl},
+Let $u \in \mathcal P(\{0,1\})$ be the probability distribution with $u_0 = 1/2$. We write $\pi_\alpha$ for the probability measure on $\{0,1\}$ with $\pi_0 = \alpha$. By the chain rule (Theorem~\ref{thm:kl_compProd}) and Lemma~\ref{lem:jensenShannon_eq_kl},
 \begin{align*}
 \KL(\pi_\alpha \otimes P, u \times (P \circ \pi_\alpha))
 &= \kl(\alpha, 1/2) + \KL(\pi_\alpha \otimes P, \pi_\alpha \times (P \circ \pi_\alpha))
@@ -485,11 +497,11 @@ Let $u \in \mathcal P(\{0,1\})$ be the probability distribution with $u_0 = 1/2$
 
 Let $\hat{y}_B$ be the generalized Bayes estimator. By the data-processing inequality for $\KL$ (Theorem~\ref{thm:kl_data_proc}),
 \begin{align*}
-\KL(\ell \circ (\mathrm{id} \times \hat{y}_B) \circ (\pi_\alpha \otimes P), \ell \circ (\mathrm{id} \times \hat{y}_B) \circ (u \times (P^{\otimes n} \circ \pi_\alpha)))
+\KL(\ell \circ (\mathrm{id} \parallel \hat{y}_B) \circ (\pi_\alpha \otimes P), \ell \circ (\mathrm{id} \parallel \hat{y}_B) \circ (u \times (P \circ \pi_\alpha)))
 \le \KL(\pi_\alpha \otimes P, u \times (P \circ \pi_\alpha))
 \: .
 \end{align*}
-The two measures on the left are measures on $\{0,1\}$, with $\ell \circ (\mathrm{id} \times \hat{y}_B) \circ (u \times (P \circ \pi_\alpha)) = u$ and $(\ell \circ (\mathrm{id} \times \hat{y}_B) \circ (\pi_\alpha \otimes P)) (\{1\}) = B_\alpha(\mu, \nu)$.
+The two measures on the left are probability measures on $\{0,1\}$, with $\ell \circ (\mathrm{id} \parallel \hat{y}_B) \circ (u \times (P \circ \pi_\alpha)) = u$ and $(\ell \circ (\mathrm{id} \parallel \hat{y}_B) \circ (\pi_\alpha \otimes P)) (\{1\}) = B_\alpha(\mu, \nu)$ (Lemma~\ref{lem:bayesBinaryRisk_bernoulli}).
 We get
 \begin{align*}
 \KL(\pi_\alpha \otimes P, u \times (P \circ \pi_\alpha))
@@ -502,6 +514,57 @@ Putting things together, we proved
 \JS_\alpha(\mu, \nu) \ge h_2(\alpha) - h_2(B_\alpha(\mu, \nu)) \: .
 \end{align*}
 \end{proof}
+
+
+\begin{lemma}
+  \label{lem:kl_bayesBinaryRisk_le_jensenShannon}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesBinaryRisk, def:jensenShannon}
+  Let $\mu, \nu \in \mathcal P(\mathcal X)$ and let $\alpha \in (0, 1)$. Then
+  \begin{align*}
+  \kl(B_\alpha(\mu, \nu), \min\{\alpha, 1 - \alpha\}) \le \JS_\alpha(\mu, \nu) \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:jensenShannon_eq_kl, thm:kl_data_proc, lem:bayesBinaryRisk_bernoulli}
+Let $\hat{y}_B$ be the generalized Bayes estimator. By Lemma~\ref{lem:jensenShannon_eq_kl}, then the data-processing inequality for $\KL$ (Theorem~\ref{thm:kl_data_proc}),
+\begin{align*}
+\JS_\alpha(\mu, \nu)
+&= \KL(\pi_\alpha \otimes P, \pi_\alpha \times (P \circ \pi_\alpha))
+\\
+&\ge \KL(\ell \circ (\mathrm{id} \parallel \hat{y}_B) \circ (\pi_\alpha \otimes P), \ell \circ (\mathrm{id} \parallel \hat{y}_B) \circ (\pi_\alpha \times (P \circ \pi_\alpha)))
+\end{align*}
+$\ell \circ (\mathrm{id} \parallel \hat{y}_B) \circ (\pi_\alpha \otimes P)$ is Bernoulli with mean $B_\alpha(\mu, \nu)$ (Lemma~\ref{lem:bayesBinaryRisk_bernoulli}).
+$\ell \circ (\mathrm{id} \parallel \hat{y}_B) \circ (\pi_\alpha \times (P \circ \pi_\alpha))$ is Bernoulli, with mean $\alpha(\alpha \mu(E) + (1 - \alpha) \nu(E)) + (1 - \alpha) (\alpha \mu(E^c) + (1 - \alpha) \nu(E^c))$ for some event $E$.
+\begin{align*}
+&\alpha(\alpha \mu(E) + (1 - \alpha) \nu(E)) + (1 - \alpha) (\alpha \mu(E^c) + (1 - \alpha) \nu(E^c))
+\\
+&= \alpha(\alpha \mu(E) + (1 - \alpha) \mu(E^c)) + (1 - \alpha) (\alpha \nu(E) + (1 - \alpha) \nu(E^c))
+\\
+&\ge \alpha \min\{\alpha, 1 - \alpha\} + (1 - \alpha) \min\{\alpha, 1 - \alpha\}
+\\
+&= \min\{\alpha, 1 - \alpha\}
+\: .
+\end{align*}
+Since $B_\alpha(\mu, \nu) \le \min\{\alpha, 1 - \alpha\}$, we obtain
+\begin{align*}
+\kl(B_\alpha(\mu, \nu), \min\{\alpha, 1 - \alpha\})
+&\le \KL(\ell \circ (\mathrm{id} \parallel \hat{y}_B) \circ (\pi_\alpha \otimes P), \ell \circ (\mathrm{id} \parallel \hat{y}_B) \circ (\pi_\alpha \times (P \circ \pi_\alpha)))
+\\
+&\le \JS_\alpha(\mu, \nu)
+\: .
+\end{align*}
+\end{proof}
+
+Lemma~\ref{lem:kl_bayesBinaryRisk_le_jensenShannon} gives a worse conclusion than Lemma~\ref{lem:sub_bayesBinaryRisk_le_jensenShannon}. Indeed, if for example $\alpha \le 1 - \alpha$~,
+\begin{align*}
+\kl(B_\alpha(\mu, \nu), \min\{\alpha, 1 - \alpha\})
+&= h_2(\alpha) - h_2(B_\alpha(\mu, \nu)) + (B_\alpha(\mu, \nu) - \alpha) \log \frac{1 - \alpha}{\alpha}
+\\
+&\le h_2(\alpha) - h_2(B_\alpha(\mu, \nu)) \: .
+\end{align*}
 
 
 \begin{lemma}
