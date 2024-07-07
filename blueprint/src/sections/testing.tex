@@ -405,6 +405,8 @@ Use the data-processing inequality, Theorem~\ref{thm:data_proc_bayesRisk}.
   This is the sample complexity $n_\xi^P(\delta)$ specialized to simple binary hypothesis testing.
 \end{definition}
 
+The next results are adapted from \cite{pensia2024sample}.
+
 
 \begin{lemma}
   \label{lem:binaryPriorSampleComplexity_le_renyi}
@@ -434,4 +436,55 @@ B_\pi(\mu^{\otimes n_0}, \nu^{\otimes n_0})
 \: .
 \end{align*}
 By definition, $n_0$ is such that the infimum over $\alpha$ of the right hand side is less than $\delta$.
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:binaryPriorSampleComplexity_ge_jensenShannon}
+  %\lean{}
+  %\leanok
+  \uses{def:binaryPriorSampleComplexity, def:jensenShannon}
+  The sample complexity of simple binary hypothesis testing satisfies
+  \begin{align*}
+  n(\mu, \nu, \pi, \delta) \ge \frac{h_2(\pi) - h_2(\delta)}{\JS_\pi(\mu, \nu)}
+  \: ,
+  \end{align*}
+  in which $h_2: x \mapsto x\log\frac{1}{x} + (1 - x)\log\frac{1}{1 - x}$ is the binary entropy function.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{thm:kl_data_proc, thm:kl_compProd, lem:jensenShannon_prod_n, lem:jensenShannon_eq_kl}
+TODO: split lemmas out of this proof.
+
+Let $u \in \mathcal P(\{0,1\})$ be the probability distribution with $u_0 = 1/2$. We write $\xi_\pi$ for the probability measure on $\{0,1\}$ with $\xi_0 = \pi$. By Theorem~\ref{thm:kl_compProd} and Lemma~\ref{lem:jensenShannon_eq_kl},
+\begin{align*}
+\KL(\xi_\pi \otimes P^{\otimes n}, u \times (P^{\otimes n} \circ \xi_\pi))
+&= \kl(\pi, 1/2) + \KL(\xi_\pi \otimes P^{\otimes n}, \xi_\pi \times (P^{\otimes n} \circ \xi_\pi))
+\\
+&= \kl(\pi, 1/2) + \JS_\pi(\mu^{\otimes n}, \nu^{\otimes n})
+\\
+&= \log 2 - h_2(\pi) + \JS_\pi(\mu^{\otimes n}, \nu^{\otimes n})
+\: .
+\end{align*}
+
+Let $\hat{y}_B$ be the generalized Bayes estimator. By the data-processing inequality for $\KL$ (Theorem~\ref{thm:kl_data_proc}),
+\begin{align*}
+\KL(\ell' \circ (\mathrm{id} \times \hat{y}_B) \circ (\xi_\pi \otimes P^{\otimes n}), \ell' \circ (\mathrm{id} \times \hat{y}_B) \circ (u \times (P^{\otimes n} \circ \xi_\pi)))
+\le \KL(\xi_\pi \otimes P^{\otimes n}, u \times (P^{\otimes n} \circ \xi_\pi))
+\: .
+\end{align*}
+The two measures on the left are measures on $\{0,1\}$, with $\ell' \circ (\mathrm{id} \times \hat{y}_B) \circ (u \times (P^{\otimes n} \circ \xi_\pi)) = u$ and $(\ell' \circ (\mathrm{id} \times \hat{y}_B) \circ (\xi_\pi \otimes P^{\otimes n})) (\{1\}) = B_\pi(\mu^{\otimes n}, \nu^{\otimes n})$.
+We get
+\begin{align*}
+\KL(\xi_\pi \otimes P^{\otimes n}, u \times (P^{\otimes n} \circ \xi_\pi))
+\ge \kl(B_\pi(\mu^{\otimes n}, \nu^{\otimes n}), 1/2)
+= \log 2 - h_2(B_\pi(\mu^{\otimes n}, \nu^{\otimes n}))
+\: .
+\end{align*}
+We proved
+\begin{align*}
+\JS_\pi(\mu^{\otimes n}, \nu^{\otimes n}) \ge h_2(\pi) - h_2(B_\pi(\mu^{\otimes n}, \nu^{\otimes n})) \: .
+\end{align*}
+By Lemma~\ref{lem:jensenShannon_prod_n}, $\JS_\pi(\mu^{\otimes n}, \nu^{\otimes n}) \le n \JS_\pi(\mu, \nu)$. The final result is obtained by using that $B_\pi(\mu^{\otimes n}, \nu^{\otimes n}) \le \delta$ for $n = n(\mu, \nu, \pi, \delta)$.
+
 \end{proof}

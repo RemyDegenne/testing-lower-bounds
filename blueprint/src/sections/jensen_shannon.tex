@@ -97,7 +97,34 @@ Immediate from the definition.
 Compare with Lemma~\ref{lem:renyi_eq_inf_kl} on the Rényi divergence.
 
 \begin{proof}%\leanok
-\uses{}
+\uses{lem:jensenShannon_eq_inf_add_kl}
+
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:jensenShannon_prod_n}
+  %\lean{}
+  %\leanok
+  \uses{def:jensenShannon}
+  Let $\mu, \nu$ be two probability measures on $\mathcal X$. Let $n \in \mathbb{N}$ and write $\mu^{\otimes n}$ for the product measure on $\mathcal X^n$ of $n$ times $\mu$.
+  Then $\JS_\alpha(\mu^{\otimes n}, \nu^{\otimes n}) \le n \JS_\alpha(\mu, \nu)$.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:jensenShannon_eq_inf_add_kl, thm:kl_pi}
+By Lemma~\ref{lem:jensenShannon_eq_inf_add_kl},
+\begin{align*}
+\JS_\alpha(\mu^{\otimes n}, \nu^{\otimes n})
+&= \inf_{\xi \in \mathcal P(\mathcal X^n)}\left( \alpha \KL(\mu^{\otimes n}, \xi) + (1 - \alpha)\KL(\nu^{\otimes n}, \xi) \right)
+\\
+&\le \inf_{\zeta \in \mathcal P(\mathcal X)}\left( \alpha \KL(\mu^{\otimes n}, \zeta^{\otimes n}) + (1 - \alpha)\KL(\nu^{\otimes n}, \zeta^{\otimes n}) \right)
+\\
+&= n \inf_{\zeta \in \mathcal P(\mathcal X)}\left( \alpha \KL(\mu, \zeta) + (1 - \alpha)\KL(\nu, \zeta) \right)
+\\
+&= n \JS_\alpha(\mu, \nu)
+\: .
+\end{align*}
 
 \end{proof}
 
