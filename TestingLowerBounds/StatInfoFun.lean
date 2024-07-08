@@ -5,9 +5,7 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import TestingLowerBounds.ForMathlib.ByParts
 import TestingLowerBounds.ForMathlib.LeftRightDeriv
-import TestingLowerBounds.ForMathlib.Stieltjes
 import Mathlib.MeasureTheory.Integral.FundThmCalculus
-import Mathlib.Tactic.FunProp.Measurable
 import Mathlib.MeasureTheory.Constructions.Prod.Integral
 
 open MeasureTheory Set Filter Topology StieltjesFunction
@@ -350,7 +348,7 @@ section CurvatureMeasure
 the right derivative of the function as a CDF. -/
 noncomputable
 def curvatureMeasure (f : ℝ → ℝ) (hf : ConvexOn ℝ univ f) : Measure ℝ :=
-  (StieltjesFunction.rightDeriv_of_convex f hf).measure
+  hf.rightDerivStieltjes.measure
 
 instance (f : ℝ → ℝ) (hf : ConvexOn ℝ univ f) : IsLocallyFiniteMeasure (curvatureMeasure f hf) := by
   unfold curvatureMeasure
@@ -365,7 +363,7 @@ lemma generalized_taylor (hf : ConvexOn ℝ univ f) (hf_cont : Continuous f) {a 
     mul_neg, sub_neg_eq_add, mul_comm _ (a - b)]
   let g := StieltjesFunction.id + StieltjesFunction.const (-b)
   have hg : g = fun x ↦ x - b := rfl
-  rw [← hg, integral_stieltjes_meas_by_parts g (rightDeriv_of_convex f hf)]
+  rw [← hg, integral_stieltjes_meas_by_parts g hf.rightDerivStieltjes]
   simp only [Real.volume_eq_stieltjes_id, add_apply, id_apply, id_eq, const_apply, add_right_neg,
     zero_mul, zero_sub, measure_add, measure_const, add_zero, neg_sub, sub_neg_eq_add, g]
   rfl
