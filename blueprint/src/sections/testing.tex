@@ -537,17 +537,7 @@ Let $\hat{y}_B$ be the generalized Bayes estimator. By Lemma~\ref{lem:jensenShan
 &\ge \KL(\ell \circ (\mathrm{id} \parallel \hat{y}_B) \circ (\pi_\alpha \otimes P), \ell \circ (\mathrm{id} \parallel \hat{y}_B) \circ (\pi_\alpha \times (P \circ \pi_\alpha)))
 \end{align*}
 $\ell \circ (\mathrm{id} \parallel \hat{y}_B) \circ (\pi_\alpha \otimes P)$ is Bernoulli with mean $B_\alpha(\mu, \nu)$ (Lemma~\ref{lem:bayesBinaryRisk_bernoulli}).
-$\ell \circ (\mathrm{id} \parallel \hat{y}_B) \circ (\pi_\alpha \times (P \circ \pi_\alpha))$ is Bernoulli, with mean $\alpha(\alpha \mu(E) + (1 - \alpha) \nu(E)) + (1 - \alpha) (\alpha \mu(E^c) + (1 - \alpha) \nu(E^c))$ for some event $E$.
-\begin{align*}
-&\alpha(\alpha \mu(E) + (1 - \alpha) \nu(E)) + (1 - \alpha) (\alpha \mu(E^c) + (1 - \alpha) \nu(E^c))
-\\
-&= \alpha(\alpha \mu(E) + (1 - \alpha) \mu(E^c)) + (1 - \alpha) (\alpha \nu(E) + (1 - \alpha) \nu(E^c))
-\\
-&\ge \alpha \min\{\alpha, 1 - \alpha\} + (1 - \alpha) \min\{\alpha, 1 - \alpha\}
-\\
-&= \min\{\alpha, 1 - \alpha\}
-\: .
-\end{align*}
+$\ell \circ (\mathrm{id} \parallel \hat{y}_B) \circ (\pi_\alpha \times (P \circ \pi_\alpha))$ is Bernoulli, with mean $\alpha(P \circ \pi_\alpha)(E) + (1 - \alpha) (P \circ \pi_\alpha)(E^c)$ for some event $E$, which is larger than $\min\{\alpha, 1 - \alpha\}$.
 Since $B_\alpha(\mu, \nu) \le \min\{\alpha, 1 - \alpha\}$, we obtain
 \begin{align*}
 \kl(B_\alpha(\mu, \nu), \min\{\alpha, 1 - \alpha\})
@@ -558,13 +548,53 @@ Since $B_\alpha(\mu, \nu) \le \min\{\alpha, 1 - \alpha\}$, we obtain
 \end{align*}
 \end{proof}
 
-Lemma~\ref{lem:kl_bayesBinaryRisk_le_jensenShannon} gives a worse conclusion than Lemma~\ref{lem:sub_bayesBinaryRisk_le_jensenShannon}. Indeed, if for example $\alpha \le 1 - \alpha$~,
+Lemma~\ref{lem:kl_bayesBinaryRisk_le_jensenShannon} gives a weaker conclusion than Lemma~\ref{lem:sub_bayesBinaryRisk_le_jensenShannon}. Indeed, if for example $\alpha \le 1 - \alpha$~,
 \begin{align*}
 \kl(B_\alpha(\mu, \nu), \min\{\alpha, 1 - \alpha\})
 &= h_2(\alpha) - h_2(B_\alpha(\mu, \nu)) + (B_\alpha(\mu, \nu) - \alpha) \log \frac{1 - \alpha}{\alpha}
 \\
 &\le h_2(\alpha) - h_2(B_\alpha(\mu, \nu)) \: .
 \end{align*}
+
+
+\begin{lemma}
+  \label{lem:log_inv_bayesBinaryRisk_le_renyi}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesBinaryRisk, def:Renyi}
+  For $\alpha \le \beta \le 1/2$,
+  \begin{align*}
+  \beta \log\frac{\alpha}{B_\alpha(\mu, \nu)} + (1 - \beta) \log\frac{1 - \alpha}{1 - B_\alpha(\mu, \nu)}
+  &\le (1 - \beta) R_{\beta}(\mu, \nu)
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{thm:kl_data_proc, lem:bayesBinaryRisk_bernoulli, lem:renyi_eq_inf_kl}
+\begin{align*}
+\KL(\pi_\beta \times \xi, \pi_\alpha \otimes P)
+&\ge \KL(\ell \circ (\mathrm{id} \parallel \hat{y}_B) \circ (\pi_\beta \times \xi), \ell \circ (\mathrm{id} \parallel \hat{y}_B) \circ (\pi_\alpha \otimes P))
+\\
+&= \kl(\beta \xi(E) + (1 - \beta) \xi(E^c), B_\alpha(\mu, \nu))
+\\
+&\ge \kl(\beta, B_\alpha(\mu, \nu))
+\\
+&= - h_2(\beta) + \beta \log\frac{1}{B_\alpha(\mu, \nu)} + (1 - \beta)\log\frac{1}{1 - B_\alpha(\mu, \nu)}
+\: .
+\end{align*}
+
+\begin{align*}
+\KL(\pi_\beta \times \xi, \pi_\alpha \otimes P)
+&= \kl(\beta, \alpha) + \KL(u \times \xi, u \otimes P)
+\\
+&= - h_2(\beta) + \beta\log\frac{1}{\alpha} + (1 - \beta)\log\frac{1}{1 - \alpha} + \KL(\pi_\beta \times \xi, \pi_\beta \otimes P)
+\end{align*}
+For $\xi = \mu^{(\beta, \nu)}$, this last $\KL$ is equal to $(1 - \beta) R_{\beta}(\mu, \nu)$ (Lemma~\ref{lem:renyi_eq_inf_kl}).
+
+Putting those two inequalities together, we get the result.
+
+\end{proof}
 
 
 \begin{lemma}
