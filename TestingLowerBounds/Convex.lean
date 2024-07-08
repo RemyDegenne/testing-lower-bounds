@@ -65,14 +65,14 @@ lemma slope_tendsto_atTop (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) :
 lemma comp_neg {𝕜 F β : Type*} [LinearOrderedField 𝕜] [AddCommGroup F]
     [OrderedAddCommMonoid β] [Module 𝕜 F] [SMul 𝕜 β] {f : F → β} {s : Set F}
     (hf : ConvexOn 𝕜 s f) :
-    ConvexOn 𝕜 (-s) (f ∘ Neg.neg) := by
+    ConvexOn 𝕜 (-s) (fun x ↦ f (-x)) := by
   refine ⟨hf.1.neg, fun x hx y hy a b ha hb hab ↦ ?_⟩
-  simp_rw [Function.comp_apply, neg_add_rev, ← smul_neg, add_comm]
+  simp_rw [neg_add_rev, ← smul_neg, add_comm]
   exact hf.2 hx hy ha hb hab
 
 lemma comp_neg_iff {𝕜 F β : Type*} [LinearOrderedField 𝕜] [AddCommGroup F]
     [OrderedAddCommMonoid β] [Module 𝕜 F] [SMul 𝕜 β] {f : F → β} {s : Set F}  :
-    ConvexOn 𝕜 (-s) (f ∘ Neg.neg) ↔ ConvexOn 𝕜 s f := by
+    ConvexOn 𝕜 (-s) (fun x ↦ f (-x)) ↔ ConvexOn 𝕜 s f := by
   refine ⟨fun h ↦ ?_, fun h ↦ ConvexOn.comp_neg h⟩
   rw [← neg_neg s, ← Function.comp_id f, ← neg_comp_neg, ← Function.comp.assoc]
   exact h.comp_neg

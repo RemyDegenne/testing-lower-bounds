@@ -190,7 +190,7 @@ lemma fDiv_id (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν] :
     simp only [id_eq, derivAtTop_id, one_mul]
     rw [← integral_univ, Measure.setIntegral_toReal_rnDeriv_eq_withDensity]
     have h_ne_top : (Measure.withDensity ν (∂μ/∂ν)) Set.univ ≠ ∞ := by
-      rw [withDensity_apply _ MeasurableSet.univ, set_lintegral_univ]
+      rw [withDensity_apply _ MeasurableSet.univ, setLIntegral_univ]
       rwa [integrable_toReal_iff] at h_int
       · exact (μ.measurable_rnDeriv ν).aemeasurable
       · exact μ.rnDeriv_ne_top ν
@@ -199,7 +199,6 @@ lemma fDiv_id (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν] :
     conv_rhs => rw [μ.haveLebesgueDecomposition_add ν, add_comm]
     simp
   · rw [fDiv_of_not_integrable h_int]
-    norm_cast
     symm
     by_contra h_ne_top
     have : IsFiniteMeasure μ := ⟨Ne.lt_top ?_⟩
@@ -715,7 +714,7 @@ lemma le_fDiv [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
   simp only [MeasurableSet.univ, withDensity_apply, Measure.restrict_univ, sub_self, EReal.coe_zero,
     measure_univ, EReal.coe_ennreal_one, mul_one, zero_add]
   gcongr
-  rw [← set_lintegral_univ, ← withDensity_apply _ MeasurableSet.univ]
+  rw [← setLIntegral_univ, ← withDensity_apply _ MeasurableSet.univ]
   exact le_fDiv_of_ac hf_cvx hf_cont (withDensity_absolutelyContinuous _ _)
 
 lemma fDiv_nonneg [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
