@@ -269,10 +269,10 @@ lemma statInfoFun_le_of_nonpos_of_one_le_right (hβ : β ≤ 0) (hx : 1 ≤ x) :
   simp [hγ]
 
 --PRed to mathlib, see #14199, when it gets merged and we bump remove these 2 lemmas
-@[simp] lemma uIoc_of_ge {α : Type u_1} [LinearOrder α] {a b : α} (h : b ≤ a) :
-  Ι a b = Ioc b a := by simp [uIoc, h]
-lemma uIoc_subset_uIcc {α : Type u_1} [LinearOrder α] {a b : α} :
-    Ι a b ⊆ uIcc a b := Ioc_subset_Icc_self
+-- @[simp] lemma uIoc_of_ge {α : Type u_1} [LinearOrder α] {a b : α} (h : b ≤ a) :
+--   Ι a b = Ioc b a := by simp [uIoc, h]
+-- lemma uIoc_subset_uIcc {α : Type u_1} [LinearOrder α] {a b : α} :
+--     Ι a b ⊆ uIcc a b := Ioc_subset_Icc_self
 
 lemma lintegral_nnnorm_statInfoFun_le {μ : Measure ℝ} (β x : ℝ) :
     ∫⁻ γ, ↑‖statInfoFun β γ x‖₊ ∂μ ≤ (μ (uIoc (β * x) β)) * (ENNReal.ofReal |β - β * x|) := by
@@ -358,7 +358,7 @@ lemma generalized_taylor (hf : ConvexOn ℝ univ f) (hf_cont : Continuous f) {a 
     f b - f a - (rightDeriv f a) * (b - a)  = ∫ x in a..b, b - x ∂(curvatureMeasure f hf) := by
   have h_int : IntervalIntegrable (rightDeriv f) ℙ a b := hf.rightDeriv_mono.intervalIntegrable
   rw [← intervalIntegral.integral_eq_sub_of_hasDeriv_right hf_cont.continuousOn
-    (fun x _ ↦ hf.hadDerivWithinAt_rightDeriv_of_convexOn x) h_int]
+    (fun x _ ↦ hf.hadDerivWithinAt_rightDeriv x) h_int]
   simp_rw [← neg_sub _ b, intervalIntegral.integral_neg, curvatureMeasure,
     mul_neg, sub_neg_eq_add, mul_comm _ (a - b)]
   let g := StieltjesFunction.id + StieltjesFunction.const (-b)
