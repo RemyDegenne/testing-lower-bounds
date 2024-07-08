@@ -568,10 +568,18 @@ Lemma~\ref{lem:kl_bayesBinaryRisk_le_jensenShannon} gives a weaker conclusion th
   &\le (1 - \beta) R_{\beta}(\mu, \nu)
   \: .
   \end{align*}
+  As a consequence,
+  \begin{align*}
+  \beta \log\frac{\alpha}{B_\alpha(\mu, \nu)}
+  &\le (1 - \beta) (R_{\beta}(\mu, \nu) + \log 2)
+  \: .
+  \end{align*}
+  In particular, $\log\frac{\alpha}{B_\alpha(\mu, \nu)} \le R_{1/2}(\mu, \nu) + \log 2$~.
 \end{lemma}
 
 \begin{proof}%\leanok
 \uses{thm:kl_data_proc, lem:bayesBinaryRisk_bernoulli, lem:renyi_eq_inf_kl}
+Let $\hat{y}_B$ be the generalized Bayes estimator. By the data-processing inequality for $\KL$ (Theorem~\ref{thm:kl_data_proc}),
 \begin{align*}
 \KL(\pi_\beta \times \xi, \pi_\alpha \otimes P)
 &\ge \KL(\ell \circ (\mathrm{id} \parallel \hat{y}_B) \circ (\pi_\beta \times \xi), \ell \circ (\mathrm{id} \parallel \hat{y}_B) \circ (\pi_\alpha \otimes P))
@@ -583,7 +591,7 @@ Lemma~\ref{lem:kl_bayesBinaryRisk_le_jensenShannon} gives a weaker conclusion th
 &= - h_2(\beta) + \beta \log\frac{1}{B_\alpha(\mu, \nu)} + (1 - \beta)\log\frac{1}{1 - B_\alpha(\mu, \nu)}
 \: .
 \end{align*}
-
+We can compute the left hand side of that inequality:
 \begin{align*}
 \KL(\pi_\beta \times \xi, \pi_\alpha \otimes P)
 &= \kl(\beta, \alpha) + \KL(u \times \xi, u \otimes P)
@@ -592,8 +600,32 @@ Lemma~\ref{lem:kl_bayesBinaryRisk_le_jensenShannon} gives a weaker conclusion th
 \end{align*}
 For $\xi = \mu^{(\beta, \nu)}$, this last $\KL$ is equal to $(1 - \beta) R_{\beta}(\mu, \nu)$ (Lemma~\ref{lem:renyi_eq_inf_kl}).
 
-Putting those two inequalities together, we get the result.
+Putting those two inequalities together, we get the result. The first particular case is obtained by using $\alpha \le 1/2$ and $B_\pi(\mu, \nu) \ge 0$.
+The second one further sets $\beta = 1/2$.
+\end{proof}
 
+
+\begin{lemma}
+  \label{lem:binaryPriorSampleComplexity_ge_renyi}
+  %\lean{}
+  %\leanok
+  \uses{def:binaryPriorSampleComplexity, def:Renyi}
+  For $\delta \le \pi \le 1/2$, the sample complexity of simple binary hypothesis testing satisfies
+  \begin{align*}
+  n(\mu, \nu, \pi, \delta) \ge \frac{\log\frac{\pi}{2\delta}}{R_{1/2}(\mu, \nu)}
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:log_inv_bayesBinaryRisk_le_renyi, lem:renyi_prod_n}
+By Lemma~\ref{lem:log_inv_bayesBinaryRisk_le_renyi},
+\begin{align*}
+\log\frac{\pi}{B_\pi(\mu^{\otimes n}, \nu^{\otimes n})} \le R_{1/2}(\mu^{\otimes n}, \nu^{\otimes n}) + \log 2
+\: .
+\end{align*}
+The Rényi divergence tensorizes (Theorem~\ref{lem:renyi_prod_n}): $R_{1/2}(\mu^{\otimes n}, \nu^{\otimes n}) = n R_{1/2}(\mu, \nu)$~.
+We finally use that $B_\pi(\mu^{\otimes n}, \nu^{\otimes n}) \le \delta$ for $n = n(\mu, \nu, \pi, \delta)$~.
 \end{proof}
 
 
