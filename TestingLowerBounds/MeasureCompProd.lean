@@ -91,6 +91,13 @@ lemma Measure.compProd_const {ν : Measure β} [SFinite μ] [SFinite ν] :
   rw [Measure.compProd_apply hs, Measure.prod_apply hs]
   simp_rw [kernel.const_apply]
 
+@[simp]
+lemma Measure.comp_const {ν : Measure β} :
+    μ ∘ₘ (kernel.const α ν) = μ Set.univ • ν := by
+  ext s hs
+  simp_rw [Measure.bind_apply hs (kernel.measurable _), kernel.const_apply, lintegral_const]
+  simp [mul_comm]
+
 lemma Measure.compProd_apply_toReal [SFinite μ] [IsFiniteKernel κ]
     {s : Set (α × β)} (hs : MeasurableSet s) :
     ((μ ⊗ₘ κ) s).toReal = ∫ x, (κ x (Prod.mk x ⁻¹' s)).toReal ∂μ := by
@@ -417,15 +424,6 @@ lemma integrable_f_rnDeriv_compProd_right_iff [IsFiniteMeasure μ]
 
 end Integrable
 
-/--The composition product of a measure and a constant kernel is the product between the two
-measures.-/
-@[simp]
-lemma compProd_const {ν : Measure β} [SFinite ν] [SFinite μ] :
-    μ ⊗ₘ (kernel.const α ν) = μ.prod ν := by
-  ext s hs
-  rw [Measure.compProd_apply hs, Measure.prod_apply hs]
-  simp_rw [kernel.const_apply]
-
 lemma compProd_apply_toReal [SFinite μ] [IsFiniteKernel κ]
     {s : Set (α × β)} (hs : MeasurableSet s) :
     ((μ ⊗ₘ κ) s).toReal = ∫ x, (κ x (Prod.mk x ⁻¹' s)).toReal ∂μ := by
@@ -440,6 +438,16 @@ lemma compProd_univ_toReal [SFinite μ] [IsFiniteKernel κ] :
     ((μ ⊗ₘ κ) Set.univ).toReal = ∫ x, (κ x Set.univ).toReal ∂μ :=
   compProd_apply_toReal MeasurableSet.univ
 
+lemma Measure.compProd_apply_univ [SFinite μ] [IsMarkovKernel κ] :
+    (μ ⊗ₘ κ) Set.univ = μ (Set.univ) := by
+  rw [Measure.compProd_apply MeasurableSet.univ]
+  simp
+
+lemma Measure.comp_apply_univ [IsMarkovKernel κ] :
+    (μ ∘ₘ κ) Set.univ = μ (Set.univ) := by
+  rw [Measure.bind_apply MeasurableSet.univ (kernel.measurable κ)]
+  simp
+
 instance [SFinite μ] [IsSFiniteKernel κ] : SFinite (μ ∘ₘ κ) := by
   rw [Measure.comp_eq_snd_compProd]
   infer_instance
@@ -451,5 +459,19 @@ instance [IsFiniteMeasure μ] [IsFiniteKernel κ] : IsFiniteMeasure (μ ∘ₘ �
 instance [IsProbabilityMeasure μ] [IsMarkovKernel κ] : IsProbabilityMeasure (μ ∘ₘ κ) := by
   rw [Measure.comp_eq_snd_compProd]
   infer_instance
+
+--this is already PRed to mathlib, see #14471, when it gets merged and we bump, remove this
+instance [hμ : SFinite μ] (a : ℝ≥0∞) : SFinite (a • μ) := by
+  sorry
+
+lemma Measure.compProd_smul_left (a : ℝ≥0∞) [SFinite μ] [IsSFiniteKernel κ] :
+    (a • μ) ⊗ₘ κ = a • (μ ⊗ₘ κ) := by
+  ext s hs
+  simp only [Measure.compProd_apply hs, lintegral_smul_measure, Measure.smul_apply, smul_eq_mul]
+
+lemma Measure.comp_smul_left (a : ℝ≥0∞) : (a • μ) ∘ₘ κ = a • (μ ∘ₘ κ) := by
+  ext s hs
+  simp only [Measure.bind_apply hs (kernel.measurable _), lintegral_smul_measure,
+    Measure.smul_apply, smul_eq_mul]
 
 end ProbabilityTheory

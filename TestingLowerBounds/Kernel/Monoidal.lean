@@ -88,6 +88,11 @@ lemma discard_apply (a : α) : discard α a = Measure.dirac () := deterministic_
 lemma comp_discard (κ : kernel α β) [IsMarkovKernel κ] : discard β ∘ₖ κ = discard α := by
   ext a s hs; simp [comp_apply' _ _ _ hs]
 
+@[simp]
+lemma _root_.MeasureTheory.Measure.comp_discard (μ : Measure α) :
+    μ.bind (discard α) = μ Set.univ • (Measure.dirac ()) := by
+  ext s hs; simp [Measure.bind_apply hs (kernel.measurable _), mul_comm]
+
 end Discard
 
 section Swap
