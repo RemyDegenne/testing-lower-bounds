@@ -381,7 +381,7 @@ lemma fun_eq_integral_statInfoFun_curvatureMeasure (hf_cvx : ConvexOn ℝ univ f
     f t = ∫ y, statInfoFun 1 y t ∂(curvatureMeasure f hf_cvx) := by
   have h :
       f t - f 1 - (rightDeriv f 1) * (t - 1) = ∫ x in (1)..t, t - x ∂(curvatureMeasure f hf_cvx) :=
-    generalized_taylor hf_cvx hf_cont
+    convex_taylor hf_cvx hf_cont
   rw [hf_one, hfderiv_one, sub_zero, zero_mul, sub_zero] at h
   rw [h]
   rcases le_total t 1 with (ht | ht)
