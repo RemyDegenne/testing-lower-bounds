@@ -253,7 +253,8 @@ lemma bayesBinaryRisk_eq (μ ν : Measure 𝒳) (π : Measure Bool) :
 variable {π : Measure Bool}
 
 --rename this and put it in a better place
-lemma mem_set_bool (s : Set Bool) : s = ∅ ∨ s = {true} ∨ s = {false} ∨ s = {true, false} := by
+lemma _root_.Bool.cases_set_bool (s : Set Bool) :
+    s = ∅ ∨ s = {true} ∨ s = {false} ∨ s = {true, false} := by
   by_cases h1 : true ∈ s <;> by_cases h2 : false ∈ s
   · refine Or.inr (Or.inr (Or.inr ?_))
     ext x
@@ -272,7 +273,7 @@ lemma mem_set_bool (s : Set Bool) : s = ∅ ∨ s = {true} ∨ s = {false} ∨ s
 lemma _root_.MeasureTheory.Measure.measure_bool_ext {π₁ π₂ : Measure Bool}
     (h_false : π₁ {false} = π₂ {false}) (h_true : π₁ {true} = π₂ {true}) : π₁ = π₂ := by
   ext s
-  obtain (rfl | rfl | rfl | rfl) := mem_set_bool s
+  obtain (rfl | rfl | rfl | rfl) := Bool.cases_set_bool s
     <;> try simp only [measure_empty, h_true, h_false]
   rw [Set.insert_eq, measure_union, measure_union, h_true, h_false] <;> simp
 
@@ -356,9 +357,9 @@ lemma bayesBinaryRisk_dirac (a b : ℝ≥0∞) (x : 𝒳) (π : Measure Bool) :
 
 lemma bayesBinaryRisk_le_min (μ ν : Measure 𝒳) (π : Measure Bool) :
     bayesBinaryRisk μ ν π ≤ min (π {false} * μ Set.univ) (π {true} * ν Set.univ) := by
-  let η : kernel 𝒳 Unit := kernel.const 𝒳 (Measure.dirac ())
+  let η : kernel 𝒳 Unit := kernel.discard 𝒳
   convert bayesBinaryRisk_le_bayesBinaryRisk_comp μ ν π η
-  simp_rw [η, Measure.comp_const, bayesBinaryRisk_dirac]
+  simp_rw [η, Measure.comp_discard, bayesBinaryRisk_dirac]
 
 lemma bayesBinaryRisk_symm (μ ν : Measure 𝒳) (π : Measure Bool) :
     bayesBinaryRisk μ ν π = bayesBinaryRisk ν μ (π.map Bool.not) := by
