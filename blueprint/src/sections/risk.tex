@@ -304,8 +304,8 @@ The following is a new definition, which is a natural generalization of the DeGr
 
 \begin{definition}
   \label{def:riskIncrease}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.bayesRiskIncrease}
+  \leanok
   \uses{def:bayesRisk}
   The Bayes risk increase $I^P_{\pi}(\kappa)$ of a kernel $\kappa : \mathcal X \rightsquigarrow \mathcal X'$ with respect to the estimation problem $(P, y, \ell')$ and the prior $\pi \in \mathcal M(\Theta)$ is the difference of the Bayes risk of $(\kappa \circ P, y, \ell')$ and that of $(P, y, \ell')$. That is,
   \begin{align*}
@@ -337,14 +337,14 @@ Use Theorem~\ref{thm:data_proc_bayesRisk}.
 
 \begin{lemma}
   \label{lem:riskIncrease_comp}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.bayesRiskIncrease_comp}
+  \leanok
   \uses{def:riskIncrease}
   For $\kappa : \mathcal X \rightsquigarrow \mathcal X'$ and $\eta : \mathcal X' \rightsquigarrow \mathcal X''$ two Markov kernels,
   $I^P_\pi(\eta \circ \kappa) = I^P_\pi(\kappa) + I^{\kappa \circ P}_\pi(\eta)$~.
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{}
 \begin{align*}
 I^P_\pi(\kappa) + I^{\kappa \circ P}_\pi(\eta)
@@ -392,8 +392,8 @@ In this section, for a measure $\xi$ on $\{0,1\}$, we write $\xi_0$ for $\xi(\{0
 
 \begin{lemma}
   \label{lem:bayesInv_binary}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.bayesInv_twoHypKernel}
+  \leanok
   \uses{def:bayesInv}
   The Bayesian inverse of a kernel $P : \{0,1\} \rightsquigarrow \mathcal X$ with respect to a prior $\xi \in \mathcal M(\{0,1\})$ is $P_\xi^\dagger(x) = \left(\xi_0\frac{d P(0)}{d(P \circ \xi)}(x), \xi_1\frac{d P(1)}{d(P \circ \xi)}(x)\right)$ (almost surely w.r.t. $P \circ \xi = \xi_0 P(0) + \xi_1 P(1)$).
 \end{lemma}
@@ -444,13 +444,13 @@ Thanks to the following lemma, we can prove properties of the Bayes binary risk 
 
 \begin{lemma}
   \label{lem:bayesBinaryRisk_mul}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.bayesBinaryRisk_smul_smul}
+  \leanok
   \uses{def:bayesRisk}
   For all $a, b > 0$, $\mathcal B_\xi(\mu, \nu) = \mathcal B_{(a \xi_0, b \xi_1)}(a^{-1} \mu, b^{-1} \nu)$~.
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{}
 
 \end{proof}
@@ -459,17 +459,41 @@ Alternatively, we can reduce the study of the Bayes binary risk for any prior to
 
 \begin{lemma}
   \label{lem:bayesBinaryRisk_one_one}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.bayesBinaryRisk_eq_bayesBinaryRisk_one_one}
+  \leanok
   \uses{def:bayesRisk}
   $\mathcal B_\xi(\mu, \nu) = \mathcal B_{(1,1)}(\xi_0\mu, \xi_1\nu)$~.
 \end{lemma}
 
-\begin{proof}%\leanok
-\uses{}
+\begin{proof}\leanok
+\uses{ProbabilityTheory.bayesBinaryRisk_smul_smul}
 
 \end{proof}
 
+\begin{theorem}[Data-processing inequality]
+  \label{thm:data_proc_bayesBinaryRisk}
+  \lean{ProbabilityTheory.bayesBinaryRisk_le_bayesBinaryRisk_comp}
+  \leanok
+  \uses{def:bayesBinaryRisk}
+  For $\mu, \nu \in \mathcal M(\mathcal X)$ and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ a Markov kernel, $\mathcal B_\xi(\kappa \circ \mu, \kappa \circ \nu) \ge \mathcal B_\xi(\mu, \nu)$~.
+\end{theorem}
+
+\begin{proof}\leanok
+\uses{thm:data_proc_bayesRisk}
+Apply Theorem~\ref{thm:data_proc_bayesRisk}.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:bayesBinaryRisk_self}
+  \lean{ProbabilityTheory.bayesBinaryRisk_self}
+  \leanok
+  \uses{def:bayesBinaryRisk}
+  For $\mu \in \mathcal M(\mathcal X)$, $\mathcal B_\xi(\mu, \mu) = \min\{\xi_0, \xi_1\} \mu(\mathcal X)$~.
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{}
+\end{proof}
 
 \begin{lemma}
   \label{lem:bayesBinaryRisk_nonneg}
@@ -492,59 +516,37 @@ It is an infimum of non-negative values.
   For all measures $\mu, \nu$, $\mathcal B_\xi(\mu, \nu) \le \min\{\xi_0 \mu(\mathcal X), \xi_1 \nu(\mathcal X)\}$~.
 \end{lemma}
 
-\begin{proof}%\leanok
-\uses{}
-Since $\mathcal B_\xi(\mu, \nu)$ is an infimum over estimators, we can find an upper bound by choosing an estimator.
-We choose for $\hat{y}$ a constant estimator, with value 1 if $\xi_1 \nu(\mathcal X)\xi_1 > \xi_0 \mu(\mathcal X)$ and 0 otherwise.
-That estimator has Bayesian risk $\min\{\xi_0 \mu(\mathcal X), \xi_1 \nu(\mathcal X)\}$.
-\end{proof}
-
-\begin{lemma}
-  \label{lem:bayesBinaryRisk_self}
-  \lean{ProbabilityTheory.bayesBinaryRisk_self}
-  \leanok
-  \uses{def:bayesBinaryRisk}
-  For $\mu \in \mathcal M(\mathcal X)$, $\mathcal B_\xi(\mu, \mu) = \min\{\xi_0, \xi_1\} \mu(\mathcal X)$~.
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{lem:bayesBinaryRisk_le}
+\begin{proof}\leanok
+\uses{thm:data_proc_bayesBinaryRisk, lem:bayesBinaryRisk_self, lem:bayesBinaryRisk_mul}
+Let $d_{\mathcal X} : \mathcal X \rightsquigarrow *$ be the discard kernel and $\delta_*$ be the only probability measure over $*$, that is a Dirac delta.
+Then applying the DPI (Theorem~\ref{thm:data_proc_bayesBinaryRisk}), followed by Lemma~\ref{lem:bayesBinaryRisk_mul} and Lemma~\ref{lem:bayesBinaryRisk_self}, we obtain:
 \begin{align*}
-  \mathcal B_\xi(\mu, \mu) &= \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\xi_0 (\hat{y} \circ \mu)(\{1\}) + \xi_1 (\hat{y} \circ \mu)(\{0\})\right) \\
-  &\ge \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\min\{\xi_0, \xi_1\} (\hat{y} \circ \mu)(\{1\}) + \min\{\xi_0, \xi_1\} (\hat{y} \circ \mu)(\{0\})\right) \\
-  &= \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\min\{\xi_0, \xi_1\} (\hat{y} \circ \mu)(\{0, 1\})\right) \\
-  &= \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\min\{\xi_0, \xi_1\} \mu (\mathcal X)\right) \\
-  &= \min\{\xi_0, \xi_1\} \mu (\mathcal X)
+\mathcal B_\xi(\mu, \nu)
+&\le \mathcal B_\xi(d_{\mathcal X} \circ \mu, d_{\mathcal X} \circ \nu)
+\\
+&= \mathcal B_\xi(\mu(\mathcal X) \delta_*, \nu(\mathcal X) \delta_*)
+\\
+&= \mathcal B_{(\mu(\mathcal X) \xi_0, \nu(\mathcal X) \xi_1)}(\delta_*, \delta_*)
+\\
+&= \min\{\mu(\mathcal X) \xi_0, \nu(\mathcal X) \xi_1\} \delta_*(\mathcal X)
+\\
+&= \min\{\mu(\mathcal X) \xi_0, \nu(\mathcal X) \xi_1\}
+\: .
 \end{align*}
-Then we conclude using Lemma~\ref{lem:bayesBinaryRisk_le}.
-
 \end{proof}
 
 \begin{lemma}
   \label{lem:bayesBinaryRisk_symm}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.bayesBinaryRisk_symm}
+  \leanok
   \uses{def:bayesBinaryRisk}
   For $\mu, \nu \in \mathcal M(\mathcal X)$ and $\xi \in \mathcal M(\{0,1\})$, $\mathcal B_\xi(\mu, \nu) = \mathcal B_{\xi_{\leftrightarrow}}(\nu, \mu)$ where $\xi_{\leftrightarrow} \in \mathcal M(\{0,1\})$ is such that $\xi_{\leftrightarrow}(\{0\}) = \xi_1$ and $\xi_{\leftrightarrow}(\{1\}) = \xi_0$.
   For $\pi \in [0,1]$, $B_\pi(\mu, \nu) = B_{1 - \pi}(\nu, \mu)$~.
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{}
 
-\end{proof}
-
-\begin{theorem}[Data-processing inequality]
-  \label{thm:data_proc_bayesBinaryRisk}
-  \lean{ProbabilityTheory.bayesBinaryRisk_le_bayesBinaryRisk_comp}
-  \leanok
-  \uses{def:bayesBinaryRisk}
-  For $\mu, \nu \in \mathcal M(\mathcal X)$ and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ a Markov kernel, $\mathcal B_\xi(\kappa \circ \mu, \kappa \circ \nu) \ge \mathcal B_\xi(\mu, \nu)$~.
-\end{theorem}
-
-\begin{proof}\leanok
-\uses{thm:data_proc_bayesRisk}
-Apply Theorem~\ref{thm:data_proc_bayesRisk}.
 \end{proof}
 
 \begin{lemma}
