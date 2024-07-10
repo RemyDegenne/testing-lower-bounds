@@ -357,9 +357,8 @@ lemma bayesBinaryRisk_dirac (a b : ℝ≥0∞) (x : 𝒳) (π : Measure Bool) :
 
 lemma bayesBinaryRisk_le_min (μ ν : Measure 𝒳) (π : Measure Bool) :
     bayesBinaryRisk μ ν π ≤ min (π {false} * μ Set.univ) (π {true} * ν Set.univ) := by
-  let η : kernel 𝒳 Unit := kernel.discard 𝒳
-  convert bayesBinaryRisk_le_bayesBinaryRisk_comp μ ν π η
-  simp_rw [η, Measure.comp_discard, bayesBinaryRisk_dirac]
+  convert bayesBinaryRisk_le_bayesBinaryRisk_comp μ ν π (kernel.discard 𝒳)
+  simp_rw [Measure.comp_discard, bayesBinaryRisk_dirac]
 
 lemma bayesBinaryRisk_symm (μ ν : Measure 𝒳) (π : Measure Bool) :
     bayesBinaryRisk μ ν π = bayesBinaryRisk ν μ (π.map Bool.not) := by
