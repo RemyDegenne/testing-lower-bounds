@@ -189,19 +189,21 @@ lemma derivAtTop_statInfoFun_of_nonpos_of_gt (hβ : β ≤ 0) (hγ : γ > β) :
   · simp
   exact derivAtTop_of_tendsto (tendsto_statInfoFun_div_at_top_of_neg_of_gt hβ hγ)
 
+lemma derivAtTop_statInfoFun_ne_top (β γ : ℝ) : derivAtTop (fun x ↦ statInfoFun β γ x) ≠ ∞ := by
+  rcases le_total β 0 with (hβ | hβ) <;> by_cases hγ : γ ≤ β
+  · exact derivAtTop_statInfoFun_of_nonpos_of_le hβ hγ ▸ EReal.coe_ne_top _
+  · exact derivAtTop_statInfoFun_of_nonpos_of_gt hβ (lt_of_not_ge hγ) ▸ EReal.coe_ne_top _
+  · exact derivAtTop_statInfoFun_of_nonneg_of_le hβ hγ ▸ EReal.zero_ne_top
+  · exact derivAtTop_statInfoFun_of_nonneg_of_gt hβ (lt_of_not_ge hγ) ▸ EReal.coe_ne_top _
+
 end derivAtTop
 
 lemma integrable_statInfoFun_rnDeriv (β γ : ℝ)
     (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     Integrable (fun x ↦ statInfoFun β γ ((∂μ/∂ν) x).toReal) ν := by
-  refine integrable_f_rnDeriv_of_derivAtTop_ne_top _ _
-    measurable_statInfoFun3.stronglyMeasurable ?_ ?_
-  · exact (convexOn_statInfoFun β γ).subset (fun _ _ ↦ trivial) (convex_Ici 0)
-  · rcases le_total β 0 with (hβ | hβ) <;> by_cases hγ : γ ≤ β
-    · exact derivAtTop_statInfoFun_of_nonpos_of_le hβ hγ ▸ EReal.coe_ne_top _
-    · exact derivAtTop_statInfoFun_of_nonpos_of_gt hβ (lt_of_not_ge hγ) ▸ EReal.coe_ne_top _
-    · exact derivAtTop_statInfoFun_of_nonneg_of_le hβ hγ ▸ EReal.zero_ne_top
-    · exact derivAtTop_statInfoFun_of_nonneg_of_gt hβ (lt_of_not_ge hγ) ▸ EReal.coe_ne_top _
+  refine integrable_f_rnDeriv_of_derivAtTop_ne_top _ _ measurable_statInfoFun3.stronglyMeasurable
+    ?_ (derivAtTop_statInfoFun_ne_top β γ)
+  exact (convexOn_statInfoFun β γ).subset (fun _ _ ↦ trivial) (convex_Ici 0)
 
 end statInfoFun_x
 
