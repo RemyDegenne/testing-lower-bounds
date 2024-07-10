@@ -32,6 +32,8 @@ variable {𝒳 𝒳' : Type*} {m𝒳 : MeasurableSpace 𝒳} {m𝒳' : Measurabl
   {μ ν : Measure 𝒳} {p : ℝ≥0∞}
 
 -- TODO: replace the min by a risk
+/-- The statistical information of the measures `μ` and `ν` with respect to
+the prior `π ∈ ℳ({0,1})`. -/
 noncomputable
 def statInfo (μ ν : Measure 𝒳) (π : Measure Bool) : ℝ≥0∞ :=
   min (π {false} * μ Set.univ) (π {true} * μ Set.univ) - bayesBinaryRisk μ ν π
