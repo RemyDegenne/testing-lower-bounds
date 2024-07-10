@@ -1,5 +1,5 @@
 /-
-Copyright (c) 2024 Rémy Degenne. All rights reserved.
+Copyright (c) 2024 Lorenzo Luccioli. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
@@ -191,6 +191,18 @@ lemma derivAtTop_statInfoFun_of_nonpos_of_gt (hβ : β ≤ 0) (hγ : γ > β) :
 
 end derivAtTop
 
+lemma integrable_statInfoFun_rnDeriv (β γ : ℝ)
+    (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
+    Integrable (fun x ↦ statInfoFun β γ ((∂μ/∂ν) x).toReal) ν := by
+  refine integrable_f_rnDeriv_of_derivAtTop_ne_top _ _
+    measurable_statInfoFun3.stronglyMeasurable ?_ ?_
+  · exact (convexOn_statInfoFun β γ).subset (fun _ _ ↦ trivial) (convex_Ici 0)
+  · rcases le_total β 0 with (hβ | hβ) <;> by_cases hγ : γ ≤ β
+    · exact derivAtTop_statInfoFun_of_nonpos_of_le hβ hγ ▸ EReal.coe_ne_top _
+    · exact derivAtTop_statInfoFun_of_nonpos_of_gt hβ (lt_of_not_ge hγ) ▸ EReal.coe_ne_top _
+    · exact derivAtTop_statInfoFun_of_nonneg_of_le hβ hγ ▸ EReal.zero_ne_top
+    · exact derivAtTop_statInfoFun_of_nonneg_of_gt hβ (lt_of_not_ge hγ) ▸ EReal.coe_ne_top _
+
 end statInfoFun_x
 
 section statInfoFun_γ
@@ -348,7 +360,9 @@ instance (f : ℝ → ℝ) (hf : ConvexOn ℝ univ f) : IsLocallyFiniteMeasure (
   unfold curvatureMeasure
   infer_instance
 
-lemma generalized_taylor (hf : ConvexOn ℝ univ f) (hf_cont : Continuous f) {a b : ℝ} :
+/-- A Taylor formula for convex functions in terms of the right derivative
+and the curvature measure. -/
+theorem convex_taylor (hf : ConvexOn ℝ univ f) (hf_cont : Continuous f) {a b : ℝ} :
     f b - f a - (rightDeriv f a) * (b - a)  = ∫ x in a..b, b - x ∂(curvatureMeasure f hf) := by
   have h_int : IntervalIntegrable (rightDeriv f) ℙ a b := hf.rightDeriv_mono.intervalIntegrable
   rw [← intervalIntegral.integral_eq_sub_of_hasDeriv_right hf_cont.continuousOn
@@ -378,23 +392,16 @@ lemma fun_eq_integral_statInfoFun_curvatureMeasure (hf_cvx : ConvexOn ℝ univ f
 
 -- TODO: think about the case when the function is not integrable (`h_int`), can we prove that in this case the rhs is also not integrable?
 
-lemma fDiv_eq_integral_fDiv_statInfoFun_curvatureMeasure_of_absolutelyContinuous
+lemma fDiv_eq_integral_fDiv_statInfoFun_of_absolutelyContinuous
     [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f) (hf_one : f 1 = 0)
     (hfderiv_one : rightDeriv f 1 = 0) (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
     (h_ac : μ ≪ ν) :
     fDiv f μ ν = ∫ x, (fDiv (statInfoFun 1 x) μ ν).toReal ∂(curvatureMeasure f hf_cvx) := by
-  have h_int' (γ : ℝ) : Integrable (fun x ↦ statInfoFun 1 γ ((∂μ/∂ν) x).toReal) ν := by
-    refine integrable_f_rnDeriv_of_derivAtTop_ne_top _ _
-      measurable_statInfoFun3.stronglyMeasurable ?_ ?_
-    · exact (convexOn_statInfoFun 1 γ).subset (fun _ _ ↦ trivial) (convex_Ici 0)
-    · by_cases h : γ ≤ 1
-      · exact derivAtTop_statInfoFun_of_nonneg_of_le (zero_le_one) h ▸ EReal.zero_ne_top
-      · exact derivAtTop_statInfoFun_of_nonneg_of_gt (zero_le_one) (lt_of_not_ge h) ▸
-          EReal.coe_ne_top 1
   classical
   rw [fDiv_of_absolutelyContinuous h_ac, if_pos h_int, EReal.coe_eq_coe_iff]
-  simp_rw [fDiv_of_absolutelyContinuous h_ac, if_pos (h_int' _), EReal.toReal_coe,
+  simp_rw [fDiv_of_absolutelyContinuous h_ac, if_pos (integrable_statInfoFun_rnDeriv 1 _ _ _),
+    EReal.toReal_coe,
     fun_eq_integral_statInfoFun_curvatureMeasure hf_cvx hf_cont hf_one hfderiv_one]
   have h_meas : Measurable (fun x γ ↦ statInfoFun 1 γ ((∂μ/∂ν) x).toReal).uncurry := by
     change Measurable
@@ -423,7 +430,7 @@ lemma fDiv_eq_integral_fDiv_statInfoFun_curvatureMeasure_of_absolutelyContinuous
   congr with γ
   rw [integral_eq_lintegral_of_nonneg_ae (eventually_of_forall fun _ ↦ statInfoFun_nonneg _ _ _)
     h_meas.of_uncurry_right.stronglyMeasurable.aestronglyMeasurable, ENNReal.ofReal_toReal]
-  have h_lt_top := (h_int' γ).hasFiniteIntegral
+  have h_lt_top := (integrable_statInfoFun_rnDeriv 1 γ μ ν).hasFiniteIntegral
   simp_rw [HasFiniteIntegral, lt_top_iff_ne_top] at h_lt_top
   convert h_lt_top
   rw [← ENNReal.toReal_eq_toReal ENNReal.ofReal_ne_top ENNReal.coe_ne_top, toReal_coe_nnnorm,
