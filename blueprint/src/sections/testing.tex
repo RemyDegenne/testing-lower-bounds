@@ -1,9 +1,307 @@
 
-Goal: bounds on $B_\pi(\mu^{\otimes n}, \nu^{\otimes n})$ or on $\inf_{E} \max\{\mu^{\otimes n}(E), \nu^{\otimes n}(E^c)\}$ that show how it depends on $n$.
+The goal of this section is to obtain bounds on the risk of simple binary hypothesis testing $B_\pi(\mu^{\otimes n}, \nu^{\otimes n})$ or on $\inf_{E} \max\{\mu^{\otimes n}(E), \nu^{\otimes n}(E^c)\}$ that show how those quantities depends on the number of samples $n \in \mathbb{N}$.
 
-Idea: relate these to divergences that tensorize, or on which we have tensorization inequalities. Those are $\KL$, $R_\alpha$, $\JS_\alpha$ (and more generally the mutual information if we want to consider more than two hypotheses).
+The main idea is to relate these to divergences that tensorize, or on which we have tensorization inequalities. Those divergences are $\KL$, $R_\alpha$, $\JS_\alpha$ (and more generally the mutual information if we want to consider more than two hypotheses).
+
+
+
+\section{Bounding the Bayes risk with tensorizing divergences}
+
+\subsection{Upper bound with the Chernoff information}
+
+\begin{lemma}[\cite{zhou2018non}]
+  \label{lem:bayesBinaryRisk_eq_exp_renyi_mul_integral}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesBinaryRisk, def:Renyi, def:renyiMeasure}
+  Let $\zeta$ be a measure such that $\mu \ll \zeta$ and $\nu \ll \zeta$. Let $p = \frac{d \mu}{d\zeta}$ and $q = \frac{d \nu}{d\zeta}$.
+  For $\alpha \in (0,1)$, for $g_\alpha(x) = \min\{(\alpha-1)x, \alpha x\}$,
+  \begin{align*}
+  \mathcal B_\xi(\mu, \nu)
+  = e^{-(1 - \alpha) R_\alpha(\xi_0\mu, \xi_1\nu)} \int_x \exp \left(g_\alpha\left( \log \frac{\xi_1 q(x)}{\xi_0 p(x)} \right)\right) \partial(\xi_0\mu)^{(\alpha, \xi_1\nu)}
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{thm:bayesBinaryRisk_eq}
+\begin{align*}
+\mathcal B_\xi(\mu, \nu)
+&= \int_x \min \left\{\xi_0 p(x), \xi_1 q(x)\right\} \partial\zeta
+\\
+&= \int_x (\xi_0 p(x))^\alpha (\xi_1 q(x))^{1-\alpha} \min \left\{ \left(\frac{\xi_0p(x)}{\xi_1q(x)}\right)^{1 - \alpha}, \left(\frac{\xi_1q(x)}{\xi_0p(x)}\right)^\alpha\right\} \partial\zeta
+\\
+&= e^{-(1 - \alpha) R_\alpha(\xi_0\mu, \xi_1\nu)} \int_x \min \left\{ \left(\frac{\xi_1q(x)}{\xi_0p(x)}\right)^{\alpha - 1}, \left(\frac{\xi_1q(x)}{\xi_0p(x)}\right)^\alpha\right\} \partial(\xi_0\mu)^{(\alpha, \xi_1\nu)}
+\: .
+\end{align*}
+\end{proof}
+
+
+\begin{corollary}
+  \label{cor:bayesBinaryRisk_le_exp_renyi}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesBinaryRisk, def:Renyi}
+  For $\alpha \in (0,1)$,
+  \begin{align*}
+  \mathcal B_\xi(\mu, \nu)
+  \le e^{-(1 - \alpha) R_\alpha(\xi_0\mu, \xi_1\nu)}
+  = \xi_0^\alpha \xi_1^{1-\alpha} e^{-(1 - \alpha) R_\alpha(\mu, \nu)}
+  \: .
+  \end{align*}
+\end{corollary}
+
+\begin{proof}%\leanok
+\uses{lem:bayesBinaryRisk_eq_exp_renyi_mul_integral}
+Use $g_\alpha(x) \le 0$ in Lemma~\ref{lem:bayesBinaryRisk_eq_exp_renyi_mul_integral}.
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:bayesBinaryRisk_le_exp_chernoff}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesBinaryRisk, def:Chernoff}
+  \begin{align*}
+  \mathcal B_\xi(\mu, \nu)
+  \le e^{- C_1(\xi_0\mu, \xi_1\nu)}
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{cor:bayesBinaryRisk_le_exp_renyi, lem:chernoff_eq_max_renyi}
+Optimize over $\alpha$ in Corollary~\ref{cor:bayesBinaryRisk_le_exp_renyi}: the optimal value gives the Chernoff information thanks to Lemma~\ref{lem:chernoff_eq_max_renyi}.
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:one_sub_tv_le_exp_chernoff}
+  %\lean{}
+  %\leanok
+  \uses{def:TV, def:Chernoff}
+  For probability measures,
+  \begin{align*}
+  1 - \TV(\mu, \nu) \le e^{- C_1(\mu, \nu)} \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:bayesBinaryRisk_le_exp_chernoff}
+By definition, since $\mu$ and $\nu$ are probability measures, $1 - \TV(\mu, \nu) = \mathcal B_{(1,1)}(\mu, \nu)$. Then apply Lemma~\ref{lem:bayesBinaryRisk_le_exp_chernoff}.
+\end{proof}
+
+
+
+\subsection{Lower bounds}
+
+The ideas behind the next two theorems are the same, up to the order of the arguments of a Kullback-Leibler divergence.
+The hidden parameter and data in simple binary hypothesis testing are generated from a distribution $\pi \otimes P \in \mathcal P(\Theta \times \mathcal X)$.
+The reason that an estimator can get low risk is that $P$ depends on the parameter: if it did not, the Bayes risk with prior $(\alpha, 1 - \alpha)$ would be $\min\{\alpha, 1 - \alpha\}$.
+We will compare $\pi \otimes P$ to a product distribution $\pi' \times \xi$ for $\pi' \in \mathcal P(\Theta)$ and $\xi \in \mathcal P(\mathcal X)$.
+In order to do that, we use the data-processing inequality for $\KL$, starting either from $\KL(\pi \otimes P, \pi' \times \xi)$ or from $\KL(\pi' \times \xi, \pi \otimes P)$ (the two theorems correspond to the two choices).
+The data-processing inequality is used to say that those divergences are greater than the divergences between the losses of the two corresponding estimation tasks.
+
+We start with some preparatory lemmas.
+
+
+\begin{lemma}
+  \label{lem:kl_bounded_ge_kl_mean}
+  %\lean{}
+  %\leanok
+  \uses{def:KL}
+  Let $\mu, \nu \in \mathcal P([0,1])$. Then
+  \begin{align*}
+  \KL(\mu, \nu) \ge \kl(\mu[X], \nu[X]) \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{thm:kl_data_proc}
+Let $u$ be the uniform distribution on $[0,1]$. Then $\KL(\mu, \nu) = \KL(\mu \times u, \nu \times u)$ (by lemma TODO about kernel with identity as first coordinate).
+Let $f : [0,1] \times [0,1] \to \{0,1\}$ be the measurable function with $f(x, y) = \mathbb{I}\{y \le x\}$. We also write $f$ for the corresponding deterministic kernel. By the data-processing inequality (Theorem~\ref{thm:kl_data_proc}),
+\begin{align*}
+\KL(\mu \times u, \nu \times u)
+\ge \KL(f \circ (\mu \times u), f \circ (\nu \times u))
+\: .
+\end{align*}
+Those two last measures are Bernoulli distributions with means $\mu[X]$ and $\nu[X]$.
+\end{proof}
+
+
+\begin{corollary}
+  \label{cor:kl_ge_kl_mean_comp}
+  %\lean{}
+  %\leanok
+  \uses{def:KL}
+  Let $\mu, \nu \in \mathcal P(\mathcal X)$ and let $\kappa : \mathcal X \rightsquigarrow [0,1]$. Then
+  \begin{align*}
+  \KL(\mu, \nu) \ge \kl((\kappa \circ \mu)[X], (\kappa \circ \nu)[X]) \: .
+  \end{align*}
+\end{corollary}
+
+\begin{proof}%\leanok
+\uses{thm:kl_data_proc, lem:kl_bounded_ge_kl_mean}
+First, by the data-processing inequality (Theorem~\ref{thm:kl_data_proc}),
+\begin{align*}
+\KL(\mu, \nu) \ge \KL(\kappa \circ \mu, \kappa \circ \nu) \: .
+\end{align*}
+Then uses Lemma~\ref{lem:kl_bounded_ge_kl_mean}.
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:kl_estimation_ge}
+  %\lean{}
+  %\leanok
+  \uses{def:KL, def:bayesBinaryRisk}
+  Let $\mu, \nu \in \mathcal P(\mathcal X)$ and let $\alpha, \beta \in (0, 1)$. Let $P, Q : \{0,1\} \rightsquigarrow \mathcal X$. We write $\pi_\alpha$ for the probability measure on $\{0,1\}$ with $\pi_\alpha(\{0\}) = \alpha$. Then
+  \begin{align*}
+  \KL(\pi_\beta \otimes Q, \pi_\alpha \otimes P)
+  &\ge \kl(B_\beta(Q(0), Q(1)), B_\alpha(P(0), P(1)))
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{thm:kl_data_proc, lem:bayesBinaryRisk_bernoulli}
+Suppose first that $B_\beta(Q(0), Q(1)) \ge B_\alpha(P(0), P(1))$.
+Let $\hat{y}_B$ be the generalized Bayes estimator for the simple binary hypothesis testing task $(P, y, \ell)$, which is deterministic and returns 1 for $x \in E$ for some event $E$ and 0 otherwise. By the data-processing inequality for $\KL$ (Theorem~\ref{thm:kl_data_proc}),
+\begin{align*}
+\KL(\pi_\beta \otimes Q, \pi_\alpha \otimes P)
+&\ge \KL(\ell \circ (\mathrm{id} \parallel \hat{y}_B) \circ (\pi_\beta \otimes Q), \ell \circ (\mathrm{id} \parallel \hat{y}_B) \circ (\pi_\alpha \otimes P))
+\\
+&= \kl(\beta Q(0)(E) + (1 - \beta) Q(1)(E^c), B_\alpha(P(0), P(1)))
+\end{align*}
+Since $\inf_{E} [\beta Q(0)(E) + (1 - \beta) Q(1)(E^c)] = B_\beta(Q(0), Q(1)) \ge B_\alpha(P(0), P(1))$ and $x \mapsto \kl(x, y)$ is monotone on $[y, 1]$,
+\begin{align*}
+\KL(\pi_\beta \otimes Q, \pi_\alpha \otimes P)
+&\ge \kl(\inf_{E} [\beta Q(0)(E) + (1 - \beta) Q(1)(E^c)], B_\alpha(P(0), P(1)))
+\\
+&= \kl(B_\beta(Q(0), Q(1)), B_\alpha(P(0), P(1)))
+\: .
+\end{align*}
+This concludes the proof for $B_\beta(Q(0), Q(1)) \ge B_\alpha(P(0), P(1))$. If that inequality is reversed, we proceed similarly but take the Bayes estimator for $Q$.
+\end{proof}
+
+
+\begin{corollary}
+  \label{cor:kl_estimation_ge_sub_kl}
+  %\lean{}
+  %\leanok
+  \uses{def:KL, def:bayesBinaryRisk}
+  Let $\mu, \nu \in \mathcal P(\mathcal X)$ and let $\alpha, \beta \in (0, 1)$. Let $P, Q : \{0,1\} \rightsquigarrow \mathcal X$. We write $\pi_\alpha$ for the probability measure on $\{0,1\}$ with $\pi_\alpha(\{0\}) = \alpha$. Then
+  \begin{align*}
+  \KL(\pi_\beta \otimes Q, \pi_\beta \otimes P)
+  &\ge \kl(B_\beta(Q(0), Q(1)), B_\alpha(P(0), P(1))) - \kl(\beta, \alpha)
+  \: .
+  \end{align*}
+\end{corollary}
+
+\begin{proof}%\leanok
+\uses{lem:kl_estimation_ge, thm:kl_compProd}
+Use $\KL(\pi_\beta \otimes Q, \pi_\alpha \otimes P) = \kl(\beta, \alpha) + \KL(\pi_\beta \otimes Q, \pi_\beta \otimes P)$ in Lemma~\ref{lem:kl_estimation_ge}.
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:kl_estimation_ge_prod}
+  %\lean{}
+  %\leanok
+  \uses{def:KL, def:bayesBinaryRisk}
+  Let $\mu, \nu, \xi \in \mathcal P(\mathcal X)$ and let $\alpha, \beta \in (0, 1)$. Let $P : \{0,1\} \rightsquigarrow \mathcal X$ be the kernel with $P(0) = \mu$ and $P(1) = \nu$. We write $\pi_\alpha$ for the probability measure on $\{0,1\}$ with $\pi_\alpha(\{0\}) = \alpha$. Let $\bar{\beta} = \min\{\beta, 1 - \beta\}$.
+  Then
+  \begin{align*}
+  \KL(\pi_\alpha \otimes P, \pi_\alpha \times \xi)
+  &\ge \kl(B_\alpha(\mu, \nu), \bar{\beta}) - \kl(\alpha, \bar{\beta})
+  \: , \\
+  \KL(\pi_\beta \times \xi, \pi_\beta \otimes P)
+  &\ge \kl(\bar{\beta}, B_\alpha(\mu, \nu)) - \kl(\bar{\beta}, \alpha)
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{cor:kl_estimation_ge_sub_kl, lem:bayesBinaryRisk_self}
+We apply Corollary~\ref{cor:kl_estimation_ge_sub_kl} for a the constant kernel with value $\xi$ and use Lemma~\ref{lem:bayesBinaryRisk_self}.
+\end{proof}
+
+
+\begin{theorem}[Fano's inequality, binary case]
+  \label{thm:sub_bayesBinaryRisk_le_jensenShannon}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesBinaryRisk, def:jensenShannon}
+  Let $\mu, \nu \in \mathcal P(\mathcal X)$ and let $\alpha \in (0, 1)$.
+  \begin{align*}
+  h_2(\alpha) - h_2(B_\alpha(\mu, \nu)) \le \JS_\alpha(\mu, \nu) \: ,
+  \end{align*}
+  in which $h_2: x \mapsto x\log\frac{1}{x} + (1 - x)\log\frac{1}{1 - x}$ is the binary entropy function.
+\end{theorem}
+
+\begin{proof}%\leanok
+\uses{lem:kl_estimation_ge_prod, thm:kl_compProd, lem:jensenShannon_eq_inf_kl}
+Apply Lemma~\ref{lem:jensenShannon_eq_inf_kl} and then Lemma~\ref{lem:kl_estimation_ge_prod} with $\beta = 1/2$ to get
+\begin{align*}
+\JS_\alpha(\mu, \nu)
+&= \inf_{\xi \in \mathcal P(\mathcal X)}\KL(\pi_\alpha \otimes P, \pi_\alpha \times \xi)
+\\
+&\ge \kl(B_\alpha(\mu, \nu), 1/2) - \kl(\alpha, 1/2)
+\\
+&= h_2(\alpha) - h_2(B_\alpha(\mu, \nu)) \: .
+\end{align*}
+Note that $\beta = 1/2$ is the value that results in the best bound: the lower bound on $\JS_\alpha(\mu, \nu)$ from some $\beta \le 1/2$ would be
+\begin{align*}
+\kl(B_\alpha(\mu, \nu), \beta) - \kl(\alpha, \beta)
+&= h_2(\alpha) - h_2(B_\alpha(\mu, \nu)) - (\alpha - B_\alpha(\mu, \nu)) \log \frac{1 - \beta}{\beta}
+\\
+&\le h_2(\alpha) - h_2(B_\alpha(\mu, \nu)) \: .
+\end{align*}
+
+\end{proof}
+
+
+\begin{theorem}
+  \label{thm:log_inv_bayesBinaryRisk_le_renyi}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesBinaryRisk, def:Renyi}
+  For $\alpha, \beta \in (0, 1/2)$,
+  \begin{align*}
+  \beta \log\frac{\alpha}{B_\alpha(\mu, \nu)} + (1 - \beta) \log\frac{1 - \alpha}{1 - B_\alpha(\mu, \nu)}
+  &\le (1 - \beta) R_{\beta}(\mu, \nu)
+  \: .
+  \end{align*}
+  As a consequence,
+  \begin{align*}
+  \beta \log\frac{\alpha}{B_\alpha(\mu, \nu)}
+  &\le (1 - \beta) (R_{\beta}(\mu, \nu) + \log 2)
+  \: .
+  \end{align*}
+  In particular, $\log\frac{\alpha}{B_\alpha(\mu, \nu)} \le R_{1/2}(\mu, \nu) + \log 2$~.
+\end{theorem}
+
+\begin{proof}%\leanok
+\uses{lem:kl_estimation_ge_prod, lem:renyi_eq_inf_kl}
+By Lemma~\ref{lem:renyi_eq_inf_kl} and then Lemma~\ref{lem:kl_estimation_ge_prod},
+\begin{align*}
+(1 - \beta) R_{\beta}(\mu, \nu)
+&= \inf_{\xi \in \mathcal P(\mathcal X)} \KL(\pi_\beta \times \xi, \pi_\beta \otimes P)
+\\
+&\ge \kl(\beta, B_\alpha(\mu, \nu)) - \kl(\beta, \alpha)
+\\
+&= \beta \log\frac{\alpha}{B_\alpha(\mu, \nu)} + (1 - \beta)\log\frac{1 - \alpha}{1 - B_\alpha(\mu, \nu)}
+\: .
+\end{align*}
+The first particular case is obtained by using $\alpha \le 1/2$ and $B_\pi(\mu, \nu) \ge 0$.
+The second one further sets $\beta = 1/2$.
+\end{proof}
+
+
 
 \section{Testing error lower bounds}
+
+TODO: rework that section.
 
 In simple hypothesis testing, a sample from an unknown measure on $\mathcal X$ among $\{\mu, \nu\}$ is observed, and the goal of the test is to return the measure from which the sample came.
 In typical scenarios, $\mathcal X$ is a product space $\mathcal Y^n$, $\mu$ and $\nu$ are product measures and the observation is a collection of $n$ i.i.d. samples.
@@ -364,126 +662,6 @@ Since $\beta > 0$ is arbitrary, we can take a supremum over $\beta$ on the right
 \end{proof}
 
 
-
-\subsection{TODO}
-
-
-\begin{lemma}[Fano's inequality, binary case]
-  \label{lem:sub_bayesBinaryRisk_le_jensenShannon}
-  %\lean{}
-  %\leanok
-  \uses{def:bayesBinaryRisk, def:jensenShannon}
-  Let $\mu, \nu \in \mathcal P(\mathcal X)$ and let $\alpha \in (0, 1)$.
-  \begin{align*}
-  h_2(\alpha) - h_2(B_\alpha(\mu, \nu)) \le \JS_\alpha(\mu, \nu) \: ,
-  \end{align*}
-  in which $h_2: x \mapsto x\log\frac{1}{x} + (1 - x)\log\frac{1}{1 - x}$ is the binary entropy function.
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{thm:kl_data_proc, thm:kl_compProd, lem:jensenShannon_prod_n, lem:jensenShannon_eq_kl, lem:bayesBinaryRisk_bernoulli}
-
-Let $P : \{0,1\} \rightsquigarrow \mathcal X$ be the kernel with $P(0) = \mu$ and $P(1) = \nu$.
-Let $u \in \mathcal P(\{0,1\})$ be the probability distribution with $u_0 = 1/2$. We write $\pi_\alpha$ for the probability measure on $\{0,1\}$ with $\pi_\alpha(\{0\}) = \alpha$. By the chain rule (Theorem~\ref{thm:kl_compProd}) and Lemma~\ref{lem:jensenShannon_eq_kl},
-\begin{align*}
-\KL(\pi_\alpha \otimes P, u \times (P \circ \pi_\alpha))
-&= \kl(\alpha, 1/2) + \KL(\pi_\alpha \otimes P, \pi_\alpha \times (P \circ \pi_\alpha))
-\\
-&= \kl(\alpha, 1/2) + \JS_\alpha(\mu, \nu)
-\\
-&= \log 2 - h_2(\alpha) + \JS_\alpha(\mu, \nu)
-\: .
-\end{align*}
-
-Let $\hat{y}_B$ be the generalized Bayes estimator. By the data-processing inequality for $\KL$ (Theorem~\ref{thm:kl_data_proc}),
-\begin{align*}
-\KL(\ell \circ (\mathrm{id} \parallel \hat{y}_B) \circ (\pi_\alpha \otimes P), \ell \circ (\mathrm{id} \parallel \hat{y}_B) \circ (u \times (P \circ \pi_\alpha)))
-\le \KL(\pi_\alpha \otimes P, u \times (P \circ \pi_\alpha))
-\: .
-\end{align*}
-The two measures on the left are probability measures on $\{0,1\}$, with $\ell \circ (\mathrm{id} \parallel \hat{y}_B) \circ (u \times (P \circ \pi_\alpha)) = u$ and $(\ell \circ (\mathrm{id} \parallel \hat{y}_B) \circ (\pi_\alpha \otimes P)) (\{1\}) = B_\alpha(\mu, \nu)$ (Lemma~\ref{lem:bayesBinaryRisk_bernoulli}).
-We get
-\begin{align*}
-\KL(\pi_\alpha \otimes P, u \times (P \circ \pi_\alpha))
-\ge \kl(B_\alpha(\mu, \nu), 1/2)
-= \log 2 - h_2(B_\alpha(\mu, \nu))
-\: .
-\end{align*}
-Putting things together, we proved
-\begin{align*}
-\JS_\alpha(\mu, \nu) \ge h_2(\alpha) - h_2(B_\alpha(\mu, \nu)) \: .
-\end{align*}
-
-Note that we could have replaced the uniform distribution $u$ by $\pi_\beta$ for $B_\alpha(\mu, \nu) \le \beta \le 1/2$, but the optimal $\beta$ in the resulting inequality is $\beta = 1/2$. Indeed, we would get
-\begin{align*}
-\KL(\pi_\alpha \otimes P, \pi_\beta \times (P \circ \pi_\alpha))
-&= \kl(\alpha, \beta) + \JS_\alpha(\mu, \nu)
-\: , \\
-\text{and }
-\KL(\pi_\alpha \otimes P, \pi_\beta \times (P \circ \pi_\alpha))
-&\ge \kl(B_\alpha(\mu, \nu), \beta)
-\: .
-\end{align*}
-The lower bound on $\JS_\alpha(\mu, \nu)$ would be
-\begin{align*}
-\kl(B_\alpha(\mu, \nu), \beta) - \kl(\alpha, \beta)
-&= h_2(\alpha) - h_2(B_\alpha(\mu, \nu)) - (\alpha - B_\alpha(\mu, \nu)) \log \frac{1 - \beta}{\beta}
-\\
-&\le h_2(\alpha) - h_2(B_\alpha(\mu, \nu)) \: .
-\end{align*}
-
-\end{proof}
-
-
-\begin{lemma}
-  \label{lem:log_inv_bayesBinaryRisk_le_renyi}
-  %\lean{}
-  %\leanok
-  \uses{def:bayesBinaryRisk, def:Renyi}
-  For $\alpha \le \beta \le 1/2$,
-  \begin{align*}
-  \beta \log\frac{\alpha}{B_\alpha(\mu, \nu)} + (1 - \beta) \log\frac{1 - \alpha}{1 - B_\alpha(\mu, \nu)}
-  &\le (1 - \beta) R_{\beta}(\mu, \nu)
-  \: .
-  \end{align*}
-  As a consequence,
-  \begin{align*}
-  \beta \log\frac{\alpha}{B_\alpha(\mu, \nu)}
-  &\le (1 - \beta) (R_{\beta}(\mu, \nu) + \log 2)
-  \: .
-  \end{align*}
-  In particular, $\log\frac{\alpha}{B_\alpha(\mu, \nu)} \le R_{1/2}(\mu, \nu) + \log 2$~.
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{thm:kl_data_proc, lem:bayesBinaryRisk_bernoulli, lem:renyi_eq_inf_kl}
-Let $\hat{y}_B$ be the generalized Bayes estimator. By the data-processing inequality for $\KL$ (Theorem~\ref{thm:kl_data_proc}),
-\begin{align*}
-\KL(\pi_\beta \times \xi, \pi_\alpha \otimes P)
-&\ge \KL(\ell \circ (\mathrm{id} \parallel \hat{y}_B) \circ (\pi_\beta \times \xi), \ell \circ (\mathrm{id} \parallel \hat{y}_B) \circ (\pi_\alpha \otimes P))
-\\
-&= \kl(\beta \xi(E) + (1 - \beta) \xi(E^c), B_\alpha(\mu, \nu))
-\\
-&\ge \kl(\beta, B_\alpha(\mu, \nu))
-\\
-&= - h_2(\beta) + \beta \log\frac{1}{B_\alpha(\mu, \nu)} + (1 - \beta)\log\frac{1}{1 - B_\alpha(\mu, \nu)}
-\: .
-\end{align*}
-We can compute the left hand side of that inequality:
-\begin{align*}
-\KL(\pi_\beta \times \xi, \pi_\alpha \otimes P)
-&= \kl(\beta, \alpha) + \KL(u \times \xi, u \otimes P)
-\\
-&= - h_2(\beta) + \beta\log\frac{1}{\alpha} + (1 - \beta)\log\frac{1}{1 - \alpha} + \KL(\pi_\beta \times \xi, \pi_\beta \otimes P)
-\end{align*}
-For $\xi = \mu^{(\beta, \nu)}$, this last $\KL$ is equal to $(1 - \beta) R_{\beta}(\mu, \nu)$ (Lemma~\ref{lem:renyi_eq_inf_kl}).
-
-Putting those two inequalities together, we get the result. The first particular case is obtained by using $\alpha \le 1/2$ and $B_\pi(\mu, \nu) \ge 0$.
-The second one further sets $\beta = 1/2$.
-\end{proof}
-
-
-
 \section{Sample complexity}
 
 An estimation problem of the shape $(P^{\otimes n}, y, \ell')$ corresponds to estimating from $n$ i.i.d. samples of the distribution. From the data-processing inequality, we get that the risk (Bayes risk, minimax risk...) decreases with the number of samples (Lemma~\ref{lem:bayesRisk_mono_prod} for example).
@@ -588,8 +766,8 @@ By definition, $n_0$ is such that the infimum over $\alpha$ of the right hand si
 \end{lemma}
 
 \begin{proof}%\leanok
-\uses{lem:log_inv_bayesBinaryRisk_le_renyi, lem:renyi_prod_n}
-By Lemma~\ref{lem:log_inv_bayesBinaryRisk_le_renyi},
+\uses{thm:log_inv_bayesBinaryRisk_le_renyi, lem:renyi_prod_n}
+By Theorem~\ref{thm:log_inv_bayesBinaryRisk_le_renyi},
 \begin{align*}
 \log\frac{\pi}{B_\pi(\mu^{\otimes n}, \nu^{\otimes n})} \le R_{1/2}(\mu^{\otimes n}, \nu^{\otimes n}) + \log 2
 \: .
@@ -613,8 +791,8 @@ We finally use that $B_\pi(\mu^{\otimes n}, \nu^{\otimes n}) \le \delta$ for $n 
 \end{lemma}
 
 \begin{proof}%\leanok
-\uses{lem:sub_bayesBinaryRisk_le_jensenShannon}
-We start from Lemma~\ref{lem:sub_bayesBinaryRisk_le_jensenShannon}.
+\uses{thm:sub_bayesBinaryRisk_le_jensenShannon}
+We start from Theorem~\ref{thm:sub_bayesBinaryRisk_le_jensenShannon}.
 \begin{align*}
 \JS_\pi(\mu^{\otimes n}, \nu^{\otimes n}) \ge h_2(\pi) - h_2(B_\pi(\mu^{\otimes n}, \nu^{\otimes n})) \: .
 \end{align*}

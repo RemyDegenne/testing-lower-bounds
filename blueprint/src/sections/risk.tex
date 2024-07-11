@@ -140,7 +140,23 @@ The infimum over all Markov kernels in the definition of the Bayes risk of $\pi$
 
 \begin{proof}%\leanok
 \uses{}
-Use the main property of the Bayesian inverse.
+Use the main property of the Bayesian inverse:
+\begin{align*}
+(P_\pi^\dagger \times \hat{y}) \circ P \circ \pi
+&= swap \circ (\hat{y} \times P_\pi^\dagger) \circ (P \circ \pi)
+\\
+&= swap \circ (\hat{y} \parallel \mathrm{id}) \circ (\mathrm{id} \times P_\pi^\dagger) \circ (P \circ \pi)
+\\
+&= swap \circ (\hat{y} \parallel \mathrm{id}) \circ \left((P \circ \pi) \otimes P_\pi^\dagger\right)
+\\
+&= swap \circ (\hat{y} \parallel \mathrm{id}) \circ \left(\pi \otimes P\right)
+\\
+&= (\mathrm{id} \parallel \hat{y}) \circ \left(\pi \otimes P\right)
+\\
+&= \pi \otimes (\hat{y} \circ P)
+\: .
+\end{align*}
+
 \end{proof}
 
 \begin{lemma}
@@ -466,7 +482,7 @@ Alternatively, we can reduce the study of the Bayes binary risk for any prior to
 \end{lemma}
 
 \begin{proof}\leanok
-\uses{ProbabilityTheory.bayesBinaryRisk_smul_smul}
+\uses{lem:bayesBinaryRisk_mul}
 
 \end{proof}
 
