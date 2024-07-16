@@ -19,7 +19,7 @@
   \uses{def:jensenShannon, def:KL}
   Let $\mu, \nu \in \mathcal P(\mathcal X)$ and let $\alpha \in (0, 1)$. Let $\pi_\alpha = (\alpha, 1 - \alpha) \in \mathcal P(\{0,1\})$ and let $P : \{0,1\} \rightsquigarrow \mathcal X$ be the kernel with $P(0) = \mu$ and $P(1) = \nu$. Then
   \begin{align*}
-  \JS_\alpha(\mu, ¸\nu) = \KL(\pi_\alpha \otimes P, \pi_\alpha \times (P \circ \pi_\alpha)) \: .
+  \JS_\alpha(\mu, \nu) = \KL(\pi_\alpha \otimes P, \pi_\alpha \times (P \circ \pi_\alpha)) \: .
   \end{align*}
 \end{lemma}
 
@@ -38,8 +38,12 @@
 \end{lemma}
 
 \begin{proof}%\leanok
-\uses{}
-TODO: add lemmas about $D_f(\alpha \mu + (1 - \alpha) \nu, \nu)$ being an f-div, and same thing for an average on the other side.
+\uses{lem:fDiv_add_smul_right, lem:fDiv_add_smul_right', lem:fDiv_add, lem:fDiv_mul}
+$(\mu, \nu) \mapsto \KL(\mu, \alpha \mu + (1 - \alpha) \nu)$ is an $f$-divergence for the function $x \mapsto x\log\left(\frac{x}{\alpha x + 1 - \alpha}\right)$ (Lemma~\ref{lem:fDiv_add_smul_right}).
+
+$(\mu, \nu) \mapsto \KL(\nu, \alpha \mu + (1 - \alpha) \nu)$ is an $f$-divergence for the function $x \mapsto x\log\left(\frac{1}{\alpha x + 1 - \alpha}\right)$ (Lemma~\ref{lem:fDiv_add_smul_right'}).
+
+By Lemmas~\ref{lem:fDiv_mul} and \ref{lem:fDiv_add}, we obtain the result.
 \end{proof}
 
 
@@ -93,7 +97,34 @@ Immediate from the definition.
 Compare with Lemma~\ref{lem:renyi_eq_inf_kl} on the Rényi divergence.
 
 \begin{proof}%\leanok
-\uses{}
+\uses{lem:jensenShannon_eq_inf_add_kl}
+
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:jensenShannon_prod_n}
+  %\lean{}
+  %\leanok
+  \uses{def:jensenShannon}
+  Let $\mu, \nu$ be two probability measures on $\mathcal X$. Let $n \in \mathbb{N}$ and write $\mu^{\otimes n}$ for the product measure on $\mathcal X^n$ of $n$ times $\mu$.
+  Then $\JS_\alpha(\mu^{\otimes n}, \nu^{\otimes n}) \le n \JS_\alpha(\mu, \nu)$.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:jensenShannon_eq_inf_add_kl, thm:kl_pi}
+By Lemma~\ref{lem:jensenShannon_eq_inf_add_kl},
+\begin{align*}
+\JS_\alpha(\mu^{\otimes n}, \nu^{\otimes n})
+&= \inf_{\xi \in \mathcal P(\mathcal X^n)}\left( \alpha \KL(\mu^{\otimes n}, \xi) + (1 - \alpha)\KL(\nu^{\otimes n}, \xi) \right)
+\\
+&\le \inf_{\zeta \in \mathcal P(\mathcal X)}\left( \alpha \KL(\mu^{\otimes n}, \zeta^{\otimes n}) + (1 - \alpha)\KL(\nu^{\otimes n}, \zeta^{\otimes n}) \right)
+\\
+&= n \inf_{\zeta \in \mathcal P(\mathcal X)}\left( \alpha \KL(\mu, \zeta) + (1 - \alpha)\KL(\nu, \zeta) \right)
+\\
+&= n \JS_\alpha(\mu, \nu)
+\: .
+\end{align*}
 
 \end{proof}
 
