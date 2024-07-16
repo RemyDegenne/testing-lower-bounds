@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import Mathlib.Probability.Kernel.Composition
+import TestingLowerBounds.Kernel.Basic
 
 /-!
 
@@ -119,9 +120,8 @@ lemma swap_copy : (swap α α) ∘ₖ (copy α) = copy α := by
 
 @[simp]
 lemma swap_swap : (swap α β) ∘ₖ (swap β α) = kernel.id := by
-  ext ab s hs
-  rw [comp_apply, Measure.bind_apply hs (kernel.measurable _), id_apply, swap_apply,
-    lintegral_dirac' _ (kernel.measurable_coe _ hs), swap_apply, Prod.swap_swap]
+  simp_rw [swap, kernel.deterministic_comp_deterministic, Prod.swap_swap_eq]
+  rfl
 
 end Swap
 
