@@ -50,4 +50,11 @@ lemma deterministic_prod_deterministic {f : α → β} {g : α → γ}
   simp_rw [prod_apply, deterministic_apply]
   rw [Measure.dirac_prod_dirac]
 
+lemma deterministic_comp_deterministic {f : α → β} {g : β → γ}
+    (hf : Measurable f) (hg : Measurable g) :
+    (kernel.deterministic g hg) ∘ₖ (kernel.deterministic f hf) = kernel.deterministic (g ∘ f) (hg.comp hf) := by
+  ext a
+  simp_rw [kernel.comp_deterministic_eq_comap, comap_apply, deterministic_apply]
+  rfl
+
 end ProbabilityTheory.kernel
