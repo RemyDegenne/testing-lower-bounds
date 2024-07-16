@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Rémy Degenne
+Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import Mathlib.Probability.Kernel.Composition
 
@@ -117,7 +117,15 @@ lemma swap_copy : (swap α α) ∘ₖ (copy α) = copy α := by
     Measure.dirac_apply' _ hs]
   congr
 
+@[simp]
+lemma swap_swap : (swap α β) ∘ₖ (swap β α) = kernel.id := by
+  ext ab s hs
+  rw [comp_apply, Measure.bind_apply hs (kernel.measurable _), id_apply, swap_apply,
+    lintegral_dirac' _ (kernel.measurable_coe _ hs), swap_apply, Prod.swap_swap]
+
 end Swap
+
+section ParallelComp
 
 noncomputable
 def parallelComp (κ : kernel α β) (η : kernel γ δ) : kernel (α × γ) (β × δ) :=
@@ -156,13 +164,73 @@ lemma swap_parallelComp {κ : kernel α β} [IsSFiniteKernel κ]
     (swap β δ) ∘ₖ (κ ∥ₖ η) = (η ∥ₖ κ) ∘ₖ (swap α γ) := by
   ext ac s hs
   rw [comp_apply, comp_apply, swap_apply, parallelComp_apply,
-    Measure.bind_apply hs (kernel.measurable _),
-    Measure.bind_apply hs (kernel.measurable _), lintegral_dirac', parallelComp_apply]
-  · simp_rw [swap_apply' _ hs]
-    change ∫⁻ (a : β × δ), s.indicator (fun _ ↦ 1) a.swap ∂(κ ac.1).prod (η ac.2) = _
-    rw [lintegral_indicator_const_comp measurable_swap hs, one_mul,
-      ← Measure.map_apply measurable_swap hs, Measure.prod_swap]
-    rfl
-  · exact kernel.measurable_coe _ hs
+    Measure.bind_apply hs (kernel.measurable _), Measure.bind_apply hs (kernel.measurable _),
+    lintegral_dirac' _ (kernel.measurable_coe _ hs), parallelComp_apply]
+  simp_rw [swap_apply' _ hs]
+  change ∫⁻ (a : β × δ), s.indicator (fun _ ↦ 1) a.swap ∂(κ ac.1).prod (η ac.2) = _
+  rw [lintegral_indicator_const_comp measurable_swap hs, one_mul,
+    ← Measure.map_apply measurable_swap hs, Measure.prod_swap]
+  rfl
+
+--move this and PR it to mathlib, it should go right after `kernel.measurable_kernel_prod_mk_left'`, but in that file ∘ₖ is not defined, so maybe we should find a better place for it or modify the proof so it does not need it
+lemma measurable_kernel_prod_mk_left'' {κ : kernel α β}
+    [IsSFiniteKernel κ] {t : Set (γ × β)} (ht : MeasurableSet t) :
+    Measurable (Function.uncurry fun a y ↦ (κ a) (Prod.mk y ⁻¹' t)) := by
+  have h1 (p : α × γ) : (Prod.mk p.2 ⁻¹' t)
+      = (Prod.mk p ⁻¹' (MeasurableEquiv.prodAssoc ⁻¹' (Set.univ ×ˢ t))) := by
+    ext x; simp [MeasurableEquiv.prodAssoc]
+  have h2 (p : α × γ) : κ p.1
+      = (κ ∘ₖ (deterministic (fun (p : α × γ) ↦ p.1) measurable_fst (mα := inferInstance))) p := by
+    ext s hs
+    rw [comp_apply, deterministic_apply, Measure.bind_apply hs (kernel.measurable _),
+      lintegral_dirac' _ (kernel.measurable_coe κ hs)]
+  simp_rw [Function.uncurry_def, h1, h2]
+  exact kernel.measurable_kernel_prod_mk_left <| (MeasurableEquiv.measurableSet_preimage _).mpr
+    (MeasurableSet.univ.prod ht)
+
+lemma parallelComp_comp_parallelComp {α' β' γ' : Type*} {mα' : MeasurableSpace α'}
+    {mβ' : MeasurableSpace β'} {mγ' : MeasurableSpace γ'}
+    {κ : kernel α β} [IsSFiniteKernel κ] {η : kernel β γ} [IsSFiniteKernel η]
+    {κ' : kernel α' β'} [IsSFiniteKernel κ'] {η' : kernel β' γ'} [IsSFiniteKernel η'] :
+    (η ∥ₖ η') ∘ₖ (κ ∥ₖ κ') = (η ∘ₖ κ) ∥ₖ (η' ∘ₖ κ') := by
+  ext a s hs
+  simp_rw [comp_apply, parallelComp_apply]
+  rw [Measure.bind_apply hs (kernel.measurable _), Measure.prod_apply hs,
+    lintegral_prod_of_measurable _ (kernel.measurable_coe _ hs)]
+  simp_rw [parallelComp_apply, comp_apply]
+  have : SFinite ((κ' a.2).bind ⇑η') := by sorry --this instance is in MeasureCompProd, which imports this file, we may have to move some lemmas around or create a new file
+  rw [Measure.lintegral_bind (kernel.measurable η) (measurable_measure_prod_mk_left hs)]
+  simp_rw [Measure.bind_apply (measurable_prod_mk_left hs) (kernel.measurable η'),
+    Measure.prod_apply hs,
+    lintegral_lintegral_swap (measurable_kernel_prod_mk_left'' hs).aemeasurable]
+
+lemma parallelComp_comp_id_left_right (κ : kernel α β) [IsSFiniteKernel κ]
+    (η : kernel γ δ) [IsSFiniteKernel η] :
+    (kernel.id ∥ₖ η) ∘ₖ (κ ∥ₖ kernel.id) = κ ∥ₖ η := by
+  rw [parallelComp_comp_parallelComp, id_comp, comp_id]
+
+lemma parallelComp_comp_id_right_left {κ : kernel α β} [IsSFiniteKernel κ]
+    (η : kernel γ δ) [IsSFiniteKernel η] :
+    (κ ∥ₖ kernel.id) ∘ₖ (kernel.id ∥ₖ η) = κ ∥ₖ η := by
+  rw [parallelComp_comp_parallelComp, id_comp, comp_id]
+
+lemma parallelComp_comp_id_left_left (κ : kernel α β) [IsSFiniteKernel κ]
+    (η : kernel β γ) [IsSFiniteKernel η] :
+    (kernel.id ∥ₖ η) ∘ₖ (kernel.id ∥ₖ κ) = (kernel.id (mα := mδ)) ∥ₖ (η ∘ₖ κ) := by
+  rw [parallelComp_comp_parallelComp, id_comp]
+
+lemma parallelComp_comp_id_right_right {κ : kernel α β} [IsSFiniteKernel κ]
+    (η : kernel β γ) [IsSFiniteKernel η] :
+    (η ∥ₖ kernel.id) ∘ₖ (κ ∥ₖ kernel.id) = (η ∘ₖ κ) ∥ₖ (kernel.id (mα := mγ)) := by
+  rw [parallelComp_comp_parallelComp, id_comp]
+
+end ParallelComp
+
+@[simp]
+lemma swap_prod {κ : kernel α β} [IsSFiniteKernel κ]
+    {η : kernel α γ} [IsSFiniteKernel η] :
+    (swap β γ) ∘ₖ (κ ×ₖ η) = (η ×ₖ κ) := by
+  simp_rw [prod_eq_copy_comp_parallelComp, ← comp_assoc, swap_parallelComp, comp_assoc, swap_copy]
+
 
 end ProbabilityTheory.kernel
