@@ -355,6 +355,27 @@ The result is a rephrasing of Lemma~\ref{lem:renyi_eq_inf_add_kl}.
 \uses{thm:kl_compProd}
 \end{proof}
 
+
+\begin{theorem}[Chain rule, with Bayesian inverse]
+  \label{thm:renyi_compProd_bayesInv}
+  %\lean{}
+  %\leanok
+  \uses{def:Renyi, def:condRenyi, def:bayesInv}
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ two Markov kernels with Bayesian inverses $\kappa_\mu^\dagger$ and $\eta_\nu^\dagger$.
+  Then 
+  \begin{align*}
+  R_\alpha(\mu \otimes \kappa, \nu \otimes \eta)
+  = R_\alpha(\kappa \circ \mu, \eta \circ \nu) + R_\alpha(\kappa_\mu^\dagger, \eta_\nu^\dagger \mid (\kappa \circ \mu)^{(\alpha, \eta \circ \nu)})
+  \: .
+  \end{align*}
+\end{theorem}
+
+\begin{proof}%\leanok
+\uses{thm:renyi_chain_rule}
+
+\end{proof}
+
+
 \begin{corollary}
   \label{cor:renyi_prod_two}
   %\lean{}

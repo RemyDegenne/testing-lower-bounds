@@ -143,9 +143,7 @@ Those two last measures are Bernoulli distributions with means $\mu[X]$ and $\nu
 \begin{proof}%\leanok
 \uses{thm:kl_data_proc, lem:kl_bounded_ge_kl_mean}
 First, by the data-processing inequality (Theorem~\ref{thm:kl_data_proc}),
-\begin{align*}
-\KL(\mu, \nu) \ge \KL(\kappa \circ \mu, \kappa \circ \nu) \: .
-\end{align*}
+$\KL(\mu, \nu) \ge \KL(\kappa \circ \mu, \kappa \circ \nu)$~.
 Then uses Lemma~\ref{lem:kl_bounded_ge_kl_mean}.
 \end{proof}
 
@@ -223,7 +221,7 @@ Use $\KL(\pi_\beta \otimes Q, \pi_\alpha \otimes P) = \kl(\beta, \alpha) + \KL(\
 
 \begin{proof}%\leanok
 \uses{cor:kl_estimation_ge_sub_kl, lem:bayesBinaryRisk_self}
-We apply Corollary~\ref{cor:kl_estimation_ge_sub_kl} for a the constant kernel with value $\xi$ and use Lemma~\ref{lem:bayesBinaryRisk_self}.
+We apply Corollary~\ref{cor:kl_estimation_ge_sub_kl} for the constant kernel with value $\xi$ and use Lemma~\ref{lem:bayesBinaryRisk_self}.
 \end{proof}
 
 
@@ -297,6 +295,17 @@ The first particular case is obtained by using $\alpha \le 1/2$ and $B_\pi(\mu, 
 The second one further sets $\beta = 1/2$.
 \end{proof}
 
+
+%\begin{theorem}[TODO]
+%  \label{thm:renyi_bayesBinaryRisk_le_renyi_mutual}
+%  %\lean{}
+%  %\leanok
+%  \uses{def:bayesBinaryRisk, def:Renyi}
+%  Let $\mu, \nu \in \mathcal P(\mathcal X)$ and let $\alpha \in (0, 1)$, $\lambda \in [0, +\infty)$. Let $r_\lambda(a,b)$ be the Rényi divergence between Bernoulli distributions with means $a$ and $b$.
+%  \begin{align*}
+%  r_\lambda(B_\alpha(\mu, \nu), \alpha) \le \inf_{\xi \in \mathcal P(\mathcal X)} R_\lambda(\pi_\alpha \otimes P, \pi_\alpha \times \xi) \: .
+%  \end{align*}
+%\end{theorem}
 
 
 \section{Testing error lower bounds}
