@@ -10,7 +10,6 @@ import TestingLowerBounds.FDiv.CondFDiv
 import TestingLowerBounds.FDiv.Trim
 import TestingLowerBounds.ForMathlib.CountableOrCountablyGenerated
 import TestingLowerBounds.ForMathlib.EReal
-import TestingLowerBounds.ForMathlib.ERealLogExp
 import TestingLowerBounds.ForMathlib.Integrable_of_empty
 import TestingLowerBounds.ForMathlib.IntegralCongr2
 import TestingLowerBounds.ForMathlib.KernelFstSnd
