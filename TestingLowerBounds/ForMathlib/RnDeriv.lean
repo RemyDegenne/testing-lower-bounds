@@ -282,8 +282,8 @@ lemma rnDeriv_le_one_iff_le [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν
     μ.rnDeriv ν ≤ᵐ[ν] 1 ↔ μ ≤ ν := by
   refine ⟨fun h s ↦ ?_, fun h ↦ rnDeriv_le_one_of_le h⟩
   rw [← withDensity_rnDeriv_eq _ _ hμν, withDensity_apply', ← setLIntegral_one]
-  exact MeasureTheory.setLIntegral_mono_ae (measurable_rnDeriv _ _) measurable_const
-    (h.mono fun _ hh _ ↦ hh)
+  exact setLIntegral_mono_ae aemeasurable_const (h.mono fun _ hh _ ↦ hh)
+
 
 -- in mathlib this lemma could be put just before `MeasureTheory.Measure.rnDeriv_eq_zero_of_mutuallySingular`
 lemma rnDeriv_eq_one_iff_eq [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν) :
