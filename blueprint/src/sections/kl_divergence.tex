@@ -242,6 +242,26 @@ For the case where $\mu \otimes \kappa \ll \nu \otimes \eta$ and $p \mapsto \log
 
 \end{proof}
 
+
+\begin{theorem}[Chain rule, with Bayesian inverse]
+  \label{thm:kl_compProd_bayesInv}
+  %\lean{}
+  %\leanok
+  \uses{def:KL, def:condKL, def:bayesInv}
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ two Markov kernels with Bayesian inverses $\kappa_\mu^\dagger$ and $\eta_\nu^\dagger$.
+  Then 
+  \begin{align*}
+  \KL(\mu \otimes \kappa, \nu \otimes \eta) = \KL(\kappa \circ \mu, \eta \circ \nu) + \KL(\kappa_\mu^\dagger, \eta_\nu^\dagger \mid \kappa \circ \mu)
+  \: .
+  \end{align*}
+\end{theorem}
+
+\begin{proof}%\leanok
+\uses{thm:kl_compProd}
+
+\end{proof}
+
+
 \begin{theorem}[Chain rule, product version]
   \label{thm:kl_fst_add_condKL}
   \lean{ProbabilityTheory.kl_fst_add_condKL}

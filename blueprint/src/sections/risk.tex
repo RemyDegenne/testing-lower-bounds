@@ -140,7 +140,23 @@ The infimum over all Markov kernels in the definition of the Bayes risk of $\pi$
 
 \begin{proof}%\leanok
 \uses{}
-Use the main property of the Bayesian inverse.
+Use the main property of the Bayesian inverse:
+\begin{align*}
+(P_\pi^\dagger \times \hat{y}) \circ P \circ \pi
+&= swap \circ (\hat{y} \times P_\pi^\dagger) \circ (P \circ \pi)
+\\
+&= swap \circ (\hat{y} \parallel \mathrm{id}) \circ (\mathrm{id} \times P_\pi^\dagger) \circ (P \circ \pi)
+\\
+&= swap \circ (\hat{y} \parallel \mathrm{id}) \circ \left((P \circ \pi) \otimes P_\pi^\dagger\right)
+\\
+&= swap \circ (\hat{y} \parallel \mathrm{id}) \circ \left(\pi \otimes P\right)
+\\
+&= (\mathrm{id} \parallel \hat{y}) \circ \left(\pi \otimes P\right)
+\\
+&= \pi \otimes (\hat{y} \circ P)
+\: .
+\end{align*}
+
 \end{proof}
 
 \begin{lemma}
@@ -466,7 +482,7 @@ Alternatively, we can reduce the study of the Bayes binary risk for any prior to
 \end{lemma}
 
 \begin{proof}\leanok
-\uses{ProbabilityTheory.bayesBinaryRisk_smul_smul}
+\uses{lem:bayesBinaryRisk_mul}
 
 \end{proof}
 
@@ -642,6 +658,21 @@ The last line is obtained by replacing $P_\xi^\dagger$ by its value (Lemma~\ref{
 \begin{proof}%\leanok
 \uses{thm:bayesBinaryRisk_eq}
 Use Theorem~\ref{thm:bayesBinaryRisk_eq} and the equality $\min\{a,b\} = \frac{1}{2}(a + b - \vert a - b \vert)$.
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:bayesBinaryRisk_bernoulli}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesBinaryRisk}
+  Let $\hat{y}_B$ be the generalized Bayes estimator for simple binary hypothesis testing.
+  The distribution $\ell \circ (\mathrm{id} \parallel \hat{y}_B) \circ (\pi \otimes P)$ (in which $\ell$ stands for the associated deterministic kernel) is a Bernoulli with mean $\mathcal B_\pi(\mu, \nu)$.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{thm:isBayesEstimator_genBayesEstimator}
+$\ell$ takes values in $\{0,1\}$ so the law has to be Bernoulli. It has mean $\mathcal B_\pi(\mu, \nu)$ because the expected risk of the generalized Bayes estimator is $\mathcal B_\pi(\mu, \nu)$.
 \end{proof}
 
 

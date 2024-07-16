@@ -30,6 +30,10 @@ For $\mu, \nu$ two measures, we denote by $\mu_{\perp \nu}$ the singular part of
 \begin{proof}\leanok
 \end{proof}
 
+
+
+\paragraph{Divergences associated with basic (transformations of) functions}
+
 \begin{lemma}
   \label{lem:fDiv_const}
   \lean{ProbabilityTheory.fDiv_const}
@@ -53,6 +57,22 @@ Compute the integral.
 \begin{proof} \leanok
 $\frac{d \mu}{d \mu}(x) = 1$ almost everywhere and $f(1) = 0$.
 \end{proof}
+
+
+\begin{lemma}
+  \label{lem:fDiv_eq_zero_iff}
+  \lean{ProbabilityTheory.fDiv_eq_zero_iff'}
+  \leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two probability measures. Assume $f'(\infty) = + \infty$ and $f(1) = 0$. Then $D_f(\mu, \nu) = 0$ if and only if $\mu = \nu$.
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{lem:fDiv_self}
+If $\mu = \nu$ then $D_f(\mu, \nu) = 0$ by Lemma~\ref{lem:fDiv_self}.
+For the other direction use the strict version of Jensen's inequality.
+\end{proof}
+
 
 \begin{lemma}
   \label{lem:fDiv_id}
@@ -114,6 +134,81 @@ Linearity (Lemmas~\ref{lem:fDiv_add} and~\ref{lem:fDiv_mul}), then Lemma~\ref{le
 
 \begin{proof}\leanok
 \end{proof}
+
+
+\begin{lemma}
+  \label{lem:fDiv_symm}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  $D_f(\mu, \nu) = D_{x \mapsto xf(1/x)}(\nu, \mu)$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:fDiv_add_smul_left}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  $(\mu, \nu) \mapsto D_f(a \mu + b \nu, \nu)$ is an $f$-divergence for the function $x \mapsto f(ax + b)$
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:fDiv_add_smul_right}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  $(\mu, \nu) \mapsto D_f(\mu, a \mu + b \nu)$ is an $f$-divergence for the function $x \mapsto (ax+b)f\left(\frac{x}{ax+b}\right)$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:fDiv_symm, lem:fDiv_add_smul_left}
+We use Lemma~\ref{lem:fDiv_symm}, then Lemma~\ref{lem:fDiv_add_smul_left} and finally Lemma~\ref{lem:fDiv_symm} again:
+\begin{align*}
+D_f(\mu, a \mu + b \nu)
+&= D_{xf(1/x)}(a \mu + b \nu, \mu)
+\\
+&= D_{(bx+a)f(1/(bx+a))}(\nu, \mu)
+\\
+&= D_{(ax+b)f(x/(ax+b))}(\mu, \nu)
+\: .
+\end{align*}
+
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:fDiv_add_smul_right'}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  $(\mu, \nu) \mapsto D_f(\nu, a \mu + b \nu)$ is an $f$-divergence for the function $x \mapsto (ax+b)f\left(\frac{1}{ax+b}\right)$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:fDiv_add_smul_right, lem:fDiv_symm}
+We use Lemma~\ref{lem:fDiv_add_smul_right}, then Lemma~\ref{lem:fDiv_symm}.
+\begin{align*}
+D_f(\nu, a \mu + b \nu)
+&= D_{(bx+a)f\left(\frac{x}{bx+a}\right)}(\nu, \mu)
+= D_{(ax+b)f\left(\frac{1}{ax+b}\right)}(\mu, \nu)
+\: .
+\end{align*}
+\end{proof}
+
+
+
+\paragraph{Upper and lower bounds on $D_f$}
 
 \begin{lemma}
   \label{lem:fDiv_absolutelyContinuous_add_mutuallySingular}
@@ -240,21 +335,6 @@ f(\mu(\mathcal X))
 \uses{lem:le_fDiv}
 Apply Lemma~\ref{lem:le_fDiv} and use $f(\mu(\mathcal X)) = f(1) = 0$.
 \end{proof}
-
-\begin{lemma}
-  \label{lem:fDiv_eq_zero_iff}
-  \lean{ProbabilityTheory.fDiv_eq_zero_iff'}
-  \leanok
-  \uses{def:fDiv}
-  Let $\mu, \nu$ be two probability measures, $f'(\infty) = + \infty$ and $f(1) = 0$. Then $D_f(\mu, \nu) = 0$ if and only if $\mu = \nu$.
-\end{lemma}
-
-\begin{proof}\leanok
-  \uses{lem:fDiv_self}
-  If $\mu = \nu$ apply Lemma~\ref{lem:fDiv_self}.
-  For the other direction use the strict version of Jensen's inequality.
-\end{proof}
-
 
 
 \subsection{Conditional f-divergence}

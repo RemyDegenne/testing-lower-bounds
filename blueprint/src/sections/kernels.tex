@@ -156,7 +156,16 @@ We can also define the composition of a measure and a kernel, by $\kappa \circ \
 For $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal Y \rightsquigarrow \mathcal Z$ (independent of $\mathcal X$), the composition-product can be written as a composition: $\kappa \otimes \eta = (d_{\text{id}} \times \eta) \circ \kappa$ where $d_{\text{id}}$ is the deterministic kernel for the identity.
 In particular, the composition-product of a measure and a kernel $\kappa$ is the composition of that measure with the kernel $d_{\text{id}} \times \kappa$.
 
-TODO: parallel product (tensor product in the category theory vocabulary).
+\begin{definition}[Parallel product]
+  \label{def:kernel_parallel_prod}
+  \lean{ProbabilityTheory.kernel.parallelComp}
+  \leanok
+  \uses{def:kernel, def:sFinite_kernel}
+  Let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal X' \rightsquigarrow \mathcal Y'$ be two s-finite kernels.
+  The parallel product of $\kappa$ and $\eta$ is the kernel $\kappa \parallel \eta : (\mathcal X \times \mathcal X') \rightsquigarrow (\mathcal Y \times \mathcal Y')$ equal to
+
+  TODO
+\end{definition}
 
 \section{Copy-discard and Markov categories}
 

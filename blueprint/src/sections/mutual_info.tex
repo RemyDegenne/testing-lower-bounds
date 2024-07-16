@@ -14,12 +14,14 @@
 
 TODO: discuss the relation of this definition and the usual $I_f(X, Y)$ notation.
 
+TODO: this might not be the right definition for the $f$-mutual information. The right definition of the mutual information associated with a divergence might be $\inf_{\xi \in \mathcal P(\mathcal Y)} D(\rho, \rho_X \times \xi)$. Why the asymmetry though? Should the inf be over product measures?
+
 
 \begin{definition}
   \label{def:mutualInfo}
   %\lean{}
   %\leanok
-  \uses{def:KL}
+  \uses{def:KL, def:fMutualInfo}
   The mutual information is, for $\rho \in \mathcal M(\mathcal X \times \mathcal Y)$~,
   \begin{align*}
   I(\rho) = \KL(\rho, \rho_X \times \rho_Y) \: .
@@ -45,7 +47,7 @@ TODO: discuss the relation of this definition and the usual $I_f(X, Y)$ notation
   \label{def:condMutualInfo}
   %\lean{}
   %\leanok
-  \uses{def:condKL}
+  \uses{def:condKL, def:condFMutualInfo}
   Let $\kappa : \mathcal Z \rightsquigarrow \mathcal X \times \mathcal Y$. The conditional mutual information of $\kappa$ with respect to $\nu \in \mathcal M(\mathcal Z)$ is
   \begin{align*}
   I(\kappa \mid \nu) = \KL(\kappa, \kappa_X \times \kappa_Y \mid \nu) \: .
@@ -79,6 +81,20 @@ The second equality is from $D_f(\kappa, \eta \mid \mu) = D_f(\mu \otimes \kappa
 
 
 \begin{lemma}
+  \label{lem:fMutualInfo_symm}
+  %\lean{}
+  %\leanok
+  \uses{def:fMutualInfo}
+  $I_f(\rho_\leftrightarrow) = I_f(\rho)$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:fDiv_map_measurableEmbedding}
+
+\end{proof}
+
+
+\begin{lemma}
   \label{lem:mutualInfo_eq_jensenShannon}
   %\lean{}
   %\leanok
@@ -92,4 +108,50 @@ The second equality is from $D_f(\kappa, \eta \mid \mu) = D_f(\mu \otimes \kappa
 \begin{proof}%\leanok
 \uses{lem:jensenShannon_eq_kl, lem:fMutualInfo_eq_condFDiv}
 Use Lemma~\ref{lem:fMutualInfo_eq_condFDiv} and Lemma~\ref{lem:jensenShannon_eq_kl}.
+\end{proof}
+
+
+\begin{theorem}[Data-processing]
+  \label{thm:fMutualInfo_data_proc}
+  %\lean{}
+  %\leanok
+  \uses{def:fMutualInfo}
+  For $\rho \in \mathcal M(\mathcal X \times \mathcal Y)$, $\kappa : \mathcal X \rightsquigarrow \mathcal X'$ and $\eta : \mathcal Y \rightsquigarrow \mathcal Y'$ two Markov kernels,
+  \begin{align*}
+  I_f((\kappa \parallel \eta) \circ \rho) \le I_f(\rho) \: .
+  \end{align*}
+\end{theorem}
+
+\begin{proof}%\leanok
+\uses{thm:fDiv_data_proc_2}
+$((\kappa \parallel \eta) \circ \rho)_{X'} = (\kappa \parallel \eta) \circ \rho_X$ and $((\kappa \parallel \eta) \circ \rho)_{Y'} = (\kappa \parallel \eta) \circ \rho_Y$ hence by the data-processing inequality for $D_f$ (Theorem~\ref{thm:fDiv_data_proc_2}),
+\begin{align*}
+I_f((\kappa \parallel \eta) \circ \rho)
+&= D_f((\kappa \parallel \eta) \circ \rho, (\kappa \parallel \eta) \circ (\rho_X \times \rho_Y))
+\\
+&\le D_f(\rho, (\rho_X \times \rho_Y))
+\\
+&= I_f(\rho)
+\: .
+\end{align*}
+\end{proof}
+
+\begin{corollary}
+  \label{cor:fMutualInfo_compProd_le}
+  %\lean{}
+  %\leanok
+  \uses{def:fMutualInfo}
+  For $\mu \in \mathcal X$, $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal Y \rightsquigarrow \mathcal Z$ two Markov kernels,
+  \begin{align*}
+  I_f(\mu \otimes (\eta \circ \kappa)) \le I_f(\mu \otimes \kappa)
+  \: .
+  \end{align*}
+\end{corollary}
+
+That corollary corresponds to the following situation: 3 random variables $X, Y, Z$ have the dependency structure $X \to Y \to Z$ and $\mu$ is the law of $X$, $\mu \otimes \kappa$ is the law of $(X, Y)$ and $\mu \otimes (\eta \circ \kappa)$ is the law of $(X, Z)$.
+With the usual $I_f(X, Y)$ notation, the corollary statement is $I_f(X, Z) \le I_f(X, Y)$~.
+
+\begin{proof}%\leanok
+\uses{thm:fMutualInfo_data_proc}
+First, rewrite $\mu \otimes (\eta \circ \kappa) = (\mathrm{id} \parallel \eta) \circ (\mu \otimes \kappa)$. Then apply Theorem~\ref{thm:fMutualInfo_data_proc}.
 \end{proof}
