@@ -860,7 +860,7 @@ lemma kl_comp_left_le [Nonempty α] [StandardBorelSpace α] [CountableOrCountabl
   exact fDiv_comp_left_le μ κ η continuous_mul_log.stronglyMeasurable
     convexOn_mul_log continuous_mul_log.continuousOn
 
-/--The Data Processing Inequality for the Kullback-Leibler divergence. -/
+/--The **Data Processing Inequality** for the Kullback-Leibler divergence. -/
 lemma kl_comp_right_le [Nonempty α] [StandardBorelSpace α] [CountableOrCountablyGenerated α β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ : kernel α β) [IsMarkovKernel κ] :
