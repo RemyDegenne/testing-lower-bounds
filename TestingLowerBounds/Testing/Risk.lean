@@ -226,34 +226,6 @@ lemma bayesianRisk_ge_lintegral_iInf_bayesInv [StandardBorelSpace Θ] [Nonempty 
     _ = ⨅ z, ∫⁻ (θ : Θ), E.ℓ (E.y θ, z) ∂(E.P†π) x := by
       rw [lintegral_const, measure_univ, mul_one]
 
-
--- what is the best way to state this lemma about convexity? How should I deal with explicitly suming and multipliying the P of an estimation problem?
---Ideas: define separately P₁, P₂, y, ℓ and then state the lemma usng the constructor for the estimation problem
---Or define the sum and scalar multiplication for estimation problems, then state the lemma using these operations, but we have to choose how to handle the fact that here we only want to sum the P, not the y and ℓ, should we require in the hypothesis of the sum operator that the y and ℓ are the same? But maybe this way it gets hard to use, maybe just use junk values when the y and ℓ are not the same, or just take the y and ℓ from the first estimation problem
-
---for now I will try to implement the first one, it seems more direct, but maybe the second is more elegant in the long run
---I'm having troubles with the first one, it seems we have no scalar multiplication of kernels, should we implement one? Maybe with the ENNReals?
---For now I am leanving this lemma, it is not used in the following ones
-variable (P₁ P₂ : kernel Θ 𝒳) (a : ℝ) (b : ℝ≥0) (c: ℝ≥0∞)
--- #check P₁ + P₂
--- #check a • P₁ --fails
--- #check b • P₁ --fails
--- #check c • P₁ --fails
-
--- lemma bayesRiskPrior_concave (P₁ P₂ : kernel Θ 𝒳) {y : Θ → 𝒴} (y_meas : Measurable y)
---     {ℓ : 𝒴 × 𝒵 → ℝ≥0∞} (ℓ_meas : Measurable ℓ)
---     {a b : ℝ≥0∞} (ha : 0 ≤ a) (hb : 0 ≤ b) (hab : a + b = 1) (π : Measure Θ) :
-
---     0 ≤ bayesRiskPrior ⟨a • P₁ + b • P₂, _, _, _, _⟩ π := by
-
---   sorry
-
-/-! ### Generalized Bayes estimator -/
-
---TODO: how do we define the generalized Bayes estimator?
---maybe we could say that an estimator κ is a generalized Bayes estimator if for every x `P†π(x)[θ ↦ ℓ(y(θ), κ x)] = min_z P†π(x)[θ ↦ ℓ(y(θ), z)]` and then use the hp: `∃κ generalized Bayes estimator`.
-
-
 /-! ### Bayes risk increase -/
 
 noncomputable
