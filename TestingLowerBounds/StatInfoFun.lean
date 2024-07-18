@@ -374,9 +374,9 @@ lemma fDiv_statInfoFun_eq_integral_max_of_nonpos_of_gt [IsFiniteMeasure μ] [IsF
 /-- Auxiliary lemma for `fDiv_statInfoFun_eq_integral_abs_of_nonneg_of_le` and
 `fDiv_statInfoFun_eq_integral_abs_of_nonpos_of_le`. -/
 lemma integral_max_eq_integral_abs [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
-    ∫ x, max 0 (γ - β * ((∂μ/∂ν) x).toReal) ∂ν = (2 : ℝ)⁻¹ * (∫ x, |β * ((∂μ/∂ν) x).toReal
-      - γ| ∂ν + γ * (ν univ).toReal - β * (μ univ).toReal
-      + β * ((μ.singularPart ν) univ).toReal) := by
+    ∫ x, max 0 (γ - β * ((∂μ/∂ν) x).toReal) ∂ν
+      = 2⁻¹ * (∫ x, |β * ((∂μ/∂ν) x).toReal - γ| ∂ν + γ * (ν univ).toReal - β * (μ univ).toReal
+        + β * ((μ.singularPart ν) univ).toReal) := by
   simp_rw [max_eq_add_add_abs_sub, zero_add, zero_sub, neg_sub, integral_mul_left]
   congr
   have h_int : Integrable (fun x ↦ β * ((∂μ/∂ν) x).toReal) ν :=
@@ -392,16 +392,16 @@ lemma integral_max_eq_integral_abs [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     Measure.restrict_univ]
   rw [ENNReal.toReal_add (measure_ne_top _ _)]
   swap; · exact lt_top_iff_ne_top.mp <| (setLIntegral_univ _ ▸
-      Measure.setLIntegral_rnDeriv_le univ).trans_lt IsFiniteMeasure.measure_univ_lt_top
+    Measure.setLIntegral_rnDeriv_le univ).trans_lt IsFiniteMeasure.measure_univ_lt_top
   ring_nf
   rw [integral_toReal (Measure.measurable_rnDeriv μ ν).aemeasurable (Measure.rnDeriv_lt_top μ ν)]
 
 /-- Auxiliary lemma for `fDiv_statInfoFun_eq_integral_abs_of_nonneg_of_gt` and
 `fDiv_statInfoFun_eq_integral_abs_of_nonpos_of_gt`. -/
 lemma integral_max_eq_integral_abs' [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
-    ∫ x, max 0 (β * ((∂μ/∂ν) x).toReal - γ) ∂ν = (2 : ℝ)⁻¹ * (∫ x, |β * ((∂μ/∂ν) x).toReal
-      - γ| ∂ν - γ * (ν univ).toReal + β * (μ univ).toReal
-      - β * ((μ.singularPart ν) univ).toReal) := by
+    ∫ x, max 0 (β * ((∂μ/∂ν) x).toReal - γ) ∂ν
+      = 2⁻¹ * (∫ x, |β * ((∂μ/∂ν) x).toReal - γ| ∂ν - γ * (ν univ).toReal + β * (μ univ).toReal
+        - β * ((μ.singularPart ν) univ).toReal) := by
   simp_rw [max_eq_add_add_abs_sub, zero_add, zero_sub, abs_neg, integral_mul_left]
   congr
   have h_int : Integrable (fun x ↦ β * ((∂μ/∂ν) x).toReal) ν :=
@@ -417,7 +417,7 @@ lemma integral_max_eq_integral_abs' [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     Measure.restrict_univ]
   rw [ENNReal.toReal_add (measure_ne_top _ _)]
   swap; · exact lt_top_iff_ne_top.mp <| (setLIntegral_univ _ ▸
-      Measure.setLIntegral_rnDeriv_le univ).trans_lt IsFiniteMeasure.measure_univ_lt_top
+    Measure.setLIntegral_rnDeriv_le univ).trans_lt IsFiniteMeasure.measure_univ_lt_top
   ring_nf
   rw [integral_toReal (Measure.measurable_rnDeriv μ ν).aemeasurable (Measure.rnDeriv_lt_top μ ν)]
 
