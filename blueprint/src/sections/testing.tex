@@ -93,7 +93,7 @@ By definition, since $\mu$ and $\nu$ are probability measures, $1 - \TV(\mu, \nu
 
 
 
-\subsection{Lower bounds}
+\subsection{Lower bounds using the data-processing inequality}
 
 The ideas behind the next two theorems are the same, up to the order of the arguments of a Kullback-Leibler divergence.
 The hidden parameter and data in simple binary hypothesis testing are generated from a distribution $\pi \otimes P \in \mathcal P(\Theta \times \mathcal X)$.
@@ -308,34 +308,9 @@ The second one further sets $\beta = 1/2$.
 %\end{theorem}
 
 
-\section{Testing error lower bounds}
 
-TODO: rework that section.
+\paragraph{TODO: move or remove}
 
-In simple hypothesis testing, a sample from an unknown measure on $\mathcal X$ among $\{\mu, \nu\}$ is observed, and the goal of the test is to return the measure from which the sample came.
-In typical scenarios, $\mathcal X$ is a product space $\mathcal Y^n$, $\mu$ and $\nu$ are product measures and the observation is a collection of $n$ i.i.d. samples.
-
-A test is a measurable function $\phi : \mathcal X \to \{0,1\}$, which can equivalently be described by the even $E = \{\phi = 1\}$. If we decide that the test should return 0 if the sample came from $\mu$ and 1 if it came from $\nu$, the two error probabilities of the test are $\mu(E)$ and $\nu(E^c)$. A good test minimizes these (or a given combination of these).
-
-In this section, we prove lower bounds on functions of $\mu(E)$ and $\nu(E^c)$, for any event $E$.
-For the sum $\mu(E) + \nu(E^c)$, the value of the optimal test is exactly $1 - \TV(\mu, \nu)$, as shown in the following theorem.
-
-\begin{theorem}
-  \label{thm:testing_eq_tv}
-  %\lean{}
-  %\leanok
-  \uses{def:TV}
-  Let $\mu, \nu$ be two probability measures. Then $\inf_{E \text{ event}}\{\mu(E) + \nu(E^c)\} = 1 - \TV(\mu, \nu)$~.
-\end{theorem}
-
-\begin{proof}
-\uses{lem:tv_eq_sub_inf_event}
-This is a special case of Lemma~\ref{lem:tv_eq_sub_inf_event}.
-\end{proof}
-
-The drawback of $\TV$ is that it is not easy to manipulate. In particular, it does not tensorize. In order to quantify error probabilities on product spaces like $\mu^{\otimes n}(E) + \nu^{\otimes n}(E^c)$, we use other divergences.
-
-\subsection{Generic lower bounds}
 
 \begin{lemma}
   \label{lem:testing_bound_renyi_mean}
@@ -383,9 +358,13 @@ R_\alpha(\mu_E, \nu_E)
 The inequality is an application of Lemma~\ref{lem:testing_bound_renyi_mean} for $\alpha = 1/2$. The equality is Lemma~\ref{lem:renyi_half_eq_log_hellinger}.
 \end{proof}
 
-\subsection{Change of measure}
 
-\begin{lemma}
+
+\subsection{Lower bounds using the change of measure lemma}
+
+The main tool of this section is the next lemma, which relates the probability of an event under two measures and deviations of the log-likelihood ratio between the measures.
+
+\begin{lemma}[Change of measure lemma]
   \label{lem:llr_change_measure}
   \lean{ProbabilityTheory.measure_sub_le_measure_mul_exp'}
   \leanok
@@ -409,7 +388,28 @@ The inequality is an application of Lemma~\ref{lem:testing_bound_renyi_mean} for
 \end{align*}
 \end{proof}
 
-\begin{corollary}
+
+\begin{lemma}[3 points change of measure]
+  \label{lem:llr_change_measure_add}
+  \lean{ProbabilityTheory.one_sub_le_add_measure_mul_exp}
+  \leanok
+  %\uses{}
+  Let $\mu, \nu, \xi$ be three probability measures on $\mathcal X$ and let $E$ be an event on $\mathcal X$. Let $\beta_1, \beta_2 \in \mathbb{R}$. Then
+  \begin{align*}
+  \mu(E) e^{\beta_1} + \nu(E^c) e^{\beta_2} \ge 1 - \xi\left\{ \log\frac{d \xi}{d \mu} > \beta_1 \right\} - \xi\left\{ \log\frac{d \xi}{d \nu} > \beta_2 \right\} \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{lem:llr_change_measure}
+Two applications of Lemma~\ref{lem:llr_change_measure}, then sum them and use $\xi(E)+\xi(E^c) = 1$.
+\end{proof}
+
+
+
+\paragraph{Change of measure and the moments of the log-likelihood ratio}
+
+\begin{corollary}[Change of measure - mean]
   \label{cor:kl_change_measure}
   %\lean{}
   %\leanok
@@ -425,7 +425,7 @@ The inequality is an application of Lemma~\ref{lem:testing_bound_renyi_mean} for
 Use Lemma~\ref{lem:llr_change_measure} with the choice $\KL(\mu, \nu) + \beta$ for $\beta$.
 \end{proof}
 
-\begin{lemma}
+\begin{lemma}[Change of measure - variance]
   \label{lem:llr_change_measure_variance}
   %\lean{}
   %\leanok
@@ -441,7 +441,7 @@ Use Lemma~\ref{lem:llr_change_measure} with the choice $\KL(\mu, \nu) + \beta$ f
 Use Lemma~\ref{lem:llr_change_measure} with the choice $\KL(\mu, \nu) + \sqrt{\Var_\mu[\log\frac{d \mu}{d \nu}]\beta}$ for $\beta$ and bound the probability of deviation of the log-likelihood ratio with Chebychev's inequality.
 \end{proof}
 
-\begin{lemma}
+\begin{lemma}[Change of measure - c.g.f.]
   \label{lem:renyi_chernoff_bound}
   \lean{ProbabilityTheory.measure_llr_gt_renyiDiv_le_exp}
   \leanok
@@ -482,21 +482,9 @@ Then $\mu\left[\left(\frac{d \mu}{d \nu}\right)^\alpha \right] = \nu\left[\left(
 Use Lemma~\ref{lem:llr_change_measure} with the choice $R_{1+\alpha}(\mu, \nu) + \beta$ for $\beta$. Then apply Lemma~\ref{lem:renyi_chernoff_bound}.
 \end{proof}
 
-\begin{lemma}
-  \label{lem:llr_change_measure_add}
-  \lean{ProbabilityTheory.one_sub_le_add_measure_mul_exp}
-  \leanok
-  %\uses{}
-  Let $\mu, \nu, \xi$ be three probability measures on $\mathcal X$ and let $E$ be an event on $\mathcal X$. Let $\beta_1, \beta_2 \in \mathbb{R}$. Then
-  \begin{align*}
-  \mu(E) e^{\beta_1} + \nu(E^c) e^{\beta_2} \ge 1 - \xi\left\{ \log\frac{d \xi}{d \mu} > \beta_1 \right\} - \xi\left\{ \log\frac{d \xi}{d \nu} > \beta_2 \right\} \: .
-  \end{align*}
-\end{lemma}
 
-\begin{proof}\leanok
-\uses{lem:llr_change_measure}
-Two applications of Lemma~\ref{lem:llr_change_measure}, then sum them and use $\xi(E)+\xi(E^c) = 1$.
-\end{proof}
+
+\paragraph{Applications of the change of measure with 3 points}
 
 \begin{lemma}
   \label{lem:change_measure_variance_add}
@@ -534,45 +522,6 @@ Then apply Lemma~\ref{lem:renyi_chernoff_bound}.
 \end{proof}
 
 
-\subsection{Lower bounds on the maximum}
-
-\begin{lemma}
-  \label{lem:testing_bound_tv_hellinger_max}
-  %\lean{}
-  %\leanok
-  \uses{def:TV, def:Hellinger}
-  Let $\mu, \nu$ be two probability measures on $\mathcal X$ and $E$ an event. Then
-  \begin{align*}
-  \max\{\mu(E), \nu(E^c)\}
-  \ge \frac{1}{2}(1 - \TV(\mu, \nu))
-  \ge \frac{1}{4}(1 - \Hsq(\mu, \nu))^2
-  \: .
-  \end{align*}
-\end{lemma}
-
-\begin{proof}
-\uses{thm:testing_eq_tv, cor:one_sub_hellinger_squared_le_one_sub_tv}
-The first inequality is Theorem~\ref{thm:testing_eq_tv} with $\mu(E) + \nu(E^c) \le 2 \max\{\mu(E), \nu(E^c)\}$.
-The second inequality is a consequence of Corollary~\ref{cor:one_sub_hellinger_squared_le_one_sub_tv}.
-\end{proof}
-
-\begin{lemma}
-  \label{lem:testing_bound_renyi_max}
-  %\lean{}
-  %\leanok
-  \uses{def:Renyi}
-  Let $\mu, \nu$ be two probability measures on $\mathcal X$ and $E$ an event. Let $\alpha \in (0,1)$. Then
-  \begin{align*}
-  \min\{\alpha, 1 - \alpha\} \log\frac{1}{\max\{\mu(E), \nu(E^c)\}} \le (1 - \alpha) R_{\alpha}(\mu, \nu)  + \log 2 \: .
-  \end{align*}
-\end{lemma}
-
-\begin{proof}
-\uses{lem:testing_bound_renyi_mean}
-Use Lemma~\ref{lem:testing_bound_renyi_mean} and remark that $\mu(E)^\alpha + \nu(E^c)^{1 - \alpha} \le 2\max\{\mu(E), \nu(E^c)\}^{\min\{\alpha, 1 - \alpha\}}$.
-\end{proof}
-
-
 \begin{lemma}
   \label{lem:testing_bound_renyi_one_add}
   \lean{ProbabilityTheory.exp_neg_chernoffDiv_le_add_measure}
@@ -586,26 +535,18 @@ Use Lemma~\ref{lem:testing_bound_renyi_mean} and remark that $\mu(E)^\alpha + \n
 
 \begin{proof}%\leanok
 \uses{lem:renyi_change_measure_add}
+Use Lemma~\ref{lem:renyi_change_measure_add} with $\beta = \log(4)/\alpha$ and use that
+\begin{align*}
+\mu(E) e^{R_{1+\alpha}(\xi, \mu) + \beta} + \nu(E^c) e^{R_{1+\alpha}(\xi, \nu) + \beta}
+\le (\mu(E) + \nu(E^c)) e^{\max \{R_{1+\alpha}(\xi, \mu), R_{1+\alpha}(\xi, \nu)\} + \beta}
+\: .
+\end{align*}
+
 \end{proof}
 
 
-\subsection{Product spaces}
 
-\begin{corollary}
-  \label{cor:testing_bound_renyi_n}
-  %\lean{}
-  %\leanok
-  \uses{def:Renyi}
-  Let $\mu, \nu$ be two probability measures on $\mathcal X$ and $E$ an event of $\mathcal X^n$. Let $\alpha \in (0,1)$. Then
-  \begin{align*}
-  \min\{\alpha, 1 - \alpha\} \log\frac{1}{\max\{\mu^{\otimes n}(E), \nu^{\otimes n}(E^c)\}} \le (1 - \alpha) n R_{\alpha}(\mu, \nu)  + \log 2 \: .
-  \end{align*}
-\end{corollary}
-
-\begin{proof}
-\uses{lem:testing_bound_renyi_max, lem:renyi_prod_n}
-Use Lemma~\ref{lem:renyi_prod_n} in Lemma~\ref{lem:testing_bound_renyi_max}.
-\end{proof}
+\paragraph{Product spaces}
 
 \begin{lemma}
   \label{lem:testing_bound_renyi_one_add_n}
