@@ -3,11 +3,8 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne
 -/
-import TestingLowerBounds.ForMathlib.RadonNikodym
-import TestingLowerBounds.ForMathlib.KernelConstComp
-import TestingLowerBounds.MeasureCompProd
 import TestingLowerBounds.BayesInv
-import Mathlib.Probability.Kernel.Invariance
+import TestingLowerBounds.ForMathlib.KernelConstComp
 
 /-!
 # Estimation and risk
