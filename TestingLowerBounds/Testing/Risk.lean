@@ -195,10 +195,11 @@ lemma bayesRiskPrior_le_inf (E : estimationProblem Θ 𝒳 𝒴 𝒵) (π : Meas
     fun_prop [E.ℓ_meas]
   · exact kernel.isMarkovKernel_const
 
-lemma bayesianRisk_eq_bayesInv_prod [StandardBorelSpace Θ] [Nonempty Θ]
+/-- The Bayesian risk of an estimator `κ` with respect to a prior `π` can be expressed as an integral in the following way: `R_π(κ) = ((P†π × κ) ∘ P ∘ π)[(θ, z) ↦ ℓ(y(θ), z)]`. -/
+lemma bayesianRisk_eq_lintegral_bayesInv_prod [StandardBorelSpace Θ] [Nonempty Θ]
     (E : estimationProblem Θ 𝒳 𝒴 𝒵) [IsMarkovKernel E.P] (κ : kernel 𝒳 𝒵)
     (π : Measure Θ) [IsFiniteMeasure π] [IsSFiniteKernel κ] :
-    bayesianRisk E κ π = ∫⁻ (θz : Θ × 𝒵), E.ℓ (E.y θz.1, θz.2) ∂(π ∘ₘ (((E.P†π) ×ₖ κ) ∘ₖ E.P)) := by
+    bayesianRisk E κ π = ∫⁻ (θz : Θ × 𝒵), E.ℓ (E.y θz.1, θz.2) ∂(π ∘ₘ E.P ∘ₘ ((E.P†π) ×ₖ κ)) := by
   have := E.ℓ_meas
   have := E.y_meas
   simp only [bayesianRisk, risk]
@@ -216,7 +217,7 @@ lemma bayesianRisk_ge_lintegral_iInf_bayesInv [StandardBorelSpace Θ] [Nonempty 
     bayesianRisk E κ π ≥ ∫⁻ x, ⨅ z : 𝒵, ∫⁻ θ, E.ℓ (E.y θ, z) ∂((E.P†π) x) ∂(π ∘ₘ E.P) := by
   have := E.ℓ_meas
   have := E.y_meas
-  rw [bayesianRisk_eq_bayesInv_prod, ← Measure.comp_assoc,
+  rw [bayesianRisk_eq_lintegral_bayesInv_prod,
     Measure.lintegral_bind (kernel.measurable ((E.P†π) ×ₖ κ)) (by fun_prop)]
   gcongr with x
   rw [kernel.prod_apply, lintegral_prod_symm' _ (by fun_prop)]
