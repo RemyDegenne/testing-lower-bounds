@@ -4,6 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne
 -/
 import TestingLowerBounds.ForMathlib.RadonNikodym
+import TestingLowerBounds.ForMathlib.KernelConstComp
+import TestingLowerBounds.MeasureCompProd
+import TestingLowerBounds.BayesInv
+import Mathlib.Probability.Kernel.Invariance
 
 /-!
 # Estimation and risk
@@ -72,6 +76,16 @@ lemma estimationProblem.comp_comp (E : estimationProblem Θ 𝒳 𝒴 𝒵) (κ 
     (η : kernel 𝒳' 𝒳'') [IsSFiniteKernel η] :
     (E.comp κ).comp η = E.comp (η ∘ₖ κ) := by
   ext <;> simp [kernel.comp_assoc]
+
+@[simps]
+noncomputable
+def estimationProblem.compProd (E : estimationProblem Θ 𝒳 𝒴 𝒵) (κ : kernel (Θ × 𝒳) 𝒳') :
+    estimationProblem Θ (𝒳 × 𝒳') 𝒴 𝒵 where
+  P := E.P ⊗ₖ κ
+  y := E.y
+  y_meas := E.y_meas
+  ℓ := E.ℓ
+  ℓ_meas := E.ℓ_meas
 
 end EstimationProblem
 
@@ -153,6 +167,66 @@ lemma bayesRisk_le_minimaxRisk (E : estimationProblem Θ 𝒳 𝒴 𝒵) :
   simp only [bayesRisk, iSup_le_iff]
   exact fun _ _ ↦ bayesRiskPrior_le_minimaxRisk _ _
 
+/-! ### Properties of the Bayes risk of a prior -/
+
+lemma bayesRiskPrior_compProd_le_bayesRiskPrior (E : estimationProblem Θ 𝒳 𝒴 𝒵)
+    [IsSFiniteKernel E.P] (π : Measure Θ)
+    (κ : kernel (Θ × 𝒳) 𝒳') [IsMarkovKernel κ] :
+    bayesRiskPrior (E.compProd κ) π ≤ bayesRiskPrior E π := by
+  have : E = (E.compProd κ).comp (kernel.deterministic (fun (x, _) ↦ x) (by fun_prop)) := by
+    ext
+    · rw [estimationProblem.comp, estimationProblem.compProd, kernel.comp_apply,
+        Measure.comp_deterministic_eq_map, ← kernel.fst_apply, kernel.fst_compProd]
+    rfl; rfl
+  nth_rw 2 [this]
+  exact bayesRiskPrior_le_bayesRiskPrior_comp _ _ _
+
+-- Do we also need a version without the `IsMarkovKernel` assumption? it would be of the form:
+-- `bayesRiskPrior E π ≤ ⨅ z : 𝒵, ∫⁻ θ, E.ℓ (E.y θ, z) * (E.P θ) Set.univ ∂π`
+lemma bayesRiskPrior_le_inf (E : estimationProblem Θ 𝒳 𝒴 𝒵) (π : Measure Θ) [IsMarkovKernel E.P] :
+    bayesRiskPrior E π ≤ ⨅ z : 𝒵, ∫⁻ θ, E.ℓ (E.y θ, z) ∂π := by
+  simp_rw [le_iInf_iff, bayesRiskPrior]
+  refine fun z ↦ iInf_le_of_le (kernel.const _ (Measure.dirac z)) ?_
+  convert iInf_le _ ?_ using 1
+  · simp_rw [bayesianRisk, risk, kernel.const_comp', kernel.const_apply]
+    congr with θ
+    rw [lintegral_dirac']
+    have := E.ℓ_meas
+    fun_prop [E.ℓ_meas]
+  · exact kernel.isMarkovKernel_const
+
+/-- The Bayesian risk of an estimator `κ` with respect to a prior `π` can be expressed as an integral in the following way: `R_π(κ) = ((P†π × κ) ∘ P ∘ π)[(θ, z) ↦ ℓ(y(θ), z)]`. -/
+lemma bayesianRisk_eq_lintegral_bayesInv_prod [StandardBorelSpace Θ] [Nonempty Θ]
+    (E : estimationProblem Θ 𝒳 𝒴 𝒵) [IsMarkovKernel E.P] (κ : kernel 𝒳 𝒵)
+    (π : Measure Θ) [IsFiniteMeasure π] [IsSFiniteKernel κ] :
+    bayesianRisk E κ π = ∫⁻ (θz : Θ × 𝒵), E.ℓ (E.y θz.1, θz.2) ∂(π ∘ₘ E.P ∘ₘ ((E.P†π) ×ₖ κ)) := by
+  have := E.ℓ_meas
+  have := E.y_meas
+  simp only [bayesianRisk, risk]
+  rw [← MeasureTheory.Measure.lintegral_compProd (f := fun θz ↦ E.ℓ (E.y θz.1, θz.2)) (by fun_prop),
+    ← kernel.swap_prod, kernel.prod_eq_copy_comp_parallelComp, Measure.compProd_eq_comp,
+    kernel.prod_eq_copy_comp_parallelComp]
+  nth_rw 2 [← kernel.parallelComp_comp_id_right_left]
+  simp_rw [← Measure.comp_assoc, compProd_bayesInv'', Measure.comp_assoc, ← kernel.comp_assoc,
+  kernel.swap_parallelComp, kernel.comp_assoc (_ ∥ₖ κ), kernel.swap_parallelComp, kernel.comp_assoc,
+  kernel.swap_copy, ← kernel.comp_assoc, kernel.parallelComp_comp_id_left_left]
+
+lemma bayesianRisk_ge_lintegral_iInf_bayesInv [StandardBorelSpace Θ] [Nonempty Θ]
+    (E : estimationProblem Θ 𝒳 𝒴 𝒵) [IsMarkovKernel E.P] (κ : kernel 𝒳 𝒵)
+    (π : Measure Θ) [IsFiniteMeasure π] [IsMarkovKernel κ] :
+    bayesianRisk E κ π ≥ ∫⁻ x, ⨅ z : 𝒵, ∫⁻ θ, E.ℓ (E.y θ, z) ∂((E.P†π) x) ∂(π ∘ₘ E.P) := by
+  have := E.ℓ_meas
+  have := E.y_meas
+  rw [bayesianRisk_eq_lintegral_bayesInv_prod,
+    Measure.lintegral_bind (kernel.measurable ((E.P†π) ×ₖ κ)) (by fun_prop)]
+  gcongr with x
+  rw [kernel.prod_apply, lintegral_prod_symm' _ (by fun_prop)]
+  calc
+    _ ≥ ∫⁻ _, ⨅ z, ∫⁻ (θ : Θ), E.ℓ (E.y θ, z) ∂(E.P†π) x ∂κ x :=
+      lintegral_mono fun z ↦ iInf_le' _ z
+    _ = ⨅ z, ∫⁻ (θ : Θ), E.ℓ (E.y θ, z) ∂(E.P†π) x := by
+      rw [lintegral_const, measure_univ, mul_one]
+
 /-! ### Bayes risk increase -/
 
 noncomputable
@@ -171,5 +245,13 @@ lemma le_bayesRiskIncrease_comp (E : estimationProblem Θ 𝒳 𝒴 𝒵) (π : 
     [IsMarkovKernel κ] (η : kernel 𝒳' 𝒳'') [IsMarkovKernel η] :
     bayesRiskIncrease (E.comp κ) π η ≤ bayesRiskIncrease E π (η ∘ₖ κ) := by
   simp [bayesRiskIncrease_comp]
+
+/-- **Data processing inequality** for the Bayes risk increase. -/
+lemma bayesRiskIncrease_discard_comp_le_bayesRiskIncrease (E : estimationProblem Θ 𝒳 𝒴 𝒵)
+    (π : Measure Θ) (κ : kernel 𝒳 𝒳') [IsMarkovKernel κ] :
+    bayesRiskIncrease (E.comp κ) π (kernel.discard 𝒳')
+      ≤ bayesRiskIncrease E π (kernel.discard 𝒳) := by
+  convert le_bayesRiskIncrease_comp E π κ (kernel.discard 𝒳')
+  simp
 
 end ProbabilityTheory
