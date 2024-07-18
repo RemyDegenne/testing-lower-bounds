@@ -4,10 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import TestingLowerBounds.FDiv.CompProd
-
+import TestingLowerBounds.ForMathlib.Integrable_of_empty
+import Mathlib.MeasureTheory.Order.Group.Lattice
 /-!
 
-# f-Divergences
+# Conditional f-divergence
 
 ## Main definitions
 
@@ -25,7 +26,7 @@ import TestingLowerBounds.FDiv.CompProd
 
 open Real MeasureTheory Filter MeasurableSpace
 
-open scoped ENNReal NNReal Topology
+open scoped ENNReal NNReal
 
 namespace ProbabilityTheory
 
@@ -43,76 +44,6 @@ def condFDiv (f : ℝ → ℝ) (κ η : kernel α β) (μ : Measure α) : EReal 
     ∧ (Integrable (fun x ↦ (fDiv f (κ x) (η x)).toReal) μ)
   then ((μ[fun x ↦ (fDiv f (κ x) (η x)).toReal] : ℝ) : EReal)
   else ⊤
-
-/-- Conditional f-divergence. -/
-noncomputable
-def condFDiv' (f : ℝ → ℝ) (κ η : kernel α β) (μ : Measure α) : EReal :=
-  fDiv f (μ ⊗ₘ κ) (μ ⊗ₘ η)
-
-@[simp]
-lemma condFDiv'_self (κ : kernel α β) [IsFiniteKernel κ] (μ : Measure α) [IsFiniteMeasure μ]
-    (hf_one : f 1 = 0) :
-    condFDiv' f κ κ μ = 0 := by
-  simp [condFDiv', fDiv_self hf_one]
-
-@[simp]
-lemma condFDiv'_zero_left [IsFiniteMeasure μ] [IsFiniteKernel η] :
-    condFDiv' f 0 η μ = f 0 * ∫ a, ((η a) Set.univ).toReal ∂μ := by
-  simp [condFDiv']
-  have h : (μ ⊗ₘ η) Set.univ ≠ ∞ := measure_ne_top _ _
-  rw [Measure.compProd_apply MeasurableSet.univ] at h ⊢
-  simp only [Set.preimage_univ] at h ⊢
-  congr
-  rw [integral_toReal]
-  · rwa [EReal.coe_ennreal_toReal]
-  · exact (kernel.measurable_coe _ MeasurableSet.univ).aemeasurable
-  · exact ae_of_all _ (fun _ ↦ measure_lt_top _ _)
-
-lemma condFDiv'_zero_left' [IsProbabilityMeasure μ] [IsMarkovKernel η] :
-    condFDiv' f 0 η μ = f 0 := by
-  simp
-
-@[simp]
-lemma condFDiv'_zero_measure : condFDiv' f κ η 0 = 0 := by simp [condFDiv']
-
-@[simp]
-lemma condFDiv'_of_isEmpty_left [IsEmpty α] : condFDiv' f κ η μ = 0 := by
-  suffices μ = 0 from this ▸ condFDiv'_zero_measure
-  ext s
-  exact Set.eq_empty_of_isEmpty s ▸ measure_empty
-
-@[simp]
-lemma condFDiv'_of_isEmpty_right [IsEmpty β] [IsFiniteMeasure μ] [IsFiniteKernel κ]
-    (hf_one : f 1 = 0) :
-    condFDiv' f κ η μ = 0 := by
-  suffices κ = η from by exact this ▸ condFDiv'_self κ _ hf_one
-  ext x s _
-  simp [Set.eq_empty_of_isEmpty s]
-
-lemma condFDiv'_ne_bot (κ η : kernel α β) (μ : Measure α) [IsFiniteMeasure μ] [IsFiniteKernel κ] :
-    condFDiv' f κ η μ ≠ ⊥ := by
-  rw [condFDiv']
-  exact fDiv_ne_bot
-
-lemma condFDiv'_nonneg [IsProbabilityMeasure μ] [IsMarkovKernel κ] [IsMarkovKernel η]
-    (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0))
-    (hf_one : f 1 = 0) :
-    0 ≤ condFDiv' f κ η μ := by
-  rw [condFDiv']
-  exact fDiv_nonneg hf_cvx hf_cont hf_one
-
-lemma condFDiv'_const' [SFinite μ] [SFinite ν] {ξ : Measure β} [IsFiniteMeasure ξ]
-    (h_ne_bot : fDiv f μ ν ≠ ⊥) :
-    condFDiv' f (kernel.const β μ) (kernel.const β ν) ξ = (fDiv f μ ν) * ξ Set.univ := by
-  rw [condFDiv', Measure.compProd_const, Measure.compProd_const]
-  -- extract lemma fDiv_prod
-  sorry
-
-@[simp]
-lemma condFDiv'_const [SFinite μ] [SFinite ν]
-    {ξ : Measure β} [IsFiniteMeasure ξ] [IsFiniteMeasure μ] :
-    condFDiv' f (kernel.const β μ) (kernel.const β ν) ξ = (fDiv f μ ν) * ξ Set.univ :=
-  condFDiv'_const' fDiv_ne_bot
 
 section CondFDivEq
 
@@ -370,8 +301,8 @@ lemma condFDiv_eq_top_iff_fDiv_compProd_eq_top [IsFiniteMeasure μ]
   exact condFDiv_ne_top_iff_fDiv_compProd_ne_top hf h_cvx
 
 lemma fDiv_compProd_left (μ : Measure α) [IsFiniteMeasure μ]
-    (κ η : kernel α β) [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] (hf : StronglyMeasurable f)
-    (h_cvx : ConvexOn ℝ (Set.Ici 0) f) :
+    (κ η : kernel α β) [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η]
+    (hf : StronglyMeasurable f) (h_cvx : ConvexOn ℝ (Set.Ici 0) f) :
     fDiv f (μ ⊗ₘ κ) (μ ⊗ₘ η) = condFDiv f κ η μ := by
   by_cases hf_top : condFDiv f κ η μ = ⊤
   · rwa [hf_top, ← condFDiv_eq_top_iff_fDiv_compProd_eq_top hf h_cvx]
@@ -408,17 +339,6 @@ lemma condFDiv_snd'_toReal_eq_ae [CountableOrCountablyGenerated β γ] {ξ : ker
   rw [← eventually_all] at h_ac
   filter_upwards [h_ac, h_int, h_int2] with a ha_ac ha_int ha_int2
   rw [condFDiv_eq ha_int ha_int2 ha_ac, EReal.toReal_coe]
-
---Maybe there is already something like this in mathlib? I couldn't find it.
---Is this name (`ProbabilityTheory.Integrable.kernel`) ok?
-lemma Integrable.kernel [IsFiniteKernel κ] [IsFiniteMeasure μ] (s : Set β) (hs : MeasurableSet s) :
-  Integrable (fun x ↦ ((κ x) s).toReal) μ := by
-obtain ⟨C, ⟨hC_finite, hC_le⟩⟩ := IsFiniteKernel.exists_univ_le (κ := κ)
-apply (integrable_const C.toReal).mono'
-· exact kernel.measurable_coe κ hs |>.ennreal_toReal.aestronglyMeasurable
-simp_rw [norm_eq_abs, abs_eq_self.mpr ENNReal.toReal_nonneg, ENNReal.toReal_le_toReal
-  (measure_ne_top _ _) (lt_top_iff_ne_top.mp hC_finite)]
-exact eventually_of_forall <| fun x ↦ (κ x).mono (Set.subset_univ s) |>.trans (hC_le x)
 
 lemma condFDiv_kernel_snd'_integrable_iff [CountableOrCountablyGenerated (α × β) γ]
     [IsFiniteMeasure μ] {ξ : kernel α β}  [IsFiniteKernel ξ]
@@ -461,7 +381,8 @@ lemma condFDiv_kernel_snd'_integrable_iff [CountableOrCountablyGenerated (α × 
     exact (integrable_fDiv_iff ha_int ha_ae).mpr ha_int2
   rw [integrable_congr <| condFDiv_snd'_toReal_eq_ae h_ac h_int h_int2]
   refine ⟨fun h ↦ ?_, fun h ↦ ?_⟩
-  · --using `h_le` we reduce the problem to the integrability of a sum of an integral and `f'(∞) * (ξ x) (univ)`
+  · -- using `h_le` we reduce the problem to the integrability of a sum of an integral and
+    -- `f'(∞) * (ξ x) (univ)`
     apply Integrable.mono'
       (g := fun a ↦ ∫ b, ((fDiv f (κ (a, b)) (η (a, b))).toReal + |(derivAtTop f).toReal|) ∂ξ a)
     rotate_left
@@ -477,10 +398,12 @@ lemma condFDiv_kernel_snd'_integrable_iff [CountableOrCountablyGenerated (α × 
     swap
     · filter_upwards [h_int2'] with a ha_int2'
       rw [integral_add ha_int2' (integrable_const _), integral_const, smul_eq_mul]
-    --we already know the integrability of the integral (hp `h`) and the other part is just a
-    --constant times a finite kernel applied to a fixed set, so it's easy to show that it's integrable
+    -- we already know the integrability of the integral (hp `h`) and the other part is just a
+    -- constant times a finite kernel applied to a fixed set, so it's easy to show that
+    -- it's integrable
     exact h.add (Integrable.kernel _ MeasurableSet.univ |>.mul_const _)
-  · --using `h_le'` we reduce the problem to the integrability of a sum of an integral and `f'(∞) * (ξ x) (univ)`
+  · -- using `h_le'` we reduce the problem to the integrability of a sum of an integral and
+    -- `f'(∞) * (ξ x) (univ)`
     apply Integrable.mono' (g := fun a ↦ ∫ b,
       (|∫ (x : γ), f ((∂κ (a, b)/∂η (a, b)) x).toReal ∂η (a, b)| + |(derivAtTop f).toReal|) ∂ξ a)
     rotate_left
@@ -573,8 +496,9 @@ lemma condFDiv_compProd_meas_eq_top [CountableOrCountablyGenerated (α × β) γ
     exact ⟨ha_int, ⟨ha_int2, ha_ae⟩⟩
 
 -- -- TODO: find a better name
-lemma condFDiv_compProd_meas [CountableOrCountablyGenerated (α × β) γ] [IsFiniteMeasure μ] {ξ : kernel α β}
-    [IsFiniteKernel ξ] {κ η : kernel (α × β) γ} [IsMarkovKernel κ] [IsMarkovKernel η]
+lemma condFDiv_compProd_meas [CountableOrCountablyGenerated (α × β) γ] [IsFiniteMeasure μ]
+    {ξ : kernel α β} [IsFiniteKernel ξ]
+    {κ η : kernel (α × β) γ} [IsMarkovKernel κ] [IsMarkovKernel η]
     (hf_meas : StronglyMeasurable f) (hf_cvx : ConvexOn ℝ (Set.Ici 0) f)
     (hf_cont : ContinuousOn f (Set.Ici 0)) (hf_one : f 1 = 0)
     (h_top : condFDiv f κ η (μ ⊗ₘ ξ) ≠ ⊤) :

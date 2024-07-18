@@ -3,8 +3,9 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
+import TestingLowerBounds.FDiv.Basic
 import TestingLowerBounds.FDiv.IntegralRnDerivSingularPart
-
+import Mathlib.Probability.Kernel.Disintegration.Basic
 /-!
 
 # f-Divergences
@@ -228,17 +229,6 @@ lemma fDiv_toReal_eq_ae {ξ : kernel α β} {κ η : kernel (α × β) γ} [IsFi
         EReal.coe_ennreal_ne_bot, and_false, h_deriv, EReal.coe_ennreal_pos,
         Measure.measure_univ_pos, ne_eq, EReal.coe_ennreal_eq_top_iff, false_or, not_and]
       exact fun _ ↦ measure_ne_top _ _
-
---Maybe there is already something like this in mathlib? I couldn't find it.
---Is this name (`ProbabilityTheory.Integrable.kernel`) ok?
-lemma Integrable.kernel [IsFiniteKernel κ] [IsFiniteMeasure μ] (s : Set β) (hs : MeasurableSet s) :
-  Integrable (fun x ↦ ((κ x) s).toReal) μ := by
-obtain ⟨C, ⟨hC_finite, hC_le⟩⟩ := IsFiniteKernel.exists_univ_le (κ := κ)
-apply (integrable_const C.toReal).mono'
-· exact kernel.measurable_coe κ hs |>.ennreal_toReal.aestronglyMeasurable
-simp_rw [norm_eq_abs, abs_eq_self.mpr ENNReal.toReal_nonneg, ENNReal.toReal_le_toReal
-  (measure_ne_top _ _) (lt_top_iff_ne_top.mp hC_finite)]
-exact eventually_of_forall <| fun x ↦ (κ x).mono (Set.subset_univ s) |>.trans (hC_le x)
 
 end CompProd
 
