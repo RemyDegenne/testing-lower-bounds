@@ -1,4 +1,5 @@
 import TestingLowerBounds.Convex
+import TestingLowerBounds.CurvatureMeasure
 import TestingLowerBounds.DerivAtTop
 import TestingLowerBounds.Divergences.Chernoff
 import TestingLowerBounds.Divergences.DeGroot
