@@ -117,6 +117,9 @@ lemma sum_smul_rnDeriv_twoHypKernel' (μ ν : Measure 𝒳) [IsFiniteMeasure μ]
   filter_upwards [sum_smul_rnDeriv_twoHypKernel μ ν π] with x hx
   simpa using hx
 
+/-- The kernel from `𝒳` to `Bool` defined by
+`x ↦ (π₀ * ∂μ/∂(π ∘ₘ twoHypKernel μ ν) x + π₁ * ∂ν/∂(π ∘ₘ twoHypKernel μ ν) x)`.
+It is the Bayesian inverse of `twoHypKernel μ ν` with respect to `π` (see `bayesInv_twoHypKernel`). -/
 noncomputable
 def twoHypKernelInv (μ ν : Measure 𝒳) (π : Measure Bool) :
     kernel 𝒳 Bool where
@@ -266,6 +269,8 @@ end TwoHypKernel
 
 section SimpleBinaryHypTest
 
+/-- Simple binary hypothesis testing problem: a testing problem where `Θ = 𝒴 = 𝒵 = {0,1}`, `y` is
+the identity and the loss is `ℓ(y₀, z) = 𝕀{y₀ ≠ z}`. -/
 @[simps]
 noncomputable
 def simpleBinaryHypTest (μ ν : Measure 𝒳) : estimationProblem Bool 𝒳 Bool Bool where
@@ -324,6 +329,8 @@ instance [IsFiniteMeasure μ] [IsFiniteMeasure ν] : IsFiniteKernel (simpleBinar
 instance [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
     IsMarkovKernel (simpleBinaryHypTest μ ν).P := simpleBinaryHypTest_P μ ν ▸ inferInstance
 
+/-- The function `x ↦ 𝕀{π₀ * ∂μ/∂(π ∘ₘ twoHypKernel μ ν) x ≤ π₁ * ∂ν/∂(π ∘ₘ twoHypKernel μ ν) x}`.
+It is a Generalized Bayes estimator for the simple binary hypothesis testing problem. -/
 noncomputable
 def binaryGenBayesEstimator (μ ν : Measure 𝒳) (π : Measure Bool) : 𝒳 → Bool :=
   let E : Set 𝒳 := {x | π {false} * μ.rnDeriv (π ∘ₘ twoHypKernel μ ν) x
