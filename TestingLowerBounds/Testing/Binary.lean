@@ -201,13 +201,6 @@ lemma measure_prod_ext {μ ν : Measure (𝒳 × 𝒴)} [IsFiniteMeasure μ] (h 
   · intro A h_disj h_meas h_eq
     simp_rw [measure_iUnion h_disj h_meas, h_eq]
 
---put these 2 lemmas in a separate file, maybe PR them to mathlib
-lemma _root_.Prod.swap_image {α β : Type*} (A : Set α) (B : Set β) :
-    Prod.swap '' (A ×ˢ B) = B ×ˢ A := by ext; simp
-
-lemma _root_.Prod.swap_preimage {α β : Type*} (A : Set α) (B : Set β) :
-    Prod.swap ⁻¹' (A ×ˢ B) = B ×ˢ A := by ext; simp
-
 lemma bayesInv_twoHypKernel (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (π : Measure Bool) [IsFiniteMeasure π] :
     ((twoHypKernel μ ν)†π) =ᵐ[π ∘ₘ twoHypKernel μ ν] twoHypKernelInv μ ν π := by
@@ -216,7 +209,7 @@ lemma bayesInv_twoHypKernel (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFinit
   obtain (rfl | rfl | rfl | rfl) := Bool.cases_set_bool B
   · simp
   · rw [Measure.compProd_apply_prod hA hB, Measure.map_apply measurable_swap (hA.prod hB),
-      Prod.swap_preimage, Measure.compProd_apply_prod hB hA, lintegral_singleton,
+      Set.preimage_swap_prod, Measure.compProd_apply_prod hB hA, lintegral_singleton,
       twoHypKernel_apply, cond_true, setLIntegral_congr_fun hA _]
     rotate_left
     · exact fun x ↦ π {true} * (∂ν/∂π ∘ₘ ⇑(twoHypKernel μ ν)) x
@@ -229,7 +222,7 @@ lemma bayesInv_twoHypKernel (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFinit
       aemeasurable_const hA]
     simp [mul_comm]
   · rw [Measure.compProd_apply_prod hA hB, Measure.map_apply measurable_swap (hA.prod hB),
-      Prod.swap_preimage, Measure.compProd_apply_prod hB hA, lintegral_singleton,
+      Set.preimage_swap_prod, Measure.compProd_apply_prod hB hA, lintegral_singleton,
       twoHypKernel_apply, cond_false, setLIntegral_congr_fun hA _]
     rotate_left
     · exact fun x ↦ π {false} * (∂μ/∂π ∘ₘ ⇑(twoHypKernel μ ν)) x
@@ -242,7 +235,7 @@ lemma bayesInv_twoHypKernel (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFinit
       aemeasurable_const hA]
     simp [mul_comm]
   · rw [Measure.compProd_apply_prod hA hB, Measure.map_apply measurable_swap (hA.prod hB),
-      Prod.swap_preimage, Measure.compProd_apply_prod hB hA,
+      Set.preimage_swap_prod, Measure.compProd_apply_prod hB hA,
       Bool.lintegral_bool, twoHypKernel_apply, twoHypKernel_apply, cond_false, cond_true,
       Set.pair_comm, ← Bool.univ_eq]
     simp only [measure_univ, lintegral_const, MeasurableSet.univ, Measure.restrict_apply,
