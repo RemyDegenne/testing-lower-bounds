@@ -179,7 +179,7 @@ lemma twoHypKernelInv_apply_true (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [Is
   filter_upwards [twoHypKernelInv_apply_ae μ ν π] with x hx
   simp [hx]
 
-instance (π : Measure Bool) [IsFiniteMeasure π] : IsMarkovKernel (twoHypKernelInv μ ν π) := by
+instance (π : Measure Bool) : IsMarkovKernel (twoHypKernelInv μ ν π) := by
   constructor
   intro x
   rw [twoHypKernelInv_apply]
@@ -490,8 +490,8 @@ lemma bayesBinaryRisk_symm (μ ν : Measure 𝒳) (π : Measure Bool) :
     swap; trivial
     simp [h3, h4]
 
-lemma bayesianRisk_binary_of_deterministic_indicator (μ ν : Measure 𝒳) [IsFiniteMeasure μ]
-    [IsFiniteMeasure ν] (π : Measure Bool) [IsFiniteMeasure π] {E : Set 𝒳} (hE : MeasurableSet E) :
+lemma bayesianRisk_binary_of_deterministic_indicator (μ ν : Measure 𝒳) (π : Measure Bool)
+    {E : Set 𝒳} (hE : MeasurableSet E) :
     bayesianRisk (simpleBinaryHypTest μ ν)
       (kernel.deterministic (fun x ↦ Bool.ofNat (E.indicator 1 x))
         ((measurable_discrete _).comp' (measurable_one.indicator hE))) π
