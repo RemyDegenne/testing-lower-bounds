@@ -5,7 +5,6 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import TestingLowerBounds.ForMathlib.ByParts
 import TestingLowerBounds.ForMathlib.LeftRightDeriv
-import TestingLowerBounds.ForMathlib.MaxMinEqAbs
 import Mathlib.MeasureTheory.Integral.FundThmCalculus
 import Mathlib.MeasureTheory.Constructions.Prod.Integral
 
