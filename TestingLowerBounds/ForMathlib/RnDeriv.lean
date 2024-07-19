@@ -14,7 +14,6 @@ open Real MeasureTheory Filter
 
 open scoped ENNReal MeasureTheory
 
-
 lemma MeasureTheory.integrable_of_le_of_le {α : Type*} {mα : MeasurableSpace α} {μ : Measure α}
     {f g₁ g₂ : α → ℝ} (hf : AEStronglyMeasurable f μ)
     (h_le₁ : g₁ ≤ᵐ[μ] f) (h_le₂ : f ≤ᵐ[μ] g₂)
@@ -189,10 +188,9 @@ lemma absolutelyContinuous_restrict_compl_singularPartSet
   exact withDensity_absolutelyContinuous _ _
 
 example [SigmaFinite μ] [SigmaFinite ν] :
-    μ {x | (ν.rnDeriv (μ + ν)) x = 0} = μ.singularPart ν Set.univ := by
+    μ (singularPartSet μ ν) = μ.singularPart ν Set.univ := by
   rw [← restrict_singularPartSet_eq_singularPart]
   simp only [MeasurableSet.univ, restrict_apply, Set.univ_inter]
-  rfl
 
 section Trim
 
@@ -229,8 +227,7 @@ lemma rnDeriv_toReal_pos [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν) :
 lemma ae_rnDeriv_ne_zero_imp_of_ae_aux [SigmaFinite μ] [SigmaFinite ν] {p : α → Prop}
     (h : ∀ᵐ a ∂μ, p a) (hμν : μ ≪ ν) :
     ∀ᵐ a ∂ν, μ.rnDeriv ν a ≠ 0 → p a := by
-  rw [Measure.haveLebesgueDecomposition_add ν μ]
-  rw [ae_add_measure_iff]
+  rw [Measure.haveLebesgueDecomposition_add ν μ, ae_add_measure_iff]
   constructor
   · rw [← Measure.haveLebesgueDecomposition_add ν μ]
     have : ∀ᵐ x ∂(ν.singularPart μ), μ.rnDeriv ν x = 0 := by
@@ -258,7 +255,7 @@ lemma ae_rnDeriv_ne_zero_imp_of_ae [SigmaFinite μ] [SigmaFinite ν] {p : α →
   exact (Measure.absolutelyContinuous_of_le (μ.withDensity_rnDeriv_le ν)) h
 
 lemma ae_integrable_mul_rnDeriv_of_ae_integrable {κ : α → Measure β} [SigmaFinite μ] [SigmaFinite ν]
-    (g : α → β → ℝ) (h : ∀ᵐ a ∂μ, Integrable (fun x => g a x) (κ a)) :
+    (g : α → β → ℝ) (h : ∀ᵐ a ∂μ, Integrable (fun x ↦ g a x) (κ a)) :
     ∀ᵐ a ∂ν, Integrable (fun x ↦ (μ.rnDeriv ν a).toReal * g a x) (κ a) := by
   apply @Measure.ae_rnDeriv_ne_zero_imp_of_ae _ _ _ ν at h
   filter_upwards [h] with a ha
@@ -271,11 +268,10 @@ lemma ae_integrable_mul_rnDeriv_of_ae_integrable {κ : α → Measure β} [Sigma
 lemma ae_integrable_of_ae_integrable_mul_rnDeriv {κ : α → Measure β} [SigmaFinite μ] [SigmaFinite ν]
     (hμν : μ ≪ ν) (g : α → β → ℝ)
     (h : ∀ᵐ a ∂ν, Integrable (fun x ↦ (μ.rnDeriv ν a).toReal * g a x) (κ a)) :
-    ∀ᵐ a ∂μ, Integrable (fun x => g a x) (κ a) := by
+    ∀ᵐ a ∂μ, Integrable (g a) (κ a) := by
   filter_upwards [hμν.ae_le h, Measure.rnDeriv_toReal_pos hμν] with a ha h_pos
-  apply (integrable_const_mul_iff _ (fun x ↦ g a x)).mp ha
-  apply isUnit_iff_ne_zero.mpr
-  linarith
+  apply (integrable_const_mul_iff _ (g a)).mp ha
+  exact isUnit_iff_ne_zero.mpr h_pos.ne'
 
 -- in mathlib this lemma could be put just before `MeasureTheory.Measure.rnDeriv_le_one_of_le`
 lemma rnDeriv_le_one_iff_le [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν) :
@@ -283,7 +279,6 @@ lemma rnDeriv_le_one_iff_le [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν
   refine ⟨fun h s ↦ ?_, fun h ↦ rnDeriv_le_one_of_le h⟩
   rw [← withDensity_rnDeriv_eq _ _ hμν, withDensity_apply', ← setLIntegral_one]
   exact setLIntegral_mono_ae aemeasurable_const (h.mono fun _ hh _ ↦ hh)
-
 
 -- in mathlib this lemma could be put just before `MeasureTheory.Measure.rnDeriv_eq_zero_of_mutuallySingular`
 lemma rnDeriv_eq_one_iff_eq [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν) :

@@ -1,9 +1,6 @@
 import Mathlib.MeasureTheory.Integral.Bochner
 
-open MeasureTheory
-
-open Real MeasureTheory Filter MeasurableSpace
-open scoped ENNReal NNReal Topology BigOperators
+open Filter
 
 --TODO: put this in mathlib, maybe just after:
 -- #check Integrable.of_finite

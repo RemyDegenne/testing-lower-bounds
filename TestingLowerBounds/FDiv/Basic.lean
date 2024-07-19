@@ -6,7 +6,6 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 import TestingLowerBounds.DerivAtTop
 import TestingLowerBounds.ForMathlib.RadonNikodym
 import TestingLowerBounds.ForMathlib.RnDeriv
-import TestingLowerBounds.ForMathlib.Measure
 
 /-!
 

@@ -3,13 +3,9 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import Mathlib.MeasureTheory.Measure.LogLikelihoodRatio
 import TestingLowerBounds.FDiv.CondFDiv
-import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
-import TestingLowerBounds.ForMathlib.LogLikelihoodRatioCompProd
 import TestingLowerBounds.ForMathlib.IntegralCongr2
-import TestingLowerBounds.ForMathlib.KernelFstSnd
-import TestingLowerBounds.ForMathlib.CountableOrCountablyGenerated
+import TestingLowerBounds.ForMathlib.LogLikelihoodRatioCompProd
 
 /-!
 # Kullback-Leibler divergence
@@ -870,6 +866,5 @@ lemma kl_comp_right_le [Nonempty α] [StandardBorelSpace α] [CountableOrCountab
     convexOn_mul_log continuous_mul_log.continuousOn
 
 end DataProcessingInequality
-
 
 end ProbabilityTheory
