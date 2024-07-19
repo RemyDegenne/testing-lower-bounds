@@ -511,7 +511,7 @@ lemma bayesBinaryRisk_eq_iInf_measurableSet (μ ν : Measure 𝒳) [IsFiniteMeas
   · let E := {x | π {false} * (∂μ/∂π ∘ₘ ⇑(twoHypKernel μ ν)) x
       ≤ π {true} * (∂ν/∂π ∘ₘ ⇑(twoHypKernel μ ν)) x}
     have hE : MeasurableSet E := measurableSet_le (by fun_prop) (by fun_prop)
-    rw [bayesBinaryRisk, ← isBayesEstimator_of_isGenBayesEstimator _ π
+    rw [bayesBinaryRisk, ← isBayesEstimator_of_isGenBayesEstimator
       (binaryGenBayesEstimator_isGenBayesEstimator μ ν π), IsGenBayesEstimator.kernel]
     simp_rw [binaryGenBayesEstimator, bayesianRisk_binary_of_deterministic_indicator _ _ _ hE]
     exact iInf_le_of_le E (iInf_le _ hE)

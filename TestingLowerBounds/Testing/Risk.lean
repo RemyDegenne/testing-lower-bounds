@@ -259,7 +259,7 @@ abbrev IsGenBayesEstimator.kernel [StandardBorelSpace Θ] [Nonempty Θ]
   kernel.deterministic f h.measurable
 
 lemma bayesianRisk_of_isGenBayesEstimator [StandardBorelSpace Θ] [Nonempty Θ]
-    (E : estimationProblem Θ 𝒳 𝒴 𝒵) [IsFiniteKernel E.P] (π : Measure Θ) [IsFiniteMeasure π]
+    {E : estimationProblem Θ 𝒳 𝒴 𝒵} [IsFiniteKernel E.P] {π : Measure Θ} [IsFiniteMeasure π]
     {f : 𝒳 → 𝒵} (hf : IsGenBayesEstimator E f π) :
     bayesianRisk E hf.kernel π
       = ∫⁻ x, ⨅ z, ∫⁻ θ, E.ℓ (E.y θ, z) ∂(E.P†π) x ∂π ∘ₘ E.P := by
@@ -272,12 +272,12 @@ lemma bayesianRisk_of_isGenBayesEstimator [StandardBorelSpace Θ] [Nonempty Θ]
     lintegral_dirac' _ (Measurable.lintegral_prod_left (by fun_prop))]
 
 lemma isBayesEstimator_of_isGenBayesEstimator [StandardBorelSpace Θ] [Nonempty Θ]
-    (E : estimationProblem Θ 𝒳 𝒴 𝒵) [IsFiniteKernel E.P] (π : Measure Θ) [IsFiniteMeasure π]
+    {E : estimationProblem Θ 𝒳 𝒴 𝒵} [IsFiniteKernel E.P] {π : Measure Θ} [IsFiniteMeasure π]
     {f : 𝒳 → 𝒵} (hf : IsGenBayesEstimator E f π) :
     IsBayesEstimator E hf.kernel π := by
   simp_rw [IsBayesEstimator, bayesRiskPrior]
   apply le_antisymm
-  · rw [bayesianRisk_of_isGenBayesEstimator E π hf]
+  · rw [bayesianRisk_of_isGenBayesEstimator hf]
     simp_all [bayesianRisk_ge_lintegral_iInf_bayesInv]
   · refine iInf_le_of_le hf.kernel ?_
     exact iInf_le _ (kernel.isMarkovKernel_deterministic hf.measurable)
@@ -293,7 +293,7 @@ lemma bayesRiskPrior_eq_of_hasGenBayesEstimator [StandardBorelSpace Θ] [Nonempt
     (E : estimationProblem Θ 𝒳 𝒴 𝒵) [IsFiniteKernel E.P] (π : Measure Θ) [IsFiniteMeasure π]
     [h : HasGenBayesEstimator E π] :
     bayesRiskPrior E π = ∫⁻ x, ⨅ z, ∫⁻ θ, E.ℓ (E.y θ, z) ∂((E.P†π) x) ∂(π ∘ₘ E.P) := by
-  rw [← isBayesEstimator_of_isGenBayesEstimator E π h.property, bayesianRisk_of_isGenBayesEstimator]
+  rw [← isBayesEstimator_of_isGenBayesEstimator h.property, bayesianRisk_of_isGenBayesEstimator]
 
 /-! ### Bayes risk increase -/
 
