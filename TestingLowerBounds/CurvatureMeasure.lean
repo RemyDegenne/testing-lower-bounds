@@ -23,7 +23,7 @@ noncomputable
 def curvatureMeasure {f : ℝ → ℝ} (hf : ConvexOn ℝ univ f) : Measure ℝ :=
   hf.rightDerivStieltjes.measure
 
-instance {f : ℝ → ℝ} (hf : ConvexOn ℝ univ f) : IsLocallyFiniteMeasure (hf.curvatureMeasure) := by
+instance {f : ℝ → ℝ} (hf : ConvexOn ℝ univ f) : IsLocallyFiniteMeasure hf.curvatureMeasure := by
   unfold curvatureMeasure
   infer_instance
 
