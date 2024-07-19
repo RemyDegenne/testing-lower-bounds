@@ -1,10 +1,11 @@
 /-
 Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Rémy Degenne
+Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import TestingLowerBounds.ForMathlib.MaxMinEqAbs
 import TestingLowerBounds.Testing.Risk
+import TestingLowerBounds.Testing.BoolMeasure
 
 /-!
 # Simple Bayesian binary hypothesis testing
@@ -60,6 +61,10 @@ instance [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
   · simp only [twoHypKernel_apply, cond_true]
     infer_instance
 
+lemma kernel_bool_eq_twoHypKernel (κ : kernel Bool 𝒳) :
+    κ = twoHypKernel (κ false) (κ true) := by
+  ext (_ | _) <;> simp
+
 @[simp]
 lemma comp_twoHypKernel (κ : kernel 𝒳 𝒴) :
     κ ∘ₖ (twoHypKernel μ ν) = twoHypKernel (μ ∘ₘ κ) (ν ∘ₘ κ) := by
@@ -108,16 +113,19 @@ lemma sum_smul_rnDeriv_twoHypKernel (μ ν : Measure 𝒳) [IsFiniteMeasure μ] 
 lemma sum_smul_rnDeriv_twoHypKernel' (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (π : Measure Bool) [IsFiniteMeasure π] :
     ∀ᵐ x ∂(π ∘ₘ ⇑(twoHypKernel μ ν)), π {true} * ν.rnDeriv (π ∘ₘ twoHypKernel μ ν) x
-      + π {false} * (μ.rnDeriv (π ∘ₘ twoHypKernel μ ν)) x = 1 := by
+      + π {false} * μ.rnDeriv (π ∘ₘ twoHypKernel μ ν) x = 1 := by
   filter_upwards [sum_smul_rnDeriv_twoHypKernel μ ν π] with x hx
   simpa using hx
 
+/-- The kernel from `𝒳` to `Bool` defined by
+`x ↦ (π₀ * ∂μ/∂(π ∘ₘ twoHypKernel μ ν) x + π₁ * ∂ν/∂(π ∘ₘ twoHypKernel μ ν) x)`.
+It is the Bayesian inverse of `twoHypKernel μ ν` with respect to `π` (see `bayesInv_twoHypKernel`). -/
 noncomputable
 def twoHypKernelInv (μ ν : Measure 𝒳) (π : Measure Bool) :
     kernel 𝒳 Bool where
   val x :=
     if π {true} * ν.rnDeriv (π ∘ₘ twoHypKernel μ ν) x
-      + π {false} * (μ.rnDeriv (π ∘ₘ twoHypKernel μ ν)) x = 1
+      + π {false} * μ.rnDeriv (π ∘ₘ twoHypKernel μ ν) x = 1
     then (π {true} * ν.rnDeriv (π ∘ₘ twoHypKernel μ ν) x) • Measure.dirac true
       + (π {false} * μ.rnDeriv (π ∘ₘ twoHypKernel μ ν) x) • Measure.dirac false
     else Measure.dirac true
@@ -135,7 +143,7 @@ def twoHypKernelInv (μ ν : Measure 𝒳) (π : Measure Bool) :
 lemma twoHypKernelInv_apply (μ ν : Measure 𝒳) (π : Measure Bool) (x : 𝒳) :
     twoHypKernelInv μ ν π x
       = if π {true} * ν.rnDeriv (π ∘ₘ twoHypKernel μ ν) x
-          + π {false} * (μ.rnDeriv (π ∘ₘ twoHypKernel μ ν)) x = 1
+          + π {false} * μ.rnDeriv (π ∘ₘ twoHypKernel μ ν) x = 1
         then (π {true} * ν.rnDeriv (π ∘ₘ twoHypKernel μ ν) x) • Measure.dirac true
           + (π {false} * μ.rnDeriv (π ∘ₘ twoHypKernel μ ν) x) • Measure.dirac false
         else Measure.dirac true := rfl
@@ -157,7 +165,21 @@ lemma twoHypKernelInv_apply' (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFini
   rw [hx]
   simp
 
-instance (π : Measure Bool) [IsFiniteMeasure π] : IsMarkovKernel (twoHypKernelInv μ ν π) := by
+lemma twoHypKernelInv_apply_false (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (π : Measure Bool) [IsFiniteMeasure π] :
+    ∀ᵐ x ∂(π ∘ₘ ⇑(twoHypKernel μ ν)),
+      twoHypKernelInv μ ν π x {false} =  π {false} * μ.rnDeriv (π ∘ₘ twoHypKernel μ ν) x := by
+  filter_upwards [twoHypKernelInv_apply_ae μ ν π] with x hx
+  simp [hx]
+
+lemma twoHypKernelInv_apply_true (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (π : Measure Bool) [IsFiniteMeasure π] :
+    ∀ᵐ x ∂(π ∘ₘ ⇑(twoHypKernel μ ν)),
+      twoHypKernelInv μ ν π x {true} = π {true} * ν.rnDeriv (π ∘ₘ twoHypKernel μ ν) x := by
+  filter_upwards [twoHypKernelInv_apply_ae μ ν π] with x hx
+  simp [hx]
+
+instance (π : Measure Bool) : IsMarkovKernel (twoHypKernelInv μ ν π) := by
   constructor
   intro x
   rw [twoHypKernelInv_apply]
@@ -166,30 +188,89 @@ instance (π : Measure Bool) [IsFiniteMeasure π] : IsMarkovKernel (twoHypKernel
     simp [h]
   · infer_instance
 
+--the finiteness hypothesis for μ should not be needed, but otherwise I dont know how to handle the 3rd case, where I have the complement
+-- we still need some hp, the right one is probably SigmaFinite. For SFinite ones there is a counterexample, see the comment above `Measure.prod_eq`.
+--TODO: generalize this lemma to SigmaFinite measures, there are 2 ways to do it, one is to try and generalize this proof (for this it may be useful to try and apply the lemma used in the proof of `Measure.prod_eq`), the other is to use this as an auxiliary lemma and prove the result for SigmaFinite measures using this one (we can restrict the mesaure to the set where it is finite and then use this lemma). I'm not sure which way is better.
+lemma measure_prod_ext {μ ν : Measure (𝒳 × 𝒴)} [IsFiniteMeasure μ]
+    (h : ∀ (A : Set 𝒳) (_ : MeasurableSet A) (B : Set 𝒴) (_ : MeasurableSet B), μ (A ×ˢ B) = ν (A ×ˢ B)) :
+    μ = ν := by
+  ext s hs
+  apply MeasurableSpace.induction_on_inter generateFrom_prod.symm isPiSystem_prod _ _ _ _ hs
+  · simp_rw [measure_empty]
+  · exact fun t ⟨A, hA, B, hB, ht⟩ ↦ ht ▸ h A hA B hB
+  · intro t ht h_eq
+    rw [measure_compl ht (measure_ne_top μ t), measure_compl ht (h_eq ▸ measure_ne_top μ t), h_eq,
+      ← Set.univ_prod_univ, ← h Set.univ MeasurableSet.univ Set.univ MeasurableSet.univ]
+  · intro A h_disj h_meas h_eq
+    simp_rw [measure_iUnion h_disj h_meas, h_eq]
+
 lemma bayesInv_twoHypKernel (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (π : Measure Bool) [IsFiniteMeasure π] :
     ((twoHypKernel μ ν)†π) =ᵐ[π ∘ₘ twoHypKernel μ ν] twoHypKernelInv μ ν π := by
   symm
-  refine eq_bayesInv_of_compProd_eq _ ?_
-  ext s hs
-  rw [Measure.map_apply measurable_swap hs, Measure.compProd_apply, Measure.compProd_apply,
-    Measure.lintegral_bind (kernel.measurable _)]
-  rotate_left
-  · exact kernel.measurable_kernel_prod_mk_left hs
-  · exact measurable_swap hs
-  · exact hs
-  simp only [twoHypKernel_apply]
-  congr with b
-  cases b
-  · simp only [cond_false]
-    sorry
-  · simp only [cond_true]
-    sorry
+  refine eq_bayesInv_of_compProd_eq _ (measure_prod_ext fun A hA B hB ↦ ?_)
+  obtain (rfl | rfl | rfl | rfl) := Bool.cases_set_bool B
+  · simp
+  · rw [Measure.compProd_apply_prod hA hB, Measure.map_apply measurable_swap (hA.prod hB),
+      Set.preimage_swap_prod, Measure.compProd_apply_prod hB hA, lintegral_singleton,
+      twoHypKernel_apply, cond_true, setLIntegral_congr_fun hA _]
+    rotate_left
+    · exact fun x ↦ π {true} * (∂ν/∂π ∘ₘ ⇑(twoHypKernel μ ν)) x
+    · filter_upwards [twoHypKernelInv_apply' μ ν π {true}] with x hx
+      simp [hx]
+    simp_rw [mul_comm (π {true})]
+    by_cases h_zero : π {true} = 0
+    · simp [h_zero]
+    rw [setLIntegral_rnDeriv_mul (absolutelyContinuous_measure_comp_twoHypKernel_right μ ν h_zero)
+      aemeasurable_const hA]
+    simp [mul_comm]
+  · rw [Measure.compProd_apply_prod hA hB, Measure.map_apply measurable_swap (hA.prod hB),
+      Set.preimage_swap_prod, Measure.compProd_apply_prod hB hA, lintegral_singleton,
+      twoHypKernel_apply, cond_false, setLIntegral_congr_fun hA _]
+    rotate_left
+    · exact fun x ↦ π {false} * (∂μ/∂π ∘ₘ ⇑(twoHypKernel μ ν)) x
+    · filter_upwards [twoHypKernelInv_apply' μ ν π {false}] with x hx
+      simp [hx]
+    simp_rw [mul_comm (π {false})]
+    by_cases h_zero : π {false} = 0
+    · simp [h_zero]
+    rw [setLIntegral_rnDeriv_mul (absolutelyContinuous_measure_comp_twoHypKernel_left μ ν h_zero)
+      aemeasurable_const hA]
+    simp [mul_comm]
+  · rw [Measure.compProd_apply_prod hA hB, Measure.map_apply measurable_swap (hA.prod hB),
+      Set.preimage_swap_prod, Measure.compProd_apply_prod hB hA,
+      Bool.lintegral_bool, twoHypKernel_apply, twoHypKernel_apply, cond_false, cond_true,
+      Set.pair_comm, ← Bool.univ_eq]
+    simp only [measure_univ, lintegral_const, MeasurableSet.univ, Measure.restrict_apply,
+      Set.univ_inter, one_mul, Measure.restrict_univ]
+    rw [Measure.bind_apply hA (by exact fun _ _ ↦ hB), Bool.lintegral_bool]
+    simp
+
+lemma bayesRiskPrior_eq_of_hasGenBayesEstimator_binary (E : estimationProblem Bool 𝒳 Bool Bool)
+    [IsFiniteKernel E.P] (π : Measure Bool) [IsFiniteMeasure π] [h : HasGenBayesEstimator E π] :
+    bayesRiskPrior E π
+      = ∫⁻ x, ⨅ z, π {true} * (E.P true).rnDeriv (π ∘ₘ E.P) x * E.ℓ (E.y true, z)
+        + π {false} * (E.P false).rnDeriv (π ∘ₘ E.P) x * E.ℓ (E.y false, z) ∂π ∘ₘ E.P := by
+  simp_rw [bayesRiskPrior_eq_of_hasGenBayesEstimator]
+  have h1 := bayesInv_twoHypKernel (E.P false) (E.P true) π
+  have h2 : E.P = twoHypKernel (E.P false) (E.P true) := kernel_bool_eq_twoHypKernel E.P
+  have h3 : (E.P†π) = twoHypKernel (E.P false) (E.P true)†π := by congr
+  nth_rw 1 [h2]
+  nth_rw 4 [h2]
+  simp_rw [h3]
+  apply lintegral_congr_ae
+  filter_upwards [h1, twoHypKernelInv_apply_false (E.P false) (E.P true) π,
+    twoHypKernelInv_apply_true (E.P false) (E.P true) π] with x hx h_false h_true
+  congr with z
+  rw [Bool.lintegral_bool, hx, h_false, h_true, ← h2]
+  ring_nf
 
 end TwoHypKernel
 
 section SimpleBinaryHypTest
 
+/-- Simple binary hypothesis testing problem: a testing problem where `Θ = 𝒴 = 𝒵 = {0,1}`, `y` is
+the identity and the loss is `ℓ(y₀, z) = 𝕀{y₀ ≠ z}`. -/
 @[simps]
 noncomputable
 def simpleBinaryHypTest (μ ν : Measure 𝒳) : estimationProblem Bool 𝒳 Bool Bool where
@@ -242,6 +323,38 @@ lemma risk_simpleBinaryHypTest_false (μ ν : Measure 𝒳) (κ : kernel 𝒳 Bo
       exact absurd (h2.symm.trans h1) Bool.false_ne_true
   _ = (μ ∘ₘ ⇑κ) {true} := lintegral_indicator_one (measurableSet_singleton _)
 
+instance [IsFiniteMeasure μ] [IsFiniteMeasure ν] : IsFiniteKernel (simpleBinaryHypTest μ ν).P :=
+  simpleBinaryHypTest_P μ ν ▸ inferInstance
+
+instance [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
+    IsMarkovKernel (simpleBinaryHypTest μ ν).P := simpleBinaryHypTest_P μ ν ▸ inferInstance
+
+/-- The function `x ↦ 𝕀{π₀ * ∂μ/∂(π ∘ₘ twoHypKernel μ ν) x ≤ π₁ * ∂ν/∂(π ∘ₘ twoHypKernel μ ν) x}`.
+It is a Generalized Bayes estimator for the simple binary hypothesis testing problem. -/
+noncomputable
+def binaryGenBayesEstimator (μ ν : Measure 𝒳) (π : Measure Bool) : 𝒳 → Bool :=
+  let E : Set 𝒳 := {x | π {false} * μ.rnDeriv (π ∘ₘ twoHypKernel μ ν) x
+    ≤ π {true} * ν.rnDeriv (π ∘ₘ twoHypKernel μ ν) x}
+  fun x ↦ Bool.ofNat (E.indicator 1 x)
+
+lemma binaryGenBayesEstimator_isGenBayesEstimator (μ ν : Measure 𝒳) [IsFiniteMeasure μ]
+    [IsFiniteMeasure ν] (π : Measure Bool) [IsFiniteMeasure π] :
+    IsGenBayesEstimator (simpleBinaryHypTest μ ν) (binaryGenBayesEstimator μ ν π) π := by
+  refine ⟨?_, ?_⟩
+  · simp_rw [binaryGenBayesEstimator]
+    refine ((measurable_discrete _).comp' (measurable_one.indicator (measurableSet_le ?_ ?_)))
+      <;> fun_prop
+  · filter_upwards [bayesInv_twoHypKernel μ ν π, twoHypKernelInv_apply' μ ν π {true},
+      twoHypKernelInv_apply' μ ν π {false}] with x hx h_true h_false
+    refine le_antisymm (le_iInf fun b ↦ ?_) (iInf_le _ _)
+    cases b <;> by_cases
+      π {false} * (∂μ/∂π ∘ₘ ⇑(twoHypKernel μ ν)) x ≤ π {true} * (∂ν/∂π ∘ₘ ⇑(twoHypKernel μ ν)) x
+      <;> simp_all [Bool.lintegral_bool, binaryGenBayesEstimator, Bool.ofNat, -not_le, le_of_not_ge]
+
+noncomputable instance (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (π : Measure Bool) [IsFiniteMeasure π] : HasGenBayesEstimator (simpleBinaryHypTest μ ν) π :=
+  ⟨binaryGenBayesEstimator μ ν π, binaryGenBayesEstimator_isGenBayesEstimator μ ν π⟩
+
 end SimpleBinaryHypTest
 
 /-- The Bayes risk of simple binary hypothesis testing with respect to a prior. -/
@@ -261,51 +374,6 @@ lemma bayesBinaryRisk_eq (μ ν : Measure 𝒳) (π : Measure Bool) :
 
 variable {π : Measure Bool}
 
---rename this and put it in a better place
-lemma _root_.Bool.cases_set_bool (s : Set Bool) :
-    s = ∅ ∨ s = {true} ∨ s = {false} ∨ s = {true, false} := by
-  by_cases h1 : true ∈ s <;> by_cases h2 : false ∈ s
-  · refine Or.inr (Or.inr (Or.inr ?_))
-    ext x
-    induction x <;> simp [h1, h2]
-  · refine Or.inr (Or.inl ?_)
-    ext x
-    induction x <;> simp [h1, h2]
-  · refine Or.inr (Or.inr (Or.inl ?_))
-    ext x
-    induction x <;> simp [h1, h2]
-  · left
-    ext x
-    induction x <;> simp [h1, h2]
-
-@[ext]
-lemma _root_.MeasureTheory.Measure.measure_bool_ext {π₁ π₂ : Measure Bool}
-    (h_false : π₁ {false} = π₂ {false}) (h_true : π₁ {true} = π₂ {true}) : π₁ = π₂ := by
-  ext s
-  obtain (rfl | rfl | rfl | rfl) := Bool.cases_set_bool s
-    <;> try simp only [measure_empty, h_true, h_false]
-  rw [Set.insert_eq, measure_union, measure_union, h_true, h_false] <;> simp
-
-section BoolMeasure
---maybe it could be useful to have a notation for the construction of a measure on bool from the two values, for example:
-noncomputable
-def boolMeasure (a b : ℝ≥0∞) : Measure Bool := a • Measure.dirac false + b • Measure.dirac true
-
-@[simp]
-lemma boolMeasure_apply_false (a b : ℝ≥0∞) : boolMeasure a b {false} = a := by simp [boolMeasure]
-
-@[simp]
-lemma boolMeasure_apply_true (a b : ℝ≥0∞) : boolMeasure a b {true} = b := by simp [boolMeasure]
-
-lemma measure_eq_boolMeasure (π : Measure Bool) : π = boolMeasure (π {false}) (π {true}) := by
-  ext <;> simp
-
-lemma boolMeasure_withDensity (π : Measure Bool) (f : Bool → ℝ≥0∞) :
-    π.withDensity f = boolMeasure (f false * π {false}) (f true * π {true}) := by
-  ext <;> simp [lintegral_dirac, mul_comm]
-
-end BoolMeasure
-
 /-- `B (a•μ, b•ν; π) = B (μ, ν; (a*π₀, b*π₁)).` -/
 lemma bayesBinaryRisk_smul_smul (μ ν : Measure 𝒳) (π : Measure Bool) (a b : ℝ≥0∞) :
     bayesBinaryRisk (a • μ) (b • ν) π
@@ -313,8 +381,9 @@ lemma bayesBinaryRisk_smul_smul (μ ν : Measure 𝒳) (π : Measure Bool) (a b 
   simp [bayesBinaryRisk_eq, Measure.comp_smul_left, lintegral_dirac, mul_assoc]
 
 lemma bayesBinaryRisk_eq_bayesBinaryRisk_one_one (μ ν : Measure 𝒳) (π : Measure Bool) :
-    bayesBinaryRisk μ ν π = bayesBinaryRisk (π {false} • μ) (π {true} • ν) (boolMeasure 1 1) := by
-  rw [bayesBinaryRisk_smul_smul, measure_eq_boolMeasure π, boolMeasure_withDensity]
+    bayesBinaryRisk μ ν π
+      = bayesBinaryRisk (π {false} • μ) (π {true} • ν) (Bool.boolMeasure 1 1) := by
+  rw [bayesBinaryRisk_smul_smul, Bool.measure_eq_boolMeasure π, Bool.boolMeasure_withDensity]
   simp
 
 /-- **Data processing inequality** for the Bayes binary risk. -/
@@ -421,37 +490,48 @@ lemma bayesBinaryRisk_symm (μ ν : Measure 𝒳) (π : Measure Bool) :
     swap; trivial
     simp [h3, h4]
 
---TODO: lemma about the generalized bayes estimator for the binary case, we need to define the generalized bayes estimator first in the general case.
+lemma bayesianRisk_binary_of_deterministic_indicator (μ ν : Measure 𝒳) (π : Measure Bool)
+    {E : Set 𝒳} (hE : MeasurableSet E) :
+    bayesianRisk (simpleBinaryHypTest μ ν)
+      (kernel.deterministic (fun x ↦ Bool.ofNat (E.indicator 1 x))
+        ((measurable_discrete _).comp' (measurable_one.indicator hE))) π
+      = π {false} * μ E + π {true} * ν Eᶜ := by
+  have h_meas : Measurable fun x ↦ Bool.ofNat (E.indicator 1 x) :=
+    (measurable_discrete _).comp' (measurable_one.indicator hE)
+  have h1 : (fun x ↦ Bool.ofNat (E.indicator 1 x)) ⁻¹' {false} = Eᶜ := by
+    ext; simp [Bool.ofNat]
+  have h2 : (fun x ↦ Bool.ofNat (E.indicator 1 x)) ⁻¹' {true} = E := by
+    ext; simp [Bool.ofNat]
+  rw [bayesianRisk, Bool.lintegral_bool, mul_comm (π {false}), mul_comm (π {true})]
+  simp only [risk_simpleBinaryHypTest_false, MeasurableSpace.measurableSet_top,
+    risk_simpleBinaryHypTest_true]
+  simp_rw [Measure.comp_deterministic_eq_map, Measure.map_apply h_meas trivial, h1, h2]
 
-lemma bayesBinaryRisk_eq_iInf_measurableSet (μ ν : Measure 𝒳) (π : Measure Bool) :
+lemma bayesBinaryRisk_eq_iInf_measurableSet (μ ν : Measure 𝒳) [IsFiniteMeasure μ]
+    [IsFiniteMeasure ν] (π : Measure Bool) [IsFiniteMeasure π] :
     bayesBinaryRisk μ ν π = ⨅ E, ⨅ (_ : MeasurableSet E), π {false} * μ E + π {true} * ν Eᶜ := by
   apply le_antisymm
-  · simp_rw [le_iInf_iff, bayesBinaryRisk_eq]
+  · simp_rw [le_iInf_iff, bayesBinaryRisk, bayesRiskPrior]
     intro E hE
-    have h_meas : Measurable fun x ↦ Bool.ofNat (E.indicator 1 x) :=
-      (measurable_discrete _).comp' (measurable_one.indicator hE)
-    classical
-    let η : kernel 𝒳 Bool := kernel.deterministic (fun x ↦ Bool.ofNat (E.indicator 1 x)) h_meas
-    refine iInf_le_of_le η ?_
-    convert iInf_le _ (kernel.isMarkovKernel_deterministic _) using 1
-    have h1 : (fun x ↦ Bool.ofNat (E.indicator 1 x)) ⁻¹' {false} = Eᶜ := by
-      ext; simp [Bool.ofNat]
-    have h2 : (fun x ↦ Bool.ofNat (E.indicator 1 x)) ⁻¹' {true} = E := by
-      ext; simp [Bool.ofNat]
-    simp_rw [η, Measure.comp_deterministic_eq_map, Measure.map_apply h_meas trivial, h1, h2,
-      add_comm]
-  · --for this direction we need the generalized bayes estimator for the binary case
-    sorry
+    rw [← bayesianRisk_binary_of_deterministic_indicator _ _ _ hE]
+    exact iInf_le_of_le _ (iInf_le _ (kernel.isMarkovKernel_deterministic _))
+  · let E := {x | π {false} * (∂μ/∂π ∘ₘ ⇑(twoHypKernel μ ν)) x
+      ≤ π {true} * (∂ν/∂π ∘ₘ ⇑(twoHypKernel μ ν)) x}
+    have hE : MeasurableSet E := measurableSet_le (by fun_prop) (by fun_prop)
+    rw [bayesBinaryRisk, ← isBayesEstimator_of_isGenBayesEstimator
+      (binaryGenBayesEstimator_isGenBayesEstimator μ ν π), IsGenBayesEstimator.kernel]
+    simp_rw [binaryGenBayesEstimator, bayesianRisk_binary_of_deterministic_indicator _ _ _ hE]
+    exact iInf_le_of_le E (iInf_le _ hE)
 
---maybe we need some hp to make this work, things need to be finite
-lemma bayesBinaryRisk_eq_integral_min (μ ν : Measure 𝒳) (π : Measure Bool) :
+lemma bayesBinaryRisk_eq_integral_min (μ ν : Measure 𝒳) [IsFiniteMeasure μ]
+    [IsFiniteMeasure ν] (π : Measure Bool) [IsFiniteMeasure π] :
     bayesBinaryRisk μ ν π = ∫⁻ x, min (π {false} * μ.rnDeriv (π ∘ₘ twoHypKernel μ ν) x)
       (π {true} * ν.rnDeriv (π ∘ₘ twoHypKernel μ ν) x) ∂(π ∘ₘ twoHypKernel μ ν) := by
-  --we need the generalized bayes estimator for the binary case
-  sorry
+  simp_rw [bayesBinaryRisk, bayesRiskPrior_eq_of_hasGenBayesEstimator_binary, Bool.iInf_bool]
+  simp [min_comm]
 
-lemma toReal_bayesBinaryRisk_eq_integral_min (μ ν : Measure 𝒳) [SigmaFinite μ] [SigmaFinite ν]
-    (π : Measure Bool) [IsFiniteMeasure π] :
+lemma toReal_bayesBinaryRisk_eq_integral_min (μ ν : Measure 𝒳) [IsFiniteMeasure μ]
+    [IsFiniteMeasure ν] (π : Measure Bool) [IsFiniteMeasure π] :
     (bayesBinaryRisk μ ν π).toReal
       = ∫ x, min (π {false} * μ.rnDeriv (π ∘ₘ twoHypKernel μ ν) x).toReal
         (π {true} * ν.rnDeriv (π ∘ₘ twoHypKernel μ ν) x).toReal ∂(π ∘ₘ twoHypKernel μ ν) := by
