@@ -34,7 +34,7 @@ open scoped ENNReal NNReal
 namespace ProbabilityTheory
 
 variable {𝒳 𝒳' : Type*} {m𝒳 : MeasurableSpace 𝒳} {m𝒳' : MeasurableSpace 𝒳'}
-  {μ ν : Measure 𝒳} {p : ℝ≥0∞} (π : Measure Bool)
+  {μ ν : Measure 𝒳} {p : ℝ≥0∞} {π : Measure Bool}
 
 -- TODO: replace the min by a risk
 /-- The statistical information of the measures `μ` and `ν` with respect to
