@@ -128,7 +128,7 @@ The infimum over all Markov kernels in the definition of the Bayes risk of $\pi$
 
 \begin{lemma}
   \label{lem:bayesianRisk_bayesInv}
-  \lean{ProbabilityTheory.bayesianRisk_eq_bayesInv_prod}
+  \lean{ProbabilityTheory.bayesianRisk_eq_lintegral_bayesInv_prod}
   \leanok
   \uses{def:bayesianRisk, def:bayesInv}
   The Bayesian risk of a Markov kernel $\hat{y} : \mathcal X \rightsquigarrow \mathcal Z$ with respect to a prior $\pi \in \mathcal M(\Theta)$ on $(P, y, \ell')$ satisfies
@@ -206,7 +206,7 @@ R^P_\pi(\hat{y})
 
 \begin{lemma}
   \label{lem:bayesianRisk_genBayesEstimator}
-  \lean{ProbabilityTheory.bayesRisk_of_isGenBayesEstimator}
+  \lean{ProbabilityTheory.bayesianRisk_of_isGenBayesEstimator}
   \leanok
   \uses{def:bayesianRisk, def:genBayesEstimator}
   The Bayesian risk of the generalized Bayes estimator $\hat{y}_B$ is
