@@ -42,12 +42,17 @@ an objective function `y` on the parameter space and a cost function `ℓ`. -/
 @[ext]
 structure estimationProblem (Θ 𝒳 𝒴 𝒵 : Type*) [mΘ : MeasurableSpace Θ]
     [m𝒳 : MeasurableSpace 𝒳] [m𝒴 : MeasurableSpace 𝒴] [m𝒵 : MeasurableSpace 𝒵] :=
+  /-- The kernel that represents the family of candidate measures. -/
   P : kernel Θ 𝒳
+  /-- The objective function. -/
   y : Θ → 𝒴
   y_meas : Measurable y
+  /-- The cost (or loss) function. -/
   ℓ : 𝒴 × 𝒵 → ℝ≥0∞
   ℓ_meas : Measurable ℓ
 
+/-- Given an estimation problem `E` and a kernel `η : 𝒳 ⇝ 𝒳'`, we can consider a new estimation
+problem where the kernel is given by the composition between `η` and `E.P`. -/
 @[simps]
 noncomputable
 def estimationProblem.comp (E : estimationProblem Θ 𝒳 𝒴 𝒵) (η : kernel 𝒳 𝒳') :
@@ -58,6 +63,8 @@ def estimationProblem.comp (E : estimationProblem Θ 𝒳 𝒴 𝒵) (η : kerne
   ℓ := E.ℓ
   ℓ_meas := E.ℓ_meas
 
+/-- Given an estimation problem `E` and a measurable function `f : Θ' → Θ`, we can consider a new
+estimation problem where the kernel is given by the pullback of `E.P` through `f`. -/
 @[simps]
 noncomputable
 def estimationProblem.comap (E : estimationProblem Θ 𝒳 𝒴 𝒵) (f : Θ' → Θ) (hf : Measurable f) :
@@ -74,6 +81,8 @@ lemma estimationProblem.comp_comp (E : estimationProblem Θ 𝒳 𝒴 𝒵) (κ 
     (E.comp κ).comp η = E.comp (η ∘ₖ κ) := by
   ext <;> simp [kernel.comp_assoc]
 
+/-- Given an estimation problem `E` and a kernel `κ : (Θ × 𝒳) ⇝ 𝒳'`, we can consider a new
+estimation problem where the kernel is given by the composition product of `E.P` and `κ`. -/
 @[simps]
 noncomputable
 def estimationProblem.compProd (E : estimationProblem Θ 𝒳 𝒴 𝒵) (κ : kernel (Θ × 𝒳) 𝒳') :
@@ -232,13 +241,17 @@ lemma bayesianRisk_ge_lintegral_iInf_bayesInv [StandardBorelSpace Θ] [Nonempty 
 
 /-! ### Generalized Bayes estimator -/
 
---NB: I had to chenge the definition, now the property only has to hold a.e., is it ok? I need that so that I can prove that the estimator for the binary case is a generalized bayes estimator and we only have properties for E.P†π a.e.
+/-- We say that a measurable function `f : 𝒳 → 𝒵` is a Generalized Bayes estimator for the
+estimation problem `E` with respect to the prior `π` if for `(π ∘ₘ E.P)`-almost every `x` it is of
+the form `x ↦ argmin_z P†π(x)[θ ↦ ℓ(y(θ), z)]`.-/
 structure IsGenBayesEstimator [StandardBorelSpace Θ] [Nonempty Θ]
     (E : estimationProblem Θ 𝒳 𝒴 𝒵) [IsFiniteKernel E.P] (f : 𝒳 → 𝒵)
     (π : Measure Θ) [IsFiniteMeasure π] : Prop where
   measurable : Measurable f
-  property : ∀ᵐ x ∂π ∘ₘ E.P, ∫⁻ θ, E.ℓ (E.y θ, f x) ∂(E.P†π) x = ⨅ z, ∫⁻ θ, E.ℓ (E.y θ, z) ∂(E.P†π) x
+  property : ∀ᵐ x ∂π ∘ₘ E.P, ∫⁻ θ, E.ℓ (E.y θ, f x) ∂(E.P†π) x
+    = ⨅ z, ∫⁻ θ, E.ℓ (E.y θ, z) ∂(E.P†π) x
 
+/-- Given a Generalized Bayes estimator `f`, we can define a deterministic kernel. -/
 noncomputable
 abbrev IsGenBayesEstimator.kernel [StandardBorelSpace Θ] [Nonempty Θ]
     {E : estimationProblem Θ 𝒳 𝒴 𝒵} [IsFiniteKernel E.P] {π : Measure Θ} [IsFiniteMeasure π]
@@ -246,7 +259,7 @@ abbrev IsGenBayesEstimator.kernel [StandardBorelSpace Θ] [Nonempty Θ]
   kernel.deterministic f h.measurable
 
 lemma bayesianRisk_of_isGenBayesEstimator [StandardBorelSpace Θ] [Nonempty Θ]
-    (E : estimationProblem Θ 𝒳 𝒴 𝒵) [IsFiniteKernel E.P] (π : Measure Θ) [IsFiniteMeasure π]
+    {E : estimationProblem Θ 𝒳 𝒴 𝒵} [IsFiniteKernel E.P] {π : Measure Θ} [IsFiniteMeasure π]
     {f : 𝒳 → 𝒵} (hf : IsGenBayesEstimator E f π) :
     bayesianRisk E hf.kernel π
       = ∫⁻ x, ⨅ z, ∫⁻ θ, E.ℓ (E.y θ, z) ∂(E.P†π) x ∂π ∘ₘ E.P := by
@@ -259,18 +272,20 @@ lemma bayesianRisk_of_isGenBayesEstimator [StandardBorelSpace Θ] [Nonempty Θ]
     lintegral_dirac' _ (Measurable.lintegral_prod_left (by fun_prop))]
 
 lemma isBayesEstimator_of_isGenBayesEstimator [StandardBorelSpace Θ] [Nonempty Θ]
-    (E : estimationProblem Θ 𝒳 𝒴 𝒵) [IsFiniteKernel E.P] (π : Measure Θ) [IsFiniteMeasure π]
+    {E : estimationProblem Θ 𝒳 𝒴 𝒵} [IsFiniteKernel E.P] {π : Measure Θ} [IsFiniteMeasure π]
     {f : 𝒳 → 𝒵} (hf : IsGenBayesEstimator E f π) :
     IsBayesEstimator E hf.kernel π := by
   simp_rw [IsBayesEstimator, bayesRiskPrior]
   apply le_antisymm
-  · rw [bayesianRisk_of_isGenBayesEstimator E π hf]
+  · rw [bayesianRisk_of_isGenBayesEstimator hf]
     simp_all [bayesianRisk_ge_lintegral_iInf_bayesInv]
   · refine iInf_le_of_le hf.kernel ?_
     exact iInf_le _ (kernel.isMarkovKernel_deterministic hf.measurable)
 
+/-- The estimation problem `E` admits a Generalized Bayes estimator with respect to the prior `π`. -/
 class HasGenBayesEstimator [StandardBorelSpace Θ] [Nonempty Θ] (E : estimationProblem Θ 𝒳 𝒴 𝒵)
     [IsFiniteKernel E.P] (π : Measure Θ) [IsFiniteMeasure π]  where
+  /-- The Generalized Bayes estimator. -/
   estimator : 𝒳 → 𝒵
   property : IsGenBayesEstimator E estimator π
 
@@ -278,10 +293,12 @@ lemma bayesRiskPrior_eq_of_hasGenBayesEstimator [StandardBorelSpace Θ] [Nonempt
     (E : estimationProblem Θ 𝒳 𝒴 𝒵) [IsFiniteKernel E.P] (π : Measure Θ) [IsFiniteMeasure π]
     [h : HasGenBayesEstimator E π] :
     bayesRiskPrior E π = ∫⁻ x, ⨅ z, ∫⁻ θ, E.ℓ (E.y θ, z) ∂((E.P†π) x) ∂(π ∘ₘ E.P) := by
-  rw [← isBayesEstimator_of_isGenBayesEstimator E π h.property, bayesianRisk_of_isGenBayesEstimator]
+  rw [← isBayesEstimator_of_isGenBayesEstimator h.property, bayesianRisk_of_isGenBayesEstimator]
 
 /-! ### Bayes risk increase -/
 
+/-- The Bayes risk increase of an estimation problem `E` with respect to a prior `π` and a kernel
+`η` gives us how much the composition with `η` increases the risk of `E` with respect to `π`. -/
 noncomputable
 def bayesRiskIncrease (E : estimationProblem Θ 𝒳 𝒴 𝒵) (π : Measure Θ) (η : kernel 𝒳 𝒳') : ℝ≥0∞ :=
   bayesRiskPrior (E.comp η) π - bayesRiskPrior E π
