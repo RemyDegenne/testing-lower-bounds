@@ -109,8 +109,8 @@ TODO: ``often'', $\mathcal R^*_B = \mathcal R^*$.
 
 \begin{lemma}
   \label{lem:bayesRisk_le_const}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.bayesRiskPrior_le_inf}
+  \leanok
   \uses{def:bayesRisk}
   The Bayes risk of a prior $\pi \in \mathcal M(\Theta)$ on $(P, y, \ell')$ with $P$ a Markov kernel satisfies
   \begin{align*}
@@ -119,7 +119,7 @@ TODO: ``often'', $\mathcal R^*_B = \mathcal R^*$.
   \end{align*}
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{}
 The infimum over all Markov kernels in the definition of the Bayes risk of $\pi$ is bounded from above by the infimum restricted to constant, deterministic Markov kernels.
 \end{proof}
@@ -128,8 +128,8 @@ The infimum over all Markov kernels in the definition of the Bayes risk of $\pi$
 
 \begin{lemma}
   \label{lem:bayesianRisk_bayesInv}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.bayesianRisk_eq_bayesInv_prod}
+  \leanok
   \uses{def:bayesianRisk, def:bayesInv}
   The Bayesian risk of a Markov kernel $\hat{y} : \mathcal X \rightsquigarrow \mathcal Z$ with respect to a prior $\pi \in \mathcal M(\Theta)$ on $(P, y, \ell')$ satisfies
   \begin{align*}
@@ -138,31 +138,36 @@ The infimum over all Markov kernels in the definition of the Bayes risk of $\pi$
   In that expression, $P_\pi^\dagger$ is the Bayesian inverse of $P$ with respect to $\pi$.
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{}
-Use the main property of the Bayesian inverse:
+Use the main property of the Bayesian inverse.
 \begin{align*}
-(P_\pi^\dagger \times \hat{y}) \circ P \circ \pi
-&= swap \circ (\hat{y} \times P_\pi^\dagger) \circ (P \circ \pi)
-\\
-&= swap \circ (\hat{y} \parallel \mathrm{id}) \circ (\mathrm{id} \times P_\pi^\dagger) \circ (P \circ \pi)
-\\
-&= swap \circ (\hat{y} \parallel \mathrm{id}) \circ \left((P \circ \pi) \otimes P_\pi^\dagger\right)
-\\
-&= swap \circ (\hat{y} \parallel \mathrm{id}) \circ \left(\pi \otimes P\right)
-\\
-&= (\mathrm{id} \parallel \hat{y}) \circ \left(\pi \otimes P\right)
-\\
-&= \pi \otimes (\hat{y} \circ P)
-\: .
-\end{align*}
-
+  (P_\pi^\dagger \times \hat{y}) \circ P \circ \pi
+  &= swap \circ (\hat{y} \times P_\pi^\dagger) \circ (P \circ \pi)
+  \\
+  &= swap \circ (\hat{y} \parallel P_\pi^\dagger) \circ copy \circ (P \circ \pi)
+  \\
+  &= swap \circ (\hat{y} \parallel \mathrm{id}) \circ (\mathrm{id} \parallel P_\pi^\dagger) \circ copy \circ (P \circ \pi)
+  \\
+  &= swap \circ (\hat{y} \parallel \mathrm{id}) \circ (P \parallel \mathrm{id}) \circ copy \circ \pi
+  \\
+  &= (\mathrm{id} \parallel \hat{y}) \circ (P \parallel \mathrm{id}) \circ swap \circ copy \circ \pi
+  \\
+  &= (\mathrm{id} \parallel \hat{y}) \circ (P \parallel \mathrm{id}) \circ copy \circ \pi
+  \\
+  &= (P \parallel \hat{y}) \circ copy \circ \pi
+  \\
+  &= (P \times \hat{y}) \circ \pi
+  \\
+  &= \pi \otimes (\hat{y} \circ P)
+  \: .
+  \end{align*}
 \end{proof}
 
 \begin{lemma}
   \label{lem:bayesianRisk_ge_inf_bayesInv}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.bayesianRisk_ge_lintegral_iInf_bayesInv}
+  \leanok
   \uses{def:bayesianRisk, def:bayesInv}
   The Bayesian risk of a Markov kernel $\hat{y} : \mathcal X \rightsquigarrow \mathcal Z$ with respect to a prior $\pi \in \mathcal M(\Theta)$ on $(P, y, \ell')$ satisfies
   \begin{align*}
@@ -170,7 +175,7 @@ Use the main property of the Bayesian inverse:
   \end{align*}
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{lem:bayesianRisk_bayesInv}
 Starting from the equality of Lemma~\ref{lem:bayesianRisk_bayesInv}, we get
 \begin{align*}
@@ -189,8 +194,8 @@ R^P_\pi(\hat{y})
 
 \begin{definition}[Generalized Bayes estimator]
   \label{def:genBayesEstimator}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.IsGenBayesEstimator}
+  \leanok
   \uses{def:risk,def:bayesInv}
   The generalized Bayes estimator for prior $\pi \in \mathcal P(\Theta)$ on $(P, y, \ell')$ is the deterministic estimator $\mathcal X \to \mathcal Z$ given by
   \begin{align*}
@@ -201,8 +206,8 @@ R^P_\pi(\hat{y})
 
 \begin{lemma}
   \label{lem:bayesianRisk_genBayesEstimator}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.bayesRisk_of_isGenBayesEstimator}
+  \leanok
   \uses{def:bayesianRisk, def:genBayesEstimator}
   The Bayesian risk of the generalized Bayes estimator $\hat{y}_B$ is
   \begin{align*}
@@ -211,15 +216,15 @@ R^P_\pi(\hat{y})
   \end{align*}
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{lem:bayesianRisk_bayesInv}
 Start from the equality of Lemma~\ref{lem:bayesianRisk_bayesInv} and use the definition of the generalized Bayes estimator.
 \end{proof}
 
 \begin{theorem}
   \label{thm:isBayesEstimator_genBayesEstimator}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.isBayesEstimator_of_isGenBayesEstimator, ProbabilityTheory.bayesRiskPrior_eq_of_hasGenBayesEstimator}
+  \leanok
   \uses{def:bayesEstimator, def:genBayesEstimator, def:bayesRisk}
   When the generalized Bayes estimator is well defined, it is a Bayes estimator. The value of the Bayes risk with respect to the prior $\pi \in \mathcal M(\Theta)$ is then
   \begin{align*}
@@ -228,7 +233,7 @@ Start from the equality of Lemma~\ref{lem:bayesianRisk_bayesInv} and use the def
   \end{align*}
 \end{theorem}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{lem:bayesianRisk_ge_inf_bayesInv, lem:bayesianRisk_genBayesEstimator}
 By Lemma~\ref{lem:bayesianRisk_ge_inf_bayesInv}, the Bayesian risk of the generalized Bayes estimator obtained in Lemma~\ref{lem:bayesianRisk_genBayesEstimator} is a lower bound for the Bayesian risk.
 \end{proof}
@@ -260,13 +265,13 @@ The inequality is due to taking an infimum over a larger set: $\{\hat{y} \circ \
 
 \begin{lemma}
   \label{lem:bayesRisk_compProd_le_fst}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.bayesRiskPrior_compProd_le_bayesRiskPrior}
+  \leanok
   \uses{def:bayesRisk}
   For $P : \Theta \rightsquigarrow \mathcal X$ and $\kappa : \Theta \times \mathcal X \rightsquigarrow \mathcal X'$ a Markov kernel, $\mathcal R^{P \otimes \kappa}_\pi \le \mathcal R^{P}_\pi$~.
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{thm:data_proc_bayesRisk}
 Use Theorem~\ref{thm:data_proc_bayesRisk}: $P$ is the composition of $P \otimes \kappa$ and the deterministic kernel $\mathcal X \times \mathcal X' \rightsquigarrow \mathcal X$ that forgets the second value.
 \end{proof}
@@ -375,8 +380,8 @@ I^P_\pi(\kappa) + I^{\kappa \circ P}_\pi(\eta)
 
 \begin{lemma}[Data-processing inequality]
   \label{lem:riskIncrease_comp_del}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.bayesRiskIncrease_discard_comp_le_bayesRiskIncrease}
+  \leanok
   \uses{def:riskIncrease}
   For any measurable space $\mathcal X$, let $d_{\mathcal X} : \mathcal X \rightsquigarrow *$ be the Markov kernel to the point space.
   For all Markov kernels $\kappa : \mathcal X \rightsquigarrow \mathcal X'$,
@@ -385,7 +390,7 @@ I^P_\pi(\kappa) + I^{\kappa \circ P}_\pi(\eta)
   \end{align*}
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{lem:riskIncrease_comp, lem:riskIncrease_nonneg}
 By Lemma~\ref{lem:riskIncrease_comp}, then Lemma~\ref{lem:riskIncrease_nonneg},
 \begin{align*}
@@ -414,15 +419,15 @@ In this section, for a measure $\xi$ on $\{0,1\}$, we write $\xi_0$ for $\xi(\{0
   The Bayesian inverse of a kernel $P : \{0,1\} \rightsquigarrow \mathcal X$ with respect to a prior $\xi \in \mathcal M(\{0,1\})$ is $P_\xi^\dagger(x) = \left(\xi_0\frac{d P(0)}{d(P \circ \xi)}(x), \xi_1\frac{d P(1)}{d(P \circ \xi)}(x)\right)$ (almost surely w.r.t. $P \circ \xi = \xi_0 P(0) + \xi_1 P(1)$).
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{lem:eq_bayesInv_of_compProd_eq}
 
 \end{proof}
 
 \begin{lemma}
   \label{lem:bayesRisk_binary}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.bayesRiskPrior_eq_of_hasGenBayesEstimator_binary}
+  \leanok
   \uses{def:bayesRisk}
   For $\Theta = \{0,1\}$, the Bayes risk of a prior $\xi \in \mathcal M(\{0,1\})$ is
   \begin{align*}
@@ -431,7 +436,7 @@ In this section, for a measure $\xi$ on $\{0,1\}$, we write $\xi_0$ for $\xi(\{0
   \end{align*}
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{lem:bayesInv_binary, thm:isBayesEstimator_genBayesEstimator}
 Use Theorem~\ref{thm:isBayesEstimator_genBayesEstimator}, with the value of $P_\xi^\dagger$ given by Lemma~\ref{lem:bayesInv_binary}.
 \end{proof}
@@ -567,13 +572,13 @@ Then applying the DPI (Theorem~\ref{thm:data_proc_bayesBinaryRisk}), followed by
 
 \begin{lemma}
   \label{lem:genBayesEstimator_bayesBinaryRisk}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.binaryGenBayesEstimator_isGenBayesEstimator}
+  \leanok
   \uses{def:genBayesEstimator, def:bayesBinaryRisk}
   The generalized Bayes estimator for the Bayes binary risk with prior $\xi \in \mathcal M(\{0,1\})$ is $x \mapsto \text{if } \xi_1\frac{d \nu}{d(P \circ \xi)}(x) \le \xi_0\frac{d \mu}{d(P \circ \xi)}(x) \text{ then } 0 \text{ else } 1$, i.e. it is equal to $\mathbb{I}_E$ for $E = \{x \mid \xi_1\frac{d \nu}{d(P \circ \xi)}(x) > \xi_0\frac{d \mu}{d(P \circ \xi)}(x)\}$~.
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{lem:bayesInv_binary}
 The generalized Bayes estimator is defined by
 \begin{align*}
@@ -594,15 +599,15 @@ The expression of the lemma statement is obtained by replacing $P_\xi^\dagger$ b
 
 \begin{lemma}
   \label{lem:bayesBinaryRisk_eq_event}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.bayesBinaryRisk_eq_iInf_measurableSet}
+  \leanok
   \uses{def:bayesRisk}
   \begin{align*}
   \mathcal B_\xi(\mu, \nu) = \inf_{E \text{ event}} \left( \xi_0 \mu(E) + \xi_1 \nu(E^c) \right) \: .
   \end{align*}
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{lem:genBayesEstimator_bayesBinaryRisk}
 By definition,
 \begin{align*}
@@ -618,8 +623,8 @@ Since the Bayes estimator has that shape (Lemma~\ref{lem:genBayesEstimator_bayes
 
 \begin{theorem}
   \label{thm:bayesBinaryRisk_eq}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.bayesBinaryRisk_eq_integral_min, ProbabilityTheory.toReal_bayesBinaryRisk_eq_integral_min}
+  \leanok
   \uses{def:bayesBinaryRisk}
   The Bayes risk of simple binary hypothesis testing for prior $\xi \in \mathcal M(\{0,1\})$ is
   \begin{align*}
@@ -628,7 +633,7 @@ Since the Bayes estimator has that shape (Lemma~\ref{lem:genBayesEstimator_bayes
   \end{align*}
 \end{theorem}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{lem:bayesianRisk_genBayesEstimator, thm:isBayesEstimator_genBayesEstimator, lem:bayesInv_binary}
 By Theorem~\ref{thm:isBayesEstimator_genBayesEstimator}, the generalized Bayes estimator is a Bayes estimator, hence it suffices to compute its Bayesian risk.
 By Lemma~\ref{lem:bayesianRisk_genBayesEstimator},
@@ -646,8 +651,8 @@ The last line is obtained by replacing $P_\xi^\dagger$ by its value (Lemma~\ref{
 
 \begin{corollary}
   \label{cor:bayesBinaryRisk_eq_abs}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.toReal_bayesBinaryRisk_eq_integral_abs}
+  \leanok
   \uses{def:bayesBinaryRisk}
   \begin{align*}
   \mathcal B_\xi(\mu, \nu) = \frac{1}{2}\left((P \circ \xi)(\mathcal X) -  (P \circ \xi)\left[x \mapsto \left\vert \xi_0\frac{d \mu}{d(P \circ \xi)}(x) - \xi_1\frac{d \nu}{d(P \circ \xi)}(x)\right\vert\right] \right)
@@ -655,7 +660,7 @@ The last line is obtained by replacing $P_\xi^\dagger$ by its value (Lemma~\ref{
   \end{align*}
 \end{corollary}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{thm:bayesBinaryRisk_eq}
 Use Theorem~\ref{thm:bayesBinaryRisk_eq} and the equality $\min\{a,b\} = \frac{1}{2}(a + b - \vert a - b \vert)$.
 \end{proof}
