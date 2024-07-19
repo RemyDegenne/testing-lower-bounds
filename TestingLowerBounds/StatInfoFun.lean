@@ -3,10 +3,10 @@ Copyright (c) 2024 Lorenzo Luccioli. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import TestingLowerBounds.ForMathlib.ByParts
-import TestingLowerBounds.ForMathlib.LeftRightDeriv
-import Mathlib.MeasureTheory.Integral.FundThmCalculus
-import Mathlib.MeasureTheory.Constructions.Prod.Integral
+import Mathlib.MeasureTheory.Measure.Stieltjes
+import TestingLowerBounds.DerivAtTop
+import Mathlib.Algebra.Lie.OfAssociative
+import Mathlib.MeasureTheory.Measure.Regular
 
 open MeasureTheory Set Filter Topology StieltjesFunction
 
@@ -196,13 +196,6 @@ lemma derivAtTop_statInfoFun_ne_top (β γ : ℝ) : derivAtTop (fun x ↦ statIn
 
 end derivAtTop
 
-lemma integrable_statInfoFun_rnDeriv (β γ : ℝ)
-    (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
-    Integrable (fun x ↦ statInfoFun β γ ((∂μ/∂ν) x).toReal) ν := by
-  refine integrable_f_rnDeriv_of_derivAtTop_ne_top _ _ stronglyMeasurable_statInfoFun3
-    ?_ (derivAtTop_statInfoFun_ne_top β γ)
-  exact (convexOn_statInfoFun β γ).subset (fun _ _ ↦ trivial) (convex_Ici 0)
-
 end statInfoFun_x
 
 section statInfoFun_γ
@@ -334,141 +327,5 @@ lemma integrable_statInfoFun {μ : Measure ℝ} [IsLocallyFiniteMeasure μ] (β 
   exact (measure_mono uIoc_subset_uIcc).trans_lt isCompact_uIcc.measure_lt_top |>.ne
 
 end statInfoFun_γ
-
-section fDiv
-
-lemma nnReal_mul_fDiv {a : NNReal} :
-    a * fDiv (statInfoFun β γ) μ ν = fDiv (fun x ↦ statInfoFun (a * β) (a * γ) x) μ ν := by
-  change (a.1 : EReal) * _ = _
-  rw [← fDiv_mul a.2 ((convexOn_statInfoFun β γ).subset (fun _ _ ↦ trivial) (convex_Ici 0)) μ ν]
-  simp_rw [const_mul_statInfoFun a.2]
-  rfl
-
-lemma fDiv_statInfoFun_eq_integral_max_of_nonneg_of_le [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (hβ : 0 ≤ β) (hγ : γ ≤ β) :
-    fDiv (statInfoFun β γ) μ ν = ∫ x, max 0 (γ - β * ((∂μ/∂ν) x).toReal) ∂ν := by
-  simp_rw [fDiv_of_integrable (integrable_statInfoFun_rnDeriv _ _ _ _),
-    derivAtTop_statInfoFun_of_nonneg_of_le hβ hγ, zero_mul, add_zero, statInfoFun_of_le hγ]
-
-lemma fDiv_statInfoFun_eq_integral_max_of_nonneg_of_gt [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (hβ : 0 ≤ β) (hγ : β < γ) :
-    fDiv (statInfoFun β γ) μ ν
-      = ∫ x, max 0 (β * ((∂μ/∂ν) x).toReal - γ) ∂ν + β * (μ.singularPart ν) univ := by
-  simp_rw [fDiv_of_integrable (integrable_statInfoFun_rnDeriv _ _ _ _),
-    derivAtTop_statInfoFun_of_nonneg_of_gt hβ hγ, statInfoFun_of_gt hγ]
-
-lemma fDiv_statInfoFun_eq_integral_max_of_nonpos_of_le [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (hβ : β ≤ 0) (hγ : γ ≤ β) :
-    fDiv (statInfoFun β γ) μ ν
-      = ∫ x, max 0 (γ - β * ((∂μ/∂ν) x).toReal) ∂ν - β * (μ.singularPart ν) univ := by
-  simp_rw [fDiv_of_integrable (integrable_statInfoFun_rnDeriv _ _ _ _),
-    derivAtTop_statInfoFun_of_nonpos_of_le hβ hγ, statInfoFun_of_le hγ, neg_mul, ← sub_eq_add_neg]
-
-lemma fDiv_statInfoFun_eq_integral_max_of_nonpos_of_gt [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (hβ : β ≤ 0) (hγ : β < γ) :
-    fDiv (statInfoFun β γ) μ ν = ∫ x, max 0 (β * ((∂μ/∂ν) x).toReal - γ) ∂ν := by
-  simp_rw [fDiv_of_integrable (integrable_statInfoFun_rnDeriv _ _ _ _),
-    derivAtTop_statInfoFun_of_nonpos_of_gt hβ hγ, statInfoFun_of_gt hγ, zero_mul, add_zero]
-
-/-- Auxiliary lemma for `fDiv_statInfoFun_eq_integral_abs_of_nonneg_of_le` and
-`fDiv_statInfoFun_eq_integral_abs_of_nonpos_of_le`. -/
-lemma integral_max_eq_integral_abs [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
-    ∫ x, max 0 (γ - β * ((∂μ/∂ν) x).toReal) ∂ν
-      = 2⁻¹ * (∫ x, |β * ((∂μ/∂ν) x).toReal - γ| ∂ν + γ * (ν univ).toReal - β * (μ univ).toReal
-        + β * ((μ.singularPart ν) univ).toReal) := by
-  simp_rw [max_eq_add_add_abs_sub, zero_add, zero_sub, neg_sub, integral_mul_left]
-  congr
-  have h_int : Integrable (fun x ↦ β * ((∂μ/∂ν) x).toReal) ν :=
-    Measure.integrable_toReal_rnDeriv.const_mul _
-  have h_int' : Integrable (fun x ↦ γ - β * ((∂μ/∂ν) x).toReal) ν := (integrable_const γ).sub h_int
-  rw [integral_add h_int', integral_sub (integrable_const γ) h_int, integral_const, smul_eq_mul,
-    mul_comm, integral_mul_left, add_comm, add_sub_assoc, add_assoc, sub_eq_add_neg, sub_eq_add_neg,
-    add_assoc, ← mul_neg, ← mul_neg, ← mul_add]
-  swap; · exact (integrable_add_const_iff.mpr h_int).abs
-  congr
-  nth_rw 2 [Measure.haveLebesgueDecomposition_add μ ν]
-  simp only [Measure.coe_add, Pi.add_apply, MeasurableSet.univ, withDensity_apply,
-    Measure.restrict_univ]
-  rw [ENNReal.toReal_add (measure_ne_top _ _)]
-  swap; · exact lt_top_iff_ne_top.mp <| (setLIntegral_univ _ ▸
-    Measure.setLIntegral_rnDeriv_le univ).trans_lt IsFiniteMeasure.measure_univ_lt_top
-  ring_nf
-  rw [integral_toReal (Measure.measurable_rnDeriv μ ν).aemeasurable (Measure.rnDeriv_lt_top μ ν)]
-
-/-- Auxiliary lemma for `fDiv_statInfoFun_eq_integral_abs_of_nonneg_of_gt` and
-`fDiv_statInfoFun_eq_integral_abs_of_nonpos_of_gt`. -/
-lemma integral_max_eq_integral_abs' [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
-    ∫ x, max 0 (β * ((∂μ/∂ν) x).toReal - γ) ∂ν
-      = 2⁻¹ * (∫ x, |β * ((∂μ/∂ν) x).toReal - γ| ∂ν - γ * (ν univ).toReal + β * (μ univ).toReal
-        - β * ((μ.singularPart ν) univ).toReal) := by
-  simp_rw [max_eq_add_add_abs_sub, zero_add, zero_sub, abs_neg, integral_mul_left]
-  congr
-  have h_int : Integrable (fun x ↦ β * ((∂μ/∂ν) x).toReal) ν :=
-    Measure.integrable_toReal_rnDeriv.const_mul _
-  have h_int' : Integrable (fun x ↦ β * ((∂μ/∂ν) x).toReal - γ) ν := h_int.sub (integrable_const γ)
-  rw [integral_add h_int', integral_sub h_int (integrable_const γ), integral_const, smul_eq_mul,
-    mul_comm, integral_mul_left, add_comm, add_sub_assoc, sub_eq_add_neg, add_comm (β * _),
-    ← add_assoc, ← sub_eq_add_neg]
-  swap; · exact (h_int.sub (integrable_const _)).abs
-  congr
-  nth_rw 2 [Measure.haveLebesgueDecomposition_add μ ν]
-  simp only [Measure.coe_add, Pi.add_apply, MeasurableSet.univ, withDensity_apply,
-    Measure.restrict_univ]
-  rw [ENNReal.toReal_add (measure_ne_top _ _)]
-  swap; · exact lt_top_iff_ne_top.mp <| (setLIntegral_univ _ ▸
-    Measure.setLIntegral_rnDeriv_le univ).trans_lt IsFiniteMeasure.measure_univ_lt_top
-  ring_nf
-  rw [integral_toReal (Measure.measurable_rnDeriv μ ν).aemeasurable (Measure.rnDeriv_lt_top μ ν)]
-
-lemma fDiv_statInfoFun_eq_integral_abs_of_nonneg_of_le [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (hβ : 0 ≤ β) (hγ : γ ≤ β) :
-    fDiv (statInfoFun β γ) μ ν = (2 : ℝ)⁻¹ * (∫ x, |β * ((∂μ/∂ν) x).toReal - γ| ∂ν
-      + β * (μ.singularPart ν) univ + γ * ν univ - β * μ univ) := by
-  rw [fDiv_statInfoFun_eq_integral_max_of_nonneg_of_le hβ hγ, integral_max_eq_integral_abs,
-    sub_eq_add_neg, add_assoc, add_comm (- _), ← add_assoc, ← sub_eq_add_neg, add_assoc,
-    add_comm (_ * _), add_assoc]
-  simp only [EReal.coe_mul, EReal.coe_sub, EReal.coe_add,
-    EReal.coe_ennreal_toReal (measure_ne_top _ _)]
-
-lemma fDiv_statInfoFun_eq_integral_abs_of_nonneg_of_gt [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (hβ : 0 ≤ β) (hγ : β < γ) :
-    fDiv (statInfoFun β γ) μ ν = (2 : ℝ)⁻¹ * (∫ x, |β * ((∂μ/∂ν) x).toReal - γ| ∂ν
-      + β * (μ.singularPart ν) univ + β * μ univ - γ * ν univ) := by
-  have h_eq :
-      (β : EReal) * ((μ.singularPart ν) univ)
-        = ↑(2⁻¹ * (2 * β * ((μ.singularPart ν) univ).toReal)) := by
-    simp [mul_assoc, EReal.coe_ennreal_toReal (measure_ne_top _ _)]
-  rw [fDiv_statInfoFun_eq_integral_max_of_nonneg_of_gt hβ hγ, integral_max_eq_integral_abs', h_eq,
-    ← EReal.coe_add, ← mul_add, EReal.coe_mul]
-  simp_rw [← EReal.coe_ennreal_toReal (measure_ne_top _ _), ← EReal.coe_mul, sub_eq_add_neg,
-    ← EReal.coe_neg, ← EReal.coe_add, add_assoc]
-  congr 3
-  ring
-
-lemma fDiv_statInfoFun_eq_integral_abs_of_nonpos_of_le [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (hβ : β ≤ 0) (hγ : γ ≤ β) :
-    fDiv (statInfoFun β γ) μ ν = (2 : ℝ)⁻¹ * (∫ x, |β * ((∂μ/∂ν) x).toReal - γ| ∂ν
-      - β * (μ.singularPart ν) univ + γ * ν univ - β * μ univ) := by
-  have h_eq :
-      (β : EReal) * ((μ.singularPart ν) univ)
-        = ↑(2⁻¹ * (2 * β * ((μ.singularPart ν) univ).toReal)) := by
-    simp [mul_assoc, EReal.coe_ennreal_toReal (measure_ne_top _ _)]
-  rw [fDiv_statInfoFun_eq_integral_max_of_nonpos_of_le hβ hγ, integral_max_eq_integral_abs, h_eq,
-    sub_eq_add_neg, ← EReal.coe_neg, ← EReal.coe_add, ← mul_neg, ← mul_add, EReal.coe_mul]
-  simp_rw [← EReal.coe_ennreal_toReal (measure_ne_top _ _), ← EReal.coe_mul, sub_eq_add_neg,
-    ← EReal.coe_neg, ← EReal.coe_add, add_assoc]
-  congr 3
-  ring
-
-lemma fDiv_statInfoFun_eq_integral_abs_of_nonpos_of_gt [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (hβ : β ≤ 0) (hγ : β < γ) :
-    fDiv (statInfoFun β γ) μ ν = (2 : ℝ)⁻¹ * (∫ x, |β * ((∂μ/∂ν) x).toReal - γ| ∂ν
-      - β * (μ.singularPart ν) univ + β * μ univ - γ * ν univ) := by
-  rw [fDiv_statInfoFun_eq_integral_max_of_nonpos_of_gt hβ hγ, integral_max_eq_integral_abs']
-  simp_rw [← EReal.coe_ennreal_toReal (measure_ne_top _ _), ← EReal.coe_mul, sub_eq_add_neg,
-    ← EReal.coe_neg, ← EReal.coe_add, ← EReal.coe_mul]
-  ring_nf
-
-end fDiv
 
 end ProbabilityTheory
