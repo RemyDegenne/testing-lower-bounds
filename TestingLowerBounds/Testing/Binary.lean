@@ -442,20 +442,14 @@ lemma bayesBinaryRisk_le_min (μ ν : Measure 𝒳) (π : Measure Bool) :
   convert bayesBinaryRisk_le_bayesBinaryRisk_comp μ ν π (kernel.discard 𝒳)
   simp_rw [Measure.comp_discard, bayesBinaryRisk_dirac]
 
-@[simp]
-lemma bayesBinaryRisk_zero_left : bayesBinaryRisk 0 ν π = 0 := by
-  refine le_antisymm ((bayesBinaryRisk_le_min _ _ _).trans ?_) zero_le'
-  simp
+@[simp] lemma bayesBinaryRisk_zero_left : bayesBinaryRisk 0 ν π = 0 :=
+  le_antisymm ((bayesBinaryRisk_le_min _ _ _).trans (by simp)) zero_le'
 
-@[simp]
-lemma bayesBinaryRisk_zero_right : bayesBinaryRisk μ 0 π = 0 := by
-  refine le_antisymm ((bayesBinaryRisk_le_min _ _ _).trans ?_) zero_le'
-  simp
+@[simp] lemma bayesBinaryRisk_zero_right : bayesBinaryRisk μ 0 π = 0 :=
+  le_antisymm ((bayesBinaryRisk_le_min _ _ _).trans (by simp)) zero_le'
 
-@[simp]
-lemma bayesBinaryRisk_zero_prior : bayesBinaryRisk μ ν 0 = 0 := by
-  refine le_antisymm ((bayesBinaryRisk_le_min _ _ _).trans ?_) zero_le'
-  simp
+@[simp] lemma bayesBinaryRisk_zero_prior : bayesBinaryRisk μ ν 0 = 0 :=
+  le_antisymm ((bayesBinaryRisk_le_min _ _ _).trans (by simp)) zero_le'
 
 lemma bayesBinaryRisk_ne_top (μ ν : Measure 𝒳) [IsFiniteMeasure μ]
     (π : Measure Bool) [IsFiniteMeasure π] :
