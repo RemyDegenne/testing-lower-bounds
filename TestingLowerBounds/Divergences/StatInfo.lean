@@ -50,7 +50,7 @@ lemma statInfo_eq_min_sub (μ ν : Measure 𝒳) (π : Measure Bool) :
 lemma statInfo_eq_bayesRiskIncrease (μ ν : Measure 𝒳) (π : Measure Bool) :
     statInfo μ ν π
       = bayesRiskIncrease simpleBinaryHypTest (twoHypKernel μ ν) π (kernel.discard 𝒳) := by
-  simp [statInfo, bayesBinaryRisk, bayesRiskIncrease]
+  simp_rw [statInfo, bayesBinaryRisk, bayesRiskIncrease, comp_twoHypKernel]
 
 @[simp] lemma statInfo_zero_left : statInfo 0 ν π = 0 := by simp [statInfo]
 
