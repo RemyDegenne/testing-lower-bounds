@@ -79,3 +79,5 @@ instance [h : CountableOrCountablyGenerated (α × β) γ] :
   rcases h with (h | h)
   · exact ⟨Or.inl inferInstance⟩
   · exact ⟨Or.inr h⟩
+
+end MeasurableSpace

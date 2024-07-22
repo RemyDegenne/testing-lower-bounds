@@ -1,25 +1,38 @@
-\chapter{Testing, Estimation, Risk}
 
 In the estimation problem, we are given a family of measures and we want to estimate an unknown parameter for the measure from which we observe samples.
-Let $\mathcal X$ be the measurable space on which the measures are defined and let $y : \mathcal M(\mathcal X) \to \mathcal Y$ be the function which maps a measure to the parameter of interest.
+Let $\mathcal X$ be the measurable space on which the measures are defined.
+The measure family is described by a kernel $P : \Theta \rightsquigarrow \mathcal X$. We write $P_\theta$ for $P(\theta)$.
+In \emph{parametric} problems, $\Theta$ is a low-dimensional space. In \emph{nonparametric} problems $\Theta$ is large, for example $\Theta = \mathcal M (\mathcal X)$ or $\Theta = \mathcal P(\mathcal X)$.
+
+The goal of the estimation task is to find, given the observation of samples of $P_\theta$ for an unknown $\theta$, the value of a function $y : \Theta \to \mathcal Y$~, which maps the parameter $\theta$ to the quantity we are interested in. For example, $y(\theta)$ might be the expected value of the distribution $P_\theta$.
 
 An estimator is a Markov kernel $\hat{y} : \mathcal X \rightsquigarrow \mathcal Z$, where most often $\mathcal Z = \mathcal Y$.
-Note that while $y$ is a function of a measure in $\mathcal M(\mathcal X)$, $\hat{y}$ has domain $\mathcal X$ as the estimation is done based on a sample of the measure, while the measure itself remains unknown.
+Note that, while $y$ is a function of a parameter in $\Theta$, $\hat{y}$ has domain $\mathcal X$ as the estimation is done based on a sample of the measure, while the measure itself and its parameter remain unknown.
 In general this is a randomized estimator, but often deterministic estimators (corresponding to deterministic kernels) are enough to attain optimal performance.
-The quality of the estimation is quantified by a loss $\ell' : \mathcal Y \times \mathcal Z \to \mathbb{R}_{+, \infty}$. We write $\ell$ for a loss from $\mathcal Y \times \mathcal Y$ and $\ell'$ in the heterogeneous case.
+The quality of the estimation is quantified by a loss $\ell' : \mathcal Y \times \mathcal Z \to \mathbb{R}_{+, \infty}$. We write $\ell$ for a loss on $\mathcal Y \times \mathcal Y$ and $\ell'$ in the heterogeneous case.
 
-The measure family is described by a kernel $P : \Theta \rightsquigarrow \mathcal X$. We write $P_\theta$ for $P(\theta)$ and $y(\theta)$ for $y(P_\theta)$.
-In \emph{parametric} problems, $\Theta$ is a low-dimensional space. In \emph{nonparametric} problems, $\Theta$ is large, for example $\Theta = \mathcal M (\mathcal X)$ or $\Theta = \mathcal P(\mathcal X)$.
+In short, an estimation problem is specified by the data $(P, y, \ell')$.
 
-TODO: reorder to define $y: \Theta \to \mathcal Y$ instead of $y : \mathcal M(\mathcal X) \to \mathcal Y$~, since we always write $y(P(\theta))$.
+% TODO: I can't make tikz-cd work with 'leanblueprint web'
+
+%\begin{figure}[ht]
+%\centering
+% https://tikzcd.yichuanshen.de/#N4Igdg9gJgpgziAXAbVABwnAlgFyxMJZABgBpiBdUkANwEMAbAVxiRAB12AVACxhzogAvqXSZc+QigCM5KrUYs2nALZ0cPAMaMABAE1hokBmx4CRMtPn1mrRB3ZqN2hjoAahsaclFZV6jZK9qrqWroAWp7G4mZSyABMpP4KtsqOoQBGGcAASkIA+sAA1KScWGAAZjgAnkLC8jBQAObwRKAVAE4QKkhkIDgQSIkgDOV2IFB0cHxQIAGK4wAKUZ3dQ9QDSADM1KNg45PTjXMpQQ486sC1K109iH2biLKn49U3a08bg4gALNQZMDAs0QAFotn1plgqr1qHw6MCQBcOhhzPNUsF2DAGAwAOTvO47frfP4gAFAmEgSHQ+6wmDwthIlFgRg4epCIA
+%\begin{tikzcd}
+%\Theta \arrow[d, "P", dashed] \arrow[r, "y"] & \mathcal Y \arrow[rd, "\ell'", harpoon, bend right] &                         \\
+%\mathcal X \arrow[r, "\hat{y}", dashed]      & \mathcal Z \arrow[r, harpoon']                      & {\mathbb{R}_{+,\infty}}
+%\end{tikzcd}
+%\caption{The estimation problem. Dashed arrow represent transition kernels. Plain arrows are measurable functions. }
+%\label{fig:estimation}
+%\end{figure}
 
 \paragraph{Example: simple binary hypothesis testing (SBHT)}
 
 We say that an estimation problem is a testing problem if $\mathcal Y = \mathcal Z$ is discrete and the loss takes values in $\{0, 1\}$.
 A test is said to be binary if $\mathcal Y$ has two elements.
-A test is simple if $\{\theta \mid y(P_\theta) = y_0\}$ is a singleton for all $y_0 \in \mathcal Y$.
+A test is simple if $\{\theta \mid y(\theta) = y_0\}$ is a singleton for all $y_0 \in \mathcal Y$, i.e. $y$ is bijective.
 
-In summary, in simple binary hypothesis testing, $\Theta = \mathcal Y = \mathcal Z = \{0,1\}$, $y(P_0) = 0$, $y(P_1) = 1$ (that is, $y(\theta) = \theta$). For $z \in \{0,1\}$, $\ell(y, z) = \mathbb{I}\{y \ne z\}$.
+In summary, in simple binary hypothesis testing, $\Theta = \mathcal Y = \mathcal Z = \{0,1\}$, $y(0) = 0$, $y(1) = 1$ (that is, $y$ is the identity). For $y_0, z \in \{0,1\}$, $\ell(y_0, z) = \mathbb{I}\{y_0 \ne z\}$.
 
 \section{Risk}
 
@@ -27,319 +40,647 @@ Let $\hat{\mu}_\theta$ be the law of $\hat{y}(\theta)$. That is, $\hat{\mu} : \m
 
 \begin{definition}[Risk]
   \label{def:risk}
-  %\lean{}
-  %\leanok
-  %\uses{}
-  The risk of an estimator $\hat{y}$ at $\theta \in \Theta$ is $r_\theta(\hat{y}) = \hat{\mu}_\theta\left[z \mapsto \ell'(y(\theta), z)\right]$~.
+  \lean{ProbabilityTheory.risk}
+  \leanok
+  \uses{def:kernel_comp}
+  The risk of an estimator $\hat{y}$ on the estimation problem $(P, y, \ell')$ at $\theta \in \Theta$ is $r^P_\theta(\hat{y}) = \hat{\mu}_\theta\left[z \mapsto \ell'(y(\theta), z)\right]$~.
 \end{definition}
 
-\emph{Example (SBHT):} $r_\theta(\hat{y}) = \hat{\mu}_\theta(\hat{y}(\theta) \ne y(\theta))$.
+\emph{Example (SBHT):} $r^P_\theta(\hat{y}) = \hat{\mu}_\theta(\hat{y}(\theta) \ne y(\theta))$.
 
 
 \begin{definition}[Bayesian risk]
   \label{def:bayesianRisk}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.bayesianRisk}
+  \leanok
   \uses{def:risk}
-  The Bayesian risk of an estimator $\hat{y}$ for a prior $\pi \in \mathcal P(\Theta)$ is $R_\pi(\hat{y}) = \pi\left[\theta \mapsto r_\theta(\hat{y})\right]$~.
+  The Bayesian risk of an estimator $\hat{y}$ on $(P, y, \ell')$ for a prior $\pi \in \mathcal M(\Theta)$ is $R^P_\pi(\hat{y}) = \pi\left[\theta \mapsto r^P_\theta(\hat{y})\right]$~. It can also be expanded as $R^P_\pi(\hat{y}) = (\pi \otimes (\hat{y} \circ P))\left[ (\theta, z) \mapsto \ell'(y(\theta), z) \right]$~.
 \end{definition}
 
 
 \begin{definition}[Bayes risk]
   \label{def:bayesRisk}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.bayesRisk}
+  \leanok
   \uses{def:bayesianRisk}
-  The Bayes risk for prior $\pi \in \mathcal P(\Theta)$ is $\mathcal R_\pi = \inf_{\hat{y} : \mathcal X \rightsquigarrow \mathcal Z} R_\pi(\hat{y})$~.
+  The Bayes risk of $(P, y, \ell')$ for prior $\pi \in \mathcal M(\Theta)$ is $\mathcal R^P_\pi = \inf_{\hat{y} : \mathcal X \rightsquigarrow \mathcal Z} R^P_\pi(\hat{y})$~, where the infimum is over Markov kernels.
 
-  The Bayes risk of $P$ is $\mathcal R^*_B = \sup_{\pi \in \mathcal P(\Theta)} \mathcal R_\pi \: .$
+  The Bayes risk of $(P, y, \ell')$ is $\mathcal R^*_B = \sup_{\pi \in \mathcal P(\Theta)} \mathcal R^P_\pi \: .$
 \end{definition}
 
 \emph{Example (SBHT):} $\mathcal R^*_B = \sup_{\gamma \in [0,1]}\inf_{\hat{y}}\left(\gamma \hat{\mu}_0(\hat{y} \ne 0) + (1 - \gamma) \hat{\mu}_1(\hat{y} \ne 1)\right)$.
 
 \begin{definition}[Bayes estimator]
   \label{def:bayesEstimator}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.IsBayesEstimator}
+  \leanok
   \uses{def:bayesRisk}
-  An estimator $\hat{y}$ is said to be a Bayes estimator for a prior $\pi \in \mathcal P(\Theta)$ if $R_\pi(\hat{y}) = \mathcal R_\pi$.
-\end{definition}
-
-\begin{definition}[Generalized Bayes estimator]
-  \label{def:genBayesEstimator}
-  %\lean{}
-  %\leanok
-  \uses{def:risk,def:bayesInv}
-  The generalized Bayes estimator for prior $\pi \in \mathcal P(\Theta)$ and kernel $P: \Theta \rightsquigarrow \mathcal X$ is the deterministic estimator $\mathcal X \to \mathcal Z$ given by
-  \begin{align*}
-  x \mapsto \arg\min_z P_\pi^\dagger(x)\left[\theta \mapsto \ell'(y(\theta), z)\right] \: .
-  \end{align*}
-  Here $P_\pi^\dagger$ is the Bayesian inverse of $P$ with respect to $\pi$ (that is, $P_\pi^\dagger(x)$ is the posterior distribution of $\theta$ given $x$).
+  An estimator $\hat{y}$ is said to be a Bayes estimator for a prior $\pi \in \mathcal P(\Theta)$ if $R^P_\pi(\hat{y}) = \mathcal R^P_\pi$.
 \end{definition}
 
 \begin{definition}[Minimax risk]
   \label{def:minimaxRisk}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.minimaxRisk}
+  \leanok
   \uses{def:risk}
-  The minimax risk of $P$ is $\mathcal R^* = \inf_{\hat{y} : \mathcal X \rightsquigarrow \mathcal Z} \sup_{\theta \in \Theta} r_\theta(\hat{y})$~.
+  The minimax risk of $(P, y, \ell')$ is $\mathcal R^* = \inf_{\hat{y} : \mathcal X \rightsquigarrow \mathcal Z} \sup_{\theta \in \Theta} r^P_\theta(\hat{y})$~.
 \end{definition}
 
 \emph{Example (SBHT):} $\mathcal R^* = \inf_{\hat{y}} \max\{\hat{\mu}_0(\hat{y} \ne 0), \hat{\mu}_1(\hat{y} \ne 1)\}$.
 
 \begin{lemma}
   \label{lem:bayesRisk_le_minimaxRisk}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.bayesRisk_le_minimaxRisk}
+  \leanok
   \uses{def:bayesRisk, def:minimaxRisk}
   $\mathcal R_B^* \le \mathcal R^*$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof}\leanok
 For any $\pi \in \mathcal P(\mathcal X)$ and any estimator, $\pi\left[\hat{\mu}_\theta\left[\ell'(y(\theta), \hat{y}(\theta))\right]\right] \le \sup_{\theta \in \Theta}\hat{\mu}_\theta\left[\ell'(y(\theta), \hat{y}(\theta))\right]$.
 \end{proof}
 
 TODO: ``often'', $\mathcal R^*_B = \mathcal R^*$.
 
-\section{Simple binary hypothesis testing}
 
-\begin{definition}
-  \label{def:bayesBinaryRisk}
-  %\lean{}
-  %\leanok
-  \uses{def:bayesRisk}
-  The Bayes binary risk between measures $\mu$ and $\nu$, denoted by $B_\pi(\mu, \nu)$, is the Bayes risk $\mathcal R_\pi$ for $\Theta = \mathcal Y = \mathcal Z = \{0,1\}$, $P$ the kernel sending 0 to $\mu$ and 1 to $\nu$ and prior $(\pi, 1-\pi)$.
-  That is, $B_\pi(\mu, \nu) = \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\pi \mu(\hat{y} = 1) + (1 - \pi) \nu(\hat{y} = 0)\right)$~, in which the infimum is over Markov kernels.
-\end{definition}
+
+
+\subsection{Properties of the Bayes risk of a prior}
 
 \begin{lemma}
-  \label{lem:bayesBinaryRisk_le}
-  %\lean{}
-  %\leanok
-  \uses{def:bayesBinaryRisk}
-  For all probability measures $\mu, \nu$, $B_\pi(\mu, \nu) \le \min\{\pi, 1 - \pi\}$~.
+  \label{lem:bayesRisk_le_const}
+  \lean{ProbabilityTheory.bayesRiskPrior_le_inf}
+  \leanok
+  \uses{def:bayesRisk}
+  The Bayes risk of a prior $\pi \in \mathcal M(\Theta)$ on $(P, y, \ell')$ with $P$ a Markov kernel satisfies
+  \begin{align*}
+  \mathcal R^P_\pi \le \inf_{z \in \mathcal Z} \pi\left[ \theta \mapsto \ell'(y(\theta), z) \right]
+  \: .
+  \end{align*}
 \end{lemma}
 
-\begin{proof}%\leanok
-\uses{def:bayesRisk}
-Since $B_\pi(\mu, \nu)$ is an infimum over estimators, we can find an upper bound by choosing an estimator. We choose for $\hat{y}$ a constant estimator, with value 1 if $1- \pi > \pi$ and 0 otherwise.
-That estimator has Bayesian risk $\min\{\pi, 1 - \pi\}$.
+\begin{proof}\leanok
+\uses{}
+The infimum over all Markov kernels in the definition of the Bayes risk of $\pi$ is bounded from above by the infimum restricted to constant, deterministic Markov kernels.
+\end{proof}
+
+\paragraph{Generalized Bayes estimator}
+
+\begin{lemma}
+  \label{lem:bayesianRisk_bayesInv}
+  \lean{ProbabilityTheory.bayesianRisk_eq_lintegral_bayesInv_prod}
+  \leanok
+  \uses{def:bayesianRisk, def:bayesInv}
+  The Bayesian risk of a Markov kernel $\hat{y} : \mathcal X \rightsquigarrow \mathcal Z$ with respect to a prior $\pi \in \mathcal M(\Theta)$ on $(P, y, \ell')$ satisfies
+  \begin{align*}
+  R^P_\pi(\hat{y}) = ((P_\pi^\dagger \times \hat{y}) \circ P \circ \pi)\left[(\theta, z) \mapsto \ell'(y(\theta), z)\right] \: .
+  \end{align*}
+  In that expression, $P_\pi^\dagger$ is the Bayesian inverse of $P$ with respect to $\pi$.
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{}
+Use the main property of the Bayesian inverse.
+\begin{align*}
+  (P_\pi^\dagger \times \hat{y}) \circ P \circ \pi
+  &= swap \circ (\hat{y} \times P_\pi^\dagger) \circ (P \circ \pi)
+  \\
+  &= swap \circ (\hat{y} \parallel P_\pi^\dagger) \circ copy \circ (P \circ \pi)
+  \\
+  &= swap \circ (\hat{y} \parallel \mathrm{id}) \circ (\mathrm{id} \parallel P_\pi^\dagger) \circ copy \circ (P \circ \pi)
+  \\
+  &= swap \circ (\hat{y} \parallel \mathrm{id}) \circ (P \parallel \mathrm{id}) \circ copy \circ \pi
+  \\
+  &= (\mathrm{id} \parallel \hat{y}) \circ (P \parallel \mathrm{id}) \circ swap \circ copy \circ \pi
+  \\
+  &= (\mathrm{id} \parallel \hat{y}) \circ (P \parallel \mathrm{id}) \circ copy \circ \pi
+  \\
+  &= (P \parallel \hat{y}) \circ copy \circ \pi
+  \\
+  &= (P \times \hat{y}) \circ \pi
+  \\
+  &= \pi \otimes (\hat{y} \circ P)
+  \: .
+  \end{align*}
 \end{proof}
 
 \begin{lemma}
-  \label{lem:bayesBinaryRisk_self}
+  \label{lem:bayesianRisk_ge_inf_bayesInv}
+  \lean{ProbabilityTheory.bayesianRisk_ge_lintegral_iInf_bayesInv}
+  \leanok
+  \uses{def:bayesianRisk, def:bayesInv}
+  The Bayesian risk of a Markov kernel $\hat{y} : \mathcal X \rightsquigarrow \mathcal Z$ with respect to a prior $\pi \in \mathcal M(\Theta)$ on $(P, y, \ell')$ satisfies
+  \begin{align*}
+  R^P_\pi(\hat{y}) \ge (P \circ \pi)\left[x \mapsto \inf_{z \in \mathcal Z} P_\pi^\dagger(x) \left[\theta \mapsto \ell'(y(\theta), z)\right]\right] \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{lem:bayesianRisk_bayesInv}
+Starting from the equality of Lemma~\ref{lem:bayesianRisk_bayesInv}, we get
+\begin{align*}
+R^P_\pi(\hat{y})
+&= ((P_\pi^\dagger \times \hat{y}) \circ P \circ \pi)\left[(\theta, z) \mapsto \ell'(y(\theta), z)\right]
+\\
+&= (P \circ \pi)\left[x \mapsto (P_\pi^\dagger(x) \times \hat{y}(x)) \left[(\theta, z) \mapsto \ell'(y(\theta), z)\right]\right]
+\\
+&= (P \circ \pi)\left[x \mapsto \hat{y}(x)\left[z \mapsto P_\pi^\dagger(x) \left[\theta \mapsto \ell'(y(\theta), z)\right]\right]\right]
+\\
+&\ge (P \circ \pi)\left[x \mapsto \inf_{z \in \mathcal Z} P_\pi^\dagger(x) \left[\theta \mapsto \ell'(y(\theta), z)\right]\right]
+\: .
+\end{align*}
+
+\end{proof}
+
+\begin{definition}[Generalized Bayes estimator]
+  \label{def:genBayesEstimator}
+  \lean{ProbabilityTheory.IsGenBayesEstimator}
+  \leanok
+  \uses{def:risk,def:bayesInv}
+  The generalized Bayes estimator for prior $\pi \in \mathcal P(\Theta)$ on $(P, y, \ell')$ is the deterministic estimator $\mathcal X \to \mathcal Z$ given by
+  \begin{align*}
+  x \mapsto \arg\min_z P_\pi^\dagger(x)\left[\theta \mapsto \ell'(y(\theta), z)\right] \: .
+  \end{align*}
+  TODO: is this measurable? Does the argmin exist? (under which assumptions?)
+\end{definition}
+
+\begin{lemma}
+  \label{lem:bayesianRisk_genBayesEstimator}
+  \lean{ProbabilityTheory.bayesianRisk_of_isGenBayesEstimator}
+  \leanok
+  \uses{def:bayesianRisk, def:genBayesEstimator}
+  The Bayesian risk of the generalized Bayes estimator $\hat{y}_B$ is
+  \begin{align*}
+  R^P_\pi(\hat{y}_B) = (P \circ \pi)\left[x \mapsto \inf_{z \in \mathcal Z} P_\pi^\dagger(x) \left[\theta \mapsto \ell'(y(\theta), z)\right]\right]
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{lem:bayesianRisk_bayesInv}
+Start from the equality of Lemma~\ref{lem:bayesianRisk_bayesInv} and use the definition of the generalized Bayes estimator.
+\end{proof}
+
+\begin{theorem}
+  \label{thm:isBayesEstimator_genBayesEstimator}
+  \lean{ProbabilityTheory.isBayesEstimator_of_isGenBayesEstimator, ProbabilityTheory.bayesRiskPrior_eq_of_hasGenBayesEstimator}
+  \leanok
+  \uses{def:bayesEstimator, def:genBayesEstimator, def:bayesRisk}
+  When the generalized Bayes estimator is well defined, it is a Bayes estimator. The value of the Bayes risk with respect to the prior $\pi \in \mathcal M(\Theta)$ is then
+  \begin{align*}
+  \mathcal R^P_\pi = (P \circ \pi)\left[x \mapsto \inf_{z \in \mathcal Z} P_\pi^\dagger(x) \left[\theta \mapsto \ell'(y(\theta), z)\right]\right]
+  \: .
+  \end{align*}
+\end{theorem}
+
+\begin{proof}\leanok
+\uses{lem:bayesianRisk_ge_inf_bayesInv, lem:bayesianRisk_genBayesEstimator}
+By Lemma~\ref{lem:bayesianRisk_ge_inf_bayesInv}, the Bayesian risk of the generalized Bayes estimator obtained in Lemma~\ref{lem:bayesianRisk_genBayesEstimator} is a lower bound for the Bayesian risk.
+\end{proof}
+
+\paragraph{Data-processing inequality and consequences}
+
+\begin{theorem}[Data-processing inequality]
+  \label{thm:data_proc_bayesRisk}
+  \lean{ProbabilityTheory.bayesRiskPrior_le_bayesRiskPrior_comp}
+  \leanok
+  \uses{def:bayesRisk}
+  For $P : \Theta \rightsquigarrow \mathcal X$ and $\kappa : \mathcal X \rightsquigarrow \mathcal X'$ a Markov kernel, $\mathcal R^{\kappa \circ P}_\pi \ge \mathcal R^{P}_\pi$ (where the estimation problems differ only in the kernel).
+\end{theorem}
+
+\begin{proof}\leanok
+\uses{}
+The risk $\mathcal R^{\kappa \circ P}_\pi$ is
+\begin{align*}
+\mathcal R^{\kappa \circ P}_\pi
+&= \inf_{\hat{y} : \mathcal X' \rightsquigarrow \mathcal Z} (\pi \otimes (\hat{y} \circ \kappa \circ P))\left[(\theta, z) \mapsto \ell'(y(\theta), z)\right]
+\\
+&\ge \inf_{\hat{y} : \mathcal X \rightsquigarrow \mathcal Z} (\pi \otimes (\hat{y} \circ P))\left[(\theta, z) \mapsto \ell'(y(\theta), z)\right]
+\\
+&= \mathcal R^{P}_\pi
+\: .
+\end{align*}
+The inequality is due to taking an infimum over a larger set: $\{\hat{y} \circ \kappa \mid \hat{y} : \mathcal X' \rightsquigarrow \mathcal Z \text{ Markov}\} \subseteq \{\hat{y}' : \mathcal X \rightsquigarrow \mathcal Z \mid \hat{y} \text{ Markov}\}$~.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:bayesRisk_compProd_le_fst}
+  \lean{ProbabilityTheory.bayesRiskPrior_compProd_le_bayesRiskPrior}
+  \leanok
+  \uses{def:bayesRisk}
+  For $P : \Theta \rightsquigarrow \mathcal X$ and $\kappa : \Theta \times \mathcal X \rightsquigarrow \mathcal X'$ a Markov kernel, $\mathcal R^{P \otimes \kappa}_\pi \le \mathcal R^{P}_\pi$~.
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{thm:data_proc_bayesRisk}
+Use Theorem~\ref{thm:data_proc_bayesRisk}: $P$ is the composition of $P \otimes \kappa$ and the deterministic kernel $\mathcal X \times \mathcal X' \rightsquigarrow \mathcal X$ that forgets the second value.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:bayesRisk_compProd_le_snd}
   %\lean{}
   %\leanok
-  \uses{def:bayesBinaryRisk}
-  For $\mu \in \mathcal P(\mathcal X)$, $B_\pi(\mu, \mu) = \min\{\pi, 1-\pi\}$~.
+  \uses{def:bayesRisk}
+  For $P : \Theta \rightsquigarrow \mathcal X$ and $\kappa : \Theta \times \mathcal X \rightsquigarrow \mathcal X'$ a Markov kernel, $\mathcal R^{P \otimes \kappa}_\pi \le \mathcal R^{(P \otimes \kappa)_{\mathcal X'}}_\pi$~, in which $(P \otimes \kappa)_{\mathcal X'} : \mathcal \Theta \rightsquigarrow \mathcal X'$ is the kernel obtained by marginalizing over $\mathcal X$ in the output of $P \otimes \kappa$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{thm:data_proc_bayesRisk}
+Use Theorem~\ref{thm:data_proc_bayesRisk}: $(P \otimes \kappa)_{\mathcal X'}$ is the composition of $P \otimes \kappa$ and the deterministic kernel $\mathcal X \times \mathcal X' \rightsquigarrow \mathcal X'$ that forgets the first value.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:bayesRisk_concave}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesRisk}
+  The Bayes risk $\mathcal R_\pi^P$ is concave in $P : \Theta \rightsquigarrow \mathcal X$~.
 \end{lemma}
 
 \begin{proof}%\leanok
 \uses{}
+The infimum of a sum is larger than the sum of the infimums:
+\begin{align*}
+\mathcal R_\pi^{\lambda P_1 + (1 - \lambda)P_2}
+&= \inf_{\hat{y} : \mathcal X \rightsquigarrow \mathcal Z} (\pi \otimes (\hat{y} \circ (\lambda P_1 + (1 - \lambda)P_2)))\left[(\theta, z) \mapsto \ell'(y(\theta), z)\right]
+\\
+&= \inf_{\hat{y} : \mathcal X \rightsquigarrow \mathcal Z}  \left( \lambda (\pi \otimes (\hat{y} \circ P_1))\left[(\theta, z) \mapsto \ell'(y(\theta), z)\right] \right.
+  \\&\qquad \left. + (1 - \lambda) (\pi \otimes (\hat{y} \circ P_2))\left[(\theta, z) \mapsto \ell'(y(\theta), z)\right] \right)
+\\
+&\ge \lambda \inf_{\hat{y} : \mathcal X \rightsquigarrow \mathcal Z} (\pi \otimes (\hat{y} \circ P_1))\left[(\theta, z) \mapsto \ell'(y(\theta), z)\right]
+  \\&\qquad + (1 - \lambda) \inf_{\hat{y} : \mathcal X \rightsquigarrow \mathcal Z} (\pi \otimes (\hat{y} \circ P_2))\left[(\theta, z) \mapsto \ell'(y(\theta), z)\right]
+\\
+&= \lambda \mathcal R_\pi^{P_1} + (1 - \lambda)\mathcal R_\pi^{P_2}
+\: .
+\end{align*}
+TODO: can we build kernels such that this lemma is a consequence of one of the lemmas above?
+\end{proof}
+
+
+
+
+\subsection{Bayes risk increase}
+
+The following is a new definition, which is a natural generalization of the DeGroot statistical information.
+
+\begin{definition}
+  \label{def:riskIncrease}
+  \lean{ProbabilityTheory.bayesRiskIncrease}
+  \leanok
+  \uses{def:bayesRisk}
+  The Bayes risk increase $I^P_{\pi}(\kappa)$ of a kernel $\kappa : \mathcal X \rightsquigarrow \mathcal X'$ with respect to the estimation problem $(P, y, \ell')$ and the prior $\pi \in \mathcal M(\Theta)$ is the difference of the Bayes risk of $(\kappa \circ P, y, \ell')$ and that of $(P, y, \ell')$. That is,
+  \begin{align*}
+  I^P_{\pi}(\kappa)
+  &= \mathcal R^{\kappa \circ P}_\pi - \mathcal R^P_\pi
+  \\
+  &= \inf_{\hat{y} : \mathcal X' \rightsquigarrow \mathcal Z} (\pi \otimes (\hat{y} \circ \kappa \circ P))\left[(\theta, z) \mapsto \ell'(y(\theta), z)\right]
+    - \inf_{\hat{y} : \mathcal X \rightsquigarrow \mathcal Z} (\pi \otimes (\hat{y} \circ P))\left[(\theta, z) \mapsto \ell'(y(\theta), z)\right]
+  \: .
+  \end{align*}
+\end{definition}
+
+In particular, if we take $\kappa : \mathcal X \rightsquigarrow *$ equal to the Markov kernel to the point space (denoted by $d_{\mathcal X}$, for ``discard'' kernel), we get $I^P_{\pi}(d_{\mathcal X}) = \mathcal R^{d_{\mathcal X} \circ P}_\pi - \mathcal R^P_\pi$, where $d_{\mathcal X} \circ P = d_\Theta$ if $P$ is a Markov kernel. We recover a difference between the risk of the best constant kernel and the Bayes estimator, as in the DeGroot statistical information.
+
+The risk increase quantifies how much risk we accrue by forgetting information due to the composition with $\kappa$.
+
+\begin{lemma}
+  \label{lem:riskIncrease_nonneg}
+  %\lean{}
+  %\leanok
+  \uses{def:riskIncrease}
+  For $\kappa$ a Markov kernel, $I^P_\pi(\kappa) \ge 0$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{thm:data_proc_bayesRisk}
+Use Theorem~\ref{thm:data_proc_bayesRisk}.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:riskIncrease_comp}
+  \lean{ProbabilityTheory.bayesRiskIncrease_comp}
+  \leanok
+  \uses{def:riskIncrease}
+  For $\kappa : \mathcal X \rightsquigarrow \mathcal X'$ and $\eta : \mathcal X' \rightsquigarrow \mathcal X''$ two Markov kernels,
+  $I^P_\pi(\eta \circ \kappa) = I^P_\pi(\kappa) + I^{\kappa \circ P}_\pi(\eta)$~.
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{}
+\begin{align*}
+I^P_\pi(\kappa) + I^{\kappa \circ P}_\pi(\eta)
+&= \mathcal R^{\kappa \circ P}_\pi - \mathcal R^{P}_\pi + \mathcal R^{\eta \circ \kappa \circ P}_\pi - \mathcal R^{\kappa \circ P}_\pi
+\\
+&= \mathcal R^{\eta \circ \kappa \circ P}_\pi - \mathcal R^{P}_\pi
+\\
+&= I^P_\pi(\eta \circ \kappa)
+\: .
+\end{align*}
+\end{proof}
+
+\begin{lemma}[Data-processing inequality]
+  \label{lem:riskIncrease_comp_del}
+  \lean{ProbabilityTheory.bayesRiskIncrease_discard_comp_le_bayesRiskIncrease}
+  \leanok
+  \uses{def:riskIncrease}
+  For any measurable space $\mathcal X$, let $d_{\mathcal X} : \mathcal X \rightsquigarrow *$ be the Markov kernel to the point space.
+  For all Markov kernels $\kappa : \mathcal X \rightsquigarrow \mathcal X'$,
+  \begin{align*}
+  I_\pi^P(d_{\mathcal X}) \ge I_\pi^{\kappa \circ P}(d_{\mathcal X'}) \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{lem:riskIncrease_comp, lem:riskIncrease_nonneg}
+By Lemma~\ref{lem:riskIncrease_comp}, then Lemma~\ref{lem:riskIncrease_nonneg},
+\begin{align*}
+I_\pi^P(d_{\mathcal X'} \circ \kappa)
+= I^P_\pi(\kappa) + I^{\kappa \circ P}_\pi(d_{\mathcal X'})
+\ge I_\pi^{\kappa \circ P}(d_{\mathcal X'})
+\: .
+\end{align*}
+Finally, $d_{\mathcal X'} \circ \kappa = d_{\mathcal X}$ since $\kappa$ is a Markov kernel.
+\end{proof}
+
+
+
+
+\section{Simple binary hypothesis testing}
+
+TODO: rework this section to use the Bayes risk increase?
+
+In this section, for a measure $\xi$ on $\{0,1\}$, we write $\xi_0$ for $\xi(\{0\})$ and $\xi_1$ for $\xi(\{1\})$~. We sometimes write $(a,b)$ for the measure $\xi$ on $\{0,1\}$ with $\xi_0 = a$ and $\xi_1 = b$.
+
+\begin{lemma}
+  \label{lem:bayesInv_binary}
+  \lean{ProbabilityTheory.bayesInv_twoHypKernel}
+  \leanok
+  \uses{def:bayesInv}
+  The Bayesian inverse of a kernel $P : \{0,1\} \rightsquigarrow \mathcal X$ with respect to a prior $\xi \in \mathcal M(\{0,1\})$ is $P_\xi^\dagger(x) = \left(\xi_0\frac{d P(0)}{d(P \circ \xi)}(x), \xi_1\frac{d P(1)}{d(P \circ \xi)}(x)\right)$ (almost surely w.r.t. $P \circ \xi = \xi_0 P(0) + \xi_1 P(1)$).
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{lem:eq_bayesInv_of_compProd_eq}
+
+\end{proof}
+
+\begin{lemma}
+  \label{lem:bayesRisk_binary}
+  \lean{ProbabilityTheory.bayesRiskPrior_eq_of_hasGenBayesEstimator_binary}
+  \leanok
+  \uses{def:bayesRisk}
+  For $\Theta = \{0,1\}$, the Bayes risk of a prior $\xi \in \mathcal M(\{0,1\})$ is
+  \begin{align*}
+  \mathcal R^P_\xi = (P \circ \xi)\left[x \mapsto \inf_{z \in \mathcal Z} \left( \xi_0\frac{d P(0)}{d(P \circ \xi)}(x)\ell'(y(0), z) + \xi_1\frac{d P(1)}{d(P \circ \xi)}(x)\ell'(y(1), z) \right) \right]
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{lem:bayesInv_binary, thm:isBayesEstimator_genBayesEstimator}
+Use Theorem~\ref{thm:isBayesEstimator_genBayesEstimator}, with the value of $P_\xi^\dagger$ given by Lemma~\ref{lem:bayesInv_binary}.
+\end{proof}
+
+
+
+\subsection{Bayes risk of a prior}
+
+\begin{definition}
+  \label{def:bayesBinaryRisk}
+  \lean{ProbabilityTheory.bayesBinaryRisk}
+  \leanok
+  \uses{def:bayesRisk}
+  The Bayes binary risk between measures $\mu$ and $\nu$ with respect to prior $\xi \in \mathcal M(\{0,1\})$, denoted by $\mathcal B_\xi(\mu, \nu)$, is the Bayes risk $\mathcal R^P_\xi$ for $\Theta = \mathcal Y = \mathcal Z = \{0,1\}$, $\ell(y,z) = \mathbb{I}\{y \ne z\}$, $P$ the kernel sending 0 to $\mu$ and 1 to $\nu$ and prior $\xi$.
+  That is,
+  \begin{align*}
+  \mathcal B_\xi(\mu, \nu) = \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\xi_0 (\hat{y} \circ \mu)(\{1\}) + \xi_1 (\hat{y} \circ \nu)(\{0\})\right)
+  \: ,
+  \end{align*}
+  in which the infimum is over Markov kernels.
+
+  If the prior is a probability measure with weights $(\pi, 1 - \pi)$, we write $B_\pi(\mu, \nu) = \mathcal B_{(\pi, 1 - \pi)}(\mu, \nu)$~.
+\end{definition}
+
+Thanks to the following lemma, we can prove properties of the Bayes binary risk for non-zero finite measures by considering only probability measures.
+
+\begin{lemma}
+  \label{lem:bayesBinaryRisk_mul}
+  \lean{ProbabilityTheory.bayesBinaryRisk_smul_smul}
+  \leanok
+  \uses{def:bayesRisk}
+  For all $a, b > 0$, $\mathcal B_\xi(\mu, \nu) = \mathcal B_{(a \xi_0, b \xi_1)}(a^{-1} \mu, b^{-1} \nu)$~.
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{}
+
+\end{proof}
+
+Alternatively, we can reduce the study of the Bayes binary risk for any prior to the study of the prior $(1, 1)$, for which that risk is related to the total variation distance (defined later).
+
+\begin{lemma}
+  \label{lem:bayesBinaryRisk_one_one}
+  \lean{ProbabilityTheory.bayesBinaryRisk_eq_bayesBinaryRisk_one_one}
+  \leanok
+  \uses{def:bayesRisk}
+  $\mathcal B_\xi(\mu, \nu) = \mathcal B_{(1,1)}(\xi_0\mu, \xi_1\nu)$~.
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{lem:bayesBinaryRisk_mul}
+
 \end{proof}
 
 \begin{theorem}[Data-processing inequality]
   \label{thm:data_proc_bayesBinaryRisk}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.bayesBinaryRisk_le_bayesBinaryRisk_comp}
+  \leanok
   \uses{def:bayesBinaryRisk}
-  For $\mu, \nu \in \mathcal M(\mathcal X)$ and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ a Markov kernel, $B_\pi(\kappa \circ \mu, \kappa \circ \nu) \ge B_\pi(\mu, \nu)$~.
+  For $\mu, \nu \in \mathcal M(\mathcal X)$ and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ a Markov kernel, $\mathcal B_\xi(\kappa \circ \mu, \kappa \circ \nu) \ge \mathcal B_\xi(\mu, \nu)$~.
 \end{theorem}
 
-\begin{proof}%\leanok
-\uses{}
-First we note the following expression for $B_\pi$~:
-\begin{align*}
-B_\pi(\mu, \nu)
-&= \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\pi (\hat{y} \circ \mu)(\{1\}) + (1 - \pi) (\hat{y} \circ \nu)(\{0\})\right)
-\: .
-\end{align*}
-We proceed with the proof.
-\begin{align*}
-B_\pi(\kappa \circ \mu, \kappa \circ \nu)
-&= \inf_{\hat{y} : \mathcal Y \rightsquigarrow \{0,1\}}\left(\pi (\hat{y} \circ \kappa \circ \mu)(\{1\}) + (1 - \pi) (\hat{y} \circ \kappa \circ \nu)(\{0\})\right)
-\\
-&\ge \inf_{\hat{y}' : \mathcal X \rightsquigarrow \{0,1\}}\left(\pi (\hat{y}' \circ \mu)(\{1\}) + (1 - \pi) (\hat{y}' \circ \nu)(\{0\})\right)
-\\
-&= B_\pi(\mu, \nu)
-\: .
-\end{align*}
-The inequality is due to taking an infimum over a larger set: $\{\hat{y} \circ \kappa \mid \hat{y} : \mathcal Y \rightsquigarrow \{0,1\} \text{ Markov}\} \subseteq \{\hat{y}' : \mathcal X \rightsquigarrow \{0,1\} \mid \hat{y} \text{ Markov}\}$~.
+\begin{proof}\leanok
+\uses{thm:data_proc_bayesRisk}
+Apply Theorem~\ref{thm:data_proc_bayesRisk}.
 \end{proof}
 
-\begin{definition}
-  \label{def:deGrootInfo}
+\begin{lemma}
+  \label{lem:bayesBinaryRisk_self}
+  \lean{ProbabilityTheory.bayesBinaryRisk_self}
+  \leanok
+  \uses{def:bayesBinaryRisk}
+  For $\mu \in \mathcal M(\mathcal X)$, $\mathcal B_\xi(\mu, \mu) = \min\{\xi_0, \xi_1\} \mu(\mathcal X)$~.
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{}
+\end{proof}
+
+\begin{lemma}
+  \label{lem:bayesBinaryRisk_nonneg}
   %\lean{}
   %\leanok
   \uses{def:bayesBinaryRisk}
-  The De Groot statistical information between measures $\mu$ and $\nu$ is $I_\pi(\mu, \nu) = \min\{\pi, 1 - \pi\} - B_\pi(\mu, \nu)$.
-\end{definition}
-
-\begin{lemma}
-  \label{lem:deGrootInfo_self}
-  %\lean{}
-  %\leanok
-  \uses{def:deGrootInfo}
-  For $\mu \in \mathcal P(\mathcal X)$, $I_\pi(\mu, \mu) = 0$~.
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{lem:bayesBinaryRisk_self}
-Use Lemma~\ref{lem:bayesBinaryRisk_self}.
-\end{proof}
-
-\begin{lemma}
-  \label{lem:deGrootInfo_nonneg}
-  %\lean{}
-  %\leanok
-  \uses{def:deGrootInfo}
-  For $\mu, \nu \in \mathcal P(\mathcal X)$, $I_\pi(\mu, \nu) \ge 0$~.
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{lem:bayesBinaryRisk_le}
-Use Lemma~\ref{lem:bayesBinaryRisk_le}.
-\end{proof}
-
-\begin{lemma}
-  \label{lem:deGrootInfo_half}
-  %\lean{}
-  %\leanok
-  \uses{def:deGrootInfo, def:TV}
-  For $\mu, \nu \in \mathcal P(\mathcal X)$, $I_{1/2}(\mu, \nu) = \frac{1}{2}\TV(\mu, \nu)$~.
+  For all measures $\mu, \nu$, $\mathcal B_\xi(\mu, \nu) \ge 0$~.
 \end{lemma}
 
 \begin{proof}%\leanok
 \uses{}
+It is an infimum of non-negative values.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:bayesBinaryRisk_le}
+  \lean{ProbabilityTheory.bayesBinaryRisk_le_min}
+  \leanok
+  \uses{def:bayesBinaryRisk}
+  For all measures $\mu, \nu$, $\mathcal B_\xi(\mu, \nu) \le \min\{\xi_0 \mu(\mathcal X), \xi_1 \nu(\mathcal X)\}$~.
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{thm:data_proc_bayesBinaryRisk, lem:bayesBinaryRisk_self, lem:bayesBinaryRisk_mul}
+Let $d_{\mathcal X} : \mathcal X \rightsquigarrow *$ be the discard kernel and $\delta_*$ be the only probability measure over $*$, that is a Dirac delta.
+Then applying the DPI (Theorem~\ref{thm:data_proc_bayesBinaryRisk}), followed by Lemma~\ref{lem:bayesBinaryRisk_mul} and Lemma~\ref{lem:bayesBinaryRisk_self}, we obtain:
+\begin{align*}
+\mathcal B_\xi(\mu, \nu)
+&\le \mathcal B_\xi(d_{\mathcal X} \circ \mu, d_{\mathcal X} \circ \nu)
+\\
+&= \mathcal B_\xi(\mu(\mathcal X) \delta_*, \nu(\mathcal X) \delta_*)
+\\
+&= \mathcal B_{(\mu(\mathcal X) \xi_0, \nu(\mathcal X) \xi_1)}(\delta_*, \delta_*)
+\\
+&= \min\{\mu(\mathcal X) \xi_0, \nu(\mathcal X) \xi_1\} \delta_*(\mathcal X)
+\\
+&= \min\{\mu(\mathcal X) \xi_0, \nu(\mathcal X) \xi_1\}
+\: .
+\end{align*}
+\end{proof}
+
+\begin{lemma}
+  \label{lem:bayesBinaryRisk_symm}
+  \lean{ProbabilityTheory.bayesBinaryRisk_symm}
+  \leanok
+  \uses{def:bayesBinaryRisk}
+  For $\mu, \nu \in \mathcal M(\mathcal X)$ and $\xi \in \mathcal M(\{0,1\})$, $\mathcal B_\xi(\mu, \nu) = \mathcal B_{\xi_{\leftrightarrow}}(\nu, \mu)$ where $\xi_{\leftrightarrow} \in \mathcal M(\{0,1\})$ is such that $\xi_{\leftrightarrow}(\{0\}) = \xi_1$ and $\xi_{\leftrightarrow}(\{1\}) = \xi_0$.
+  For $\pi \in [0,1]$, $B_\pi(\mu, \nu) = B_{1 - \pi}(\nu, \mu)$~.
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{}
 
 \end{proof}
 
-\begin{theorem}[Data-processing inequality]
-  \label{thm:data_proc_deGrootInfo}
-  %\lean{}
-  %\leanok
-  \uses{def:deGrootInfo}
-  For $\mu, \nu \in \mathcal M(\mathcal X)$ and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ a Markov kernel, $I_\pi(\kappa \circ \mu, \kappa \circ \nu) \le I_\pi(\mu, \nu)$~.
-\end{theorem}
+\begin{lemma}
+  \label{lem:genBayesEstimator_bayesBinaryRisk}
+  \lean{ProbabilityTheory.binaryGenBayesEstimator_isGenBayesEstimator}
+  \leanok
+  \uses{def:genBayesEstimator, def:bayesBinaryRisk}
+  The generalized Bayes estimator for the Bayes binary risk with prior $\xi \in \mathcal M(\{0,1\})$ is $x \mapsto \text{if } \xi_1\frac{d \nu}{d(P \circ \xi)}(x) \le \xi_0\frac{d \mu}{d(P \circ \xi)}(x) \text{ then } 0 \text{ else } 1$, i.e. it is equal to $\mathbb{I}_E$ for $E = \{x \mid \xi_1\frac{d \nu}{d(P \circ \xi)}(x) > \xi_0\frac{d \mu}{d(P \circ \xi)}(x)\}$~.
+\end{lemma}
 
-Note that this theorem is valid for any measurable space: no countability is required.
+\begin{proof}\leanok
+\uses{lem:bayesInv_binary}
+The generalized Bayes estimator is defined by
+\begin{align*}
+x \mapsto \arg\min_z P_\xi^\dagger(x)\left[\theta \mapsto \ell'(y(\theta), z)\right] \: .
+\end{align*}
+For the simple binary hypothesis testing problem,
+\begin{align*}
+P_\xi^\dagger(x)\left[\theta \mapsto \ell'(y(\theta), z)\right]
+&= P_\xi^\dagger(x)(\theta \ne z)
+\: .
+\end{align*}
+For $z = 0$, this is $P_\xi^\dagger(x)(\{1\})$ and for $z = 1$, this is $P_\xi^\dagger(x)(\{0\})$.
+The generalized Bayes estimator is $x \mapsto \text{if } P_\xi^\dagger(x)(\{1\}) \le P_\xi^\dagger(x)(\{0\}) \text{ then } 0 \text{ else } 1$.
 
-\begin{proof}%\leanok
-\uses{thm:data_proc_bayesBinaryRisk}
-It suffices to prove $B_\pi(\kappa \circ \mu, \kappa \circ \nu) \ge B_\pi(\mu, \nu)$ since $I_\pi(\mu, \nu) = \min\{\pi, 1 - \pi\} - B_\pi(\mu, \nu)$.
-The inequality was proved in Theorem~\ref{thm:data_proc_bayesBinaryRisk}.
+The expression of the lemma statement is obtained by replacing $P_\xi^\dagger$ by its value (Lemma~\ref{lem:bayesInv_binary}).
 \end{proof}
 
-TODO: this extends the data-processing inequality for TV to any space.
 
-TODO: once we prove the integral form of any $f$-divergence with respect to the De Groot statistical information, this will extend the data-processing inequality for all $f$-divergences. 
-
-\section{Deficiency}
-
-\begin{definition}[Le Cam deficiency]
-  \label{def:deficiency}
-  %\lean{}
-  %\leanok
-  \uses{def:TV}
-  The Le Cam deficiency of $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ with respect to $\eta : \mathcal X \rightsquigarrow \mathcal Z$ is
+\begin{lemma}
+  \label{lem:bayesBinaryRisk_eq_event}
+  \lean{ProbabilityTheory.bayesBinaryRisk_eq_iInf_measurableSet}
+  \leanok
+  \uses{def:bayesRisk}
   \begin{align*}
-  \delta_{\TV}(\kappa, \eta) = \inf_{\xi} \sup_{x \in \mathcal X} \TV(\xi \circ \kappa (x), \eta(x)) \: ,
+  \mathcal B_\xi(\mu, \nu) = \inf_{E \text{ event}} \left( \xi_0 \mu(E) + \xi_1 \nu(E^c) \right) \: .
   \end{align*}
-  in which the infimum is taken over all Markov kernels $\xi : \mathcal Y \rightsquigarrow \mathcal Z$~.
-\end{definition}
-
-TODO: from any divergence on measures $D$, \cite{perrone2023markov} defines a divergence between kernels $\kappa, \kappa' : \mathcal X \rightsquigarrow \mathcal Y$ by $D(\kappa, \kappa') = \sup_{x \in \mathcal X} D(\kappa(x), \eta(x))$.
-If we see measures as kernels from a point space, the divergence between measures-as-kernels coincides with the divergence between the measures.
-With that notation, $\delta_{\TV}(\kappa, \eta) = \inf_{\xi} \TV(\xi \circ \kappa, \eta)$.
-We could also proceed as \cite{raginsky2011shannon} and extend the notion of deficiency to deficiency with respect to a divergence: $\delta_D(\kappa, \eta) = \inf_{\xi} D(\eta, \xi\circ\kappa)$ (note the reversed arguments, which does not matter for the case of $\TV$ since it is symmetric).
-
-\begin{lemma}
-  \label{lem:deficiency_nonneg}
-  %\lean{}
-  %\leanok
-  \uses{def:deficiency}
-  Let $\kappa: \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal X \rightsquigarrow \mathcal Z$. Then $\delta_{\TV}(\kappa, \eta) \ge 0$~.
 \end{lemma}
 
-\begin{proof}%\leanok
-\uses{lem:tv_nonneg}
-This is a consequence of Lemma~\ref{lem:tv_nonneg}.
-\end{proof}
-
-\begin{lemma}
-  \label{lem:deficiency_self}
-  %\lean{}
-  %\leanok
-  \uses{def:deficiency}
-  Let $\kappa: \mathcal X \rightsquigarrow \mathcal Y$. Then $\delta_{\TV}(\kappa, \kappa) = 0$~.
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{lem:deficiency_nonneg}
-By Lemma~\ref{lem:deficiency_nonneg}, $0 \le \delta_{\TV}(\kappa, \kappa)$.
-In the infimum that defines $\delta_{\TV}(\kappa, \kappa)$, take $\xi = \textup{id}$ to get an upper bound of 0 on $\delta_{\TV}(\kappa, \kappa)$.
-\end{proof}
-
-\begin{lemma}
-  \label{lem:deficiency_comp}
-  %\lean{}
-  %\leanok
-  \uses{def:deficiency, def:blackwellOrder}
-  Let $\kappa: \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal X \rightsquigarrow \mathcal Z$.
-  If $\eta \le_B \kappa$ (that is, there exists a Markov kernel $\chi : \mathcal Y \rightsquigarrow \mathcal Z$ such that $\eta = \chi \circ \kappa$), then $\delta_{\TV}(\kappa, \eta) = 0$~.
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{lem:deficiency_nonneg}
-In the infimum that defines $\delta_{\TV}(\kappa, \eta)$, take $\xi = \chi$ to get an upper bound of 0 on $\delta_{\TV}(\kappa, \eta)$. The lower bound is Lemma~\ref{lem:deficiency_nonneg}.
-\end{proof}
-
-\begin{lemma}
-  \label{lem:deficiency_antimono_left}
-  %\lean{}
-  %\leanok
-  \uses{def:deficiency, def:blackwellOrder}
-  Let $\kappa: \mathcal X \rightsquigarrow \mathcal Y$, $\eta : \mathcal X \rightsquigarrow \mathcal Z$ and $\zeta : \mathcal X \rightsquigarrow \mathcal W$ be Markov kernels.
-  If $\eta \le_B \kappa$ then $\delta_{\TV}(\kappa, \zeta) \le \delta_{\TV}(\eta, \zeta)$~.
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{}
-Let $\chi$ be a Markov kernel such that $\eta = \chi \circ \kappa$~.
+\begin{proof}\leanok
+\uses{lem:genBayesEstimator_bayesBinaryRisk}
+By definition,
 \begin{align*}
-\delta_{\TV}(\eta, \zeta)
-&= \inf_{\xi} \sup_{x \in \mathcal X} \TV(\xi \circ \eta (x), \zeta(x))
-\\
-&= \inf_\xi \sup_{x \in \mathcal X} \TV(\xi \circ \chi \circ \kappa (x), \zeta(x))
+\mathcal B_\xi(\mu, \nu)
+= \inf_{\hat{y} : \mathcal X \rightsquigarrow \{0,1\}}\left(\xi_0 (\hat{y} \circ \mu)(\{1\}) + \xi_1 (\hat{y} \circ \nu)(\{0\})\right)
 \: .
 \end{align*}
-Since $\xi \circ \chi$ is a Markov kernel, the infimum over Markov kernels of the form $\xi \circ \chi$ is larger than the infimum over all Markov kernels.
+If we restrict the infimum to deterministic kernels corresponding to functions of the form $x \mapsto \mathbb{I}\{x \in E\}$, we get that $\mathcal B_\xi(\mu, \nu)$ is bounded from above by the expression for which we want to show equality.
+
+Since the Bayes estimator has that shape (Lemma~\ref{lem:genBayesEstimator_bayesBinaryRisk}), $\mathcal B_\xi(\mu, \nu)$ is also greater than the infimum and we have equality.
 \end{proof}
 
+
+\begin{theorem}
+  \label{thm:bayesBinaryRisk_eq}
+  \lean{ProbabilityTheory.bayesBinaryRisk_eq_lintegral_min, ProbabilityTheory.toReal_bayesBinaryRisk_eq_integral_min}
+  \leanok
+  \uses{def:bayesBinaryRisk}
+  The Bayes risk of simple binary hypothesis testing for prior $\xi \in \mathcal M(\{0,1\})$ is
+  \begin{align*}
+  \mathcal B_\xi(\mu, \nu) = (P \circ \xi)\left[x \mapsto \min \left\{\xi_0\frac{d \mu}{d(P \circ \xi)}(x), \xi_1\frac{d \nu}{d(P \circ \xi)}(x)\right\}\right]
+  \: .
+  \end{align*}
+\end{theorem}
+
+\begin{proof}\leanok
+\uses{lem:bayesianRisk_genBayesEstimator, thm:isBayesEstimator_genBayesEstimator, lem:bayesInv_binary}
+By Theorem~\ref{thm:isBayesEstimator_genBayesEstimator}, the generalized Bayes estimator is a Bayes estimator, hence it suffices to compute its Bayesian risk.
+By Lemma~\ref{lem:bayesianRisk_genBayesEstimator},
+\begin{align*}
+R_\xi(\hat{y}_B)
+&= (P \circ \xi)\left[x \mapsto \inf_{z \in \mathcal Z} P_\xi^\dagger(x) \left[\theta \mapsto \ell'(y(\theta), z)\right]\right]
+\\
+&= (P \circ \xi)\left[x \mapsto \min \left\{P_\xi^\dagger(x)(\{0\}), P_\xi^\dagger(x)(\{1\})\right\}\right]
+\\
+&= (P \circ \xi)\left[x \mapsto \min \left\{\xi_0\frac{d \mu}{d(P \circ \xi)}(x), \xi_1\frac{d \nu}{d(P \circ \xi)}(x)\right\}\right]
+\: .
+\end{align*}
+The last line is obtained by replacing $P_\xi^\dagger$ by its value (Lemma~\ref{lem:bayesInv_binary}).
+\end{proof}
+
+\begin{corollary}
+  \label{cor:bayesBinaryRisk_eq_abs}
+  \lean{ProbabilityTheory.toReal_bayesBinaryRisk_eq_integral_abs}
+  \leanok
+  \uses{def:bayesBinaryRisk}
+  \begin{align*}
+  \mathcal B_\xi(\mu, \nu) = \frac{1}{2}\left((P \circ \xi)(\mathcal X) -  (P \circ \xi)\left[x \mapsto \left\vert \xi_0\frac{d \mu}{d(P \circ \xi)}(x) - \xi_1\frac{d \nu}{d(P \circ \xi)}(x)\right\vert\right] \right)
+  \: .
+  \end{align*}
+\end{corollary}
+
+\begin{proof}\leanok
+\uses{thm:bayesBinaryRisk_eq}
+Use Theorem~\ref{thm:bayesBinaryRisk_eq} and the equality $\min\{a,b\} = \frac{1}{2}(a + b - \vert a - b \vert)$.
+\end{proof}
+
+
 \begin{lemma}
-  \label{lem:deficiency_mono_right}
+  \label{lem:bayesBinaryRisk_bernoulli}
   %\lean{}
   %\leanok
-  \uses{def:deficiency, def:blackwellOrder}
-  Let $\kappa: \mathcal X \rightsquigarrow \mathcal Y$, $\eta : \mathcal X \rightsquigarrow \mathcal Z$ and $\zeta : \mathcal X \rightsquigarrow \mathcal W$ be Markov kernels.
-  If $\zeta \le_B \eta$ then $\delta_{\TV}(\kappa, \zeta) \le \delta_{\TV}(\kappa, \eta)$~.
+  \uses{def:bayesBinaryRisk}
+  Let $\hat{y}_B$ be the generalized Bayes estimator for simple binary hypothesis testing.
+  The distribution $\ell \circ (\mathrm{id} \parallel \hat{y}_B) \circ (\pi \otimes P)$ (in which $\ell$ stands for the associated deterministic kernel) is a Bernoulli with mean $\mathcal B_\pi(\mu, \nu)$.
 \end{lemma}
 
 \begin{proof}%\leanok
-\uses{thm:tv_data_proc}
-Let $\chi$ be a Markov kernel such that $\zeta = \chi \circ \eta$~.
-\begin{align*}
-\delta_{\TV}(\kappa, \zeta)
-&= \inf_{\xi : \mathcal Y \rightsquigarrow \mathcal W} \sup_{x \in \mathcal X} \TV(\xi \circ \kappa (x), \zeta(x))
-\\
-&= \inf_{\xi : \mathcal Y \rightsquigarrow \mathcal W} \sup_{x \in \mathcal X} \TV(\xi \circ \kappa (x), \chi \circ \eta(x))
-\\
-&\le \inf_{\xi' : \mathcal Y \rightsquigarrow \mathcal Z} \sup_{x \in \mathcal X} \TV(\chi \circ \xi' \circ \kappa (x), \chi \circ \eta(x))
-\: .
-\end{align*}
-By the data-processing inequality for $\TV$ (Theorem \ref{thm:tv_data_proc}), for all $\xi' : \mathcal Y \rightsquigarrow \mathcal Z$, $\TV(\chi \circ \xi' \circ \kappa (x), \chi \circ \eta(x)) \le \TV(\xi' \circ \kappa (x), \eta(x))$.
-This concludes the proof.
+\uses{thm:isBayesEstimator_genBayesEstimator}
+$\ell$ takes values in $\{0,1\}$ so the law has to be Bernoulli. It has mean $\mathcal B_\pi(\mu, \nu)$ because the expected risk of the generalized Bayes estimator is $\mathcal B_\pi(\mu, \nu)$.
 \end{proof}
+
+
 
 \section{Reduction to testing}
 

@@ -6,7 +6,6 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 import TestingLowerBounds.DerivAtTop
 import TestingLowerBounds.ForMathlib.RadonNikodym
 import TestingLowerBounds.ForMathlib.RnDeriv
-import TestingLowerBounds.ForMathlib.Measure
 
 /-!
 
@@ -190,7 +189,7 @@ lemma fDiv_id (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν] :
     simp only [id_eq, derivAtTop_id, one_mul]
     rw [← integral_univ, Measure.setIntegral_toReal_rnDeriv_eq_withDensity]
     have h_ne_top : (Measure.withDensity ν (∂μ/∂ν)) Set.univ ≠ ∞ := by
-      rw [withDensity_apply _ MeasurableSet.univ, set_lintegral_univ]
+      rw [withDensity_apply _ MeasurableSet.univ, setLIntegral_univ]
       rwa [integrable_toReal_iff] at h_int
       · exact (μ.measurable_rnDeriv ν).aemeasurable
       · exact μ.rnDeriv_ne_top ν
@@ -199,7 +198,6 @@ lemma fDiv_id (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν] :
     conv_rhs => rw [μ.haveLebesgueDecomposition_add ν, add_comm]
     simp
   · rw [fDiv_of_not_integrable h_int]
-    norm_cast
     symm
     by_contra h_ne_top
     have : IsFiniteMeasure μ := ⟨Ne.lt_top ?_⟩
@@ -715,7 +713,7 @@ lemma le_fDiv [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
   simp only [MeasurableSet.univ, withDensity_apply, Measure.restrict_univ, sub_self, EReal.coe_zero,
     measure_univ, EReal.coe_ennreal_one, mul_one, zero_add]
   gcongr
-  rw [← set_lintegral_univ, ← withDensity_apply _ MeasurableSet.univ]
+  rw [← setLIntegral_univ, ← withDensity_apply _ MeasurableSet.univ]
   exact le_fDiv_of_ac hf_cvx hf_cont (withDensity_absolutelyContinuous _ _)
 
 lemma fDiv_nonneg [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
@@ -723,6 +721,36 @@ lemma fDiv_nonneg [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
     0 ≤ fDiv f μ ν := by
   calc (0 : EReal) = f (μ Set.univ).toReal := by simp [hf_one]
   _ ≤ fDiv f μ ν := le_fDiv hf_cvx hf_cont
+
+lemma fDiv_eq_zero_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_mass : μ Set.univ = ν Set.univ)
+    (hf_deriv : derivAtTop f = ⊤) (hf_cvx : StrictConvexOn ℝ (Set.Ici 0) f)
+    (hf_cont : ContinuousOn f (Set.Ici 0)) (hf_one : f 1 = 0) :
+    fDiv f μ ν = 0 ↔ μ = ν := by
+  refine ⟨fun h ↦ ?_, fun h ↦ h ▸ fDiv_self hf_one _⟩
+  by_cases hμν : μ ≪ ν
+  swap; · rw [fDiv_of_not_ac hf_deriv hμν] at h; exact (EReal.top_ne_zero h).elim
+  by_cases h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν
+  swap; · rw [fDiv_of_not_integrable h_int] at h; exact (EReal.top_ne_zero h).elim
+  by_cases hμ_zero : μ = 0
+  · rw [hμ_zero] at h_mass ⊢
+    rw [Measure.measure_univ_eq_zero.mp h_mass.symm]
+  classical
+  rw [fDiv_of_derivAtTop_eq_top hf_deriv, if_pos ⟨h_int, hμν⟩, EReal.coe_eq_zero] at h
+  have h_eq := StrictConvexOn.ae_eq_const_or_map_average_lt hf_cvx hf_cont isClosed_Ici (by simp)
+    Measure.integrable_toReal_rnDeriv h_int
+  simp only [average, integral_smul_measure, smul_eq_mul, h, mul_zero, ← h_mass] at h_eq
+  rw [Measure.integral_toReal_rnDeriv hμν, ← ENNReal.toReal_mul,
+    ENNReal.inv_mul_cancel (Measure.measure_univ_ne_zero.mpr hμ_zero) (measure_ne_top μ _)] at h_eq
+  simp only [ENNReal.one_toReal, Function.const_one, log_one, mul_zero, lt_self_iff_false,
+    or_false, hf_one] at h_eq
+  exact (Measure.rnDeriv_eq_one_iff_eq hμν).mp <| ENNReal.eventuallyEq_of_toReal_eventuallyEq
+    (Measure.rnDeriv_ne_top _ _) (eventually_of_forall fun _ ↦ ENNReal.one_ne_top) h_eq
+
+lemma fDiv_eq_zero_iff' [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
+    (hf_deriv : derivAtTop f = ⊤) (hf_cvx : StrictConvexOn ℝ (Set.Ici 0) f)
+    (hf_cont : ContinuousOn f (Set.Ici 0)) (hf_one : f 1 = 0) :
+    fDiv f μ ν = 0 ↔ μ = ν := by
+  exact fDiv_eq_zero_iff (by simp) hf_deriv hf_cvx hf_cont hf_one
 
 lemma fDiv_map_measurableEmbedding [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     {g : α → β} (hg : MeasurableEmbedding g) :

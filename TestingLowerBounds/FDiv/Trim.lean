@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne
 -/
 import TestingLowerBounds.FDiv.Basic
-import TestingLowerBounds.MeasureCompProd
 
 /-!
 
@@ -108,7 +107,7 @@ lemma fDiv_trim_le_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ m
   classical
   rw [fDiv_of_absolutelyContinuous hμν, if_pos h_int]
   norm_cast
-  conv_rhs => rw [← integral_condexp hm h_int]
+  conv_rhs => rw [← integral_condexp hm]
   refine integral_mono_ae (integrable_f_condexp_rnDeriv hm hμν hf hf_cvx hf_cont h_int) ?_ ?_
   · exact integrable_condexp
   refine ae_of_ae_trim hm ?_
@@ -119,7 +118,7 @@ lemma fDiv_trim_le [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ mα)
     (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0)) :
     fDiv f (μ.trim hm) (ν.trim hm) ≤ fDiv f μ ν := by
   have h1 : μ.trim hm = (ν.withDensity (∂μ/∂ν)).trim hm + (μ.singularPart ν).trim hm := by
-    conv_lhs => rw [μ.haveLebesgueDecomposition_add ν, add_comm, Measure.trim_add]
+    conv_lhs => rw [μ.haveLebesgueDecomposition_add ν, add_comm, trim_add]
   rw [h1, fDiv_eq_add_withDensity_derivAtTop μ ν hf_cvx]
   refine (fDiv_add_measure_le _ _ _ hf hf_cvx).trans ?_
   refine add_le_add ?_ ?_

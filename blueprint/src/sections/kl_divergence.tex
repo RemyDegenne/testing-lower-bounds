@@ -1,4 +1,4 @@
-\chapter{Kullback-Leibler divergence}
+\section{Kullback-Leibler divergence}
 
 \begin{definition}[Kullback-Leibler divergence]
   \label{def:KL}
@@ -48,7 +48,7 @@ Simple computation.
 Simple computation.
 \end{proof}
 
-\section{Properties inherited from f-divergences}
+\subsection{Properties inherited from f-divergences}
 
 Since $\KL$ is an f-divergence, every inequality for f-divergences can be translated to $\KL$.
 
@@ -57,7 +57,7 @@ Since $\KL$ is an f-divergence, every inequality for f-divergences can be transl
   \lean{ProbabilityTheory.kl_self}
   \leanok
   \uses{def:KL}
-  $KL(\mu, \mu) = 0$.
+  $\KL(\mu, \mu) = 0$.
 \end{lemma}
 
 \begin{proof} \leanok
@@ -84,14 +84,14 @@ Since $\KL$ is an f-divergence, every inequality for f-divergences can be transl
   \lean{ProbabilityTheory.kl_fst_le, ProbabilityTheory.kl_snd_le}
   \leanok
   \uses{def:KL}
-  Let $\mu$ and $\nu$ be two measures on $\mathcal X \times \mathcal Y$ where $\mathcal Y$ is standard Borel, and let $\mu_X, \nu_X$ be their marginals on $\mathcal X$.
+  Let $\mu$ and $\nu$ be two measures on $\mathcal X \times \mathcal Y$, and let $\mu_X, \nu_X$ be their marginals on $\mathcal X$.
   Then $\KL(\mu_X, \nu_X) \le \KL(\mu, \nu)$.
-  Similarly, for $\mathcal X$ standard Borel and $\mu_Y, \nu_Y$ the marginals on $\mathcal Y$, $\KL(\mu_Y, \nu_Y) \le \KL(\mu, \nu)$.
+  Similarly, for $\mu_Y, \nu_Y$ the marginals on $\mathcal Y$, $\KL(\mu_Y, \nu_Y) \le \KL(\mu, \nu)$.
 \end{theorem}
 
 \begin{proof} \leanok
-\uses{thm:fDiv_fst_le, lem:kl_eq_fDiv}
-Apply Theorem~\ref{thm:fDiv_fst_le}.
+\uses{thm:fDiv_fst_le_2, lem:kl_eq_fDiv}
+Apply Theorem~\ref{thm:fDiv_fst_le_2}.
 \end{proof}
 
 \begin{theorem}[Data-processing]
@@ -104,8 +104,8 @@ Apply Theorem~\ref{thm:fDiv_fst_le}.
 \end{theorem}
 
 \begin{proof} \leanok
-\uses{thm:fDiv_data_proc, lem:kl_eq_fDiv}
-Apply Theorem~\ref{thm:fDiv_data_proc}.
+\uses{thm:fDiv_data_proc_2, lem:kl_eq_fDiv}
+Apply Theorem~\ref{thm:fDiv_data_proc_2}.
 \end{proof}
 
 \begin{lemma}
@@ -120,7 +120,7 @@ Apply Theorem~\ref{thm:fDiv_data_proc}.
 \uses{lem:le_fDiv, lem:kl_eq_fDiv}
 \end{proof}
 
-\begin{lemma}
+\begin{lemma}[Gibbs' inequality]
   \label{lem:kl_nonneg}
   \lean{ProbabilityTheory.kl_nonneg}
   \leanok
@@ -131,6 +131,19 @@ Apply Theorem~\ref{thm:fDiv_data_proc}.
 \begin{proof}\leanok
 \uses{lem:kl_ge}
 Apply Lemma~\ref{lem:kl_ge} and use $\mu(\mathcal X) = \nu (\mathcal X)$.
+\end{proof}
+
+\begin{lemma}[Converse Gibbs' inequality]
+  \label{lem:kl_eq_zero_iff}
+  \lean{ProbabilityTheory.kl_eq_zero_iff'}
+  \leanok
+  \uses{def:KL}
+  Let $\mu, \nu$ be two probability measures. Then $\KL(\mu, \nu) = 0$ if and only if $\mu = \nu$.
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{lem:kl_eq_fDiv, lem:fDiv_eq_zero_iff}
+KL is an f-divergence thanks to Lemma~\ref{lem:kl_eq_fDiv}, then apply Lemma~\ref{lem:fDiv_eq_zero_iff}.
 \end{proof}
 
 \begin{lemma}
@@ -195,14 +208,14 @@ Then using 1.\ we can conclude that $x \mapsto \int_y \log \frac{d \kappa(x)}{d 
 
 
 
-\section{Chain rule and tensorization}
+\subsection{Chain rule and tensorization}
 
 \begin{theorem}[Chain rule, kernel version]
   \label{thm:kl_compProd}
   \lean{ProbabilityTheory.kl_compProd}
   \leanok
   \uses{def:KL, def:condKL}
-  The chain rule for the KL divergence. Let $\mu, \nu$ be two finite measures on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ two Markov kernels.
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ two Markov kernels.
   Then $\KL(\mu \otimes \kappa, \nu \otimes \eta) = \KL(\mu, \nu) + \KL(\kappa, \eta \mid \mu)$.
 \end{theorem}
 
@@ -228,6 +241,26 @@ For the case where $\mu \otimes \kappa \ll \nu \otimes \eta$ and $p \mapsto \log
 \end{align*}
 
 \end{proof}
+
+
+\begin{theorem}[Chain rule, with Bayesian inverse]
+  \label{thm:kl_compProd_bayesInv}
+  %\lean{}
+  %\leanok
+  \uses{def:KL, def:condKL, def:bayesInv}
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ two Markov kernels with Bayesian inverses $\kappa_\mu^\dagger$ and $\eta_\nu^\dagger$.
+  Then 
+  \begin{align*}
+  \KL(\mu \otimes \kappa, \nu \otimes \eta) = \KL(\kappa \circ \mu, \eta \circ \nu) + \KL(\kappa_\mu^\dagger, \eta_\nu^\dagger \mid \kappa \circ \mu)
+  \: .
+  \end{align*}
+\end{theorem}
+
+\begin{proof}%\leanok
+\uses{thm:kl_compProd}
+
+\end{proof}
+
 
 \begin{theorem}[Chain rule, product version]
   \label{thm:kl_fst_add_condKL}
@@ -262,7 +295,7 @@ Write $\mu_1 \times \mu_2$ and $\nu_1 \times \nu_2$ as composition products of a
   \lean{ProbabilityTheory.kl_prod_two}
   \leanok
   \uses{def:KL}
-  For $\mu_1$ probability measure on $\mathcal X$, $\nu_1$ finite measure on $\mathcal{X}$ and $\mu_2, \nu_2$ two probability measures on $\mathcal Y$,
+  For $\mu_1$ a probability measure on $\mathcal X$, $\nu_1$ a finite measure on $\mathcal{X}$ and $\mu_2, \nu_2$ two probability measures on $\mathcal Y$,
   \begin{align*}
   \KL(\mu_1 \times \mu_2, \nu_1 \times \nu_2) = \KL(\mu_1, \nu_1) + \KL(\mu_2 \times \nu_2) \: .
   \end{align*}
