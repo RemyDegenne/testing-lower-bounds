@@ -7,7 +7,6 @@ open Filter
 
 namespace MeasureTheory
 
-@[simp]
 lemma Integrable.of_isEmpty {α β : Type*} [MeasurableSpace α] [NormedAddCommGroup β]
     [IsEmpty α] (f : α → β) (μ : Measure α) : Integrable f μ := Integrable.of_finite μ f
 
