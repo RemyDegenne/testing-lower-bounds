@@ -38,7 +38,9 @@ variable {α β γ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β
 /-- Composition of a measure and a kernel.
 
 Defined using `MeasureTheory.Measure.bind` -/
-scoped[ProbabilityTheory] infixl:100 " ∘ₘ " => fun μ κ ↦ MeasureTheory.Measure.bind κ μ
+--scoped[ProbabilityTheory] infixl:100 " ∘ₘ " => fun μ κ ↦ MeasureTheory.Measure.bind κ μ
+
+scoped[ProbabilityTheory] notation3 κ " ∘ₘ " μ:100 => MeasureTheory.Measure.bind μ κ
 
 lemma Measure.comp_assoc {μ : Measure α} [SFinite μ]
     {κ : kernel α β} [IsSFiniteKernel κ] {η : kernel β γ} [IsSFiniteKernel η] :

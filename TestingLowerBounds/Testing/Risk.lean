@@ -180,7 +180,7 @@ an integral in the following way: `R_π(κ) = ((P†π × κ) ∘ P ∘ π)[(θ,
 lemma bayesianRisk_eq_lintegral_bayesInv_prod [StandardBorelSpace Θ] [Nonempty Θ]
     (E : estimationProblem Θ 𝒴 𝒵) (P : kernel Θ 𝒳) [IsFiniteKernel P] (κ : kernel 𝒳 𝒵)
     (π : Measure Θ) [IsFiniteMeasure π] [IsSFiniteKernel κ] :
-    bayesianRisk E P κ π = ∫⁻ (θz : Θ × 𝒵), E.ℓ (E.y θz.1, θz.2) ∂(π ∘ₘ P ∘ₘ ((P†π) ×ₖ κ)) := by
+    bayesianRisk E P κ π = ∫⁻ (θz : Θ × 𝒵), E.ℓ (E.y θz.1, θz.2) ∂(((P†π) ×ₖ κ) ∘ₘ (P ∘ₘ π)) := by
   have := E.ℓ_meas
   have := E.y_meas
   simp only [bayesianRisk, risk]
@@ -195,7 +195,7 @@ lemma bayesianRisk_eq_lintegral_bayesInv_prod [StandardBorelSpace Θ] [Nonempty 
 lemma bayesianRisk_eq_integral_integral_integral [StandardBorelSpace Θ] [Nonempty Θ]
     (E : estimationProblem Θ 𝒴 𝒵) (P : kernel Θ 𝒳) [IsFiniteKernel P] (κ : kernel 𝒳 𝒵)
     (π : Measure Θ) [IsFiniteMeasure π] [IsSFiniteKernel κ] :
-    bayesianRisk E P κ π = ∫⁻ x, ∫⁻ z, ∫⁻ θ, E.ℓ (E.y θ, z) ∂(P†π) x ∂κ x ∂π ∘ₘ P := by
+    bayesianRisk E P κ π = ∫⁻ x, ∫⁻ z, ∫⁻ θ, E.ℓ (E.y θ, z) ∂(P†π) x ∂κ x ∂(P ∘ₘ π) := by
   have := E.ℓ_meas
   have := E.y_meas
   rw [bayesianRisk_eq_lintegral_bayesInv_prod,
@@ -206,7 +206,7 @@ lemma bayesianRisk_eq_integral_integral_integral [StandardBorelSpace Θ] [Nonemp
 lemma bayesianRisk_ge_lintegral_iInf_bayesInv [StandardBorelSpace Θ] [Nonempty Θ]
     (E : estimationProblem Θ 𝒴 𝒵) (P : kernel Θ 𝒳) [IsFiniteKernel P] (κ : kernel 𝒳 𝒵)
     (π : Measure Θ) [IsFiniteMeasure π] [IsMarkovKernel κ] :
-    bayesianRisk E P κ π ≥ ∫⁻ x, ⨅ z : 𝒵, ∫⁻ θ, E.ℓ (E.y θ, z) ∂((P†π) x) ∂(π ∘ₘ P) := by
+    bayesianRisk E P κ π ≥ ∫⁻ x, ⨅ z : 𝒵, ∫⁻ θ, E.ℓ (E.y θ, z) ∂((P†π) x) ∂(P ∘ₘ π) := by
   rw [bayesianRisk_eq_integral_integral_integral]
   gcongr with x
   calc
@@ -218,13 +218,13 @@ lemma bayesianRisk_ge_lintegral_iInf_bayesInv [StandardBorelSpace Θ] [Nonempty 
 /-! ### Generalized Bayes estimator -/
 
 /-- We say that a measurable function `f : 𝒳 → 𝒵` is a Generalized Bayes estimator for the
-estimation problem `E` with respect to the prior `π` if for `(π ∘ₘ P)`-almost every `x` it is of
+estimation problem `E` with respect to the prior `π` if for `(P ∘ₘ π)`-almost every `x` it is of
 the form `x ↦ argmin_z P†π(x)[θ ↦ ℓ(y(θ), z)]`.-/
 structure IsGenBayesEstimator [StandardBorelSpace Θ] [Nonempty Θ]
     (E : estimationProblem Θ 𝒴 𝒵) (P : kernel Θ 𝒳) [IsFiniteKernel P] (f : 𝒳 → 𝒵)
     (π : Measure Θ) [IsFiniteMeasure π] : Prop where
   measurable : Measurable f
-  property : ∀ᵐ x ∂π ∘ₘ P, ∫⁻ θ, E.ℓ (E.y θ, f x) ∂(P†π) x
+  property : ∀ᵐ x ∂(P ∘ₘ π), ∫⁻ θ, E.ℓ (E.y θ, f x) ∂(P†π) x
     = ⨅ z, ∫⁻ θ, E.ℓ (E.y θ, z) ∂(P†π) x
 
 /-- Given a Generalized Bayes estimator `f`, we can define a deterministic kernel. -/
@@ -240,7 +240,7 @@ lemma bayesianRisk_of_isGenBayesEstimator [StandardBorelSpace Θ] [Nonempty Θ]
     {π : Measure Θ} [IsFiniteMeasure π]
     {f : 𝒳 → 𝒵} (hf : IsGenBayesEstimator E P f π) :
     bayesianRisk E P hf.kernel π
-      = ∫⁻ x, ⨅ z, ∫⁻ θ, E.ℓ (E.y θ, z) ∂(P†π) x ∂π ∘ₘ P := by
+      = ∫⁻ x, ⨅ z, ∫⁻ θ, E.ℓ (E.y θ, z) ∂(P†π) x ∂(P ∘ₘ π) := by
   have := E.ℓ_meas
   have := E.y_meas
   rw [bayesianRisk_eq_integral_integral_integral]
@@ -273,7 +273,7 @@ lemma bayesRiskPrior_eq_of_hasGenBayesEstimator [StandardBorelSpace Θ] [Nonempt
     (E : estimationProblem Θ 𝒴 𝒵) (P : kernel Θ 𝒳) [IsFiniteKernel P]
     (π : Measure Θ) [IsFiniteMeasure π]
     [h : HasGenBayesEstimator E P π] :
-    bayesRiskPrior E P π = ∫⁻ x, ⨅ z, ∫⁻ θ, E.ℓ (E.y θ, z) ∂((P†π) x) ∂(π ∘ₘ P) := by
+    bayesRiskPrior E P π = ∫⁻ x, ⨅ z, ∫⁻ θ, E.ℓ (E.y θ, z) ∂((P†π) x) ∂(P ∘ₘ π) := by
   rw [← isBayesEstimator_of_isGenBayesEstimator h.property, bayesianRisk_of_isGenBayesEstimator]
 
 /-! ### Bayes risk increase -/
