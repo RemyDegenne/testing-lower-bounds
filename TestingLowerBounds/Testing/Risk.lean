@@ -33,7 +33,7 @@ namespace ProbabilityTheory
 variable {Θ Θ' 𝒳 𝒳' 𝒳'' 𝒴 𝒵 : Type*} {mΘ : MeasurableSpace Θ} {mΘ' : MeasurableSpace Θ'}
   {m𝒳 : MeasurableSpace 𝒳} {m𝒳' : MeasurableSpace 𝒳'} {m𝒳'' : MeasurableSpace 𝒳''}
   {m𝒴 : MeasurableSpace 𝒴} {m𝒵 : MeasurableSpace 𝒵}
-  {μ ν : Measure 𝒳}
+  {μ ν : Measure 𝒳} {P : kernel Θ 𝒳} {κ : kernel 𝒳 𝒵} {π : Measure Θ}
 
 section EstimationProblem
 
@@ -64,6 +64,8 @@ def estimationProblem.comap (E : estimationProblem Θ 𝒴 𝒵) (f : Θ' → Θ
 
 end EstimationProblem
 
+variable {E : estimationProblem Θ 𝒴 𝒵}
+
 /-- The risk of an estimator `κ` on an estimation problem `E` with data generating kernel `P`
 at the parameter `θ`. -/
 noncomputable
@@ -87,6 +89,9 @@ noncomputable
 def bayesianRisk (E : estimationProblem Θ 𝒴 𝒵) (P : kernel Θ 𝒳)
     (κ : kernel 𝒳 𝒵) (π : Measure Θ) : ℝ≥0∞ :=
   ∫⁻ θ, risk E P κ θ ∂π
+
+@[simp]
+lemma bayesianRisk_of_isEmpty [IsEmpty Θ] : bayesianRisk E P κ π = 0 := by simp [bayesianRisk]
 
 lemma bayesianRisk_le_iSup_risk (E : estimationProblem Θ 𝒴 𝒵) (P : kernel Θ 𝒳) (κ : kernel 𝒳 𝒵)
     (π : Measure Θ) [IsProbabilityMeasure π] :
@@ -281,7 +286,7 @@ lemma isBayesEstimator_of_isGenBayesEstimator [StandardBorelSpace Θ] [Nonempty 
 
 /-- The estimation problem `E` admits a Generalized Bayes estimator with respect to the prior `π`. -/
 class HasGenBayesEstimator [StandardBorelSpace Θ] [Nonempty Θ] (E : estimationProblem Θ 𝒴 𝒵)
-    (P : kernel Θ 𝒳) [IsFiniteKernel P] (π : Measure Θ) [IsFiniteMeasure π]  where
+    (P : kernel Θ 𝒳) [IsFiniteKernel P] (π : Measure Θ) [IsFiniteMeasure π] where
   /-- The Generalized Bayes estimator. -/
   estimator : 𝒳 → 𝒵
   property : IsGenBayesEstimator E P estimator π
