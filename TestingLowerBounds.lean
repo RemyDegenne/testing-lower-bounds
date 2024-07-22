@@ -30,11 +30,13 @@ import TestingLowerBounds.ForMathlib.RadonNikodym
 import TestingLowerBounds.ForMathlib.RnDeriv
 import TestingLowerBounds.Kernel.Basic
 import TestingLowerBounds.Kernel.BayesInv
+import TestingLowerBounds.Kernel.Category
 import TestingLowerBounds.Kernel.Monoidal
 import TestingLowerBounds.MeasureCompProd
 import TestingLowerBounds.SqHellinger
 import TestingLowerBounds.StatInfoFun
 import TestingLowerBounds.Testing.Binary
+import TestingLowerBounds.Testing.BoolMeasure
 import TestingLowerBounds.Testing.ChangeMeasure
 import TestingLowerBounds.Testing.RenyiChangeMeasure
 import TestingLowerBounds.Testing.Risk
