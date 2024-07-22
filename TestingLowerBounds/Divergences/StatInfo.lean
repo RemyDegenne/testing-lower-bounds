@@ -134,6 +134,7 @@ lemma toReal_statInfo_eq_min_sub_integral (μ ν : Measure 𝒳) [IsFiniteMeasur
   swap; · simp only [ne_eq, min_eq_top, hμ, hν, and_self, not_false_eq_true]
   rw [toReal_bayesBinaryRisk_eq_integral_min,
     MonotoneOn.map_min (fun _ _ _ hb hab ↦ ENNReal.toReal_mono hb hab) hμ hν]
+
 section StatInfoFun
 
 open Set Filter ConvexOn
