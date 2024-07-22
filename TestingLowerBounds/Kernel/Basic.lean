@@ -26,19 +26,18 @@ lemma snd_compProd_prodMkLeft
   · rfl
   · exact measurable_snd hs
 
-lemma map_comp (κ : kernel α β) [IsSFiniteKernel κ] (η : kernel β γ) [IsSFiniteKernel η]
-    {f : γ → δ} (hf : Measurable f) :
+lemma map_comp (κ : kernel α β) (η : kernel β γ) {f : γ → δ} (hf : Measurable f) :
     kernel.map (η ∘ₖ κ) f hf = (kernel.map η f hf) ∘ₖ κ := by
   ext a s hs
   rw [map_apply' _ hf _ hs, comp_apply', comp_apply' _ _ _ hs]
   · simp_rw [map_apply' _ hf _ hs]
   · exact hf hs
 
-lemma fst_comp (κ : kernel α β) [IsSFiniteKernel κ] (η : kernel β (γ × δ)) [IsSFiniteKernel η] :
+lemma fst_comp (κ : kernel α β) (η : kernel β (γ × δ)) :
     fst (η ∘ₖ κ) = fst η ∘ₖ κ :=
   kernel.map_comp κ η measurable_fst
 
-lemma snd_comp (κ : kernel α β) [IsSFiniteKernel κ] (η : kernel β (γ × δ)) [IsSFiniteKernel η] :
+lemma snd_comp (κ : kernel α β) (η : kernel β (γ × δ)) :
     snd (η ∘ₖ κ) = snd η ∘ₖ κ :=
   kernel.map_comp κ η measurable_snd
 
