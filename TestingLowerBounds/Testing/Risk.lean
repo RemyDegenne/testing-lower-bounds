@@ -290,8 +290,7 @@ lemma bayesRiskIncrease_comp (E : estimationProblem Θ 𝒴 𝒵) (P : kernel Θ
     bayesRiskIncrease E P π (η ∘ₖ κ)
       = bayesRiskIncrease E P π κ + bayesRiskIncrease E (κ ∘ₖ P) π η := by
   simp only [bayesRiskIncrease]
-  rw [add_comm, tsub_add_tsub_cancel]
-  · rw [kernel.comp_assoc]
+  rw [add_comm, tsub_add_tsub_cancel, kernel.comp_assoc]
   · exact bayesRiskPrior_le_bayesRiskPrior_comp _ _ _ _
   · exact bayesRiskPrior_le_bayesRiskPrior_comp _ _ _ _
 
