@@ -36,7 +36,6 @@ namespace ProbabilityTheory
 variable {𝒳 𝒳' : Type*} {m𝒳 : MeasurableSpace 𝒳} {m𝒳' : MeasurableSpace 𝒳'}
   {μ ν : Measure 𝒳} {p : ℝ≥0∞} {π : Measure Bool}
 
--- TODO: replace the min by a risk
 /-- The statistical information of the measures `μ` and `ν` with respect to
 the prior `π ∈ ℳ({0,1})`. -/
 noncomputable
@@ -65,6 +64,14 @@ lemma statInfo_le_min : statInfo μ ν π ≤ min (π {false} * μ univ) (π {tr
 
 lemma statInfo_symm : statInfo μ ν π = statInfo ν μ (π.map Bool.not) := by
   simp_rw [statInfo, bayesBinaryRisk_symm _ _ π]
+
+lemma statInfo_of_measure_true_eq_zero (μ ν : Measure 𝒳) (hπ : π {true} = 0) :
+    statInfo μ ν π = 0 :=
+  le_antisymm (statInfo_le_min.trans (by simp [hπ])) zero_le'
+
+lemma statInfo_of_measure_false_eq_zero (μ ν : Measure 𝒳) (hπ : π {false} = 0) :
+    statInfo μ ν π = 0 :=
+  le_antisymm (statInfo_le_min.trans (by simp [hπ])) zero_le'
 
 /-- **Data processing inequality** for the statistical information. -/
 lemma statInfo_comp_le (μ ν : Measure 𝒳) (π : Measure Bool) (η : kernel 𝒳 𝒳') [IsMarkovKernel η] :
