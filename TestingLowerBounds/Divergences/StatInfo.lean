@@ -102,7 +102,7 @@ lemma statInfo_eq_min_sub_lintegral (μ ν : Measure 𝒳) [IsFiniteMeasure μ] 
   rw [statInfo_eq_min_sub, bayesBinaryRisk_eq_lintegral_min]
 
 lemma statInfo_eq_min_sub_lintegral' {μ ν ζ : Measure 𝒳} [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    [SigmaFinite ζ] (π : Measure Bool) [IsFiniteMeasure π]  (hμζ : μ ≪ ζ) (hνζ : ν ≪ ζ) :
+    [SigmaFinite ζ] (π : Measure Bool) [IsFiniteMeasure π] (hμζ : μ ≪ ζ) (hνζ : ν ≪ ζ) :
     statInfo μ ν π = min (π {false} * μ univ) (π {true} * ν univ)
       - ∫⁻ x, min (π {false} * (∂μ/∂ζ) x) (π {true} * (∂ν/∂ζ) x) ∂ζ := by
   by_cases h_false : π {false} = 0
