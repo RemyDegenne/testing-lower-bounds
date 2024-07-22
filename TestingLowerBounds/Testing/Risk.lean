@@ -72,17 +72,6 @@ noncomputable
 def risk (E : estimationProblem Θ 𝒴 𝒵) (P : kernel Θ 𝒳) (κ : kernel 𝒳 𝒵) (θ : Θ) : ℝ≥0∞ :=
   ∫⁻ z, E.ℓ (E.y θ, z) ∂((κ ∘ₖ P) θ)
 
-@[simp]
-lemma risk_comp_assoc (E : estimationProblem Θ 𝒴 𝒵) (P : kernel Θ 𝒳) [IsSFiniteKernel P]
-    (κ : kernel 𝒳'' 𝒵) (θ : Θ)
-    (η : kernel 𝒳 𝒳') [IsMarkovKernel η] (η' : kernel 𝒳' 𝒳'') [IsMarkovKernel η'] :
-    risk E (η' ∘ₖ (η ∘ₖ P)) κ θ = risk E (η' ∘ₖ η ∘ₖ P) κ θ := by
-  rw [risk, risk]
-  congr 1
-  simp_rw [kernel.comp_apply]
-  congr 1
-  rw [Measure.comp_assoc]
-
 /-- The bayesian risk of an estimator `κ` on an estimation problem `E` with data generating
 kernel `P` with respect to a prior `π`. -/
 noncomputable
@@ -100,13 +89,6 @@ lemma bayesianRisk_le_iSup_risk (E : estimationProblem Θ 𝒴 𝒵) (P : kernel
   calc ∫⁻ θ, risk E P κ θ ∂π
   _ ≤ ∫⁻ _, (⨆ θ', risk E P κ θ') ∂π := lintegral_mono (fun θ ↦ le_iSup _ _)
   _ = ⨆ θ, risk E P κ θ := by simp
-
-@[simp]
-lemma bayesianRisk_comp_assoc (E : estimationProblem Θ 𝒴 𝒵) (P : kernel Θ 𝒳) [IsSFiniteKernel P]
-    (κ : kernel 𝒳'' 𝒵) (π : Measure Θ)
-    (η : kernel 𝒳 𝒳') [IsMarkovKernel η] (η' : kernel 𝒳' 𝒳'') [IsMarkovKernel η'] :
-    bayesianRisk E (η' ∘ₖ (η ∘ₖ P)) κ π = bayesianRisk E (η' ∘ₖ η ∘ₖ P) κ π := by
-  simp [bayesianRisk]
 
 lemma bayesianRisk_comap_measurableEquiv (E : estimationProblem Θ 𝒴 𝒵) (P : kernel Θ 𝒳)
     [IsSFiniteKernel P]
@@ -169,12 +151,6 @@ lemma bayesRisk_le_minimaxRisk (E : estimationProblem Θ 𝒴 𝒵) (P : kernel 
   exact fun _ _ ↦ bayesRiskPrior_le_minimaxRisk _ _ _
 
 /-! ### Properties of the Bayes risk of a prior -/
-
-@[simp]
-lemma bayesRiskPrior_comp_assoc (E : estimationProblem Θ 𝒴 𝒵) (P : kernel Θ 𝒳) [IsSFiniteKernel P]
-    (π : Measure Θ) (κ : kernel 𝒳 𝒳') [IsMarkovKernel κ] (η : kernel 𝒳' 𝒳'') [IsMarkovKernel η] :
-    bayesRiskPrior E (η ∘ₖ (κ ∘ₖ P)) π = bayesRiskPrior E (η ∘ₖ κ ∘ₖ P) π := by
-  simp [bayesRiskPrior]
 
 lemma bayesRiskPrior_compProd_le_bayesRiskPrior (E : estimationProblem Θ 𝒴 𝒵) (P : kernel Θ 𝒳)
     [IsSFiniteKernel P] (π : Measure Θ) (κ : kernel (Θ × 𝒳) 𝒳') [IsMarkovKernel κ] :
@@ -309,25 +285,24 @@ def bayesRiskIncrease (E : estimationProblem Θ 𝒴 𝒵) (P : kernel Θ 𝒳) 
     (η : kernel 𝒳 𝒳') : ℝ≥0∞ :=
   bayesRiskPrior E (η ∘ₖ P) π - bayesRiskPrior E P π
 
-lemma bayesRiskIncrease_comp (E : estimationProblem Θ 𝒴 𝒵) (P : kernel Θ 𝒳) [IsSFiniteKernel P]
+lemma bayesRiskIncrease_comp (E : estimationProblem Θ 𝒴 𝒵) (P : kernel Θ 𝒳)
     (π : Measure Θ) (κ : kernel 𝒳 𝒳') [IsMarkovKernel κ] (η : kernel 𝒳' 𝒳'') [IsMarkovKernel η] :
     bayesRiskIncrease E P π (η ∘ₖ κ)
       = bayesRiskIncrease E P π κ + bayesRiskIncrease E (κ ∘ₖ P) π η := by
   simp only [bayesRiskIncrease]
   rw [add_comm, tsub_add_tsub_cancel]
-  · congr 1
-    simp
+  · rw [kernel.comp_assoc]
   · exact bayesRiskPrior_le_bayesRiskPrior_comp _ _ _ _
   · exact bayesRiskPrior_le_bayesRiskPrior_comp _ _ _ _
 
-lemma le_bayesRiskIncrease_comp (E : estimationProblem Θ 𝒴 𝒵) (P : kernel Θ 𝒳) [IsSFiniteKernel P]
+lemma le_bayesRiskIncrease_comp (E : estimationProblem Θ 𝒴 𝒵) (P : kernel Θ 𝒳)
     (π : Measure Θ) (κ : kernel 𝒳 𝒳') [IsMarkovKernel κ] (η : kernel 𝒳' 𝒳'') [IsMarkovKernel η] :
     bayesRiskIncrease E (κ ∘ₖ P) π η ≤ bayesRiskIncrease E P π (η ∘ₖ κ) := by
   simp [bayesRiskIncrease_comp]
 
 /-- **Data processing inequality** for the Bayes risk increase. -/
 lemma bayesRiskIncrease_discard_comp_le_bayesRiskIncrease (E : estimationProblem Θ 𝒴 𝒵)
-    (P : kernel Θ 𝒳) [IsSFiniteKernel P] (π : Measure Θ) (κ : kernel 𝒳 𝒳') [IsMarkovKernel κ] :
+    (P : kernel Θ 𝒳) (π : Measure Θ) (κ : kernel 𝒳 𝒳') [IsMarkovKernel κ] :
     bayesRiskIncrease E (κ ∘ₖ P) π (kernel.discard 𝒳')
       ≤ bayesRiskIncrease E P π (kernel.discard 𝒳) := by
   convert le_bayesRiskIncrease_comp E P π κ (kernel.discard 𝒳')
