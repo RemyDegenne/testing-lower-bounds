@@ -149,8 +149,7 @@ instance {μ : Measure α} [IsProbabilityMeasure μ] {κ : kernel α β} [IsMark
 
 lemma Measure.fst_swap_compProd [SFinite μ] [IsSFiniteKernel κ] :
     ((μ ⊗ₘ κ).map Prod.swap).fst = μ ∘ₘ κ := by
-  simp only [Measure.fst_map_swap]
-  rw [Measure.comp_eq_snd_compProd]
+  simp [Measure.comp_eq_snd_compProd]
 
 section ParallelComp
 
