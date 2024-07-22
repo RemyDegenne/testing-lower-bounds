@@ -403,6 +403,7 @@ lemma nonempty_subtype_isMarkovKernel_of_nonempty {𝒳 : Type*} {m𝒳 : Measur
   change IsMarkovKernel (kernel.const 𝒳 (Measure.dirac y))
   exact kernel.isMarkovKernel_const
 
+@[simp]
 lemma bayesBinaryRisk_self (μ : Measure 𝒳) (π : Measure Bool) :
     bayesBinaryRisk μ μ π = min (π {false}) (π {true}) * μ Set.univ := by
   rw [bayesBinaryRisk_eq]
@@ -439,6 +440,21 @@ lemma bayesBinaryRisk_le_min (μ ν : Measure 𝒳) (π : Measure Bool) :
     bayesBinaryRisk μ ν π ≤ min (π {false} * μ Set.univ) (π {true} * ν Set.univ) := by
   convert bayesBinaryRisk_le_bayesBinaryRisk_comp μ ν π (kernel.discard 𝒳)
   simp_rw [Measure.comp_discard, bayesBinaryRisk_dirac]
+
+@[simp]
+lemma bayesBinaryRisk_zero_left : bayesBinaryRisk 0 ν π = 0 := by
+  refine le_antisymm ((bayesBinaryRisk_le_min _ _ _).trans ?_) zero_le'
+  simp
+
+@[simp]
+lemma bayesBinaryRisk_zero_right : bayesBinaryRisk μ 0 π = 0 := by
+  refine le_antisymm ((bayesBinaryRisk_le_min _ _ _).trans ?_) zero_le'
+  simp
+
+@[simp]
+lemma bayesBinaryRisk_zero_prior : bayesBinaryRisk μ ν 0 = 0 := by
+  refine le_antisymm ((bayesBinaryRisk_le_min _ _ _).trans ?_) zero_le'
+  simp
 
 lemma bayesBinaryRisk_of_measure_true_eq_zero (μ ν : Measure 𝒳) (hπ : π {true} = 0) :
     bayesBinaryRisk μ ν π = 0 := by

@@ -27,7 +27,7 @@ import Mathlib.MeasureTheory.Constructions.Prod.Integral
 
 -/
 
-open MeasureTheory
+open MeasureTheory Set
 
 open scoped ENNReal NNReal
 
@@ -41,7 +41,16 @@ variable {𝒳 𝒳' : Type*} {m𝒳 : MeasurableSpace 𝒳} {m𝒳' : Measurabl
 the prior `π ∈ ℳ({0,1})`. -/
 noncomputable
 def statInfo (μ ν : Measure 𝒳) (π : Measure Bool) : ℝ≥0∞ :=
-  min (π {false} * μ Set.univ) (π {true} * ν Set.univ) - bayesBinaryRisk μ ν π
+  bayesBinaryRisk (μ ∘ₘ kernel.discard 𝒳) (ν ∘ₘ kernel.discard 𝒳) π - bayesBinaryRisk μ ν π
+
+lemma statInfo_eq_min_sub (μ ν : Measure 𝒳) (π : Measure Bool) :
+    statInfo μ ν π = min (π {false} * μ univ) (π {true} * ν univ) - bayesBinaryRisk μ ν π := by
+  simp_rw [statInfo, Measure.comp_discard, bayesBinaryRisk_dirac]
+
+lemma statInfo_eq_bayesRiskIncrease (μ ν : Measure 𝒳) (π : Measure Bool) :
+    statInfo μ ν π
+      = bayesRiskIncrease simpleBinaryHypTest (twoHypKernel μ ν) π (kernel.discard 𝒳) := by
+  simp [statInfo, bayesBinaryRisk, bayesRiskIncrease]
 
 @[simp] lemma statInfo_zero_left : statInfo 0 ν π = 0 := by simp [statInfo]
 
@@ -49,11 +58,13 @@ def statInfo (μ ν : Measure 𝒳) (π : Measure Bool) : ℝ≥0∞ :=
 
 @[simp] lemma statInfo_zero_prior : statInfo μ ν 0 = 0 := by simp [statInfo]
 
-@[simp] lemma statInfo_self : statInfo μ μ π = 0 := by
-  simp only [statInfo, bayesBinaryRisk_self]
-  cases le_total (π {false}) (π {true}) with
-  | inl h => simp [h]
-  | inr h => simp [h]
+@[simp] lemma statInfo_self : statInfo μ μ π = 0 := by simp [statInfo, bayesBinaryRisk_self]
+
+lemma statInfo_le_min : statInfo μ ν π ≤ min (π {false} * μ univ) (π {true} * ν univ) :=
+  statInfo_eq_min_sub μ ν π ▸ tsub_le_self
+
+lemma statInfo_symm : statInfo μ ν π = statInfo ν μ (π.map Bool.not) := by
+  simp_rw [statInfo, bayesBinaryRisk_symm _ _ π]
 
 /-- **Data processing inequality** for the statistical information. -/
 lemma statInfo_comp_le (μ ν : Measure 𝒳) (π : Measure Bool) (η : kernel 𝒳 𝒳') [IsMarkovKernel η] :
