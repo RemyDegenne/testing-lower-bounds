@@ -48,8 +48,9 @@ lemma statInfo_eq_min_sub (μ ν : Measure 𝒳) (π : Measure Bool) :
   simp_rw [statInfo, Measure.comp_discard, bayesBinaryRisk_dirac]
 
 lemma statInfo_eq_bayesRiskIncrease (μ ν : Measure 𝒳) (π : Measure Bool) :
-    statInfo μ ν π = bayesRiskIncrease (simpleBinaryHypTest μ ν) π (kernel.discard 𝒳) := by
-  simp_rw [statInfo, bayesBinaryRisk, bayesRiskIncrease, simpleBinaryHypTest_comp]
+    statInfo μ ν π
+      = bayesRiskIncrease simpleBinaryHypTest (twoHypKernel μ ν) π (kernel.discard 𝒳) := by
+  simp_rw [statInfo, bayesBinaryRisk, bayesRiskIncrease, comp_twoHypKernel]
 
 /-- **Data processing inequality** for the statistical information. -/
 lemma statInfo_comp_le (μ ν : Measure 𝒳) (π : Measure Bool) (η : kernel 𝒳 𝒳') [IsMarkovKernel η] :
@@ -101,7 +102,7 @@ lemma statInfo_eq_min_sub_lintegral (μ ν : Measure 𝒳) [IsFiniteMeasure μ] 
   rw [statInfo_eq_min_sub, bayesBinaryRisk_eq_lintegral_min]
 
 lemma statInfo_eq_min_sub_lintegral' {μ ν ζ : Measure 𝒳} [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    [SigmaFinite ζ] (π : Measure Bool) [IsFiniteMeasure π] (hμζ : μ ≪ ζ) (hνζ : ν ≪ ζ) :
+    [SigmaFinite ζ] (π : Measure Bool) [IsFiniteMeasure π]  (hμζ : μ ≪ ζ) (hνζ : ν ≪ ζ) :
     statInfo μ ν π = min (π {false} * μ univ) (π {true} * ν univ)
       - ∫⁻ x, min (π {false} * (∂μ/∂ζ) x) (π {true} * (∂ν/∂ζ) x) ∂ζ := by
   by_cases h_false : π {false} = 0
@@ -134,7 +135,6 @@ lemma toReal_statInfo_eq_min_sub_integral (μ ν : Measure 𝒳) [IsFiniteMeasur
   swap; · simp only [ne_eq, min_eq_top, hμ, hν, and_self, not_false_eq_true]
   rw [toReal_bayesBinaryRisk_eq_integral_min,
     MonotoneOn.map_min (fun _ _ _ hb hab ↦ ENNReal.toReal_mono hb hab) hμ hν]
-
 section StatInfoFun
 
 open Set Filter ConvexOn
