@@ -13,11 +13,11 @@ import Mathlib.MeasureTheory.Measure.LogLikelihoodRatio
 
 ## Main definitions
 
-*
+* `EReal.llr`: log-likelihood ratio, with value in `EReal`.
 
 ## Main statements
 
-*
+* `EReal.exp_llr`: `EReal.exp (EReal.llr μ ν x) = μ.rnDeriv ν x`
 -/
 
 open scoped ENNReal
