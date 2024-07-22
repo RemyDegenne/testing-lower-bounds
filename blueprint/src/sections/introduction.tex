@@ -3,7 +3,7 @@
 The goal of this project is to formalize information divergences between probability measures, as well as results about error bounds for (sequential) hypothesis testing.
 This is not an introductory text and we will not explain why the objects described here are useful, where they come from or what applications the results might have. For all those considerations, we refer the reader to the recent book~\cite{polyanskiy2024information}.
 
-Our goal is to compile properties of information divergences and their uses in hypothesis testing. Most software libraries have tutorials, to learn how to use them, as well as a documentation listing all the available objects and methods of the library: in this project, we write the ``documentation'' of the ``information theory library''.
+Our goal is to compile properties of information divergences and their uses in hypothesis testing. Most software libraries have tutorials, to learn how to use them, as well as a documentation listing all the available objects and methods of the library: in this project, we write the ``documentation'' of a part of the ``information theory library''.
 
 
 \section*{Source material}
@@ -12,11 +12,11 @@ A very useful book (draft) about information theory and hypothesis testing: \cit
 
 Main reference for the properties of the Rényi divergence: \cite{van2014renyi}
 
-As a reference, we want all notions needed in the recent paper \href{https://arxiv.org/abs/2403.01892}{[Degenne and Mathieu, Information Lower Bounds for Robust Mean Estimation, 2024]}. % TODO: why is this not a cite command?
+%As a reference, we want all notions needed in the recent paper \href{https://arxiv.org/abs/2403.01892}{[Degenne and Mathieu, Information Lower Bounds for Robust Mean Estimation, 2024]}. % TODO: why is this not a cite command?
 
 \section*{This document and the Lean implementation}
 
-This document is generated from a latex file written by the authors, thanks to the \texttt{leanblueprint} library developed by Patrick Massot (TODO add ref). It contains links to a Lean implementation of the results, but there is no technical guarantee that the results written here and the ones in the code match in any way.
+This document is generated from a latex file written by the authors, thanks to the \texttt{leanblueprint} library developed by Patrick Massot (\url{https://github.com/PatrickMassot/leanblueprint}). It contains links to a Lean implementation of the results, but there is no technical guarantee that the results written here and the ones in the code match in any way.
 In particular, nothing in this document is automatically generated from the code.
 In summary, although the authors strive to make this document as close to the Lean implementation as possible, the only formally verified statements are those written in Lean.
 
