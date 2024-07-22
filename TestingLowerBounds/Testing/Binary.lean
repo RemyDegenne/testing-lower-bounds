@@ -119,7 +119,8 @@ lemma sum_smul_rnDeriv_twoHypKernel' (μ ν : Measure 𝒳) [IsFiniteMeasure μ]
 
 /-- The kernel from `𝒳` to `Bool` defined by
 `x ↦ (π₀ * ∂μ/∂(π ∘ₘ twoHypKernel μ ν) x + π₁ * ∂ν/∂(π ∘ₘ twoHypKernel μ ν) x)`.
-It is the Bayesian inverse of `twoHypKernel μ ν` with respect to `π` (see `bayesInv_twoHypKernel`). -/
+It is the Bayesian inverse of `twoHypKernel μ ν` with respect to `π`
+(see `bayesInv_twoHypKernel`). -/
 noncomputable
 def twoHypKernelInv (μ ν : Measure 𝒳) (π : Measure Bool) :
     kernel 𝒳 Bool where
@@ -188,11 +189,21 @@ instance (π : Measure Bool) : IsMarkovKernel (twoHypKernelInv μ ν π) := by
     simp [h]
   · infer_instance
 
---the finiteness hypothesis for μ should not be needed, but otherwise I dont know how to handle the 3rd case, where I have the complement
--- we still need some hp, the right one is probably SigmaFinite. For SFinite ones there is a counterexample, see the comment above `Measure.prod_eq`.
---TODO: generalize this lemma to SigmaFinite measures, there are 2 ways to do it, one is to try and generalize this proof (for this it may be useful to try and apply the lemma used in the proof of `Measure.prod_eq`), the other is to use this as an auxiliary lemma and prove the result for SigmaFinite measures using this one (we can restrict the mesaure to the set where it is finite and then use this lemma). I'm not sure which way is better.
+/- The finiteness hypothesis for μ should not be needed, but otherwise I dont know how to handle
+the 3rd case, where I have the complement.
+We still need some hp, the right one is probably SigmaFinite. For SFinite ones there is
+a counterexample, see the comment above `Measure.prod_eq`.
+
+TODO: generalize this lemma to SigmaFinite measures, there are 2 ways to do it,
+one is to try and generalize this proof (for this it may be useful to try and apply the lemma used
+in the proof of `Measure.prod_eq`), the other is to use this as an auxiliary lemma and prove
+the result for SigmaFinite measures using this one (we can restrict the mesaure to the set
+where it is finite and then use this lemma).
+I'm not sure which way is better.
+-/
 lemma measure_prod_ext {μ ν : Measure (𝒳 × 𝒴)} [IsFiniteMeasure μ]
-    (h : ∀ (A : Set 𝒳) (_ : MeasurableSet A) (B : Set 𝒴) (_ : MeasurableSet B), μ (A ×ˢ B) = ν (A ×ˢ B)) :
+    (h : ∀ (A : Set 𝒳) (_ : MeasurableSet A) (B : Set 𝒴) (_ : MeasurableSet B),
+      μ (A ×ˢ B) = ν (A ×ˢ B)) :
     μ = ν := by
   ext s hs
   apply MeasurableSpace.induction_on_inter generateFrom_prod.symm isPiSystem_prod _ _ _ _ hs
@@ -450,7 +461,10 @@ lemma bayesBinaryRisk_symm (μ ν : Measure 𝒳) (π : Measure Bool) :
   have h2 : (Measure.map Bool.not π) {false} = π {true} := by
     rw [Measure.map_apply (by exact fun _ a ↦ a) (by trivial), this]
   simp_rw [bayesBinaryRisk_eq, h1, h2, add_comm, iInf_subtype']
-  -- from this point on the proof is basically a change of variable inside the iInf, to do this I define an equivalence between `Subtype IsMarkovKernel` and itself through the `Bool.not` operation, maybe it can be shortened or something can be separated as a different lemma, but I'm not sure how useful this would be
+  -- from this point on the proof is basically a change of variable inside the iInf,
+  -- to do this I define an equivalence between `Subtype IsMarkovKernel` and itself through
+  -- the `Bool.not` operation, maybe it can be shortened or something can be separated as
+  -- a different lemma, but I'm not sure how useful this would be
   let e : (kernel 𝒳 Bool) ≃ (kernel 𝒳 Bool) := by
     have h_id : kernel.comap (kernel.deterministic Bool.not (fun _ a ↦ a)) Bool.not (fun _ a ↦ a)
         = kernel.id := by
@@ -545,8 +559,8 @@ lemma toReal_bayesBinaryRisk_eq_integral_min (μ ν : Measure 𝒳) [IsFiniteMea
     simp only [h, h', min_eq_left, min_eq_right]
     exact (ENNReal.ofReal_toReal_eq_iff.mpr (by assumption)).symm
 
-lemma toReal_bayesBinaryRisk_eq_integral_abs (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (π : Measure Bool) [IsFiniteMeasure π] :
+lemma toReal_bayesBinaryRisk_eq_integral_abs (μ ν : Measure 𝒳) [IsFiniteMeasure μ]
+    [IsFiniteMeasure ν] (π : Measure Bool) [IsFiniteMeasure π] :
     (bayesBinaryRisk μ ν π).toReal
       = (2 : ℝ)⁻¹ * (((π ∘ₘ twoHypKernel μ ν) Set.univ).toReal
         - ∫ x, |(π {false} * μ.rnDeriv (π ∘ₘ twoHypKernel μ ν) x).toReal
@@ -554,10 +568,12 @@ lemma toReal_bayesBinaryRisk_eq_integral_abs (μ ν : Measure 𝒳) [IsFiniteMea
   rw [toReal_bayesBinaryRisk_eq_integral_min]
   simp_rw [min_eq_add_sub_abs_sub, integral_mul_left]
   congr
-  have hμ_int : Integrable (fun x ↦ (π {false} * μ.rnDeriv (π ∘ₘ twoHypKernel μ ν) x).toReal) (π ∘ₘ twoHypKernel μ ν) := by
+  have hμ_int : Integrable (fun x ↦ (π {false} * μ.rnDeriv (π ∘ₘ twoHypKernel μ ν) x).toReal)
+      (π ∘ₘ twoHypKernel μ ν) := by
     simp_rw [ENNReal.toReal_mul]
     exact Integrable.const_mul Measure.integrable_toReal_rnDeriv _
-  have hν_int : Integrable (fun x ↦ (π {true} * ν.rnDeriv (π ∘ₘ twoHypKernel μ ν) x).toReal) (π ∘ₘ twoHypKernel μ ν) := by
+  have hν_int : Integrable (fun x ↦ (π {true} * ν.rnDeriv (π ∘ₘ twoHypKernel μ ν) x).toReal)
+      (π ∘ₘ twoHypKernel μ ν) := by
     simp_rw [ENNReal.toReal_mul]
     exact Integrable.const_mul Measure.integrable_toReal_rnDeriv _
   have h_int_abs : Integrable (fun x ↦ |(π {false} * μ.rnDeriv (π ∘ₘ twoHypKernel μ ν) x).toReal

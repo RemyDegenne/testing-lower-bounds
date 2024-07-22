@@ -199,7 +199,8 @@ lemma bayesRiskPrior_le_inf (E : estimationProblem Θ 𝒴 𝒵) (P : kernel Θ 
     fun_prop [E.ℓ_meas]
   · exact kernel.isMarkovKernel_const
 
-/-- The Bayesian risk of an estimator `κ` with respect to a prior `π` can be expressed as an integral in the following way: `R_π(κ) = ((P†π × κ) ∘ P ∘ π)[(θ, z) ↦ ℓ(y(θ), z)]`. -/
+/-- The Bayesian risk of an estimator `κ` with respect to a prior `π` can be expressed as
+an integral in the following way: `R_π(κ) = ((P†π × κ) ∘ P ∘ π)[(θ, z) ↦ ℓ(y(θ), z)]`. -/
 lemma bayesianRisk_eq_lintegral_bayesInv_prod [StandardBorelSpace Θ] [Nonempty Θ]
     (E : estimationProblem Θ 𝒴 𝒵) (P : kernel Θ 𝒳) [IsFiniteKernel P] (κ : kernel 𝒳 𝒵)
     (π : Measure Θ) [IsFiniteMeasure π] [IsSFiniteKernel κ] :
@@ -241,7 +242,7 @@ lemma bayesianRisk_ge_lintegral_iInf_bayesInv [StandardBorelSpace Θ] [Nonempty 
 /-! ### Generalized Bayes estimator -/
 
 /-- We say that a measurable function `f : 𝒳 → 𝒵` is a Generalized Bayes estimator for the
-estimation problem `E` with respect to the prior `π` if for `(π ∘ₘ E.P)`-almost every `x` it is of
+estimation problem `E` with respect to the prior `π` if for `(π ∘ₘ P)`-almost every `x` it is of
 the form `x ↦ argmin_z P†π(x)[θ ↦ ℓ(y(θ), z)]`.-/
 structure IsGenBayesEstimator [StandardBorelSpace Θ] [Nonempty Θ]
     (E : estimationProblem Θ 𝒴 𝒵) (P : kernel Θ 𝒳) [IsFiniteKernel P] (f : 𝒳 → 𝒵)
@@ -284,7 +285,8 @@ lemma isBayesEstimator_of_isGenBayesEstimator [StandardBorelSpace Θ] [Nonempty 
   · refine iInf_le_of_le hf.kernel ?_
     exact iInf_le _ (kernel.isMarkovKernel_deterministic hf.measurable)
 
-/-- The estimation problem `E` admits a Generalized Bayes estimator with respect to the prior `π`. -/
+/-- The estimation problem `E` admits a Generalized Bayes estimator with respect to
+the prior `π`. -/
 class HasGenBayesEstimator [StandardBorelSpace Θ] [Nonempty Θ] (E : estimationProblem Θ 𝒴 𝒵)
     (P : kernel Θ 𝒳) [IsFiniteKernel P] (π : Measure Θ) [IsFiniteMeasure π] where
   /-- The Generalized Bayes estimator. -/
