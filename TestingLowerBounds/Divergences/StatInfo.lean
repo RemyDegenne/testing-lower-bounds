@@ -72,6 +72,72 @@ lemma statInfo_comp_le (μ ν : Measure 𝒳) (π : Measure Bool) (η : kernel �
   refine tsub_le_tsub ?_ (bayesBinaryRisk_le_bayesBinaryRisk_comp _ _ _ _)
   simp [Measure.bind_apply MeasurableSet.univ (kernel.measurable _)]
 
+lemma toReal_statInfo_eq_toReal_sub [IsFiniteMeasure ν] [IsFiniteMeasure π] :
+    (statInfo μ ν π).toReal = (min (π {false} * μ univ) (π {true} * ν univ)).toReal
+      - (bayesBinaryRisk μ ν π).toReal := by
+  rw [statInfo_eq_min_sub, ENNReal.toReal_sub_of_le]
+  · exact bayesBinaryRisk_le_min _ _ _
+  · simp only [ne_eq, min_eq_top, not_and]
+    exact fun _ ↦  ENNReal.mul_ne_top (measure_ne_top π _) (measure_ne_top ν _)
+
+lemma statInfo_boolMeasure_le_statInfo {E : Set 𝒳} (hE : MeasurableSet E) :
+    statInfo (Bool.boolMeasure (μ Eᶜ) (μ E)) (Bool.boolMeasure (ν Eᶜ) (ν E)) π
+      ≤ statInfo μ ν π := by
+  have h_meas : Measurable fun x ↦ Bool.ofNat (E.indicator 1 x) :=
+    ((measurable_discrete _).comp' (measurable_one.indicator hE))
+  let η : kernel 𝒳 Bool := kernel.deterministic (fun x ↦ Bool.ofNat (E.indicator 1 x)) h_meas
+  have h_false : (fun x ↦ Bool.ofNat (E.indicator 1 x)) ⁻¹' {false} = Eᶜ := by
+    ext x; simp [Bool.ofNat]
+  have h_true : (fun x ↦ Bool.ofNat (E.indicator 1 x)) ⁻¹' {true} = E := by
+    ext x; simp [Bool.ofNat]
+  convert statInfo_comp_le μ ν π η <;>
+  · ext
+    · rw [Measure.comp_deterministic_eq_map, Measure.map_apply h_meas (by trivial), h_false,
+        Bool.boolMeasure_apply_false]
+    · rw [Measure.comp_deterministic_eq_map, Measure.map_apply h_meas (by trivial), h_true,
+        Bool.boolMeasure_apply_true]
+
+lemma statInfo_eq_min_sub_lintegral (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (π : Measure Bool) [IsFiniteMeasure π] :
+    statInfo μ ν π = min (π {false} * μ univ) (π {true} * ν univ)
+      - ∫⁻ x, min (π {false} * μ.rnDeriv (π ∘ₘ twoHypKernel μ ν) x)
+      (π {true} * ν.rnDeriv (π ∘ₘ twoHypKernel μ ν) x) ∂(π ∘ₘ twoHypKernel μ ν) := by
+  rw [statInfo_eq_min_sub, bayesBinaryRisk_eq_lintegral_min]
+
+lemma statInfo_eq_min_sub_lintegral' {μ ν ζ : Measure 𝒳} [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    [SigmaFinite ζ] (π : Measure Bool) [IsFiniteMeasure π] (hμζ : μ ≪ ζ) (hνζ : ν ≪ ζ) :
+    statInfo μ ν π = min (π {false} * μ univ) (π {true} * ν univ)
+      - ∫⁻ x, min (π {false} * (∂μ/∂ζ) x) (π {true} * (∂ν/∂ζ) x) ∂ζ := by
+  by_cases h_false : π {false} = 0
+  · simp [statInfo, h_false, bayesBinaryRisk_of_measure_false_eq_zero]
+  by_cases h_true : π {true} = 0
+  · simp [statInfo, h_true, bayesBinaryRisk_of_measure_true_eq_zero]
+  have hμac : μ ≪ (π ∘ₘ twoHypKernel μ ν) :=
+    absolutelyContinuous_measure_comp_twoHypKernel_left μ ν h_false
+  have hνac : ν ≪ (π ∘ₘ twoHypKernel μ ν) :=
+    absolutelyContinuous_measure_comp_twoHypKernel_right μ ν h_true
+  have hacζ : (π ∘ₘ twoHypKernel μ ν) ≪ ζ :=
+    measure_comp_twoHypKernel _ _ _ ▸ (hνζ.smul _).add_left (hμζ.smul _)
+  have hμ := Measure.rnDeriv_mul_rnDeriv hμac (κ := ζ)
+  have hν := Measure.rnDeriv_mul_rnDeriv hνac (κ := ζ)
+  rw [statInfo_eq_min_sub_lintegral, ← lintegral_rnDeriv_mul hacζ (by fun_prop)]
+  congr 1
+  apply lintegral_congr_ae
+  filter_upwards [hμ, hν] with x hxμ hxν
+  rw [ENNReal.mul_min, mul_comm, mul_comm _ (π _ * _), mul_assoc, mul_assoc]
+  congr
+
+lemma toReal_statInfo_eq_min_sub_integral (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (π : Measure Bool) [IsFiniteMeasure π] :
+    (statInfo μ ν π).toReal = min (π {false} * μ univ).toReal (π {true} * ν univ).toReal
+      - ∫ x, min (π {false} * μ.rnDeriv (π ∘ₘ twoHypKernel μ ν) x).toReal
+      (π {true} * ν.rnDeriv (π ∘ₘ twoHypKernel μ ν) x).toReal ∂(π ∘ₘ twoHypKernel μ ν) := by
+  have hμ : π {false} * μ univ ≠ ⊤ := ENNReal.mul_ne_top (measure_ne_top π _) (measure_ne_top μ _)
+  have hν : π {true} * ν univ ≠ ⊤ := ENNReal.mul_ne_top (measure_ne_top π _) (measure_ne_top ν _)
+  rw [statInfo_eq_min_sub, ENNReal.toReal_sub_of_le (bayesBinaryRisk_le_min μ ν π)]
+  swap; · simp only [ne_eq, min_eq_top, hμ, hν, and_self, not_false_eq_true]
+  rw [toReal_bayesBinaryRisk_eq_integral_min,
+    MonotoneOn.map_min (fun _ _ _ hb hab ↦ ENNReal.toReal_mono hb hab) hμ hν]
 section StatInfoFun
 
 open Set Filter ConvexOn
