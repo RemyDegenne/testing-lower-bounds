@@ -58,7 +58,7 @@ lemma statInfo_eq_bayesRiskIncrease (μ ν : Measure 𝒳) (π : Measure Bool) :
 
 @[simp] lemma statInfo_zero_prior : statInfo μ ν 0 = 0 := by simp [statInfo]
 
-@[simp] lemma statInfo_self : statInfo μ μ π = 0 := by simp [statInfo, bayesBinaryRisk_self]
+@[simp] lemma statInfo_self : statInfo μ μ π = 0 := by simp [statInfo]
 
 lemma statInfo_le_min : statInfo μ ν π ≤ min (π {false} * μ univ) (π {true} * ν univ) :=
   statInfo_eq_min_sub μ ν π ▸ tsub_le_self
