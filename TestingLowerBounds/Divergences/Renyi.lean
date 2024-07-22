@@ -552,14 +552,14 @@ lemma renyiDiv_snd_le [Nonempty α] [StandardBorelSpace α] (ha_pos : 0 < a)
 lemma renyiDiv_comp_le_compProd [Nonempty α] [StandardBorelSpace α] (ha_pos : 0 < a)
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
-    renyiDiv a (μ ∘ₘ κ) (ν ∘ₘ η) ≤ renyiDiv a (μ ⊗ₘ κ) (ν ⊗ₘ η) :=
+    renyiDiv a (κ ∘ₘ μ) (η ∘ₘ ν) ≤ renyiDiv a (μ ⊗ₘ κ) (ν ⊗ₘ η) :=
   le_renyiDiv_of_le_hellingerDiv (Measure.snd_compProd ν η ▸ Measure.snd_univ)
     (hellingerDiv_comp_le_compProd ha_pos μ ν κ η)
 
 lemma renyiDiv_comp_left_le [Nonempty α] [StandardBorelSpace α]
     (ha_pos : 0 < a) (μ : Measure α) [IsFiniteMeasure μ]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
-    renyiDiv a (μ ∘ₘ κ) (μ ∘ₘ η) ≤ condRenyiDiv a κ η μ :=
+    renyiDiv a (κ ∘ₘ μ) (η ∘ₘ μ) ≤ condRenyiDiv a κ η μ :=
   le_renyiDiv_of_le_hellingerDiv (Measure.snd_compProd μ η ▸ Measure.snd_univ)
     (hellingerDiv_comp_le_compProd ha_pos μ μ κ η)
 
@@ -568,7 +568,7 @@ lemma renyiDiv_comp_right_le [Nonempty α] [StandardBorelSpace α] (ha_pos : 0 <
     [CountableOrCountablyGenerated α β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ : kernel α β) [IsMarkovKernel κ] :
-    renyiDiv a (μ ∘ₘ κ) (ν ∘ₘ κ) ≤ renyiDiv a μ ν := by
+    renyiDiv a (κ ∘ₘ μ) (κ ∘ₘ ν) ≤ renyiDiv a μ ν := by
   refine le_renyiDiv_of_le_hellingerDiv ?_ (hellingerDiv_comp_right_le ha_pos μ ν κ)
   rw [← Measure.snd_compProd ν κ, Measure.snd_univ, Measure.compProd_apply MeasurableSet.univ]
   simp

@@ -843,7 +843,7 @@ variable {β : Type*} {mβ : MeasurableSpace β} {κ η : kernel α β}
 lemma kl_comp_le_compProd [Nonempty α] [StandardBorelSpace α]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
-    kl (μ ∘ₘ κ) (ν ∘ₘ η) ≤ kl (μ ⊗ₘ κ) (ν ⊗ₘ η) := by
+    kl (κ ∘ₘ μ) (η ∘ₘ ν) ≤ kl (μ ⊗ₘ κ) (ν ⊗ₘ η) := by
   simp_rw [kl_eq_fDiv]
   exact fDiv_comp_le_compProd μ ν κ η continuous_mul_log.stronglyMeasurable
     convexOn_mul_log continuous_mul_log.continuousOn
@@ -851,7 +851,7 @@ lemma kl_comp_le_compProd [Nonempty α] [StandardBorelSpace α]
 lemma kl_comp_left_le [Nonempty α] [StandardBorelSpace α] [CountableOrCountablyGenerated α β]
     (μ : Measure α) [IsFiniteMeasure μ]
     (κ η : kernel α β) [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] :
-    kl (μ ∘ₘ κ) (μ ∘ₘ η) ≤ condKL κ η μ := by
+    kl (κ ∘ₘ μ) (η ∘ₘ μ) ≤ condKL κ η μ := by
   rw [kl_eq_fDiv, condKL_eq_condFDiv]
   exact fDiv_comp_left_le μ κ η continuous_mul_log.stronglyMeasurable
     convexOn_mul_log continuous_mul_log.continuousOn
@@ -860,7 +860,7 @@ lemma kl_comp_left_le [Nonempty α] [StandardBorelSpace α] [CountableOrCountabl
 lemma kl_comp_right_le [Nonempty α] [StandardBorelSpace α] [CountableOrCountablyGenerated α β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ : kernel α β) [IsMarkovKernel κ] :
-    kl (μ ∘ₘ κ) (ν ∘ₘ κ) ≤ kl μ ν := by
+    kl (κ ∘ₘ μ) (κ ∘ₘ ν) ≤ kl μ ν := by
   simp_rw [kl_eq_fDiv]
   exact fDiv_comp_right_le μ ν κ continuous_mul_log.stronglyMeasurable
     convexOn_mul_log continuous_mul_log.continuousOn
