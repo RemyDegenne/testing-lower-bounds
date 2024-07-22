@@ -138,7 +138,7 @@ lemma parallelComp_apply (κ : kernel α β) [IsSFiniteKernel κ]
     (κ ∥ₖ η) x = (κ x.1).prod (η x.2) := by
   rw [parallelComp, prod_apply, prodMkRight_apply, prodMkLeft_apply]
 
-instance (κ : kernel α β) [IsSFiniteKernel κ] (η : kernel γ δ) [IsSFiniteKernel η] :
+instance (κ : kernel α β) (η : kernel γ δ) :
     IsSFiniteKernel (κ ∥ₖ η) := by
   rw [parallelComp]; infer_instance
 

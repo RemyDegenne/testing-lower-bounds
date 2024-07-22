@@ -40,8 +40,7 @@ variable {α β γ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β
 Defined using `MeasureTheory.Measure.bind` -/
 scoped[ProbabilityTheory] infixl:100 " ∘ₘ " => MeasureTheory.Measure.bind
 
-lemma Measure.comp_assoc {μ : Measure α} [SFinite μ]
-    {κ : kernel α β} [IsSFiniteKernel κ] {η : kernel β γ} [IsSFiniteKernel η] :
+lemma Measure.comp_assoc {μ : Measure α} {κ : kernel α β} {η : kernel β γ} :
     μ ∘ₘ κ ∘ₘ η = μ ∘ₘ (η ∘ₖ κ) :=
   Measure.bind_bind (kernel.measurable _) (kernel.measurable _)
 
@@ -148,21 +147,9 @@ instance {μ : Measure α} [IsProbabilityMeasure μ] {κ : kernel α β} [IsMark
   rw [Measure.comp_eq_snd_compProd]
   infer_instance
 
-@[simp]
-lemma Measure.fst_map_swap {μ : Measure (α × β)} : (μ.map Prod.swap).fst = μ.snd := by
-  rw [Measure.fst, Measure.map_map measurable_fst measurable_swap]
-  congr
-
-@[simp]
-lemma Measure.snd_map_swap {μ : Measure (α × β)} : (μ.map Prod.swap).snd = μ.fst := by
-  rw [Measure.snd, Measure.map_map measurable_snd measurable_swap]
-  congr
-
-@[simp]
 lemma Measure.fst_swap_compProd [SFinite μ] [IsSFiniteKernel κ] :
     ((μ ⊗ₘ κ).map Prod.swap).fst = μ ∘ₘ κ := by
-  rw [Measure.comp_eq_snd_compProd]
-  simp
+  simp [Measure.comp_eq_snd_compProd]
 
 section ParallelComp
 
@@ -171,7 +158,7 @@ namespace kernel
 variable {δ : Type*} {mδ : MeasurableSpace δ}
 
 lemma _root_.MeasureTheory.Measure.prod_comp_right
-    (μ : Measure α) [SFinite μ] (ν : Measure β) [SFinite ν]
+    (μ : Measure α) (ν : Measure β) [SFinite ν]
     (κ : kernel β γ) [IsSFiniteKernel κ] :
     μ.prod (ν ∘ₘ κ) = (μ.prod ν) ∘ₘ (kernel.id ∥ₖ κ) := by
   ext s hs
@@ -314,7 +301,7 @@ theorem _root_.MeasureTheory.Integrable.integral_norm_compProd' [NormedAddCommGr
   hf.integral_norm_compProd
 
 theorem _root_.MeasureTheory.Integrable.integral_compProd' [NormedAddCommGroup E]
-    [SFinite μ] [IsSFiniteKernel κ] ⦃f : α × β → E⦄ [NormedSpace ℝ E] [CompleteSpace E]
+    [SFinite μ] [IsSFiniteKernel κ] ⦃f : α × β → E⦄ [NormedSpace ℝ E]
     (hf : Integrable f (μ ⊗ₘ κ)) :
     Integrable (fun x ↦ ∫ y, f (x, y) ∂(κ x)) μ :=
   hf.integral_compProd
