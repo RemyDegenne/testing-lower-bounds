@@ -22,13 +22,13 @@ This is a simple generalization of both the DeGroot statistical information as w
 
 \begin{lemma}
   \label{lem:statInfo_self}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.statInfo_self}
+  \leanok
   \uses{def:statInfo}
   For $\mu \in \mathcal M(\mathcal X)$, $\mathcal I_\xi(\mu, \mu) = 0$~.
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{lem:bayesBinaryRisk_self}
 Use Lemma~\ref{lem:bayesBinaryRisk_self}.
 \end{proof}
@@ -49,13 +49,13 @@ Use Lemma~\ref{lem:bayesBinaryRisk_le}.
 
 \begin{lemma}
   \label{lem:statInfo_le}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.statInfo_le_min}
+  \leanok
   \uses{def:statInfo}
   For $\mu, \nu \in \mathcal M(\mathcal X)$, $\mathcal I_\xi(\mu, \nu) \le \min\{\xi_0 \mu(\mathcal X), \xi_1 \nu(\mathcal X)\}$~.
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{lem:bayesBinaryRisk_nonneg}
 Use Lemma~\ref{lem:bayesBinaryRisk_nonneg}.
 \end{proof}
@@ -63,13 +63,13 @@ Use Lemma~\ref{lem:bayesBinaryRisk_nonneg}.
 
 \begin{lemma}
   \label{lem:statInfo_symm}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.statInfo_symm}
+  \leanok
   \uses{def:statInfo}
   For $\mu, \nu \in \mathcal M(\mathcal X)$ and $\xi \in \mathcal M(\{0,1\})$, $\mathcal I_\xi(\mu, \nu) = \mathcal I_{\xi_\leftrightarrow}(\nu, \mu)$~.
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{lem:bayesBinaryRisk_symm}
 Use Lemma~\ref{lem:bayesBinaryRisk_symm}.
 \end{proof}
@@ -100,14 +100,14 @@ Alternatively, we can use Lemma~\ref{lem:riskIncrease_comp_del}.
 
 \begin{corollary}
   \label{cor:statInfo_data_proc_event}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.statInfo_boolMeasure_le_statInfo}
+  \leanok
   \uses{def:statInfo}
   Let $\mu, \nu$ be two measures on $\mathcal X$, $\xi \in \mathcal M(\{0,1\})$ and let $E$ be an event on $\mathcal X$. Let $\mu_E$ and $\nu_E$ be the two Bernoulli distributions with respective means $\mu(E)$ and $\nu(E)$.
   Then $\mathcal I_\xi(\mu, \nu) \ge \mathcal I_\xi(\mu_E, \nu_E)$.
 \end{corollary}
 
-\begin{proof}
+\begin{proof}\leanok
 \uses{thm:data_proc_statInfo}
 Apply Theorem~\ref{thm:data_proc_statInfo} to the deterministic kernel $\mathcal X \rightsquigarrow \{0,1\}$ given by the function $x \mapsto \mathbb{I}\{x \in E\}$.
 \end{proof}
@@ -115,8 +115,8 @@ Apply Theorem~\ref{thm:data_proc_statInfo} to the deterministic kernel $\mathcal
 
 \begin{lemma}
   \label{lem:statInfo_eq_sub_min}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.statInfo_eq_min_sub_lintegral, ProbabilityTheory.statInfo_eq_min_sub_lintegral', ProbabilityTheory.toReal_statInfo_eq_min_sub_integral}
+  \leanok
   \uses{def:statInfo}
   For finite measures $\mu, \nu$ and $\xi \in \mathcal M(\{0,1\})$, for any measure $\zeta$ with $\mu \ll \zeta$ and $\nu \ll \zeta$~,
   \begin{align*}
@@ -127,7 +127,7 @@ Apply Theorem~\ref{thm:data_proc_statInfo} to the deterministic kernel $\mathcal
   This holds in particular for $\zeta = P \circ \xi$.
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{thm:bayesBinaryRisk_eq}
 Apply Theorem~\ref{thm:bayesBinaryRisk_eq} to get that result for $\zeta = P \circ \xi$. Then for other $\zeta$ with $\mu \ll \zeta$ and $\nu \ll \zeta$~, use $\frac{d \mu}{d\zeta} = \frac{d \mu}{d(P \circ \xi)} / \frac{d (P \circ \xi)}{d\zeta}$~.
 \end{proof}
@@ -135,8 +135,8 @@ Apply Theorem~\ref{thm:bayesBinaryRisk_eq} to get that result for $\zeta = P \ci
 
 \begin{lemma}
   \label{lem:statInfo_eq_integral_abs_sub}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.statInfo_eq_abs_add_lintegral_abs}
+  \leanok
   \uses{def:statInfo}
   For finite measures $\mu, \nu$ and $\xi \in \mathcal M(\{0,1\})$, for any measure $\zeta$ with $\mu \ll \zeta$ and $\nu \ll \zeta$~,
   \begin{align*}
@@ -157,8 +157,8 @@ The result for other $\zeta$ follows from simple manipulations of Radon-Nikodym 
 
 \begin{theorem}[Integral form of the statistical information]
   \label{thm:statInfo_eq_integral}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.toReal_statInfo_eq_integral_max_of_le, ProbabilityTheory.toReal_statInfo_eq_integral_max_of_gt}
+  \leanok
   \uses{def:statInfo}
   For finite measures $\mu, \nu$ and $\xi \in \mathcal M(\{0,1\})$,
   \begin{align*}
@@ -174,7 +174,7 @@ The result for other $\zeta$ follows from simple manipulations of Radon-Nikodym 
 
 For probability measures, this theorem makes the statistical information an $f$-divergence (which is defined later in this document).
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{thm:bayesBinaryRisk_eq}
 By Theorem~\ref{thm:bayesBinaryRisk_eq},
 \begin{align*}

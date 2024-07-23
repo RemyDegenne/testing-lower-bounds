@@ -576,11 +576,10 @@ lemma toReal_bayesBinaryRisk_eq_integral_min (μ ν : Measure 𝒳) [IsFiniteMea
 lemma toReal_bayesBinaryRisk_eq_integral_abs (μ ν : Measure 𝒳) [IsFiniteMeasure μ]
     [IsFiniteMeasure ν] (π : Measure Bool) [IsFiniteMeasure π] :
     (bayesBinaryRisk μ ν π).toReal
-      = (2 : ℝ)⁻¹ * (((twoHypKernel μ ν ∘ₘ π) Set.univ).toReal
+      = 2⁻¹ * (((twoHypKernel μ ν ∘ₘ π) Set.univ).toReal
         - ∫ x, |(π {false} * μ.rnDeriv (twoHypKernel μ ν ∘ₘ π) x).toReal
           - (π {true} * ν.rnDeriv (twoHypKernel μ ν ∘ₘ π) x).toReal| ∂(twoHypKernel μ ν ∘ₘ π)) := by
-  rw [toReal_bayesBinaryRisk_eq_integral_min]
-  simp_rw [min_eq_add_sub_abs_sub, integral_mul_left]
+  simp_rw [toReal_bayesBinaryRisk_eq_integral_min, min_eq_add_sub_abs_sub, integral_mul_left]
   congr
   have hμ_int : Integrable (fun x ↦ (π {false} * μ.rnDeriv (twoHypKernel μ ν ∘ₘ π) x).toReal)
       (twoHypKernel μ ν ∘ₘ π) := by

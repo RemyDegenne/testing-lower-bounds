@@ -5,6 +5,7 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import Mathlib.MeasureTheory.Measure.Tilted
 import Mathlib.MeasureTheory.Function.ConditionalExpectation.Basic
+import TestingLowerBounds.ForMathlib.SetIntegral
 
 /-!
 
@@ -105,6 +106,11 @@ lemma rnDeriv_eq_div' {ξ : Measure α} [SigmaFinite μ] [SigmaFinite ν] [Sigma
   filter_upwards [rnDeriv_eq_div μ ν, hν_ac (rnDeriv_div_rnDeriv hμ hν)] with a h1 h2
   exact h1.trans h2.symm
 
+lemma rnDeriv_eq_zero_ae_of_zero_measure (ν : Measure α) {s : Set α} (hs : MeasurableSet s)
+    (hμ : μ s = 0) : ∀ᵐ x ∂ν, x ∈ s → (μ.rnDeriv ν) x = 0 := by
+  rw [← MeasureTheory.setLIntegral_eq_zero_iff hs (Measure.measurable_rnDeriv μ ν)]
+  exact le_antisymm (hμ ▸ Measure.setLIntegral_rnDeriv_le s) (zero_le _)
+
 /--Singular part set of μ with respect to ν.-/
 def singularPartSet (μ ν : Measure α) := {x | ν.rnDeriv (μ + ν) x = 0}
 
@@ -191,6 +197,11 @@ example [SigmaFinite μ] [SigmaFinite ν] :
     μ (singularPartSet μ ν) = μ.singularPart ν Set.univ := by
   rw [← restrict_singularPartSet_eq_singularPart]
   simp only [MeasurableSet.univ, restrict_apply, Set.univ_inter]
+
+lemma rnDeriv_eq_zero_ae_of_singularPartSet (μ ν ξ : Measure α) [SigmaFinite μ] [SigmaFinite ν] :
+    ∀ᵐ x ∂ξ, x ∈ Measure.singularPartSet μ ν → (ν.rnDeriv ξ) x = 0 :=
+  Measure.rnDeriv_eq_zero_ae_of_zero_measure _ Measure.measurableSet_singularPartSet
+    (Measure.measure_singularPartSet μ ν)
 
 section Trim
 
@@ -285,5 +296,16 @@ lemma rnDeriv_eq_one_iff_eq [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν
     μ.rnDeriv ν =ᵐ[ν] 1 ↔ μ = ν := by
   refine ⟨fun h ↦ ?_, fun h ↦ h ▸ Measure.rnDeriv_self ν⟩
   rw [← withDensity_rnDeriv_eq _ _ hμν, MeasureTheory.withDensity_congr_ae h, withDensity_one]
+
+-- in mathlib this lemma could be put just after `Measure.rnDeriv_mul_rnDeriv`
+lemma _root_.MeasureTheory.Measure.rnDeriv_mul_rnDeriv' {κ : Measure α} [SigmaFinite μ]
+    [SigmaFinite ν] [SigmaFinite κ] (hνκ : ν ≪ κ) :
+    μ.rnDeriv ν * ν.rnDeriv κ =ᵐ[ν] μ.rnDeriv κ := by
+  obtain ⟨h_meas, h_sing, hμν⟩ := Measure.haveLebesgueDecomposition_spec μ ν
+  filter_upwards [hνκ <| Measure.rnDeriv_add' (μ.singularPart ν) (ν.withDensity (μ.rnDeriv ν)) κ,
+    hνκ <| Measure.rnDeriv_withDensity_left_of_absolutelyContinuous hνκ h_meas.aemeasurable,
+    Measure.rnDeriv_eq_zero_of_mutuallySingular h_sing hνκ] with x hx1 hx2 hx3
+  nth_rw 2 [hμν]
+  rw [hx1, Pi.add_apply, hx2, Pi.mul_apply, hx3, Pi.zero_apply, zero_add]
 
 end MeasureTheory.Measure
