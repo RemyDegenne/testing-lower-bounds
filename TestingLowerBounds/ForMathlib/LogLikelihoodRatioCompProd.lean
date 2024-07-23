@@ -7,7 +7,7 @@ open Real MeasureTheory MeasurableSpace
 namespace ProbabilityTheory
 
 variable {α β γ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {mγ : MeasurableSpace γ}
-  {μ ν : Measure α} {κ η : kernel α β}
+  {μ ν : Measure α} {κ η : Kernel α β}
 
 lemma integrable_rnDeriv_mul_log_iff [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν) :
     Integrable (fun a ↦ (μ.rnDeriv ν a).toReal * log (μ.rnDeriv ν a).toReal) ν
@@ -23,7 +23,7 @@ lemma integrable_llr_compProd_of_integrable_llr [CountableOrCountablyGenerated �
   rw [← integrable_rnDeriv_mul_log_iff h_ac]
   rw [integrable_f_rnDeriv_compProd_iff continuous_mul_log.stronglyMeasurable convexOn_mul_log]
   simp_rw [ENNReal.toReal_mul]
-  have ⟨hμν_ac, hκη_ac⟩ := kernel.Measure.absolutelyContinuous_compProd_iff.mp h_ac
+  have ⟨hμν_ac, hκη_ac⟩ := Kernel.Measure.absolutelyContinuous_compProd_iff.mp h_ac
   have hμν_pos := Measure.rnDeriv_toReal_pos hμν_ac
   constructor
   · simp_rw [mul_assoc]
@@ -66,7 +66,7 @@ lemma integrable_llr_of_integrable_llr_compProd [CountableOrCountablyGenerated �
     (h_ac : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
     (h_int : Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ)) :
     Integrable (llr μ ν) μ := by
-  have ⟨hμν_ac, hκη_ac⟩ := kernel.Measure.absolutelyContinuous_compProd_iff.mp h_ac
+  have ⟨hμν_ac, hκη_ac⟩ := Kernel.Measure.absolutelyContinuous_compProd_iff.mp h_ac
   rw [← integrable_rnDeriv_mul_log_iff h_ac] at h_int
   replace h_int := integrable_f_rnDeriv_of_integrable_compProd' μ ν κ η
     continuous_mul_log.stronglyMeasurable convexOn_mul_log continuous_mul_log.continuousOn h_int
@@ -78,7 +78,7 @@ lemma ae_integrable_llr_of_integrable_llr_compProd [CountableOrCountablyGenerate
     (h_ac : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
     (h_int : Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ)) :
     ∀ᵐ a ∂μ, Integrable (llr (κ a) (η a)) (κ a) := by
-  have ⟨hμν_ac, hκη_ac⟩ := kernel.Measure.absolutelyContinuous_compProd_iff.mp h_ac
+  have ⟨hμν_ac, hκη_ac⟩ := Kernel.Measure.absolutelyContinuous_compProd_iff.mp h_ac
   have hμν_pos := Measure.rnDeriv_toReal_pos hμν_ac
   rw [← integrable_rnDeriv_mul_log_iff h_ac, integrable_f_rnDeriv_compProd_iff
     continuous_mul_log.stronglyMeasurable convexOn_mul_log] at h_int
@@ -102,7 +102,7 @@ lemma integrable_integral_llr_of_integrable_llr_compProd [CountableOrCountablyGe
     (h_ac : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
     (h_int : Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ)) :
     Integrable (fun a ↦ ∫ b, llr (κ a) (η a) b ∂(κ a)) μ := by
-  have ⟨hμν_ac, hκη_ac⟩ := kernel.Measure.absolutelyContinuous_compProd_iff.mp h_ac
+  have ⟨hμν_ac, hκη_ac⟩ := Kernel.Measure.absolutelyContinuous_compProd_iff.mp h_ac
   have hμν_pos : ∀ᵐ a ∂μ, 0 < ((∂μ/∂ν) a).toReal := Measure.rnDeriv_toReal_pos hμν_ac
   have hμν_int : Integrable (fun a ↦ log ((∂μ/∂ν) a).toReal) μ := by
     rw [← llr_def]
@@ -145,17 +145,17 @@ lemma integrable_llr_compProd_iff [CountableOrCountablyGenerated α β] [IsMarko
     ae_integrable_llr_of_integrable_llr_compProd h_ac h⟩,
     fun h ↦ integrable_llr_compProd_of_integrable_llr h_ac h.1.1 h.1.2 h.2⟩
 
-lemma kernel.integrable_llr_compProd_iff [CountableOrCountablyGenerated β γ]
-    {κ₁ η₁ : kernel α β} [IsFiniteKernel κ₁] [IsFiniteKernel η₁]
-    {κ₂ η₂ : kernel (α × β) γ} [IsMarkovKernel κ₂] [IsMarkovKernel η₂]
+lemma Kernel.integrable_llr_compProd_iff [CountableOrCountablyGenerated β γ]
+    {κ₁ η₁ : Kernel α β} [IsFiniteKernel κ₁] [IsFiniteKernel η₁]
+    {κ₂ η₂ : Kernel (α × β) γ} [IsMarkovKernel κ₂] [IsMarkovKernel η₂]
     (a : α) (h_ac : (κ₁ ⊗ₖ κ₂) a ≪ (η₁ ⊗ₖ η₂) a) :
     Integrable (llr ((κ₁ ⊗ₖ κ₂) a) ((η₁ ⊗ₖ η₂) a)) ((κ₁ ⊗ₖ κ₂) a)
       ↔ Integrable (llr (κ₁ a) (η₁ a)) (κ₁ a)
         ∧ Integrable (fun b ↦ ∫ x, (llr (κ₂ (a, b)) (η₂ (a, b)) x) ∂(κ₂ (a, b))) (κ₁ a)
         ∧ ∀ᵐ b ∂κ₁ a, Integrable (llr (κ₂ (a, b)) (η₂ (a, b))) (κ₂ (a, b)) := by
-  simp_rw [kernel.compProd_apply_eq_compProd_snd'] at h_ac
-  simp_rw [kernel.compProd_apply_eq_compProd_snd',
-    ProbabilityTheory.integrable_llr_compProd_iff h_ac, kernel.snd'_apply]
+  simp_rw [Kernel.compProd_apply_eq_compProd_snd'] at h_ac
+  simp_rw [Kernel.compProd_apply_eq_compProd_snd',
+    ProbabilityTheory.integrable_llr_compProd_iff h_ac, Kernel.snd'_apply]
   by_cases h_int₁ : Integrable (llr (κ₁ a) (η₁ a)) (κ₁ a)
   swap; tauto
   by_cases h_int₂ : ∀ᵐ b ∂κ₁ a, Integrable (llr (κ₂ (a, b)) (η₂ (a, b))) (κ₂ (a, b))
@@ -167,14 +167,14 @@ maybe when we put things in mathlib this could go in the basic file about llr,
 or maybe it still needs to go in a separate file, since it needs the definition of kernel,
 which now is not imported in the llr file -/
 lemma measurableSet_integrable_llr [CountableOrCountablyGenerated α β]
-    (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
+    (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
     MeasurableSet {a | Integrable (fun b ↦ ((∂κ a/∂η a) b).toReal * llr (κ a) (η a) b) (η a)} := by
   simp_rw [llr_def]
   exact measurableSet_integrable_f_rnDeriv κ η continuous_mul_log.stronglyMeasurable
 
 lemma ae_compProd_integrable_llr_iff [CountableOrCountablyGenerated (α × β) γ] [SFinite μ]
-    {ξ : kernel α β} [IsSFiniteKernel ξ]
-    {κ η : kernel (α × β) γ} [IsFiniteKernel κ] [IsFiniteKernel η]
+    {ξ : Kernel α β} [IsSFiniteKernel ξ]
+    {κ η : Kernel (α × β) γ} [IsFiniteKernel κ] [IsFiniteKernel η]
     (h_ac : ∀ᵐ (x : α × β) ∂μ ⊗ₘ ξ, κ x ≪ η x) :
     (∀ᵐ (x : α × β) ∂μ ⊗ₘ ξ, Integrable (llr (κ x) (η x)) (κ x))
       ↔ ∀ᵐ a ∂μ, ∀ᵐ b ∂ξ a, Integrable (llr (κ (a, b)) (η (a, b))) (κ (a, b)) :=
@@ -184,10 +184,10 @@ lemma ae_compProd_integrable_llr_iff [CountableOrCountablyGenerated (α × β) �
     filter_upwards [h_ac] with a ha using (integrable_rnDeriv_smul_iff ha).symm
   _ ↔ ∀ᵐ a ∂μ, ∀ᵐ b ∂ξ a, Integrable
       (fun x ↦ ((∂κ (a, b)/∂η (a, b)) x).toReal * llr (κ (a, b)) (η (a, b)) x) (η (a, b)) :=
-    kernel.ae_compProd_iff (measurableSet_integrable_llr κ η)
+    Kernel.ae_compProd_iff (measurableSet_integrable_llr κ η)
   _ ↔ ∀ᵐ a ∂μ, ∀ᵐ b ∂ξ a, Integrable (llr (κ (a, b)) (η (a, b))) (κ (a, b)) := by
     apply Filter.eventually_congr
-    rw [Measure.ae_compProd_iff (kernel.measurableSet_absolutelyContinuous _ _)] at h_ac
+    rw [Measure.ae_compProd_iff (Kernel.measurableSet_absolutelyContinuous _ _)] at h_ac
     filter_upwards [h_ac] with a ha
     apply Filter.eventually_congr
     filter_upwards [ha] with b hb using (integrable_rnDeriv_smul_iff hb)
