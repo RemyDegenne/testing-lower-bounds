@@ -253,8 +253,8 @@ lemma integrable_hellingerFun_iff_integrable_rpow (ha_one : a ≠ 1) [IsFiniteMe
       ← Set.indicator_comp_right fun x ↦ ((∂μ/∂ν) x).toReal, Set.preimage, Set.mem_singleton_iff,
       Pi.one_comp]
     refine (integrable_indicator_iff ?_).mpr ?_
-    . apply measurableSet_eq_fun <;> fun_prop
-    . apply integrableOn_const.mpr
+    · apply measurableSet_eq_fun <;> fun_prop
+    · apply integrableOn_const.mpr
       right
       exact measure_lt_top ν _
   rw [hellingerFun_of_ne_zero_of_ne_one ha_zero ha_one, integrable_const_mul_iff]
