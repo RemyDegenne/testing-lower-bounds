@@ -40,7 +40,7 @@ variable {𝒳 𝒳' : Type*} {m𝒳 : MeasurableSpace 𝒳} {m𝒳' : Measurabl
 the prior `π ∈ ℳ({0,1})`. -/
 noncomputable
 def statInfo (μ ν : Measure 𝒳) (π : Measure Bool) : ℝ≥0∞ :=
-  bayesBinaryRisk (kernel.discard 𝒳 ∘ₘ μ) (kernel.discard 𝒳 ∘ₘ ν) π - bayesBinaryRisk μ ν π
+  bayesBinaryRisk (Kernel.discard 𝒳 ∘ₘ μ) (Kernel.discard 𝒳 ∘ₘ ν) π - bayesBinaryRisk μ ν π
 
 lemma statInfo_eq_min_sub (μ ν : Measure 𝒳) (π : Measure Bool) :
     statInfo μ ν π = min (π {false} * μ univ) (π {true} * ν univ) - bayesBinaryRisk μ ν π := by
@@ -48,7 +48,7 @@ lemma statInfo_eq_min_sub (μ ν : Measure 𝒳) (π : Measure Bool) :
 
 lemma statInfo_eq_bayesRiskIncrease (μ ν : Measure 𝒳) (π : Measure Bool) :
     statInfo μ ν π
-      = bayesRiskIncrease simpleBinaryHypTest (twoHypKernel μ ν) π (kernel.discard 𝒳) := by
+      = bayesRiskIncrease simpleBinaryHypTest (twoHypKernel μ ν) π (Kernel.discard 𝒳) := by
   simp_rw [statInfo, bayesBinaryRisk, bayesRiskIncrease, comp_twoHypKernel]
 
 @[simp] lemma statInfo_zero_left : statInfo 0 ν π = 0 := by simp [statInfo]
@@ -74,10 +74,10 @@ lemma statInfo_of_measure_false_eq_zero (μ ν : Measure 𝒳) (hπ : π {false}
   le_antisymm (statInfo_le_min.trans (by simp [hπ])) zero_le'
 
 /-- **Data processing inequality** for the statistical information. -/
-lemma statInfo_comp_le (μ ν : Measure 𝒳) (π : Measure Bool) (η : kernel 𝒳 𝒳') [IsMarkovKernel η] :
+lemma statInfo_comp_le (μ ν : Measure 𝒳) (π : Measure Bool) (η : Kernel 𝒳 𝒳') [IsMarkovKernel η] :
     statInfo (η ∘ₘ μ) (η ∘ₘ ν) π ≤ statInfo μ ν π := by
   refine tsub_le_tsub ?_ (bayesBinaryRisk_le_bayesBinaryRisk_comp _ _ _ _)
-  simp [Measure.bind_apply MeasurableSet.univ (kernel.measurable _)]
+  simp [Measure.bind_apply MeasurableSet.univ (Kernel.measurable _)]
 
 lemma toReal_statInfo_eq_toReal_sub [IsFiniteMeasure ν] [IsFiniteMeasure π] :
     (statInfo μ ν π).toReal = (min (π {false} * μ univ) (π {true} * ν univ)).toReal
@@ -92,7 +92,7 @@ lemma statInfo_boolMeasure_le_statInfo {E : Set 𝒳} (hE : MeasurableSet E) :
       ≤ statInfo μ ν π := by
   have h_meas : Measurable fun x ↦ Bool.ofNat (E.indicator 1 x) :=
     ((measurable_discrete _).comp' (measurable_one.indicator hE))
-  let η : kernel 𝒳 Bool := kernel.deterministic (fun x ↦ Bool.ofNat (E.indicator 1 x)) h_meas
+  let η : Kernel 𝒳 Bool := Kernel.deterministic (fun x ↦ Bool.ofNat (E.indicator 1 x)) h_meas
   have h_false : (fun x ↦ Bool.ofNat (E.indicator 1 x)) ⁻¹' {false} = Eᶜ := by
     ext x; simp [Bool.ofNat]
   have h_true : (fun x ↦ Bool.ofNat (E.indicator 1 x)) ⁻¹' {true} = E := by
