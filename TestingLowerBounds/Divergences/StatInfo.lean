@@ -40,7 +40,7 @@ variable {𝒳 𝒳' : Type*} {m𝒳 : MeasurableSpace 𝒳} {m𝒳' : Measurabl
 the prior `π ∈ ℳ({0,1})`. -/
 noncomputable
 def statInfo (μ ν : Measure 𝒳) (π : Measure Bool) : ℝ≥0∞ :=
-  bayesBinaryRisk (μ ∘ₘ kernel.discard 𝒳) (ν ∘ₘ kernel.discard 𝒳) π - bayesBinaryRisk μ ν π
+  bayesBinaryRisk (kernel.discard 𝒳 ∘ₘ μ) (kernel.discard 𝒳 ∘ₘ ν) π - bayesBinaryRisk μ ν π
 
 lemma statInfo_eq_min_sub (μ ν : Measure 𝒳) (π : Measure Bool) :
     statInfo μ ν π = min (π {false} * μ univ) (π {true} * ν univ) - bayesBinaryRisk μ ν π := by
@@ -75,7 +75,7 @@ lemma statInfo_of_measure_false_eq_zero (μ ν : Measure 𝒳) (hπ : π {false}
 
 /-- **Data processing inequality** for the statistical information. -/
 lemma statInfo_comp_le (μ ν : Measure 𝒳) (π : Measure Bool) (η : kernel 𝒳 𝒳') [IsMarkovKernel η] :
-    statInfo (μ ∘ₘ η) (ν ∘ₘ η) π ≤ statInfo μ ν π := by
+    statInfo (η ∘ₘ μ) (η ∘ₘ ν) π ≤ statInfo μ ν π := by
   refine tsub_le_tsub ?_ (bayesBinaryRisk_le_bayesBinaryRisk_comp _ _ _ _)
   simp [Measure.bind_apply MeasurableSet.univ (kernel.measurable _)]
 
@@ -107,8 +107,8 @@ lemma statInfo_boolMeasure_le_statInfo {E : Set 𝒳} (hE : MeasurableSet E) :
 lemma statInfo_eq_min_sub_lintegral (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (π : Measure Bool) [IsFiniteMeasure π] :
     statInfo μ ν π = min (π {false} * μ univ) (π {true} * ν univ)
-      - ∫⁻ x, min (π {false} * μ.rnDeriv (π ∘ₘ twoHypKernel μ ν) x)
-      (π {true} * ν.rnDeriv (π ∘ₘ twoHypKernel μ ν) x) ∂(π ∘ₘ twoHypKernel μ ν) := by
+      - ∫⁻ x, min (π {false} * μ.rnDeriv (twoHypKernel μ ν ∘ₘ π) x)
+      (π {true} * ν.rnDeriv (twoHypKernel μ ν ∘ₘ π) x) ∂(twoHypKernel μ ν ∘ₘ π) := by
   rw [statInfo_eq_min_sub, bayesBinaryRisk_eq_lintegral_min]
 
 lemma statInfo_eq_min_sub_lintegral' {μ ν ζ : Measure 𝒳} [IsFiniteMeasure μ] [IsFiniteMeasure ν]
@@ -119,11 +119,11 @@ lemma statInfo_eq_min_sub_lintegral' {μ ν ζ : Measure 𝒳} [IsFiniteMeasure 
   · simp [statInfo, h_false, bayesBinaryRisk_of_measure_false_eq_zero]
   by_cases h_true : π {true} = 0
   · simp [statInfo, h_true, bayesBinaryRisk_of_measure_true_eq_zero]
-  have hμac : μ ≪ (π ∘ₘ twoHypKernel μ ν) :=
+  have hμac : μ ≪ (twoHypKernel μ ν ∘ₘ π) :=
     absolutelyContinuous_measure_comp_twoHypKernel_left μ ν h_false
-  have hνac : ν ≪ (π ∘ₘ twoHypKernel μ ν) :=
+  have hνac : ν ≪ (twoHypKernel μ ν ∘ₘ π) :=
     absolutelyContinuous_measure_comp_twoHypKernel_right μ ν h_true
-  have hacζ : (π ∘ₘ twoHypKernel μ ν) ≪ ζ :=
+  have hacζ : (twoHypKernel μ ν ∘ₘ π) ≪ ζ :=
     measure_comp_twoHypKernel _ _ _ ▸ (hνζ.smul _).add_left (hμζ.smul _)
   have hμ := Measure.rnDeriv_mul_rnDeriv hμac (κ := ζ)
   have hν := Measure.rnDeriv_mul_rnDeriv hνac (κ := ζ)
@@ -137,8 +137,8 @@ lemma statInfo_eq_min_sub_lintegral' {μ ν ζ : Measure 𝒳} [IsFiniteMeasure 
 lemma toReal_statInfo_eq_min_sub_integral (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (π : Measure Bool) [IsFiniteMeasure π] :
     (statInfo μ ν π).toReal = min (π {false} * μ univ).toReal (π {true} * ν univ).toReal
-      - ∫ x, min (π {false} * μ.rnDeriv (π ∘ₘ twoHypKernel μ ν) x).toReal
-      (π {true} * ν.rnDeriv (π ∘ₘ twoHypKernel μ ν) x).toReal ∂(π ∘ₘ twoHypKernel μ ν) := by
+      - ∫ x, min (π {false} * μ.rnDeriv (twoHypKernel μ ν ∘ₘ π) x).toReal
+      (π {true} * ν.rnDeriv (twoHypKernel μ ν ∘ₘ π) x).toReal ∂(twoHypKernel μ ν ∘ₘ π) := by
   have hμ : π {false} * μ univ ≠ ⊤ := ENNReal.mul_ne_top (measure_ne_top π _) (measure_ne_top μ _)
   have hν : π {true} * ν univ ≠ ⊤ := ENNReal.mul_ne_top (measure_ne_top π _) (measure_ne_top ν _)
   rw [statInfo_eq_min_sub, ENNReal.toReal_sub_of_le (bayesBinaryRisk_le_min μ ν π)]

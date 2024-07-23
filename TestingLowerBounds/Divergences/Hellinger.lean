@@ -1246,14 +1246,14 @@ lemma hellingerDiv_snd_le [Nonempty α] [StandardBorelSpace α] (ha_pos : 0 < a)
 lemma hellingerDiv_comp_le_compProd [Nonempty α] [StandardBorelSpace α] (ha_pos : 0 < a)
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
-    hellingerDiv a (μ ∘ₘ κ) (ν ∘ₘ η) ≤ hellingerDiv a (μ ⊗ₘ κ) (ν ⊗ₘ η) :=
+    hellingerDiv a (κ ∘ₘ μ) (η ∘ₘ ν) ≤ hellingerDiv a (μ ⊗ₘ κ) (ν ⊗ₘ η) :=
   fDiv_comp_le_compProd μ ν κ η (stronglyMeasurable_hellingerFun ha_pos.le)
     (convexOn_hellingerFun ha_pos.le) (continuous_hellingerFun ha_pos).continuousOn
 
 lemma hellingerDiv_comp_left_le [Nonempty α] [StandardBorelSpace α]
     [CountableOrCountablyGenerated α β] (ha_pos : 0 < a) (μ : Measure α) [IsFiniteMeasure μ]
     (κ η : kernel α β) [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] :
-    hellingerDiv a (μ ∘ₘ κ) (μ ∘ₘ η) ≤ condHellingerDiv a κ η μ :=
+    hellingerDiv a (κ ∘ₘ μ) (η ∘ₘ μ) ≤ condHellingerDiv a κ η μ :=
   fDiv_comp_left_le μ κ η (stronglyMeasurable_hellingerFun ha_pos.le)
     (convexOn_hellingerFun ha_pos.le) (continuous_hellingerFun ha_pos).continuousOn
 
@@ -1262,7 +1262,7 @@ lemma hellingerDiv_comp_right_le [Nonempty α] [StandardBorelSpace α] (ha_pos :
     [CountableOrCountablyGenerated α β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ : kernel α β) [IsMarkovKernel κ] :
-    hellingerDiv a (μ ∘ₘ κ) (ν ∘ₘ κ) ≤ hellingerDiv a μ ν :=
+    hellingerDiv a (κ ∘ₘ μ) (κ ∘ₘ ν) ≤ hellingerDiv a μ ν :=
   fDiv_comp_right_le μ ν κ (stronglyMeasurable_hellingerFun ha_pos.le)
     (convexOn_hellingerFun ha_pos.le) (continuous_hellingerFun ha_pos).continuousOn
 

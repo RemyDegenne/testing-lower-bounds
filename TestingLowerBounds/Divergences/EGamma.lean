@@ -38,6 +38,6 @@ def eGamma (μ ν : Measure 𝒳) (γ : ℝ≥0∞) : ℝ≥0∞ :=
 
 /-- **Data processing inequality** for the hockey-stick divergence. -/
 lemma eGamma_comp_le (μ ν : Measure 𝒳) (γ : ℝ≥0∞) (η : kernel 𝒳 𝒳') [IsMarkovKernel η] :
-    eGamma (μ ∘ₘ η) (ν ∘ₘ η) γ ≤ eGamma μ ν γ := statInfo_comp_le _ _ _ _
+    eGamma (η ∘ₘ μ) (η ∘ₘ ν) γ ≤ eGamma μ ν γ := statInfo_comp_le _ _ _ _
 
 end ProbabilityTheory

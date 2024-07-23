@@ -527,8 +527,8 @@ lemma fDiv_comp_left_le [Nonempty α] [StandardBorelSpace α] [CountableOrCounta
     (κ η : kernel α β) [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η]
     (hf : StronglyMeasurable f)
     (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0)) :
-    fDiv f (μ ∘ₘ κ) (μ ∘ₘ η) ≤ condFDiv f κ η μ := by
-  calc fDiv f (μ ∘ₘ κ) (μ ∘ₘ η)
+    fDiv f (κ ∘ₘ μ) (η ∘ₘ μ) ≤ condFDiv f κ η μ := by
+  calc fDiv f (κ ∘ₘ μ) (η ∘ₘ μ)
     ≤ fDiv f (μ ⊗ₘ κ) (μ ⊗ₘ η) := fDiv_comp_le_compProd μ μ κ η hf hf_cvx hf_cont
   _ = condFDiv f κ η μ := fDiv_compProd_left μ κ η hf hf_cvx
 

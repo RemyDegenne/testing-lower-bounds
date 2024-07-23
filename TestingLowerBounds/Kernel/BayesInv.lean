@@ -50,42 +50,42 @@ instance : IsMarkovKernel (κ†μ) := by rw [bayesInv]; infer_instance
 
 /-- The main property of the Bayesian inverse. -/
 lemma compProd_bayesInv (κ : kernel α β) (μ : Measure α) [IsFiniteMeasure μ] [IsFiniteKernel κ] :
-    μ ∘ₘ κ ⊗ₘ (κ†μ) = (μ ⊗ₘ κ).map Prod.swap := by
+    (κ ∘ₘ μ) ⊗ₘ (κ†μ) = (μ ⊗ₘ κ).map Prod.swap := by
   have h := Measure.compProd_fst_condKernel ((μ ⊗ₘ κ).map Prod.swap)
   rwa [Measure.fst_swap_compProd] at h
 
 lemma compProd_bayesInv' (κ : kernel α β) (μ : Measure α) [IsFiniteMeasure μ] [IsFiniteKernel κ] :
-    μ ∘ₘ κ ∘ₘ (kernel.id ×ₖ (κ†μ)) = (μ ∘ₘ (kernel.id ×ₖ κ)).map Prod.swap := by
+    (kernel.id ×ₖ (κ†μ)) ∘ₘ (κ ∘ₘ μ) = ((kernel.id ×ₖ κ) ∘ₘ μ).map Prod.swap := by
   simp_rw [← Measure.compProd_eq_comp]
   exact compProd_bayesInv κ μ
 
 lemma compProd_bayesInv'' (κ : kernel α β) (μ : Measure α) [IsFiniteMeasure μ] [IsFiniteKernel κ] :
-    μ ∘ₘ κ ∘ₘ (kernel.copy β) ∘ₘ (kernel.id ∥ₖ (κ†μ))
-      = μ ∘ₘ (kernel.copy α) ∘ₘ (κ ∥ₖ kernel.id) := by
+    (kernel.id ∥ₖ (κ†μ)) ∘ₘ (kernel.copy β ∘ₘ (κ ∘ₘ μ))
+      = (κ ∥ₖ kernel.id) ∘ₘ (kernel.copy α ∘ₘ μ) := by
   have h := compProd_bayesInv' κ μ
   rw [kernel.prod_eq_copy_comp_parallelComp, ← Measure.comp_assoc] at h
   rw [h, ← Measure.comp_deterministic_eq_map measurable_swap, kernel.prod_eq_copy_comp_parallelComp,
     ← Measure.comp_assoc, Measure.comp_assoc, ← kernel.swap, kernel.swap_parallelComp,
     ← Measure.comp_assoc]
-  suffices μ ∘ₘ (kernel.copy α) ∘ₘ (kernel.swap α α) = μ ∘ₘ (kernel.copy α) by rw [this]
+  suffices (kernel.swap α α) ∘ₘ (kernel.copy α ∘ₘ μ) = (kernel.copy α) ∘ₘ μ  by rw [this]
   rw [Measure.comp_assoc, kernel.swap_copy]
 
 /-- The Bayesian inverse is unique up to a `μ ∘ₘ κ`-null set. -/
 lemma eq_bayesInv_of_compProd_eq (η : kernel β α) [IsFiniteKernel η]
-    (h : (μ ∘ₘ κ ⊗ₘ η) = (μ ⊗ₘ κ).map Prod.swap) :
-    ∀ᵐ a ∂(μ ∘ₘ κ), η a = (κ†μ) a := by
+    (h : ((κ ∘ₘ μ) ⊗ₘ η) = (μ ⊗ₘ κ).map Prod.swap) :
+    ∀ᵐ a ∂(κ ∘ₘ μ), η a = (κ†μ) a := by
   rw [← Measure.fst_swap_compProd] at h
   convert eq_condKernel_of_measure_eq_compProd η h.symm
   rw [Measure.fst_swap_compProd]
 
 @[simp]
-lemma bayesInv_comp_self [IsMarkovKernel κ] : μ ∘ₘ κ ∘ₘ (κ†μ) = μ := by
+lemma bayesInv_comp_self [IsMarkovKernel κ] : (κ†μ) ∘ₘ (κ ∘ₘ μ) = μ := by
   rw [Measure.comp_eq_snd_compProd, compProd_bayesInv, Measure.snd_map_swap, Measure.fst_compProd]
 
 /-- The Bayesian inverse is involutive (up to `μ`-a.e. equality). -/
 lemma bayesInv_bayesInv [StandardBorelSpace β] [Nonempty β] [IsMarkovKernel κ] :
-    ∀ᵐ a ∂μ, ((κ†μ)†(μ ∘ₘ κ)) a = κ a := by
-  suffices ∀ᵐ a ∂(μ ∘ₘ κ ∘ₘ (κ†μ)), κ a = ((κ†μ)†(μ ∘ₘ κ)) a by
+    ∀ᵐ a ∂μ, ((κ†μ)†(κ ∘ₘ μ)) a = κ a := by
+  suffices ∀ᵐ a ∂((κ†μ) ∘ₘ (κ ∘ₘ μ)), κ a = ((κ†μ)†(κ ∘ₘ μ)) a by
     rw [bayesInv_comp_self] at this
     filter_upwards [this] with a h using h.symm
   refine eq_bayesInv_of_compProd_eq κ ?_
@@ -94,7 +94,7 @@ lemma bayesInv_bayesInv [StandardBorelSpace β] [Nonempty β] [IsMarkovKernel κ
 
 /-- The Bayesian inverse of the identity kernel is the identity kernel. -/
 lemma bayesInv_id : ∀ᵐ a ∂μ, (kernel.id†μ) a = kernel.id a := by
-  suffices ∀ᵐ a ∂(μ ∘ₘ kernel.id), kernel.id a = ((kernel.id : kernel α α)†μ) a by
+  suffices ∀ᵐ a ∂(kernel.id ∘ₘ μ), kernel.id a = ((kernel.id : kernel α α)†μ) a by
     rw [Measure.comp_id] at this
     filter_upwards [this] with a ha using ha.symm
   refine eq_bayesInv_of_compProd_eq kernel.id ?_
@@ -104,22 +104,22 @@ lemma bayesInv_id : ∀ᵐ a ∂μ, (kernel.id†μ) a = kernel.id a := by
 
 /-- The Bayesian inverse is contravariant. -/
 lemma bayesInv_comp [StandardBorelSpace β] [Nonempty β] {η : kernel β γ} [IsFiniteKernel η] :
-    ∀ᵐ c ∂(μ ∘ₘ κ ∘ₘ η), ((η ∘ₖ κ)†μ) c = ((κ†μ) ∘ₖ η†(μ ∘ₘ κ)) c := by
-  suffices ∀ᵐ c ∂(μ ∘ₘ κ ∘ₘ η), ((κ†μ) ∘ₖ η†(μ ∘ₘ κ)) c = ((η ∘ₖ κ)†μ) c by
+    ∀ᵐ c ∂(η ∘ₘ (κ ∘ₘ μ)), ((η ∘ₖ κ)†μ) c = ((κ†μ) ∘ₖ η†(κ ∘ₘ μ)) c := by
+  suffices ∀ᵐ c ∂(η ∘ₘ (κ ∘ₘ μ)), ((κ†μ) ∘ₖ η†(κ ∘ₘ μ)) c = ((η ∘ₖ κ)†μ) c by
     filter_upwards [this] with _ h using h.symm
   rw [Measure.comp_assoc]
-  refine eq_bayesInv_of_compProd_eq ((κ†μ) ∘ₖ η†(μ ∘ₘ κ)) ?_
+  refine eq_bayesInv_of_compProd_eq ((κ†μ) ∘ₖ η†(κ ∘ₘ μ)) ?_
   simp_rw [Measure.compProd_eq_comp, kernel.prod_eq_copy_comp_parallelComp,
     kernel.parallelComp_comp_right,
     ← Measure.comp_deterministic_eq_map measurable_swap, ← Measure.comp_assoc]
-  calc μ ∘ₘ κ ∘ₘ η ∘ₘ (kernel.copy γ) ∘ₘ (kernel.id ∥ₖ η†μ ∘ₘ ⇑κ) ∘ₘ (kernel.id ∥ₖ κ†μ)
-  _ = μ ∘ₘ κ ∘ₘ (kernel.copy β) ∘ₘ (η ∥ₖ kernel.id) ∘ₘ (kernel.id ∥ₖ κ†μ) := by
+  calc (kernel.id ∥ₖ κ†μ) ∘ₘ ((kernel.id ∥ₖ η†(κ ∘ₘ μ)) ∘ₘ ((kernel.copy γ) ∘ₘ (η ∘ₘ (κ ∘ₘ μ))))
+  _ = (kernel.id ∥ₖ κ†μ) ∘ₘ ((η ∥ₖ kernel.id) ∘ₘ (kernel.copy β ∘ₘ (κ ∘ₘ μ))) := by
     rw [compProd_bayesInv'']
-  _ = μ ∘ₘ κ ∘ₘ (kernel.copy β) ∘ₘ (kernel.id ∥ₖ κ†μ) ∘ₘ (η ∥ₖ kernel.id) := by
+  _ = (η ∥ₖ kernel.id) ∘ₘ ((kernel.id ∥ₖ κ†μ) ∘ₘ (kernel.copy β ∘ₘ (κ ∘ₘ μ))) := by
     rw [Measure.comp_assoc, kernel.parallelComp_comm, ← Measure.comp_assoc]
-  _ = μ ∘ₘ (kernel.copy α) ∘ₘ (κ ∥ₖ kernel.id) ∘ₘ (η ∥ₖ kernel.id) := by
+  _ = (η ∥ₖ kernel.id) ∘ₘ ((κ ∥ₖ kernel.id) ∘ₘ (kernel.copy α ∘ₘ μ)) := by
     rw [compProd_bayesInv'']
-  _ = μ ∘ₘ (kernel.copy α) ∘ₘ (kernel.id ∥ₖ κ) ∘ₘ (kernel.id ∥ₖ η) ∘ₘ (kernel.swap _ _) := by
+  _ = (kernel.swap _ _)∘ₘ ((kernel.id ∥ₖ η) ∘ₘ ((kernel.id ∥ₖ κ) ∘ₘ (kernel.copy α ∘ₘ μ))) := by
     simp_rw [Measure.comp_assoc]
     conv_rhs => rw [← kernel.comp_assoc]
     rw [kernel.swap_parallelComp, kernel.comp_assoc]

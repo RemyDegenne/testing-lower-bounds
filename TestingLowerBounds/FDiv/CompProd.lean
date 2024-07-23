@@ -566,7 +566,7 @@ lemma fDiv_comp_le_compProd [Nonempty α] [StandardBorelSpace α]
     (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
     (hf : StronglyMeasurable f)
     (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0)) :
-    fDiv f (μ ∘ₘ κ) (ν ∘ₘ η) ≤ fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ η) := by
+    fDiv f (κ ∘ₘ μ) (η ∘ₘ ν) ≤ fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ η) := by
   simp_rw [Measure.comp_eq_snd_compProd]
   exact fDiv_snd_le _ _ hf hf_cvx hf_cont
 
@@ -576,8 +576,8 @@ lemma fDiv_comp_right_le [Nonempty α] [StandardBorelSpace α] [CountableOrCount
     (κ : kernel α β) [IsMarkovKernel κ]
     (hf : StronglyMeasurable f)
     (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0)) :
-    fDiv f (μ ∘ₘ κ) (ν ∘ₘ κ) ≤ fDiv f μ ν := by
-  calc fDiv f (μ ∘ₘ κ) (ν ∘ₘ κ)
+    fDiv f (κ ∘ₘ μ) (κ ∘ₘ ν) ≤ fDiv f μ ν := by
+  calc fDiv f (κ ∘ₘ μ) (κ ∘ₘ ν)
     ≤ fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ κ) := fDiv_comp_le_compProd μ ν κ κ hf hf_cvx hf_cont
   _ = fDiv f μ ν := fDiv_compProd_right μ ν κ hf hf_cvx
 
