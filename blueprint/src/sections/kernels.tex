@@ -38,7 +38,7 @@ We now have the tools needed to define probability transition kernels.
 
 \begin{definition}[Kernel]
   \label{def:kernel}
-  \lean{ProbabilityTheory.kernel}
+  \lean{ProbabilityTheory.Kernel}
   \leanok
   \uses{def:measure_measurableSpace}
   Let $\mathcal X, \mathcal Y$ be two measurable spaces.
@@ -51,7 +51,7 @@ A measurable function can be represented by a \emph{deterministic} kernel.
 
 \begin{definition}[Deterministic kernel]
   \label{def:deterministic_kernel}
-  \lean{ProbabilityTheory.kernel.deterministic}
+  \lean{ProbabilityTheory.Kernel.deterministic}
   \leanok
   \uses{def:kernel}
   The deterministic kernel defined by a measurable function $f : \mathcal X \to \mathcal Y$ is the kernel $d_f: \mathcal X \rightsquigarrow \mathcal Y$ defined by $d_f(x) = \delta_{f(x)}$, where for any $y \in \mathcal Y$, $\delta_y$ is the Dirac probability measure at $y$.
@@ -102,7 +102,7 @@ This last, most general class of kernels, is the right assumption to define oper
 
 \begin{definition}[Composition-product]
   \label{def:kernel_compProd}
-  \lean{ProbabilityTheory.kernel.compProd}
+  \lean{ProbabilityTheory.Kernel.compProd}
   \leanok
   \uses{def:kernel, def:sFinite_kernel}
   Let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : (\mathcal X \times \mathcal Y) \rightsquigarrow \mathcal Z$ be two s-finite kernels.
@@ -133,7 +133,7 @@ Since a measure is a constant kernel from the space with one element, we can als
 
 \begin{definition}[Composition]
   \label{def:kernel_comp}
-  \lean{ProbabilityTheory.kernel.comp}
+  \lean{ProbabilityTheory.Kernel.comp}
   \leanok
   \uses{def:kernel}
   Let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal Y \rightsquigarrow \mathcal Z$ be two kernels.
@@ -144,7 +144,7 @@ We can also define the composition of a measure and a kernel, by $\kappa \circ \
 
 \begin{definition}[Product]
   \label{def:kernel_prod}
-  \lean{ProbabilityTheory.kernel.prod}
+  \lean{ProbabilityTheory.Kernel.prod}
   \leanok
   \uses{def:kernel, def:sFinite_kernel}
   Let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal X \rightsquigarrow \mathcal Z$ be two s-finite kernels.
@@ -158,7 +158,7 @@ In particular, the composition-product of a measure and a kernel $\kappa$ is the
 
 \begin{definition}[Parallel product]
   \label{def:kernel_parallel_prod}
-  \lean{ProbabilityTheory.kernel.parallelComp}
+  \lean{ProbabilityTheory.Kernel.parallelComp}
   \leanok
   \uses{def:kernel, def:sFinite_kernel}
   Let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal X' \rightsquigarrow \mathcal Y'$ be two s-finite kernels.

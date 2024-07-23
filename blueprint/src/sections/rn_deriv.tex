@@ -2,7 +2,7 @@
 
 \begin{definition}
   \label{def:kernel_rnDeriv}
-  \lean{ProbabilityTheory.kernel.rnDeriv}
+  \lean{ProbabilityTheory.Kernel.rnDeriv}
   \leanok
   \uses{def:kernel, def:finite_kernel}
   Let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels. The Radon-Nikodym derivative of $\kappa$ with respect to $\eta$, denoted by $\frac{d \kappa}{d \eta}$, is a measurable function $\mathcal X \times \mathcal Y \to \mathbb{R}_{+, \infty}$ with $\kappa = \frac{d \kappa}{d \eta} \cdot \eta + \kappa_{\perp \eta}$, where for all $x$, $\kappa_{\perp \eta}(x) \perp \eta(x)$.
@@ -10,7 +10,7 @@
 
 \begin{lemma}
   \label{lem:rnDeriv_unique}
-  \lean{ProbabilityTheory.kernel.eq_rnDeriv_measure}
+  \lean{ProbabilityTheory.Kernel.eq_rnDeriv_measure}
   \leanok
   \uses{def:kernel_rnDeriv}
   Let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels. If for some $f$ and $\xi$, $\kappa = f \cdot \eta + \xi$ with $\xi(x) \perp \eta(x)$ for all $x$, then for all $x$, $f(x, y) = \frac{d \kappa(x)}{d \eta(x)}(y)$ for $\eta(x)$-almost all $y \in \mathcal Y$.
@@ -22,7 +22,7 @@ Let $f$ and $\xi$ be such that $\kappa = f \cdot \eta + \xi$ with $\xi(x) \perp 
 
 \begin{corollary}
   \label{cor:rnDeriv_value}
-  \lean{ProbabilityTheory.kernel.rnDeriv_eq_rnDeriv_measure}
+  \lean{ProbabilityTheory.Kernel.rnDeriv_eq_rnDeriv_measure}
   \leanok
   \uses{def:kernel_rnDeriv}
   For all $x \in \mathcal X$, for $\eta(x)$-almost all $y \in \mathcal Y$, $\frac{d \kappa}{d \eta}(x, y) = \frac{d \kappa(x)}{d \eta(x)}(y)$.
@@ -35,7 +35,7 @@ Apply Lemma~\ref{lem:rnDeriv_unique}.
 
 \begin{lemma}
   \label{lem:rnDeriv_compProd_aux}
-  \lean{ProbabilityTheory.kernel.rnDeriv_measure_compProd_aux}
+  \lean{ProbabilityTheory.Kernel.rnDeriv_measure_compProd_aux}
   \leanok
   \uses{def:kernel_rnDeriv, def:measure_compProd}
   Let $\mu, \nu$ be two measures on $\mathcal X$ with $\mu \ll \nu$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels with $\kappa(x) \ll \eta(x)$ for $\nu$-almost all $x$. Then for $(\nu \otimes \eta)$-almost all $(x, y)$, $\frac{d (\mu \otimes \kappa)}{d (\nu \otimes \eta)}(x,y) = \frac{d\mu}{d\nu}(x)\frac{d \kappa}{d \eta}(x,y)$.
@@ -68,7 +68,7 @@ The second one uses Corollary~\ref{cor:rnDeriv_value}.
 
 \begin{lemma}
   \label{lem:rnDeriv_eq_ac}
-  \lean{ProbabilityTheory.kernel.todo1}
+  \lean{ProbabilityTheory.Kernel.todo1}
   \leanok
   \uses{def:kernel_rnDeriv}
   Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels. Let $\mu' = \left(\frac{\partial \mu}{\partial \nu}\right) \cdot \nu$ and $\kappa' = \left(\frac{\partial \kappa}{\partial \eta}\right) \cdot \eta$. Then for $(\nu \otimes \eta)$-almost all $z$, $\frac{\partial(\mu' \otimes \kappa')}{\partial (\nu \otimes \eta)}(z) = \frac{\partial(\mu \otimes \kappa)}{\partial (\nu \otimes \eta)}(z)$.
@@ -79,7 +79,7 @@ The second one uses Corollary~\ref{cor:rnDeriv_value}.
 
 \begin{lemma}
   \label{lem:prod_rnDeriv_eq_ac}
-  \lean{ProbabilityTheory.kernel.todo2}
+  \lean{ProbabilityTheory.Kernel.todo2}
   \leanok
   \uses{def:kernel_rnDeriv}
   Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels. Let $\mu' = \left(\frac{\partial \mu}{\partial \nu}\right) \cdot \nu$ and $\kappa' = \left(\frac{\partial \kappa}{\partial \eta}\right) \cdot \eta$. Then for $(\nu \otimes \eta)$-almost all $(x, y)$, $\frac{d\mu'}{d\nu}(x)\frac{d \kappa'}{d \eta}(x,y) = \frac{d\mu}{d\nu}(x)\frac{d \kappa}{d \eta}(x,y)$.
@@ -90,7 +90,7 @@ The second one uses Corollary~\ref{cor:rnDeriv_value}.
 
 \begin{lemma}
   \label{lem:rnDeriv_compProd}
-  \lean{ProbabilityTheory.kernel.rnDeriv_measure_compProd}
+  \lean{ProbabilityTheory.Kernel.rnDeriv_measure_compProd}
   \leanok
   \uses{def:kernel_rnDeriv}
   Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels. Then for $(\nu \otimes \eta)$-almost all $(x, y)$, $\frac{d (\mu \otimes \kappa)}{d (\nu \otimes \eta)}(x,y) = \frac{d\mu}{d\nu}(x)\frac{d \kappa}{d \eta}(x,y)$.
@@ -104,7 +104,7 @@ Use Lemma~\ref{lem:rnDeriv_eq_ac} for $\mu', \kappa'$ (defined in previous lemma
 
 \begin{corollary}
   \label{cor:rnDeriv_compProd_left}
-  \lean{ProbabilityTheory.kernel.rnDeriv_measure_compProd_left}
+  \lean{ProbabilityTheory.Kernel.rnDeriv_measure_compProd_left}
   \leanok
   \uses{def:kernel_rnDeriv}
   Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a finite kernel. Then for $(\nu \otimes \kappa)$-almost all $(x, y)$, $\frac{d (\mu \otimes \kappa)}{d (\nu \otimes \kappa)}(x,y) = \frac{d\mu}{d\nu}(x)$.
@@ -116,7 +116,7 @@ Use Lemma~\ref{lem:rnDeriv_eq_ac} for $\mu', \kappa'$ (defined in previous lemma
 
 \begin{corollary}
   \label{cor:rnDeriv_compProd_right}
-  \lean{ProbabilityTheory.kernel.rnDeriv_measure_compProd_right}
+  \lean{ProbabilityTheory.Kernel.rnDeriv_measure_compProd_right}
   \leanok
   \uses{def:kernel_rnDeriv}
   Let $\mu$ be a measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels. Then for $(\mu \otimes \eta)$-almost all $(x, y)$, $\frac{d (\mu \otimes \kappa)}{d (\mu \otimes \eta)}(x,y) = \frac{d \kappa}{d \eta}(x,y)$.
