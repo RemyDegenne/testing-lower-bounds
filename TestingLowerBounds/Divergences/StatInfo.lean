@@ -36,7 +36,6 @@ namespace ProbabilityTheory
 variable {𝒳 𝒳' : Type*} {m𝒳 : MeasurableSpace 𝒳} {m𝒳' : MeasurableSpace 𝒳'}
   {μ ν : Measure 𝒳} {p : ℝ≥0∞} {π : Measure Bool}
 
--- TODO: replace the min by a risk
 /-- The statistical information of the measures `μ` and `ν` with respect to
 the prior `π ∈ ℳ({0,1})`. -/
 noncomputable
@@ -52,16 +51,33 @@ lemma statInfo_eq_bayesRiskIncrease (μ ν : Measure 𝒳) (π : Measure Bool) :
       = bayesRiskIncrease simpleBinaryHypTest (twoHypKernel μ ν) π (kernel.discard 𝒳) := by
   simp_rw [statInfo, bayesBinaryRisk, bayesRiskIncrease, comp_twoHypKernel]
 
+@[simp] lemma statInfo_zero_left : statInfo 0 ν π = 0 := by simp [statInfo]
+
+@[simp] lemma statInfo_zero_right : statInfo μ 0 π = 0 := by simp [statInfo]
+
+@[simp] lemma statInfo_zero_prior : statInfo μ ν 0 = 0 := by simp [statInfo]
+
+@[simp] lemma statInfo_self : statInfo μ μ π = 0 := by simp [statInfo]
+
+lemma statInfo_le_min : statInfo μ ν π ≤ min (π {false} * μ univ) (π {true} * ν univ) :=
+  statInfo_eq_min_sub μ ν π ▸ tsub_le_self
+
+lemma statInfo_symm : statInfo μ ν π = statInfo ν μ (π.map Bool.not) := by
+  simp_rw [statInfo, bayesBinaryRisk_symm _ _ π]
+
+lemma statInfo_of_measure_true_eq_zero (μ ν : Measure 𝒳) (hπ : π {true} = 0) :
+    statInfo μ ν π = 0 :=
+  le_antisymm (statInfo_le_min.trans (by simp [hπ])) zero_le'
+
+lemma statInfo_of_measure_false_eq_zero (μ ν : Measure 𝒳) (hπ : π {false} = 0) :
+    statInfo μ ν π = 0 :=
+  le_antisymm (statInfo_le_min.trans (by simp [hπ])) zero_le'
+
 /-- **Data processing inequality** for the statistical information. -/
 lemma statInfo_comp_le (μ ν : Measure 𝒳) (π : Measure Bool) (η : kernel 𝒳 𝒳') [IsMarkovKernel η] :
     statInfo (μ ∘ₘ η) (ν ∘ₘ η) π ≤ statInfo μ ν π := by
-  simp_rw [statInfo_eq_min_sub, Measure.comp_apply_univ]
   refine tsub_le_tsub ?_ (bayesBinaryRisk_le_bayesBinaryRisk_comp _ _ _ _)
-  simp
-
-@[simp]
-lemma statInfo_self (μ : Measure 𝒳) (π : Measure Bool) : statInfo μ μ π = 0 := by
-  simp_rw [statInfo, bayesBinaryRisk_self, Measure.comp_apply_univ, tsub_self]
+  simp [Measure.bind_apply MeasurableSet.univ (kernel.measurable _)]
 
 lemma toReal_statInfo_eq_toReal_sub [IsFiniteMeasure ν] [IsFiniteMeasure π] :
     (statInfo μ ν π).toReal = (min (π {false} * μ univ) (π {true} * ν univ)).toReal
@@ -70,12 +86,6 @@ lemma toReal_statInfo_eq_toReal_sub [IsFiniteMeasure ν] [IsFiniteMeasure π] :
   · exact bayesBinaryRisk_le_min _ _ _
   · simp only [ne_eq, min_eq_top, not_and]
     exact fun _ ↦  ENNReal.mul_ne_top (measure_ne_top π _) (measure_ne_top ν _)
-
-lemma statInfo_le_min : statInfo μ ν π ≤ min (π {false} * μ univ) (π {true} * ν univ) :=
-  statInfo_eq_min_sub μ ν π ▸ tsub_le_self
-
-lemma statInfo_symm : statInfo μ ν π = statInfo ν μ (π.map Bool.not) := by
-  simp_rw [statInfo, bayesBinaryRisk_symm _ _ π]
 
 lemma statInfo_boolMeasure_le_statInfo {E : Set 𝒳} (hE : MeasurableSet E) :
     statInfo (Bool.boolMeasure (μ Eᶜ) (μ E)) (Bool.boolMeasure (ν Eᶜ) (ν E)) π
