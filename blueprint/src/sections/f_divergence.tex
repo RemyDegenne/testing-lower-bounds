@@ -751,6 +751,7 @@ D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A})
 \end{align*}
 \end{proof}
 
+
 \begin{theorem}
   \label{thm:iSup_fDiv_trim}
   %\lean{}
@@ -764,6 +765,56 @@ D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A})
 \uses{thm:fDiv_trim_le}
 \end{proof}
 
+
+We now show how the data-processing inequality on $\sigma$-algebras implies a data-processing inequality for composition with measurable functions.
+
+\begin{lemma}
+  \label{lem:rnDeriv_map_eq_condexp}
+  %\lean{}
+  %\leanok
+  \uses{}
+  Let $\mu, \nu \in \mathcal M(\mathcal X)$, $g : \mathcal X \to \mathcal Y$ a measurable function and denote by $g^* \mathcal Y$ the comap of the $\sigma$-algebra on $\mathcal Y$ by $g$.
+  Then $\nu$-almost everywhere,
+  \begin{align*}
+  \frac{d g_*\mu}{d g_*\nu}(g(x)) = \nu\left[ \frac{d \mu}{d \nu} \mid g^* \mathcal Y\right](x)
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:fDiv_map_eq_fDiv_trim}
+  %\lean{}
+  %\leanok
+  \uses{}
+  Let $\mu, \nu \in \mathcal M(\mathcal X)$ be finite measures and let $g : \mathcal X \to \mathcal Y$ be a measurable function. Denote by $g^* \mathcal Y$ the comap of the $\sigma$-algebra on $\mathcal Y$ by $g$. Then
+  $D_f(g_* \mu, g_* \nu) = D_f(\mu_{| g^* \mathcal Y}, \nu_{| g^* \mathcal Y})$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:rnDeriv_map_eq_condexp}
+
+\end{proof}
+
+
+\begin{theorem}
+  \label{thm:fDiv_map_le}
+  %\lean{}
+  %\leanok
+  \uses{thm:fDiv_trim_le}
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $g : \mathcal X \to \mathcal Y$ be a measurable function. Then
+  $D_f(g_* \mu, g_* \nu) \le D_f(\mu, \nu)$.
+\end{theorem}
+
+\begin{proof}%\leanok
+\uses{thm:fDiv_trim_le, lem:fDiv_map_eq_fDiv_trim}
+By Lemma~\ref{lem:fDiv_map_eq_fDiv_trim}, $D_f(g_* \mu, g_* \nu) = D_f(\mu_{| g^* \mathcal Y}, \nu_{| g^* \mathcal Y})$. Then apply Theorem~\ref{thm:fDiv_trim_le}.
+\end{proof}
 
 
 \subsubsection{Kernel proof}

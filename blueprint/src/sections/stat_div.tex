@@ -5,6 +5,8 @@ We will pay particular attention to how the divergence behaves with respect to t
 For a Markov kernel $\kappa : \mathcal X \rightsquigarrow \mathcal Y$~, a fundamental property of all divergences we will consider is the \emph{data-processing inequality}, which states that $D(\kappa \circ \mu, \kappa \circ \nu) \le D(\mu, \nu)$.
 That is, processing data with a (possibly random) common transformation $\kappa$ can only lose information about the difference between the two measures.
 
+Another important concept is the \emph{conditional divergence} of two kernels $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ given a measure $\mu \in \mathcal M(\mathcal X)$. This is the value $D(\mu \otimes \kappa, \mu \otimes \eta)$.
+
 \section{Statistical divergences}
 
 \begin{definition}
