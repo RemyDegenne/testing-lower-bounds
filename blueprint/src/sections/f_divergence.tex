@@ -682,7 +682,7 @@ For $\mathcal A$ a sub-$\sigma$-algebra and $\mu$ a measure, we write $\mathcal 
 \begin{proof}\leanok
 \end{proof}
 
-\begin{lemma}
+\begin{lemma}[Superseded by Theorem~\ref{thm:fDiv_trim_le}]
   \label{lem:fDiv_trim_le_of_ac}
   \lean{ProbabilityTheory.fDiv_trim_le_of_ac}
   \leanok
@@ -751,6 +751,7 @@ D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A})
 \end{align*}
 \end{proof}
 
+
 \begin{theorem}
   \label{thm:iSup_fDiv_trim}
   %\lean{}
@@ -764,6 +765,122 @@ D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A})
 \uses{thm:fDiv_trim_le}
 \end{proof}
 
+
+We now show how the data-processing inequality on $\sigma$-algebras implies a data-processing inequality for composition with measurable functions.
+
+\begin{lemma}
+  \label{lem:rnDeriv_map_eq_condexp}
+  %\lean{}
+  %\leanok
+  \uses{}
+  Let $\mu, \nu \in \mathcal M(\mathcal X)$, $g : \mathcal X \to \mathcal Y$ a measurable function and denote by $g^* \mathcal Y$ the comap of the $\sigma$-algebra on $\mathcal Y$ by $g$.
+  Then $\nu$-almost everywhere,
+  \begin{align*}
+  \frac{d g_*\mu}{d g_*\nu}(g(x)) = \nu\left[ \frac{d \mu}{d \nu} \mid g^* \mathcal Y\right](x)
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:rnDeriv_map_eq_rnDeriv_trim}
+  %\lean{}
+  %\leanok
+  \uses{}
+  Let $\mu, \nu \in \mathcal M(\mathcal X)$ with $\mu \ll \nu$, $g : \mathcal X \to \mathcal Y$ a measurable function and denote by $g^* \mathcal Y$ the comap of the $\sigma$-algebra on $\mathcal Y$ by $g$.
+  Then $\nu$-almost everywhere,
+  \begin{align*}
+  \frac{d g_*\mu}{d g_*\nu}(g(x)) = \frac{d \mu_{| g^* \mathcal Y}}{d \nu_{| g^* \mathcal Y}}(x)
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:rnDeriv_map_eq_condexp, lem:rnDeriv_trim_of_ac}
+
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:fDiv_map_eq_fDiv_trim_of_ac}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu \in \mathcal M(\mathcal X)$ be finite measures with $\mu \ll \nu$ and let $g : \mathcal X \to \mathcal Y$ be a measurable function. Denote by $g^* \mathcal Y$ the comap of the $\sigma$-algebra on $\mathcal Y$ by $g$. Then
+  $D_f(g_* \mu, g_* \nu) = D_f(\mu_{| g^* \mathcal Y}, \nu_{| g^* \mathcal Y})$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:rnDeriv_map_eq_condexp}
+\begin{align*}
+D_f(g_* \mu, g_* \nu)
+&= \int_y f \left( \frac{d g_*\mu}{d g_*\nu}(y)\right) \partial(g_*\nu)
+\\
+&= \int_x f \left( \frac{d g_*\mu}{d g_*\nu}(g(x))\right) \partial\nu
+\\
+&= \int_x f \left(\frac{d \mu_{| g^* \mathcal Y}}{d \nu_{| g^* \mathcal Y}}(x) \right) \partial\nu
+\\
+&= \int_x f \left(\frac{d \mu_{| g^* \mathcal Y}}{d \nu_{| g^* \mathcal Y}}(x) \right) \partial\nu_{| g^* \mathcal Y}
+\\
+&= D_f(\mu_{| g^* \mathcal Y}, \nu_{| g^* \mathcal Y})
+\: .
+\end{align*}
+\end{proof}
+
+
+\begin{lemma}[Superseded by Theorem~\ref{thm:fDiv_map_le}]
+  \label{lem:fDiv_map_le_of_ac}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ with $\mu \ll \nu$ and let $g : \mathcal X \to \mathcal Y$ be a measurable function. Then
+  $D_f(g_* \mu, g_* \nu) \le D_f(\mu, \nu)$.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:fDiv_map_eq_fDiv_trim_of_ac}
+By Lemma~\ref{lem:fDiv_map_eq_fDiv_trim_of_ac},  $D_f(g_* \mu, g_* \nu) = D_f(\mu_{| g^* \mathcal Y}, \nu_{| g^* \mathcal Y})$. Then apply Theorem~\ref{thm:fDiv_trim_le}.
+\end{proof}
+
+
+\begin{theorem}
+  \label{thm:fDiv_map_le}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $g : \mathcal X \to \mathcal Y$ be a measurable function. Then
+  $D_f(g_* \mu, g_* \nu) \le D_f(\mu, \nu)$.
+\end{theorem}
+
+\begin{proof}%\leanok
+\uses{lem:fDiv_map_le_of_ac, lem:fDiv_add_measure_le}
+We use $g_*\mu = g_*(\frac{d\mu}{d\nu}\cdot \nu) + g_*\mu_{\perp \nu}$~. 
+We have $g_*(\frac{d\mu}{d\nu}\cdot \nu) \ll g_*\nu$.
+By Lemma~\ref{lem:fDiv_add_measure_le},
+\begin{align*}
+D_f(g_* \mu, g_* \nu)
+\le D_f\left(g_*(\frac{d\mu}{d\nu}\cdot \nu), g_*\nu\right)
+  + g_*\mu_{\perp \nu}(\mathcal Y) f'(\infty)
+\: .
+\end{align*}
+Then we apply Lemma~\ref{lem:fDiv_map_le_of_ac} to the first term to get
+\begin{align*}
+D_f(g_* \mu, g_* \nu)
+&\le D_f\left(\frac{d\mu}{d\nu}\cdot \nu, \nu\right)
+  + g_*\mu_{\perp \nu}(\mathcal Y) f'(\infty)
+\\
+&= D_f\left(\frac{d\mu}{d\nu}\cdot \nu, \nu\right)
+  + \mu_{\perp \nu}(\mathcal X) f'(\infty)
+\\
+&= D_f(\mu, \nu)
+\: .
+\end{align*}
+\end{proof}
 
 
 \subsubsection{Kernel proof}
