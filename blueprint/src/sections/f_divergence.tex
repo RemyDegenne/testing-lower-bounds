@@ -810,7 +810,7 @@ We now show how the data-processing inequality on $\sigma$-algebras implies a da
   \label{lem:fDiv_map_eq_fDiv_trim_of_ac}
   %\lean{}
   %\leanok
-  \uses{}
+  \uses{def:fDiv}
   Let $\mu, \nu \in \mathcal M(\mathcal X)$ be finite measures with $\mu \ll \nu$ and let $g : \mathcal X \to \mathcal Y$ be a measurable function. Denote by $g^* \mathcal Y$ the comap of the $\sigma$-algebra on $\mathcal Y$ by $g$. Then
   $D_f(g_* \mu, g_* \nu) = D_f(\mu_{| g^* \mathcal Y}, \nu_{| g^* \mathcal Y})$~.
 \end{lemma}
@@ -837,7 +837,7 @@ D_f(g_* \mu, g_* \nu)
   \label{lem:fDiv_map_le_of_ac}
   %\lean{}
   %\leanok
-  \uses{}
+  \uses{def:fDiv}
   Let $\mu, \nu$ be two finite measures on $\mathcal X$ with $\mu \ll \nu$ and let $g : \mathcal X \to \mathcal Y$ be a measurable function. Then
   $D_f(g_* \mu, g_* \nu) \le D_f(\mu, \nu)$.
 \end{lemma}
@@ -852,7 +852,7 @@ By Lemma~\ref{lem:fDiv_map_eq_fDiv_trim_of_ac},  $D_f(g_* \mu, g_* \nu) = D_f(\m
   \label{thm:fDiv_map_le}
   %\lean{}
   %\leanok
-  \uses{thm:fDiv_trim_le}
+  \uses{def:fDiv}
   Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $g : \mathcal X \to \mathcal Y$ be a measurable function. Then
   $D_f(g_* \mu, g_* \nu) \le D_f(\mu, \nu)$.
 \end{theorem}
