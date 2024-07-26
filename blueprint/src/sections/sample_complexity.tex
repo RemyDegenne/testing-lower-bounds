@@ -1,0 +1,33 @@
+\section{Sample complexity}
+
+TODO: we could generalize this to a sequence of kernels instead of iid observations.
+
+An estimation problem of the shape $(P^{\otimes n}, y, \ell')$ corresponds to estimating from $n \in \mathbb{N}$ i.i.d. samples of the distribution. From the data-processing inequality, we get that the risk (Bayes risk, minimax risk...) decreases with the number of samples (Lemma~\ref{lem:bayesRisk_mono_prod} for example).
+Intuitively, having more information allows for better estimation.
+
+In a sequence of estimation tasks $(P^{\otimes n}, y, \ell')$ for $n \in \mathbb{N}$, the \emph{sample complexity} is the minimal $n$ such that the risk is less than a desired value.
+
+\begin{lemma}
+  \label{lem:bayesRisk_mono_prod}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesRisk}
+  If $n \le m$ then $\mathcal R_\pi^{P^{\otimes n}} \ge \mathcal R_\pi^{P^{\otimes m}}$.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{thm:data_proc_bayesRisk}
+Use the data-processing inequality, Theorem~\ref{thm:data_proc_bayesRisk}, for the deterministic kernel that projects on the first $n$ coordinates.
+\end{proof}
+
+
+\begin{definition}
+  \label{def:priorSampleComplexity}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesRisk}
+  The sample complexity of Bayesian estimation with respect to a prior $\pi \in \mathcal M(\Theta)$ at risk level $\delta \in \mathbb{R}_{+,\infty}$ is
+  \begin{align*}
+  n_\pi^P(\delta) = \min \{n \in \mathbb{N} \mid \mathcal R_\pi^{P^{\otimes n}} \le \delta\} \: .
+  \end{align*}
+\end{definition}

@@ -885,6 +885,23 @@ D_f(g_* \mu, g_* \nu)
 
 \subsubsection{Kernel proof}
 
+This proof starts by establishing $D_f(\mu, \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \eta)$ for Markov kernels $\kappa$ and $\eta$, then deduces the DPI.
+Indeed, if the measurable spaces are standard Borel, we can write $\mu \otimes \kappa = ((\kappa \circ \mu) \otimes \kappa^\dagger_\mu)_\leftrightarrow$ for a Markov kernel $\kappa^\dagger_\mu$ (see Definition~\ref{def:bayesInv}; $(...)_\leftrightarrow$ is notation for composition with the map that swaps the coordinates) and then use the inequality to get
+\begin{align*}
+D(\kappa \circ \mu, \kappa \circ \nu)
+&\le D((\kappa \circ \mu) \otimes \kappa^\dagger_\mu, (\kappa \circ \nu) \otimes \kappa^\dagger_\nu)
+\\
+&= D(((\kappa \circ \mu) \otimes \kappa^\dagger_\mu)_{\leftrightarrow}, ((\kappa \circ \nu) \otimes \kappa^\dagger_\nu)_{\leftrightarrow})
+\\
+&= D(\mu \otimes \kappa, \nu \otimes \kappa)
+\\
+&= D(\mu, \nu)
+\: .
+\end{align*}
+The main drawback of this approach is that it requires the measurable spaces to be standard Borel.
+
+The inequality $D_f(\mu, \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \eta)$ is obtained by describing the Radon-Nikodym derivative $\frac{d(\mu \otimes \kappa)}{d(\nu \otimes \eta)}$ and using convexity properties of the function $f$.
+
 \begin{theorem}
   \label{thm:fDiv_le_compProd_1}
   \lean{ProbabilityTheory.le_fDiv_compProd}
@@ -1054,6 +1071,7 @@ For the other inequality, remark that $\mu = (\kappa \circ \mu)_X$ (and similarl
 
 \subsubsection{General measurable spaces}
 
+This proof uses that every $f$-divergence is an integral over $\gamma \ge 0$ of $f$-divergences for the function $\phi_{1,\gamma}$ of Definition~\ref{def:statInfoFun}. It suffices then to prove the DPI for those particular $f$-divergences. Those are equal to the $E_\gamma$ divergence, up to a term that is invariant by composition with a Markov kernel. Finally, we already know that the $E_\gamma$ divergence satisfies the DPI, and that completes the proof.
 
 \begin{lemma}
   \label{lem:fDiv_statInfoFun_eq}
