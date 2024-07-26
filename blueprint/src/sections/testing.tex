@@ -614,36 +614,7 @@ Since $\beta > 0$ is arbitrary, we can take a supremum over $\beta$ on the right
 
 \section{Sample complexity}
 
-An estimation problem of the shape $(P^{\otimes n}, y, \ell')$ corresponds to estimating from $n$ i.i.d. samples of the distribution. From the data-processing inequality, we get that the risk (Bayes risk, minimax risk...) decreases with the number of samples (Lemma~\ref{lem:bayesRisk_mono_prod} for example).
-Intuitively, having more information allows for better estimation.
-
-In a sequence of estimation tasks $(P^{\otimes n}, y, \ell')$ for $n \in \mathbb{N}$, the \emph{sample complexity} is the minimal $n$ such that the risk is less than a desired value.
-
-\begin{lemma}
-  \label{lem:bayesRisk_mono_prod}
-  %\lean{}
-  %\leanok
-  \uses{def:bayesRisk}
-  If $n \le m$ then $\mathcal R_\pi^{P^{\otimes n}} \ge \mathcal R_\pi^{P^{\otimes m}}$.
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{thm:data_proc_bayesRisk}
-Use the data-processing inequality, Theorem~\ref{thm:data_proc_bayesRisk}.
-\end{proof}
-
-
-\begin{definition}
-  \label{def:priorSampleComplexity}
-  %\lean{}
-  %\leanok
-  \uses{def:bayesRisk}
-  The sample complexity of Bayesian estimation with respect to a prior $\pi \in \mathcal M(\Theta)$ at risk level $\delta \in \mathbb{R}_{+,\infty}$ is
-  \begin{align*}
-  n_\pi^P(\delta) = \min \{n \in \mathbb{N} \mid \mathcal R_\pi^{P^{\otimes n}} \le \delta\} \: .
-  \end{align*}
-\end{definition}
-
+We study the sample complexity of binary hypothesis testing.
 
 \begin{definition}
   \label{def:binaryPriorSampleComplexity}
@@ -654,7 +625,7 @@ Use the data-processing inequality, Theorem~\ref{thm:data_proc_bayesRisk}.
   \begin{align*}
   n(\mu, \nu, \pi, \delta) = \min\{n \in \mathbb{N} \mid B_\pi(\mu^{\otimes n}, \nu^{\otimes n}) \le \delta\} \: .
   \end{align*}
-  This is the sample complexity $n_\xi^P(\delta)$ specialized to simple binary hypothesis testing.
+  This is the sample complexity $n_\xi^P(\delta)$ of Definition~\ref{def:priorSampleComplexity} specialized to simple binary hypothesis testing.
 \end{definition}
 
 
