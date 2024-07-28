@@ -38,6 +38,14 @@ noncomputable
 def derivAtTop (f : ℝ → ℝ) : EReal :=
   if Tendsto (fun x ↦ f x / x) atTop atTop then ⊤ else ↑(limsup (fun x ↦ f x / x) atTop)
 
+lemma derivAtTop_of_tendsto_atTop (h : Tendsto (fun x ↦ f x / x) atTop atTop) :
+    derivAtTop f = ⊤ := by
+  rw [derivAtTop, if_pos h]
+
+lemma derivAtTop_of_not_tendsto_atTop (h : ¬ Tendsto (fun x ↦ f x / x) atTop atTop) :
+    derivAtTop f = limsup (fun x ↦ f x / x) atTop := by
+  rw [derivAtTop, if_neg h]
+
 lemma bot_lt_derivAtTop : ⊥ < derivAtTop f := by
   rw [derivAtTop]
   split_ifs with h <;> simp
