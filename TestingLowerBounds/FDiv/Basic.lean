@@ -762,6 +762,28 @@ lemma fDiv_nonneg [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
   calc (0 : EReal) = f (μ Set.univ).toReal := by simp [hf_one]
   _ ≤ fDiv f μ ν := le_fDiv hf_cvx hf_cont
 
+/--N.B. don't use this lemma, it's not true under the current definition of `derivAtTop`.-/
+lemma fDiv_mono' (hf_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
+    (hfg : ∀ᵐ x ∂ν.map (fun x ↦ ((∂μ/∂ν) x).toReal), f x ≤ g x) (hfg' : ∀ᶠ x in atTop, f x ≤ g x) :
+    fDiv f μ ν ≤ fDiv g μ ν := by
+  rw [fDiv_of_integrable hf_int, fDiv]
+  split_ifs with hg_int
+  swap; · simp
+  gcongr
+  · exact EReal.coe_le_coe_iff.mpr <| integral_mono_ae hf_int hg_int <|
+      ae_of_ae_map (Measure.measurable_rnDeriv μ ν).ennreal_toReal.aemeasurable hfg
+  · exact EReal.coe_ennreal_nonneg _
+  · exact derivAtTop_mono' hfg' -- `derivAtTop_mono'` is false under the current definition of `derivAtTop`
+
+/--N.B. don't use this lemma, it's not true under the current definition of `derivAtTop`.-/
+lemma fDiv_mono (hf_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
+    (hfg : ∀ x, f x ≤ g x) : fDiv f μ ν ≤ fDiv g μ ν :=
+  fDiv_mono' hf_int (eventually_of_forall hfg) (eventually_of_forall hfg)
+
+-- When `fDiv_mono` becomes true, se can use the following simpler proof:
+-- lemma fDiv_nonneg_of_nonneg' (hf : ∀ x, 0 ≤ f x) :
+--     0 ≤ fDiv f μ ν :=
+--   fDiv_zero μ ν ▸ fDiv_mono (integrable_zero α ℝ ν) hf
 lemma fDiv_nonneg_of_nonneg (hf : ∀ x, 0 ≤ f x) : 0 ≤ fDiv f μ ν := by
   rw [fDiv]
   split_ifs
