@@ -100,6 +100,31 @@ lemma derivAtTop_mono' (h_le : ∀ᶠ x in atTop, f x ≤ g x) : derivAtTop f �
 lemma derivAtTop_mono (h_le : ∀ x, f x ≤ g x) : derivAtTop f ≤ derivAtTop g :=
   derivAtTop_mono' (eventually_of_forall h_le)
 
+-- this proof is not well refined because it will be changed to a simpler proof using `derivAtTop_mono`, whenever we change the def of `derivAtTop`. The following could be the new proof:
+-- lemma derivAtTop_nonneg_of_nonneg (hf : ∀ x, 0 ≤ f x) : 0 ≤ derivAtTop f := by
+--   rw [← derivAtTop_const 0]
+--   refine derivAtTop_mono' (eventually_of_forall hf)
+lemma derivAtTop_nonneg_of_nonneg (hf : ∀ x, 0 ≤ f x) : 0 ≤ derivAtTop f := by
+  rw [derivAtTop]
+  split_ifs; · exact le_top
+  simp_rw [limsup, limsSup]
+  simp only [EReal.coe_nonneg, eventually_map, eventually_atTop, ge_iff_le]
+  by_cases h_empty : Set.Nonempty {a | ∃ a_1, ∀ (b : ℝ), a_1 ≤ b → f b / b ≤ a}
+  · refine le_csInf h_empty ?_
+    intro b hb
+    dsimp at hb
+    contrapose! hb
+    intro a
+    rcases le_or_lt 0 a with (ha | ha)
+    · use a
+      simp only [le_refl, true_and]
+      exact hb.trans_le <| div_nonneg (hf a) ha
+    · use 0
+      simp [ha.le, hb]
+  · rw [Set.not_nonempty_iff_eq_empty] at h_empty
+    rw [h_empty]
+    simp only [Real.sInf_empty, le_refl]
+
 
 lemma tendsto_derivAtTop (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (h : derivAtTop f ≠ ⊤) :
     Tendsto (fun x ↦ f x / x) atTop (𝓝 (derivAtTop f).toReal) := by
