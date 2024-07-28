@@ -712,25 +712,136 @@ lemma integral_statInfoFun_curvatureMeasure (hf_cvx : ConvexOn ℝ univ f) (hf_c
   · simp_rw [this, statInfoFun_of_one_of_one_le_right ht, integral_indicator measurableSet_Ioc,
       intervalIntegral.integral_of_le ht]
 
--- TODO: think about the case when the function is not integrable (`h_int`).
--- Can we prove that in this case the rhs is also not integrable?
-lemma fDiv_eq_integral_fDiv_statInfoFun_of_absolutelyContinuous
+lemma integral_statInfoFun_curvatureMeasure' (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f)
+    (hf_one : f 1 = 0) (hfderiv_one : rightDeriv f 1 = 0) :
+    ∫ y, statInfoFun 1 y t ∂(curvatureMeasure f) = f t := by
+  rw [integral_statInfoFun_curvatureMeasure hf_cvx hf_cont, hf_one, hfderiv_one, sub_zero, zero_mul,
+    sub_zero]
+
+lemma fDiv_eq_fDiv_centeredFunction [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (hf_cvx : ConvexOn ℝ univ f) :
+    fDiv f μ ν = fDiv (fun x ↦ f x - f 1 - rightDeriv f 1 * (x - 1)) μ ν
+      + f 1 * ν univ + rightDeriv f 1 * ((μ univ).toReal - (ν univ).toReal) := by
+  simp_rw [sub_eq_add_neg (f _), sub_eq_add_neg (_ + _), ← neg_mul]
+  rw [fDiv_add_linear']
+  swap; · exact hf_cvx.subset (fun _ _ ↦ trivial) (convex_Ici 0) |>.add_const _
+  rw [fDiv_add_const]
+  swap; · exact hf_cvx.subset (fun _ _ ↦ trivial) (convex_Ici 0)
+  simp_rw [EReal.coe_neg, neg_mul]
+  rw [add_assoc, add_comm (_ * _), ← add_assoc, add_assoc _ (-(_ * _)), add_comm (-(_ * _)),
+    ← sub_eq_add_neg (_ * _), EReal.sub_self, add_zero]
+  rotate_left
+  · refine (EReal.mul_ne_top _ _).mpr ⟨?_, Or.inr <| EReal.add_top_iff_ne_bot.mp rfl,
+      ?_, Or.inr <| Ne.symm (ne_of_beq_false rfl)⟩ <;> simp
+  · refine (EReal.mul_ne_bot _ _).mpr ⟨?_, Or.inr <| EReal.add_top_iff_ne_bot.mp rfl,
+      ?_, Or.inr <| Ne.symm (ne_of_beq_false rfl)⟩ <;> simp
+  rw [add_assoc, add_comm (-(_ * _)), ← sub_eq_add_neg, EReal.sub_self, add_zero]
+    <;> simp [EReal.mul_ne_top, EReal.mul_ne_bot, measure_ne_top]
+
+lemma lintegral_f_rnDeriv_eq_lintegralfDiv_statInfoFun_of_absolutelyContinuous
+    [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f)
+    (hf_one : f 1 = 0) (hfderiv_one : rightDeriv f 1 = 0) (h_ac : μ ≪ ν) :
+    ∫⁻ x, ENNReal.ofReal (f ((∂μ/∂ν) x).toReal) ∂ν
+      = ∫⁻ x, (fDiv (statInfoFun 1 x) μ ν).toENNReal ∂curvatureMeasure f  := by
+  have h_meas : Measurable (fun x γ ↦ statInfoFun 1 γ ((∂μ/∂ν) x).toReal).uncurry :=
+    stronglyMeasurable_statInfoFun.measurable.comp <|
+      (measurable_const.prod_mk measurable_snd).prod_mk <|
+      ((μ.measurable_rnDeriv ν).comp measurable_fst).ennreal_toReal
+  classical
+  simp_rw [fDiv_of_absolutelyContinuous h_ac, if_pos (integrable_statInfoFun_rnDeriv 1 _ _ _),
+    EReal.real_coe_toENNReal,
+    ← integral_statInfoFun_curvatureMeasure' hf_cvx hf_cont hf_one hfderiv_one]
+  have (x : 𝒳) : ENNReal.ofReal (∫ γ, statInfoFun 1 γ ((∂μ/∂ν) x).toReal ∂curvatureMeasure f) =
+      ∫⁻ γ, ENNReal.ofReal (statInfoFun 1 γ ((∂μ/∂ν) x).toReal) ∂curvatureMeasure f := by
+    rw [integral_eq_lintegral_of_nonneg_ae (eventually_of_forall fun y ↦ statInfoFun_nonneg _ _ _)
+        h_meas.of_uncurry_left.stronglyMeasurable.aestronglyMeasurable]
+    refine ENNReal.ofReal_toReal <| (lintegral_ofReal_le_lintegral_nnnorm _).trans_lt ?_ |>.ne
+    exact (integrable_statInfoFun 1 _).hasFiniteIntegral
+  simp_rw [this]
+  rw [lintegral_lintegral_swap h_meas.ennreal_ofReal.aemeasurable]
+  congr with y
+  rw [integral_eq_lintegral_of_nonneg_ae (eventually_of_forall fun _ ↦ statInfoFun_nonneg _ _ _)
+    h_meas.of_uncurry_right.stronglyMeasurable.aestronglyMeasurable, ENNReal.ofReal_toReal]
+  refine (integrable_toReal_iff ?_ ?_).mp ?_
+  · exact h_meas.comp (f := fun x ↦ (x, y)) (by fun_prop) |>.ennreal_ofReal.aemeasurable
+  · exact eventually_of_forall fun _ ↦ ENNReal.ofReal_ne_top
+  · simp_rw [ENNReal.toReal_ofReal (statInfoFun_nonneg 1 _ _)]
+    exact integrable_statInfoFun_rnDeriv 1 y μ ν
+
+lemma fDiv_ne_top_iff_integrable_fDiv_statInfoFun_of_absolutelyContinuous'
+    [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f)
+    (hf_one : f 1 = 0) (hfderiv_one : rightDeriv f 1 = 0) (h_ac : μ ≪ ν) :
+    fDiv f μ ν ≠ ⊤
+      ↔ Integrable (fun x ↦ (fDiv (statInfoFun 1 x) μ ν).toReal) (curvatureMeasure f) := by
+  rw [fDiv_ne_top_iff]
+  simp only [h_ac, implies_true, and_true]
+  have (x : 𝒳) : f ((∂μ/∂ν) x).toReal = (ENNReal.ofReal (f ((∂μ/∂ν) x).toReal)).toReal := by
+    refine (ENNReal.toReal_ofReal ?_).symm
+    rw [← integral_statInfoFun_curvatureMeasure' hf_cvx hf_cont hf_one hfderiv_one]
+    exact integral_nonneg fun _ ↦ statInfoFun_nonneg 1 _ _
+  have : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν
+      ↔ Integrable (fun x ↦ (ENNReal.ofReal (f ((∂μ/∂ν) x).toReal)).toReal) ν := by
+    simp_rw [← this]
+  simp_rw [this, ← EReal.toReal_toENNReal fDiv_statInfoFun_nonneg]
+  rw [integrable_toReal_iff]
+  rotate_left
+  · exact hf_cont.measurable.comp (Measure.measurable_rnDeriv μ ν).ennreal_toReal
+      |>.ennreal_ofReal.aemeasurable
+  · exact eventually_of_forall fun _ ↦ ENNReal.ofReal_ne_top
+  rw [integrable_toReal_iff]
+  rotate_left
+  · exact (fDiv_statInfoFun_stronglyMeasurable μ ν).measurable.comp (f := fun x ↦ (1, x))
+      (by fun_prop) |>.ereal_toENNReal.aemeasurable
+  · exact eventually_of_forall fun _ ↦ EReal.toENNReal_ne_top_iff.mpr
+      fDiv_statInfoFun_ne_top_of_nonneg
+  rw [lintegral_f_rnDeriv_eq_lintegralfDiv_statInfoFun_of_absolutelyContinuous hf_cvx hf_cont
+    hf_one hfderiv_one h_ac]
+
+lemma fDiv_ne_top_iff_integrable_fDiv_statInfoFun_of_absolutelyContinuous
+    [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f) (h_ac : μ ≪ ν) :
+    fDiv f μ ν ≠ ⊤
+      ↔ Integrable (fun x ↦ (fDiv (statInfoFun 1 x) μ ν).toReal) (curvatureMeasure f) := by
+  rw [fDiv_eq_fDiv_centeredFunction hf_cvx, EReal.add_ne_top_iff_of_ne_bot_of_ne_top]
+  rotate_left
+  · exact EReal.add_top_iff_ne_bot.mp rfl
+  · exact Ne.symm (ne_of_beq_false rfl)
+  rw [EReal.add_ne_top_iff_of_ne_bot_of_ne_top]
+    <;> try {· simp [EReal.mul_ne_top, EReal.mul_ne_bot, measure_ne_top]}
+  simp_rw [sub_eq_add_neg, ← neg_mul, mul_add, ← add_assoc]
+  rw [fDiv_ne_top_iff_integrable_fDiv_statInfoFun_of_absolutelyContinuous' _ _ (by ring) _ h_ac,
+    curvatureMeasure_add_const, curvatureMeasure_add_linear, curvatureMeasure_add_const]
+  · exact (hf_cvx.add_const _).add (const_mul (-rightDeriv f 1)) |>.add_const _
+  · exact ((hf_cont.add continuous_const).add (continuous_mul_left _)).add continuous_const
+  · have hf_diff x := differentiableWithinAt_Ioi hf_cvx x
+    rw [rightDeriv_add_const (by fun_prop), rightDeriv_add_linear (by fun_prop),
+      rightDeriv_add_const hf_diff]
+    simp
+
+lemma integrable_f_rnDeriv_iff_integrable_fDiv_statInfoFun_of_absolutelyContinuous
+    [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f) (h_ac : μ ≪ ν) :
+    Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν
+      ↔ Integrable (fun x ↦ (fDiv (statInfoFun 1 x) μ ν).toReal) (curvatureMeasure f) := by
+  rw [← fDiv_ne_top_iff_integrable_fDiv_statInfoFun_of_absolutelyContinuous hf_cvx hf_cont h_ac]
+  simp [fDiv_ne_top_iff, h_ac]
+
+lemma fDiv_eq_integral_fDiv_statInfoFun_of_absolutelyContinuous'
     [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f) (hf_one : f 1 = 0)
-    (hfderiv_one : rightDeriv f 1 = 0) (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
+    (hfderiv_one : rightDeriv f 1 = 0)
+    (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
     (h_ac : μ ≪ ν) :
     fDiv f μ ν = ∫ x, (fDiv (statInfoFun 1 x) μ ν).toReal ∂(curvatureMeasure f) := by
   classical
   rw [fDiv_of_absolutelyContinuous h_ac, if_pos h_int, EReal.coe_eq_coe_iff]
   simp_rw [fDiv_of_absolutelyContinuous h_ac, if_pos (integrable_statInfoFun_rnDeriv 1 _ _ _),
     EReal.toReal_coe,
-    ← integral_statInfoFun_curvatureMeasure hf_cvx hf_cont hf_one hfderiv_one]
-  have h_meas : Measurable (fun x γ ↦ statInfoFun 1 γ ((∂μ/∂ν) x).toReal).uncurry := by
-    change Measurable
-      (statInfoFun.uncurry.uncurry ∘ (fun (xγ : 𝒳 × ℝ) ↦ ((1, xγ.2), ((∂μ/∂ν) xγ.1).toReal)))
-    refine stronglymeasurable_statInfoFun.measurable.comp ?_
-    refine (measurable_const.prod_mk measurable_snd).prod_mk ?_
-    exact ((Measure.measurable_rnDeriv μ ν).comp measurable_fst).ennreal_toReal
+    ← integral_statInfoFun_curvatureMeasure' hf_cvx hf_cont hf_one hfderiv_one]
+  have h_meas : Measurable (fun x γ ↦ statInfoFun 1 γ ((∂μ/∂ν) x).toReal).uncurry :=
+    stronglyMeasurable_statInfoFun.measurable.comp <|
+      (measurable_const.prod_mk measurable_snd).prod_mk <|
+      ((μ.measurable_rnDeriv ν).comp measurable_fst).ennreal_toReal
   have int_eq_lint : ∫ x, ∫ γ, statInfoFun 1 γ ((∂μ/∂ν) x).toReal ∂curvatureMeasure f ∂ν
       = (∫⁻ x, ∫⁻ γ, ENNReal.ofReal (statInfoFun 1 γ ((∂μ/∂ν) x).toReal)
         ∂curvatureMeasure f ∂ν).toReal := by
@@ -759,6 +870,108 @@ lemma fDiv_eq_integral_fDiv_statInfoFun_of_absolutelyContinuous
     ENNReal.toReal_ofReal (statInfoFun_nonneg _ _ _),
     Real.norm_of_nonneg (statInfoFun_nonneg _ _ _)]
 
+lemma fDiv_eq_integral_fDiv_statInfoFun_of_absolutelyContinuous
+    [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f)
+    (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) (h_ac : μ ≪ ν) :
+    fDiv f μ ν = ∫ x, (fDiv (statInfoFun 1 x) μ ν).toReal ∂(curvatureMeasure f)
+      + f 1 * ν univ + rightDeriv f 1 * (μ univ - ν univ) := by
+  rw [fDiv_eq_fDiv_centeredFunction hf_cvx]
+  congr
+  · have h : ConvexOn ℝ univ (fun x ↦ f x - f 1 - rightDeriv f 1 * (x - 1)) := by
+      simp_rw [mul_sub, sub_eq_add_neg, neg_add, neg_neg, ← neg_mul]
+      exact hf_cvx.add_const _ |>.add (ConvexOn.const_mul _ |>.add (convexOn_const _ convex_univ))
+    rw [fDiv_eq_integral_fDiv_statInfoFun_of_absolutelyContinuous'
+      h (by continuity) (by simp) _ _ h_ac]
+    · simp_rw [mul_sub, sub_eq_add_neg, neg_add, neg_neg, ← neg_mul, ← add_assoc,
+        curvatureMeasure_add_const, curvatureMeasure_add_linear, curvatureMeasure_add_const]
+    · have hf_diff x := differentiableWithinAt_Ioi hf_cvx x
+      simp_rw [mul_sub, sub_eq_add_neg, neg_add, neg_neg, ← neg_mul, ← add_assoc]
+      rw [rightDeriv_add_const (by fun_prop), rightDeriv_add_linear (by fun_prop),
+        rightDeriv_add_const hf_diff]
+      simp
+    · exact (h_int.sub (integrable_const _)).sub
+        ((Measure.integrable_toReal_rnDeriv.sub (integrable_const 1)).const_mul _)
+  all_goals exact ENNReal.toReal_toEReal_of_ne_top (measure_ne_top _ _)
+
+lemma fDiv_eq_lintegral_fDiv_statInfoFun_of_absolutelyContinuous
+    [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f)
+    (h_ac : μ ≪ ν) :
+    fDiv f μ ν = ∫⁻ x, (fDiv (statInfoFun 1 x) μ ν).toENNReal ∂(curvatureMeasure f)
+      + f 1 * ν univ + rightDeriv f 1 * (μ univ - ν univ) := by
+  by_cases h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν
+  · rw [fDiv_eq_integral_fDiv_statInfoFun_of_absolutelyContinuous hf_cvx hf_cont h_int h_ac,
+      integral_eq_lintegral_of_nonneg_ae]
+    rotate_left
+    · exact eventually_of_forall <| fun _ ↦ EReal.toReal_nonneg fDiv_statInfoFun_nonneg
+    · exact (fDiv_statInfoFun_stronglyMeasurable μ ν).measurable.comp (f := fun x ↦ (1, x))
+        (by fun_prop) |>.ereal_toReal.aestronglyMeasurable
+    simp_rw [← EReal.toENNReal_of_ne_top fDiv_statInfoFun_ne_top_of_nonneg]
+    rw [ENNReal.toReal_toEReal_of_ne_top]
+    rw [integrable_f_rnDeriv_iff_integrable_fDiv_statInfoFun_of_absolutelyContinuous hf_cvx
+      hf_cont h_ac] at h_int
+    refine (integrable_toReal_iff ?_ ?_).mp ?_
+    · exact (fDiv_statInfoFun_stronglyMeasurable μ ν).measurable.comp (f := fun x ↦ (1, x))
+        (by fun_prop) |>.ereal_toENNReal.aemeasurable
+    · exact eventually_of_forall fun _ ↦ EReal.toENNReal_ne_top_iff.mpr
+        fDiv_statInfoFun_ne_top_of_nonneg
+    simp_rw [EReal.toReal_toENNReal fDiv_statInfoFun_nonneg, h_int]
+  · classical
+    rw [fDiv_of_absolutelyContinuous h_ac, if_neg h_int]
+    convert (EReal.top_add_of_ne_bot ?_).symm
+    swap
+    · simp [sub_eq_add_neg, measure_ne_top, EReal.add_ne_top, EReal.add_ne_bot, EReal.mul_ne_bot]
+    convert EReal.top_add_of_ne_bot ?_
+    swap; · simp [measure_ne_top, EReal.mul_ne_bot]
+    simp_rw [EReal.coe_ennreal_eq_top_iff]
+    have h := integrable_f_rnDeriv_iff_integrable_fDiv_statInfoFun_of_absolutelyContinuous
+      hf_cvx hf_cont h_ac |>.mpr.mt h_int
+    contrapose! h
+    simp_rw [← EReal.toReal_toENNReal fDiv_statInfoFun_nonneg]
+    refine (integrable_toReal_iff ?_ ?_).mpr h
+    · exact (fDiv_statInfoFun_stronglyMeasurable μ ν).measurable.comp (f := fun x ↦ (1, x))
+        (by fun_prop) |>.ereal_toENNReal.aemeasurable
+    · exact eventually_of_forall fun _ ↦ EReal.toENNReal_ne_top_iff.mpr
+        fDiv_statInfoFun_ne_top_of_nonneg
+
 end StatInfoFun
+
+section DataProcessingInequality
+
+/-- **Data processing inequality** for the f-divergence of `statInfoFun`. -/
+lemma fDiv_statInfoFun_comp_right_le [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (η : Kernel 𝒳 𝒳') [IsMarkovKernel η] (hβ : 0 ≤ β) :
+    fDiv (statInfoFun β γ) (η ∘ₘ μ) (η ∘ₘ ν) ≤ fDiv (statInfoFun β γ) μ ν := by
+  rcases le_total γ 0 with (hγ | hγ)
+  · rw [fDiv_statInfoFun_eq_zero_of_nonneg_of_nonpos hβ hγ,
+      fDiv_statInfoFun_eq_zero_of_nonneg_of_nonpos hβ hγ]
+  simp_rw [fDiv_statInfoFun_eq_StatInfo_of_nonneg hβ hγ]
+  gcongr ?_ + ?_
+  · exact EReal.coe_ennreal_le_coe_ennreal_iff.mpr <| statInfo_comp_le _ _ _ _
+  · simp_rw [Measure.comp_apply_univ, le_refl]
+
+--this version is not strictly more general than the previous one, but it covers many cases that the previous one does not. However it is probably not useful since the general case should still be covered by the general DPI for fDiv, since statInfoFun is always convex and continuous
+lemma fDiv_statInfoFun_comp_right_le' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (η : Kernel 𝒳 𝒳') [IsMarkovKernel η] (hβγ : β ≠ γ) :
+    fDiv (statInfoFun β γ) (η ∘ₘ μ) (η ∘ₘ ν) ≤ fDiv (statInfoFun β γ) μ ν := by
+  rcases le_total 0 β with (hβ | hβ)
+  · exact fDiv_statInfoFun_comp_right_le η hβ
+  · exact statInfoFun_neg_neg hβγ ▸ fDiv_statInfoFun_comp_right_le η (neg_nonneg.mpr hβ)
+
+/-- **Data processing inequality** for the f-divergence. -/
+lemma fDiv_comp_right_le_of_absolutelyContinuous [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (η : Kernel 𝒳 𝒳') [IsMarkovKernel η]
+    (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f) (h_ac : μ ≪ ν) :
+    fDiv f (η ∘ₘ μ) (η ∘ₘ ν) ≤ fDiv f μ ν := by
+  rw [fDiv_eq_lintegral_fDiv_statInfoFun_of_absolutelyContinuous hf_cvx hf_cont h_ac,
+    fDiv_eq_lintegral_fDiv_statInfoFun_of_absolutelyContinuous hf_cvx hf_cont]
+  swap; · exact Measure.absolutelyContinuous_comp_left h_ac _
+  simp_rw [Measure.comp_apply_univ]
+  gcongr
+  simp only [EReal.coe_ennreal_le_coe_ennreal_iff]
+  exact lintegral_mono fun x ↦ EReal.toENNReal_le_toENNReal <|
+    fDiv_statInfoFun_comp_right_le η zero_le_one
+
+end DataProcessingInequality
+
 
 end ProbabilityTheory
