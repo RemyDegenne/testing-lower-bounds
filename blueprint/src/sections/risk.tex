@@ -43,7 +43,7 @@ Let $\hat{\mu}_\theta$ be the law of $\hat{y}(\theta)$. That is, $\hat{\mu} : \m
   \lean{ProbabilityTheory.risk}
   \leanok
   \uses{def:kernel_comp}
-  The risk of an estimator $\hat{y}$ on the estimation problem $(P, y, \ell')$ at $\theta \in \Theta$ is $r^P_\theta(\hat{y}) = \hat{\mu}_\theta\left[z \mapsto \ell'(y(\theta), z)\right]$~.
+  The risk of an estimator $\hat{y}$ on the estimation problem $(P, y, \ell')$ at $\theta \in \Theta$ is $r^P_\theta(\hat{y}) = (\hat{y} \circ P)(\theta)\left[z \mapsto \ell'(y(\theta), z)\right]$~.
 \end{definition}
 
 \emph{Example (SBHT):} $r^P_\theta(\hat{y}) = \hat{\mu}_\theta(\hat{y}(\theta) \ne y(\theta))$.
@@ -56,6 +56,8 @@ Let $\hat{\mu}_\theta$ be the law of $\hat{y}(\theta)$. That is, $\hat{\mu} : \m
   \uses{def:risk}
   The Bayesian risk of an estimator $\hat{y}$ on $(P, y, \ell')$ for a prior $\pi \in \mathcal M(\Theta)$ is $R^P_\pi(\hat{y}) = \pi\left[\theta \mapsto r^P_\theta(\hat{y})\right]$~. It can also be expanded as $R^P_\pi(\hat{y}) = (\pi \otimes (\hat{y} \circ P))\left[ (\theta, z) \mapsto \ell'(y(\theta), z) \right]$~.
 \end{definition}
+
+If we write $\ell'$ and $y$ for their deterministic kernels, the Bayesian risk of $\hat{y}$ is the mean of the measure $\ell' \circ (y \parallel \hat{y}) \circ (\pi \otimes P)$~.
 
 
 \begin{definition}[Bayes risk]
