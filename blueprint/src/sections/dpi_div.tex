@@ -1,0 +1,109 @@
+A divergence between measures is a function which maps two measures on any common space $\mathcal X$ to a value in $[-\infty, +\infty]$.
+For two probability measures $\mu$ and $\nu$, we will want the divergence $D(\mu, \nu)$ to be non-negative and to be zero if $\mu = \nu$~: divergences are meant to be notions of dissimilarity between measures.
+
+We will pay particular attention to how the divergence behaves with respect to transformations of the measures.
+For a Markov kernel $\kappa : \mathcal X \rightsquigarrow \mathcal Y$~, a fundamental property of all divergences we will consider is the \emph{data-processing inequality}, which states that $D(\kappa \circ \mu, \kappa \circ \nu) \le D(\mu, \nu)$.
+That is, processing data with a (possibly random) common transformation $\kappa$ can only lose information about the difference between the two measures.
+
+Another important concept is the \emph{conditional divergence} of two kernels $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ given a measure $\mu \in \mathcal M(\mathcal X)$. This is the value $D(\mu \otimes \kappa, \mu \otimes \eta)$.
+
+\section{Generic divergences}
+
+\begin{definition}[Divergence]
+  \label{def:div}
+  %\lean{}
+  %\leanok
+  \uses{}
+  A divergence between measures is a function $D$ which for any measurable space $\mathcal X$ and any two measures $\mu, \nu \in \mathcal M(\mathcal X)$, returns a value $D(\mu, \nu) \in \mathbb{R} \cup \{+\infty\}$.
+\end{definition}
+
+In Lean, such a definition for a divergence has to restrict the possible measurable spaces to be in a common universe.
+
+\begin{definition}[Data-processing inequality]
+  \label{def:dpi}
+  %\lean{}
+  %\leanok
+  \uses{def:div}
+  A divergence $D$ is said to satisfy the data-processing inequality (DPI) if for all measurable spaces $\mathcal X, \mathcal Y$, all $\mu, \nu \in \mathcal M(\mathcal X)$ and all Markov kernels $\kappa : \mathcal X \rightsquigarrow \mathcal Y$,
+  \begin{align*}
+  D(\kappa \circ \mu, \kappa \circ \nu) \le D(\mu, \nu) \: .
+  \end{align*}
+\end{definition}
+
+
+\begin{lemma}[Second marginal]
+  \label{lem:div_comp_le_div_compProd}
+  %\lean{}
+  %\leanok
+  \uses{def:div, def:dpi}
+  Let $D$ be a divergence that satisfies the DPI. Let $\mathcal \mu, \nu \in \mathcal M(\mathcal X)$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$. Then
+  \begin{align*}
+  D(\kappa \circ \mu, \eta \circ \nu) \le D(\mu \otimes \kappa, \nu \otimes \eta) \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{def:dpi}
+Use the DPI for the deterministic kernel of the function $(x,y) \mapsto y$.
+\end{proof}
+
+
+\begin{lemma}[First marginal]
+  \label{lem:div_le_div_compProd}
+  %\lean{}
+  %\leanok
+  \uses{def:div, def:dpi}
+  Let $D$ be a divergence that satisfies the DPI. Let $\mathcal \mu, \nu \in \mathcal M(\mathcal X)$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be Markov kernels. Then
+  \begin{align*}
+  D(\mu, \nu) \le D(\mu \otimes \kappa, \nu \otimes \eta) \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{def:dpi}
+Use the DPI for the deterministic kernel of the function $(x,y) \mapsto x$.
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:div_compProd_right}
+  %\lean{}
+  %\leanok
+  \uses{def:div, def:dpi}
+  Let $D$ be a divergence that satisfies the DPI. Let $\mathcal \mu, \nu \in \mathcal M(\mathcal X)$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel. Then
+  \begin{align*}
+  D(\mu \otimes \kappa, \nu \otimes \kappa) = D(\mu, \nu) \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{def:dpi, lem:div_le_div_compProd}
+Lemma~\ref{lem:div_le_div_compProd} gives one inequality. The other inequality is the DPI: $\mu \otimes \kappa = (\mathrm{id} \times \kappa) \circ \mu$.
+\end{proof}
+
+
+\begin{definition}[Conditional divergence]
+  \label{def:condDiv}
+  %\lean{}
+  %\leanok
+  \uses{def:div}
+  Let $D$ be a divergence.
+  The conditional divergence of kernels $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ with respect to a measure $\mu \in \mathcal M(\mathcal X)$ is $D(\mu \otimes \kappa, \mu \otimes \eta)$. It is also denoted by $D(\kappa, \eta \mid \mu)$.
+\end{definition}
+
+
+\begin{lemma}[Conditioning increases divergence]
+  \label{lem:}
+  %\lean{}
+  %\leanok
+  \uses{def:div, def:dpi}
+  Let $D$ be a divergence that satisfies the DPI. Let $\mathcal \mu \in \mathcal M(\mathcal X)$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be Markov kernels. Then
+  \begin{align*}
+  D(\kappa \circ \mu, \eta \circ \mu) \le D(\mu \otimes \kappa, \mu \otimes \eta) \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:div_comp_le_div_compProd}
+This is a special case of Lemma~\ref{lem:div_comp_le_div_compProd}.
+\end{proof}
