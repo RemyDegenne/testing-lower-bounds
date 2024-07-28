@@ -762,12 +762,11 @@ lemma fDiv_nonneg [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
   calc (0 : EReal) = f (μ Set.univ).toReal := by simp [hf_one]
   _ ≤ fDiv f μ ν := le_fDiv hf_cvx hf_cont
 
-lemma fDiv_nonneg_of_nonneg (hf : ∀ x, 0 ≤ f x) (hf_atTop : 0 ≤ derivAtTop f) :
-    0 ≤ fDiv f μ ν := by
+lemma fDiv_nonneg_of_nonneg (hf : ∀ x, 0 ≤ f x) : 0 ≤ fDiv f μ ν := by
   rw [fDiv]
   split_ifs
   swap; · exact le_top
-  refine add_nonneg ?_ (mul_nonneg hf_atTop (EReal.coe_ennreal_nonneg _))
+  refine add_nonneg ?_ (mul_nonneg (derivAtTop_nonneg_of_nonneg hf) (EReal.coe_ennreal_nonneg _))
   exact EReal.coe_nonneg.mpr <| integral_nonneg_of_ae <| eventually_of_forall <| fun _ ↦ hf _
 
 lemma fDiv_eq_zero_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_mass : μ Set.univ = ν Set.univ)
