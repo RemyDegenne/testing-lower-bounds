@@ -77,6 +77,30 @@ lemma derivAtTop_id : derivAtTop id = 1 := by
 @[simp]
 lemma derivAtTop_id' : derivAtTop (fun x ↦ x) = 1 := derivAtTop_id
 
+/--N.B. don't use this lemma, it's not true under the current definition of `derivAtTop`.-/
+lemma derivAtTop_mono' (h_le : ∀ᶠ x in atTop, f x ≤ g x) : derivAtTop f ≤ derivAtTop g := by
+  by_cases hf : Tendsto (fun x ↦ f x / x) atTop atTop
+  · have hg : Tendsto (fun x ↦ g x / x) atTop atTop := by
+      refine tendsto_atTop_mono' _ ?_ hf
+      filter_upwards [h_le, eventually_gt_atTop 0] with x hx hx_pos
+        using (div_le_div_right hx_pos).mpr hx
+    rw [derivAtTop_of_tendsto_atTop hf, derivAtTop_of_tendsto_atTop hg]
+  · by_cases hg : Tendsto (fun x ↦ g x / x) atTop atTop
+    · exact derivAtTop_of_tendsto_atTop hg ▸ le_top
+    rw [derivAtTop_of_not_tendsto_atTop hf, derivAtTop_of_not_tendsto_atTop hg]
+    simp only [EReal.coe_le_coe_iff]
+    refine limsup_le_limsup ?_ ?_ ?_
+    · filter_upwards [h_le, eventually_gt_atTop 0] with x hx hx_pos
+        using (div_le_div_right hx_pos).mpr hx
+    · refine IsBoundedUnder.isCoboundedUnder_le ?_
+      sorry
+    · sorry --these 2 sorries are a problem, I don't think they are true under the current assumptions, but they may actually reveal a deeper problem with the current definition of `derivAtTop`: we define it as a limsup over `ℝ` and then do the coercion, but `ℝ` is only a `ConditionallyCompleteLattice`, not a `CompleteLattice`, so the limsup is not so well behaved, and for example it is not necessarily monotone, the problem essentially arises from the fact that in ℝ the sSup of a set that is not bounded above is defined as `0` (see `Real.sSup_def`). I think we should define `derivAtTop` as a `limsup` over `EReal`, but this may imply a bit of refactoring and also some proofs, since for example then we don't have that the `derivAtTop` is not `⊥` for free, it requires some additional hps that we have to figure out. I think this comment remains relevant also in case we change the definition of `derivAtTop` to use the `rightDeriv`.
+
+/--N.B. don't use this lemma, it's not true under the current definition of `derivAtTop`.-/
+lemma derivAtTop_mono (h_le : ∀ x, f x ≤ g x) : derivAtTop f ≤ derivAtTop g :=
+  derivAtTop_mono' (eventually_of_forall h_le)
+
+
 lemma tendsto_derivAtTop (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (h : derivAtTop f ≠ ⊤) :
     Tendsto (fun x ↦ f x / x) atTop (𝓝 (derivAtTop f).toReal) := by
   rw [ne_eq, derivAtTop_eq_top_iff] at h
