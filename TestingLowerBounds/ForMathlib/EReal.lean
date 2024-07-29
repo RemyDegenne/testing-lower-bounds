@@ -331,7 +331,7 @@ theorem _root_.measurable_ereal_toENNReal : Measurable EReal.toENNReal :=
   EReal.measurable_of_measurable_real (by simpa using ENNReal.measurable_ofReal)
 
 @[measurability, fun_prop]
-theorem _root_.Measurable.ereal_toENNReal {α : Type*} [MeasurableSpace α]
+theorem _root_.Measurable.ereal_toENNReal {α : Type*} {_ : MeasurableSpace α}
     {f : α → EReal} (hf : Measurable f) :
     Measurable fun x => (f x).toENNReal :=
   measurable_ereal_toENNReal.comp hf
