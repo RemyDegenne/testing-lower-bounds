@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne
 -/
 import TestingLowerBounds.Convex
+import TestingLowerBounds.ForMathlib.LeftRightDeriv
+import TestingLowerBounds.ForMathlib.EReal
 
 /-!
 
@@ -35,8 +37,37 @@ variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
 -- we put the coe outside the limsup to ensure it's not ⊥
 open Classical in
 noncomputable
-def derivAtTop (f : ℝ → ℝ) : EReal :=
-  if Tendsto (fun x ↦ f x / x) atTop atTop then ⊤ else ↑(limsup (fun x ↦ f x / x) atTop)
+def derivAtTop (f : ℝ → ℝ) : EReal := limsup (fun x ↦ (rightDeriv f x : EReal)) atTop
+  --if Tendsto (fun x ↦ f x / x) atTop atTop then ⊤ else ↑(limsup (fun x ↦ f x / x) atTop)
+
+lemma derivAtTop_of_tendsto {y : ℝ} (h : Tendsto (rightDeriv f) atTop (𝓝 y)) :
+    derivAtTop f = y := by
+  rw [derivAtTop]
+  refine Tendsto.limsup_eq ?_
+  exact (continuous_coe_real_ereal.tendsto _).comp h
+
+lemma derivAtTop_of_tendsto_atTop (h : Tendsto (rightDeriv f) atTop atTop) :
+    derivAtTop f = ⊤ := by
+  rw [derivAtTop]
+  refine Tendsto.limsup_eq ?_
+  rw [EReal.tendsto_nhds_top_iff_real]
+  simp only [EReal.coe_lt_coe_iff, eventually_atTop, ge_iff_le]
+  rw [tendsto_atTop_atTop] at h
+  intro x
+  obtain ⟨a, ha⟩ := h (x + 1)
+  exact ⟨a, fun b hab ↦ (lt_add_one _).trans_le (ha b hab)⟩
+
+@[simp]
+lemma derivAtTop_const (c : ℝ) : derivAtTop (fun _ ↦ c) = 0 := by
+  refine derivAtTop_of_tendsto ?_
+  simp only [rightDeriv_const]
+  exact tendsto_const_nhds
+
+@[simp]
+lemma derivAtTop_id : derivAtTop id = 1 := by
+  refine derivAtTop_of_tendsto ?_
+  rw [rightDeriv_id]
+  simp
 
 lemma bot_lt_derivAtTop : ⊥ < derivAtTop f := by
   rw [derivAtTop]
@@ -47,24 +78,6 @@ lemma derivAtTop_ne_bot : derivAtTop f ≠ ⊥ := bot_lt_derivAtTop.ne'
 lemma derivAtTop_eq_top_iff : derivAtTop f = ⊤ ↔ Tendsto (fun x ↦ f x / x) atTop atTop := by
   rw [derivAtTop]
   split_ifs with h <;> simp [h]
-
-lemma derivAtTop_of_tendsto {y : ℝ} (h : Tendsto (fun x ↦ f x / x) atTop (𝓝 y)) :
-    derivAtTop f = y := by
-  rw [derivAtTop, if_neg]
-  · rw [h.limsup_eq]
-  · exact h.not_tendsto (disjoint_nhds_atTop _)
-
-@[simp]
-lemma derivAtTop_const (c : ℝ) : derivAtTop (fun _ ↦ c) = 0 := by
-  refine derivAtTop_of_tendsto (Tendsto.div_atTop (tendsto_const_nhds) tendsto_id)
-
-@[simp]
-lemma derivAtTop_id : derivAtTop id = 1 := by
-  refine derivAtTop_of_tendsto ?_
-  refine (tendsto_congr' ?_).mp tendsto_const_nhds
-  simp only [EventuallyEq, id_eq, eventually_atTop, ge_iff_le]
-  refine ⟨1, fun x hx ↦ (div_self ?_).symm⟩
-  linarith
 
 @[simp]
 lemma derivAtTop_id' : derivAtTop (fun x ↦ x) = 1 := derivAtTop_id
