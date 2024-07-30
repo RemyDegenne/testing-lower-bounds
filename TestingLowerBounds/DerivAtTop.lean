@@ -138,17 +138,14 @@ lemma derivAtTop_sub_const (hf_cvx : ConvexOn ℝ univ f) (c : ℝ) :
   simp_rw [sub_eq_add_neg]
   exact derivAtTop_add_const hf_cvx _
 
-lemma derivAtTop_const_mul (hf_cvx : ConvexOn ℝ univ f) {c : ℝ} (hc : 0 < c) :
+lemma derivAtTop_const_mul (hf_cvx : ConvexOn ℝ univ f) {c : ℝ} (hc : c ≠ 0) :
     derivAtTop (fun x ↦ c * f x) = c * derivAtTop f := by
-  have h_cvx : ConvexOn ℝ univ (fun x ↦ c * f x) := by
-    simp_rw [← smul_eq_mul]
-    exact hf_cvx.smul hc.le
-  rw [h_cvx.derivAtTop_eq_iff]
+  refine derivAtTop_of_tendsto ?_
   simp only [rightDeriv_const_mul, EReal.coe_mul]
   have h_cont : ContinuousAt (fun p : (EReal × EReal) ↦ p.1 * p.2) (↑c, derivAtTop f) :=
     EReal.continuousAt_mul (p := (c, derivAtTop f)) (Or.inr hf_cvx.derivAtTop_ne_bot)
       (Or.inl ?_) (Or.inl (by simp)) (Or.inl (by simp))
-  swap; · simp only [ne_eq, EReal.coe_eq_zero]; exact hc.ne'
+  swap; · simp only [ne_eq, EReal.coe_eq_zero]; exact hc
   change Tendsto ((fun p : (EReal × EReal) ↦ p.1 * p.2) ∘ (fun x ↦ (↑c, ↑(rightDeriv f x))))
     atTop (𝓝 (↑c * derivAtTop f))
   exact h_cont.tendsto.comp (tendsto_const_nhds.prod_mk_nhds hf_cvx.tendsto_derivAtTop)
