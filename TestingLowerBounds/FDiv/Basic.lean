@@ -117,7 +117,9 @@ lemma fDiv_ne_bot_of_derivAtTop_nonneg (hf : 0 ≤ derivAtTop f) : fDiv f μ ν 
   split_ifs with h
   · simp only [ne_eq, EReal.add_eq_bot_iff, EReal.coe_ne_bot, false_or]
     rw [EReal.mul_eq_bot]
-    have h_ne_bot : derivAtTop f ≠ ⊥ := sorry -- use hf
+    have h_ne_bot : derivAtTop f ≠ ⊥ := fun h_eq ↦ by
+      rw [h_eq] at hf
+      simp at hf
     simp [h_ne_bot, not_lt.mpr (EReal.coe_ennreal_nonneg _), not_lt.mpr hf]
   · simp
 
