@@ -35,11 +35,39 @@ lemma EReal.tendsto_of_monotone {ι : Type*} [Preorder ι] {f : ι → EReal} (h
 
 lemma Real.monotone_toEReal : Monotone toEReal := Monotone.of_map_inf fun _ ↦ congrFun rfl
 
+lemma Filter.EventuallyEq.derivWithin_eq_nhds {𝕜 F : Type*} [NontriviallyNormedField 𝕜]
+    [NormedAddCommGroup F] [NormedSpace 𝕜 F] {f₁ f : 𝕜 → F} {x : 𝕜} {s : Set 𝕜}
+    (h : f₁ =ᶠ[𝓝 x] f) :
+    derivWithin f₁ s x = derivWithin f s x := by
+  simp_rw [derivWithin]
+  rw [Filter.EventuallyEq.fderivWithin_eq_nhds h]
+
 variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
   {μ ν : Measure α} {f g : ℝ → ℝ}
 
+lemma Filter.EventuallyEq.rightDeriv_eq_nhds {x : ℝ} (h : f =ᶠ[𝓝 x] g) :
+    rightDeriv f x = rightDeriv g x := h.derivWithin_eq_nhds
+
 noncomputable
 def derivAtTop (f : ℝ → ℝ) : EReal := limsup (fun x ↦ (rightDeriv f x : EReal)) atTop
+
+lemma derivAtTop_congr (h : f =ᶠ[atTop] g) : derivAtTop f = derivAtTop g := by
+  simp_rw [derivAtTop]
+  refine limsup_congr ?_
+  have h' : ∀ᶠ x in atTop, f =ᶠ[𝓝 x] g := by
+    -- todo: replace by clean filter proof?
+    simp only [Filter.EventuallyEq, eventually_atTop, ge_iff_le] at h ⊢
+    obtain ⟨a, ha⟩ := h
+    refine ⟨a+1, fun b hab ↦ ?_⟩
+    have h_ge : ∀ᶠ x in 𝓝 b, a ≤ x := sorry
+    filter_upwards [h_ge] using ha
+  filter_upwards [h'] with a ha
+  rw [ha.rightDeriv_eq_nhds]
+
+lemma derivAtTop_congr_nonneg (h : ∀ x, 0 ≤ x → f x = g x) : derivAtTop f = derivAtTop g := by
+  refine derivAtTop_congr ?_
+  rw [Filter.EventuallyEq, eventually_atTop]
+  exact ⟨0, h⟩
 
 lemma derivAtTop_of_tendsto {y : EReal}
     (h : Tendsto (fun x ↦ (rightDeriv f x : EReal)) atTop (𝓝 y)) :
