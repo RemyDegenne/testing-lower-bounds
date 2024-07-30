@@ -62,11 +62,13 @@ lemma kl_toReal_of_ac (h : μ ≪ ν) : (kl μ ν).toReal = ∫ a, llr μ ν a �
   · rw [kl_of_not_integrable h_int, integral_undef h_int, EReal.toReal_top]
 
 lemma derivAtTop_mul_log : derivAtTop (fun x ↦ x * log x) = ⊤ := by
-  rw [derivAtTop_eq_top_iff]
-  refine (tendsto_congr' ?_).mp tendsto_log_atTop
-  simp only [EventuallyEq, eventually_atTop, ge_iff_le]
-  refine ⟨1, fun x hx ↦ ?_⟩
-  rw [mul_div_cancel_left₀ _ (zero_lt_one.trans_le hx).ne']
+  rw [convexOn_mul_log.derivAtTop_eq_iff]
+  sorry
+  --rw [derivAtTop_eq_top_iff]
+  --refine (tendsto_congr' ?_).mp tendsto_log_atTop
+  --simp only [EventuallyEq, eventually_atTop, ge_iff_le]
+  --refine ⟨1, fun x hx ↦ ?_⟩
+  --rw [mul_div_cancel_left₀ _ (zero_lt_one.trans_le hx).ne']
 
 lemma fDiv_mul_log_eq_top_iff [IsFiniteMeasure μ] [SigmaFinite ν] :
     fDiv (fun x ↦ x * log x) μ ν = ⊤ ↔ μ ≪ ν → ¬ Integrable (llr μ ν) μ := by
@@ -405,7 +407,7 @@ lemma condKL_nonneg (κ η : Kernel α β) [IsMarkovKernel κ] [IsMarkovKernel �
 lemma condKL_const {ξ : Measure β} [IsFiniteMeasure ξ] [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     condKL (Kernel.const β μ) (Kernel.const β ν) ξ = (kl μ ν) * ξ Set.univ := by
   rw [condKL_eq_condFDiv, kl_eq_fDiv]
-  exact condFDiv_const
+  exact condFDiv_const convexOn_mul_log
 
 lemma kl_fst_le [Nonempty β] [StandardBorelSpace β]
     (μ ν : Measure (α × β)) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
