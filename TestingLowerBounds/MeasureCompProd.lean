@@ -359,7 +359,7 @@ lemma integrable_f_rnDeriv_of_integrable_compProd [IsFiniteMeasure μ] [IsFinite
 
 lemma integrable_f_rnDeriv_compProd_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     [IsFiniteKernel κ] [IsFiniteKernel η] (hf : StronglyMeasurable f)
-    (h_cvx : ConvexOn ℝ Set.univ f) :
+    (h_cvx : ConvexOn ℝ (Set.Ici 0) f) :
     Integrable (fun x ↦ f ((μ ⊗ₘ κ).rnDeriv (ν ⊗ₘ η) x).toReal) (ν ⊗ₘ η)
       ↔ (∀ᵐ a ∂ν, Integrable (fun x ↦ f ((∂μ/∂ν) a * (∂κ a/∂η a) x).toReal) (η a))
         ∧ Integrable (fun a ↦ ∫ b, f ((∂μ/∂ν) a * (∂κ a/∂η a) b).toReal ∂(η a)) ν := by
@@ -393,7 +393,7 @@ lemma integrable_f_rnDeriv_compProd_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν
 
 lemma integrable_f_rnDeriv_compProd_right_iff [IsFiniteMeasure μ]
     [IsFiniteKernel κ] [IsFiniteKernel η] (hf : StronglyMeasurable f)
-    (h_cvx : ConvexOn ℝ Set.univ f) :
+    (h_cvx : ConvexOn ℝ (Set.Ici 0) f) :
     Integrable (fun x ↦ f ((μ ⊗ₘ κ).rnDeriv (μ ⊗ₘ η) x).toReal) (μ ⊗ₘ η)
       ↔ (∀ᵐ a ∂μ, Integrable (fun x ↦ f ((∂κ a/∂η a) x).toReal) (η a))
         ∧ Integrable (fun a ↦ ∫ b, f ((∂κ a/∂η a) b).toReal ∂(η a)) μ := by
