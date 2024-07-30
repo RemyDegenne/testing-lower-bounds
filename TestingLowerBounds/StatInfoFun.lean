@@ -169,25 +169,33 @@ lemma derivAtTop_statInfoFun_of_nonneg_of_le (hβ : 0 ≤ β) (hγ : γ ≤ β) 
     derivAtTop (fun x ↦ statInfoFun β γ x) = 0 := by
   rcases eq_or_lt_of_le hβ with (rfl | hβ)
   · simp
-  exact derivAtTop_of_tendsto (tendsto_statInfoFun_div_at_top_of_pos_of_le hβ hγ)
+  refine derivAtTop_of_tendsto_nhds ?_
+  sorry
+  --(tendsto_statInfoFun_div_at_top_of_pos_of_le hβ hγ)
 
 lemma derivAtTop_statInfoFun_of_nonneg_of_gt (hβ : 0 ≤ β) (hγ : γ > β) :
     derivAtTop (fun x ↦ statInfoFun β γ x) = β := by
   rcases eq_or_lt_of_le hβ with (rfl | hβ)
   · simp
-  exact derivAtTop_of_tendsto (tendsto_statInfoFun_div_at_top_of_pos_of_gt hβ hγ)
+  refine derivAtTop_of_tendsto_nhds ?_
+  sorry
+  --(tendsto_statInfoFun_div_at_top_of_pos_of_gt hβ hγ)
 
 lemma derivAtTop_statInfoFun_of_nonpos_of_le (hβ : β ≤ 0) (hγ : γ ≤ β) :
     derivAtTop (fun x ↦ statInfoFun β γ x) = -β := by
   rcases eq_or_lt_of_le hβ with (rfl | hβ)
   · simp
-  exact derivAtTop_of_tendsto (tendsto_statInfoFun_div_at_top_of_neg_of_le hβ hγ)
+  refine derivAtTop_of_tendsto_nhds ?_
+  sorry
+  --(tendsto_statInfoFun_div_at_top_of_neg_of_le hβ hγ)
 
 lemma derivAtTop_statInfoFun_of_nonpos_of_gt (hβ : β ≤ 0) (hγ : γ > β) :
     derivAtTop (fun x ↦ statInfoFun β γ x) = 0 := by
   rcases eq_or_lt_of_le hβ with (rfl | hβ)
   · simp
-  exact derivAtTop_of_tendsto (tendsto_statInfoFun_div_at_top_of_neg_of_gt hβ hγ)
+  refine derivAtTop_of_tendsto_nhds ?_
+  sorry
+  --(tendsto_statInfoFun_div_at_top_of_neg_of_gt hβ hγ)
 
 lemma derivAtTop_statInfoFun_ne_top (β γ : ℝ) : derivAtTop (fun x ↦ statInfoFun β γ x) ≠ ⊤ := by
   rcases le_total 0 β with (hβ | hβ) <;> rcases le_or_lt γ β with (hγ | hγ) <;>
