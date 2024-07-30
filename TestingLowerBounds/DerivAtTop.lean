@@ -153,24 +153,10 @@ lemma derivAtTop_const_mul (hf_cvx : ConvexOn ℝ univ f) {c : ℝ} (hc : 0 < c)
     atTop (𝓝 (↑c * derivAtTop f))
   exact h_cont.tendsto.comp (tendsto_const_nhds.prod_mk_nhds hf_cvx.tendsto_derivAtTop)
 
-lemma derivAtTop_const_mul_of_ne_top (hf_cvx : ConvexOn ℝ univ f)
-    (h_deriv : derivAtTop f ≠ ⊤) (c : ℝ) :
-    derivAtTop (fun x ↦ c * f x) = c * derivAtTop f := by
-  have h_tendsto := tendsto_derivAtTop hf_cvx h_deriv
-  lift derivAtTop f to ℝ using ⟨h_deriv, derivAtTop_ne_bot⟩ with df
-  rw [← EReal.coe_mul]
-  refine derivAtTop_of_tendsto ?_
-  simp_rw [mul_div_assoc]
-  exact h_tendsto.const_mul c
-
 lemma slope_le_derivAtTop (h_cvx : ConvexOn ℝ univ f)
     (h : derivAtTop f ≠ ⊤) {x y : ℝ} (hx : 0 ≤ x) (hxy : x < y) :
   (f y - f x) / (y - x) ≤ (derivAtTop f).toReal := by
-  refine Monotone.ge_of_tendsto (f := fun y ↦ (f y - f x) / (y - x)) ?_ ?_ y
-  · have h_mono : ∀ z, y < z → (f y - f x) / (y - x) ≤ (f z - f y) / (z - y) :=
-      fun z hyz ↦ ConvexOn.slope_mono_adjacent h_cvx hx (hx.trans (hxy.trans hyz).le) hxy hyz
-    sorry -- not true. Need to restrict to (x, ∞)
-  · exact tendsto_slope_derivAtTop h_cvx h x
+  sorry
 
 lemma le_add_derivAtTop (h_cvx : ConvexOn ℝ univ f)
     (h : derivAtTop f ≠ ⊤) {x y : ℝ} (hy : 0 ≤ y) (hyx : y ≤ x) :
@@ -214,7 +200,7 @@ lemma toReal_le_add_derivAtTop (hf_cvx : ConvexOn ℝ univ f) {a b : ENNReal}
       · simp [ha, hb]
       · simp
     have h := le_add_derivAtTop hf_cvx hf_top (ENNReal.toReal_nonneg : 0 ≤ a.toReal) h_le
-    lift derivAtTop f to ℝ using ⟨hf_top, derivAtTop_ne_bot⟩ with df
+    lift derivAtTop f to ℝ using ⟨hf_top, hf_cvx.derivAtTop_ne_bot⟩ with df
     rw [← EReal.coe_ennreal_toReal hb]
     norm_cast
     refine h.trans_eq ?_
