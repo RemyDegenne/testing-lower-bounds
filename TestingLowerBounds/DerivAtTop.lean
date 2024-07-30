@@ -29,27 +29,31 @@ open Real MeasureTheory Filter
 
 open scoped ENNReal NNReal Topology
 
+lemma EReal.tendsto_of_monotone {ι : Type*} [Preorder ι] {f : ι → EReal} (hf : Monotone f) :
+    ∃ y, Tendsto f atTop (𝓝 y) :=
+  ⟨_, tendsto_atTop_ciSup hf (OrderTop.bddAbove _)⟩
+
 namespace ProbabilityTheory
 
 variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
   {μ ν : Measure α} {f g : ℝ → ℝ}
 
--- we put the coe outside the limsup to ensure it's not ⊥
 open Classical in
 noncomputable
 def derivAtTop (f : ℝ → ℝ) : EReal := limsup (fun x ↦ (rightDeriv f x : EReal)) atTop
   --if Tendsto (fun x ↦ f x / x) atTop atTop then ⊤ else ↑(limsup (fun x ↦ f x / x) atTop)
 
-lemma derivAtTop_of_tendsto {y : ℝ} (h : Tendsto (rightDeriv f) atTop (𝓝 y)) :
-    derivAtTop f = y := by
-  rw [derivAtTop]
-  refine Tendsto.limsup_eq ?_
-  exact (continuous_coe_real_ereal.tendsto _).comp h
+lemma derivAtTop_of_tendsto {y : EReal}
+    (h : Tendsto (fun x ↦ (rightDeriv f x : EReal)) atTop (𝓝 y)) :
+    derivAtTop f = y := h.limsup_eq
+
+lemma derivAtTop_of_tendsto_nhds {y : ℝ} (h : Tendsto (rightDeriv f) atTop (𝓝 y)) :
+    derivAtTop f = y :=
+  derivAtTop_of_tendsto ((continuous_coe_real_ereal.tendsto _).comp h)
 
 lemma derivAtTop_of_tendsto_atTop (h : Tendsto (rightDeriv f) atTop atTop) :
     derivAtTop f = ⊤ := by
-  rw [derivAtTop]
-  refine Tendsto.limsup_eq ?_
+  refine derivAtTop_of_tendsto ?_
   rw [EReal.tendsto_nhds_top_iff_real]
   simp only [EReal.coe_lt_coe_iff, eventually_atTop, ge_iff_le]
   rw [tendsto_atTop_atTop] at h
@@ -57,17 +61,35 @@ lemma derivAtTop_of_tendsto_atTop (h : Tendsto (rightDeriv f) atTop atTop) :
   obtain ⟨a, ha⟩ := h (x + 1)
   exact ⟨a, fun b hab ↦ (lt_add_one _).trans_le (ha b hab)⟩
 
+lemma tendsto_derivAtTop_of_monotone (hf : Monotone (rightDeriv f)) :
+    Tendsto (fun x ↦ (rightDeriv f x : EReal)) atTop (𝓝 (derivAtTop f)) := by
+  have hf_coe : Monotone (fun x ↦ (rightDeriv f x : EReal)) := by
+    have h_mono : Monotone toEReal := Monotone.of_map_inf fun x ↦ congrFun rfl
+    exact h_mono.comp hf
+  obtain ⟨z, hz⟩ : ∃ z, Tendsto (fun x ↦ (rightDeriv f x : EReal)) atTop (𝓝 z) :=
+    EReal.tendsto_of_monotone hf_coe
+  rwa [derivAtTop_of_tendsto hz]
+
+lemma derivAtTop_eq_iff_of_monotone {y : EReal} (hf : Monotone (rightDeriv f)) :
+    derivAtTop f = y ↔ Tendsto (fun x ↦ (rightDeriv f x : EReal)) atTop (𝓝 y) := by
+  refine ⟨fun h ↦ ?_, fun h ↦ derivAtTop_of_tendsto h⟩
+  have h_tendsto := tendsto_derivAtTop_of_monotone hf
+  rwa [h] at h_tendsto
+
 @[simp]
 lemma derivAtTop_const (c : ℝ) : derivAtTop (fun _ ↦ c) = 0 := by
-  refine derivAtTop_of_tendsto ?_
+  refine derivAtTop_of_tendsto_nhds ?_
   simp only [rightDeriv_const]
   exact tendsto_const_nhds
 
 @[simp]
 lemma derivAtTop_id : derivAtTop id = 1 := by
-  refine derivAtTop_of_tendsto ?_
+  refine derivAtTop_of_tendsto_nhds ?_
   rw [rightDeriv_id]
   simp
+
+@[simp]
+lemma derivAtTop_id' : derivAtTop (fun x ↦ x) = 1 := derivAtTop_id
 
 lemma bot_lt_derivAtTop : ⊥ < derivAtTop f := by
   rw [derivAtTop]
@@ -78,9 +100,6 @@ lemma derivAtTop_ne_bot : derivAtTop f ≠ ⊥ := bot_lt_derivAtTop.ne'
 lemma derivAtTop_eq_top_iff : derivAtTop f = ⊤ ↔ Tendsto (fun x ↦ f x / x) atTop atTop := by
   rw [derivAtTop]
   split_ifs with h <;> simp [h]
-
-@[simp]
-lemma derivAtTop_id' : derivAtTop (fun x ↦ x) = 1 := derivAtTop_id
 
 lemma tendsto_derivAtTop (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (h : derivAtTop f ≠ ⊤) :
     Tendsto (fun x ↦ f x / x) atTop (𝓝 (derivAtTop f).toReal) := by
