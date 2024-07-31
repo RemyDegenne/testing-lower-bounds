@@ -156,6 +156,12 @@ lemma derivAtTop_of_tendsto_atTop (h : Tendsto (rightDeriv f) atTop atTop) :
   exact ⟨a, fun b hab ↦ (lt_add_one _).trans_le (ha b hab)⟩
 
 @[simp]
+lemma derivAtTop_zero : derivAtTop 0 = 0 := by
+  refine derivAtTop_of_tendsto_nhds ?_
+  simp only [rightDeriv_zero]
+  exact tendsto_const_nhds
+
+@[simp]
 lemma derivAtTop_const (c : ℝ) : derivAtTop (fun _ ↦ c) = 0 := by
   refine derivAtTop_of_tendsto_nhds ?_
   simp only [rightDeriv_const]
@@ -236,6 +242,10 @@ lemma derivAtTop_add (hf_cvx : ConvexOn ℝ (Ici 0) f) (hg_cvx : ConvexOn ℝ (I
 lemma derivAtTop_add_const (hf_cvx : ConvexOn ℝ (Ici 0) f) (c : ℝ) :
     derivAtTop (fun x ↦ f x + c) = derivAtTop f :=
   (derivAtTop_add' hf_cvx (convexOn_const _ (convex_Ici 0))).trans (by simp)
+
+lemma derivAtTop_const_add (hf_cvx : ConvexOn ℝ (Ici 0) f) (c : ℝ) :
+    derivAtTop (fun x ↦ c + f x) = derivAtTop f :=
+  (derivAtTop_add' (convexOn_const _ (convex_Ici 0)) hf_cvx).trans (by simp)
 
 lemma derivAtTop_sub_const (hf_cvx : ConvexOn ℝ (Ici 0) f) (c : ℝ) :
     derivAtTop (fun x ↦ f x - c) = derivAtTop f := by

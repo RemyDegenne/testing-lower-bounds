@@ -69,6 +69,12 @@ lemma leftDeriv_eq_rightDeriv (f : ℝ → ℝ) :
   simp [leftDeriv_eq_rightDeriv_apply]
 
 @[simp]
+lemma rightDeriv_zero : rightDeriv 0 = 0 := by
+  ext x
+  simp only [rightDeriv, Pi.zero_apply]
+  exact derivWithin_const x _ 0 (uniqueDiffWithinAt_Ioi x)
+
+@[simp]
 lemma rightDeriv_const (c : ℝ) : rightDeriv (fun _ ↦ c) = 0 := by
   ext x
   rw [rightDeriv_def, Pi.zero_apply]
