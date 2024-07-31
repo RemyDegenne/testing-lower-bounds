@@ -166,15 +166,18 @@ lemma ConvexOn.derivAtTop_ne_bot (hf : ConvexOn ℝ (Ici 0) f) : derivAtTop f �
   rw [← derivAtTop_extendLinearNeg]
   exact hf.extendLinearNeg.rightDeriv_mono.derivAtTop_ne_bot
 
+-- unused? Delete if that's the case.
 lemma tendsto_slope_derivAtTop (hf_cvx : ConvexOn ℝ (Ici 0) f) (h : derivAtTop f ≠ ⊤) (y : ℝ) :
     Tendsto (fun x ↦ (f x - f y) / (x - y)) atTop (𝓝 (derivAtTop f).toReal) := by
   sorry
 
+-- unused? Delete if that's the case.
 lemma toReal_derivAtTop_eq_limsup_slope (hf_cvx : ConvexOn ℝ (Ici 0) f) (h : derivAtTop f ≠ ⊤)
     (y : ℝ) :
     (derivAtTop f).toReal = limsup (fun x ↦ (f x - f y) / (x - y)) atTop := by
   rw [(tendsto_slope_derivAtTop hf_cvx h y).limsup_eq]
 
+-- unused? Delete if that's the case.
 lemma derivAtTop_eq_limsup_slope (hf_cvx : ConvexOn ℝ (Ici 0) f) (h : derivAtTop f ≠ ⊤)
     (y : ℝ) :
     derivAtTop f = limsup (fun x ↦ (f x - f y) / (x - y)) atTop := by
@@ -224,10 +227,29 @@ lemma derivAtTop_const_mul (hf_cvx : ConvexOn ℝ (Ici 0) f) {c : ℝ} (hc : c �
     atTop (𝓝 (↑c * derivAtTop f))
   exact h_cont.tendsto.comp (tendsto_const_nhds.prod_mk_nhds hf_cvx.tendsto_derivAtTop)
 
+lemma slope_le_rightDeriv (h_cvx : ConvexOn ℝ (Ici 0) f) {x y : ℝ} (hx : 0 ≤ x) (hxy : x < y) :
+    (f y - f x) / (y - x) ≤ rightDeriv f y := by
+  rw [h_cvx.rightDeriv_eq_sInf_slope' (hx.trans_lt hxy)]
+  refine le_csInf nonempty_of_nonempty_subtype (fun b hb ↦ ?_)
+  obtain ⟨z, hyz, rfl⟩ := hb
+  simp only [mem_Ioi] at hyz
+  rw [← slope_def_field, slope_comm]
+  refine h_cvx.slope_mono (hx.trans hxy.le) ?_ ?_ (hxy.trans hyz).le
+  · simp only [mem_diff, mem_Ici, mem_singleton_iff]
+    exact ⟨hx, hxy.ne⟩
+  · simp only [mem_diff, mem_Ici, mem_singleton_iff]
+    exact ⟨(hx.trans hxy.le).trans hyz.le, hyz.ne'⟩
+
+lemma rightDeriv_le_toReal_derivAtTop (h_cvx : ConvexOn ℝ (Ici 0) f) (h : derivAtTop f ≠ ⊤)
+    {x : ℝ} (hx : 0 ≤ x) :
+    rightDeriv f x ≤ (derivAtTop f).toReal := by
+  sorry
+
 lemma slope_le_derivAtTop (h_cvx : ConvexOn ℝ (Ici 0) f)
     (h : derivAtTop f ≠ ⊤) {x y : ℝ} (hx : 0 ≤ x) (hxy : x < y) :
-  (f y - f x) / (y - x) ≤ (derivAtTop f).toReal := by
-  sorry
+    (f y - f x) / (y - x) ≤ (derivAtTop f).toReal :=
+  (slope_le_rightDeriv h_cvx hx hxy).trans
+    (rightDeriv_le_toReal_derivAtTop h_cvx h (hx.trans hxy.le))
 
 lemma le_add_derivAtTop (h_cvx : ConvexOn ℝ (Ici 0) f)
     (h : derivAtTop f ≠ ⊤) {x y : ℝ} (hy : 0 ≤ y) (hyx : y ≤ x) :

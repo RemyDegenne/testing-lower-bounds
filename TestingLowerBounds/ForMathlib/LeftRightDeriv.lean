@@ -265,6 +265,10 @@ lemma rightDeriv_eq_sInf_slope (hfc : ConvexOn ℝ univ f) (x : ℝ) :
     rightDeriv f x = sInf (slope f x '' Ioi x) :=
   (hfc.hasRightDerivAt x).derivWithin (uniqueDiffWithinAt_Ioi x)
 
+lemma rightDeriv_eq_sInf_slope' (hfc : ConvexOn ℝ (Ici 0) f) (hx : 0 < x) :
+    rightDeriv f x = sInf (slope f x '' Ioi x) :=
+  (hfc.hasRightDerivAt' hx).derivWithin (uniqueDiffWithinAt_Ioi x)
+
 lemma leftDeriv_eq_sSup_slope (hfc : ConvexOn ℝ univ f) (x : ℝ) :
     leftDeriv f x = sSup (slope f x '' Iio x) :=
   (hfc.hasLeftDerivAt x).derivWithin (uniqueDiffWithinAt_Iio x)
