@@ -65,39 +65,39 @@ variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
 lemma Filter.EventuallyEq.rightDeriv_eq_nhds {x : ℝ} (h : f =ᶠ[𝓝 x] g) :
     rightDeriv f x = rightDeriv g x := h.derivWithin_eq_nhds
 
-section extendInfNeg
+section extendBotLtOne
 
 -- The constant 1 chosen here is an arbitrary number greater than 0.
 
 noncomputable
-def extendInfNeg (f : ℝ → EReal) (x : ℝ) : EReal := if 1 ≤ x then f x else ⊥
+def extendBotLtOne (f : ℝ → EReal) (x : ℝ) : EReal := if 1 ≤ x then f x else ⊥
 
-lemma extendInfNeg_of_one_le {f : ℝ → EReal} (hx : 1 ≤ x) : extendInfNeg f x = f x := if_pos hx
+lemma extendBotLtOne_of_one_le {f : ℝ → EReal} (hx : 1 ≤ x) : extendBotLtOne f x = f x := if_pos hx
 
-lemma extendInfNeg_of_lt_one {f : ℝ → EReal} (hx : x < 1) : extendInfNeg f x = ⊥ :=
+lemma extendBotLtOne_of_lt_one {f : ℝ → EReal} (hx : x < 1) : extendBotLtOne f x = ⊥ :=
   if_neg (not_le.mpr hx)
 
-lemma extendInfNeg_eq_atTop (f : ℝ → EReal) : extendInfNeg f =ᶠ[atTop] f := by
+lemma extendBotLtOne_eq_atTop (f : ℝ → EReal) : extendBotLtOne f =ᶠ[atTop] f := by
   rw [Filter.EventuallyEq, eventually_atTop]
-  exact ⟨1, fun _ ↦ extendInfNeg_of_one_le⟩
+  exact ⟨1, fun _ ↦ extendBotLtOne_of_one_le⟩
 
-lemma MonotoneOn.monotone_extendInfNeg (hf : MonotoneOn (rightDeriv f) (Ioi 0)) :
-    Monotone (extendInfNeg fun x ↦ (rightDeriv f x : EReal)) := by
+lemma MonotoneOn.monotone_extendBotLtOne (hf : MonotoneOn (rightDeriv f) (Ioi 0)) :
+    Monotone (extendBotLtOne fun x ↦ (rightDeriv f x : EReal)) := by
   intro x y hxy
   cases le_or_lt 1 x with
   | inl hx =>
-    rw [extendInfNeg_of_one_le hx, extendInfNeg_of_one_le (hx.trans hxy)]
+    rw [extendBotLtOne_of_one_le hx, extendBotLtOne_of_one_le (hx.trans hxy)]
     norm_cast
     exact (hf.mono (Ici_subset_Ioi.mpr zero_lt_one)) hx (hx.trans hxy) hxy
   | inr hx =>
-    rw [extendInfNeg_of_lt_one hx]
+    rw [extendBotLtOne_of_lt_one hx]
     exact bot_le
 
-lemma ConvexOn.monotone_extendInfNeg (hf : ConvexOn ℝ (Ici 0) f) :
-    Monotone (extendInfNeg fun x ↦ (rightDeriv f x : EReal)) :=
-  hf.rightDeriv_mono'.monotone_extendInfNeg
+lemma ConvexOn.monotone_extendBotLtOne (hf : ConvexOn ℝ (Ici 0) f) :
+    Monotone (extendBotLtOne fun x ↦ (rightDeriv f x : EReal)) :=
+  hf.rightDeriv_mono'.monotone_extendBotLtOne
 
-end extendInfNeg
+end extendBotLtOne
 
 noncomputable
 def derivAtTop (f : ℝ → ℝ) : EReal := limsup (fun x ↦ (rightDeriv f x : EReal)) atTop
@@ -124,17 +124,17 @@ lemma derivAtTop_congr_nonneg (h : ∀ x, 0 ≤ x → f x = g x) : derivAtTop f 
   rw [Filter.EventuallyEq, eventually_atTop]
   exact ⟨0, h⟩
 
-lemma derivAtTop_eq_limsup_extendInfNeg :
-    derivAtTop f = limsup (extendInfNeg (fun x ↦ (rightDeriv f x : EReal))) atTop := by
+lemma derivAtTop_eq_limsup_extendBotLtOne :
+    derivAtTop f = limsup (extendBotLtOne (fun x ↦ (rightDeriv f x : EReal))) atTop := by
   refine limsup_congr ?_
-  filter_upwards [extendInfNeg_eq_atTop (fun x ↦ (rightDeriv f x : EReal))] with x hx
+  filter_upwards [extendBotLtOne_eq_atTop (fun x ↦ (rightDeriv f x : EReal))] with x hx
   rw [hx]
 
-lemma tendsto_extendInfNeg_rightDeriv_iff {y : EReal} :
-    Tendsto (extendInfNeg (fun x ↦ (rightDeriv f x : EReal))) atTop (𝓝 y)
+lemma tendsto_extendBotLtOne_rightDeriv_iff {y : EReal} :
+    Tendsto (extendBotLtOne (fun x ↦ (rightDeriv f x : EReal))) atTop (𝓝 y)
       ↔ Tendsto (fun x ↦ (rightDeriv f x : EReal)) atTop (𝓝 y) := by
   refine tendsto_congr' ?_
-  filter_upwards [extendInfNeg_eq_atTop (fun x ↦ (rightDeriv f x : EReal))] with x hx
+  filter_upwards [extendBotLtOne_eq_atTop (fun x ↦ (rightDeriv f x : EReal))] with x hx
   rw [hx]
 
 lemma derivAtTop_of_tendsto {y : EReal}
@@ -195,9 +195,9 @@ lemma ConvexOn.derivAtTop_eq_iff {y : EReal} (hf : ConvexOn ℝ (Ici 0) f) :
 
 lemma MonotoneOn.derivAtTop_ne_bot (hf : MonotoneOn (rightDeriv f) (Ioi 0)) : derivAtTop f ≠ ⊥ := by
   intro h_eq
-  rw [hf.derivAtTop_eq_iff, ← tendsto_extendInfNeg_rightDeriv_iff] at h_eq
-  have h_le := hf.monotone_extendInfNeg.ge_of_tendsto h_eq 1
-  rw [extendInfNeg_of_one_le le_rfl] at h_le
+  rw [hf.derivAtTop_eq_iff, ← tendsto_extendBotLtOne_rightDeriv_iff] at h_eq
+  have h_le := hf.monotone_extendBotLtOne.ge_of_tendsto h_eq 1
+  rw [extendBotLtOne_of_one_le le_rfl] at h_le
   simp at h_le
 
 lemma ConvexOn.derivAtTop_ne_bot (hf : ConvexOn ℝ (Ici 0) f) : derivAtTop f ≠ ⊥ :=
