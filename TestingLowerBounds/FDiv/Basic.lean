@@ -23,7 +23,7 @@ import TestingLowerBounds.ForMathlib.RnDeriv
 
 ## Implementation details
 
-The most natural type for `f` is `ℝ≥0∞ → EReal` since we apply it to an `ℝ≥0∞`-values RN derivative,
+The most natural type for `f` is `ℝ≥0∞ → EReal` since we apply it to an `ℝ≥0∞`-valued RN derivative,
 and its value can be in general both positive or negative, and potentially +∞.
 However, we use `ℝ → ℝ` instead, for the following reasons:
 * domain: convexity results like `ConvexOn.map_average_le` don't work for `ℝ≥0∞` because they
