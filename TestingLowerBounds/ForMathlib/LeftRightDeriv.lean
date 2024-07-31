@@ -283,6 +283,16 @@ lemma rightDeriv_mono (hfc : ConvexOn ℝ univ f) : Monotone (rightDeriv f) := b
   rw [slope_comm]
   exact slope_mono hfc trivial ⟨trivial, hxy.ne⟩ ⟨trivial, yz.ne'⟩ (hxy.trans yz).le
 
+lemma rightDeriv_mono' (hfc : ConvexOn ℝ (Ici 0) f) : MonotoneOn (rightDeriv f) (Ioi 0) := by
+  intro x (hx : 0 < x) y (hy : 0 < y) hxy
+  rcases eq_or_lt_of_le hxy with rfl | hxy; · rfl
+  rw [hfc.rightDeriv_eq_sInf_slope' hx, hfc.rightDeriv_eq_sInf_slope' hy]
+  refine csInf_le_of_le (b := slope f x y) (bddBelow_slope_Ioi' hfc x hx)
+    ⟨y, by simp [hxy]⟩ (le_csInf nonempty_of_nonempty_subtype ?_)
+  rintro _ ⟨z, (yz : y < z), rfl⟩
+  rw [slope_comm]
+  exact slope_mono hfc hy.le ⟨hx.le, hxy.ne⟩ ⟨hy.le.trans yz.le, yz.ne'⟩ (hxy.trans yz).le
+
 lemma leftDeriv_mono (hfc : ConvexOn ℝ univ f) : Monotone (leftDeriv f) := by
   rw [leftDeriv_eq_rightDeriv]
   change Monotone (- rightDeriv (f ∘ Neg.neg) ∘ Neg.neg)

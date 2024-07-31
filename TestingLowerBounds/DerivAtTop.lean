@@ -33,6 +33,23 @@ lemma EReal.tendsto_of_monotone {ι : Type*} [Preorder ι] {f : ι → EReal} (h
     ∃ y, Tendsto f atTop (𝓝 y) :=
   ⟨_, tendsto_atTop_ciSup hf (OrderTop.bddAbove _)⟩
 
+lemma EReal.tendsto_of_monotoneOn {ι : Type*} [SemilatticeSup ι] [Nonempty ι] {x : ι}
+    {f : ι → EReal} (hf : MonotoneOn f (Ici x)) :
+    ∃ y, Tendsto f atTop (𝓝 y) := by
+  classical
+  suffices ∃ y, Tendsto (fun z ↦ if x ≤ z then f z else f x) atTop (𝓝 y) by
+    obtain ⟨y, hy⟩ := this
+    refine ⟨y, ?_⟩
+    refine (tendsto_congr' ?_).mp hy
+    rw [EventuallyEq, eventually_atTop]
+    exact ⟨x, fun z hz ↦ if_pos hz⟩
+  refine EReal.tendsto_of_monotone (fun y z hyz ↦ ?_)
+  split_ifs with hxy hxz hxz
+  · exact hf hxy hxz hyz
+  · exact absurd (hxy.trans hyz) hxz
+  · exact hf le_rfl hxz hxz
+  · exact le_rfl
+
 lemma Real.monotone_toEReal : Monotone toEReal := Monotone.of_map_inf fun _ ↦ congrFun rfl
 
 lemma Filter.EventuallyEq.derivWithin_eq_nhds {𝕜 F : Type*} [NontriviallyNormedField 𝕜]
@@ -48,26 +65,39 @@ variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
 lemma Filter.EventuallyEq.rightDeriv_eq_nhds {x : ℝ} (h : f =ᶠ[𝓝 x] g) :
     rightDeriv f x = rightDeriv g x := h.derivWithin_eq_nhds
 
-section ExtendLinearNeg
+section extendInfNeg
+
+-- The constant 1 chosen here is an arbitrary number greater than 0.
 
 noncomputable
-def extendLinearNeg (f : ℝ → ℝ) (x : ℝ) : ℝ := if 0 ≤ x then f x else f 0 + (rightDeriv f 0) * x
+def extendInfNeg (f : ℝ → EReal) (x : ℝ) : EReal := if 1 ≤ x then f x else ⊥
 
-lemma extendLinearNeg_of_nonneg (hx : 0 ≤ x) : extendLinearNeg f x = f x := if_pos hx
+lemma extendInfNeg_of_one_le {f : ℝ → EReal} (hx : 1 ≤ x) : extendInfNeg f x = f x := if_pos hx
 
-lemma extendLinearNeg_of_neg (hx : x < 0) : extendLinearNeg f x = f 0 + (rightDeriv f 0) * x :=
+lemma extendInfNeg_of_lt_one {f : ℝ → EReal} (hx : x < 1) : extendInfNeg f x = ⊥ :=
   if_neg (not_le.mpr hx)
 
-lemma extendLinearNeg_eq_atTop (f : ℝ → ℝ) : extendLinearNeg f =ᶠ[atTop] f := by
+lemma extendInfNeg_eq_atTop (f : ℝ → EReal) : extendInfNeg f =ᶠ[atTop] f := by
   rw [Filter.EventuallyEq, eventually_atTop]
-  exact ⟨0, fun _ ↦ extendLinearNeg_of_nonneg⟩
+  exact ⟨1, fun _ ↦ extendInfNeg_of_one_le⟩
 
-lemma ConvexOn.extendLinearNeg (hf : ConvexOn ℝ (Ici 0) f) :
-    ConvexOn ℝ univ (extendLinearNeg f) := by
-  refine ⟨convex_univ, fun x _ y _ a b ha hb hab ↦ ?_⟩
-  sorry
+lemma MonotoneOn.monotone_extendInfNeg (hf : MonotoneOn (rightDeriv f) (Ioi 0)) :
+    Monotone (extendInfNeg fun x ↦ (rightDeriv f x : EReal)) := by
+  intro x y hxy
+  cases le_or_lt 1 x with
+  | inl hx =>
+    rw [extendInfNeg_of_one_le hx, extendInfNeg_of_one_le (hx.trans hxy)]
+    norm_cast
+    exact (hf.mono (Ici_subset_Ioi.mpr zero_lt_one)) hx (hx.trans hxy) hxy
+  | inr hx =>
+    rw [extendInfNeg_of_lt_one hx]
+    exact bot_le
 
-end ExtendLinearNeg
+lemma ConvexOn.monotone_extendInfNeg (hf : ConvexOn ℝ (Ici 0) f) :
+    Monotone (extendInfNeg fun x ↦ (rightDeriv f x : EReal)) :=
+  hf.rightDeriv_mono'.monotone_extendInfNeg
+
+end extendInfNeg
 
 noncomputable
 def derivAtTop (f : ℝ → ℝ) : EReal := limsup (fun x ↦ (rightDeriv f x : EReal)) atTop
@@ -94,15 +124,17 @@ lemma derivAtTop_congr_nonneg (h : ∀ x, 0 ≤ x → f x = g x) : derivAtTop f 
   rw [Filter.EventuallyEq, eventually_atTop]
   exact ⟨0, h⟩
 
-@[simp]
-lemma derivAtTop_extendLinearNeg : derivAtTop (extendLinearNeg f) = derivAtTop f :=
-  derivAtTop_congr_nonneg fun x hx ↦ by simp [extendLinearNeg, hx]
+lemma derivAtTop_eq_limsup_extendInfNeg :
+    derivAtTop f = limsup (extendInfNeg (fun x ↦ (rightDeriv f x : EReal))) atTop := by
+  refine limsup_congr ?_
+  filter_upwards [extendInfNeg_eq_atTop (fun x ↦ (rightDeriv f x : EReal))] with x hx
+  rw [hx]
 
-lemma tendsto_rightDeriv_extendLinearNeg_iff {y : EReal} :
-    Tendsto (fun x ↦ (rightDeriv (extendLinearNeg f) x : EReal)) atTop (𝓝 y)
+lemma tendsto_extendInfNeg_rightDeriv_iff {y : EReal} :
+    Tendsto (extendInfNeg (fun x ↦ (rightDeriv f x : EReal))) atTop (𝓝 y)
       ↔ Tendsto (fun x ↦ (rightDeriv f x : EReal)) atTop (𝓝 y) := by
   refine tendsto_congr' ?_
-  filter_upwards [rightDeriv_congr_atTop (extendLinearNeg_eq_atTop f)] with x hx
+  filter_upwards [extendInfNeg_eq_atTop (fun x ↦ (rightDeriv f x : EReal))] with x hx
   rw [hx]
 
 lemma derivAtTop_of_tendsto {y : EReal}
@@ -133,38 +165,54 @@ lemma derivAtTop_const (c : ℝ) : derivAtTop (fun _ ↦ c) = 0 := by
 
 @[simp] lemma derivAtTop_id' : derivAtTop (fun x ↦ x) = 1 := derivAtTop_id
 
-lemma Monotone.tendsto_derivAtTop (hf : Monotone (rightDeriv f)) :
+lemma MonotoneOn.tendsto_derivAtTop (hf : MonotoneOn (rightDeriv f) (Ioi 0)) :
     Tendsto (fun x ↦ (rightDeriv f x : EReal)) atTop (𝓝 (derivAtTop f)) := by
-  have hf_coe : Monotone (fun x ↦ (rightDeriv f x : EReal)) := Real.monotone_toEReal.comp hf
+  have hf_coe : MonotoneOn (fun x ↦ (rightDeriv f x : EReal)) (Ici 1) :=
+    Real.monotone_toEReal.comp_monotoneOn (hf.mono (Ici_subset_Ioi.mpr zero_lt_one))
   obtain ⟨z, hz⟩ : ∃ z, Tendsto (fun x ↦ (rightDeriv f x : EReal)) atTop (𝓝 z) :=
-    EReal.tendsto_of_monotone hf_coe
+    EReal.tendsto_of_monotoneOn hf_coe
   rwa [derivAtTop_of_tendsto hz]
 
-lemma ConvexOn.tendsto_derivAtTop (hf : ConvexOn ℝ (Ici 0) f) :
-    Tendsto (fun x ↦ (rightDeriv f x : EReal)) atTop (𝓝 (derivAtTop f)) := by
-  rw [← tendsto_rightDeriv_extendLinearNeg_iff, ← derivAtTop_extendLinearNeg]
-  exact hf.extendLinearNeg.rightDeriv_mono.tendsto_derivAtTop
+lemma EReal.continuousAt_toReal {x : EReal} (hx_bot : x ≠ ⊥) (hx_top : x ≠ ⊤) :
+    ContinuousAt EReal.toReal x := by
+  sorry
 
-lemma Monotone.derivAtTop_eq_iff {y : EReal} (hf : Monotone (rightDeriv f)) :
+lemma ConvexOn.tendsto_derivAtTop (hf : ConvexOn ℝ (Ici 0) f) :
+    Tendsto (fun x ↦ (rightDeriv f x : EReal)) atTop (𝓝 (derivAtTop f)) :=
+  hf.rightDeriv_mono'.tendsto_derivAtTop
+
+lemma MonotoneOn.derivAtTop_eq_iff {y : EReal} (hf : MonotoneOn (rightDeriv f) (Ioi 0)) :
     derivAtTop f = y ↔ Tendsto (fun x ↦ (rightDeriv f x : EReal)) atTop (𝓝 y) := by
   refine ⟨fun h ↦ ?_, fun h ↦ derivAtTop_of_tendsto h⟩
   have h_tendsto := hf.tendsto_derivAtTop
   rwa [h] at h_tendsto
 
 lemma ConvexOn.derivAtTop_eq_iff {y : EReal} (hf : ConvexOn ℝ (Ici 0) f) :
-    derivAtTop f = y ↔ Tendsto (fun x ↦ (rightDeriv f x : EReal)) atTop (𝓝 y) := by
-  rw [← tendsto_rightDeriv_extendLinearNeg_iff, ← derivAtTop_extendLinearNeg]
-  exact hf.extendLinearNeg.rightDeriv_mono.derivAtTop_eq_iff
+    derivAtTop f = y ↔ Tendsto (fun x ↦ (rightDeriv f x : EReal)) atTop (𝓝 y) :=
+  hf.rightDeriv_mono'.derivAtTop_eq_iff
 
-lemma Monotone.derivAtTop_ne_bot (hf : Monotone (rightDeriv f)) : derivAtTop f ≠ ⊥ := by
+lemma MonotoneOn.derivAtTop_ne_bot (hf : MonotoneOn (rightDeriv f) (Ioi 0)) : derivAtTop f ≠ ⊥ := by
   intro h_eq
-  rw [hf.derivAtTop_eq_iff] at h_eq
-  have h_le := Monotone.ge_of_tendsto (Real.monotone_toEReal.comp hf) h_eq
-  simp only [Function.comp_apply, le_bot_iff, EReal.coe_ne_bot, forall_const] at h_le
+  rw [hf.derivAtTop_eq_iff, ← tendsto_extendInfNeg_rightDeriv_iff] at h_eq
+  have h_le := hf.monotone_extendInfNeg.ge_of_tendsto h_eq 1
+  rw [extendInfNeg_of_one_le le_rfl] at h_le
+  simp at h_le
 
-lemma ConvexOn.derivAtTop_ne_bot (hf : ConvexOn ℝ (Ici 0) f) : derivAtTop f ≠ ⊥ := by
-  rw [← derivAtTop_extendLinearNeg]
-  exact hf.extendLinearNeg.rightDeriv_mono.derivAtTop_ne_bot
+lemma ConvexOn.derivAtTop_ne_bot (hf : ConvexOn ℝ (Ici 0) f) : derivAtTop f ≠ ⊥ :=
+  hf.rightDeriv_mono'.derivAtTop_ne_bot
+
+lemma MonotoneOn.tendsto_toReal_derivAtTop (hf : MonotoneOn (rightDeriv f) (Ioi 0))
+    (h_top : derivAtTop f ≠ ⊤) :
+    Tendsto (rightDeriv f) atTop (𝓝 (derivAtTop f).toReal) := by
+  have h_tendsto : Tendsto (fun x ↦ (rightDeriv f x : EReal)) atTop (𝓝 (derivAtTop f)) :=
+    hf.tendsto_derivAtTop
+  have h_toReal : rightDeriv f = fun x ↦ (rightDeriv f x : EReal).toReal := by ext; simp
+  rw [h_toReal]
+  exact (EReal.continuousAt_toReal hf.derivAtTop_ne_bot h_top).tendsto.comp h_tendsto
+
+lemma ConvexOn.tendsto_toReal_derivAtTop (hf : ConvexOn ℝ (Ici 0) f) (h_top : derivAtTop f ≠ ⊤) :
+    Tendsto (rightDeriv f) atTop (𝓝 (derivAtTop f).toReal) :=
+  hf.rightDeriv_mono'.tendsto_toReal_derivAtTop h_top
 
 -- unused? Delete if that's the case.
 lemma tendsto_slope_derivAtTop (hf_cvx : ConvexOn ℝ (Ici 0) f) (h : derivAtTop f ≠ ⊤) (y : ℝ) :
