@@ -29,6 +29,10 @@ open Real MeasureTheory Filter Set
 
 open scoped ENNReal NNReal Topology
 
+lemma EReal.continuousAt_toReal {x : EReal} (hx_bot : x ≠ ⊥) (hx_top : x ≠ ⊤) :
+    ContinuousAt EReal.toReal x := by
+  sorry
+
 lemma EReal.tendsto_of_monotone {ι : Type*} [Preorder ι] {f : ι → EReal} (hf : Monotone f) :
     ∃ y, Tendsto f atTop (𝓝 y) :=
   ⟨_, tendsto_atTop_ciSup hf (OrderTop.bddAbove _)⟩
@@ -173,10 +177,6 @@ lemma MonotoneOn.tendsto_derivAtTop (hf : MonotoneOn (rightDeriv f) (Ioi 0)) :
     EReal.tendsto_of_monotoneOn hf_coe
   rwa [derivAtTop_of_tendsto hz]
 
-lemma EReal.continuousAt_toReal {x : EReal} (hx_bot : x ≠ ⊥) (hx_top : x ≠ ⊤) :
-    ContinuousAt EReal.toReal x := by
-  sorry
-
 lemma ConvexOn.tendsto_derivAtTop (hf : ConvexOn ℝ (Ici 0) f) :
     Tendsto (fun x ↦ (rightDeriv f x : EReal)) atTop (𝓝 (derivAtTop f)) :=
   hf.rightDeriv_mono'.tendsto_derivAtTop
@@ -213,23 +213,6 @@ lemma MonotoneOn.tendsto_toReal_derivAtTop (hf : MonotoneOn (rightDeriv f) (Ioi 
 lemma ConvexOn.tendsto_toReal_derivAtTop (hf : ConvexOn ℝ (Ici 0) f) (h_top : derivAtTop f ≠ ⊤) :
     Tendsto (rightDeriv f) atTop (𝓝 (derivAtTop f).toReal) :=
   hf.rightDeriv_mono'.tendsto_toReal_derivAtTop h_top
-
--- unused? Delete if that's the case.
-lemma tendsto_slope_derivAtTop (hf_cvx : ConvexOn ℝ (Ici 0) f) (h : derivAtTop f ≠ ⊤) (y : ℝ) :
-    Tendsto (fun x ↦ (f x - f y) / (x - y)) atTop (𝓝 (derivAtTop f).toReal) := by
-  sorry
-
--- unused? Delete if that's the case.
-lemma toReal_derivAtTop_eq_limsup_slope (hf_cvx : ConvexOn ℝ (Ici 0) f) (h : derivAtTop f ≠ ⊤)
-    (y : ℝ) :
-    (derivAtTop f).toReal = limsup (fun x ↦ (f x - f y) / (x - y)) atTop := by
-  rw [(tendsto_slope_derivAtTop hf_cvx h y).limsup_eq]
-
--- unused? Delete if that's the case.
-lemma derivAtTop_eq_limsup_slope (hf_cvx : ConvexOn ℝ (Ici 0) f) (h : derivAtTop f ≠ ⊤)
-    (y : ℝ) :
-    derivAtTop f = limsup (fun x ↦ (f x - f y) / (x - y)) atTop := by
-  rw [← toReal_derivAtTop_eq_limsup_slope hf_cvx h y, EReal.coe_toReal h hf_cvx.derivAtTop_ne_bot]
 
 lemma derivAtTop_add' (hf_cvx : ConvexOn ℝ (Ici 0) f) (hg_cvx : ConvexOn ℝ (Ici 0) g) :
     derivAtTop (f + g) = derivAtTop f + derivAtTop g := by
