@@ -29,10 +29,6 @@ open Real MeasureTheory Filter Set
 
 open scoped ENNReal NNReal Topology
 
-lemma EReal.continuousAt_toReal {x : EReal} (hx_bot : x ≠ ⊥) (hx_top : x ≠ ⊤) :
-    ContinuousAt EReal.toReal x := by
-  sorry
-
 lemma EReal.tendsto_of_monotone {ι : Type*} [Preorder ι] {f : ι → EReal} (hf : Monotone f) :
     ∃ y, Tendsto f atTop (𝓝 y) :=
   ⟨_, tendsto_atTop_ciSup hf (OrderTop.bddAbove _)⟩
@@ -208,7 +204,7 @@ lemma MonotoneOn.tendsto_toReal_derivAtTop (hf : MonotoneOn (rightDeriv f) (Ioi 
     hf.tendsto_derivAtTop
   have h_toReal : rightDeriv f = fun x ↦ (rightDeriv f x : EReal).toReal := by ext; simp
   rw [h_toReal]
-  exact (EReal.continuousAt_toReal hf.derivAtTop_ne_bot h_top).tendsto.comp h_tendsto
+  exact (EReal.tendsto_toReal h_top hf.derivAtTop_ne_bot).comp h_tendsto
 
 lemma ConvexOn.tendsto_toReal_derivAtTop (hf : ConvexOn ℝ (Ici 0) f) (h_top : derivAtTop f ≠ ⊤) :
     Tendsto (rightDeriv f) atTop (𝓝 (derivAtTop f).toReal) :=
