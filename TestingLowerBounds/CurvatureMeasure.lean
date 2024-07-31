@@ -7,6 +7,7 @@ import TestingLowerBounds.ForMathlib.ByParts
 import TestingLowerBounds.ForMathlib.LeftRightDeriv
 import Mathlib.MeasureTheory.Integral.FundThmCalculus
 import Mathlib.Probability.Notation
+-- TODO: remove this import after the next mathlib bump, now it is only needed for `ConvexOn.add_const`, but this lemma has recently been moved to `Mathlib.Analysis.Convex.Function`, which is already imported here.
 import Mathlib.Analysis.SpecialFunctions.Gamma.BohrMollerup
 
 
@@ -21,13 +22,10 @@ variable {𝒳 : Type*} {m𝒳 : MeasurableSpace 𝒳} {μ ν : Measure 𝒳} {f
 lemma _root_.StieltjesFunction.measure_zero : StieltjesFunction.measure 0 = 0 :=
   Measure.ext_of_Ioc _ _ (fun _ _ _ ↦ by simp; rfl)
 
--- Should we define this to be some junk value if f is not convex?
--- This way we could avoid having to state the convexity every time.
--- This may be put in some other place, maybe directly in the stieltjes file.
-
 open Classical in
 /-- The curvature measure induced by a convex function. It is defined as the only measure that has
-the right derivative of the function as a CDF. -/
+the right derivative of the function as a CDF.
+For nonconvex functions it is defined as the zero measure. -/
 noncomputable
 irreducible_def curvatureMeasure (f : ℝ → ℝ) : Measure ℝ :=
   if hf : ConvexOn ℝ univ f then hf.rightDerivStieltjes.measure else 0
