@@ -361,7 +361,7 @@ lemma rightDerivStieltjes_const (c : ℝ) : rightDerivStieltjes (convexOn_const 
   simp_rw [rightDerivStieltjes_eq_rightDeriv, rightDeriv_const]
   rfl
 
-lemma ConvexOn.const_mul (c : ℝ) : ConvexOn ℝ Set.univ (fun (x : ℝ) ↦ c * x) := sorry
+lemma const_mul (c : ℝ) : ConvexOn ℝ Set.univ (fun (x : ℝ) ↦ c * x) := sorry
 
 lemma rightDerivStieltjes_linear (a : ℝ) :
     rightDerivStieltjes (ConvexOn.const_mul a) = StieltjesFunction.const a := by
