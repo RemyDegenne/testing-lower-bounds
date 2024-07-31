@@ -68,6 +68,27 @@ lemma leftDeriv_eq_rightDeriv (f : ℝ → ℝ) :
   ext x
   simp [leftDeriv_eq_rightDeriv_apply]
 
+lemma Filter.EventuallyEq.derivWithin_eq_nhds {𝕜 F : Type*} [NontriviallyNormedField 𝕜]
+    [NormedAddCommGroup F] [NormedSpace 𝕜 F] {f₁ f : 𝕜 → F} {x : 𝕜} {s : Set 𝕜}
+    (h : f₁ =ᶠ[𝓝 x] f) :
+    derivWithin f₁ s x = derivWithin f s x := by
+  simp_rw [derivWithin]
+  rw [Filter.EventuallyEq.fderivWithin_eq_nhds h]
+
+lemma Filter.EventuallyEq.rightDeriv_eq_nhds {x : ℝ} {g : ℝ → ℝ} (h : f =ᶠ[𝓝 x] g) :
+    rightDeriv f x = rightDeriv g x := h.derivWithin_eq_nhds
+
+lemma rightDeriv_congr_atTop {g : ℝ → ℝ} (h : f =ᶠ[atTop] g) :
+    rightDeriv f =ᶠ[atTop] rightDeriv g := by
+  have h' : ∀ᶠ x in atTop, f =ᶠ[𝓝 x] g := by
+    -- todo: replace by clean filter proof?
+    simp only [Filter.EventuallyEq, eventually_atTop, ge_iff_le] at h ⊢
+    obtain ⟨a, ha⟩ := h
+    refine ⟨a + 1, fun b hab ↦ ?_⟩
+    have h_ge : ∀ᶠ x in 𝓝 b, a ≤ x := eventually_ge_nhds ((lt_add_one _).trans_le hab)
+    filter_upwards [h_ge] using ha
+  filter_upwards [h'] with a ha using ha.rightDeriv_eq_nhds
+
 @[simp]
 lemma rightDeriv_zero : rightDeriv 0 = 0 := by
   ext x
