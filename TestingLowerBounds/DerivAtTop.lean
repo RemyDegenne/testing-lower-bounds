@@ -289,15 +289,20 @@ lemma slope_le_rightDeriv (h_cvx : ConvexOn ℝ (Ici 0) f) {x y : ℝ} (hx : 0 �
     exact ⟨(hx.trans hxy.le).trans hyz.le, hyz.ne'⟩
 
 lemma rightDeriv_le_toReal_derivAtTop (h_cvx : ConvexOn ℝ (Ici 0) f) (h : derivAtTop f ≠ ⊤)
-    {x : ℝ} (hx : 0 ≤ x) :
+    (hx : 0 < x) :
     rightDeriv f x ≤ (derivAtTop f).toReal := by
-  sorry
+  have h_tendsto := h_cvx.tendsto_toReal_derivAtTop h
+  refine ge_of_tendsto h_tendsto ?_
+  rw [eventually_atTop]
+  refine ⟨max 1 x, fun y hy ↦ h_cvx.rightDeriv_mono' hx ?_ ?_⟩
+  · exact mem_Ioi.mpr (hx.trans_le ((le_max_right _ _).trans hy))
+  · exact (le_max_right _ _).trans hy
 
 lemma slope_le_derivAtTop (h_cvx : ConvexOn ℝ (Ici 0) f)
     (h : derivAtTop f ≠ ⊤) {x y : ℝ} (hx : 0 ≤ x) (hxy : x < y) :
     (f y - f x) / (y - x) ≤ (derivAtTop f).toReal :=
   (slope_le_rightDeriv h_cvx hx hxy).trans
-    (rightDeriv_le_toReal_derivAtTop h_cvx h (hx.trans hxy.le))
+    (rightDeriv_le_toReal_derivAtTop h_cvx h (hx.trans_lt hxy))
 
 lemma le_add_derivAtTop (h_cvx : ConvexOn ℝ (Ici 0) f)
     (h : derivAtTop f ≠ ⊤) {x y : ℝ} (hy : 0 ≤ y) (hyx : y ≤ x) :
