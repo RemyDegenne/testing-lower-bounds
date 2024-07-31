@@ -51,7 +51,7 @@ lemma curvatureMeasure_const (c : ℝ) : curvatureMeasure (fun _ ↦ c) = 0 := b
 
 @[simp]
 lemma curvatureMeasure_linear (a : ℝ) : curvatureMeasure (fun x ↦ a * x) = 0 := by
-  rw [curvatureMeasure_of_convexOn (const_mul a), ConvexOn.rightDerivStieltjes_linear,
+  rw [curvatureMeasure_of_convexOn (const_mul_id a), ConvexOn.rightDerivStieltjes_linear,
     StieltjesFunction.measure_const]
 
 lemma curvatureMeasure_add (hf : ConvexOn ℝ univ f) (hg : ConvexOn ℝ univ g) :
@@ -76,11 +76,11 @@ lemma curvatureMeasure_add_linear (a : ℝ) :
     curvatureMeasure (fun x ↦ f x + a * x) = curvatureMeasure f := by
   change (curvatureMeasure (f + fun x ↦ a * x)) = curvatureMeasure f
   by_cases hf : ConvexOn ℝ univ f
-  · rw [hf.curvatureMeasure_add (const_mul a), curvatureMeasure_linear, add_zero]
+  · rw [hf.curvatureMeasure_add (const_mul_id a), curvatureMeasure_linear, add_zero]
   · rw [curvatureMeasure_of_not_convexOn hf, curvatureMeasure_of_not_convexOn]
     contrapose! hf
     have : f = f + (fun x ↦ a * x) + fun x ↦ (-a) * x := by ext x; simp
-    exact this ▸ hf.add (const_mul _)
+    exact this ▸ hf.add (const_mul_id _)
 
 /-- A Taylor formula for convex functions in terms of the right derivative
 and the curvature measure. -/

@@ -255,7 +255,7 @@ lemma rightDerivStieltjes_const (c : ℝ) : rightDerivStieltjes (convexOn_const 
   rfl
 
 lemma rightDerivStieltjes_linear (a : ℝ) :
-    rightDerivStieltjes (ConvexOn.const_mul a) = StieltjesFunction.const a := by
+    rightDerivStieltjes (ConvexOn.const_mul_id a) = StieltjesFunction.const a := by
   ext x
   simp_rw [rightDerivStieltjes_eq_rightDeriv, rightDeriv_linear]
   rfl
