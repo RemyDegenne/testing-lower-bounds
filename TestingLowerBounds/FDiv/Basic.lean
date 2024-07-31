@@ -33,7 +33,7 @@ However, we use `ℝ → ℝ` instead, for the following reasons:
 * codomain: `EReal` is underdeveloped, and all functions we will actually use are finite anyway.
 
 Most results will require these conditions on `f`:
-`(hf_cvx : ConvexOn ℝ univ f) (hf_cont : ContinuousOn f univ) (hf_one : f 1 = 0)`
+`(hf_cvx : ConvexOn ℝ (Ici 0) f) (hf_cont : ContinuousOn f (Ici 0)) (hf_one : f 1 = 0)`
 
 ## References
 
