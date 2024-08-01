@@ -78,7 +78,7 @@ lemma comp_neg_iff {𝕜 F β : Type*} [LinearOrderedField 𝕜] [AddCommGroup F
   exact h.comp_neg
 
 --this can be stated in much greater generality
-lemma const_mul (c : ℝ) : ConvexOn ℝ Set.univ (fun (x : ℝ) ↦ c * x) := by
+lemma const_mul_id (c : ℝ) : ConvexOn ℝ Set.univ (fun (x : ℝ) ↦ c * x) := by
   refine ⟨convex_univ, fun _ _ _ _ _ _ _ _ _ ↦ Eq.le ?_⟩
   simp only [smul_eq_mul]
   ring
