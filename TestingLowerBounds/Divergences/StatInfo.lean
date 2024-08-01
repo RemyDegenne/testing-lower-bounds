@@ -1101,6 +1101,44 @@ lemma fDiv_comp_right_le' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
   exact lintegral_mono fun x ↦ EReal.toENNReal_le_toENNReal <|
     fDiv_statInfoFun_comp_right_le η zero_le_one
 
+lemma le_fDiv_compProd' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (κ η : Kernel 𝒳 𝒳') [IsMarkovKernel κ] [IsMarkovKernel η] (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f) :
+    fDiv f μ ν ≤ fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ η) := by
+  nth_rw 1 [← Measure.fst_compProd μ κ, ← Measure.fst_compProd ν η]
+  simp_rw [Measure.fst, ← Measure.comp_deterministic_eq_map measurable_fst]
+  exact fDiv_comp_right_le' _ hf_cvx hf_cont
+
+lemma fDiv_compProd_right' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (κ : Kernel 𝒳 𝒳') [IsMarkovKernel κ] (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f) :
+    fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ κ) = fDiv f μ ν := by
+  refine le_antisymm ?_ (le_fDiv_compProd' κ κ hf_cvx hf_cont)
+  simp_rw [Measure.compProd_eq_comp]
+  exact fDiv_comp_right_le' _ hf_cvx hf_cont
+
+lemma fDiv_comp_le_compProd' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (κ η : Kernel 𝒳 𝒳') [IsMarkovKernel κ] [IsMarkovKernel η] (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f) :
+    fDiv f (κ ∘ₘ μ) (η ∘ₘ ν) ≤ fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ η) := by
+  nth_rw 1 [← Measure.snd_compProd μ κ, ← Measure.snd_compProd ν η]
+  simp_rw [Measure.snd, ← Measure.comp_deterministic_eq_map measurable_snd]
+  exact fDiv_comp_right_le' _ hf_cvx hf_cont
+
+lemma fDiv_comp_le_compProd_right' [IsFiniteMeasure μ]
+    (κ η : Kernel 𝒳 𝒳') [IsMarkovKernel κ] [IsMarkovKernel η] (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f) :
+    fDiv f (κ ∘ₘ μ) (η ∘ₘ μ) ≤ fDiv f (μ ⊗ₘ κ) (μ ⊗ₘ η) :=
+  fDiv_comp_le_compProd' κ η hf_cvx hf_cont
+
+lemma fDiv_fst_le' (μ ν : Measure (𝒳 × 𝒳')) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f) :
+    fDiv f μ.fst ν.fst ≤ fDiv f μ ν := by
+  simp_rw [Measure.fst, ← Measure.comp_deterministic_eq_map measurable_fst]
+  exact fDiv_comp_right_le' _ hf_cvx hf_cont
+
+lemma fDiv_snd_le' (μ ν : Measure (𝒳 × 𝒳')) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f) :
+    fDiv f μ.snd ν.snd ≤ fDiv f μ ν := by
+  simp_rw [Measure.snd, ← Measure.comp_deterministic_eq_map measurable_snd]
+  exact fDiv_comp_right_le' _ hf_cvx hf_cont
+
 end DataProcessingInequality
 
 end ProbabilityTheory
