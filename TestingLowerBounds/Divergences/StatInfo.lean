@@ -949,14 +949,6 @@ lemma fDiv_statInfoFun_comp_right_le [IsFiniteMeasure μ] [IsFiniteMeasure ν]
   · exact EReal.coe_ennreal_le_coe_ennreal_iff.mpr <| statInfo_comp_le _ _ _ _
   · simp_rw [Measure.comp_apply_univ, le_refl]
 
---this version is not strictly more general than the previous one, but it covers many cases that the previous one does not. However it is probably not useful since the general case should still be covered by the general DPI for fDiv, since statInfoFun is always convex and continuous
-lemma fDiv_statInfoFun_comp_right_le' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (η : Kernel 𝒳 𝒳') [IsMarkovKernel η] (hβγ : β ≠ γ) :
-    fDiv (statInfoFun β γ) (η ∘ₘ μ) (η ∘ₘ ν) ≤ fDiv (statInfoFun β γ) μ ν := by
-  rcases le_total 0 β with (hβ | hβ)
-  · exact fDiv_statInfoFun_comp_right_le η hβ
-  · exact statInfoFun_neg_neg hβγ ▸ fDiv_statInfoFun_comp_right_le η (neg_nonneg.mpr hβ)
-
 /-- **Data processing inequality** for the f-divergence. -/
 lemma fDiv_comp_right_le_of_absolutelyContinuous [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (η : Kernel 𝒳 𝒳') [IsMarkovKernel η]
