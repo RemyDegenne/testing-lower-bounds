@@ -60,6 +60,65 @@ lemma leftDeriv_eq_rightDeriv (f : ℝ → ℝ) :
   ext x
   simp [leftDeriv_eq_rightDeriv_apply]
 
+@[simp]
+lemma rightDeriv_const (c : ℝ) : rightDeriv (fun _ ↦ c) = 0 := by
+  ext x
+  rw [rightDeriv_def, Pi.zero_apply]
+  exact derivWithin_const x _ c (uniqueDiffWithinAt_Ioi x)
+
+@[simp]
+lemma leftDeriv_const (c : ℝ) : leftDeriv (fun _ ↦ c) = 0 := by
+  simp_rw [leftDeriv_eq_rightDeriv, rightDeriv_const, Pi.zero_apply, neg_zero]
+  rfl
+
+lemma rightDeriv_linear (a : ℝ) : rightDeriv (fun x ↦ a * x) = fun _ ↦ a := by
+  ext x
+  rw [rightDeriv_def, derivWithin_const_mul (uniqueDiffWithinAt_Ioi x)]
+  swap; · exact differentiableWithinAt_id
+  change a * derivWithin id (Ioi x) x = a
+  rw [derivWithin_id _ _ (uniqueDiffWithinAt_Ioi x), mul_one]
+
+lemma leftDeriv_linear (a : ℝ) : leftDeriv (fun x ↦ a * x) = fun _ ↦ a := by
+  simp_rw [leftDeriv_eq_rightDeriv, ← neg_mul_comm, rightDeriv_linear]
+  ext; simp
+
+lemma rightDeriv_add {f g : ℝ → ℝ} (hf : ∀ x, DifferentiableWithinAt ℝ f (Ioi x) x)
+    (hg : ∀ x, DifferentiableWithinAt ℝ g (Ioi x) x) :
+    rightDeriv (f + g) = fun x ↦ rightDeriv f x + rightDeriv g x := by
+  ext x
+  simp_rw [rightDeriv_def, ← derivWithin_add (uniqueDiffWithinAt_Ioi x) (hf x) (hg x)]
+  rfl
+
+lemma leftDeriv_add {f g : ℝ → ℝ} (hf : ∀ x, DifferentiableWithinAt ℝ f (Iio x) x)
+    (hg : ∀ x, DifferentiableWithinAt ℝ g (Iio x) x) :
+    leftDeriv (f + g) = fun x ↦ leftDeriv f x + leftDeriv g x := by
+  ext x
+  simp_rw [leftDeriv_def, ← derivWithin_add (uniqueDiffWithinAt_Iio x) (hf x) (hg x)]
+  rfl
+
+lemma rightDeriv_add_const {f : ℝ → ℝ} (hf : ∀ x, DifferentiableWithinAt ℝ f (Ioi x) x) (c : ℝ) :
+    rightDeriv (fun x ↦ f x + c) = rightDeriv f := by
+  change rightDeriv (f + fun _ ↦ c) = rightDeriv f
+  simp [rightDeriv_add hf (fun _ ↦ differentiableWithinAt_const c)]
+
+lemma leftDeriv_add_const {f : ℝ → ℝ} (hf : ∀ x, DifferentiableWithinAt ℝ f (Iio x) x) (c : ℝ) :
+    leftDeriv (fun x ↦ f x + c) = leftDeriv f := by
+  change leftDeriv (f + fun _ ↦ c) = leftDeriv f
+  simp [leftDeriv_add hf (fun _ ↦ differentiableWithinAt_const c)]
+
+lemma rightDeriv_add_linear {f : ℝ → ℝ} (hf : ∀ x, DifferentiableWithinAt ℝ f (Ioi x) x) (a : ℝ) :
+    rightDeriv (fun x ↦ f x + a * x) = rightDeriv f + fun _ ↦ a := by
+  change rightDeriv (f + fun x ↦ a * x) = rightDeriv f + fun _ ↦ a
+  rw [rightDeriv_add hf (by fun_prop), rightDeriv_linear]
+  ext; simp
+
+lemma leftDeriv_add_linear {f : ℝ → ℝ} (hf : ∀ x, DifferentiableWithinAt ℝ f (Iio x) x) (a : ℝ) :
+    leftDeriv (fun x ↦ f x + a * x) = leftDeriv f + fun _ ↦ a := by
+  change leftDeriv (f + fun x ↦ a * x) = leftDeriv f + fun _ ↦ a
+  rw [leftDeriv_add hf (by fun_prop), leftDeriv_linear]
+  ext; simp
+
+
 namespace ConvexOn
 
 section Slope
@@ -186,5 +245,34 @@ def rightDerivStieltjes {f : ℝ → ℝ} (hf : ConvexOn ℝ univ f) :
   toFun := rightDeriv f
   mono' _ _ := fun h ↦ hf.rightDeriv_mono h
   right_continuous' _ := hf.rightDeriv_right_continuous _
+
+lemma rightDerivStieltjes_eq_rightDeriv (hf : ConvexOn ℝ univ f) :
+    rightDerivStieltjes hf = rightDeriv f := rfl
+
+lemma rightDerivStieltjes_const (c : ℝ) : rightDerivStieltjes (convexOn_const c convex_univ) = 0 := by
+  ext x
+  simp_rw [rightDerivStieltjes_eq_rightDeriv, rightDeriv_const]
+  rfl
+
+lemma rightDerivStieltjes_linear (a : ℝ) :
+    rightDerivStieltjes (ConvexOn.const_mul a) = StieltjesFunction.const a := by
+  ext x
+  simp_rw [rightDerivStieltjes_eq_rightDeriv, rightDeriv_linear]
+  rfl
+
+lemma rightDerivStieltjes_add {f g : ℝ → ℝ} (hf : ConvexOn ℝ univ f) (hg : ConvexOn ℝ univ g) :
+    rightDerivStieltjes (hf.add hg) = rightDerivStieltjes hf + rightDerivStieltjes hg := by
+  ext x
+  simp_rw [StieltjesFunction.add_apply, rightDerivStieltjes_eq_rightDeriv, rightDeriv_add
+    (fun x ↦ hf.differentiableWithinAt_Ioi x) (fun x ↦ hg.differentiableWithinAt_Ioi x)]
+
+example (hf : ConvexOn ℝ univ f) (c : ℝ) : ConvexOn ℝ univ (fun x ↦ f x + c) := by
+  exact hf.add (convexOn_const c convex_univ)
+
+lemma rightDerivStieltjes_add_const (hf : ConvexOn ℝ univ f) (c : ℝ) :
+    rightDerivStieltjes (hf.add (convexOn_const c convex_univ)) = rightDerivStieltjes hf := by
+  rw [rightDerivStieltjes_add hf (convexOn_const c convex_univ), rightDerivStieltjes_const,
+    add_zero]
+
 
 end ConvexOn
