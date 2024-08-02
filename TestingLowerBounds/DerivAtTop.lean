@@ -6,6 +6,7 @@ Authors: Rémy Degenne
 import TestingLowerBounds.Convex
 import TestingLowerBounds.ForMathlib.LeftRightDeriv
 import TestingLowerBounds.ForMathlib.EReal
+import TestingLowerBounds.ForMathlib.Tendsto
 
 /-!
 
@@ -154,6 +155,16 @@ lemma MonotoneOn.derivAtTop_eq_iff {y : EReal} (hf : MonotoneOn (rightDeriv f) (
 lemma ConvexOn.derivAtTop_eq_iff {y : EReal} (hf : ConvexOn ℝ (Ici 0) f) :
     derivAtTop f = y ↔ Tendsto (fun x ↦ (rightDeriv f x : EReal)) atTop (𝓝 y) :=
   hf.rightDeriv_mono'.derivAtTop_eq_iff
+
+lemma MonotoneOn.derivAtTop_eq_top_iff (hf : MonotoneOn (rightDeriv f) (Ioi 0)) :
+    derivAtTop f = ⊤ ↔ Tendsto (rightDeriv f) atTop atTop := by
+  refine ⟨fun h ↦ ?_, fun h ↦ derivAtTop_of_tendsto_atTop h⟩
+  exact EReal.tendsto_toReal_atTop.comp (tendsto_punctured_nhds_of_tendsto_nhds_right
+    (eventually_of_forall fun _ ↦ EReal.coe_ne_top _) (h ▸ hf.tendsto_derivAtTop))
+
+lemma ConvexOn.derivAtTop_eq_top_iff (hf : ConvexOn ℝ (Ici 0) f) :
+    derivAtTop f = ⊤ ↔ Tendsto (rightDeriv f) atTop atTop :=
+  hf.rightDeriv_mono'.derivAtTop_eq_top_iff
 
 lemma MonotoneOn.derivAtTop_ne_bot (hf : MonotoneOn (rightDeriv f) (Ioi 0)) : derivAtTop f ≠ ⊥ := by
   intro h_eq
