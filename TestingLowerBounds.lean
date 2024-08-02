@@ -29,6 +29,7 @@ import TestingLowerBounds.ForMathlib.Measure
 import TestingLowerBounds.ForMathlib.MonotoneOnTendsto
 import TestingLowerBounds.ForMathlib.RadonNikodym
 import TestingLowerBounds.ForMathlib.RnDeriv
+import TestingLowerBounds.ForMathlib.SetIntegral
 import TestingLowerBounds.Kernel.Basic
 import TestingLowerBounds.Kernel.BayesInv
 import TestingLowerBounds.Kernel.Monoidal
