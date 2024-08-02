@@ -23,7 +23,7 @@ import TestingLowerBounds.FDiv.Basic
 
 -/
 
-open Real MeasureTheory Filter
+open Real MeasureTheory Filter Set
 
 open scoped ENNReal NNReal Topology
 
@@ -34,7 +34,7 @@ variable {α β : Type*} {m mα : MeasurableSpace α} {mβ : MeasurableSpace β}
 
 lemma f_condexp_rnDeriv_le [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ mα)
     (hf : StronglyMeasurable f)
-    (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0))
+    (hf_cvx : ConvexOn ℝ (Ici 0) f) (hf_cont : ContinuousOn f (Ici 0))
     (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) :
     (fun x ↦ f ((ν[fun x ↦ ((∂μ/∂ν) x).toReal | m]) x))
       ≤ᵐ[ν.trim hm] ν[fun x ↦ f ((∂μ/∂ν) x).toReal | m] := by
@@ -42,7 +42,7 @@ lemma f_condexp_rnDeriv_le [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤
 
 lemma f_rnDeriv_trim_le [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ mα) (hμν : μ ≪ ν)
     (hf : StronglyMeasurable f)
-    (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0))
+    (hf_cvx : ConvexOn ℝ (Ici 0) f) (hf_cont : ContinuousOn f (Ici 0))
     (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) :
     (fun x ↦ f ((∂μ.trim hm/∂ν.trim hm) x).toReal)
       ≤ᵐ[ν.trim hm] ν[fun x ↦ f ((∂μ/∂ν) x).toReal | m] := by
@@ -54,7 +54,7 @@ lemma f_rnDeriv_trim_le [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ m�
 
 lemma integrable_f_rnDeriv_trim [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ mα) (hμν : μ ≪ ν)
     (hf : StronglyMeasurable f)
-    (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0))
+    (hf_cvx : ConvexOn ℝ (Ici 0) f) (hf_cont : ContinuousOn f (Ici 0))
     (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) :
     Integrable (fun x ↦ f ((∂μ.trim hm/∂ν.trim hm) x).toReal) (ν.trim hm) := by
   obtain ⟨c, c', h⟩ : ∃ c c', ∀ x, 0 ≤ x → c * x + c' ≤ f x :=
@@ -74,7 +74,7 @@ lemma integrable_f_rnDeriv_trim [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : 
 lemma integrable_f_condexp_rnDeriv [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (hm : m ≤ mα) (hμν : μ ≪ ν)
     (hf : StronglyMeasurable f)
-    (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0))
+    (hf_cvx : ConvexOn ℝ (Ici 0) f) (hf_cont : ContinuousOn f (Ici 0))
     (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) :
     Integrable (fun x ↦ f ((ν[fun x ↦ ((∂μ/∂ν) x).toReal | m]) x)) ν := by
   have h := integrable_f_rnDeriv_trim hm hμν hf hf_cvx hf_cont h_int
@@ -84,7 +84,7 @@ lemma integrable_f_condexp_rnDeriv [IsFiniteMeasure μ] [IsFiniteMeasure ν]
 
 lemma fDiv_trim_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ mα) (hμν : μ ≪ ν)
     (hf : StronglyMeasurable f)
-    (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0))
+    (hf_cvx : ConvexOn ℝ (Ici 0) f) (hf_cont : ContinuousOn f (Ici 0))
     (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) :
     fDiv f (μ.trim hm) (ν.trim hm) = ∫ x, f ((ν[fun x ↦ ((∂μ/∂ν) x).toReal | m]) x) ∂ν := by
   classical
@@ -99,7 +99,7 @@ lemma fDiv_trim_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ mα)
 
 lemma fDiv_trim_le_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ mα) (hμν : μ ≪ ν)
     (hf : StronglyMeasurable f)
-    (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0)) :
+    (hf_cvx : ConvexOn ℝ (Ici 0) f) (hf_cont : ContinuousOn f (Ici 0)) :
     fDiv f (μ.trim hm) (ν.trim hm) ≤ fDiv f μ ν := by
   by_cases h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν
   swap; · rw [fDiv_of_not_integrable h_int]; exact le_top
@@ -115,7 +115,7 @@ lemma fDiv_trim_le_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ m
 
 lemma fDiv_trim_le [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ mα)
     (hf : StronglyMeasurable f)
-    (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) (hf_cont : ContinuousOn f (Set.Ici 0)) :
+    (hf_cvx : ConvexOn ℝ (Ici 0) f) (hf_cont : ContinuousOn f (Ici 0)) :
     fDiv f (μ.trim hm) (ν.trim hm) ≤ fDiv f μ ν := by
   have h1 : μ.trim hm = (ν.withDensity (∂μ/∂ν)).trim hm + (μ.singularPart ν).trim hm := by
     conv_lhs => rw [μ.haveLebesgueDecomposition_add ν, add_comm, trim_add]
