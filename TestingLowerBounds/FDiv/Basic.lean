@@ -765,9 +765,12 @@ lemma fDiv_nonneg [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
   calc (0 : EReal) = f (μ Set.univ).toReal := by simp [hf_one]
   _ ≤ fDiv f μ ν := le_fDiv hf_cvx hf_cont
 
-/--N.B. don't use this lemma, it's not true under the current definition of `derivAtTop`.-/
+/- The hypothesis `hfg'` can maybe become something like `f ≤ᵐ[atTop] g`, but then we would need
+some lemma like `derivAtTop_mono`, and I'm not sure this is true in gneral, without any assumption on `f`.
+We could prove it if we had some lemma saying that the new derivAtTop is equal to the old definition,
+this is probably false in general, but under some assumptions it should be true. -/
 lemma fDiv_mono' (hf_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
-    (hfg : ∀ᵐ x ∂ν.map (fun x ↦ ((∂μ/∂ν) x).toReal), f x ≤ g x) (hfg' : ∀ᶠ x in atTop, f x ≤ g x) :
+    (hfg : f ≤ᵐ[ν.map (fun x ↦ ((∂μ/∂ν) x).toReal)] g) (hfg' : derivAtTop f ≤ derivAtTop g) :
     fDiv f μ ν ≤ fDiv g μ ν := by
   rw [fDiv_of_integrable hf_int, fDiv]
   split_ifs with hg_int
@@ -776,26 +779,14 @@ lemma fDiv_mono' (hf_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
   · exact EReal.coe_le_coe_iff.mpr <| integral_mono_ae hf_int hg_int <|
       ae_of_ae_map (Measure.measurable_rnDeriv μ ν).ennreal_toReal.aemeasurable hfg
   · exact EReal.coe_ennreal_nonneg _
-  · sorry
-    -- exact derivAtTop_mono' hfg' -- `derivAtTop_mono'` is false under the current definition of `derivAtTop`
 
-/--N.B. don't use this lemma, it's not true under the current definition of `derivAtTop`.-/
 lemma fDiv_mono (hf_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
-    (hfg : ∀ x, f x ≤ g x) : fDiv f μ ν ≤ fDiv g μ ν :=
-  fDiv_mono' hf_int (eventually_of_forall hfg) (eventually_of_forall hfg)
+    (hfg : f ≤ g) (hfg' : derivAtTop f ≤ derivAtTop g) : fDiv f μ ν ≤ fDiv g μ ν :=
+  fDiv_mono' hf_int (eventually_of_forall hfg) hfg'
 
--- When `fDiv_mono` becomes true, se can use the following simpler proof:
--- lemma fDiv_nonneg_of_nonneg' (hf : ∀ x, 0 ≤ f x) :
---     0 ≤ fDiv f μ ν :=
---   fDiv_zero μ ν ▸ fDiv_mono (integrable_zero α ℝ ν) hf
-lemma fDiv_nonneg_of_nonneg (hf : ∀ x, 0 ≤ f x) : 0 ≤ fDiv f μ ν := by
-  rw [fDiv]
-  split_ifs
-  swap; · exact le_top
-  refine add_nonneg ?_ ?_
-  · exact EReal.coe_nonneg.mpr <| integral_nonneg_of_ae <| eventually_of_forall <| fun _ ↦ hf _
-  · refine mul_nonneg ?_ (EReal.coe_ennreal_nonneg _)
-    sorry --here we need `derivAtTop_nonneg_of_nonneg hf`
+lemma fDiv_nonneg_of_nonneg (hf : 0 ≤ f) (hf' : 0 ≤ derivAtTop f) :
+    0 ≤ fDiv f μ ν :=
+  fDiv_zero μ ν ▸ fDiv_mono (integrable_zero α ℝ ν) hf (derivAtTop_zero ▸ hf')
 
 lemma fDiv_eq_zero_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_mass : μ Set.univ = ν Set.univ)
     (hf_deriv : derivAtTop f = ⊤) (hf_cvx : StrictConvexOn ℝ (Ici 0) f)
