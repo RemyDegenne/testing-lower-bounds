@@ -992,7 +992,8 @@ lemma fDiv_eq_lintegral_fDiv_statInfoFun_of_mutuallySingular [IsFiniteMeasure μ
             StieltjesFunction.measure_Ioi_of_tendsto_atTop_atTop]
           --here we need the new def of derivAtTop
           sorry
-        · have ⟨x, hx⟩ := EReal.eq_coe_of_ne_top_of_ne_bot h_top (derivAtTop_ne_bot)
+        · have ⟨x, hx⟩ := EReal.eq_coe_of_ne_top_of_ne_bot h_top
+            (derivAtTop_ne_bot (hf_cvx.subset (fun _ _ ↦ trivial) (convex_Ici 0)))
           rw [hx, StieltjesFunction.measure_Ioi _ _ 1 (l := x)]
           · norm_cast
           --here we need the new def of derivAtTop
@@ -1020,15 +1021,17 @@ lemma fDiv_eq_lintegral_fDiv_statInfoFun [IsFiniteMeasure μ] [IsFiniteMeasure �
     (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f) :
     fDiv f μ ν = ∫⁻ x, (fDiv (statInfoFun 1 x) μ ν).toENNReal ∂(curvatureMeasure f)
       + f 1 * ν univ + rightDeriv f 1 * (μ univ - ν univ) := by
-  rw [fDiv_eq_add_withDensity_singularPart, fDiv_eq_lintegral_fDiv_statInfoFun_of_mutuallySingular
-    hf_cvx hf_cont (μ.mutuallySingular_singularPart ν),
-    fDiv_eq_lintegral_fDiv_statInfoFun_of_absolutelyContinuous hf_cvx hf_cont (withDensity_absolutelyContinuous ν (∂μ/∂ν))]
+  rw [fDiv_eq_add_withDensity_singularPart _ _ (hf_cvx.subset (fun _ _ ↦ trivial) (convex_Ici 0)),
+    fDiv_eq_lintegral_fDiv_statInfoFun_of_mutuallySingular hf_cvx hf_cont
+    (μ.mutuallySingular_singularPart ν), fDiv_eq_lintegral_fDiv_statInfoFun_of_absolutelyContinuous
+    hf_cvx hf_cont (withDensity_absolutelyContinuous ν (∂μ/∂ν))]
   have h1 : ∫⁻ x, (fDiv (statInfoFun 1 x) μ ν).toENNReal ∂curvatureMeasure f
       = ∫⁻ x, (fDiv (statInfoFun 1 x) (ν.withDensity (∂μ/∂ν)) ν).toENNReal ∂curvatureMeasure f
         + ∫⁻ x, (fDiv (statInfoFun 1 x) (μ.singularPart ν) ν).toENNReal ∂curvatureMeasure f
         - (∫⁻ x, .ofReal (statInfoFun 1 x 0) ∂curvatureMeasure f : EReal) * (ν univ).toReal := by
     have h_nonneg (x : ℝ) : 0 ≤ fDiv (statInfoFun 1 x) μ ν := fDiv_statInfoFun_nonneg
-    simp_rw [fDiv_eq_add_withDensity_singularPart μ] at h_nonneg ⊢
+    simp_rw [fDiv_eq_add_withDensity_singularPart μ ν ((convexOn_statInfoFun 1 _).subset
+      (fun _ _ ↦ trivial) (convex_Ici 0))] at h_nonneg ⊢
     rw_mod_cast [← lintegral_add_left]
     swap; · exact ((fDiv_statInfoFun_stronglyMeasurable (ν.withDensity (∂μ/∂ν)) ν).measurable.comp
       (by fun_prop) (f := fun x ↦ (1, x))).ereal_toENNReal
