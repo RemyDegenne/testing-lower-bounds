@@ -149,7 +149,7 @@ lemma derivAtTop_statInfoFun_of_nonneg_of_gt (hβ : 0 ≤ β) (hγ : γ > β) :
   · simp
   have : (β : EReal) = derivAtTop (fun x ↦ β * x - γ) := by
     rw [derivAtTop_sub_const]
-    swap; · exact (ConvexOn.const_mul _).subset (subset_univ _) (convex_Ici _)
+    swap; · exact (ConvexOn.const_mul_id _).subset (subset_univ _) (convex_Ici _)
     change _ = derivAtTop (fun x ↦ β * x)
     rw [derivAtTop_const_mul _ hβ.ne']
     swap; · exact convexOn_id (convex_Ici _)
