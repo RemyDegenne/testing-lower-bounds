@@ -222,17 +222,16 @@ lemma convexOn_hellingerFun (ha_pos : 0 ≤ a) : ConvexOn ℝ (Set.Ici 0) (helli
     refine ConvexOn.smul (by simp [ha.le]) ?_
     exact h.sub (concaveOn_const _ (convex_Ici 0))
 
-lemma tendsto_hellingerFun_div_atTop_of_one_lt (ha : 1 < a) :
-    Tendsto (fun x ↦ hellingerFun a x / x) atTop atTop := by
+lemma tendsto_rightDeriv_hellingerFun_atTop_of_one_lt (ha : 1 < a) :
+    Tendsto (rightDeriv (hellingerFun a)) atTop atTop := by
   sorry
 
-lemma tendsto_hellingerFun_div_atTop_of_lt_one (ha : a < 1) :
-    Tendsto (fun x ↦ hellingerFun a x / x) atTop (𝓝 0) := by
+lemma tendsto_rightDeriv_hellingerFun_atTop_of_lt_one (ha : a < 1) :
+    Tendsto (rightDeriv (hellingerFun a)) atTop (𝓝 0) := by
   sorry
 
-lemma derivAtTop_hellingerFun_of_one_lt (ha : 1 < a) : derivAtTop (hellingerFun a) = ⊤ := by
-  rw [derivAtTop, if_pos]
-  exact tendsto_hellingerFun_div_atTop_of_one_lt ha
+lemma derivAtTop_hellingerFun_of_one_lt (ha : 1 < a) : derivAtTop (hellingerFun a) = ⊤ :=
+  derivAtTop_of_tendsto_atTop <| tendsto_rightDeriv_hellingerFun_atTop_of_one_lt ha
 
 lemma derivAtTop_hellingerFun_of_one_le (ha : 1 ≤ a) :
     derivAtTop (hellingerFun a) = ⊤ := by
@@ -243,7 +242,7 @@ lemma derivAtTop_hellingerFun_of_one_le (ha : 1 ≤ a) :
 
 lemma derivAtTop_hellingerFun_of_lt_one (ha : a < 1) :
     derivAtTop (hellingerFun a) = 0 :=
-  derivAtTop_of_tendsto (tendsto_hellingerFun_div_atTop_of_lt_one ha)
+  derivAtTop_of_tendsto_nhds <| tendsto_rightDeriv_hellingerFun_atTop_of_lt_one ha
 
 lemma integrable_hellingerFun_iff_integrable_rpow (ha_one : a ≠ 1) [IsFiniteMeasure ν] :
     Integrable (fun x ↦ hellingerFun a ((∂μ/∂ν) x).toReal) ν

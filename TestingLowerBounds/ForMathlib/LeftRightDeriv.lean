@@ -13,7 +13,7 @@ open Set Filter Topology
 
 open scoped ENNReal NNReal
 
-variable {f : ℝ → ℝ}
+variable {f : ℝ → ℝ} {x : ℝ}
 
 /-- The right derivative of a real function. -/
 noncomputable
@@ -69,6 +69,33 @@ lemma leftDeriv_eq_rightDeriv (f : ℝ → ℝ) :
     leftDeriv f = fun x ↦ - rightDeriv (fun y ↦ f (-y)) (-x) := by
   ext x
   simp [leftDeriv_eq_rightDeriv_apply]
+
+lemma Filter.EventuallyEq.derivWithin_eq_nhds {𝕜 F : Type*} [NontriviallyNormedField 𝕜]
+    [NormedAddCommGroup F] [NormedSpace 𝕜 F] {f₁ f : 𝕜 → F} {x : 𝕜} {s : Set 𝕜}
+    (h : f₁ =ᶠ[𝓝 x] f) :
+    derivWithin f₁ s x = derivWithin f s x := by
+  simp_rw [derivWithin]
+  rw [Filter.EventuallyEq.fderivWithin_eq_nhds h]
+
+lemma Filter.EventuallyEq.rightDeriv_eq_nhds {x : ℝ} {g : ℝ → ℝ} (h : f =ᶠ[𝓝 x] g) :
+    rightDeriv f x = rightDeriv g x := h.derivWithin_eq_nhds
+
+lemma rightDeriv_congr_atTop {g : ℝ → ℝ} (h : f =ᶠ[atTop] g) :
+    rightDeriv f =ᶠ[atTop] rightDeriv g := by
+  have h' : ∀ᶠ x in atTop, f =ᶠ[𝓝 x] g := by
+    -- todo: replace by clean filter proof?
+    simp only [Filter.EventuallyEq, eventually_atTop, ge_iff_le] at h ⊢
+    obtain ⟨a, ha⟩ := h
+    refine ⟨a + 1, fun b hab ↦ ?_⟩
+    have h_ge : ∀ᶠ x in 𝓝 b, a ≤ x := eventually_ge_nhds ((lt_add_one _).trans_le hab)
+    filter_upwards [h_ge] using ha
+  filter_upwards [h'] with a ha using ha.rightDeriv_eq_nhds
+
+@[simp]
+lemma rightDeriv_zero : rightDeriv 0 = 0 := by
+  ext x
+  simp only [rightDeriv, Pi.zero_apply]
+  exact derivWithin_const x _ 0 (uniqueDiffWithinAt_Ioi x)
 
 @[simp]
 lemma rightDeriv_const (c : ℝ) : rightDeriv (fun _ ↦ c) = 0 := by
@@ -129,6 +156,11 @@ lemma rightDeriv_add_apply {f g : ℝ → ℝ} {x : ℝ} (hf : DifferentiableWit
   simp_rw [rightDeriv_def, ← derivWithin_add (uniqueDiffWithinAt_Ioi x) hf hg]
   rfl
 
+lemma rightDeriv_add_apply' {f g : ℝ → ℝ} {x : ℝ} (hf : DifferentiableWithinAt ℝ f (Ioi x) x)
+    (hg : DifferentiableWithinAt ℝ g (Ioi x) x) :
+    rightDeriv (fun x ↦ f x + g x) x = rightDeriv f x + rightDeriv g x :=
+  rightDeriv_add_apply hf hg
+
 lemma rightDeriv_add {f g : ℝ → ℝ} (hf : ∀ x, DifferentiableWithinAt ℝ f (Ioi x) x)
     (hg : ∀ x, DifferentiableWithinAt ℝ g (Ioi x) x) :
     rightDeriv (f + g) = fun x ↦ rightDeriv f x + rightDeriv g x := by
@@ -184,6 +216,12 @@ lemma bddBelow_slope_Ioi (hfc : ConvexOn ℝ univ f) (x : ℝ) :
   simp_rw [mem_Ici, ← hz']
   exact slope_mono hfc trivial (by simp) ⟨trivial, hz.ne'⟩ (by linarith)
 
+lemma bddBelow_slope_Ioi' (hfc : ConvexOn ℝ (Ici 0) f) (x : ℝ) (hx : 0 < x) :
+    BddBelow (slope f x '' Ioi x) := by
+  refine bddBelow_iff_subset_Ici.mpr ⟨(slope f x 0), fun y ⟨z, (hz : x < z), hz'⟩ ↦ ?_⟩
+  simp_rw [mem_Ici, ← hz']
+  exact slope_mono hfc hx.le (by simp [hx.ne]) ⟨(hx.trans hz).le, hz.ne'⟩ (by linarith)
+
 lemma bddAbove_slope_Iio (hfc : ConvexOn ℝ univ f) (x : ℝ) :
     BddAbove (slope f x '' Iio x) := by
   refine bddAbove_iff_subset_Iic.mpr ⟨(slope f x (x + 1)), fun y ⟨z, (hz : z < x), hz'⟩ ↦ ?_⟩
@@ -192,7 +230,17 @@ lemma bddAbove_slope_Iio (hfc : ConvexOn ℝ univ f) (x : ℝ) :
 
 end Slope
 
--- TODO: this can be generalized to a set S, where the function is convex, but I still need to figure out what hp to require, since the minimal assumption I think is that there exist a right interval of x that is contained in S (so x itself does not have to be in S), i.e. (x, y) ⊆ S, I don't know if. To generalize we will need MonotoneOn.tendsto_nhdsWithin_Ioo_right. However there are dirrerent kinds of sufficient conditions that could be given, for example S open and x in S or x in the interior of S. Discuss this with Remy. Maybe the minimal hp I described is not sufficient, I also need to assure some kind of boundedness of the slope, this should be assured if x is in the interior of S, because then we can take a point to the left of x but still inside S and use the monotonicity of the solpe in S, but can we do better? For now we can leave it like this
+-- TODO: this can be generalized to a set S, where the function is convex,
+-- but I still need to figure out what hp to require,
+-- since the minimal assumption I think is that there exist a right interval of x
+-- that is contained in S (so x itself does not have to be in S), i.e. (x, y) ⊆ S, I don't know if.
+-- To generalize we will need MonotoneOn.tendsto_nhdsWithin_Ioo_right.
+-- However there are dirrerent kinds of sufficient conditions that could be given,
+-- for example S open and x in S or x in the interior of S. Discuss this with Remy.
+-- Maybe the minimal hp I described is not sufficient, I also need to assure some kind
+-- of boundedness of the slope, this should be assured if x is in the interior of S,
+-- because then we can take a point to the left of x but still inside S and use the monotonicity
+-- of the solpe in S, but can we do better? For now we can leave it like this
 lemma hasRightDerivAt (hfc : ConvexOn ℝ univ f) (x : ℝ) :
     HasDerivWithinAt f (sInf (slope f x '' Ioi x)) (Ioi x) x := by
   simp_rw [hasDerivWithinAt_iff_tendsto_slope]
@@ -203,9 +251,23 @@ lemma hasRightDerivAt (hfc : ConvexOn ℝ univ f) (x : ℝ) :
     exact hfc.secant_mono trivial trivial trivial hy.ne' hz.ne' hz'.le
   exact MonotoneOn.tendsto_nhdsWithin_Ioi h_mono (bddBelow_slope_Ioi hfc x)
 
+lemma hasRightDerivAt' (hfc : ConvexOn ℝ (Ici 0) f) (hx : 0 < x) :
+    HasDerivWithinAt f (sInf (slope f x '' Ioi x)) (Ioi x) x := by
+  simp_rw [hasDerivWithinAt_iff_tendsto_slope]
+  simp only [mem_Ioi, lt_self_iff_false, not_false_eq_true, diff_singleton_eq_self]
+  have h_mono : MonotoneOn (slope f x) (Ioi x) := by
+    refine monotoneOn_iff_forall_lt.mpr fun y (hy : x < y) z (hz : x < z) hz' ↦ ?_
+    simp_rw [slope_def_field]
+    exact hfc.secant_mono hx.le (hx.trans hy).le (hx.trans hz).le hy.ne' hz.ne' hz'.le
+  exact MonotoneOn.tendsto_nhdsWithin_Ioi h_mono (bddBelow_slope_Ioi' hfc x hx)
+
 lemma differentiableWithinAt_Ioi (hfc : ConvexOn ℝ univ f) (x : ℝ) :
     DifferentiableWithinAt ℝ f (Ioi x) x :=
   (hfc.hasRightDerivAt x).differentiableWithinAt
+
+lemma differentiableWithinAt_Ioi' (hfc : ConvexOn ℝ (Ici 0) f) (hx : 0 < x) :
+    DifferentiableWithinAt ℝ f (Ioi x) x :=
+  (hfc.hasRightDerivAt' hx).differentiableWithinAt
 
 lemma hadDerivWithinAt_rightDeriv (hfc : ConvexOn ℝ univ f) (x : ℝ) :
     HasDerivWithinAt f (rightDeriv f x) (Ioi x) x :=
@@ -233,6 +295,10 @@ lemma rightDeriv_eq_sInf_slope (hfc : ConvexOn ℝ univ f) (x : ℝ) :
     rightDeriv f x = sInf (slope f x '' Ioi x) :=
   (hfc.hasRightDerivAt x).derivWithin (uniqueDiffWithinAt_Ioi x)
 
+lemma rightDeriv_eq_sInf_slope' (hfc : ConvexOn ℝ (Ici 0) f) (hx : 0 < x) :
+    rightDeriv f x = sInf (slope f x '' Ioi x) :=
+  (hfc.hasRightDerivAt' hx).derivWithin (uniqueDiffWithinAt_Ioi x)
+
 lemma leftDeriv_eq_sSup_slope (hfc : ConvexOn ℝ univ f) (x : ℝ) :
     leftDeriv f x = sSup (slope f x '' Iio x) :=
   (hfc.hasLeftDerivAt x).derivWithin (uniqueDiffWithinAt_Iio x)
@@ -246,6 +312,16 @@ lemma rightDeriv_mono (hfc : ConvexOn ℝ univ f) : Monotone (rightDeriv f) := b
   rintro _ ⟨z, (yz : y < z), rfl⟩
   rw [slope_comm]
   exact slope_mono hfc trivial ⟨trivial, hxy.ne⟩ ⟨trivial, yz.ne'⟩ (hxy.trans yz).le
+
+lemma rightDeriv_mono' (hfc : ConvexOn ℝ (Ici 0) f) : MonotoneOn (rightDeriv f) (Ioi 0) := by
+  intro x (hx : 0 < x) y (hy : 0 < y) hxy
+  rcases eq_or_lt_of_le hxy with rfl | hxy; · rfl
+  rw [hfc.rightDeriv_eq_sInf_slope' hx, hfc.rightDeriv_eq_sInf_slope' hy]
+  refine csInf_le_of_le (b := slope f x y) (bddBelow_slope_Ioi' hfc x hx)
+    ⟨y, by simp [hxy]⟩ (le_csInf nonempty_of_nonempty_subtype ?_)
+  rintro _ ⟨z, (yz : y < z), rfl⟩
+  rw [slope_comm]
+  exact slope_mono hfc hy.le ⟨hx.le, hxy.ne⟩ ⟨hy.le.trans yz.le, yz.ne'⟩ (hxy.trans yz).le
 
 lemma leftDeriv_mono (hfc : ConvexOn ℝ univ f) : Monotone (leftDeriv f) := by
   rw [leftDeriv_eq_rightDeriv]
