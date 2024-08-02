@@ -248,6 +248,13 @@ lemma rightDeriv_le_toReal_derivAtTop (h_cvx : ConvexOn ℝ (Ici 0) f) (h : deri
   · exact mem_Ioi.mpr (hx.trans_le ((le_max_right _ _).trans hy))
   · exact (le_max_right _ _).trans hy
 
+lemma rightDeriv_le_derivAtTop (h_cvx : ConvexOn ℝ (Ici 0) f) (hx : 0 < x) :
+    rightDeriv f x ≤ derivAtTop f := by
+  by_cases h : derivAtTop f = ⊤
+  · exact h ▸ le_top
+  · rw [← EReal.coe_toReal h h_cvx.derivAtTop_ne_bot, EReal.coe_le_coe_iff]
+    exact rightDeriv_le_toReal_derivAtTop h_cvx h hx
+
 lemma slope_le_derivAtTop (h_cvx : ConvexOn ℝ (Ici 0) f)
     (h : derivAtTop f ≠ ⊤) {x y : ℝ} (hx : 0 ≤ x) (hxy : x < y) :
     (f y - f x) / (y - x) ≤ (derivAtTop f).toReal :=
