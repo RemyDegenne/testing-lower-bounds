@@ -61,8 +61,9 @@ lemma kl_toReal_of_ac (h : μ ≪ ν) : (kl μ ν).toReal = ∫ a, llr μ ν a �
   · rw [kl_of_ac_of_integrable h h_int, EReal.toReal_coe]
   · rw [kl_of_not_integrable h_int, integral_undef h_int, EReal.toReal_top]
 
-lemma rightDeriv_mul_log {x : ℝ} (hx : 0 ≤ x) : rightDeriv (fun x ↦ x * log x) x = log x + 1 := by
-  sorry
+lemma rightDeriv_mul_log {x : ℝ} (hx : x ≠ 0) : rightDeriv (fun x ↦ x * log x) x = log x + 1 :=
+  rightDeriv_of_hasDerivAt (Real.hasDerivAt_mul_log hx)
+
 
 lemma derivAtTop_mul_log : derivAtTop (fun x ↦ x * log x) = ⊤ := by
   refine derivAtTop_of_tendsto_atTop ?_
@@ -70,7 +71,7 @@ lemma derivAtTop_mul_log : derivAtTop (fun x ↦ x * log x) = ⊤ := by
     tendsto_log_atTop.atTop_add tendsto_const_nhds
   refine (tendsto_congr' ?_).mpr h_tendsto
   rw [EventuallyEq, eventually_atTop]
-  exact ⟨0, fun _ ↦ rightDeriv_mul_log⟩
+  exact ⟨1, fun _ hx ↦ rightDeriv_mul_log (zero_lt_one.trans_le hx).ne'⟩
 
 lemma fDiv_mul_log_eq_top_iff [IsFiniteMeasure μ] [SigmaFinite ν] :
     fDiv (fun x ↦ x * log x) μ ν = ⊤ ↔ μ ≪ ν → ¬ Integrable (llr μ ν) μ := by
