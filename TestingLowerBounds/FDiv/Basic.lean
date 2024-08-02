@@ -127,25 +127,21 @@ lemma fDiv_ne_bot_of_derivAtTop_nonneg (hf : 0 ≤ derivAtTop f) : fDiv f μ ν 
 lemma fDiv_zero (μ ν : Measure α) : fDiv (fun _ ↦ 0) μ ν = 0 := by simp [fDiv]
 
 lemma fDiv_congr' (μ ν : Measure α) (hfg : ∀ᵐ x ∂ν.map (fun x ↦ ((∂μ/∂ν) x).toReal), f x = g x)
-    (hfg' : ∀ᶠ x in atTop, f x = g x) :
+    (hfg' : f =ᶠ[atTop] g) :
     fDiv f μ ν = fDiv g μ ν := by
   have h : (fun a ↦ f ((∂μ/∂ν) a).toReal) =ᶠ[ae ν] fun a ↦ g ((∂μ/∂ν) a).toReal :=
     ae_of_ae_map (Measure.measurable_rnDeriv μ ν).ennreal_toReal.aemeasurable hfg
-  rw [fDiv]
+  rw [fDiv, derivAtTop_congr hfg']
   congr 2
   · exact eq_iff_iff.mpr ⟨fun hf ↦ hf.congr h, fun hf ↦ hf.congr h.symm⟩
   · exact EReal.coe_eq_coe_iff.mpr (integral_congr_ae h)
-  · congr 1
-    sorry --we should add a lemma for derivAtTop saying that if f = g eventually then derivAtTop f = derivAtTop g
 
 lemma fDiv_congr (μ ν : Measure α) (h : ∀ x ≥ 0, f x = g x) :
     fDiv f μ ν = fDiv g μ ν := by
   have (x : α) : f ((∂μ/∂ν) x).toReal = g ((∂μ/∂ν) x).toReal := h _ ENNReal.toReal_nonneg
-  rw [fDiv]
-  congr 3
-  · simp_rw [this]
-  · simp_rw [this]
-  sorry --we should add a lemma for derivAtTop saying that if f = g eventually then derivAtTop f = derivAtTop g
+  simp_rw [fDiv, this, derivAtTop_congr_nonneg h]
+  congr
+  simp_rw [this]
 
 -- TODO: finish the proof of `fDiv_of_eq_on_nonneg` and use it to shorten the proof of `fDiv_of_zero_on_nonneg`.
 --the name feels a bit wrong, what could I write instead of `on_nonneg`?
