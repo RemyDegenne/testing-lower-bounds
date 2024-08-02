@@ -498,29 +498,15 @@ D_f(\mu \otimes \kappa, \mu \otimes \eta)
 \end{proof}
 
 \begin{lemma}
-  \label{lem:convex_taylor_gt}
+  \label{lem:convex_taylor}
   \lean{ConvexOn.convex_taylor}
   \leanok
   \uses{def:curvatureMeasure}
-  For $f: \mathbb{R} \to \mathbb{R}$ a convex function and $x,y \in \mathbb{R}$ with $x < y$,
+  For $f: \mathbb{R} \to \mathbb{R}$ a convex function and $x,y \in \mathbb{R}$,
   \begin{align*}
-  f(y) - f(x) - (y - x)f'_+(x) = \int_{z \in (x,y]} (y - z) \partial \gamma_f \: .
-  \end{align*}
-\end{lemma}
-
-\begin{proof}\leanok
-\uses{}
-
-\end{proof}
-
-\begin{lemma}
-  \label{lem:convex_taylor_lt}
-  \lean{ConvexOn.convex_taylor}
-  \leanok
-  \uses{def:curvatureMeasure}
-  For $f: \mathbb{R} \to \mathbb{R}$ a convex function and $x,y \in \mathbb{R}$ with $y < x$,
-  \begin{align*}
-  f(y) - f(x) - (y - x)f'_+(x) = \int_{z \in (y,x]} (z - y) \partial \gamma_f \: .
+  f(y) - f(x) - (y - x)f'_+(x) &= \int_{z \in (x,y]} (y - z) \partial \gamma_f & \text{ if } x \le y \: ,
+  \\
+  f(y) - f(x) - (y - x)f'_+(x) &= \int_{z \in (y,x]} (z - y) \partial \gamma_f & \text{ if } y \le x \: .
   \end{align*}
 \end{lemma}
 
@@ -543,7 +529,7 @@ D_f(\mu \otimes \kappa, \mu \otimes \eta)
 \end{corollary}
 
 \begin{proof}%\leanok
-\uses{lem:convex_taylor_lt, lem:convex_taylor_gt}
+\uses{lem:convex_taylor}
 
 \end{proof}
 
