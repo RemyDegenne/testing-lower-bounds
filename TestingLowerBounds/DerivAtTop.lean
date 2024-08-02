@@ -186,7 +186,7 @@ lemma derivAtTop_add' (hf_cvx : ConvexOn ℝ (Ici 0) f) (hg_cvx : ConvexOn ℝ (
     rw [EventuallyEq, eventually_atTop]
     refine ⟨1, fun x hx ↦ ?_⟩
     change _ = ↑(rightDeriv (fun x ↦ f x + g x) x)
-    rw [rightDeriv_add (hf_cvx.differentiableWithinAt_Ioi' (zero_lt_one.trans_le hx))
+    rw [rightDeriv_add_apply' (hf_cvx.differentiableWithinAt_Ioi' (zero_lt_one.trans_le hx))
         (hg_cvx.differentiableWithinAt_Ioi' (zero_lt_one.trans_le hx))]
     simp only [EReal.coe_add]
   have h_cont : ContinuousAt (fun p : (EReal × EReal) ↦ p.1 + p.2) (derivAtTop f, derivAtTop g) :=

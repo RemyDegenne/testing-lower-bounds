@@ -156,6 +156,11 @@ lemma rightDeriv_add_apply {f g : ℝ → ℝ} {x : ℝ} (hf : DifferentiableWit
   simp_rw [rightDeriv_def, ← derivWithin_add (uniqueDiffWithinAt_Ioi x) hf hg]
   rfl
 
+lemma rightDeriv_add_apply' {f g : ℝ → ℝ} {x : ℝ} (hf : DifferentiableWithinAt ℝ f (Ioi x) x)
+    (hg : DifferentiableWithinAt ℝ g (Ioi x) x) :
+    rightDeriv (fun x ↦ f x + g x) x = rightDeriv f x + rightDeriv g x :=
+  rightDeriv_add_apply hf hg
+
 lemma rightDeriv_add {f g : ℝ → ℝ} (hf : ∀ x, DifferentiableWithinAt ℝ f (Ioi x) x)
     (hg : ∀ x, DifferentiableWithinAt ℝ g (Ioi x) x) :
     rightDeriv (f + g) = fun x ↦ rightDeriv f x + rightDeriv g x := by
