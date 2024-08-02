@@ -955,6 +955,7 @@ lemma fDiv_eq_lintegral_fDiv_statInfoFun_of_mutuallySingular [IsFiniteMeasure μ
     (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f) (h_ms : μ ⟂ₘ ν) :
     fDiv f μ ν = ∫⁻ x, (fDiv (statInfoFun 1 x) μ ν).toENNReal ∂(curvatureMeasure f)
       + f 1 * ν univ + rightDeriv f 1 * (μ univ - ν univ) := by
+  have hf_cvx' : ConvexOn ℝ (Ici 0) f := (hf_cvx.subset (fun _ _ ↦ trivial) (convex_Ici 0))
   have h1 : ∫⁻ x, (statInfoFun 1 x 0 * (ν univ).toEReal
         + derivAtTop (statInfoFun 1 x) * μ univ).toENNReal ∂curvatureMeasure f
       = (∫⁻ x, ENNReal.ofReal (statInfoFun 1 x 0) ∂curvatureMeasure f) * ν univ
@@ -990,20 +991,17 @@ lemma fDiv_eq_lintegral_fDiv_statInfoFun_of_mutuallySingular [IsFiniteMeasure μ
         by_cases h_top : derivAtTop f = ⊤
         · rw [h_top, EReal.top_sub_coe, EReal.toENNReal_top,
             StieltjesFunction.measure_Ioi_of_tendsto_atTop_atTop]
-          --here we need the new def of derivAtTop
-          sorry
-        · have ⟨x, hx⟩ := EReal.eq_coe_of_ne_top_of_ne_bot h_top
-            (derivAtTop_ne_bot (hf_cvx.subset (fun _ _ ↦ trivial) (convex_Ici 0)))
-          rw [hx, StieltjesFunction.measure_Ioi _ _ 1 (l := x)]
+          exact hf_cvx'.derivAtTop_eq_top_iff.mp h_top
+        · have ⟨x, hx⟩ := EReal.eq_coe_of_ne_top_of_ne_bot h_top hf_cvx'.derivAtTop_ne_bot
+          rw [hx, StieltjesFunction.measure_Ioi _ ?_ 1 (l := x)]
           · norm_cast
-          --here we need the new def of derivAtTop
-          sorry
+          exact (hx ▸ hf_cvx'.tendsto_toReal_derivAtTop h_top :)
   simp_rw [fDiv_of_mutuallySingular h_ms, h1]
   push_cast
   rw [lintegral_statInfoFun_one_zero hf_cvx hf_cont, h2, EReal.coe_toENNReal]
   swap
-  · --this should be fairly simple to prove when we have the new def of derivAtTop, since the right deriv is monotone and the derivAtTop is the limit of the right deriv, maybe it could even become a separate lemma
-    sorry
+  · rw [EReal.sub_nonneg (EReal.coe_ne_top _) (EReal.coe_ne_bot _)]
+    exact rightDeriv_le_derivAtTop hf_cvx' zero_lt_one
   simp_rw [sub_eq_add_neg, ← ENNReal.toReal_toEReal_of_ne_top (measure_ne_top ν _),
     ← ENNReal.toReal_toEReal_of_ne_top (measure_ne_top μ _),
     EReal.add_mul_coe_of_nonneg ENNReal.toReal_nonneg, ← EReal.coe_neg (ν univ).toReal,
