@@ -787,7 +787,7 @@ lemma fDiv_mono' (hf_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
 
 lemma fDiv_nonneg_of_nonneg (hf : 0 ≤ f) (hf' : 0 ≤ derivAtTop f) :
     0 ≤ fDiv f μ ν :=
-  fDiv_zero μ ν ▸ fDiv_mono (integrable_zero α ℝ ν) hf (derivAtTop_zero ▸ hf')
+  fDiv_zero μ ν ▸ fDiv_mono' (integrable_zero α ℝ ν) hf (derivAtTop_zero ▸ hf')
 
 lemma fDiv_eq_zero_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_mass : μ Set.univ = ν Set.univ)
     (hf_deriv : derivAtTop f = ⊤) (hf_cvx : StrictConvexOn ℝ (Ici 0) f)
