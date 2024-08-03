@@ -143,9 +143,7 @@ lemma fDiv_congr (μ ν : Measure α) (h : ∀ x ≥ 0, f x = g x) :
   congr
   simp_rw [this]
 
--- TODO: finish the proof of `fDiv_of_eq_on_nonneg` and use it to shorten the proof of `fDiv_of_zero_on_nonneg`.
---the name feels a bit wrong, what could I write instead of `on_nonneg`?
-lemma fDiv_of_zero_on_nonneg (μ ν : Measure α) (hf : ∀ x ≥ 0, f x = 0) :
+lemma fDiv_eq_zero_of_forall_nonneg (μ ν : Measure α) (hf : ∀ x ≥ 0, f x = 0) :
     fDiv f μ ν = 0 := by
   have (x : α) : f ((∂μ/∂ν) x).toReal = 0 := hf _ ENNReal.toReal_nonneg
   rw [fDiv_of_integrable (by simp [this])]
