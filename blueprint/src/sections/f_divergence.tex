@@ -476,13 +476,14 @@ D_f(\mu \otimes \kappa, \mu \otimes \eta)
 \subsection{Integral representation of $f$-divergences}
 
 
-\begin{definition}
+\begin{definition}[Curvature measure]
   \label{def:curvatureMeasure}
   \lean{ConvexOn.curvatureMeasure}
   \leanok
   \uses{}
-  Let $f: \mathbb{R} \to \mathbb{R}$ be a convex function. Then $f'_+(x) \coloneqq \lim_{y \downarrow x}\frac{f(y) - f(x)}{y - x}$ is a Stieltjes function (a monotone right continuous function) and it defines a measure $\gamma_f$ on $\mathbb{R}$ by $\gamma_f((x,y]) \coloneqq f'_+(y) - f'_+(x)$~. \cite{liese2012phi} calls $\gamma_f$ the curvature measure of $f$.
+  Let $f: \mathbb{R} \to \mathbb{R}$ be a convex function. Then its right derivative $f'_+(x) \coloneqq \lim_{y \downarrow x}\frac{f(y) - f(x)}{y - x}$ is a Stieltjes function (a monotone right continuous function) and it defines a measure $\gamma_f$ on $\mathbb{R}$ by $\gamma_f((x,y]) \coloneqq f'_+(y) - f'_+(x)$~. \cite{liese2012phi} calls $\gamma_f$ the curvature measure of $f$.
 \end{definition}
+
 
 \begin{lemma}
   \label{lem:curvatureMeasure_mul}
@@ -497,55 +498,52 @@ D_f(\mu \otimes \kappa, \mu \otimes \eta)
 
 \end{proof}
 
-\begin{lemma}
-  \label{lem:convex_taylor_gt}
-  \lean{ConvexOn.convex_taylor}
-  \leanok
-  \uses{def:curvatureMeasure}
-  For $f: \mathbb{R} \to \mathbb{R}$ a convex function and $x,y \in \mathbb{R}$ with $x < y$,
-  \begin{align*}
-  f(y) - f(x) - (y - x)f'_+(x) = \int_{z \in (x,y]} (y - z) \partial \gamma_f \: .
-  \end{align*}
-\end{lemma}
-
-\begin{proof}\leanok
-\uses{}
-
-\end{proof}
 
 \begin{lemma}
-  \label{lem:convex_taylor_lt}
-  \lean{ConvexOn.convex_taylor}
-  \leanok
-  \uses{def:curvatureMeasure}
-  For $f: \mathbb{R} \to \mathbb{R}$ a convex function and $x,y \in \mathbb{R}$ with $y < x$,
-  \begin{align*}
-  f(y) - f(x) - (y - x)f'_+(x) = \int_{z \in (y,x]} (z - y) \partial \gamma_f \: .
-  \end{align*}
-\end{lemma}
-
-\begin{proof}\leanok
-\uses{}
-
-\end{proof}
-
-\begin{corollary}
-  \label{cor:convex_taylor_one}
+  \label{lem:curvatureMeasure_add}
   %\lean{}
   %\leanok
   \uses{def:curvatureMeasure}
-  For $f: \mathbb{R} \to \mathbb{R}$ a convex function with $f(1) = 0$ and $f'_+(1) = 0$~, for all $x \in \mathbb{R}$~,
-  \begin{align*}
-  f(x) &= \int_{y \in (x, 1]} (y - x) \partial\gamma_f & \text{ for } x \le 1 \: ,
-  \\
-  f(x) &= \int_{y \in (1, x]} (x - y) \partial\gamma_f & \text{ for } x > 1 \: ,
-  \end{align*}
-\end{corollary}
+  For $f,g: \mathbb{R} \to \mathbb{R}$ two convex functions, the curvature measure of $f+g$ is $\gamma_{f+g} = \gamma_f + \gamma_g$~.
+\end{lemma}
 
 \begin{proof}%\leanok
-\uses{lem:convex_taylor_lt, lem:convex_taylor_gt}
+\uses{}
 
 \end{proof}
+
+
+\begin{lemma}
+  \label{lem:convex_taylor}
+  \lean{ConvexOn.convex_taylor}
+  \leanok
+  \uses{def:curvatureMeasure}
+  For $f: \mathbb{R} \to \mathbb{R}$ a convex function and $x,y \in \mathbb{R}$,
+  \begin{align*}
+  f(y) - f(x) - (y - x)f'_+(x) &= \int_{z \in (x,y]} (y - z) \partial \gamma_f & \text{ if } x \le y \: ,
+  \\
+  f(y) - f(x) - (y - x)f'_+(x) &= \int_{z \in (y,x]} (z - y) \partial \gamma_f & \text{ if } y \le x \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{}
+Let $\Lambda$ be the Lebesgue measure and let $x < y$. Since $f$ has right derivative $f'_+$ in $(x,y)$ and $f'_+$ is integrable on that interval,
+\begin{align*}
+f(y) - f(x) = \int_{z \in (x, y]} f'_+(z) \partial \Lambda
+\: .
+\end{align*}
+We now integrate by parts, using Theorem TODO. $\Lambda$ is the measure obtained from the Stieltjes function $z \mapsto z - y$.
+\begin{align*}
+\int_{z \in (x, y]} f'_+(z) \partial \Lambda
+&= - \int_{z \in (x,y]} (z - y)\partial \gamma_f + f'_+(y)(y - y) - f'_+(x)(x - y)
+\\
+&= \int_{z \in (x,y]} (y - z)\partial \gamma_f + f'_+(x)(y - x)
+\: .
+\end{align*}
+Putting the two equalities together, we get the result for $x < y$. The proof for $x > y$ is similar, and for $x = y$ both sides of both equations are zero.
+\end{proof}
+
 
 \begin{definition}
   \label{def:statInfoFun}
@@ -560,30 +558,35 @@ D_f(\mu \otimes \kappa, \mu \otimes \eta)
   \end{align*}
 \end{definition}
 
+
 \begin{corollary}
   \label{cor:convex_taylor_statInfoFun}
   \lean{ProbabilityTheory.integral_statInfoFun_curvatureMeasure}
   \leanok
   \uses{def:curvatureMeasure, def:statInfoFun}
-  For $f: \mathbb{R} \to \mathbb{R}$ a convex function with $f(1) = 0$ and $f'_+(1) = 0$~, for all $x \in \mathbb{R}$~,
+  For $f: \mathbb{R} \to \mathbb{R}$ a convex function, for all $x \in \mathbb{R}$~,
   \begin{align*}
-  f(x) &= \int_{y} \phi_{1,y}(x) \partial\gamma_f \: .
+  f(x) &= f(1) + f'_+(1) (x - 1) + \int_{y} \phi_{1,y}(x) \partial\gamma_f \: .
   \end{align*}
 \end{corollary}
 
 \begin{proof}\leanok
-\uses{cor:convex_taylor_one}
-By Corollary~\ref{cor:convex_taylor_one}, for $x > 1$,
+\uses{lem:convex_taylor}
+By Lemma~\ref{lem:convex_taylor}, for $x > 1$,
 \begin{align*}
-f(x) = \int_{y \in (1, x]} (x - y) \partial\gamma_f
+f(x) - f(1) - f'_+(1) (x - 1)
+&= \int_{y \in (1, x]} (x - y) \partial\gamma_f
+\\
 &= \int_{y \in (1, +\infty)} \max\{0, x - y\} \partial\gamma_f
-= \int_{y \in (1, +\infty)} \phi_{1,y}(x) \partial\gamma_f
+\\
+&= \int_{y \in (1, +\infty)} \phi_{1,y}(x) \partial\gamma_f
 \: .
 \end{align*}
 That final integral is equal to $\int_y \phi_{1,y}(x) \partial\gamma_f$ (without the restriction to $(1, +\infty)$) because $\phi_{1,y}(x)$ is zero outside of $(1, +\infty)$ for $x \ge 1$.
 
 The case of $x < 1$ is similar.
 \end{proof}
+
 
 \begin{lemma}
   \label{lem:curvatureMeasure_statInfoFun}
@@ -605,7 +608,7 @@ The following theorem is inspired from \cite{liese2006divergences,liese2012phi} 
   %\lean{}
   %\leanok
   \uses{def:fDiv, def:curvatureMeasure, def:eGamma}
-  For $\mu, \nu \in \mathcal M(\mathcal X)$,
+  For two finite measures $\mu, \nu \in \mathcal M(\mathcal X)$,
   \begin{align*}
   D_f(\mu, \nu) = f(1) \nu(\mathcal X) + f'_+(1)(\mu(\mathcal X) - \nu(\mathcal X)) + \int_y D_{\phi_{1,y}}(\mu, \nu) \partial\gamma_f \: .
   \end{align*}
@@ -615,9 +618,7 @@ For probability measures, $D_{\phi_{1,y}}(\mu, \nu) = E_y(\mu, \nu)$~, but these
 
 \begin{proof}%\leanok
 \uses{cor:convex_taylor_statInfoFun}
-TODO: this proof ignores the non-integral part of divergences and should be fixed.
-
-We prove the result for $f(1) = 0$ and $f'_+(1) = 0$. The general case is then a consequence of Lemma TODO.
+We prove the result for $f(1) = 0$ and $f'_+(1) = 0$ for simplicity of exposition.
 
 From Corollary~\ref{cor:convex_taylor_statInfoFun} we get that $f(x) = \int_y \phi_{1,y}(x) \partial\gamma_f$~.
 From this and the theorem of Fubini,
@@ -627,7 +628,26 @@ From this and the theorem of Fubini,
 = \int_{y} \int_{x} \phi_{1,y} \left(\frac{d \mu}{d \nu}(x) \right) \partial\nu \partial\gamma_f
 \: .
 \end{align*}
-The inner integral is a divergence: $\int_{x} \phi_{1,y} \left(\frac{d \mu}{d \nu}(x) \right) \partial\nu = D_{\phi_{1,y}}(\mu, \nu)$~.
+For the mutually singular part of the divergence $D_f$,
+\begin{align*}
+f'(\infty)
+= f'_+(\infty) - f'_+(1) 
+= \gamma_f((1,+\infty))
+= \int_{y > 1} 1 \partial \gamma_f
+= \int_{y > 1} \phi_{1,y}'(\infty) \partial \gamma_f
+\: .
+\end{align*}
+The last integral is equal to $\int_{y \in \mathbb{R}} \phi_{1,y}'(\infty) \partial \gamma_f$ since $\phi_{1,y}'(\infty) = 0$ for $y \le 1$.
+Finally,
+\begin{align*}
+D_f(\mu, \nu)
+&= \int_x f\left( \frac{d \mu}{d \nu}(x) \right) \partial\nu + f'(\infty) \mu_{\perp \nu}(\mathcal X)
+\\
+&= \int_{y} \left(\int_{x} \phi_{1,y} \left(\frac{d \mu}{d \nu}(x) \right) \partial\nu + \phi_{1,y}'(\infty) \mu(\mathcal X) \right) \partial\gamma_f
+\\
+&= \int_y D_{\phi_{1,y}}(\mu, \nu) \partial \gamma_f
+\: .
+\end{align*}
 \end{proof}
 
 TODO: define $\Gamma_f$.
