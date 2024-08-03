@@ -91,6 +91,14 @@ lemma rightDeriv_congr_atTop {g : ℝ → ℝ} (h : f =ᶠ[atTop] g) :
     filter_upwards [h_ge] using ha
   filter_upwards [h'] with a ha using ha.rightDeriv_eq_nhds
 
+lemma rightDeriv_of_hasDerivAt {f : ℝ → ℝ} {f' : ℝ} {x : ℝ} (h : HasDerivAt f f' x) :
+    rightDeriv f x = f' := by
+  rw [rightDeriv_def, h.hasDerivWithinAt.derivWithin (uniqueDiffWithinAt_Ioi x)]
+
+lemma leftDeriv_of_hasDerivAt {f : ℝ → ℝ} {f' : ℝ} {x : ℝ} (h : HasDerivAt f f' x) :
+    leftDeriv f x = f' := by
+  rw [leftDeriv_def, h.hasDerivWithinAt.derivWithin (uniqueDiffWithinAt_Iio x)]
+
 @[simp]
 lemma rightDeriv_zero : rightDeriv 0 = 0 := by
   ext x
