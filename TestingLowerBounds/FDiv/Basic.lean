@@ -769,7 +769,7 @@ lemma fDiv_nonneg [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
 some lemma like `derivAtTop_mono`, and I'm not sure this is true in gneral, without any assumption on `f`.
 We could prove it if we had some lemma saying that the new derivAtTop is equal to the old definition,
 this is probably false in general, but under some assumptions it should be true. -/
-lemma fDiv_mono' (hf_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
+lemma fDiv_mono'' (hf_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
     (hfg : f ≤ᵐ[ν.map (fun x ↦ ((∂μ/∂ν) x).toReal)] g) (hfg' : derivAtTop f ≤ derivAtTop g) :
     fDiv f μ ν ≤ fDiv g μ ν := by
   rw [fDiv_of_integrable hf_int, fDiv]
@@ -780,9 +780,10 @@ lemma fDiv_mono' (hf_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
       ae_of_ae_map (Measure.measurable_rnDeriv μ ν).ennreal_toReal.aemeasurable hfg
   · exact EReal.coe_ennreal_nonneg _
 
-lemma fDiv_mono (hf_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
+/- The hypothesis `hfg'` can probably be removed if we ask for the functions to be convex, since then it is true that `derivAtTop` is monotone, but we still don't have the result formalized. Moreover in the convex case we can also relax `hf_int` and only ask for a.e. strong measurability of `f` (at least when `μ` and `ν` are finite), because then the negative part of the function is always integrable, hence if `f` is not integrable `g` is also not integrable. -/
+lemma fDiv_mono' (hf_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
     (hfg : f ≤ g) (hfg' : derivAtTop f ≤ derivAtTop g) : fDiv f μ ν ≤ fDiv g μ ν :=
-  fDiv_mono' hf_int (eventually_of_forall hfg) hfg'
+  fDiv_mono'' hf_int (eventually_of_forall hfg) hfg'
 
 lemma fDiv_nonneg_of_nonneg (hf : 0 ≤ f) (hf' : 0 ≤ derivAtTop f) :
     0 ≤ fDiv f μ ν :=
