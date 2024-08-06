@@ -6,6 +6,7 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 import Mathlib.MeasureTheory.Measure.Tilted
 import Mathlib.MeasureTheory.Function.ConditionalExpectation.Basic
 import TestingLowerBounds.ForMathlib.SetIntegral
+import TestingLowerBounds.ForMathlib.Measure
 
 /-!
 
@@ -110,6 +111,18 @@ lemma rnDeriv_eq_zero_ae_of_zero_measure (ν : Measure α) {s : Set α} (hs : Me
     (hμ : μ s = 0) : ∀ᵐ x ∂ν, x ∈ s → (μ.rnDeriv ν) x = 0 := by
   rw [← MeasureTheory.setLIntegral_eq_zero_iff hs (Measure.measurable_rnDeriv μ ν)]
   exact le_antisymm (hμ ▸ Measure.setLIntegral_rnDeriv_le s) (zero_le _)
+
+--PR this, maybe it could go after `Measure.singularPart_restrict`?
+lemma measure_sub_singularPart (μ ν : Measure α) [HaveLebesgueDecomposition μ ν] [IsFiniteMeasure μ] :
+    μ - μ.singularPart ν = ν.withDensity (μ.rnDeriv ν) := by
+  nth_rw 1 [← rnDeriv_add_singularPart μ ν]
+  exact add_sub_cancel
+
+--PR this, maybe together with `Measure.measure_sub_singularPart`
+lemma measure_sub_rnDeriv (μ ν : Measure α) [HaveLebesgueDecomposition μ ν] [IsFiniteMeasure μ] :
+    μ - ν.withDensity (μ.rnDeriv ν) = μ.singularPart ν := by
+  nth_rw 1 [← singularPart_add_rnDeriv μ ν]
+  exact add_sub_cancel
 
 /--Singular part set of μ with respect to ν.-/
 def singularPartSet (μ ν : Measure α) := {x | ν.rnDeriv (μ + ν) x = 0}
@@ -307,5 +320,14 @@ lemma _root_.MeasureTheory.Measure.rnDeriv_mul_rnDeriv' {κ : Measure α} [Sigma
     Measure.rnDeriv_eq_zero_of_mutuallySingular h_sing hνκ] with x hx1 hx2 hx3
   nth_rw 2 [hμν]
   rw [hx1, Pi.add_apply, hx2, Pi.mul_apply, hx3, Pi.zero_apply, zero_add]
+
+--PR this to mathlib maybe just after `integral_toReal_rnDeriv` (we need to check that measure_sub_singularPart is imported there)?
+lemma _root_.MeasureTheory.Measure.integral_toReal_rnDeriv' {α : Type*} {m : MeasurableSpace α}
+    {μ : Measure α} {ν : Measure α} [IsFiniteMeasure μ] [SigmaFinite ν] :
+    ∫ (x : α), (μ.rnDeriv ν x).toReal ∂ν
+      = (μ Set.univ).toReal - ((μ.singularPart ν) Set.univ).toReal := by
+  rw [← ENNReal.toReal_sub_of_le (μ.singularPart_le ν Set.univ) (measure_ne_top _ _),
+    ← Measure.sub_apply .univ (Measure.singularPart_le μ ν), Measure.measure_sub_singularPart,
+    ← Measure.setIntegral_toReal_rnDeriv_eq_withDensity, integral_univ]
 
 end MeasureTheory.Measure

@@ -62,12 +62,20 @@ lemma boolMeasure_apply_false (a b : ℝ≥0∞) : boolMeasure a b {false} = a :
 @[simp]
 lemma boolMeasure_apply_true (a b : ℝ≥0∞) : boolMeasure a b {true} = b := by simp [boolMeasure]
 
+@[simp]
+lemma boolMeasure_apply_univ (a b : ℝ≥0∞) : boolMeasure a b {false, true} = a + b := by
+  simp [boolMeasure]
+
 lemma measure_eq_boolMeasure (π : Measure Bool) : π = boolMeasure (π {false}) (π {true}) := by
   ext <;> simp
 
 lemma boolMeasure_withDensity (π : Measure Bool) (f : Bool → ℝ≥0∞) :
     π.withDensity f = boolMeasure (f false * π {false}) (f true * π {true}) := by
   ext <;> simp [lintegral_dirac, mul_comm]
+
+instance {x y : ℝ} : IsFiniteMeasure (boolMeasure (.ofReal x) (.ofReal y)) := by
+  constructor
+  simp
 
 end BoolMeasure
 

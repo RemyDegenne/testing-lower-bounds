@@ -213,6 +213,29 @@ end Kernel
 
 end ParallelComp
 
+section AbsolutelyContinuous
+
+lemma Measure.absolutelyContinuous_comp {μ ν : Measure α} {κ η : Kernel α γ}
+    [SFinite μ] [SFinite ν] [IsSFiniteKernel κ] [IsSFiniteKernel η]
+    (hμν : μ ≪ ν) (hκη : ∀ᵐ a ∂μ, κ a ≪ η a) :
+    κ ∘ₘ μ ≪ η ∘ₘ ν := by
+  simp_rw [Measure.comp_eq_snd_compProd, Measure.snd]
+  exact Measure.AbsolutelyContinuous.map (Kernel.Measure.absolutelyContinuous_compProd hμν hκη)
+    measurable_snd
+
+lemma Measure.absolutelyContinuous_comp_left {μ ν : Measure α} [SFinite μ] [SFinite ν]
+    (hμν : μ ≪ ν) (κ : Kernel α γ) [IsSFiniteKernel κ]  :
+    κ ∘ₘ μ ≪ κ ∘ₘ ν :=
+  absolutelyContinuous_comp hμν (ae_of_all μ fun _ _ a ↦ a)
+
+lemma Measure.absolutelyContinuous_comp_right (μ : Measure α) {κ η : Kernel α γ}
+    [SFinite μ] [IsSFiniteKernel κ] [IsSFiniteKernel η]
+    (hκη : ∀ᵐ a ∂μ, κ a ≪ η a) :
+    κ ∘ₘ μ ≪ η ∘ₘ μ :=
+  Measure.absolutelyContinuous_comp μ.absolutelyContinuous_refl hκη
+
+end AbsolutelyContinuous
+
 section SingularPart
 
 lemma singularPart_compProd'' [MeasurableSpace.CountableOrCountablyGenerated α β]
