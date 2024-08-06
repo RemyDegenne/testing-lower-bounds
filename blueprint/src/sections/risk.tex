@@ -126,119 +126,39 @@ TODO: ``often'', $\mathcal R^*_B = \mathcal R^*$.
 The infimum over all Markov kernels in the definition of the Bayes risk of $\pi$ is bounded from above by the infimum restricted to constant, deterministic Markov kernels.
 \end{proof}
 
-\paragraph{Generalized Bayes estimator}
 
 \begin{lemma}
-  \label{lem:bayesianRisk_bayesInv}
-  \lean{ProbabilityTheory.bayesianRisk_eq_lintegral_bayesInv_prod}
-  \leanok
-  \uses{def:bayesianRisk, def:bayesInv}
-  The Bayesian risk of a Markov kernel $\hat{y} : \mathcal X \rightsquigarrow \mathcal Z$ with respect to a prior $\pi \in \mathcal M(\Theta)$ on $(P, y, \ell')$ satisfies
+  \label{lem:bayesRisk_const}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesRisk}
+  The Bayes risk of a prior $\pi \in \mathcal M(\Theta)$ on $(P, y, \ell')$ with $P$ a constant Markov kernel is
   \begin{align*}
-  R^P_\pi(\hat{y}) = ((P_\pi^\dagger \times \hat{y}) \circ P \circ \pi)\left[(\theta, z) \mapsto \ell'(y(\theta), z)\right] \: .
-  \end{align*}
-  In that expression, $P_\pi^\dagger$ is the Bayesian inverse of $P$ with respect to $\pi$.
-\end{lemma}
-
-\begin{proof}\leanok
-\uses{}
-Use the main property of the Bayesian inverse.
-\begin{align*}
-  (P_\pi^\dagger \times \hat{y}) \circ P \circ \pi
-  &= swap \circ (\hat{y} \times P_\pi^\dagger) \circ (P \circ \pi)
-  \\
-  &= swap \circ (\hat{y} \parallel P_\pi^\dagger) \circ copy \circ (P \circ \pi)
-  \\
-  &= swap \circ (\hat{y} \parallel \mathrm{id}) \circ (\mathrm{id} \parallel P_\pi^\dagger) \circ copy \circ (P \circ \pi)
-  \\
-  &= swap \circ (\hat{y} \parallel \mathrm{id}) \circ (P \parallel \mathrm{id}) \circ copy \circ \pi
-  \\
-  &= (\mathrm{id} \parallel \hat{y}) \circ (P \parallel \mathrm{id}) \circ swap \circ copy \circ \pi
-  \\
-  &= (\mathrm{id} \parallel \hat{y}) \circ (P \parallel \mathrm{id}) \circ copy \circ \pi
-  \\
-  &= (P \parallel \hat{y}) \circ copy \circ \pi
-  \\
-  &= (P \times \hat{y}) \circ \pi
-  \\
-  &= \pi \otimes (\hat{y} \circ P)
+  \mathcal R^P_\pi
+  = \inf_{z \in \mathcal Z} \pi\left[\theta \mapsto \ell'(y(\theta), z)\right]
   \: .
   \end{align*}
-\end{proof}
-
-\begin{lemma}
-  \label{lem:bayesianRisk_ge_inf_bayesInv}
-  \lean{ProbabilityTheory.bayesianRisk_ge_lintegral_iInf_bayesInv}
-  \leanok
-  \uses{def:bayesianRisk, def:bayesInv}
-  The Bayesian risk of a Markov kernel $\hat{y} : \mathcal X \rightsquigarrow \mathcal Z$ with respect to a prior $\pi \in \mathcal M(\Theta)$ on $(P, y, \ell')$ satisfies
-  \begin{align*}
-  R^P_\pi(\hat{y}) \ge (P \circ \pi)\left[x \mapsto \inf_{z \in \mathcal Z} P_\pi^\dagger(x) \left[\theta \mapsto \ell'(y(\theta), z)\right]\right] \: .
-  \end{align*}
+  In particular, it does not depend on $P$.
 \end{lemma}
 
-\begin{proof}\leanok
-\uses{lem:bayesianRisk_bayesInv}
-Starting from the equality of Lemma~\ref{lem:bayesianRisk_bayesInv}, we get
+\begin{proof}%\leanok
+\uses{}
+Let $\xi$ be the measure such that $P(\theta) = \xi$ for all $\theta$.
 \begin{align*}
-R^P_\pi(\hat{y})
-&= ((P_\pi^\dagger \times \hat{y}) \circ P \circ \pi)\left[(\theta, z) \mapsto \ell'(y(\theta), z)\right]
+\mathcal R^P_\pi
+&= \inf_{\hat{y}}(\pi \times (\hat{y} \circ \xi))\left[(\theta, z)\mapsto \ell'(y(\theta), z)\right]
 \\
-&= (P \circ \pi)\left[x \mapsto (P_\pi^\dagger(x) \times \hat{y}(x)) \left[(\theta, z) \mapsto \ell'(y(\theta), z)\right]\right]
+&= \inf_{\mu \in \mathcal P(\mathcal X)} (\pi \times \mu)\left[(\theta, z)\mapsto \ell'(y(\theta), z)\right]
 \\
-&= (P \circ \pi)\left[x \mapsto \hat{y}(x)\left[z \mapsto P_\pi^\dagger(x) \left[\theta \mapsto \ell'(y(\theta), z)\right]\right]\right]
+&= \inf_{\mu \in \mathcal P(\mathcal X)} \mu\left[ z \mapsto \pi\left[\theta \mapsto \ell'(y(\theta), z)\right]\right]
 \\
-&\ge (P \circ \pi)\left[x \mapsto \inf_{z \in \mathcal Z} P_\pi^\dagger(x) \left[\theta \mapsto \ell'(y(\theta), z)\right]\right]
+&= \inf_{z \in \mathcal Z} \pi\left[\theta \mapsto \ell'(y(\theta), z)\right]
 \: .
 \end{align*}
 
 \end{proof}
 
-\begin{definition}[Generalized Bayes estimator]
-  \label{def:genBayesEstimator}
-  \lean{ProbabilityTheory.IsGenBayesEstimator}
-  \leanok
-  \uses{def:risk,def:bayesInv}
-  The generalized Bayes estimator for prior $\pi \in \mathcal P(\Theta)$ on $(P, y, \ell')$ is the deterministic estimator $\mathcal X \to \mathcal Z$ given by
-  \begin{align*}
-  x \mapsto \arg\min_z P_\pi^\dagger(x)\left[\theta \mapsto \ell'(y(\theta), z)\right] \: .
-  \end{align*}
-  TODO: is this measurable? Does the argmin exist? (under which assumptions?)
-\end{definition}
 
-\begin{lemma}
-  \label{lem:bayesianRisk_genBayesEstimator}
-  \lean{ProbabilityTheory.bayesianRisk_of_isGenBayesEstimator}
-  \leanok
-  \uses{def:bayesianRisk, def:genBayesEstimator}
-  The Bayesian risk of the generalized Bayes estimator $\hat{y}_B$ is
-  \begin{align*}
-  R^P_\pi(\hat{y}_B) = (P \circ \pi)\left[x \mapsto \inf_{z \in \mathcal Z} P_\pi^\dagger(x) \left[\theta \mapsto \ell'(y(\theta), z)\right]\right]
-  \: .
-  \end{align*}
-\end{lemma}
-
-\begin{proof}\leanok
-\uses{lem:bayesianRisk_bayesInv}
-Start from the equality of Lemma~\ref{lem:bayesianRisk_bayesInv} and use the definition of the generalized Bayes estimator.
-\end{proof}
-
-\begin{theorem}
-  \label{thm:isBayesEstimator_genBayesEstimator}
-  \lean{ProbabilityTheory.isBayesEstimator_of_isGenBayesEstimator, ProbabilityTheory.bayesRiskPrior_eq_of_hasGenBayesEstimator}
-  \leanok
-  \uses{def:bayesEstimator, def:genBayesEstimator, def:bayesRisk}
-  When the generalized Bayes estimator is well defined, it is a Bayes estimator. The value of the Bayes risk with respect to the prior $\pi \in \mathcal M(\Theta)$ is then
-  \begin{align*}
-  \mathcal R^P_\pi = (P \circ \pi)\left[x \mapsto \inf_{z \in \mathcal Z} P_\pi^\dagger(x) \left[\theta \mapsto \ell'(y(\theta), z)\right]\right]
-  \: .
-  \end{align*}
-\end{theorem}
-
-\begin{proof}\leanok
-\uses{lem:bayesianRisk_ge_inf_bayesInv, lem:bayesianRisk_genBayesEstimator}
-By Lemma~\ref{lem:bayesianRisk_ge_inf_bayesInv}, the Bayesian risk of the generalized Bayes estimator obtained in Lemma~\ref{lem:bayesianRisk_genBayesEstimator} is a lower bound for the Bayesian risk.
-\end{proof}
 
 \paragraph{Data-processing inequality and consequences}
 
@@ -317,6 +237,114 @@ The infimum of a sum is larger than the sum of the infimums:
 \end{align*}
 TODO: can we build kernels such that this lemma is a consequence of one of the lemmas above?
 \end{proof}
+
+
+
+\paragraph{Generalized Bayes estimator}
+
+\begin{lemma}
+  \label{lem:bayesianRisk_bayesInv}
+  \lean{ProbabilityTheory.bayesianRisk_eq_lintegral_bayesInv_prod}
+  \leanok
+  \uses{def:bayesianRisk, def:bayesInv}
+  The Bayesian risk of a Markov kernel $\hat{y} : \mathcal X \rightsquigarrow \mathcal Z$ with respect to a prior $\pi \in \mathcal M(\Theta)$ on $(P, y, \ell')$ satisfies
+  \begin{align*}
+  R^P_\pi(\hat{y}) = ((P_\pi^\dagger \times \hat{y}) \circ P \circ \pi)\left[(\theta, z) \mapsto \ell'(y(\theta), z)\right] \: ,
+  \end{align*}
+  whenever the Bayesian inverse $P_\pi^\dagger$ of $P$ with respect to $\pi$ exists (Definition~\ref{def:bayesInv}).
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{}
+Use the main property of the Bayesian inverse.
+\begin{align*}
+  (P_\pi^\dagger \times \hat{y}) \circ P \circ \pi
+  &= (\mathrm{id} \parallel \hat{y}) \circ (P_\pi^\dagger \times \mathrm{id}) \circ (P \circ \pi)
+  \\
+  &= (\mathrm{id} \parallel \hat{y}) \circ (\mathrm{id} \times P) \circ \pi
+  \\
+  &= (\mathrm{id} \times (\hat{y} \circ P)) \circ \pi
+  \\
+  &= \pi \otimes (\hat{y} \circ P)
+  \: .
+  \end{align*}
+\end{proof}
+
+\begin{lemma}
+  \label{lem:bayesianRisk_ge_inf_bayesInv}
+  \lean{ProbabilityTheory.bayesianRisk_ge_lintegral_iInf_bayesInv}
+  \leanok
+  \uses{def:bayesianRisk, def:bayesInv}
+  The Bayesian risk of a Markov kernel $\hat{y} : \mathcal X \rightsquigarrow \mathcal Z$ with respect to a prior $\pi \in \mathcal M(\Theta)$ on $(P, y, \ell')$ satisfies
+  \begin{align*}
+  R^P_\pi(\hat{y}) \ge (P \circ \pi)\left[x \mapsto \inf_{z \in \mathcal Z} P_\pi^\dagger(x) \left[\theta \mapsto \ell'(y(\theta), z)\right]\right] \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{lem:bayesianRisk_bayesInv}
+Starting from the equality of Lemma~\ref{lem:bayesianRisk_bayesInv}, we get
+\begin{align*}
+R^P_\pi(\hat{y})
+&= ((P_\pi^\dagger \times \hat{y}) \circ P \circ \pi)\left[(\theta, z) \mapsto \ell'(y(\theta), z)\right]
+\\
+&= (P \circ \pi)\left[x \mapsto (P_\pi^\dagger(x) \times \hat{y}(x)) \left[(\theta, z) \mapsto \ell'(y(\theta), z)\right]\right]
+\\
+&= (P \circ \pi)\left[x \mapsto \hat{y}(x)\left[z \mapsto P_\pi^\dagger(x) \left[\theta \mapsto \ell'(y(\theta), z)\right]\right]\right]
+\\
+&\ge (P \circ \pi)\left[x \mapsto \inf_{z \in \mathcal Z} P_\pi^\dagger(x) \left[\theta \mapsto \ell'(y(\theta), z)\right]\right]
+\: .
+\end{align*}
+
+\end{proof}
+
+\begin{definition}[Generalized Bayes estimator]
+  \label{def:genBayesEstimator}
+  \lean{ProbabilityTheory.IsGenBayesEstimator}
+  \leanok
+  \uses{def:risk,def:bayesInv}
+  The generalized Bayes estimator for prior $\pi \in \mathcal P(\Theta)$ on $(P, y, \ell')$ is the deterministic estimator $\mathcal X \to \mathcal Z$ given by
+  \begin{align*}
+  x \mapsto \arg\min_z P_\pi^\dagger(x)\left[\theta \mapsto \ell'(y(\theta), z)\right] \: ,
+  \end{align*}
+  if there exists such a measurable argmin.
+\end{definition}
+
+\begin{lemma}
+  \label{lem:bayesianRisk_genBayesEstimator}
+  \lean{ProbabilityTheory.bayesianRisk_of_isGenBayesEstimator}
+  \leanok
+  \uses{def:bayesianRisk, def:genBayesEstimator}
+  The Bayesian risk of the generalized Bayes estimator $\hat{y}_B$ is
+  \begin{align*}
+  R^P_\pi(\hat{y}_B) = (P \circ \pi)\left[x \mapsto \inf_{z \in \mathcal Z} P_\pi^\dagger(x) \left[\theta \mapsto \ell'(y(\theta), z)\right]\right]
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{lem:bayesianRisk_bayesInv}
+Start from the equality of Lemma~\ref{lem:bayesianRisk_bayesInv} and use the definition of the generalized Bayes estimator.
+\end{proof}
+
+\begin{theorem}
+  \label{thm:isBayesEstimator_genBayesEstimator}
+  \lean{ProbabilityTheory.isBayesEstimator_of_isGenBayesEstimator, ProbabilityTheory.bayesRiskPrior_eq_of_hasGenBayesEstimator}
+  \leanok
+  \uses{def:bayesEstimator, def:genBayesEstimator, def:bayesRisk}
+  When the generalized Bayes estimator is well defined, it is a Bayes estimator. The value of the Bayes risk with respect to the prior $\pi \in \mathcal M(\Theta)$ is then
+  \begin{align*}
+  \mathcal R^P_\pi = (P \circ \pi)\left[x \mapsto \inf_{z \in \mathcal Z} P_\pi^\dagger(x) \left[\theta \mapsto \ell'(y(\theta), z)\right]\right]
+  \: .
+  \end{align*}
+\end{theorem}
+
+\begin{proof}\leanok
+\uses{lem:bayesianRisk_ge_inf_bayesInv, lem:bayesianRisk_genBayesEstimator}
+By Lemma~\ref{lem:bayesianRisk_ge_inf_bayesInv}, the Bayesian risk of the generalized Bayes estimator obtained in Lemma~\ref{lem:bayesianRisk_genBayesEstimator} is a lower bound for the Bayesian risk.
+\end{proof}
+
+
 
 
 

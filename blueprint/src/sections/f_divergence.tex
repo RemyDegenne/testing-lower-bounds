@@ -918,7 +918,7 @@ D(\kappa \circ \mu, \kappa \circ \nu)
 &= D(\mu, \nu)
 \: .
 \end{align*}
-The main drawback of this approach is that it requires the measurable spaces to be standard Borel.
+The main drawback of this approach is that it requires that the Bayesian inverse exists, which is not always the case, unless for example the measurable spaces are standard Borel.
 
 The inequality $D_f(\mu, \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \eta)$ is obtained by describing the Radon-Nikodym derivative $\frac{d(\mu \otimes \kappa)}{d(\nu \otimes \eta)}$ and using convexity properties of the function $f$.
 
@@ -1104,7 +1104,7 @@ This proof uses that every $f$-divergence is an integral over $\gamma \ge 0$ of 
   &= \text{sign}(b-a)\frac{1}{2}(a \mu(\mathcal X) - b \nu(\mathcal X)) + \frac{1}{2}\nu\left[ \left\vert a \frac{d\mu}{d\nu} - b \right\vert \right] + \frac{1}{2}a \mu_{\perp \nu}(\mathcal X)
   \: ,
   \end{align*}
-  in which $\text{sign}(b-a)$ is $1$ if $b-a > 0$, $-1$ if $b-a < 0$ and the inequality is true for both values $1$ and $-1$ for $a=b$.
+  in which $\text{sign}(b-a)$ is $1$ if $b-a > 0$, $-1$ if $b-a < 0$ and one of those (TODO) for $a=b$.
 \end{lemma}
 
 \begin{proof}%\leanok
