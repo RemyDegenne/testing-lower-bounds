@@ -6,7 +6,6 @@ Authors: Rémy Degenne
 import TestingLowerBounds.Convex
 import TestingLowerBounds.ForMathlib.LeftRightDeriv
 import TestingLowerBounds.ForMathlib.EReal
-import TestingLowerBounds.ForMathlib.Tendsto
 
 /-!
 
