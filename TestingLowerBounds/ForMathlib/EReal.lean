@@ -9,9 +9,6 @@ namespace EReal
 
 instance : CharZero EReal := inferInstanceAs (CharZero (WithBot (WithTop ℝ)))
 
-lemma eq_coe_of_ne_top_of_ne_bot {x : EReal} (hx : x ≠ ⊤) (hx' : x ≠ ⊥) : ∃ r : ℝ, x = r := by
-  induction x <;> tauto
-
 lemma coe_ennreal_toReal {x : ℝ≥0∞} (hx : x ≠ ∞) : (x.toReal : EReal) = x := by
   lift x to ℝ≥0 using hx
   rfl
