@@ -969,10 +969,10 @@ lemma fDiv_eq_lintegral_fDiv_statInfoFun_of_mutuallySingular [IsFiniteMeasure μ
         · rw [h_top, EReal.top_sub_coe, EReal.toENNReal_top,
             StieltjesFunction.measure_Ioi_of_tendsto_atTop_atTop]
           exact hf_cvx'.derivAtTop_eq_top_iff.mp h_top
-        · have ⟨x, hx⟩ := EReal.eq_coe_of_ne_top_of_ne_bot h_top hf_cvx'.derivAtTop_ne_bot
-          rw [hx, StieltjesFunction.measure_Ioi _ ?_ 1 (l := x)]
+        · lift (derivAtTop f) to ℝ using ⟨h_top, hf_cvx'.derivAtTop_ne_bot⟩ with x hx
+          rw [StieltjesFunction.measure_Ioi _ ?_ 1 (l := x)]
           · norm_cast
-          exact (hx ▸ hf_cvx'.tendsto_toReal_derivAtTop h_top :)
+          exact (hx ▸ hf_cvx'.tendsto_toReal_derivAtTop (hx ▸ h_top) :)
   simp_rw [fDiv_of_mutuallySingular h_ms, h1]
   push_cast
   rw [lintegral_statInfoFun_one_zero hf_cvx hf_cont, h2, EReal.coe_toENNReal]
