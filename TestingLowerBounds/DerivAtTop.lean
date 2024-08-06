@@ -159,8 +159,8 @@ lemma ConvexOn.derivAtTop_eq_iff {y : EReal} (hf : ConvexOn ℝ (Ici 0) f) :
 lemma MonotoneOn.derivAtTop_eq_top_iff (hf : MonotoneOn (rightDeriv f) (Ioi 0)) :
     derivAtTop f = ⊤ ↔ Tendsto (rightDeriv f) atTop atTop := by
   refine ⟨fun h ↦ ?_, fun h ↦ derivAtTop_of_tendsto_atTop h⟩
-  exact EReal.tendsto_toReal_atTop.comp (tendsto_punctured_nhds_of_tendsto_nhds_right
-    (eventually_of_forall fun _ ↦ EReal.coe_ne_top _) (h ▸ hf.tendsto_derivAtTop))
+  exact EReal.tendsto_toReal_atTop.comp (tendsto_nhdsWithin_of_tendsto_nhds_of_eventually_within _
+    (h ▸ hf.tendsto_derivAtTop) (eventually_of_forall fun _ ↦ EReal.coe_ne_top _))
 
 lemma ConvexOn.derivAtTop_eq_top_iff (hf : ConvexOn ℝ (Ici 0) f) :
     derivAtTop f = ⊤ ↔ Tendsto (rightDeriv f) atTop atTop :=
