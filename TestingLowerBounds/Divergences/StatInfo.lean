@@ -695,7 +695,7 @@ lemma fDiv_statInfoFun_eq_StatInfo_of_nonneg [IsFiniteMeasure μ] [IsFiniteMeasu
   · rw [fDiv_statInfoFun_eq_StatInfo_of_nonneg_of_gt hβ hγ hβγ, if_neg hβγ.not_le, one_mul,
       add_sub_assoc]
 
-lemma fDiv_statInfoFun_ne_top_of_nonneg [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
+lemma fDiv_statInfoFun_ne_top [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     fDiv (statInfoFun β γ) μ ν ≠ ⊤ := by
   simp [derivAtTop_statInfoFun_ne_top, fDiv_ne_top_iff, integrable_statInfoFun_rnDeriv]
 
