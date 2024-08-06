@@ -717,26 +717,6 @@ lemma integral_statInfoFun_curvatureMeasure' (hf_cvx : ConvexOn ℝ univ f) (hf_
   rw [integral_statInfoFun_curvatureMeasure hf_cvx hf_cont, hf_one, hfderiv_one, sub_zero, zero_mul,
     sub_zero]
 
-lemma fDiv_eq_fDiv_centeredFunction [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (hf_cvx : ConvexOn ℝ univ f) :
-    fDiv f μ ν = fDiv (fun x ↦ f x - f 1 - rightDeriv f 1 * (x - 1)) μ ν
-      + f 1 * ν univ + rightDeriv f 1 * ((μ univ).toReal - (ν univ).toReal) := by
-  simp_rw [sub_eq_add_neg (f _), sub_eq_add_neg (_ + _), ← neg_mul]
-  rw [fDiv_add_linear']
-  swap; · exact hf_cvx.subset (fun _ _ ↦ trivial) (convex_Ici 0) |>.add_const _
-  rw [fDiv_add_const]
-  swap; · exact hf_cvx.subset (fun _ _ ↦ trivial) (convex_Ici 0)
-  simp_rw [EReal.coe_neg, neg_mul]
-  rw [add_assoc, add_comm (_ * _), ← add_assoc, add_assoc _ (-(_ * _)), add_comm (-(_ * _)),
-    ← sub_eq_add_neg (_ * _), EReal.sub_self, add_zero]
-  rotate_left
-  · refine (EReal.mul_ne_top _ _).mpr ⟨?_, Or.inr <| EReal.add_top_iff_ne_bot.mp rfl,
-      ?_, Or.inr <| Ne.symm (ne_of_beq_false rfl)⟩ <;> simp
-  · refine (EReal.mul_ne_bot _ _).mpr ⟨?_, Or.inr <| EReal.add_top_iff_ne_bot.mp rfl,
-      ?_, Or.inr <| Ne.symm (ne_of_beq_false rfl)⟩ <;> simp
-  rw [add_assoc, add_comm (-(_ * _)), ← sub_eq_add_neg, EReal.sub_self, add_zero]
-    <;> simp [EReal.mul_ne_top, EReal.mul_ne_bot, measure_ne_top]
-
 lemma lintegral_f_rnDeriv_eq_lintegralfDiv_statInfoFun_of_absolutelyContinuous
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f)
     (hf_one : f 1 = 0) (hfderiv_one : rightDeriv f 1 = 0) (h_ac : μ ≪ ν) :

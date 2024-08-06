@@ -6,6 +6,8 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 import TestingLowerBounds.DerivAtTop
 import TestingLowerBounds.ForMathlib.RadonNikodym
 import TestingLowerBounds.ForMathlib.RnDeriv
+-- TODO: remove this import after the next mathlib bump, now it is only needed for `ConvexOn.add_const`, but this lemma has recently been moved to `Mathlib.Analysis.Convex.Function`.
+import Mathlib.Analysis.SpecialFunctions.Gamma.BohrMollerup
 
 /-!
 
@@ -360,6 +362,26 @@ lemma fDiv_add_linear {c : ℝ} [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     fDiv (fun x ↦ f x + c * (x - 1)) μ ν = fDiv f μ ν := by
   rw [fDiv_add_linear' hf_cvx, h_eq, ← EReal.coe_sub, sub_self]
   simp
+
+lemma fDiv_eq_fDiv_centeredFunction [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (hf_cvx : ConvexOn ℝ univ f) :
+    fDiv f μ ν = fDiv (fun x ↦ f x - f 1 - rightDeriv f 1 * (x - 1)) μ ν
+      + f 1 * ν univ + rightDeriv f 1 * ((μ univ).toReal - (ν univ).toReal) := by
+  simp_rw [sub_eq_add_neg (f _), sub_eq_add_neg (_ + _), ← neg_mul]
+  rw [fDiv_add_linear']
+  swap; · exact hf_cvx.subset (fun _ _ ↦ trivial) (convex_Ici 0) |>.add_const _
+  rw [fDiv_add_const]
+  swap; · exact hf_cvx.subset (fun _ _ ↦ trivial) (convex_Ici 0)
+  simp_rw [EReal.coe_neg, neg_mul]
+  rw [add_assoc, add_comm (_ * _), ← add_assoc, add_assoc _ (-(_ * _)), add_comm (-(_ * _)),
+    ← sub_eq_add_neg (_ * _), EReal.sub_self, add_zero]
+  rotate_left
+  · refine (EReal.mul_ne_top _ _).mpr ⟨?_, Or.inr <| EReal.add_top_iff_ne_bot.mp rfl,
+      ?_, Or.inr <| Ne.symm (ne_of_beq_false rfl)⟩ <;> simp
+  · refine (EReal.mul_ne_bot _ _).mpr ⟨?_, Or.inr <| EReal.add_top_iff_ne_bot.mp rfl,
+      ?_, Or.inr <| Ne.symm (ne_of_beq_false rfl)⟩ <;> simp
+  rw [add_assoc, add_comm (-(_ * _)), ← sub_eq_add_neg, EReal.sub_self, add_zero]
+    <;> simp [EReal.mul_ne_top, EReal.mul_ne_bot, measure_ne_top]
 
 lemma fDiv_of_mutuallySingular [SigmaFinite μ] [IsFiniteMeasure ν] (h : μ ⟂ₘ ν) :
     fDiv f μ ν = (f 0 : EReal) * ν Set.univ + derivAtTop f * μ Set.univ := by
