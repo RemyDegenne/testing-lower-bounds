@@ -769,8 +769,7 @@ lemma fDiv_ne_top_iff_integrable_fDiv_statInfoFun_of_absolutelyContinuous'
   rotate_left
   · exact (fDiv_statInfoFun_stronglyMeasurable μ ν).measurable.comp (f := fun x ↦ (1, x))
       (by fun_prop) |>.ereal_toENNReal.aemeasurable
-  · exact eventually_of_forall fun _ ↦ EReal.toENNReal_ne_top_iff.mpr
-      fDiv_statInfoFun_ne_top_of_nonneg
+  · exact eventually_of_forall fun _ ↦ EReal.toENNReal_ne_top_iff.mpr fDiv_statInfoFun_ne_top
   rw [lintegral_f_rnDeriv_eq_lintegralfDiv_statInfoFun_of_absolutelyContinuous hf_cvx hf_cont
     hf_one hfderiv_one h_ac]
 
@@ -882,15 +881,14 @@ lemma fDiv_eq_lintegral_fDiv_statInfoFun_of_absolutelyContinuous
     · exact eventually_of_forall <| fun _ ↦ EReal.toReal_nonneg fDiv_statInfoFun_nonneg
     · exact (fDiv_statInfoFun_stronglyMeasurable μ ν).measurable.comp (f := fun x ↦ (1, x))
         (by fun_prop) |>.ereal_toReal.aestronglyMeasurable
-    simp_rw [← EReal.toENNReal_of_ne_top fDiv_statInfoFun_ne_top_of_nonneg]
+    simp_rw [← EReal.toENNReal_of_ne_top fDiv_statInfoFun_ne_top]
     rw [ENNReal.toReal_toEReal_of_ne_top]
     rw [integrable_f_rnDeriv_iff_integrable_fDiv_statInfoFun_of_absolutelyContinuous hf_cvx
       hf_cont h_ac] at h_int
     refine (integrable_toReal_iff ?_ ?_).mp ?_
     · exact (fDiv_statInfoFun_stronglyMeasurable μ ν).measurable.comp (f := fun x ↦ (1, x))
         (by fun_prop) |>.ereal_toENNReal.aemeasurable
-    · exact eventually_of_forall fun _ ↦ EReal.toENNReal_ne_top_iff.mpr
-        fDiv_statInfoFun_ne_top_of_nonneg
+    · exact eventually_of_forall fun _ ↦ EReal.toENNReal_ne_top_iff.mpr fDiv_statInfoFun_ne_top
     simp_rw [EReal.toReal_toENNReal fDiv_statInfoFun_nonneg, h_int]
   · classical
     rw [fDiv_of_absolutelyContinuous h_ac, if_neg h_int]
@@ -907,8 +905,7 @@ lemma fDiv_eq_lintegral_fDiv_statInfoFun_of_absolutelyContinuous
     refine (integrable_toReal_iff ?_ ?_).mpr h
     · exact (fDiv_statInfoFun_stronglyMeasurable μ ν).measurable.comp (f := fun x ↦ (1, x))
         (by fun_prop) |>.ereal_toENNReal.aemeasurable
-    · exact eventually_of_forall fun _ ↦ EReal.toENNReal_ne_top_iff.mpr
-        fDiv_statInfoFun_ne_top_of_nonneg
+    · exact eventually_of_forall fun _ ↦ EReal.toENNReal_ne_top_iff.mpr fDiv_statInfoFun_ne_top
 
 end StatInfoFun
 
