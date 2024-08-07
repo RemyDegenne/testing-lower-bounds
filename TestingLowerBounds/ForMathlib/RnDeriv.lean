@@ -112,13 +112,13 @@ lemma rnDeriv_eq_zero_ae_of_zero_measure (ν : Measure α) {s : Set α} (hs : Me
   rw [← MeasureTheory.setLIntegral_eq_zero_iff hs (Measure.measurable_rnDeriv μ ν)]
   exact le_antisymm (hμ ▸ Measure.setLIntegral_rnDeriv_le s) (zero_le _)
 
---PR this, maybe it could go after `Measure.singularPart_restrict`?
+--PRed, see #15540
 lemma measure_sub_singularPart (μ ν : Measure α) [HaveLebesgueDecomposition μ ν] [IsFiniteMeasure μ] :
     μ - μ.singularPart ν = ν.withDensity (μ.rnDeriv ν) := by
   nth_rw 1 [← rnDeriv_add_singularPart μ ν]
   exact add_sub_cancel
 
---PR this, maybe together with `Measure.measure_sub_singularPart`
+--PRed, see #15540
 lemma measure_sub_rnDeriv (μ ν : Measure α) [HaveLebesgueDecomposition μ ν] [IsFiniteMeasure μ] :
     μ - ν.withDensity (μ.rnDeriv ν) = μ.singularPart ν := by
   nth_rw 1 [← singularPart_add_rnDeriv μ ν]
@@ -298,6 +298,7 @@ lemma ae_integrable_of_ae_integrable_mul_rnDeriv {κ : α → Measure β} [Sigma
   exact isUnit_iff_ne_zero.mpr h_pos.ne'
 
 -- in mathlib this lemma could be put just before `MeasureTheory.Measure.rnDeriv_le_one_of_le`
+-- PRed, see #15473
 lemma rnDeriv_le_one_iff_le [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν) :
     μ.rnDeriv ν ≤ᵐ[ν] 1 ↔ μ ≤ ν := by
   refine ⟨fun h s ↦ ?_, fun h ↦ rnDeriv_le_one_of_le h⟩
@@ -305,12 +306,14 @@ lemma rnDeriv_le_one_iff_le [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν
   exact setLIntegral_mono_ae aemeasurable_const (h.mono fun _ hh _ ↦ hh)
 
 -- in mathlib this lemma could be put just before `MeasureTheory.Measure.rnDeriv_eq_zero_of_mutuallySingular`
+-- PRed, see #15473
 lemma rnDeriv_eq_one_iff_eq [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν) :
     μ.rnDeriv ν =ᵐ[ν] 1 ↔ μ = ν := by
   refine ⟨fun h ↦ ?_, fun h ↦ h ▸ Measure.rnDeriv_self ν⟩
   rw [← withDensity_rnDeriv_eq _ _ hμν, MeasureTheory.withDensity_congr_ae h, withDensity_one]
 
 -- in mathlib this lemma could be put just after `Measure.rnDeriv_mul_rnDeriv`
+--PRed, see #15548.
 lemma _root_.MeasureTheory.Measure.rnDeriv_mul_rnDeriv' {κ : Measure α} [SigmaFinite μ]
     [SigmaFinite ν] [SigmaFinite κ] (hνκ : ν ≪ κ) :
     μ.rnDeriv ν * ν.rnDeriv κ =ᵐ[ν] μ.rnDeriv κ := by
@@ -322,6 +325,7 @@ lemma _root_.MeasureTheory.Measure.rnDeriv_mul_rnDeriv' {κ : Measure α} [Sigma
   rw [hx1, Pi.add_apply, hx2, Pi.mul_apply, hx3, Pi.zero_apply, zero_add]
 
 --PR this to mathlib maybe just after `integral_toReal_rnDeriv` (we need to check that measure_sub_singularPart is imported there)?
+--PRed, see #15545.
 lemma _root_.MeasureTheory.Measure.integral_toReal_rnDeriv' {α : Type*} {m : MeasurableSpace α}
     {μ : Measure α} {ν : Measure α} [IsFiniteMeasure μ] [SigmaFinite ν] :
     ∫ (x : α), (μ.rnDeriv ν x).toReal ∂ν
