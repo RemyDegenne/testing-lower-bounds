@@ -628,22 +628,22 @@ lemma bayesBinaryRisk_eq_lintegral_ennnorm (μ ν : Measure 𝒳) [IsFiniteMeasu
   · refine ⟨Measurable.aestronglyMeasurable (by fun_prop), ?_⟩
     simp_rw [HasFiniteIntegral, Real.nnnorm_abs]
     calc
-      _ ≤ ∫⁻ a, ‖(π {false} * (∂μ/∂(twoHypKernel μ ν ∘ₘ π)) a).toReal‖₊ +
-          ‖(π {true} * (∂ν/∂(twoHypKernel μ ν ∘ₘ π)) a).toReal‖₊ ∂(twoHypKernel μ ν ∘ₘ π) := by
+      _ ≤ ∫⁻ a, ‖(π {false} * (∂μ/∂twoHypKernel μ ν ∘ₘ π) a).toReal‖₊ +
+          ‖(π {true} * (∂ν/∂twoHypKernel μ ν ∘ₘ π) a).toReal‖₊ ∂(twoHypKernel μ ν ∘ₘ π) := by
         gcongr
         exact_mod_cast nnnorm_sub_le _ _
-      _ = ∫⁻ a, ‖(π {false} * (∂μ/∂(twoHypKernel μ ν ∘ₘ π)) a).toReal‖₊ ∂(twoHypKernel μ ν ∘ₘ π) +
-          ∫⁻ a, ‖(π {true} * (∂ν/∂(twoHypKernel μ ν ∘ₘ π)) a).toReal‖₊ ∂(twoHypKernel μ ν ∘ₘ π) :=
+      _ = ∫⁻ a, ‖(π {false} * (∂μ/∂twoHypKernel μ ν ∘ₘ π) a).toReal‖₊ ∂(twoHypKernel μ ν ∘ₘ π) +
+          ∫⁻ a, ‖(π {true} * (∂ν/∂twoHypKernel μ ν ∘ₘ π) a).toReal‖₊ ∂(twoHypKernel μ ν ∘ₘ π) :=
         lintegral_add_left (by fun_prop) _
-      _ ≤ π {false} * ∫⁻ a, ‖((∂μ/∂(twoHypKernel μ ν ∘ₘ π)) a).toReal‖₊ ∂(twoHypKernel μ ν ∘ₘ π) +
-          π {true} * ∫⁻ a, ‖((∂ν/∂(twoHypKernel μ ν ∘ₘ π)) a).toReal‖₊ ∂(twoHypKernel μ ν ∘ₘ π) := by
+      _ ≤ π {false} * ∫⁻ a, ‖((∂μ/∂twoHypKernel μ ν ∘ₘ π) a).toReal‖₊ ∂(twoHypKernel μ ν ∘ₘ π) +
+          π {true} * ∫⁻ a, ‖((∂ν/∂twoHypKernel μ ν ∘ₘ π) a).toReal‖₊ ∂(twoHypKernel μ ν ∘ₘ π) := by
         simp_rw [ENNReal.toReal_mul, nnnorm_mul, ENNReal.coe_mul]
         rw [lintegral_const_mul _ (by fun_prop), lintegral_const_mul _ (by fun_prop)]
         gcongr <;>
         · rw [Real.ennnorm_eq_ofReal_abs, ENNReal.abs_toReal]
           exact ENNReal.ofReal_toReal_le
-      _ ≤ π {false} * ∫⁻ a, (∂μ/∂(twoHypKernel μ ν ∘ₘ π)) a ∂(twoHypKernel μ ν ∘ₘ π) +
-          π {true} * ∫⁻ a, (∂ν/∂(twoHypKernel μ ν ∘ₘ π)) a ∂(twoHypKernel μ ν ∘ₘ π) := by
+      _ ≤ π {false} * ∫⁻ a, (∂μ/∂twoHypKernel μ ν ∘ₘ π) a ∂(twoHypKernel μ ν ∘ₘ π) +
+          π {true} * ∫⁻ a, (∂ν/∂twoHypKernel μ ν ∘ₘ π) a ∂(twoHypKernel μ ν ∘ₘ π) := by
         gcongr <;>
         · rw [Real.ennnorm_eq_ofReal_abs, ENNReal.abs_toReal]
           exact ENNReal.ofReal_toReal_le

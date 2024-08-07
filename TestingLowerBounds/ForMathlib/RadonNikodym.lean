@@ -218,13 +218,13 @@ lemma measurable_singularPart (κ η : Kernel α γ) [IsFiniteKernel κ] [IsFini
 
 lemma rnDeriv_pos [IsFiniteKernel κ] [IsFiniteKernel η] {a : α} (ha : κ a ≪ η a) :
     ∀ᵐ x ∂(κ a), 0 < rnDeriv κ η a x := by
-  filter_upwards [ha.ae_le (rnDeriv_eq_rnDeriv_measure κ η a), Measure.rnDeriv_pos ha] with x heq hpos
-  rwa [heq]
+  filter_upwards [ha.ae_le (rnDeriv_eq_rnDeriv_measure κ η a), Measure.rnDeriv_pos ha]
+    with x heq hpos using heq ▸ hpos
 
 lemma rnDeriv_ne_top (κ η : Kernel α γ) [IsFiniteKernel κ] [IsFiniteKernel η] {a : α} :
     ∀ᵐ x ∂(η a), rnDeriv κ η a x ≠ ⊤ := by
-  filter_upwards [rnDeriv_eq_rnDeriv_measure κ η a, Measure.rnDeriv_ne_top (κ a) _] with x heq htop
-  rwa [heq]
+  filter_upwards [rnDeriv_eq_rnDeriv_measure κ η a, Measure.rnDeriv_ne_top (κ a) _]
+    with x heq htop using heq ▸ htop
 
 lemma rnDeriv_toReal_pos [IsFiniteKernel κ] [IsFiniteKernel η] {a : α} (h : κ a ≪ η a) :
     ∀ᵐ x ∂(κ a), 0 < (rnDeriv κ η a x).toReal := by
