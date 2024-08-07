@@ -32,6 +32,7 @@ import TestingLowerBounds.ForMathlib.RnDeriv
 import TestingLowerBounds.ForMathlib.SetIntegral
 import TestingLowerBounds.Kernel.Basic
 import TestingLowerBounds.Kernel.BayesInv
+import TestingLowerBounds.Kernel.Category
 import TestingLowerBounds.Kernel.Monoidal
 import TestingLowerBounds.MeasureCompProd
 import TestingLowerBounds.SqHellinger
