@@ -152,6 +152,7 @@ theorem convex_taylor (hf : ConvexOn ℝ univ f) (hf_cont : Continuous f) {a b :
   let g := StieltjesFunction.id + StieltjesFunction.const (-b)
   have hg : g = fun x ↦ x - b := rfl
   rw [← hg, integral_stieltjes_meas_by_parts g hf.rightDerivStieltjes]
+  swap; · rw [hg]; fun_prop
   simp only [Real.volume_eq_stieltjes_id, add_apply, id_apply, id_eq, const_apply, add_right_neg,
     zero_mul, zero_sub, measure_add, measure_const, add_zero, neg_sub, sub_neg_eq_add, g]
   rfl
