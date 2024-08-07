@@ -15,6 +15,7 @@ namespace MeasureTheory
 variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {μ : Measure α}
   {ν : Measure β} {κ : Kernel α β} {G : Type*} [NormedAddCommGroup G] [NormedSpace ℝ G]
 
+--PRed, see #15460.
 lemma integral_congr_ae₂ {f g : α → β → G} (h : ∀ᵐ a ∂μ, f a =ᵐ[κ a] g a) :
     ∫ a, ∫ b, f a b ∂(κ a) ∂μ = ∫ a, ∫ b, g a b ∂(κ a) ∂μ := by
   apply integral_congr_ae
@@ -22,7 +23,7 @@ lemma integral_congr_ae₂ {f g : α → β → G} (h : ∀ᵐ a ∂μ, f a =ᵐ
   apply integral_congr_ae
   filter_upwards [ha] with b hb using hb
 
---change the name of this one
+--PRed as `ProbabilityTheory.Kernel.integral_congr_ae₂`, see #15460.
 lemma integral_congr_ae₂' {f g : α → β → G} (h : ∀ᵐ a ∂μ, f a =ᵐ[ν] g a) :
     ∫ a, ∫ b, f a b ∂ν ∂μ = ∫ a, ∫ b, g a b ∂ν ∂μ := by
   apply integral_congr_ae
@@ -30,5 +31,4 @@ lemma integral_congr_ae₂' {f g : α → β → G} (h : ∀ᵐ a ∂μ, f a =�
   apply integral_congr_ae
   filter_upwards [ha] with b hb using hb
 
--- #find_home! ProbabilityTheory.integral_congr_ae₂
 end MeasureTheory

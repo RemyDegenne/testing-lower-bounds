@@ -17,6 +17,7 @@ variable {δ : Type*} {mδ : MeasurableSpace δ}
 
 --TODO: PR this to mathlib, a suitable place may be just under
 -- `ProbabilityTheory.Kernel.snd_swapRight`
+-- PRed, see #15466.
 
 --I try to reproduce the code that is already there for Kernel.fst and Kernel.snd, but in this case
 --the fst and snd are referred to the domain of the kernel, not the codomain
