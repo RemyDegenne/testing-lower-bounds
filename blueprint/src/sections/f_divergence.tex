@@ -116,7 +116,7 @@ Linearity of the integral.
   \lean{ProbabilityTheory.fDiv_add_linear}
   \leanok
   \uses{def:fDiv}
-  For finite measures $\mu$ and $\nu$ with $\mu(\mathcal X) = \nu(\mathcal X)$, for all $a \ge 0$, $D_{f + a(x - 1)}(\mu, \nu) = D_{f}(\mu, \nu)$.
+  For finite measures $\mu$ and $\nu$ with $\mu(\mathcal X) = \nu(\mathcal X)$, for all $a \in \mathbb{R}$, $D_{f + a(x - 1)}(\mu, \nu) = D_{f}(\mu, \nu)$.
 \end{lemma}
 
 \begin{proof}\leanok
@@ -1095,19 +1095,19 @@ This proof uses that every $f$-divergence is an integral over $\gamma \ge 0$ of 
 
 \begin{lemma}
   \label{lem:fDiv_statInfoFun_eq}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDiv_statInfoFun_eq_StatInfo_of_nonneg_of_le, ProbabilityTheory.fDiv_statInfoFun_eq_StatInfo_of_nonneg_of_gt}
+  \leanok
   \uses{def:fDiv, def:statInfoFun}
-  Let $a,b \in (0, +\infty)$ and let $\mu, \nu$ be two measures on $\mathcal X$.
+  Let $a,b \in [0, +\infty)$ and let $\mu, \nu$ be two measures on $\mathcal X$.
   \begin{align*}
   D_{\phi_{a,b}}(\mu, \nu)
   &= \text{sign}(b-a)\frac{1}{2}(a \mu(\mathcal X) - b \nu(\mathcal X)) + \frac{1}{2}\nu\left[ \left\vert a \frac{d\mu}{d\nu} - b \right\vert \right] + \frac{1}{2}a \mu_{\perp \nu}(\mathcal X)
   \: ,
   \end{align*}
-  in which $\text{sign}(b-a)$ is $1$ if $b-a > 0$, $-1$ if $b-a < 0$ and the inequality is true for both values $1$ and $-1$ for $a=b$.
+  in which $\text{sign}(b-a)$ is $1$ if $b-a > 0$ and $-1$ if $b-a \le 0$.
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{}
 If $a \le b$,
 \begin{align*}
@@ -1124,31 +1124,31 @@ Similar computations lead to the result for $b \le a$.
 
 \begin{corollary}
   \label{cor:fDiv_statInfoFun_eq_statInfo}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDiv_statInfoFun_eq_StatInfo_of_nonneg}
+  \leanok
   \uses{def:fDiv, def:statInfoFun, def:statInfo}
-  Let $a,b \in (0, +\infty)$ and let $\mu, \nu$ be two measures on $\mathcal X$.
+  Let $a,b \in [0, +\infty)$ and let $\mu, \nu$ be two measures on $\mathcal X$.
   \begin{align*}
   D_{\phi_{a,b}}(\mu, \nu) = \mathcal I_{(a,b)}(\mu, \nu) + \frac{1}{2} \left\vert a \mu(\mathcal X) - b \nu(\mathcal X) \right\vert + \text{sign}(b-a)\frac{1}{2}(a \mu(\mathcal X) - b \nu(\mathcal X))
   \: .
   \end{align*}
 \end{corollary}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{lem:fDiv_statInfoFun_eq, cor:statInfo_eq_integral_abs}
 Combine Lemma~\ref{lem:fDiv_statInfoFun_eq} and Corollary~\ref{cor:statInfo_eq_integral_abs}.
 \end{proof}
 
 \begin{lemma}
   \label{lem:fDiv_phi_data_proc}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDiv_statInfoFun_comp_right_le}
+  \leanok
   \uses{def:fDiv, def:statInfoFun}
-  Let $a,b \in (0, +\infty)$. Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
+  Let $a,b \in [0, +\infty)$. Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
   Then $D_{\phi_{a,b}}(\kappa \circ \mu, \kappa \circ \nu) \le D_{\phi_{a,b}}(\mu, \nu)$.
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{thm:data_proc_statInfo, cor:fDiv_statInfoFun_eq_statInfo}
 By Corollary~\ref{cor:fDiv_statInfoFun_eq_statInfo},
 \begin{align*}
@@ -1160,14 +1160,14 @@ The statistical information satisfies the data-processing inequality (Theorem~\r
 
 \begin{theorem}[Data-processing]
   \label{thm:fDiv_data_proc_2}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDiv_comp_right_le'}
+  \leanok
   \uses{def:fDiv}
   Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
   Then $D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu, \nu)$.
 \end{theorem}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{thm:fDiv_eq_integral_eGamma, lem:fDiv_phi_data_proc}
 By Theorem~\ref{thm:fDiv_eq_integral_eGamma},
 \begin{align*}
@@ -1179,14 +1179,14 @@ The first two terms are unchanged by composition with a Markov kernel. It thus s
 
 \begin{theorem}
   \label{thm:fDiv_le_compProd_2}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.le_fDiv_compProd'}
+  \leanok
   \uses{def:fDiv}
   Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels.
   Then $D_f(\mu, \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \eta)$.
 \end{theorem}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{thm:fDiv_data_proc_2}
 Since $\kappa$ is a Markov kernel, $\mu$ is the composition of $\mu \otimes \kappa$ and the deterministic kernel for the function $(x,y) \mapsto x$. The same applies for $\nu$ and $\nu \otimes \eta$.
 The result is then an application of the data-processing inequality, Theorem~\ref{thm:fDiv_data_proc_2}.
@@ -1195,14 +1195,14 @@ The result is then an application of the data-processing inequality, Theorem~\re
 
 \begin{lemma}[Composition-product with a kernel]
   \label{thm:fDiv_compProd_right_2}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDiv_compProd_right'}
+  \leanok
   \uses{def:fDiv}
   Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
   Then $D_f(\mu \otimes \kappa, \nu \otimes \kappa) = D_f(\mu, \nu)$.
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{thm:fDiv_le_compProd_2, thm:fDiv_data_proc_2}
 By Theorem~\ref{thm:fDiv_le_compProd_2}, $D_f(\mu, \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \kappa)$.
 For the reverse inequality, remark that $\mu \otimes \kappa = (\text{id} \times \kappa) \circ \mu$ where $\text{id}$ is the identity kernel and apply the data-processing inequality (Theorem~\ref{thm:fDiv_data_proc_2}). 
@@ -1210,14 +1210,14 @@ For the reverse inequality, remark that $\mu \otimes \kappa = (\text{id} \times 
 
 \begin{theorem}
   \label{thm:fDiv_comp_le_compProd_2}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDiv_comp_le_compProd'}
+  \leanok
   \uses{def:fDiv}
   Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels.
   Then $D_f(\kappa \circ \mu, \eta \circ \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \eta)$.
 \end{theorem}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{thm:fDiv_data_proc_2}
 $\kappa \circ \mu$ is the composition of $\mu \otimes \kappa$ and the deterministic kernel for the function $(x,y) \mapsto y$. The same applies for $\eta \circ \nu$ and $\nu \otimes \eta$.
 The result is then an application of the data-processing inequality, Theorem~\ref{thm:fDiv_data_proc_2}.
@@ -1226,14 +1226,14 @@ The result is then an application of the data-processing inequality, Theorem~\re
 
 \begin{theorem}[Conditioning increases f-divergence]
   \label{thm:fDiv_comp_le_condFDiv_2}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDiv_comp_le_compProd_right'}
+  \leanok
   \uses{def:fDiv, def:condFDiv}
   Let $\mu$ be a finite measure $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels.
   Then $D_f(\kappa \circ \mu, \eta \circ \mu) \le D_f(\mu \otimes \kappa, \mu \otimes \eta)$~.
 \end{theorem}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{thm:fDiv_comp_le_compProd_2}
 This is a particular case of Theorem~\ref{thm:fDiv_comp_le_compProd_2}.
 \end{proof}
@@ -1241,15 +1241,15 @@ This is a particular case of Theorem~\ref{thm:fDiv_comp_le_compProd_2}.
 
 \begin{theorem}[Marginals]
   \label{thm:fDiv_fst_le_2}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDiv_fst_le', ProbabilityTheory.fDiv_snd_le'}
+  \leanok
   \uses{def:fDiv}
   Let $\mu$ and $\nu$ be two measures on $\mathcal X \times \mathcal Y$, and let $\mu_X, \nu_X$ be their marginals on $\mathcal X$.
   Then $D_f(\mu_X, \nu_X) \le D_f(\mu, \nu)$.
   Similarly, for $\mu_Y, \nu_Y$ the marginals on $\mathcal Y$, $D_f(\mu_Y, \nu_Y) \le D_f(\mu, \nu)$.
 \end{theorem}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{thm:fDiv_data_proc_2}
 The measure $\mu_X$ is the composition of $\mu$ and the deterministic kernel for the function $(x,y) \mapsto x$, and similarly $\mu_Y$ is the composition of $\mu$ and a deterministic kernel.
 The results are both applications of the data-processing inequality, Theorem~\ref{thm:fDiv_data_proc_2}.
