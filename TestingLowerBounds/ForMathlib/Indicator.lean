@@ -7,7 +7,7 @@ variable {α M : Type*} [Preorder M] [One M] {s : Set α} {f g : α → M} {a : 
 
 namespace Set
 
---PR this to mathlib, just before `Set.mulIndicator_le_mulIndicator`.
+--PRed, see #15437
 @[to_additive]
 lemma mulIndicator_le_mulIndicator' (h : a ∈ s → f a ≤ g a) :
     mulIndicator s f a ≤ mulIndicator s g a :=
