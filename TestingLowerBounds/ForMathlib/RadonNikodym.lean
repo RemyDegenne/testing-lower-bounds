@@ -20,9 +20,10 @@ open scoped NNReal ENNReal MeasureTheory Topology ProbabilityTheory
 namespace ProbabilityTheory.Kernel
 
 variable {α γ : Type*} {mα : MeasurableSpace α} {mγ : MeasurableSpace γ}
-  [MeasurableSpace.CountableOrCountablyGenerated α γ] {κ η : Kernel α γ}
+  {κ η : Kernel α γ}
 
-lemma singularPart_self (κ : Kernel α γ) [IsFiniteKernel κ] :
+lemma singularPart_self [MeasurableSpace.CountableOrCountablyGenerated α γ]
+    (κ : Kernel α γ) [IsFiniteKernel κ] :
     Kernel.singularPart κ κ = 0 := by
   ext a : 1
   rw [zero_apply, singularPart_eq_zero_iff_absolutelyContinuous]
@@ -67,7 +68,8 @@ lemma Measure.mutuallySingular_compProd_left {μ ν : Measure α} [SFinite μ] [
   rw [Measure.compProd_apply_prod hμν.measurableSet_nullSet.compl MeasurableSet.univ]
   simp
 
-lemma Measure.mutuallySingular_compProd_right (μ ν : Measure α) [SFinite μ] [SFinite ν]
+lemma Measure.mutuallySingular_compProd_right [MeasurableSpace.CountableOrCountablyGenerated α γ]
+    (μ ν : Measure α) [SFinite μ] [SFinite ν]
     {κ η : Kernel α γ} [IsFiniteKernel κ] [IsFiniteKernel η] (hκη : ∀ᵐ a ∂μ, κ a ⟂ₘ η a) :
     μ ⊗ₘ κ ⟂ₘ ν ⊗ₘ η := by
   let s := mutuallySingularSet κ η
@@ -86,7 +88,8 @@ lemma Measure.mutuallySingular_compProd_right (μ ν : Measure α) [SFinite μ] 
     exact ha
   simp [h1, lintegral_congr_ae h2]
 
-lemma Measure.mutuallySingular_compProd_right' (μ ν : Measure α) [SFinite μ] [SFinite ν]
+lemma Measure.mutuallySingular_compProd_right' [MeasurableSpace.CountableOrCountablyGenerated α γ]
+    (μ ν : Measure α) [SFinite μ] [SFinite ν]
     {κ η : Kernel α γ} [IsFiniteKernel κ] [IsFiniteKernel η] (hκη : ∀ᵐ a ∂ν, κ a ⟂ₘ η a) :
     μ ⊗ₘ κ ⟂ₘ ν ⊗ₘ η := by
   rw [Measure.MutuallySingular.comm]
@@ -110,7 +113,8 @@ lemma Measure.mutuallySingular_of_mutuallySingular_compProd {μ ν ξ : Measure 
   filter_upwards [hμ hμ_zero, hν hν_zero] with x hxμ hxν
   exact ⟨Prod.mk x ⁻¹' s, measurable_prod_mk_left hs, ⟨hxμ, hxν⟩⟩
 
-lemma Measure.mutuallySingular_compProd_iff_of_same_left (μ : Measure α) [SFinite μ]
+lemma Measure.mutuallySingular_compProd_iff_of_same_left
+    [MeasurableSpace.CountableOrCountablyGenerated α γ] (μ : Measure α) [SFinite μ]
     (κ η : Kernel α γ) [IsFiniteKernel κ] [IsFiniteKernel η] :
     μ ⊗ₘ κ ⟂ₘ μ ⊗ₘ η ↔ ∀ᵐ a ∂μ, κ a ⟂ₘ η a := by
   refine ⟨fun h ↦ ?_, fun h ↦ mutuallySingular_compProd_right _ _ h⟩
@@ -188,6 +192,8 @@ lemma eq_singularPart_measure [IsFiniteKernel η]
     rw [h, coe_add, Pi.add_apply, Kernel.withDensity_apply _ hf, add_comm]
   exact (κ a).eq_singularPart (hf.comp measurable_prod_mk_left) (hξ a) this
 
+variable [MeasurableSpace.CountableOrCountablyGenerated α γ]
+
 lemma rnDeriv_eq_rnDeriv_measure (κ ν : Kernel α γ) [IsFiniteKernel κ] [IsFiniteKernel ν] (a : α) :
     rnDeriv κ ν a =ᵐ[ν a] ∂(κ a)/∂(ν a) :=
   eq_rnDeriv_measure (rnDeriv_add_singularPart κ ν).symm (measurable_rnDeriv κ ν)
@@ -209,6 +215,26 @@ lemma eq_singularPart [IsFiniteKernel κ] [IsFiniteKernel η] (h : κ = Kernel.w
   (eq_singularPart_measure h hf hξ a).trans (singularPart_eq_singularPart_measure a).symm
 
 end Unique
+
+lemma Measure.absolutelyContinuous_of_compProd {μ ν : Measure α} {κ η : Kernel α γ}
+    [SFinite μ] [SFinite ν] [IsSFiniteKernel κ] [IsSFiniteKernel η] [h_zero : ∀ a, NeZero (κ a)]
+    (h : μ ⊗ₘ κ ≪ ν ⊗ₘ η) :
+    μ ≪ ν := by
+  refine Measure.AbsolutelyContinuous.mk (fun s hs hs0 ↦ ?_)
+  have h1 : (ν ⊗ₘ η) (s ×ˢ univ) = 0 := by
+    rw [Measure.compProd_apply_prod hs MeasurableSet.univ]
+    exact setLIntegral_measure_zero _ _ hs0
+  have h2 := h h1
+  rw [Measure.compProd_apply_prod hs MeasurableSet.univ, lintegral_eq_zero_iff] at h2
+  swap; · exact Kernel.measurable_coe _ MeasurableSet.univ
+  by_contra hμs
+  have : NeBot (ae (μ.restrict s)) := by simp [hμs]
+  obtain ⟨a, ha⟩ : ∃ a, κ a univ = 0 := h2.exists
+  refine absurd ha ?_
+  simp only [Measure.measure_univ_eq_zero]
+  exact (h_zero a).out
+
+variable [MeasurableSpace.CountableOrCountablyGenerated α γ]
 
 lemma measurable_singularPart (κ η : Kernel α γ) [IsFiniteKernel κ] [IsFiniteKernel η] :
     Measurable (fun a ↦ (κ a).singularPart (η a)) := by
@@ -473,24 +499,6 @@ lemma rnDeriv_measure_compProd_right' (μ : Measure α) (κ η : Kernel α γ)
   filter_upwards [ha, h a] with b hb1 hb2
   rw [hb1, hb2]
 
-lemma Measure.absolutelyContinuous_of_compProd {μ ν : Measure α} {κ η : Kernel α γ}
-    [SFinite μ] [SFinite ν] [IsSFiniteKernel κ] [IsSFiniteKernel η] [h_zero : ∀ a, NeZero (κ a)]
-    (h : μ ⊗ₘ κ ≪ ν ⊗ₘ η) :
-    μ ≪ ν := by
-  refine Measure.AbsolutelyContinuous.mk (fun s hs hs0 ↦ ?_)
-  have h1 : (ν ⊗ₘ η) (s ×ˢ univ) = 0 := by
-    rw [Measure.compProd_apply_prod hs MeasurableSet.univ]
-    exact setLIntegral_measure_zero _ _ hs0
-  have h2 := h h1
-  rw [Measure.compProd_apply_prod hs MeasurableSet.univ, lintegral_eq_zero_iff] at h2
-  swap; · exact Kernel.measurable_coe _ MeasurableSet.univ
-  by_contra hμs
-  have : NeBot (ae (μ.restrict s)) := by simp [hμs]
-  obtain ⟨a, ha⟩ : ∃ a, κ a univ = 0 := h2.exists
-  refine absurd ha ?_
-  simp only [Measure.measure_univ_eq_zero]
-  exact (h_zero a).out
-
 lemma Measure.absolutelyContinuous_Kernel_of_compProd {μ ν : Measure α} {κ η : Kernel α γ}
     [SFinite μ] [SFinite ν] [IsFiniteKernel κ] [IsFiniteKernel η]
     (h : μ ⊗ₘ κ ≪ ν ⊗ₘ η) :
@@ -534,7 +542,8 @@ lemma Measure.absolutelyContinuous_compProd_right_iff
 
 end MeasureCompProd
 
-lemma absolutelyContinuous_compProd_iff {β : Type*} [MeasurableSpace β]
+lemma absolutelyContinuous_compProd_iff
+    {α β γ : Type*} {_ : MeasurableSpace α} {_ : MeasurableSpace β} {_ : MeasurableSpace γ}
     [MeasurableSpace.CountableOrCountablyGenerated β γ] {κ₁ η₁ : Kernel α β}
     {κ₂ η₂ : Kernel (α × β) γ} [IsSFiniteKernel κ₁] [IsSFiniteKernel η₁] [IsFiniteKernel κ₂]
     [IsFiniteKernel η₂] (a : α) [∀ b, NeZero (κ₂ (a, b))] :

@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne
 -/
 import TestingLowerBounds.Kernel.BayesInv
-import TestingLowerBounds.ForMathlib.KernelConstComp
 
 /-!
 # Estimation and risk
@@ -173,7 +172,7 @@ lemma bayesRiskPrior_le_inf (E : estimationProblem Θ 𝒴 𝒵) (P : Kernel Θ 
     rw [lintegral_dirac']
     have := E.ℓ_meas
     fun_prop [E.ℓ_meas]
-  · exact Kernel.isMarkovKernel_const
+  · infer_instance
 
 /-- The Bayesian risk of an estimator `κ` with respect to a prior `π` can be expressed as
 an integral in the following way: `R_π(κ) = ((P†π × κ) ∘ P ∘ π)[(θ, z) ↦ ℓ(y(θ), z)]`. -/

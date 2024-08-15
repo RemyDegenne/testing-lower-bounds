@@ -6,8 +6,6 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 import TestingLowerBounds.DerivAtTop
 import TestingLowerBounds.ForMathlib.RadonNikodym
 import TestingLowerBounds.ForMathlib.RnDeriv
--- TODO: remove this import after the next mathlib bump, now it is only needed for `ConvexOn.add_const`, but this lemma has recently been moved to `Mathlib.Analysis.Convex.Function`.
-import Mathlib.Analysis.SpecialFunctions.Gamma.BohrMollerup
 
 /-!
 
@@ -257,7 +255,7 @@ lemma fDiv_mul {c : ℝ} (hc : 0 ≤ c) (hf_cvx : ConvexOn ℝ (Ici 0) f)
       exact lt_of_le_of_ne hc (Ne.symm hc0)
     · refine fun h ↦ h_int ?_
       have : (fun x ↦ f ((∂μ/∂ν) x).toReal) = (fun x ↦ c⁻¹ * (c * f ((∂μ/∂ν) x).toReal)) := by
-        ext; rw [← mul_assoc, inv_mul_cancel hc0, one_mul]
+        ext; rw [← mul_assoc, inv_mul_cancel₀ hc0, one_mul]
       rw [this]
       exact h.const_mul _
 

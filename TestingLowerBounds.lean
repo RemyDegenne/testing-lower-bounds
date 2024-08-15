@@ -19,13 +19,10 @@ import TestingLowerBounds.ForMathlib.ByParts
 import TestingLowerBounds.ForMathlib.CountableOrCountablyGenerated
 import TestingLowerBounds.ForMathlib.EReal
 import TestingLowerBounds.ForMathlib.Integrable_of_empty
-import TestingLowerBounds.ForMathlib.IntegralCongr2
-import TestingLowerBounds.ForMathlib.KernelConstComp
 import TestingLowerBounds.ForMathlib.KernelFstSnd
 import TestingLowerBounds.ForMathlib.LeftRightDeriv
 import TestingLowerBounds.ForMathlib.LogLikelihoodRatioCompProd
 import TestingLowerBounds.ForMathlib.MaxMinEqAbs
-import TestingLowerBounds.ForMathlib.Measure
 import TestingLowerBounds.ForMathlib.MonotoneOnTendsto
 import TestingLowerBounds.ForMathlib.RadonNikodym
 import TestingLowerBounds.ForMathlib.RnDeriv

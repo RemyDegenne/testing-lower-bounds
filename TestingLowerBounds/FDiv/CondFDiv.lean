@@ -292,6 +292,8 @@ section CompProd
 /-! We show that the integrability of the functions used in `fDiv f (μ ⊗ₘ κ) (μ ⊗ₘ η)`
 and in `condFDiv f κ η μ` are equivalent. -/
 
+section
+
 variable [CountableOrCountablyGenerated α β]
 
 lemma condFDiv_ne_top_iff_fDiv_compProd_ne_top [IsFiniteMeasure μ]
@@ -331,6 +333,8 @@ lemma fDiv_compProd_left (μ : Measure α) [IsFiniteMeasure μ]
     rw [EReal.coe_toReal h_deriv h_cvx.derivAtTop_ne_bot, integral_singularPart _ _ _ MeasurableSet.univ,
       EReal.coe_ennreal_toReal, Set.univ_prod_univ]
     exact measure_ne_top _ _
+
+end
 
 variable {γ : Type*} [MeasurableSpace γ]
 

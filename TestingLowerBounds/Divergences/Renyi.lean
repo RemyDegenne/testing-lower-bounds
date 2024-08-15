@@ -108,7 +108,7 @@ lemma renyiDiv_zero_measure_left (ν : Measure α) [IsFiniteMeasure ν] :
   by_cases ha : a = 1
   · simp [ha]
   rw_mod_cast [renyiDiv_of_ne_one ha, hellingerDiv_zero_measure_left, ← mul_assoc, ← neg_sub a 1,
-    ← neg_inv, ← neg_mul_eq_mul_neg, mul_inv_cancel (sub_ne_zero.mpr ha)]
+    ← neg_inv, ← neg_mul_eq_mul_neg, mul_inv_cancel₀ (sub_ne_zero.mpr ha)]
   simp only [EReal.coe_neg, EReal.coe_one, neg_mul, one_mul, ← sub_eq_add_neg,
     EReal.sub_self_le_zero, EReal.toENNReal_of_nonpos, ENNReal.log_zero]
   rcases lt_or_gt_of_ne ha with (ha | ha)
@@ -322,10 +322,10 @@ lemma renyiDiv_symm' (ha_pos : 0 < a) (ha : a < 1) (h_eq : μ Set.univ = ν Set.
     hellingerDiv_symm' ha_pos ha h_eq
   have : (1 - (a : EReal)) * ↑(a - 1)⁻¹ = -1 := by
     norm_cast
-    rw [← neg_neg (1 - a), neg_sub, neg_mul, mul_inv_cancel]
+    rw [← neg_neg (1 - a), neg_sub, neg_mul, mul_inv_cancel₀]
     · simp
     · linarith
-  rw [this, ← EReal.coe_mul, inv_neg, mul_neg, mul_inv_cancel ha_pos.ne', h_eq]
+  rw [this, ← EReal.coe_mul, inv_neg, mul_neg, mul_inv_cancel₀ ha_pos.ne', h_eq]
   simp only [EReal.coe_neg, EReal.coe_one, one_mul]
   congr 4
   norm_cast
@@ -343,7 +343,7 @@ lemma coe_cgf_llr_of_lt_one (ha_pos : 0 < a) (ha : a < 1)
     [hν : NeZero ν] [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hνμ : ν ≪ μ) :
     cgf (llr μ ν) ν a = (a - 1) * renyiDiv a μ ν := by
   rw_mod_cast [renyiDiv_eq_log_integral_of_lt_one ha_pos ha, ← mul_assoc,
-    mul_inv_cancel (by linarith), one_mul, cgf, mgf]
+    mul_inv_cancel₀ (by linarith), one_mul, cgf, mgf]
   have h_ms : ¬ μ ⟂ₘ ν :=
     fun h ↦ hν.out <| Measure.eq_zero_of_absolutelyContinuous_of_mutuallySingular hνμ h.symm
   rw [ENNReal.log_ofReal_of_pos]
@@ -370,7 +370,7 @@ lemma coe_cgf_llr' (ha_pos : 0 < a) [hν : NeZero μ] [IsFiniteMeasure μ] [IsFi
     (h_int : Integrable (fun x ↦ ((∂μ/∂ν) x).toReal ^ (1 + a)) ν) (hμν : μ ≪ ν) :
     cgf (llr μ ν) μ a = a * renyiDiv (1 + a) μ ν := by
   rw_mod_cast [renyiDiv_eq_log_integral' (by linarith) (by linarith) h_int hμν, ← mul_assoc,
-    add_sub_cancel_left, mul_inv_cancel ha_pos.ne', one_mul, cgf, mgf]
+    add_sub_cancel_left, mul_inv_cancel₀ ha_pos.ne', one_mul, cgf, mgf]
   have h_ms : ¬ μ ⟂ₘ ν :=
     fun h ↦ hν.out <| Measure.eq_zero_of_absolutelyContinuous_of_mutuallySingular hμν h
   rw [ENNReal.log_ofReal_of_pos _, integral_congr_ae (exp_mul_llr' hμν)]

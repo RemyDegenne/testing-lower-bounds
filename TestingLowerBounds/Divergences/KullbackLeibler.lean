@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import TestingLowerBounds.FDiv.CondFDiv
-import TestingLowerBounds.ForMathlib.IntegralCongr2
 import TestingLowerBounds.ForMathlib.LogLikelihoodRatioCompProd
 
 /-!
@@ -586,7 +585,7 @@ lemma kl_compProd [CountableOrCountablyGenerated α β] [IsMarkovKernel κ] [IsM
       + log (Kernel.rnDeriv κ η a x).toReal ∂κ a ∂μ := by
     norm_cast
     have h := hμν.ae_le (Measure.ae_ae_of_ae_compProd (Kernel.rnDeriv_measure_compProd μ ν κ η))
-    apply integral_congr_ae₂
+    apply Kernel.integral_congr_ae₂
     filter_upwards [h, hκη, Measure.rnDeriv_toReal_pos hμν] with a ha hκηa hμν_pos
     have hμν_zero : (μ.rnDeriv ν a).toReal ≠ 0 := by linarith
     filter_upwards [Kernel.rnDeriv_toReal_pos hκηa, hκηa.ae_le ha] with x hκη_pos hx
@@ -618,7 +617,7 @@ lemma kl_compProd [CountableOrCountablyGenerated α β] [IsMarkovKernel κ] [IsM
       + ∫ a, ∫ x, log ((κ a).rnDeriv (η a) x).toReal ∂κ a ∂μ := by
     simp only [integral_const, measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul]
     congr 2
-    apply integral_congr_ae₂
+    apply Kernel.integral_congr_ae₂
     filter_upwards [hκη] with a ha
     have h := ha.ae_le (Kernel.rnDeriv_eq_rnDeriv_measure κ η a)
     filter_upwards [h] with x hx
@@ -640,7 +639,7 @@ lemma kl_compProd [CountableOrCountablyGenerated α β] [IsMarkovKernel κ] [IsM
 lemma kl_fst_add_condKL [StandardBorelSpace β] [Nonempty β] {μ ν : Measure (α × β)}
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     kl μ.fst ν.fst + condKL μ.condKernel ν.condKernel μ.fst = kl μ ν := by
-  rw [← kl_compProd, μ.compProd_fst_condKernel, ν.compProd_fst_condKernel]
+  rw [← kl_compProd, μ.disintegrate, ν.disintegrate]
 
 /-TODO: this is just a thin wrapper around Kernel.integrable_llr_compProd_iff, so that that lemma
 could be put in an outside file. But I have realised that the choice of having 2 instead of 2' as

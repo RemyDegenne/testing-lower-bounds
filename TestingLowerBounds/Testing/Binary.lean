@@ -399,7 +399,7 @@ lemma nonempty_subtype_isMarkovKernel_of_nonempty {𝒳 : Type*} {m𝒳 : Measur
     Nonempty (Subtype (@IsMarkovKernel 𝒳 𝒴 m𝒳 m𝒴)) := by
   simp only [nonempty_subtype, Subtype.exists]
   let y : 𝒴 := Classical.ofNonempty
-  exact ⟨Kernel.const _ (Measure.dirac y), Kernel.isMarkovKernel_const⟩
+  exact ⟨Kernel.const _ (Measure.dirac y), inferInstance⟩
 
 @[simp]
 lemma bayesBinaryRisk_self (μ : Measure 𝒳) (π : Measure Bool) :
@@ -413,7 +413,7 @@ lemma bayesBinaryRisk_self (μ : Measure 𝒳) (π : Measure Bool) :
     simp_rw [η]
     convert iInf_le _ ?_ using 1
     · split_ifs with h <;> simp [le_of_not_ge, h]
-    · split_ifs <;> exact Kernel.isMarkovKernel_const
+    · split_ifs <;> infer_instance
   · calc
       _ ≥ ⨅ κ, ⨅ (_ : IsMarkovKernel κ), min (π {false}) (π {true}) * (κ ∘ₘ μ) {false}
           + min (π {false}) (π {true}) * (κ ∘ₘ μ) {true} := by

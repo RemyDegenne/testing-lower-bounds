@@ -21,7 +21,7 @@ namespace ProbabilityTheory.Kernel
 variable {α β γ δ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
   {mγ : MeasurableSpace γ} {mδ : MeasurableSpace δ}
   {μ : Measure α} [IsFiniteMeasure μ]
-  {κ : Kernel α β} [IsFiniteKernel κ]
+  {κ : Kernel α β}
 
 section KernelId
 

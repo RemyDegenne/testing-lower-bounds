@@ -2,7 +2,7 @@ import Mathlib.MeasureTheory.MeasurableSpace.CountablyGenerated
 
 namespace MeasurableSpace
 
-variable {α β γ : Type*} [MeasurableSpace α] [MeasurableSpace β] [MeasurableSpace γ]
+variable {α β γ : Type*}
 
 -- PRed, see #15418
 lemma countable_left_of_prod_of_nonempty [Nonempty β] (h : Countable (α × β)) : Countable α := by
@@ -15,6 +15,8 @@ lemma countable_right_of_prod_of_nonempty [Nonempty α] (h : Countable (α × β
   contrapose h
   rw [not_countable_iff] at *
   infer_instance
+
+variable [MeasurableSpace α] [MeasurableSpace β] [MeasurableSpace γ]
 
 -- PRed, see #15418
 instance [hα : CountableOrCountablyGenerated α γ] [hβ : CountableOrCountablyGenerated β γ] :
