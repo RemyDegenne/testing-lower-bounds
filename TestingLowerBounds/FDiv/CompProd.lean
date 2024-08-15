@@ -5,7 +5,7 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import TestingLowerBounds.FDiv.Basic
 import TestingLowerBounds.FDiv.IntegralRnDerivSingularPart
-import Mathlib.Probability.Kernel.Disintegration.Basic
+import Mathlib.Probability.Kernel.Disintegration.StandardBorel
 /-!
 
 # f-Divergences
@@ -183,7 +183,7 @@ lemma fDiv_compProd_left_eq_top_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν]
   push_neg
   rfl
 
-lemma fDiv_compProd_right [CountableOrCountablyGenerated α β]
+lemma fDiv_compProd_right
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ : Kernel α β) [IsMarkovKernel κ] (hf : StronglyMeasurable f)
     (h_cvx : ConvexOn ℝ (Ici 0) f) :
@@ -207,9 +207,10 @@ lemma fDiv_compProd_right [CountableOrCountablyGenerated α β]
     · rw [← ne_eq, fDiv_ne_top_iff] at h_top
       exact h_top.1
 
-variable {γ : Type*} [MeasurableSpace γ]
+end CompProd
 
-lemma fDiv_toReal_eq_ae {ξ : Kernel α β} {κ η : Kernel (α × β) γ} [IsFiniteKernel κ]
+lemma fDiv_toReal_eq_ae {γ : Type*} [MeasurableSpace γ]
+    {ξ : Kernel α β} {κ η : Kernel (α × β) γ} [IsFiniteKernel κ]
     (hf_cvx : ConvexOn ℝ (Ici 0) f)
     (h_ac : derivAtTop f = ⊤ → ∀ᵐ a ∂μ, ∀ᵐ b ∂ξ a, κ (a, b) ≪ η (a, b))
     (h_int : ∀ᵐ a ∂μ, ∀ᵐ b ∂ξ a,
@@ -231,8 +232,6 @@ lemma fDiv_toReal_eq_ae {ξ : Kernel α β} {κ η : Kernel (α × β) γ} [IsFi
         EReal.coe_ennreal_ne_bot, and_false, h_deriv, EReal.coe_ennreal_pos,
         Measure.measure_univ_pos, ne_eq, EReal.coe_ennreal_eq_top_iff, false_or, not_and]
       exact fun _ ↦ measure_ne_top _ _
-
-end CompProd
 
 end Conditional
 
@@ -550,8 +549,8 @@ lemma fDiv_fst_le [Nonempty β] [StandardBorelSpace β]
     (hf : StronglyMeasurable f)
     (hf_cvx : ConvexOn ℝ (Ici 0) f) (hf_cont : ContinuousOn f (Ici 0)) :
     fDiv f μ.fst ν.fst ≤ fDiv f μ ν := by
-  rw [← μ.compProd_fst_condKernel, ← ν.compProd_fst_condKernel, Measure.fst_compProd,
-    Measure.fst_compProd]
+  rw [← Measure.disintegrate μ μ.condKernel, ← Measure.disintegrate ν ν.condKernel,
+    Measure.fst_compProd, Measure.fst_compProd]
   exact le_fDiv_compProd μ.fst ν.fst μ.condKernel ν.condKernel hf hf_cvx hf_cont
 
 lemma fDiv_snd_le [Nonempty α] [StandardBorelSpace α]

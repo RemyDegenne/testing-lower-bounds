@@ -10,7 +10,6 @@ import TestingLowerBounds.FDiv.Basic
 import TestingLowerBounds.Testing.Binary
 import Mathlib.MeasureTheory.Constructions.Prod.Integral
 import TestingLowerBounds.ForMathlib.SetIntegral
-import TestingLowerBounds.ForMathlib.Indicator
 
 /-!
 # Statistical information
