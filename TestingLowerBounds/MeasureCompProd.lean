@@ -106,6 +106,12 @@ lemma Measure.comp_const {ν : Measure β} :
   simp_rw [Measure.bind_apply hs (Kernel.measurable _), Kernel.const_apply, lintegral_const]
   simp [mul_comm]
 
+lemma Measure.parallelComp_comp_compProd [SFinite μ] {κ : Kernel α β} [IsSFiniteKernel κ]
+    {η : Kernel β γ} [IsSFiniteKernel η] :
+    (Kernel.id ∥ₖ η) ∘ₘ (μ ⊗ₘ κ) = μ ⊗ₘ (η ∘ₖ κ) := by
+  rw [Measure.compProd_eq_comp, Measure.compProd_eq_comp, Measure.comp_assoc,
+    Kernel.parallelComp_comp_prod, Kernel.id_comp]
+
 lemma Measure.compProd_apply_toReal [SFinite μ] [IsFiniteKernel κ]
     {s : Set (α × β)} (hs : MeasurableSet s) :
     ((μ ⊗ₘ κ) s).toReal = ∫ x, (κ x (Prod.mk x ⁻¹' s)).toReal ∂μ := by

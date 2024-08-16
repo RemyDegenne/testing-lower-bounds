@@ -185,12 +185,7 @@ lemma bayesianRisk_eq_lintegral_bayesInv_prod [StandardBorelSpace Θ] [Nonempty 
   simp only [bayesianRisk, risk]
   rw [← MeasureTheory.Measure.lintegral_compProd (f := fun θz ↦ E.ℓ (E.y θz.1, θz.2)) (by fun_prop)]
   congr
-  calc π ⊗ₘ (κ ∘ₖ P)
-  _ = (Kernel.id ×ₖ (κ ∘ₖ P)) ∘ₘ π := Measure.compProd_eq_comp _ _
-  _ = ((Kernel.id ∥ₖ κ) ∘ₖ (Kernel.id ×ₖ P)) ∘ₘ π := by
-      rw [Kernel.parallelComp_comp_prod, Kernel.id_comp]
-  _ = (Kernel.id ∥ₖ κ) ∘ₘ (Kernel.id ×ₖ P) ∘ₘ π := Measure.comp_assoc.symm
-  _ = (Kernel.id ∥ₖ κ) ∘ₘ (π ⊗ₘ P) := by rw [Measure.compProd_eq_comp]
+  calc π ⊗ₘ (κ ∘ₖ P) = (Kernel.id ∥ₖ κ) ∘ₘ (π ⊗ₘ P) := Measure.parallelComp_comp_compProd.symm
   _ = (Kernel.id ∥ₖ κ) ∘ₘ (Kernel.swap _ _ ) ∘ₘ ((P ∘ₘ π) ⊗ₘ (P†π)) := by
       rw [compProd_bayesInv''']
       congr
