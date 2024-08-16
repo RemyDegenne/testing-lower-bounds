@@ -76,6 +76,12 @@ lemma compProd_bayesInv''' (κ : Kernel α β) (μ : Measure α) [IsFiniteMeasur
     Measure.comp_assoc, ← Kernel.deterministic_comp_eq_map]
   rfl
 
+lemma bayesInv_prod_id_comp (κ : Kernel α β) (μ : Measure α)
+    [IsFiniteMeasure μ] [IsFiniteKernel κ] :
+    ((κ†μ) ×ₖ Kernel.id) ∘ₘ κ ∘ₘ μ = μ ⊗ₘ κ := by
+  rw [← Kernel.swap_prod, ← Measure.comp_assoc, ← Measure.compProd_eq_comp, compProd_bayesInv''',
+    Measure.comp_assoc, Kernel.swap_swap, Measure.comp_id]
+
 /-- The Bayesian inverse is unique up to a `μ ∘ₘ κ`-null set. -/
 lemma eq_bayesInv_of_compProd_eq (η : Kernel β α) [IsFiniteKernel η]
     (h : ((κ ∘ₘ μ) ⊗ₘ η) = (μ ⊗ₘ κ).map Prod.swap) :
