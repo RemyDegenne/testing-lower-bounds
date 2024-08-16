@@ -183,13 +183,25 @@ lemma bayesianRisk_eq_lintegral_bayesInv_prod [StandardBorelSpace Θ] [Nonempty 
   have := E.ℓ_meas
   have := E.y_meas
   simp only [bayesianRisk, risk]
-  rw [← MeasureTheory.Measure.lintegral_compProd (f := fun θz ↦ E.ℓ (E.y θz.1, θz.2)) (by fun_prop),
-    ← Kernel.swap_prod, Kernel.prod_eq_copy_comp_parallelComp, Measure.compProd_eq_comp,
-    Kernel.prod_eq_copy_comp_parallelComp]
-  nth_rw 2 [← Kernel.parallelComp_comp_id_right_left]
-  simp_rw [← Measure.comp_assoc, compProd_bayesInv'', Measure.comp_assoc, ← Kernel.comp_assoc,
-  Kernel.swap_parallelComp, Kernel.comp_assoc (_ ∥ₖ κ), Kernel.swap_parallelComp, Kernel.comp_assoc,
-  Kernel.swap_copy, ← Kernel.comp_assoc, Kernel.parallelComp_comp_id_left_left]
+  rw [← MeasureTheory.Measure.lintegral_compProd (f := fun θz ↦ E.ℓ (E.y θz.1, θz.2)) (by fun_prop)]
+  congr
+  calc π ⊗ₘ (κ ∘ₖ P)
+  _ = (Kernel.id ×ₖ (κ ∘ₖ P)) ∘ₘ π := Measure.compProd_eq_comp _ _
+  _ = ((Kernel.id ∥ₖ κ) ∘ₖ (Kernel.id ×ₖ P)) ∘ₘ π := by
+      rw [Kernel.parallelComp_comp_prod, Kernel.id_comp]
+  _ = (Kernel.id ∥ₖ κ) ∘ₘ (Kernel.id ×ₖ P) ∘ₘ π := Measure.comp_assoc.symm
+  _ = (Kernel.id ∥ₖ κ) ∘ₘ (π ⊗ₘ P) := by rw [Measure.compProd_eq_comp]
+  _ = (Kernel.id ∥ₖ κ) ∘ₘ (Kernel.swap _ _ ) ∘ₘ ((P ∘ₘ π) ⊗ₘ (P†π)) := by
+      rw [compProd_bayesInv''']
+      congr
+      rw [Measure.comp_assoc, Kernel.swap_swap, Measure.comp_id]
+  _ = (Kernel.id ∥ₖ κ) ∘ₘ (Kernel.swap _ _ ) ∘ₘ (Kernel.id ×ₖ (P†π)) ∘ₘ P ∘ₘ π := by
+      rw [Measure.compProd_eq_comp]
+  _ = (Kernel.id ∥ₖ κ) ∘ₘ ((P†π) ×ₖ Kernel.id) ∘ₘ P ∘ₘ π := by
+      congr 1
+      rw [Measure.comp_assoc, Kernel.swap_prod]
+  _ = ((P†π) ×ₖ κ) ∘ₘ P ∘ₘ π := by
+      rw [Measure.comp_assoc, Kernel.parallelComp_comp_prod, Kernel.id_comp, Kernel.comp_id]
 
 lemma bayesianRisk_eq_integral_integral_integral [StandardBorelSpace Θ] [Nonempty Θ]
     (E : estimationProblem Θ 𝒴 𝒵) (P : Kernel Θ 𝒳) [IsFiniteKernel P] (κ : Kernel 𝒳 𝒵)
