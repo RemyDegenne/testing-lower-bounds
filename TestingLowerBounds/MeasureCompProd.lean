@@ -485,10 +485,6 @@ instance [IsProbabilityMeasure μ] [IsMarkovKernel κ] : IsProbabilityMeasure (�
   rw [Measure.comp_eq_snd_compProd]
   infer_instance
 
---this is already PRed to mathlib, see #14471, when it gets merged and we bump, remove this
-instance [hμ : SFinite μ] (a : ℝ≥0∞) : SFinite (a • μ) := by
-  sorry
-
 lemma Measure.compProd_smul_left (a : ℝ≥0∞) [SFinite μ] [IsSFiniteKernel κ] :
     (a • μ) ⊗ₘ κ = a • (μ ⊗ₘ κ) := by
   ext s hs
