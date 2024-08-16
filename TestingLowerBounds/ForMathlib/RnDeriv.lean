@@ -296,18 +296,6 @@ lemma ae_integrable_of_ae_integrable_mul_rnDeriv {κ : α → Measure β} [Sigma
   apply (integrable_const_mul_iff _ (g a)).mp ha
   exact isUnit_iff_ne_zero.mpr h_pos.ne'
 
--- in mathlib this lemma could be put just after `Measure.rnDeriv_mul_rnDeriv`
---PRed, see #15548.
-lemma _root_.MeasureTheory.Measure.rnDeriv_mul_rnDeriv' {κ : Measure α} [SigmaFinite μ]
-    [SigmaFinite ν] [SigmaFinite κ] (hνκ : ν ≪ κ) :
-    μ.rnDeriv ν * ν.rnDeriv κ =ᵐ[ν] μ.rnDeriv κ := by
-  obtain ⟨h_meas, h_sing, hμν⟩ := Measure.haveLebesgueDecomposition_spec μ ν
-  filter_upwards [hνκ <| Measure.rnDeriv_add' (μ.singularPart ν) (ν.withDensity (μ.rnDeriv ν)) κ,
-    hνκ <| Measure.rnDeriv_withDensity_left_of_absolutelyContinuous hνκ h_meas.aemeasurable,
-    Measure.rnDeriv_eq_zero_of_mutuallySingular h_sing hνκ] with x hx1 hx2 hx3
-  nth_rw 2 [hμν]
-  rw [hx1, Pi.add_apply, hx2, Pi.mul_apply, hx3, Pi.zero_apply, zero_add]
-
 --PR this to mathlib maybe just after `integral_toReal_rnDeriv` (we need to check that measure_sub_singularPart is imported there)?
 --PRed, see #15545.
 lemma _root_.MeasureTheory.Measure.integral_toReal_rnDeriv' {α : Type*} {m : MeasurableSpace α}
