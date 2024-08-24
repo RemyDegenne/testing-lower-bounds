@@ -98,6 +98,8 @@ A Markov kernel is finite, with constant $C = 1$.
 
 This last, most general class of kernels, is the right assumption to define operations on kernels like their product.
 
+
+
 \section{Composition and product}
 
 \begin{definition}[Composition-product]
@@ -140,6 +142,8 @@ Since a measure is a constant kernel from the space with one element, we can als
   The composition of $\kappa$ and $\eta$ is the kernel $\eta \circ \kappa : \mathcal X \rightsquigarrow \mathcal Z$ equal to $(\kappa \otimes \eta)_Z$ (TODO explain that notation).
 \end{definition}
 
+TODO: define composition without using the composition-product, since we want to use it alone in the category definition.
+
 We can also define the composition of a measure and a kernel, by $\kappa \circ \mu = (\kappa \circ \mu_k) (u)$, where $\mathcal U$ is a measurable space with a unique element $u$ and $\mu_k : \mathcal U \rightsquigarrow \mathcal X$ is the constant kernel with value $\mu$.
 
 \begin{definition}[Product]
@@ -167,11 +171,30 @@ In particular, the composition-product of a measure and a kernel $\kappa$ is the
   TODO
 \end{definition}
 
+
+
 \section{Copy-discard and Markov categories}
 
-TODO
+Measurable spaces and s-finite kernels are a copy-discard category (and in particular a symmetric monoidal category) with the following data:
+\begin{itemize}
+  \item Objects: measurable spaces
+  \item Morphisms: s-finite kernels, with identity kernels and composition of kernels
+  \item Tensor product of objects: product of measurable spaces $\mathcal X \times \mathcal Y$
+  \item Tensor product of morphisms: parallel product $\kappa \parallel \eta$ 
+  \item Unit: measurable space with one element (denoted by $*$)
+  \item The associator, left and right unitors and braiding are given by the deterministic kernels of the corresponding equivalences between measurable spaces
+  \item Copy morphism: $c_{\mathcal X}: \mathcal X \rightsquigarrow \mathcal X \times \mathcal X$
+  \item Delete morphism: $d_{\mathcal X} : \mathcal X \rightsquigarrow *$
+\end{itemize}
 
-Operations that are derived from the others: product (copy + parallel product), composition-product (complicated diagram).
+If we restrict the morphisms to Markov kernels, we get a Markov category (TODO ref), which is a copy-discard category in which for every morphism $\kappa$, $d_{\mathcal Y} \circ \kappa = d_{\mathcal X}$.
+
+In that view of transition kernels, the following operations are not primitive, but derived from others:
+\begin{itemize}
+  \item Product: for $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal X \rightsquigarrow \mathcal Z$, $\kappa \times \eta = (\kappa \parallel \eta) \circ c_{\mathcal X}$
+  \item Composition-product: for $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal X \times \mathcal Y \rightsquigarrow \mathcal Z$, $\kappa \otimes \eta = \mathrm{swap_{\mathcal Z, \mathcal Y}} \circ (\eta \parallel \mathrm{id}) \circ \alpha_{\mathcal X, \mathcal Y, \mathcal Y} \circ (\mathrm{id} \parallel c_{\mathcal Y}) \circ (\mathrm{id} \parallel \kappa) \circ c_{\mathcal X}$ (where $\alpha$ is the associator and $\mathrm{swap}$ is the braiding).
+\end{itemize}
+
 
 
 \section{Ordering}
@@ -184,6 +207,14 @@ Operations that are derived from the others: product (copy + parallel product), 
   We define a partial order on kernels by the following. Let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal X \rightsquigarrow \mathcal Z$ (with same domain as $\kappa$).
   Then $\kappa$ is Blackwell sufficient for $\eta$, denoted by $\eta \le_B \kappa$, if there exists a Markov kernel $\xi : \mathcal Y \rightsquigarrow \mathcal Z$ such that $\eta = \xi \circ \kappa$.
 \end{definition}
+
+
+
+\section{Disintegration}
+
+TODO
+
+
 
 \section{Bayesian inverse of a kernel}
 
