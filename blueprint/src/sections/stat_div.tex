@@ -200,8 +200,8 @@ If on the other hand $\xi_0\mu(\mathcal X) \ge \xi_1\nu(\mathcal X)$~, with simi
 
 \begin{corollary}
   \label{cor:statInfo_eq_integral_abs}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.toReal_statInfo_eq_integral_abs}
+  \leanok
   \uses{def:statInfo}
   For finite measures $\mu, \nu$ and $\xi \in \mathcal M(\{0,1\})$,
   \begin{align*}
@@ -211,7 +211,7 @@ If on the other hand $\xi_0\mu(\mathcal X) \ge \xi_1\nu(\mathcal X)$~, with simi
   \end{align*}
 \end{corollary}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{thm:statInfo_eq_integral}
 Start from Theorem~\ref{thm:statInfo_eq_integral}, then use $\max\{a,b\} = \frac{1}{2}\left( a + b + \vert a - b \vert \right)$~.
 The two cases of Theorem~\ref{thm:statInfo_eq_integral} lead to the same expression.
@@ -220,8 +220,8 @@ The two cases of Theorem~\ref{thm:statInfo_eq_integral} lead to the same express
 
 \begin{lemma}
   \label{lem:statInfo_eq_sub_inf_event}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.statInfo_eq_min_sub_iInf_measurableSet}
+  \leanok
   \uses{def:statInfo}
   For finite measures $\mu, \nu$ and $\xi \in \mathcal M(\{0,1\})$,
   \begin{align*}
@@ -231,7 +231,7 @@ The two cases of Theorem~\ref{thm:statInfo_eq_integral} lead to the same express
   \end{align*}
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{lem:bayesBinaryRisk_eq_event}
 This is a direct application of Lemma~\ref{lem:bayesBinaryRisk_eq_event}.
 \end{proof}

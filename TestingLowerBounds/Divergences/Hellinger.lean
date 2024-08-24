@@ -559,8 +559,8 @@ lemma hellingerDiv_symm' (ha_pos : 0 < a) (ha : a < 1) (h_eq : μ Set.univ = ν 
   norm_cast
   simp_rw [mul_sub, ← mul_assoc]
   have : (1 - a) * (a - 1)⁻¹ = a * (-a)⁻¹ := by
-    rw [← neg_neg (1 - a), neg_sub, neg_mul, mul_inv_cancel, inv_neg, mul_comm, neg_mul,
-      inv_mul_cancel ha_pos.ne']
+    rw [← neg_neg (1 - a), neg_sub, neg_mul, mul_inv_cancel₀, inv_neg, mul_comm, neg_mul,
+      inv_mul_cancel₀ ha_pos.ne']
     linarith
   rw [integral_rpow_rnDeriv ha_pos ha.ne]
   congr
@@ -592,7 +592,7 @@ lemma meas_univ_add_mul_hellingerDiv_eq (ha_ne_zero : a ≠ 0) (ha_ne_one : a �
     ↑(ν Set.univ) + (a - 1) * hellingerDiv a μ ν = ∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν := by
   rw_mod_cast [hellingerDiv_eq_integral_of_ne_top' ha_ne_zero ha_ne_one h,
     ← ENNReal.ofReal_toReal (measure_ne_top ν Set.univ), EReal.coe_ennreal_ofReal,
-    max_eq_left ENNReal.toReal_nonneg, ← mul_sub, ← mul_assoc, mul_inv_cancel _]
+    max_eq_left ENNReal.toReal_nonneg, ← mul_sub, ← mul_assoc, mul_inv_cancel₀ _]
   ring_nf
   exact sub_ne_zero_of_ne ha_ne_one
 
@@ -624,7 +624,7 @@ lemma meas_univ_add_mul_hellingerDiv_nonneg_of_le_one (ha_nonneg : 0 ≤ a) (ha 
       · exact hellingerDiv_le_of_lt_one ha_nonneg ha μ ν
     _ = (ν Set.univ) - (ν Set.univ) := by
       norm_cast
-      rw [← mul_assoc, ← EReal.coe_mul, mul_inv_cancel (by linarith), EReal.coe_one, one_mul]
+      rw [← mul_assoc, ← EReal.coe_mul, mul_inv_cancel₀ (by linarith), EReal.coe_one, one_mul]
     _ ≥ _ := by
       rw [← ENNReal.toEReal_sub (measure_ne_top _ _) (le_refl _)]
       simp

@@ -155,6 +155,16 @@ lemma ConvexOn.derivAtTop_eq_iff {y : EReal} (hf : ConvexOn ℝ (Ici 0) f) :
     derivAtTop f = y ↔ Tendsto (fun x ↦ (rightDeriv f x : EReal)) atTop (𝓝 y) :=
   hf.rightDeriv_mono'.derivAtTop_eq_iff
 
+lemma MonotoneOn.derivAtTop_eq_top_iff (hf : MonotoneOn (rightDeriv f) (Ioi 0)) :
+    derivAtTop f = ⊤ ↔ Tendsto (rightDeriv f) atTop atTop := by
+  refine ⟨fun h ↦ ?_, fun h ↦ derivAtTop_of_tendsto_atTop h⟩
+  exact EReal.tendsto_toReal_atTop.comp (tendsto_nhdsWithin_of_tendsto_nhds_of_eventually_within _
+    (h ▸ hf.tendsto_derivAtTop) (eventually_of_forall fun _ ↦ EReal.coe_ne_top _))
+
+lemma ConvexOn.derivAtTop_eq_top_iff (hf : ConvexOn ℝ (Ici 0) f) :
+    derivAtTop f = ⊤ ↔ Tendsto (rightDeriv f) atTop atTop :=
+  hf.rightDeriv_mono'.derivAtTop_eq_top_iff
+
 lemma MonotoneOn.derivAtTop_ne_bot (hf : MonotoneOn (rightDeriv f) (Ioi 0)) : derivAtTop f ≠ ⊥ := by
   intro h_eq
   rw [hf.derivAtTop_eq_iff, ← tendsto_extendBotLtOne_rightDeriv_iff] at h_eq
@@ -247,6 +257,13 @@ lemma rightDeriv_le_toReal_derivAtTop (h_cvx : ConvexOn ℝ (Ici 0) f) (h : deri
   refine ⟨max 1 x, fun y hy ↦ h_cvx.rightDeriv_mono' hx ?_ ?_⟩
   · exact mem_Ioi.mpr (hx.trans_le ((le_max_right _ _).trans hy))
   · exact (le_max_right _ _).trans hy
+
+lemma rightDeriv_le_derivAtTop (h_cvx : ConvexOn ℝ (Ici 0) f) (hx : 0 < x) :
+    rightDeriv f x ≤ derivAtTop f := by
+  by_cases h : derivAtTop f = ⊤
+  · exact h ▸ le_top
+  · rw [← EReal.coe_toReal h h_cvx.derivAtTop_ne_bot, EReal.coe_le_coe_iff]
+    exact rightDeriv_le_toReal_derivAtTop h_cvx h hx
 
 lemma slope_le_derivAtTop (h_cvx : ConvexOn ℝ (Ici 0) f)
     (h : derivAtTop f ≠ ⊤) {x y : ℝ} (hx : 0 ≤ x) (hxy : x < y) :

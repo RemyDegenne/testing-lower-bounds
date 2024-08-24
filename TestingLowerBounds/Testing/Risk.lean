@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne
 -/
 import TestingLowerBounds.Kernel.BayesInv
-import TestingLowerBounds.ForMathlib.KernelConstComp
 
 /-!
 # Estimation and risk
@@ -173,7 +172,7 @@ lemma bayesRiskPrior_le_inf (E : estimationProblem Θ 𝒴 𝒵) (P : Kernel Θ 
     rw [lintegral_dirac']
     have := E.ℓ_meas
     fun_prop [E.ℓ_meas]
-  · exact Kernel.isMarkovKernel_const
+  · infer_instance
 
 /-- The Bayesian risk of an estimator `κ` with respect to a prior `π` can be expressed as
 an integral in the following way: `R_π(κ) = ((P†π × κ) ∘ P ∘ π)[(θ, z) ↦ ℓ(y(θ), z)]`. -/
@@ -184,13 +183,12 @@ lemma bayesianRisk_eq_lintegral_bayesInv_prod [StandardBorelSpace Θ] [Nonempty 
   have := E.ℓ_meas
   have := E.y_meas
   simp only [bayesianRisk, risk]
-  rw [← MeasureTheory.Measure.lintegral_compProd (f := fun θz ↦ E.ℓ (E.y θz.1, θz.2)) (by fun_prop),
-    ← Kernel.swap_prod, Kernel.prod_eq_copy_comp_parallelComp, Measure.compProd_eq_comp,
-    Kernel.prod_eq_copy_comp_parallelComp]
-  nth_rw 2 [← Kernel.parallelComp_comp_id_right_left]
-  simp_rw [← Measure.comp_assoc, compProd_bayesInv'', Measure.comp_assoc, ← Kernel.comp_assoc,
-  Kernel.swap_parallelComp, Kernel.comp_assoc (_ ∥ₖ κ), Kernel.swap_parallelComp, Kernel.comp_assoc,
-  Kernel.swap_copy, ← Kernel.comp_assoc, Kernel.parallelComp_comp_id_left_left]
+  rw [← MeasureTheory.Measure.lintegral_compProd (f := fun θz ↦ E.ℓ (E.y θz.1, θz.2)) (by fun_prop)]
+  congr
+  calc π ⊗ₘ (κ ∘ₖ P) = (Kernel.id ∥ₖ κ) ∘ₘ (π ⊗ₘ P) := Measure.parallelComp_comp_compProd.symm
+  _ = (Kernel.id ∥ₖ κ) ∘ₘ ((P†π) ×ₖ Kernel.id) ∘ₘ P ∘ₘ π := by rw [bayesInv_prod_id_comp]
+  _ = ((P†π) ×ₖ κ) ∘ₘ P ∘ₘ π := by
+      rw [Measure.comp_assoc, Kernel.parallelComp_comp_prod, Kernel.id_comp, Kernel.comp_id]
 
 lemma bayesianRisk_eq_integral_integral_integral [StandardBorelSpace Θ] [Nonempty Θ]
     (E : estimationProblem Θ 𝒴 𝒵) (P : Kernel Θ 𝒳) [IsFiniteKernel P] (κ : Kernel 𝒳 𝒵)

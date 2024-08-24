@@ -17,6 +17,7 @@ variable {δ : Type*} {mδ : MeasurableSpace δ}
 
 --TODO: PR this to mathlib, a suitable place may be just under
 -- `ProbabilityTheory.Kernel.snd_swapRight`
+-- PRed, see #15466.
 
 --I try to reproduce the code that is already there for Kernel.fst and Kernel.snd, but in this case
 --the fst and snd are referred to the domain of the kernel, not the codomain
@@ -34,16 +35,16 @@ theorem fst'_apply (κ : Kernel (α × β) γ) (b : β) (a : α) : fst' κ b a =
 lemma fst'_zero (b : β) : fst' (0 : Kernel (α × β) γ) b = 0 := by simp [fst']
 
 instance (κ : Kernel (α × β) γ) (b : β) [IsMarkovKernel κ] : IsMarkovKernel (fst' κ b) := by
-  rw [Kernel.fst']; infer_instance
+  rw [fst']; infer_instance
 
 instance (κ : Kernel (α × β) γ) (b : β) [IsFiniteKernel κ] : IsFiniteKernel (fst' κ b) := by
-  rw [Kernel.fst']; infer_instance
+  rw [fst']; infer_instance
 
 instance (κ : Kernel (α × β) γ) (b : β) [IsSFiniteKernel κ] : IsSFiniteKernel (fst' κ b) := by
-  rw [Kernel.fst']; infer_instance
+  rw [fst']; infer_instance
 
 instance (κ : Kernel (α × β) γ) (a : α) (b : β) [NeZero (κ (a, b))] : NeZero ((fst' κ b) a) := by
-  rw [Kernel.fst'_apply]; infer_instance
+  rw [fst'_apply]; infer_instance
 
 instance (priority := 100) {κ : Kernel (α × β) γ} [∀ b, IsMarkovKernel (fst' κ b)] :
     IsMarkovKernel κ := by
@@ -76,16 +77,16 @@ theorem snd'_apply (κ : Kernel (α × β) γ) (b : β) (a : α) : snd' κ a b =
 lemma snd'_zero (a : α) : snd' (0 : Kernel (α × β) γ) a = 0 := by simp [snd']
 
 instance (κ : Kernel (α × β) γ) (a : α) [IsMarkovKernel κ] : IsMarkovKernel (snd' κ a) := by
-  rw [Kernel.snd']; infer_instance
+  rw [snd']; infer_instance
 
 instance (κ : Kernel (α × β) γ) (a : α) [IsFiniteKernel κ] : IsFiniteKernel (snd' κ a) := by
-  rw [Kernel.snd']; infer_instance
+  rw [snd']; infer_instance
 
 instance (κ : Kernel (α × β) γ) (a : α) [IsSFiniteKernel κ] : IsSFiniteKernel (snd' κ a) := by
-  rw [Kernel.snd']; infer_instance
+  rw [snd']; infer_instance
 
 instance (κ : Kernel (α × β) γ) (a : α) (b : β) [NeZero (κ (a, b))] : NeZero ((snd' κ a) b) := by
-  rw [Kernel.snd'_apply]; infer_instance
+  rw [snd'_apply]; infer_instance
 
 instance (priority := 100) {κ : Kernel (α × β) γ} [∀ b, IsMarkovKernel (snd' κ b)] :
     IsMarkovKernel κ := by

@@ -3,6 +3,7 @@ import Mathlib.Topology.Order.Basic
 open Set Filter Topology
 
 -- Put this in Mathlib, replacing `Monotone.tendsto_nhdsWithin_Iio`
+-- PRed, see #15470
 
 lemma MonotoneOn.tendsto_nhdsWithin_Ioo_left {α β : Type*} [LinearOrder α] [TopologicalSpace α]
     [OrderTopology α] [ConditionallyCompleteLinearOrder β] [TopologicalSpace β] [OrderTopology β]

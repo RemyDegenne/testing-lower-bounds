@@ -21,7 +21,7 @@ namespace ProbabilityTheory.Kernel
 variable {α β γ δ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
   {mγ : MeasurableSpace γ} {mδ : MeasurableSpace δ}
   {μ : Measure α} [IsFiniteMeasure μ]
-  {κ : Kernel α β} [IsFiniteKernel κ]
+  {κ : Kernel α β}
 
 section KernelId
 
@@ -35,16 +35,10 @@ lemma id_apply (a : α) : Kernel.id a = Measure.dirac a := by
   rw [Kernel.id, deterministic_apply, id_def]
 
 @[simp]
-lemma comp_id : κ ∘ₖ Kernel.id = κ := by
-  ext a
-  rw [comp_apply, id_apply, Measure.bind_dirac (Kernel.measurable _)]
+lemma comp_id : κ ∘ₖ Kernel.id = κ := by rw [Kernel.id, comp_deterministic_eq_comap, comap_id]
 
 @[simp]
-lemma id_comp : Kernel.id ∘ₖ κ = κ := by
-  ext a s hs
-  simp_rw [comp_apply, Measure.bind_apply hs (Kernel.measurable _), id_apply,
-    Measure.dirac_apply' _ hs]
-  rw [lintegral_indicator_one hs]
+lemma id_comp : Kernel.id ∘ₖ κ = κ := by rw [Kernel.id, deterministic_comp_eq_map, map_id]
 
 lemma compProd_prodMkLeft_eq_comp
     (κ : Kernel α β) [IsSFiniteKernel κ] (η : Kernel β γ) [IsSFiniteKernel η] :
@@ -63,8 +57,7 @@ end KernelId
 section Copy
 
 noncomputable
-def copy (α : Type*) [MeasurableSpace α] : Kernel α (α × α) :=
-  Kernel.id ×ₖ Kernel.id
+def copy (α : Type*) [MeasurableSpace α] : Kernel α (α × α) := Kernel.id ×ₖ Kernel.id
 
 instance : IsMarkovKernel (copy α) := by rw [copy]; infer_instance
 
@@ -99,7 +92,7 @@ end Discard
 section Swap
 
 noncomputable
-def swap (α : Type*) [MeasurableSpace α] (β : Type*) [MeasurableSpace β] : Kernel (α × β) (β × α) :=
+def swap (α β : Type*) [MeasurableSpace α] [MeasurableSpace β] : Kernel (α × β) (β × α) :=
   Kernel.deterministic Prod.swap measurable_swap
 
 instance : IsMarkovKernel (swap α β) := by rw [swap]; infer_instance
@@ -120,8 +113,11 @@ lemma swap_copy : (swap α α) ∘ₖ (copy α) = copy α := by
 
 @[simp]
 lemma swap_swap : (swap α β) ∘ₖ (swap β α) = Kernel.id := by
-  simp_rw [swap, Kernel.deterministic_comp_deterministic, Prod.swap_swap_eq]
-  rfl
+  simp_rw [swap, Kernel.deterministic_comp_deterministic, Prod.swap_swap_eq, Kernel.id]
+
+lemma swap_comp_eq_map {κ : Kernel α (β × γ)} :
+    (swap β γ) ∘ₖ κ = κ.map Prod.swap measurable_swap := by
+  rw [swap, deterministic_comp_eq_map]
 
 end Swap
 
@@ -138,8 +134,7 @@ lemma parallelComp_apply (κ : Kernel α β) [IsSFiniteKernel κ]
     (κ ∥ₖ η) x = (κ x.1).prod (η x.2) := by
   rw [parallelComp, prod_apply, prodMkRight_apply, prodMkLeft_apply]
 
-instance (κ : Kernel α β) (η : Kernel γ δ) :
-    IsSFiniteKernel (κ ∥ₖ η) := by
+instance (κ : Kernel α β) (η : Kernel γ δ) : IsSFiniteKernel (κ ∥ₖ η) := by
   rw [parallelComp]; infer_instance
 
 instance (κ : Kernel α β) [IsFiniteKernel κ] (η : Kernel γ δ) [IsFiniteKernel η] :
@@ -150,7 +145,7 @@ instance (κ : Kernel α β) [IsMarkovKernel κ] (η : Kernel γ δ) [IsMarkovKe
     IsMarkovKernel (κ ∥ₖ η) := by
   rw [parallelComp]; infer_instance
 
-lemma prod_eq_copy_comp_parallelComp (κ : Kernel α β) [IsSFiniteKernel κ]
+lemma prod_eq_parallelComp_comp_copy (κ : Kernel α β) [IsSFiniteKernel κ]
     (η : Kernel α γ) [IsSFiniteKernel η] :
     κ ×ₖ η = (κ ∥ₖ η) ∘ₖ (copy α) := by
   ext a s hs
@@ -204,6 +199,14 @@ lemma parallelComp_comp_parallelComp {α' β' γ' : Type*} {mα' : MeasurableSpa
     Measure.prod_apply hs,
     lintegral_lintegral_swap (measurable_Kernel_prod_mk_left'' hs).aemeasurable]
 
+lemma parallelComp_comp_prod {β' γ' : Type*}
+    {mβ' : MeasurableSpace β'} {mγ' : MeasurableSpace γ'}
+    {κ : Kernel α β} [IsSFiniteKernel κ] {η : Kernel β γ} [IsSFiniteKernel η]
+    {κ' : Kernel α β'} [IsSFiniteKernel κ'] {η' : Kernel β' γ'} [IsSFiniteKernel η'] :
+    (η ∥ₖ η') ∘ₖ (κ ×ₖ κ') = (η ∘ₖ κ) ×ₖ (η' ∘ₖ κ') := by
+  rw [prod_eq_parallelComp_comp_copy, ← comp_assoc, parallelComp_comp_parallelComp,
+    prod_eq_parallelComp_comp_copy]
+
 lemma parallelComp_comp_id_left_right (κ : Kernel α β) [IsSFiniteKernel κ]
     (η : Kernel γ δ) [IsSFiniteKernel η] :
     (Kernel.id ∥ₖ η) ∘ₖ (κ ∥ₖ Kernel.id) = κ ∥ₖ η := by
@@ -230,7 +233,6 @@ end ParallelComp
 lemma swap_prod {κ : Kernel α β} [IsSFiniteKernel κ]
     {η : Kernel α γ} [IsSFiniteKernel η] :
     (swap β γ) ∘ₖ (κ ×ₖ η) = (η ×ₖ κ) := by
-  simp_rw [prod_eq_copy_comp_parallelComp, ← comp_assoc, swap_parallelComp, comp_assoc, swap_copy]
-
+  simp_rw [prod_eq_parallelComp_comp_copy, ← comp_assoc, swap_parallelComp, comp_assoc, swap_copy]
 
 end ProbabilityTheory.Kernel

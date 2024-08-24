@@ -39,11 +39,16 @@ lemma const_mul_statInfoFun {a : ℝ} (ha : 0 ≤ a) :
   · simp_rw [mul_le_mul_left ha]
   · simp
 
+lemma statInfoFun_neg_neg (h : β ≠ γ) : statInfoFun (-β) (-γ) = statInfoFun β γ := by
+  ext
+  rcases lt_or_gt_of_ne h with (hγβ | hγβ)
+    <;> simp [statInfoFun, sub_eq_add_neg, hγβ.le, hγβ.not_le, add_comm]
+
 --TODO: for now I will leave the continuity assumption in some lemmas, it should be derived from the convexity but the lemma is not yet in mathlib, when it gets there we can remove this assumption
 
 section Measurability
 
-lemma stronglymeasurable_statInfoFun : StronglyMeasurable statInfoFun.uncurry.uncurry := by
+lemma stronglyMeasurable_statInfoFun : StronglyMeasurable statInfoFun.uncurry.uncurry := by
   apply Measurable.stronglyMeasurable
   change Measurable (fun (p : (ℝ × ℝ) × ℝ) ↦ if p.1.2 ≤ p.1.1 then max 0 (p.1.2 - p.1.1 * p.2)
     else max 0 (p.1.1 * p.2 - p.1.2))
@@ -54,11 +59,11 @@ lemma stronglymeasurable_statInfoFun : StronglyMeasurable statInfoFun.uncurry.un
 
 lemma measurable_statInfoFun2 : Measurable fun γ ↦ statInfoFun β γ x := by
   change Measurable (statInfoFun.uncurry.uncurry ∘ (fun (γ : ℝ) ↦ ((β, γ), x)))
-  exact stronglymeasurable_statInfoFun.measurable.comp (by fun_prop)
+  exact stronglyMeasurable_statInfoFun.measurable.comp (by fun_prop)
 
 lemma stronglyMeasurable_statInfoFun3 : StronglyMeasurable (statInfoFun β γ) := by
   change StronglyMeasurable (statInfoFun.uncurry.uncurry ∘ (fun (x : ℝ) ↦ ((β, γ), x)))
-  refine stronglymeasurable_statInfoFun.measurable.comp (by fun_prop) |>.stronglyMeasurable
+  refine stronglyMeasurable_statInfoFun.measurable.comp (by fun_prop) |>.stronglyMeasurable
 
 end Measurability
 
@@ -193,10 +198,23 @@ lemma derivAtTop_statInfoFun_of_nonpos_of_gt (hβ : β ≤ 0) (hγ : γ > β) :
   simp only [Pi.zero_apply, max_eq_left_iff, tsub_le_iff_right, zero_add]
   rwa [ge_iff_le, div_le_iff_of_neg hβ, mul_comm] at hx
 
+lemma derivAtTop_statInfoFun_eq :
+    derivAtTop (fun x ↦ statInfoFun β γ x)
+      = if 0 ≤ β then (if γ ≤ β then 0 else β) else if γ ≤ β then -β else 0 := by
+  by_cases hβ : 0 ≤ β <;> by_cases hγ : γ ≤ β <;> simp [derivAtTop_statInfoFun_of_nonneg_of_le,
+    derivAtTop_statInfoFun_of_nonneg_of_gt, derivAtTop_statInfoFun_of_nonpos_of_le,
+    derivAtTop_statInfoFun_of_nonpos_of_gt, hβ, hγ, lt_of_not_le, le_of_lt (lt_of_not_le _)]
+
 lemma derivAtTop_statInfoFun_ne_top (β γ : ℝ) : derivAtTop (fun x ↦ statInfoFun β γ x) ≠ ⊤ := by
   rcases le_total 0 β with (hβ | hβ) <;> rcases le_or_lt γ β with (hγ | hγ) <;>
     simp [derivAtTop_statInfoFun_of_nonneg_of_le, derivAtTop_statInfoFun_of_nonneg_of_gt,
       derivAtTop_statInfoFun_of_nonpos_of_le, derivAtTop_statInfoFun_of_nonpos_of_gt, hβ, hγ]
+
+lemma derivAtTop_statInfoFun_nonneg (β γ : ℝ) : 0 ≤ derivAtTop (fun x ↦ statInfoFun β γ x) := by
+  rcases le_total 0 β with (hβ | hβ) <;> rcases le_or_lt γ β with (hγ | hγ) <;>
+    simp [derivAtTop_statInfoFun_of_nonneg_of_le, derivAtTop_statInfoFun_of_nonneg_of_gt,
+      ← EReal.coe_neg, derivAtTop_statInfoFun_of_nonpos_of_le,
+      derivAtTop_statInfoFun_of_nonpos_of_gt, hβ, hγ]
 
 end derivAtTop
 

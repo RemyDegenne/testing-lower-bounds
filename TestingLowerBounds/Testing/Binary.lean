@@ -399,7 +399,7 @@ lemma nonempty_subtype_isMarkovKernel_of_nonempty {𝒳 : Type*} {m𝒳 : Measur
     Nonempty (Subtype (@IsMarkovKernel 𝒳 𝒴 m𝒳 m𝒴)) := by
   simp only [nonempty_subtype, Subtype.exists]
   let y : 𝒴 := Classical.ofNonempty
-  exact ⟨Kernel.const _ (Measure.dirac y), Kernel.isMarkovKernel_const⟩
+  exact ⟨Kernel.const _ (Measure.dirac y), inferInstance⟩
 
 @[simp]
 lemma bayesBinaryRisk_self (μ : Measure 𝒳) (π : Measure Bool) :
@@ -413,7 +413,7 @@ lemma bayesBinaryRisk_self (μ : Measure 𝒳) (π : Measure Bool) :
     simp_rw [η]
     convert iInf_le _ ?_ using 1
     · split_ifs with h <;> simp [le_of_not_ge, h]
-    · split_ifs <;> exact Kernel.isMarkovKernel_const
+    · split_ifs <;> infer_instance
   · calc
       _ ≥ ⨅ κ, ⨅ (_ : IsMarkovKernel κ), min (π {false}) (π {true}) * (κ ∘ₘ μ) {false}
           + min (π {false}) (π {true}) * (κ ∘ₘ μ) {true} := by
@@ -628,22 +628,22 @@ lemma bayesBinaryRisk_eq_lintegral_ennnorm (μ ν : Measure 𝒳) [IsFiniteMeasu
   · refine ⟨Measurable.aestronglyMeasurable (by fun_prop), ?_⟩
     simp_rw [HasFiniteIntegral, Real.nnnorm_abs]
     calc
-      _ ≤ ∫⁻ a, ‖(π {false} * (∂μ/∂(twoHypKernel μ ν ∘ₘ π)) a).toReal‖₊ +
-          ‖(π {true} * (∂ν/∂(twoHypKernel μ ν ∘ₘ π)) a).toReal‖₊ ∂(twoHypKernel μ ν ∘ₘ π) := by
+      _ ≤ ∫⁻ a, ‖(π {false} * (∂μ/∂twoHypKernel μ ν ∘ₘ π) a).toReal‖₊ +
+          ‖(π {true} * (∂ν/∂twoHypKernel μ ν ∘ₘ π) a).toReal‖₊ ∂(twoHypKernel μ ν ∘ₘ π) := by
         gcongr
         exact_mod_cast nnnorm_sub_le _ _
-      _ = ∫⁻ a, ‖(π {false} * (∂μ/∂(twoHypKernel μ ν ∘ₘ π)) a).toReal‖₊ ∂(twoHypKernel μ ν ∘ₘ π) +
-          ∫⁻ a, ‖(π {true} * (∂ν/∂(twoHypKernel μ ν ∘ₘ π)) a).toReal‖₊ ∂(twoHypKernel μ ν ∘ₘ π) :=
+      _ = ∫⁻ a, ‖(π {false} * (∂μ/∂twoHypKernel μ ν ∘ₘ π) a).toReal‖₊ ∂(twoHypKernel μ ν ∘ₘ π) +
+          ∫⁻ a, ‖(π {true} * (∂ν/∂twoHypKernel μ ν ∘ₘ π) a).toReal‖₊ ∂(twoHypKernel μ ν ∘ₘ π) :=
         lintegral_add_left (by fun_prop) _
-      _ ≤ π {false} * ∫⁻ a, ‖((∂μ/∂(twoHypKernel μ ν ∘ₘ π)) a).toReal‖₊ ∂(twoHypKernel μ ν ∘ₘ π) +
-          π {true} * ∫⁻ a, ‖((∂ν/∂(twoHypKernel μ ν ∘ₘ π)) a).toReal‖₊ ∂(twoHypKernel μ ν ∘ₘ π) := by
+      _ ≤ π {false} * ∫⁻ a, ‖((∂μ/∂twoHypKernel μ ν ∘ₘ π) a).toReal‖₊ ∂(twoHypKernel μ ν ∘ₘ π) +
+          π {true} * ∫⁻ a, ‖((∂ν/∂twoHypKernel μ ν ∘ₘ π) a).toReal‖₊ ∂(twoHypKernel μ ν ∘ₘ π) := by
         simp_rw [ENNReal.toReal_mul, nnnorm_mul, ENNReal.coe_mul]
         rw [lintegral_const_mul _ (by fun_prop), lintegral_const_mul _ (by fun_prop)]
         gcongr <;>
         · rw [Real.ennnorm_eq_ofReal_abs, ENNReal.abs_toReal]
           exact ENNReal.ofReal_toReal_le
-      _ ≤ π {false} * ∫⁻ a, (∂μ/∂(twoHypKernel μ ν ∘ₘ π)) a ∂(twoHypKernel μ ν ∘ₘ π) +
-          π {true} * ∫⁻ a, (∂ν/∂(twoHypKernel μ ν ∘ₘ π)) a ∂(twoHypKernel μ ν ∘ₘ π) := by
+      _ ≤ π {false} * ∫⁻ a, (∂μ/∂twoHypKernel μ ν ∘ₘ π) a ∂(twoHypKernel μ ν ∘ₘ π) +
+          π {true} * ∫⁻ a, (∂ν/∂twoHypKernel μ ν ∘ₘ π) a ∂(twoHypKernel μ ν ∘ₘ π) := by
         gcongr <;>
         · rw [Real.ennnorm_eq_ofReal_abs, ENNReal.abs_toReal]
           exact ENNReal.ofReal_toReal_le

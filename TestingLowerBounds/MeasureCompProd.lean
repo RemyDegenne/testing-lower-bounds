@@ -42,6 +42,13 @@ Defined using `MeasureTheory.Measure.bind` -/
 
 scoped[ProbabilityTheory] notation3 κ " ∘ₘ " μ:100 => MeasureTheory.Measure.bind μ κ
 
+lemma Measure.map_comp (μ : Measure α) (κ : Kernel α β) {f : β → γ} (hf : Measurable f) :
+    (κ ∘ₘ μ).map f = (κ.map f hf) ∘ₘ μ := by
+  ext s hs
+  rw [Measure.map_apply hf hs, Measure.bind_apply (hf hs) κ.measurable,
+    Measure.bind_apply hs (Kernel.measurable _)]
+  simp_rw [Kernel.map_apply' _ _ _ hs]
+
 lemma Measure.comp_assoc {μ : Measure α} {κ : Kernel α β} {η : Kernel β γ} :
     η ∘ₘ (κ ∘ₘ μ) = (η ∘ₖ κ) ∘ₘ μ :=
   Measure.bind_bind (Kernel.measurable _) (Kernel.measurable _)
@@ -98,6 +105,12 @@ lemma Measure.comp_const {ν : Measure β} :
   ext s hs
   simp_rw [Measure.bind_apply hs (Kernel.measurable _), Kernel.const_apply, lintegral_const]
   simp [mul_comm]
+
+lemma Measure.parallelComp_comp_compProd [SFinite μ] {κ : Kernel α β} [IsSFiniteKernel κ]
+    {η : Kernel β γ} [IsSFiniteKernel η] :
+    (Kernel.id ∥ₖ η) ∘ₘ (μ ⊗ₘ κ) = μ ⊗ₘ (η ∘ₖ κ) := by
+  rw [Measure.compProd_eq_comp, Measure.compProd_eq_comp, Measure.comp_assoc,
+    Kernel.parallelComp_comp_prod, Kernel.id_comp]
 
 lemma Measure.compProd_apply_toReal [SFinite μ] [IsFiniteKernel κ]
     {s : Set (α × β)} (hs : MeasurableSet s) :
@@ -212,6 +225,29 @@ lemma parallelComp_comm (κ : Kernel α β) [IsSFiniteKernel κ] (η : Kernel γ
 end Kernel
 
 end ParallelComp
+
+section AbsolutelyContinuous
+
+lemma Measure.absolutelyContinuous_comp {μ ν : Measure α} {κ η : Kernel α γ}
+    [SFinite μ] [SFinite ν] [IsSFiniteKernel κ] [IsSFiniteKernel η]
+    (hμν : μ ≪ ν) (hκη : ∀ᵐ a ∂μ, κ a ≪ η a) :
+    κ ∘ₘ μ ≪ η ∘ₘ ν := by
+  simp_rw [Measure.comp_eq_snd_compProd, Measure.snd]
+  exact Measure.AbsolutelyContinuous.map (Kernel.Measure.absolutelyContinuous_compProd hμν hκη)
+    measurable_snd
+
+lemma Measure.absolutelyContinuous_comp_left {μ ν : Measure α} [SFinite μ] [SFinite ν]
+    (hμν : μ ≪ ν) (κ : Kernel α γ) [IsSFiniteKernel κ]  :
+    κ ∘ₘ μ ≪ κ ∘ₘ ν :=
+  absolutelyContinuous_comp hμν (ae_of_all μ fun _ _ a ↦ a)
+
+lemma Measure.absolutelyContinuous_comp_right (μ : Measure α) {κ η : Kernel α γ}
+    [SFinite μ] [IsSFiniteKernel κ] [IsSFiniteKernel η]
+    (hκη : ∀ᵐ a ∂μ, κ a ≪ η a) :
+    κ ∘ₘ μ ≪ η ∘ₘ μ :=
+  Measure.absolutelyContinuous_comp μ.absolutelyContinuous_refl hκη
+
+end AbsolutelyContinuous
 
 section SingularPart
 
@@ -448,10 +484,6 @@ instance [IsFiniteMeasure μ] [IsFiniteKernel κ] : IsFiniteMeasure (κ ∘ₘ �
 instance [IsProbabilityMeasure μ] [IsMarkovKernel κ] : IsProbabilityMeasure (κ ∘ₘ μ) := by
   rw [Measure.comp_eq_snd_compProd]
   infer_instance
-
---this is already PRed to mathlib, see #14471, when it gets merged and we bump, remove this
-instance [hμ : SFinite μ] (a : ℝ≥0∞) : SFinite (a • μ) := by
-  sorry
 
 lemma Measure.compProd_smul_left (a : ℝ≥0∞) [SFinite μ] [IsSFiniteKernel κ] :
     (a • μ) ⊗ₘ κ = a • (μ ⊗ₘ κ) := by
