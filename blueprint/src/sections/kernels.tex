@@ -64,7 +64,23 @@ A few deterministic kernels are particularly useful.
   \item The discard kernel $d_{\mathcal X}$ (TODO: conflicts with deterministic kernel notation). This is a kernel from $\mathcal X$ to $*$, the space with one point, corresponding to the constant function.
 \end{itemize}
 
-TODO: extensionality. Two kernels are equal iff... (useful to describe the composition-product further down).
+Kernels can be described by the integrals of measurable functions, as demonstrated in the following extensionality theorem.
+
+\begin{theorem}
+  \label{thm:kernel_ext}
+  %\lean{}
+  %\leanok
+  \uses{def:kernel}
+  Two kernels $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ are equal iff for all measurable functions $f : \mathcal Y \to \mathbb{R}_{+,\infty}$ and all $x \in \mathcal X$,
+  \begin{align*}
+  \int_y f(y) \partial \kappa(x) = \int_y f(y) \partial \eta(x) \: .
+  \end{align*}
+\end{theorem}
+
+\begin{proof}\leanok
+\uses{}
+
+\end{proof}
 
 \section{Classes of kernels}
 
@@ -73,7 +89,7 @@ TODO: extensionality. Two kernels are equal iff... (useful to describe the compo
   \lean{ProbabilityTheory.IsFiniteKernel}
   \leanok
   \uses{def:kernel}
-  A kernel $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ is said to be finite if there exists $\mathcal C < +\infty$ such that for all $x \in \mathcal X$, $\kappa(x)(\mathcal Y) \le C$.
+  A kernel $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ is said to be finite if there exists $C < +\infty$ such that for all $x \in \mathcal X$, $\kappa(x)(\mathcal Y) \le C$.
 \end{definition}
 
 Note the uniform bound: it is not enough to have $\kappa(x)(\mathcal Y) < \infty$ for all $x \in \mathcal X$. TODO: why? This is required for composition of finite kernels to still be finite (iirc): be precise about that.
@@ -88,7 +104,7 @@ Note the uniform bound: it is not enough to have $\kappa(x)(\mathcal Y) < \infty
 
 A Markov kernel is finite, with constant $C = 1$.
 
-\begin{definition}[S-Finite kernel]
+\begin{definition}[s-finite kernel]
   \label{def:sFinite_kernel}
   \lean{ProbabilityTheory.IsSFiniteKernel}
   \leanok
@@ -96,7 +112,7 @@ A Markov kernel is finite, with constant $C = 1$.
   A kernel $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ is said to be a s-finite if it is equal to a countable sum of finite kernels.
 \end{definition}
 
-This last, most general class of kernels, is the right assumption to define operations on kernels like their product.
+That last, most general class of kernels, is the right assumption to define operations on kernels like their product.
 
 
 
@@ -108,10 +124,13 @@ This last, most general class of kernels, is the right assumption to define oper
   \leanok
   \uses{def:kernel, def:sFinite_kernel}
   Let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : (\mathcal X \times \mathcal Y) \rightsquigarrow \mathcal Z$ be two s-finite kernels.
-  The composition-product of $\kappa$ and $\eta$ is a kernel $\kappa \otimes \eta : \mathcal X \rightsquigarrow (\mathcal Y \times \mathcal Z)$ such that
-
-  TODO
+  The composition-product of $\kappa$ and $\eta$ is a kernel $\kappa \otimes \eta : \mathcal X \rightsquigarrow (\mathcal Y \times \mathcal Z)$ such that for all measurable functions $f : \mathcal Y \times \mathcal Z \to \mathbb{R}_{+,\infty}$ and $x \in \mathcal X$~,
+  \begin{align*}
+  \int_{y,z} f(y,z) \partial(\kappa \otimes \eta)(x) = \int_y \int_z f(y,z) \partial\eta(x,y) \partial\kappa(x) \: .
+  \end{align*}
 \end{definition}
+
+As for all other kernel definitions in this section, we omit the proof that this indeed defines a kernel and refer the reader to the Mathlib implementation.
 
 TODO: explanation of that composition-product on an example.
 
@@ -139,10 +158,11 @@ Since a measure is a constant kernel from the space with one element, we can als
   \leanok
   \uses{def:kernel}
   Let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal Y \rightsquigarrow \mathcal Z$ be two kernels.
-  The composition of $\kappa$ and $\eta$ is the kernel $\eta \circ \kappa : \mathcal X \rightsquigarrow \mathcal Z$ equal to $(\kappa \otimes \eta)_Z$ (TODO explain that notation).
+  The composition of $\kappa$ and $\eta$ is the kernel $\eta \circ \kappa : \mathcal X \rightsquigarrow \mathcal Z$ such that for all measurable functions $f : \mathcal Z \to \mathbb{R}_{+,\infty}$ and all $x \in \mathcal X$,
+  \begin{align*}
+  \int_z f(z) \partial(\eta \circ \kappa)(x) = \int_y \int_z f(z) \partial\eta(y) \partial\kappa(x) \: .
+  \end{align*}
 \end{definition}
-
-TODO: define composition without using the composition-product, since we want to use it alone in the category definition.
 
 We can also define the composition of a measure and a kernel, by $\kappa \circ \mu = (\kappa \circ \mu_k) (u)$, where $\mathcal U$ is a measurable space with a unique element $u$ and $\mu_k : \mathcal U \rightsquigarrow \mathcal X$ is the constant kernel with value $\mu$.
 
@@ -152,9 +172,10 @@ We can also define the composition of a measure and a kernel, by $\kappa \circ \
   \leanok
   \uses{def:kernel, def:sFinite_kernel}
   Let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal X \rightsquigarrow \mathcal Z$ be two s-finite kernels.
-  The product of $\kappa$ and $\eta$ is the kernel $\kappa \times \eta : \mathcal X \rightsquigarrow (\mathcal Y \times \mathcal Z)$ equal to
-
-  TODO
+  The product of $\kappa$ and $\eta$ is the kernel $\kappa \times \eta : \mathcal X \rightsquigarrow \mathcal Y \times \mathcal Z$ such that for all measurable functions $f : \mathcal Y \times \mathcal Z \to \mathbb{R}_{+,\infty}$ and all $x \in \mathcal X$,
+  \begin{align*}
+  \int_{y,z} f(y,z) \partial(\kappa \times \eta)(x) = \int_y \int_z f(y,z) \partial\eta(x) \partial\kappa(x) \: .
+  \end{align*}
 \end{definition}
 
 For $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal Y \rightsquigarrow \mathcal Z$ (independent of $\mathcal X$), the composition-product can be written as a composition: $\kappa \otimes \eta = (d_{\text{id}} \times \eta) \circ \kappa$ where $d_{\text{id}}$ is the deterministic kernel for the identity.
@@ -166,9 +187,10 @@ In particular, the composition-product of a measure and a kernel $\kappa$ is the
   \leanok
   \uses{def:kernel, def:sFinite_kernel}
   Let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal X' \rightsquigarrow \mathcal Y'$ be two s-finite kernels.
-  The parallel product of $\kappa$ and $\eta$ is the kernel $\kappa \parallel \eta : (\mathcal X \times \mathcal X') \rightsquigarrow (\mathcal Y \times \mathcal Y')$ equal to
-
-  TODO
+  The parallel product of $\kappa$ and $\eta$ is the kernel $\kappa \parallel \eta : \mathcal X \times \mathcal X' \rightsquigarrow \mathcal Y \times \mathcal Y'$ such that for all measurable functions $f : \mathcal Y \times \mathcal Y' \to \mathbb{R}_{+,\infty}$ and all $x \in \mathcal X \times \mathcal X'$,
+  \begin{align*}
+  \int_{y,y'} f(y,y') \partial(\kappa \parallel \eta)(x,x') = \int_y \int_{y'} f(y,y') \partial\eta(x') \partial\kappa(x) \: .
+  \end{align*}
 \end{definition}
 
 
@@ -212,7 +234,27 @@ In that view of transition kernels, the following operations are not primitive, 
 
 \section{Disintegration}
 
-TODO
+A kernel $\eta : \mathcal X \times \mathcal Y \rightsquigarrow \mathcal Z$ is said to disintegrate a kernel $\kappa : \mathcal X \rightsquigarrow \mathcal Y \times \mathcal Z$ if $\kappa = \kappa_{Y} \otimes \eta$.
+
+TODO: if a disintegrating kernel $\eta$ exits for $\kappa$, the measure $\eta(x,y)$ is unique for all $x \in \mathcal X$ and $\kappa_{Y}(x)$-almost every $y \in \mathcal Y$.
+
+TODO: if a disintegrating kernel $\eta$ exits for $\kappa$, the measure $\eta(x,y)$ is a probability measure for all $x \in \mathcal X$ and $\kappa_{Y}(x)$-almost every $y \in \mathcal Y$.
+
+\begin{theorem}[Disintegration in standard Borel spaces]
+  \label{thm:disintegration}
+  %\lean{}
+  \leanok
+  \uses{def:kernel, def:markov_kernel}
+  If either $\mathcal X$ is countable of $\mathcal Y$ has a countably generated $\sigma$-algebra, and $\mathcal Z$ is standard Borel, then for every s-finite kernel $\kappa : \mathcal X \rightsquigarrow \mathcal Y \times \mathcal Z$, there exists a Markov kernel $\kappa_{Z \mid Y} : \mathcal X \times \mathcal Y \rightsquigarrow \mathcal Z$ that disintegrates $\kappa$.
+\end{theorem}
+
+TODO: the result in Mathlib is about finite kernels, but s-finite should be enough?
+
+\begin{proof}\leanok
+\uses{}
+\end{proof}
+
+TODO: as a consequence, in standard Borel spaces we also have disintegration of measures.
 
 
 
@@ -225,8 +267,22 @@ TODO
   \uses{def:kernel_comp, def:measure_compProd}
   For $\mu \in \mathcal M(\mathcal X)$ and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$, a Bayesian inverse of $\kappa$ is a Markov kernel $\kappa_\mu^\dagger : \mathcal Y \rightsquigarrow \mathcal X$ such that $\mu \otimes \kappa = ((\kappa \circ \mu) \otimes \kappa_\mu^\dagger)_\leftrightarrow$ in which $(\cdot)_\leftrightarrow$ denotes swapping the two coordinates.
   If such an inverse exists it is unique up to a $(\kappa \circ \mu)$-null set, and we talk about \emph{the} Bayesian inverse of $\kappa$ with respect to $\mu$.
-  For $\mathcal X$ standard Borel, $\mu$ and $\kappa$ s-finite, the Bayesian inverse exists and is obtained by disintegration of the measure $\mu \otimes \kappa$ on $\mathcal X \times \mathcal Y$ into a measure $\kappa \circ \mu \in \mathcal M(\mathcal Y)$ and a Markov kernel $\kappa_\mu^\dagger: \mathcal Y \rightsquigarrow \mathcal X$.
 \end{definition}
+
+
+\begin{lemma}[Existence of the Bayesian inverse]
+  \label{lem:exists_bayesInv}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesInv}
+  For $\mathcal X$ standard Borel, $\mu$ and $\kappa$ s-finite, the Bayesian inverse of $\kappa$ with respect to $\mu$ exists and is obtained by disintegration of the measure $\mu \otimes \kappa$ on $\mathcal X \times \mathcal Y$ into a measure $\kappa \circ \mu \in \mathcal M(\mathcal Y)$ and a Markov kernel $\kappa_\mu^\dagger : \mathcal Y \rightsquigarrow \mathcal X$.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{thm:disintegration}
+
+\end{proof}
+
 
 The bayesian interpretation of this definition is that $\mu$ represents a prior over a parameter and $\kappa$ gives the distribution of data given the parameter. $\kappa \circ \mu$ is the distribution of the data, and $\kappa_\mu^\dagger$ gives the posterior distribution of the parameter given the data.
 
