@@ -16,6 +16,7 @@
   \end{align*}
 \end{definition}
 
+
 \begin{lemma}
   \label{lem:renyiDiv_zero}
   \lean{ProbabilityTheory.renyiDiv_zero}
@@ -29,6 +30,7 @@
 \uses{def:hellingerAlpha}
 \end{proof}
 
+
 \begin{lemma}
   \label{lem:renyiDiv_eq_top_iff_mutuallySingular_of_lt_one}
   \lean{ProbabilityTheory.renyiDiv_eq_top_iff_mutuallySingular_of_lt_one}
@@ -41,6 +43,7 @@
 \begin{proof}\leanok
 \uses{lem:hellingerAlpha_ne_top_of_lt_one}
 \end{proof}
+
 
 \begin{lemma}
   \label{lem:renyi_eq_log_integral}
@@ -59,6 +62,7 @@
 \uses{lem:hellingerAlpha_eq_integral}
 \end{proof}
 
+
 \begin{lemma}
   \label{lem:renyi_eq_log_integral'}
   \lean{ProbabilityTheory.renyiDiv_eq_log_integral'}
@@ -76,6 +80,7 @@
 \uses{lem:renyi_eq_log_integral, lem:integral_rpow_rnDeriv}
 \end{proof}
 
+
 \begin{lemma}
   \label{lem:renyi_symm}
   \lean{ProbabilityTheory.renyiDiv_symm'}
@@ -90,6 +95,7 @@
 Use Lemma~\ref{lem:hellingerAlpha_symm}.
 \end{proof}
 
+
 \begin{lemma}
   \label{lem:renyi_cgf}
   \lean{ProbabilityTheory.cgf_llr_of_lt_one}
@@ -103,6 +109,7 @@ Use Lemma~\ref{lem:hellingerAlpha_symm}.
 Unfold the definitions, using Lemma~\ref{lem:renyi_eq_log_integral} for the Rényi divergence.
 \end{proof}
 
+
 \begin{lemma}
   \label{lem:renyi_cgf_2}
   \lean{ProbabilityTheory.cgf_llr'}
@@ -115,6 +122,7 @@ Unfold the definitions, using Lemma~\ref{lem:renyi_eq_log_integral} for the Rén
 \uses{lem:renyi_eq_log_integral'}
 Unfold the definitions, using Lemma~\ref{lem:renyi_eq_log_integral'} for the Rényi divergence.
 \end{proof}
+
 
 \begin{definition}[Conditional Rényi divergence]
   \label{def:condRenyi}

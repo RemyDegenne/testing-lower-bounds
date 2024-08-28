@@ -38,7 +38,7 @@
 \end{lemma}
 
 \begin{proof}%\leanok
-\uses{lem:fDiv_add_smul_right, lem:fDiv_add_smul_right', lem:fDiv_add, lem:fDiv_mul}
+\uses{lem:fDiv_add_smul_right, lem:fDiv_add_smul_right', lem:fDiv_add, lem:fDiv_mul, lem:fDiv_properties}
 $(\mu, \nu) \mapsto \KL(\mu, \alpha \mu + (1 - \alpha) \nu)$ is an $f$-divergence for the function $x \mapsto x\log\left(\frac{x}{\alpha x + 1 - \alpha}\right)$ (Lemma~\ref{lem:fDiv_add_smul_right}).
 
 $(\mu, \nu) \mapsto \KL(\nu, \alpha \mu + (1 - \alpha) \nu)$ is an $f$-divergence for the function $x \mapsto x\log\left(\frac{1}{\alpha x + 1 - \alpha}\right)$ (Lemma~\ref{lem:fDiv_add_smul_right'}).

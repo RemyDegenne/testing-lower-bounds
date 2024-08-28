@@ -493,11 +493,12 @@ Use Theorem~\ref{thm:isBayesEstimator_genBayesEstimator}, with the value of $P_\
 
 Thanks to the following lemma, we can prove properties of the Bayes binary risk for non-zero finite measures by considering only probability measures.
 
+
 \begin{lemma}
   \label{lem:bayesBinaryRisk_mul}
   \lean{ProbabilityTheory.bayesBinaryRisk_smul_smul}
   \leanok
-  \uses{def:bayesRisk}
+  \uses{def:bayesBinaryRisk}
   For all $a, b > 0$, $\mathcal B_\xi(\mu, \nu) = \mathcal B_{(a \xi_0, b \xi_1)}(a^{-1} \mu, b^{-1} \nu)$~.
 \end{lemma}
 
@@ -507,6 +508,7 @@ Thanks to the following lemma, we can prove properties of the Bayes binary risk 
 \end{proof}
 
 Alternatively, we can reduce the study of the Bayes binary risk for any prior to the study of the prior $(1, 1)$, for which that risk is related to the total variation distance (defined later).
+
 
 \begin{lemma}
   \label{lem:bayesBinaryRisk_one_one}
@@ -518,8 +520,8 @@ Alternatively, we can reduce the study of the Bayes binary risk for any prior to
 
 \begin{proof}\leanok
 \uses{lem:bayesBinaryRisk_mul}
-
 \end{proof}
+
 
 \begin{theorem}[Data-processing inequality]
   \label{thm:data_proc_bayesBinaryRisk}
@@ -534,6 +536,7 @@ Alternatively, we can reduce the study of the Bayes binary risk for any prior to
 Apply Theorem~\ref{thm:data_proc_bayesRisk}.
 \end{proof}
 
+
 \begin{lemma}
   \label{lem:bayesBinaryRisk_self}
   \lean{ProbabilityTheory.bayesBinaryRisk_self}
@@ -545,6 +548,7 @@ Apply Theorem~\ref{thm:data_proc_bayesRisk}.
 \begin{proof}\leanok
 \uses{}
 \end{proof}
+
 
 \begin{lemma}
   \label{lem:bayesBinaryRisk_nonneg}
@@ -558,6 +562,7 @@ Apply Theorem~\ref{thm:data_proc_bayesRisk}.
 \uses{}
 It is an infimum of non-negative values.
 \end{proof}
+
 
 \begin{lemma}
   \label{lem:bayesBinaryRisk_le}
@@ -586,6 +591,7 @@ Then applying the DPI (Theorem~\ref{thm:data_proc_bayesBinaryRisk}), followed by
 \end{align*}
 \end{proof}
 
+
 \begin{lemma}
   \label{lem:bayesBinaryRisk_symm}
   \lean{ProbabilityTheory.bayesBinaryRisk_symm}
@@ -599,6 +605,7 @@ Then applying the DPI (Theorem~\ref{thm:data_proc_bayesBinaryRisk}), followed by
 \uses{}
 
 \end{proof}
+
 
 \begin{lemma}
   \label{lem:genBayesEstimator_bayesBinaryRisk}
@@ -679,6 +686,7 @@ R_\xi(\hat{y}_B)
 The last line is obtained by replacing $P_\xi^\dagger$ by its value (Lemma~\ref{lem:bayesInv_binary}).
 \end{proof}
 
+
 \begin{corollary}
   \label{cor:bayesBinaryRisk_eq_abs}
   \lean{ProbabilityTheory.toReal_bayesBinaryRisk_eq_integral_abs}
@@ -710,6 +718,33 @@ Use Theorem~\ref{thm:bayesBinaryRisk_eq} and the equality $\min\{a,b\} = \frac{1
 $\ell$ takes values in $\{0,1\}$ so the law has to be Bernoulli. It has mean $\mathcal B_\pi(\mu, \nu)$ because the expected risk of the generalized Bayes estimator is $\mathcal B_\pi(\mu, \nu)$.
 \end{proof}
 
+
+
+TODO: find a way to hide the following dummy lemma
+\begin{lemma}[Dummy lemma: bayesBinaryRisk properties]
+  \label{lem:bayesBinaryRisk_properties}
+  %\lean{}
+  \leanok
+  \uses{def:bayesBinaryRisk}
+  Dummy node to summarize properties of the Bayes binary risk.
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{
+  lem:bayesBinaryRisk_mul,
+  lem:bayesBinaryRisk_one_one,
+  thm:data_proc_bayesBinaryRisk,
+  lem:bayesBinaryRisk_self,
+  lem:bayesBinaryRisk_nonneg,
+  lem:bayesBinaryRisk_le,
+  lem:bayesBinaryRisk_symm,
+  lem:genBayesEstimator_bayesBinaryRisk,
+  lem:bayesBinaryRisk_eq_event,
+  thm:bayesBinaryRisk_eq,
+  cor:bayesBinaryRisk_eq_abs,
+  lem:bayesBinaryRisk_bernoulli
+}
+\end{proof}
 
 
 \section{Reduction to testing}

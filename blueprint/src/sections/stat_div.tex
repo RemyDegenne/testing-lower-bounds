@@ -5,7 +5,7 @@
   \label{def:statInfo}
   \lean{ProbabilityTheory.statInfo}
   \leanok
-  \uses{def:bayesBinaryRisk, def:riskIncrease}
+  \uses{def:bayesBinaryRisk, def:riskIncrease, lem:bayesBinaryRisk_properties}
   The statistical information between measures $\mu$ and $\nu$ with respect to prior $\xi \in \mathcal M(\{0,1\})$ is
   $\mathcal I_\xi(\mu, \nu) = \min\{\xi_0 \mu(\mathcal X), \xi_1 \nu(\mathcal X)\} - \mathcal B_\xi(\mu, \nu)$.
   This is the risk increase $I_\xi^P(d_{\mathcal X})$ in the binary hypothesis testing problem for $d_{\mathcal X} : \mathcal X \rightsquigarrow *$ the Markov kernel to the point space.

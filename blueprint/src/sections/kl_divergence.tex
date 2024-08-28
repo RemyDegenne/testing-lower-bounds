@@ -16,7 +16,7 @@
   \label{lem:kl_eq_fDiv}
   \lean{ProbabilityTheory.kl_eq_fDiv}
   \leanok
-  \uses{def:KL, def:fDiv}
+  \uses{def:KL, def:fDiv, lem:fDiv_properties}
   $\KL(\mu, \nu) = D_f(\mu, \nu)$ for $f: x \mapsto x \log x$.
 \end{lemma}
 
@@ -40,7 +40,7 @@ Simple computation.
   \label{lem:condKL_eq_condFDiv}
   \lean{ProbabilityTheory.kl_eq_fDiv}
   \leanok
-  \uses{def:condKL, def:condFDiv}
+  \uses{def:condKL, def:condFDiv, lem:fDiv_properties}
   $\KL(\kappa, \eta \mid \mu) = D_f(\kappa, \eta \mid \mu)$ for $f: x \mapsto x \log x$.
 \end{lemma}
 
