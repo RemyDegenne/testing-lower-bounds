@@ -88,6 +88,7 @@ Use Lemma~\ref{lem:bayesBinaryRisk_nonneg}.
 Use Lemma~\ref{lem:bayesBinaryRisk_symm}.
 \end{proof}
 
+
 \begin{theorem}[Data-processing inequality]
   \label{thm:data_proc_statInfo}
   \lean{ProbabilityTheory.statInfo_comp_le}
@@ -218,6 +219,7 @@ If on the other hand $\xi_0\mu(\mathcal X) \ge \xi_1\nu(\mathcal X)$~, with simi
 \end{align*}
 \end{proof}
 
+
 \begin{corollary}
   \label{cor:statInfo_eq_integral_abs}
   \lean{ProbabilityTheory.toReal_statInfo_eq_integral_abs}
@@ -277,6 +279,32 @@ This is a direct application of Lemma~\ref{lem:bayesBinaryRisk_eq_event}.
 
 \end{proof}
 
+
+TODO: find a way to hide the following dummy lemma
+\begin{lemma}[Dummy lemma: statInfo properties]
+  \label{lem:statInfo_properties}
+  %\lean{}
+  \leanok
+  \uses{def:statInfo}
+  Dummy node to summarize properties of the statistical information.
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{
+  lem:statInfo_self,
+  lem:statInfo_nonneg,
+  lem:statInfo_le,
+  lem:statInfo_symm,
+  thm:data_proc_statInfo,
+  cor:statInfo_data_proc_event,
+  lem:statInfo_eq_sub_min,
+  lem:statInfo_eq_integral_abs_sub,
+  thm:statInfo_eq_integral,
+  cor:statInfo_eq_integral_abs,
+  lem:statInfo_eq_sub_inf_event,
+  lem:statInfo_eq_sup_event
+}
+\end{proof}
 
 
 %\subsection{DeGroot statistical information}
@@ -431,7 +459,7 @@ This is a direct application of Lemma~\ref{lem:bayesBinaryRisk_eq_event}.
   \label{def:TV}
   %\lean{}
   %\leanok
-  \uses{def:statInfo}
+  \uses{def:statInfo, lem:statInfo_properties}
   The total variation distance between finite measures $\mu$ and $\nu$ is $\TV(\mu, \nu) = \mathcal I_{(1,1)}(\mu, \nu)$~.
 \end{definition}
 
