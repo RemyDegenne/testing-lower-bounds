@@ -19,6 +19,7 @@ For $\mu, \nu$ two measures, we denote by $\mu_{\perp \nu}$ the singular part of
   if $x \mapsto f\left(\frac{d \mu}{d \nu}(x)\right)$ is $\nu$-integrable and $+\infty$ otherwise.
 \end{definition}
 
+
 \begin{lemma}
   \label{lem:fDiv_ne_top_iff}
   \lean{ProbabilityTheory.fDiv_ne_top_iff}
@@ -45,6 +46,7 @@ For $\mu, \nu$ two measures, we denote by $\mu_{\perp \nu}$ the singular part of
 \begin{proof} \leanok
 Compute the integral.
 \end{proof}
+
 
 \begin{lemma}
   \label{lem:fDiv_self}
@@ -87,6 +89,7 @@ Compute the integral: its value is $(\frac{d\mu}{d\nu}\cdot \nu)(\mathcal X)$. T
 $D_{x\mapsto x}(\mu, \nu) = (\frac{d\mu}{d\nu}\cdot \nu)(\mathcal X) + \mu_{\perp \nu}(\mathcal X) = \mu (\mathcal X)$.
 \end{proof}
 
+
 \begin{lemma}
   \label{lem:fDiv_mul}
   \lean{ProbabilityTheory.fDiv_mul}
@@ -98,6 +101,7 @@ $D_{x\mapsto x}(\mu, \nu) = (\frac{d\mu}{d\nu}\cdot \nu)(\mathcal X) + \mu_{\per
 \begin{proof}\leanok
 Linearity of the integral.
 \end{proof}
+
 
 \begin{lemma}
   \label{lem:fDiv_add}
@@ -111,6 +115,7 @@ Linearity of the integral.
 Linearity of the integral.
 \end{proof}
 
+
 \begin{lemma}
   \label{lem:fDiv_add_linear}
   \lean{ProbabilityTheory.fDiv_add_linear}
@@ -123,6 +128,7 @@ Linearity of the integral.
 \uses{lem:fDiv_add, lem:fDiv_mul, lem:fDiv_const, lem:fDiv_id}
 Linearity (Lemmas~\ref{lem:fDiv_add} and~\ref{lem:fDiv_mul}), then Lemma~\ref{lem:fDiv_const} and~\ref{lem:fDiv_id}.
 \end{proof}
+
 
 \begin{lemma}
   \label{lem:fDiv_map_measurableEmbedding}
@@ -223,6 +229,7 @@ D_f(\nu, a \mu + b \nu)
 $\frac{d(\mu_1 + \mu_2)}{d \nu} = \frac{d \mu_1}{d \nu}$ a.e. and $(\mu_1 + \mu_2)_{\perp \nu} = \mu_2$.
 \end{proof}
 
+
 \begin{lemma}[Superseded by Lemma~\ref{lem:fDiv_add_measure_le}]
   \label{lem:fDiv_add_measure_le_of_ac}
   \lean{ProbabilityTheory.fDiv_add_measure_le_of_ac}
@@ -243,6 +250,7 @@ D_f(\mu_1 + \mu_2, \nu)
 \: .
 \end{align*}
 \end{proof}
+
 
 \begin{lemma}
   \label{lem:fDiv_add_measure_le}
@@ -267,6 +275,7 @@ D_f(\mu_1 + \mu_2, \nu)
 \end{align*}
 \end{proof}
 
+
 \begin{lemma}
   \label{lem:fDiv_eq_add_withDensity_derivAtTop}
   \lean{ProbabilityTheory.fDiv_eq_add_withDensity_derivAtTop}
@@ -280,6 +289,7 @@ D_f(\mu_1 + \mu_2, \nu)
 \uses{lem:fDiv_absolutelyContinuous_add_mutuallySingular}
 Apply Lemma~\ref{lem:fDiv_absolutelyContinuous_add_mutuallySingular} to $\frac{d\mu}{d\nu}\cdot \nu$ and $\mu_{\perp \nu}$.
 \end{proof}
+
 
 \begin{lemma}[Superseded by Lemma~\ref{lem:le_fDiv}]
   \label{lem:le_fDiv_of_ac}
@@ -300,6 +310,7 @@ D_f(\mu, \nu)
 \end{align*}
 
 \end{proof}
+
 
 \begin{lemma}
   \label{lem:le_fDiv}
@@ -323,6 +334,7 @@ f(\mu(\mathcal X))
 \end{align*}
 \end{proof}
 
+
 \begin{lemma}
   \label{lem:fDiv_nonneg}
   \lean{ProbabilityTheory.fDiv_nonneg}
@@ -335,6 +347,7 @@ f(\mu(\mathcal X))
 \uses{lem:le_fDiv}
 Apply Lemma~\ref{lem:le_fDiv} and use $f(\mu(\mathcal X)) = f(1) = 0$.
 \end{proof}
+
 
 
 \subsection{Conditional f-divergence}
@@ -353,6 +366,7 @@ TODO: replace the definition by $D(\mu \otimes \kappa, \mu \otimes \eta)$, which
   if $x \mapsto D_f(\kappa(x), \eta(x))$ is $\mu$-integrable and $+\infty$ otherwise.
 \end{definition}
 
+
 \begin{lemma}
   \label{lem:condFDiv_nonneg}
   \lean{ProbabilityTheory.condFDiv_nonneg}
@@ -365,6 +379,7 @@ TODO: replace the definition by $D(\mu \otimes \kappa, \mu \otimes \eta)$, which
 \uses{lem:fDiv_nonneg}
 Apply Lemma~\ref{lem:fDiv_nonneg}.
 \end{proof}
+
 
 \begin{lemma}
   \label{lem:condFDiv_const}
@@ -382,6 +397,7 @@ $$D_f(x \mapsto \mu, x \mapsto \nu \mid \xi)
 = D_f(\mu, \nu) \xi\left[1\right] 
 = D_f(\mu, \nu) \xi (\mathcal X)$$
 \end{proof}
+
 
 % TODO : this statement is not the same as the lean code, in particular here there is only one measure mentioned, while in the lean we have 2, also the rest of the statement is not the same
 \begin{lemma}
@@ -408,6 +424,7 @@ It suffices to use convexity to show that integrability of $x \mapsto \int_y f \
 TODO
 \end{proof}
 
+
 \begin{lemma}
   \label{lem:condFDiv_ne_top_iff}
   \lean{ProbabilityTheory.condFDiv_ne_top_iff}
@@ -426,6 +443,7 @@ TODO
 \uses{lem:integrable_fDiv_compProd_iff}
 \end{proof}
 
+
 \begin{lemma}
   \label{lem:fDiv_compProd_ne_top_iff}
   \lean{ProbabilityTheory.condFDiv_ne_top_iff_fDiv_compProd_ne_top}
@@ -438,6 +456,7 @@ TODO
 \begin{proof} \leanok
 \uses{lem:integrable_fDiv_compProd_iff, lem:condFDiv_ne_top_iff}
 \end{proof}
+
 
 \begin{lemma}
   \label{lem:fDiv_compProd_left}
@@ -470,6 +489,53 @@ D_f(\mu \otimes \kappa, \mu \otimes \eta)
 \: .
 \end{align*}
 \end{proof}
+
+
+
+
+TODO: find a way to hide the following dummy lemma
+\begin{lemma}[Dummy lemma: fDiv properties]
+  \label{lem:fDiv_properties}
+  %\lean{}
+  \leanok
+  \uses{def:fDiv, def:condFDiv}
+  Dummy node to summarize properties of $f$-divergences.
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{
+  lem:fDiv_ne_top_iff,
+  lem:fDiv_const,
+  lem:fDiv_self,
+  lem:fDiv_eq_zero_iff,
+  lem:fDiv_id,
+  lem:fDiv_mul,
+  lem:fDiv_add,
+  lem:fDiv_add_linear,
+  lem:fDiv_map_measurableEmbedding,
+  lem:fDiv_symm,
+  lem:fDiv_add_smul_left,
+  lem:fDiv_add_smul_right,
+  lem:fDiv_add_smul_right',
+  lem:fDiv_absolutelyContinuous_add_mutuallySingular,
+  lem:fDiv_add_measure_le,
+  lem:fDiv_eq_add_withDensity_derivAtTop,
+  lem:le_fDiv,
+  lem:fDiv_nonneg,
+  lem:condFDiv_nonneg,
+  lem:condFDiv_const,
+  lem:condFDiv_ne_top_iff,
+  lem:fDiv_compProd_ne_top_iff,
+  lem:fDiv_compProd_left
+}
+TODO: continue listing lemmas here.
+\end{proof}
+
+
+
+
+
+
 
 
 
@@ -918,7 +984,7 @@ D(\kappa \circ \mu, \kappa \circ \nu)
 &= D(\mu, \nu)
 \: .
 \end{align*}
-The main drawback of this approach is that it requires the measurable spaces to be standard Borel.
+The main drawback of this approach is that it requires that the Bayesian inverse exists, which is not always the case, unless for example the measurable spaces are standard Borel.
 
 The inequality $D_f(\mu, \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \eta)$ is obtained by describing the Radon-Nikodym derivative $\frac{d(\mu \otimes \kappa)}{d(\nu \otimes \eta)}$ and using convexity properties of the function $f$.
 
@@ -1287,7 +1353,6 @@ By Theorem~\ref{thm:fDiv_comp_le_condFDiv_2}, $D_f(\kappa \circ \xi, \eta \circ 
 
 
 
-
 \subsection{Variational representations}
 
 TODO
@@ -1494,31 +1559,31 @@ TODO \cite{harremoes2011pairs}
 This is a reformulation of Theorem~\ref{thm:statInfo_eq_integral}.
 \end{proof}
 
-\begin{lemma}
-  \label{lem:deGrootInfo_eq_fDiv}
-  %\lean{}
-  %\leanok
-  \uses{def:deGrootInfo, def:statInfoFun, def:fDiv}
-  On probability measures, the DeGroot statistical information $I_\pi$ is an $f$-divergence for the function $\phi_{\pi, 1-\pi}$ of Definition~\ref{def:statInfoFun}.
-\end{lemma}
+% \begin{lemma}
+%   \label{lem:deGrootInfo_eq_fDiv}
+%   %\lean{}
+%   %\leanok
+%   \uses{def:deGrootInfo, def:statInfoFun, def:fDiv}
+%   On probability measures, the DeGroot statistical information $I_\pi$ is an $f$-divergence for the function $\phi_{\pi, 1-\pi}$ of Definition~\ref{def:statInfoFun}.
+% \end{lemma}
 
-\begin{proof}%\leanok
-\uses{lem:deGrootInfo_eq_integral}
-This is a reformulation of Lemma~\ref{lem:deGrootInfo_eq_integral}.
-\end{proof}
+% \begin{proof}%\leanok
+% \uses{lem:deGrootInfo_eq_integral}
+% This is a reformulation of Lemma~\ref{lem:deGrootInfo_eq_integral}.
+% \end{proof}
 
-\begin{lemma}
-  \label{lem:eGamma_eq_fDiv}
-  %\lean{}
-  %\leanok
-  \uses{def:eGamma, def:statInfoFun, def:fDiv}
-  On probability measures, the hockey-stick divergence $E_\gamma$ is an $f$-divergence for the function $\phi_{1,\gamma}$ of Definition~\ref{def:statInfoFun}.
-\end{lemma}
+% \begin{lemma}
+%   \label{lem:eGamma_eq_fDiv}
+%   %\lean{}
+%   %\leanok
+%   \uses{def:eGamma, def:statInfoFun, def:fDiv}
+%   On probability measures, the hockey-stick divergence $E_\gamma$ is an $f$-divergence for the function $\phi_{1,\gamma}$ of Definition~\ref{def:statInfoFun}.
+% \end{lemma}
 
-\begin{proof}%\leanok
-\uses{lem:eGamma_eq_integral}
-This is a reformulation of Lemma~\ref{lem:eGamma_eq_integral}.
-\end{proof}
+% \begin{proof}%\leanok
+% \uses{lem:eGamma_eq_integral}
+% This is a reformulation of Lemma~\ref{lem:eGamma_eq_integral}.
+% \end{proof}
 
 \begin{lemma}
   \label{lem:tv_eq_fDiv}
