@@ -11,7 +11,7 @@ To get an usable definition for general measurable spaces, we need to enforce th
 \begin{definition}[Measurable space of measures]
   \label{def:measure_measurableSpace}
   \lean{MeasureTheory.Measure.instMeasurableSpace}
-  \leanok
+  \mathlibok
   \uses{}
   Let $\mathcal B$ be the Borel $\sigma$-algebra on $\mathbb{R}_{+,\infty}$. Let $\mathcal X$ be a measurable space.
   For a measurable set $s$ of $\mathcal X$, let $(\mu \mapsto \mu(s))^* \mathcal B$ be the $\sigma$-algebra on $\mathcal M(\mathcal X)$ defined by the comap of the evaluation function at $s$.
@@ -24,13 +24,13 @@ We now write more explicitly what it means for such a function to be measurable.
 \begin{lemma}
   \label{lem:measurable_measure_fun}
   \lean{MeasureTheory.Measure.measurable_of_measurable_coe}
-  \leanok
+  \mathlibok
   \uses{def:measure_measurableSpace}
   Let $\mathcal X, \mathcal Y$ be measurable spaces, and let $f : \mathcal X \to \mathcal M(\mathcal Y)$ such that for all measurable sets $s$ of $\mathcal X$, the function $x \mapsto f(x)(s)$ is measurable.
   Then $f$ is measurable.
 \end{lemma}
 
-\begin{proof}\leanok
+\begin{proof}\mathlibok
 \uses{}
 \end{proof}
 
@@ -39,7 +39,7 @@ We now have the tools needed to define probability transition kernels.
 \begin{definition}[Kernel]
   \label{def:kernel}
   \lean{ProbabilityTheory.Kernel}
-  \leanok
+  \mathlibok
   \uses{def:measure_measurableSpace}
   Let $\mathcal X, \mathcal Y$ be two measurable spaces.
   A probability transition kernel (or simply kernel) from $\mathcal X$ to $\mathcal Y$ is a measurable map from $\mathcal X$ to $\mathcal M (\mathcal Y)$, the measurable space of measures on $\mathcal Y$.
@@ -52,7 +52,7 @@ A measurable function can be represented by a \emph{deterministic} kernel.
 \begin{definition}[Deterministic kernel]
   \label{def:deterministic_kernel}
   \lean{ProbabilityTheory.Kernel.deterministic}
-  \leanok
+  \mathlibok
   \uses{def:kernel}
   The deterministic kernel defined by a measurable function $f : \mathcal X \to \mathcal Y$ is the kernel $d_f: \mathcal X \rightsquigarrow \mathcal Y$ defined by $d_f(x) = \delta_{f(x)}$, where for any $y \in \mathcal Y$, $\delta_y$ is the Dirac probability measure at $y$.
 \end{definition}
@@ -69,7 +69,7 @@ Kernels can be described by the integrals of measurable functions, as demonstrat
 \begin{theorem}
   \label{thm:kernel_ext}
   %\lean{}
-  %\leanok
+  \mathlibok
   \uses{def:kernel}
   Two kernels $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ are equal iff for all measurable functions $f : \mathcal Y \to \mathbb{R}_{+,\infty}$ and all $x \in \mathcal X$,
   \begin{align*}
@@ -77,7 +77,7 @@ Kernels can be described by the integrals of measurable functions, as demonstrat
   \end{align*}
 \end{theorem}
 
-\begin{proof}\leanok
+\begin{proof}\mathlibok
 \uses{}
 
 \end{proof}
@@ -87,7 +87,7 @@ Kernels can be described by the integrals of measurable functions, as demonstrat
 \begin{definition}[Finite kernel]
   \label{def:finite_kernel}
   \lean{ProbabilityTheory.IsFiniteKernel}
-  \leanok
+  \mathlibok
   \uses{def:kernel}
   A kernel $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ is said to be finite if there exists $C < +\infty$ such that for all $x \in \mathcal X$, $\kappa(x)(\mathcal Y) \le C$.
 \end{definition}
@@ -97,7 +97,7 @@ Note the uniform bound: it is not enough to have $\kappa(x)(\mathcal Y) < \infty
 \begin{definition}[Markov kernel]
   \label{def:markov_kernel}
   \lean{ProbabilityTheory.IsMarkovKernel}
-  \leanok
+  \mathlibok
   \uses{def:kernel}
   A kernel $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ is said to be a Markov kernel if for all $x \in \mathcal X$, $\kappa(x)$ is a probability measure.
 \end{definition}
@@ -107,7 +107,7 @@ A Markov kernel is finite, with constant $C = 1$.
 \begin{definition}[s-finite kernel]
   \label{def:sFinite_kernel}
   \lean{ProbabilityTheory.IsSFiniteKernel}
-  \leanok
+  \mathlibok
   \uses{def:finite_kernel}
   A kernel $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ is said to be a s-finite if it is equal to a countable sum of finite kernels.
 \end{definition}
@@ -121,7 +121,7 @@ That last, most general class of kernels, is the right assumption to define oper
 \begin{definition}[Composition-product]
   \label{def:kernel_compProd}
   \lean{ProbabilityTheory.Kernel.compProd}
-  \leanok
+  \mathlibok
   \uses{def:kernel, def:sFinite_kernel}
   Let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : (\mathcal X \times \mathcal Y) \rightsquigarrow \mathcal Z$ be two s-finite kernels.
   The composition-product of $\kappa$ and $\eta$ is a kernel $\kappa \otimes \eta : \mathcal X \rightsquigarrow (\mathcal Y \times \mathcal Z)$ such that for all measurable functions $f : \mathcal Y \times \mathcal Z \to \mathbb{R}_{+,\infty}$ and $x \in \mathcal X$~,
@@ -145,7 +145,7 @@ Since a measure is a constant kernel from the space with one element, we can als
 \begin{definition}[Composition-product of a measure and a kernel]
   \label{def:measure_compProd}
   \lean{MeasureTheory.Measure.compProd}
-  \leanok
+  \mathlibok
   \uses{def:kernel_compProd}
   Let $\mu \in \mathcal M(\mathcal X)$ be an s-finite measure and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be an s-finite kernel.
   Let $\mathcal U$ be a measurable space with a unique element $u$. Let $\mu_k : \mathcal U \rightsquigarrow \mathcal X$ be the constant kernel with value $\mu$.
@@ -155,7 +155,7 @@ Since a measure is a constant kernel from the space with one element, we can als
 \begin{definition}[Composition]
   \label{def:kernel_comp}
   \lean{ProbabilityTheory.Kernel.comp}
-  \leanok
+  \mathlibok
   \uses{def:kernel}
   Let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal Y \rightsquigarrow \mathcal Z$ be two kernels.
   The composition of $\kappa$ and $\eta$ is the kernel $\eta \circ \kappa : \mathcal X \rightsquigarrow \mathcal Z$ such that for all measurable functions $f : \mathcal Z \to \mathbb{R}_{+,\infty}$ and all $x \in \mathcal X$,
@@ -169,7 +169,7 @@ We can also define the composition of a measure and a kernel, by $\kappa \circ \
 \begin{definition}[Product]
   \label{def:kernel_prod}
   \lean{ProbabilityTheory.Kernel.prod}
-  \leanok
+  \mathlibok
   \uses{def:kernel, def:sFinite_kernel}
   Let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal X \rightsquigarrow \mathcal Z$ be two s-finite kernels.
   The product of $\kappa$ and $\eta$ is the kernel $\kappa \times \eta : \mathcal X \rightsquigarrow \mathcal Y \times \mathcal Z$ such that for all measurable functions $f : \mathcal Y \times \mathcal Z \to \mathbb{R}_{+,\infty}$ and all $x \in \mathcal X$,
@@ -243,14 +243,14 @@ TODO: if a disintegrating kernel $\eta$ exits for $\kappa$, the measure $\eta(x,
 \begin{theorem}[Disintegration in standard Borel spaces]
   \label{thm:disintegration}
   %\lean{}
-  \leanok
+  \mathlibok
   \uses{def:kernel, def:markov_kernel}
   If either $\mathcal X$ is countable of $\mathcal Y$ has a countably generated $\sigma$-algebra, and $\mathcal Z$ is standard Borel, then for every s-finite kernel $\kappa : \mathcal X \rightsquigarrow \mathcal Y \times \mathcal Z$, there exists a Markov kernel $\kappa_{Z \mid Y} : \mathcal X \times \mathcal Y \rightsquigarrow \mathcal Z$ that disintegrates $\kappa$.
 \end{theorem}
 
 TODO: the result in Mathlib is about finite kernels, but s-finite should be enough?
 
-\begin{proof}\leanok
+\begin{proof}\mathlibok
 \uses{}
 \end{proof}
 
@@ -273,12 +273,12 @@ TODO: as a consequence, in standard Borel spaces we also have disintegration of 
 \begin{lemma}[Existence of the Bayesian inverse]
   \label{lem:exists_bayesInv}
   %\lean{}
-  %\leanok
+  \leanok
   \uses{def:bayesInv}
   For $\mathcal X$ standard Borel, $\mu$ and $\kappa$ s-finite, the Bayesian inverse of $\kappa$ with respect to $\mu$ exists and is obtained by disintegration of the measure $\mu \otimes \kappa$ on $\mathcal X \times \mathcal Y$ into a measure $\kappa \circ \mu \in \mathcal M(\mathcal Y)$ and a Markov kernel $\kappa_\mu^\dagger : \mathcal Y \rightsquigarrow \mathcal X$.
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{thm:disintegration}
 
 \end{proof}
@@ -360,4 +360,41 @@ It suffices to show that $\mu \otimes \textup{id} = ((\textup{id} \circ \mu) \ot
 It suffices to show that $\mu \otimes (\eta \circ \kappa) = ((\eta \circ \kappa \circ \mu) \otimes (\kappa_{\mu}^\dagger \circ \eta_{\kappa \circ \mu}^\dagger))_\leftrightarrow$.
 
 TODO: transcribe the code.
+\end{proof}
+
+
+TODO: find a way to hide the following dummy lemma
+\begin{lemma}[Dummy lemma: kernel properties]
+  \label{lem:kernel_properties}
+  %\lean{}
+  \leanok
+  \uses{
+    def:measure_measurableSpace,
+    def:kernel,
+    def:deterministic_kernel,
+    def:finite_kernel,
+    def:markov_kernel,
+    def:sFinite_kernel,
+    def:kernel_compProd,
+    def:kernel_comp,
+    def:kernel_prod,
+    def:kernel_parallel_prod,
+    def:measure_compProd,
+    def:bayesInv
+  }
+  Dummy node to summarize kernel properties.
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{
+  lem:measurable_measure_fun,
+  thm:kernel_ext,
+  thm:disintegration,
+  lem:exists_bayesInv,
+  lem:eq_bayesInv_of_compProd_eq,
+  lem:bayesInv_comp_self,
+  lem:bayesInv_self,
+  lem:bayesInv_id,
+  lem:bayesInv_comp
+}
 \end{proof}
