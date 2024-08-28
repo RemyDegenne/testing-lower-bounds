@@ -4,7 +4,7 @@
   \label{def:jensenShannon}
   %\lean{}
   %\leanok
-  \uses{def:KL}
+  \uses{def:KL, lem:kl_properties}
   The Jensen-Shannon divergence indexed by $\alpha \in (0,1)$ between two measures $\mu$ and $\nu$ is
   \begin{align*}
     \JS_\alpha(\mu, \nu) = \alpha \KL(\mu, \alpha \mu + (1 - \alpha)\nu) + (1 - \alpha) \KL(\nu, \alpha \mu + (1 - \alpha)\nu) \: .
