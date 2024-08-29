@@ -6,7 +6,7 @@ TODO: refactor this section to link it to the Hellinger $\alpha$-divergence.
   \label{def:Hellinger}
   \lean{ProbabilityTheory.sqHellinger}
   \leanok
-  \uses{def:fDiv}
+  \uses{def:fDiv, lem:fDiv_properties}
   Let $\mu, \nu$ be two measures. The squared Hellinger distance between $\mu$ and $\nu$ is
   \begin{align*}
     \Hsq(\mu, \nu) = D_f(\mu, \nu) \quad \text{with } f: x \mapsto \frac{1}{2}\left( 1 - \sqrt{x} \right)^2 \: .
