@@ -5,7 +5,7 @@
   \label{def:fMutualInfo}
   %\lean{}
   %\leanok
-  \uses{def:fDiv}
+  \uses{def:fDiv, lem:fDiv_properties}
   The $f$-mutual information associated with an $f$-divergence is, for $\rho \in \mathcal M(\mathcal X \times \mathcal Y)$~,
   \begin{align*}
   I_f(\rho) = D_f(\rho, \rho_X \times \rho_Y) \: .
@@ -21,7 +21,7 @@ TODO: this might not be the right definition for the $f$-mutual information. The
   \label{def:mutualInfo}
   %\lean{}
   %\leanok
-  \uses{def:KL, def:fMutualInfo}
+  \uses{def:KL, def:fMutualInfo, lem:kl_properties}
   The mutual information is, for $\rho \in \mathcal M(\mathcal X \times \mathcal Y)$~,
   \begin{align*}
   I(\rho) = \KL(\rho, \rho_X \times \rho_Y) \: .
@@ -34,7 +34,7 @@ TODO: this might not be the right definition for the $f$-mutual information. The
   \label{def:condFMutualInfo}
   %\lean{}
   %\leanok
-  \uses{def:condFDiv}
+  \uses{def:condFDiv, lem:fDiv_properties}
   Let $\kappa : \mathcal Z \rightsquigarrow \mathcal X \times \mathcal Y$. The conditional $f$-mutual information of $\kappa$ with respect to $\nu \in \mathcal M(\mathcal Z)$ is
   \begin{align*}
   I_f(\kappa \mid \nu) = D_f(\kappa, \kappa_X \times \kappa_Y \mid \nu)
@@ -47,7 +47,7 @@ TODO: this might not be the right definition for the $f$-mutual information. The
   \label{def:condMutualInfo}
   %\lean{}
   %\leanok
-  \uses{def:condKL, def:condFMutualInfo}
+  \uses{def:condKL, def:condFMutualInfo, lem:kl_properties}
   Let $\kappa : \mathcal Z \rightsquigarrow \mathcal X \times \mathcal Y$. The conditional mutual information of $\kappa$ with respect to $\nu \in \mathcal M(\mathcal Z)$ is
   \begin{align*}
   I(\kappa \mid \nu) = \KL(\kappa, \kappa_X \times \kappa_Y \mid \nu) \: .

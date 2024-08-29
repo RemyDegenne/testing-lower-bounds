@@ -808,7 +808,7 @@ We study the sample complexity of binary hypothesis testing.
   \label{def:binaryPriorSampleComplexity}
   %\lean{}
   %\leanok
-  \uses{def:bayesBinaryRisk, def:priorSampleComplexity}
+  \uses{def:bayesBinaryRisk, def:priorSampleComplexity, lem:bayesBinaryRisk_properties}
   The sample complexity of simple binary hypothesis testing with prior $(\pi, 1 - \pi) \in \mathcal P(\{0, 1\})$ at risk level $\delta \in \mathbb{R}_{+, \infty}$ is
   \begin{align*}
   n(\mu, \nu, \pi, \delta) = \min\{n \in \mathbb{N} \mid B_\pi(\mu^{\otimes n}, \nu^{\otimes n}) \le \delta\} \: .

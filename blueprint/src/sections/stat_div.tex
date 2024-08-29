@@ -14,26 +14,6 @@
 The statistical information is the difference between the minimal risk of an estimator that does not depend on the data and that of a Bayes estimator.
 This is a simple generalization of both the DeGroot statistical information as well as the hockey-stick (or $E_\gamma$) divergence.
 
-\begin{definition}
-  \label{def:deGrootInfo}
-  \lean{ProbabilityTheory.deGrootInfo}
-  \leanok
-  \uses{def:statInfo}
-  The DeGroot statistical information between finite measures $\mu$ and $\nu$ for $\pi \in [0,1]$ is $I_\pi (\mu, \nu) = \mathcal I_{(\pi, 1 - \pi)}(\mu, \nu)$~.
-\end{definition}
-
-\begin{definition}
-  \label{def:eGamma}
-  \lean{ProbabilityTheory.eGamma}
-  \leanok
-  \uses{def:statInfo}
-  The $E_\gamma$ or hockey-stick divergence between finite measures $\mu$ and $\nu$ for $\gamma \in (0,+\infty)$ is $E_\gamma(\mu, \nu) = \mathcal I_{(1,\gamma)}(\mu, \nu)$~.
-\end{definition}
-
-Note that our definition of the $E_\gamma$ divergence extends the one from the literature: the divergence is usually defined for $\gamma \ge 1$ only.
-The extension makes sense in light of Theorem~\ref{thm:fDiv_eq_integral_eGamma}.
-It is also extended from probability measures to finite measures.
-
 \begin{lemma}
   \label{lem:statInfo_self}
   \lean{ProbabilityTheory.statInfo_self}
@@ -305,6 +285,28 @@ TODO: find a way to hide the following dummy lemma
   lem:statInfo_eq_sup_event
 }
 \end{proof}
+
+
+\begin{definition}
+  \label{def:deGrootInfo}
+  \lean{ProbabilityTheory.deGrootInfo}
+  \leanok
+  \uses{def:statInfo, lem:statInfo_properties}
+  The DeGroot statistical information between finite measures $\mu$ and $\nu$ for $\pi \in [0,1]$ is $I_\pi (\mu, \nu) = \mathcal I_{(\pi, 1 - \pi)}(\mu, \nu)$~.
+\end{definition}
+
+
+\begin{definition}
+  \label{def:eGamma}
+  \lean{ProbabilityTheory.eGamma}
+  \leanok
+  \uses{def:statInfo, lem:statInfo_properties}
+  The $E_\gamma$ or hockey-stick divergence between finite measures $\mu$ and $\nu$ for $\gamma \in (0,+\infty)$ is $E_\gamma(\mu, \nu) = \mathcal I_{(1,\gamma)}(\mu, \nu)$~.
+\end{definition}
+
+Note that our definition of the $E_\gamma$ divergence extends the one from the literature: the divergence is usually defined for $\gamma \ge 1$ only.
+The extension makes sense in light of Theorem~\ref{thm:fDiv_eq_integral_eGamma}.
+It is also extended from probability measures to finite measures.
 
 
 %\subsection{DeGroot statistical information}
