@@ -4,7 +4,7 @@
   \label{def:Chernoff}
   \lean{ProbabilityTheory.chernoffDiv}
   \leanok
-  \uses{def:Renyi}
+  \uses{def:Renyi, lem:renyi_properties}
     The Chernoff divergence of order $\alpha > 0$ between two measures $\mu$ and $\nu$ on $\mathcal X$ is
   \begin{align*}
     C_\alpha(\mu, \nu) = \inf_{\xi \in \mathcal P(\mathcal X)}\max\{R_\alpha(\xi, \mu), R_\alpha(\xi, \nu)\} \: .
@@ -28,6 +28,7 @@ This is not a well established notion and it remains to see if this extension is
 This is $R_1 = \KL$ (by definition).
 \end{proof}
 
+
 \begin{lemma}[Symmetry]
   \label{lem:chernoff_symm}
   %\lean{}
@@ -39,6 +40,7 @@ This is $R_1 = \KL$ (by definition).
 \begin{proof}%\leanok
 Immediate from the definition.
 \end{proof}
+
 
 \begin{lemma}[Monotonicity]
   \label{lem:chernoff_mono}
@@ -52,6 +54,7 @@ Immediate from the definition.
 \uses{lem:renyi_monotone}
 Consequence of Lemma~\ref{lem:renyi_monotone}.
 \end{proof}
+
 
 \begin{lemma}
   \label{lem:chernoff_eq_max_renyi}
