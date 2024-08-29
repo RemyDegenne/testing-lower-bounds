@@ -4,7 +4,7 @@
   \label{def:Renyi}
   \lean{ProbabilityTheory.renyiDiv}
   \leanok
-  \uses{def:KL, def:hellingerAlpha}
+  \uses{def:KL, def:hellingerAlpha, lem:hellingerAlpha_properties}
   Let $\mu, \nu$ be two measures on $\mathcal X$. The Rényi divergence of order $\alpha \in \mathbb{R}$ between $\mu$ and $\nu$ is
   \begin{align*}
   R_\alpha(\mu, \nu) = \left\{
@@ -128,7 +128,7 @@ Unfold the definitions, using Lemma~\ref{lem:renyi_eq_log_integral'} for the Ré
   \label{def:condRenyi}
   \lean{ProbabilityTheory.condRenyiDiv}
   \leanok
-  \uses{def:condHellingerAlpha}
+  \uses{def:condHellingerAlpha, lem:hellingerAlpha_properties}
   Let $\mu$ be a measure on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two kernels. The conditional Rényi divergence of order $\alpha \in (0,+\infty) \backslash \{1\}$ between $\kappa$ and $\eta$ conditionally to $\mu$ is
   \begin{align*}
   R_\alpha(\kappa, \eta \mid \mu) =\frac{1}{\alpha - 1} \log (1 + (\alpha - 1) \He_\alpha(\kappa, \eta \mid \mu)) \: .
@@ -136,6 +136,9 @@ Unfold the definitions, using Lemma~\ref{lem:renyi_eq_log_integral'} for the Ré
 \end{definition}
 
 TODO: the reasons for this definition is that it is equal to $R_\alpha(\mu \otimes \kappa, \mu \otimes \eta)$, which is the generic conditional divergence definition, and also that this is the definition for which we have a chain rule.
+
+
+
 
 \subsection{Properties inherited from f-divergences}
 
@@ -168,6 +171,9 @@ The function $x \mapsto \frac{1}{\alpha - 1}\log (1 + (\alpha - 1)x)$ is non-dec
 \uses{cor:data_proc_event}
 By Corollary~\ref{cor:data_proc_event}, $D_f(\mu, \nu) \ge D_f(\mu_E, \nu_E)$, hence $R_\alpha(\mu, \nu) \ge R_\alpha(\mu_E, \nu_E)$.
 \end{proof}
+
+
+
 
 \subsection{Comparisons between orders}
 
@@ -226,6 +232,9 @@ By Corollary~\ref{cor:data_proc_event}, $D_f(\mu, \nu) \ge D_f(\mu_E, \nu_E)$, h
 \begin{proof}
 \end{proof}
 
+
+
+
 \subsection{The tilted measure}
 
 \begin{definition}
@@ -239,6 +248,7 @@ By Corollary~\ref{cor:data_proc_event}, $D_f(\mu, \nu) \ge D_f(\mu_E, \nu_E)$, h
   \end{align*}
 \end{definition}
 
+
 \begin{lemma}
   \label{lem:renyiMeasure_ac}
   %\lean{}
@@ -251,6 +261,7 @@ By Corollary~\ref{cor:data_proc_event}, $D_f(\mu, \nu) \ge D_f(\mu_E, \nu_E)$, h
 \uses{}
 
 \end{proof}
+
 
 \begin{lemma}
   \label{lem:rnDeriv_renyiMeasure}
@@ -266,6 +277,7 @@ By Corollary~\ref{cor:data_proc_event}, $D_f(\mu, \nu) \ge D_f(\mu_E, \nu_E)$, h
 \uses{lem:renyiMeasure_ac}
 
 \end{proof}
+
 
 \begin{lemma}
   \label{lem:kl_renyiMeasure_eq}
@@ -283,6 +295,7 @@ By Corollary~\ref{cor:data_proc_event}, $D_f(\mu, \nu) \ge D_f(\mu_E, \nu_E)$, h
 Unfold definitions and compute?
 \end{proof}
 
+
 \begin{corollary}
   \label{cor:renyi_eq_add_kl}
   %\lean{}
@@ -298,6 +311,7 @@ Unfold definitions and compute?
 \uses{lem:kl_renyiMeasure_eq}
 Apply Lemma~\ref{lem:kl_renyiMeasure_eq} to $\xi = \mu^{(\alpha, \nu)}$.
 \end{proof}
+
 
 \begin{lemma}
   \label{lem:renyi_eq_inf_add_kl}
@@ -347,6 +361,8 @@ Compare with Lemma~\ref{lem:jensenShannon_eq_inf_kl} on the Jensen-Shannon diver
 \end{align*}
 The result is a rephrasing of Lemma~\ref{lem:renyi_eq_inf_add_kl}.
 \end{proof}
+
+
 
 \subsection{Chain rule and tensorization}
 
@@ -398,6 +414,7 @@ The result is a rephrasing of Lemma~\ref{lem:renyi_eq_inf_add_kl}.
 Apply Theorem~\ref{thm:renyi_chain_rule} (the product of measures is a special case of $\otimes$). TODO: more details.
 \end{proof}
 
+
 \begin{theorem}[Tensorization - finite product]
   \label{thm:renyi_prod}
   %\lean{}
@@ -412,6 +429,7 @@ Apply Theorem~\ref{thm:renyi_chain_rule} (the product of measures is a special c
 Induction over the finite index set, using Corollary~\ref{cor:renyi_prod_two}.
 \end{proof}
 
+
 \begin{corollary}
   \label{lem:renyi_prod_n}
   %\lean{}
@@ -425,6 +443,7 @@ Induction over the finite index set, using Corollary~\ref{cor:renyi_prod_two}.
 \uses{thm:renyi_prod}
 Apply Theorem~\ref{thm:renyi_prod}.
 \end{proof}
+
 
 \begin{theorem}[Tensorization - countable product]
   \label{thm:renyi_prod_countable}
