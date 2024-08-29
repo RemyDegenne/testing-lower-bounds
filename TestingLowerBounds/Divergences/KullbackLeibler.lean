@@ -143,12 +143,12 @@ lemma kl_ne_bot (μ ν : Measure α) : kl μ ν ≠ ⊥ := by
 
 lemma kl_ge_mul_log' [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
     (hμν : μ ≪ ν) :
-    (μ Set.univ).toReal * log (μ Set.univ).toReal ≤ kl μ ν :=
+    (μ .univ).toReal * log (μ .univ).toReal ≤ kl μ ν :=
   (le_fDiv_of_ac convexOn_mul_log continuous_mul_log.continuousOn hμν).trans_eq
     kl_eq_fDiv.symm
 
 lemma kl_ge_mul_log (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
-    (μ Set.univ).toReal * log ((μ Set.univ).toReal / (ν Set.univ).toReal) ≤ kl μ ν := by
+    (μ .univ).toReal * log ((μ .univ).toReal / (ν .univ).toReal) ≤ kl μ ν := by
   by_cases hμν : μ ≪ ν
   swap; · simp [hμν]
   by_cases h_int : Integrable (llr μ ν) μ
@@ -161,7 +161,7 @@ lemma kl_ge_mul_log (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure �
   · refine absurd ?_ hμ
     rw [hν] at hμν
     exact Measure.absolutelyContinuous_zero_iff.mp hμν
-  let ν' := (ν Set.univ)⁻¹ • ν
+  let ν' := (ν .univ)⁻¹ • ν
   have : IsProbabilityMeasure ν' := by
     constructor
     simp only [ν', Measure.coe_smul, Pi.smul_apply, smul_eq_mul]
@@ -172,11 +172,11 @@ lemma kl_ge_mul_log (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure �
     refine Measure.AbsolutelyContinuous.trans hμν (Measure.absolutelyContinuous_smul ?_)
     simp [measure_ne_top ν]
   have h := kl_ge_mul_log' hμν'
-  rw [kl_of_ac_of_integrable hμν', integral_congr_ae (llr_smul_right hμν (ν Set.univ)⁻¹ _ _)] at h
+  rw [kl_of_ac_of_integrable hμν', integral_congr_ae (llr_smul_right hμν (ν .univ)⁻¹ _ _)] at h
   rotate_left
   · simp [measure_ne_top ν _]
   · simp [hν]
-  · rw [integrable_congr (llr_smul_right hμν (ν Set.univ)⁻¹ _ _)]
+  · rw [integrable_congr (llr_smul_right hμν (ν .univ)⁻¹ _ _)]
     rotate_left
     · simp [measure_ne_top ν _]
     · simp [hν]
@@ -191,14 +191,14 @@ lemma kl_ge_mul_log (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure �
     simp [hν, measure_ne_top ν]
 
 lemma kl_nonneg' (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (h : μ Set.univ ≥ ν Set.univ) :
+    (h : μ .univ ≥ ν .univ) :
     0 ≤ kl μ ν := by
   by_cases hμν : μ ≪ ν
   swap; · rw [kl_of_not_ac hμν]; simp
   by_cases h_int : Integrable (llr μ ν) μ
   swap; · rw [kl_of_not_integrable h_int]; simp
   calc 0
-    ≤ ((μ Set.univ).toReal : EReal) * log ((μ Set.univ).toReal / (ν Set.univ).toReal) := by
+    ≤ ((μ .univ).toReal : EReal) * log ((μ .univ).toReal / (ν .univ).toReal) := by
         by_cases h_zero : NeZero ν
         swap; · simp [not_neZero.mp h_zero]
         refine mul_nonneg (EReal.coe_nonneg.mpr ENNReal.toReal_nonneg) ?_
@@ -216,7 +216,7 @@ lemma kl_nonneg (μ ν : Measure α) [IsProbabilityMeasure μ] [IsProbabilityMea
 
 /-- **Converse Gibbs' inequality**: the Kullback-Leibler divergence between two finite measures is
 zero if and only if the two distributions are equal. -/
-lemma kl_eq_zero_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_mass : μ Set.univ = ν Set.univ) :
+lemma kl_eq_zero_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_mass : μ .univ = ν .univ) :
     kl μ ν = 0 ↔ μ = ν :=
   kl_eq_fDiv (μ := μ) (ν := ν) ▸ fDiv_eq_zero_iff h_mass derivAtTop_mul_log
     Real.strictConvexOn_mul_log Real.continuous_mul_log.continuousOn (by norm_num)
@@ -407,7 +407,7 @@ lemma condKL_nonneg (κ η : Kernel α β) [IsMarkovKernel κ] [IsMarkovKernel �
 
 @[simp]
 lemma condKL_const {ξ : Measure β} [IsFiniteMeasure ξ] [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
-    condKL (Kernel.const β μ) (Kernel.const β ν) ξ = (kl μ ν) * ξ Set.univ := by
+    condKL (Kernel.const β μ) (Kernel.const β ν) ξ = (kl μ ν) * ξ .univ := by
   rw [condKL_eq_condFDiv, kl_eq_fDiv]
   exact condFDiv_const convexOn_mul_log
 
@@ -447,22 +447,22 @@ lemma condKL_compProd_meas_eq_top [CountableOrCountablyGenerated (α × β) γ] 
     {ξ : Kernel α β} [IsSFiniteKernel ξ] {κ η : Kernel (α × β) γ}
     [IsMarkovKernel κ] [IsMarkovKernel η] :
     condKL κ η (μ ⊗ₘ ξ) = ⊤
-      ↔ ¬ (∀ᵐ a ∂μ, condKL (Kernel.snd' κ a) (Kernel.snd' η a) (ξ a) ≠ ⊤)
-        ∨ ¬ Integrable (fun x ↦ (condKL (Kernel.snd' κ x) (Kernel.snd' η x) (ξ x)).toReal) μ := by
+      ↔ ¬ (∀ᵐ a ∂μ, condKL (κ.snd' a) (η.snd' a) (ξ a) ≠ ⊤)
+        ∨ ¬ Integrable (fun x ↦ (condKL (κ.snd' x) (η.snd' x) (ξ x)).toReal) μ := by
   rw [condKL_eq_top_iff]
   have h_ae_eq (h_ae : ∀ᵐ a ∂μ, ∀ᵐ b ∂ξ a, κ (a, b) ≪ η (a, b))
       (h_int : ∀ᵐ a ∂μ, ∀ᵐ b ∂ξ a, Integrable (llr (κ (a, b)) (η (a, b))) (κ (a, b))) :
-      (fun x ↦ (condKL (Kernel.snd' κ x) (Kernel.snd' η x) (ξ x)).toReal)
+      (fun x ↦ (condKL (κ.snd' x) (η.snd' x) (ξ x)).toReal)
         =ᵐ[μ] fun a ↦ ∫ b, (kl (κ (a, b)) (η (a, b))).toReal ∂ξ a := by
     filter_upwards [h_ae, h_int] with a ha_ae ha_int
     rw [condKL_toReal_of_ae_ac_of_ae_integrable]
     · simp only [Kernel.snd'_apply]
-    · filter_upwards [ha_ae] with b hb using Kernel.snd'_apply _ _ _ ▸ hb
-    · filter_upwards [ha_int] with b hb using Kernel.snd'_apply _ _ _ ▸ hb
+    · filter_upwards [ha_ae] with b hb using κ.snd'_apply _ _ ▸ hb
+    · filter_upwards [ha_int] with b hb using κ.snd'_apply _ _ ▸ hb
   constructor
   · by_cases h_ae : ∀ᵐ x ∂(μ ⊗ₘ ξ), κ x ≪ η x
     swap
-    · rw [Measure.ae_compProd_iff (Kernel.measurableSet_absolutelyContinuous _ _)] at h_ae
+    · rw [Measure.ae_compProd_iff (κ.measurableSet_absolutelyContinuous _)] at h_ae
       simp_rw [condKL_ne_top_iff, Kernel.snd'_apply, eventually_and, not_and_or]
       intro; left; left
       exact h_ae
@@ -485,7 +485,7 @@ lemma condKL_compProd_meas_eq_top [CountableOrCountablyGenerated (α × β) γ] 
       simp only [condKL_ne_top_iff, Kernel.snd'_apply] at ha_int2
       exact ha_int2.2.2
     right
-    rw [Measure.ae_compProd_iff (Kernel.measurableSet_absolutelyContinuous _ _)] at h_ae
+    rw [Measure.ae_compProd_iff (κ.measurableSet_absolutelyContinuous _)] at h_ae
     apply Integrable.congr.mt
     swap; exact fun a ↦ ∫ b, (kl (κ (a, b)) (η (a, b))).toReal ∂(ξ a)
     push_neg
@@ -500,7 +500,7 @@ lemma condKL_compProd_meas_eq_top [CountableOrCountablyGenerated (α × β) γ] 
     contrapose! h
     obtain ⟨h_ae, ⟨h_int1, h_int2⟩⟩ := h
     rw [ae_compProd_integrable_llr_iff h_ae] at h_int1
-    rw [Measure.ae_compProd_iff (Kernel.measurableSet_absolutelyContinuous _ _)] at h_ae
+    rw [Measure.ae_compProd_iff (κ.measurableSet_absolutelyContinuous _)] at h_ae
     have h_meas := (Integrable.integral_compProd' h_int2).aestronglyMeasurable
     rw [Measure.integrable_compProd_iff h_int2.aestronglyMeasurable] at h_int2
     constructor
@@ -524,7 +524,7 @@ lemma condKL_compProd_meas_eq_top [CountableOrCountablyGenerated (α × β) γ] 
 lemma condKL_compProd_meas [CountableOrCountablyGenerated (α × β) γ] [SFinite μ] {ξ : Kernel α β}
     [IsSFiniteKernel ξ] {κ η : Kernel (α × β) γ} [IsMarkovKernel κ] [IsMarkovKernel η]
     (h : condKL κ η (μ ⊗ₘ ξ) ≠ ⊤) :
-    condKL κ η (μ ⊗ₘ ξ) = ∫ x, (condKL (Kernel.snd' κ x) (Kernel.snd' η x) (ξ x)).toReal ∂μ := by
+    condKL κ η (μ ⊗ₘ ξ) = ∫ x, (condKL (κ.snd' x) (η.snd' x) (ξ x)).toReal ∂μ := by
   rw [condKL_ne_top_iff'.mp h, Measure.integral_compProd (condKL_ne_top_iff.mp h).2.2]
   replace h := condKL_compProd_meas_eq_top.mpr.mt h
   push_neg at h
@@ -571,29 +571,28 @@ lemma kl_compProd [CountableOrCountablyGenerated α β] [IsMarkovKernel κ] [IsM
         condKL_ne_bot, condKL_of_not_integrable', EReal.add_top_of_ne_bot, kl_ne_bot,
         condKL_of_not_ae_integrable]
   have intμν := integrable_llr_of_integrable_llr_compProd h_prod h_int
-  have intκη : Integrable (fun a ↦ ∫ (x : β), log (Kernel.rnDeriv κ η a x).toReal ∂κ a) μ := by
+  have intκη : Integrable (fun a ↦ ∫ (x : β), log (κ.rnDeriv η a x).toReal ∂κ a) μ := by
     apply Integrable.congr (integrable_integral_llr_of_integrable_llr_compProd h_prod h_int)
     filter_upwards [hκη] with a ha
     apply integral_congr_ae
-    filter_upwards [ha.ae_le (Kernel.rnDeriv_eq_rnDeriv_measure κ η a)] with x hx
+    filter_upwards [ha.ae_le (κ.rnDeriv_eq_rnDeriv_measure η a)] with x hx
     rw [hx, llr_def]
   have intκη2 := ae_integrable_llr_of_integrable_llr_compProd h_prod h_int
   calc kl (μ ⊗ₘ κ) (ν ⊗ₘ η) = ∫ p, llr (μ ⊗ₘ κ) (ν ⊗ₘ η) p ∂(μ ⊗ₘ κ) :=
     kl_of_ac_of_integrable h_prod h_int
   _ = ∫ a, ∫ x, llr (μ ⊗ₘ κ) (ν ⊗ₘ η) (a, x) ∂κ a ∂μ := mod_cast Measure.integral_compProd h_int
-  _ = ∫ a, ∫ x, log (μ.rnDeriv ν a).toReal
-      + log (Kernel.rnDeriv κ η a x).toReal ∂κ a ∂μ := by
+  _ = ∫ a, ∫ x, log (μ.rnDeriv ν a).toReal + log (κ.rnDeriv η a x).toReal ∂κ a ∂μ := by
     norm_cast
     have h := hμν.ae_le (Measure.ae_ae_of_ae_compProd (Kernel.rnDeriv_measure_compProd μ ν κ η))
     apply Kernel.integral_congr_ae₂
     filter_upwards [h, hκη, Measure.rnDeriv_toReal_pos hμν] with a ha hκηa hμν_pos
     have hμν_zero : (μ.rnDeriv ν a).toReal ≠ 0 := by linarith
     filter_upwards [Kernel.rnDeriv_toReal_pos hκηa, hκηa.ae_le ha] with x hκη_pos hx
-    have hκη_zero : (Kernel.rnDeriv κ η a x).toReal ≠ 0 := by linarith
+    have hκη_zero : (κ.rnDeriv η a x).toReal ≠ 0 := by linarith
     rw [llr, hx, ENNReal.toReal_mul]
     exact log_mul hμν_zero hκη_zero
   _ = ∫ a, ∫ _, log (μ.rnDeriv ν a).toReal ∂κ a ∂μ
-      + ∫ a, ∫ x, log (Kernel.rnDeriv κ η a x).toReal ∂κ a ∂μ := by
+      + ∫ a, ∫ x, log (κ.rnDeriv η a x).toReal ∂κ a ∂μ := by
     norm_cast
     rw [← integral_add']
     simp only [Pi.add_apply]
@@ -603,7 +602,7 @@ lemma kl_compProd [CountableOrCountablyGenerated α β] [IsMarkovKernel κ] [IsM
     · exact intκη
     apply integral_congr_ae
     filter_upwards [hκη, intκη2] with a ha hκηa
-    have h := ha.ae_le (Kernel.rnDeriv_eq_rnDeriv_measure κ η a)
+    have h := ha.ae_le (κ.rnDeriv_eq_rnDeriv_measure η a)
     rw [← integral_add']
     rotate_left
     · simp only [integrable_const]
@@ -619,7 +618,7 @@ lemma kl_compProd [CountableOrCountablyGenerated α β] [IsMarkovKernel κ] [IsM
     congr 2
     apply Kernel.integral_congr_ae₂
     filter_upwards [hκη] with a ha
-    have h := ha.ae_le (Kernel.rnDeriv_eq_rnDeriv_measure κ η a)
+    have h := ha.ae_le (κ.rnDeriv_eq_rnDeriv_measure η a)
     filter_upwards [h] with x hx
     congr
   _ = kl μ ν + condKL κ η μ := by
@@ -630,7 +629,7 @@ lemma kl_compProd [CountableOrCountablyGenerated α β] [IsMarkovKernel κ] [IsM
       simp_rw [llr_def]
       apply Integrable.congr intκη
       filter_upwards [hκη] with a ha
-      have h := ha.ae_le (Kernel.rnDeriv_eq_rnDeriv_measure κ η a)
+      have h := ha.ae_le (κ.rnDeriv_eq_rnDeriv_measure η a)
       apply integral_congr_ae
       filter_upwards [h] with x hx
       rw [hx]
@@ -672,13 +671,13 @@ lemma kl_compProd_kernel_of_ae_ac_of_ae_integrable [CountableOrCountablyGenerate
   simp only [Kernel.absolutelyContinuous_compProd_iff, eventually_and] at h_ac
   filter_upwards [h_ac.1, h_ac.2, h_ae_int.1, h_ae_int.2.1, h_ae_int.2.2] with a ha_ac₁ ha_ac₂
     ha_int₁ ha_int_kl₂ ha_int₂
-  have h_snd_ne_top : condKL (Kernel.snd' κ₂ a) (Kernel.snd' η₂ a) (κ₁ a) ≠ ⊤ := by
+  have h_snd_ne_top : condKL (κ₂.snd' a) (η₂.snd' a) (κ₁ a) ≠ ⊤ := by
     apply condKL_ne_top_iff.mpr
     simp_rw [Kernel.snd'_apply]
     exact ⟨ha_ac₂, ⟨ha_int₂, ha_int_kl₂⟩⟩
   simp_rw [Kernel.compProd_apply_eq_compProd_snd', kl_compProd,
     EReal.toReal_add (kl_ne_top_iff.mpr ⟨ha_ac₁, ha_int₁⟩) (kl_ne_bot (κ₁ a) (η₁ a)) h_snd_ne_top
-    (condKL_ne_bot (Kernel.snd' κ₂ a) (Kernel.snd' η₂ a) (κ₁ a)),
+    (condKL_ne_bot (κ₂.snd' a) (η₂.snd' a) (κ₁ a)),
     condKL_ne_top_iff'.mp h_snd_ne_top, EReal.toReal_coe, Kernel.snd'_apply]
 
 lemma condKL_compProd_kernel_eq_top [CountableOrCountablyGenerated (α × β) γ] {κ₁ η₁ : Kernel α β}
@@ -691,14 +690,13 @@ lemma condKL_compProd_kernel_eq_top [CountableOrCountablyGenerated (α × β) γ
     simp only [condKL_isEmpty_left]
     tauto
   have := countableOrCountablyGenerated_right_of_prod_left_of_nonempty (α := α) (β := β) (γ := γ)
-  simp_rw [condKL_eq_top_iff,
-    Measure.ae_compProd_iff (Kernel.measurableSet_absolutelyContinuous _ _)]
+  simp_rw [condKL_eq_top_iff, Measure.ae_compProd_iff (κ₂.measurableSet_absolutelyContinuous _)]
   by_cases h_ac : ∀ᵐ a ∂μ, (κ₁ ⊗ₖ κ₂) a ≪ (η₁ ⊗ₖ η₂) a
     <;> have h_ac' := h_ac
     <;> simp only [Kernel.absolutelyContinuous_compProd_iff, eventually_and, not_and_or] at h_ac'
     <;> simp only [h_ac, h_ac', not_false_eq_true, true_or, not_true, true_iff, false_or]
   swap; tauto
-  rw [← Measure.ae_compProd_iff (Kernel.measurableSet_absolutelyContinuous _ _)] at h_ac'
+  rw [← Measure.ae_compProd_iff (κ₂.measurableSet_absolutelyContinuous _)] at h_ac'
   by_cases h_ae_int : ∀ᵐ a ∂μ, Integrable (llr ((κ₁ ⊗ₖ κ₂) a) ((η₁ ⊗ₖ η₂) a)) ((κ₁ ⊗ₖ κ₂) a)
     <;> have h_ae_int' := h_ae_int
     <;> simp only [eventually_congr (h_ac.mono (fun a h ↦ (Kernel.integrable_llr_compProd_iff' a h))),
@@ -757,7 +755,7 @@ variable {β : Type*} {mβ : MeasurableSpace β}
 
 lemma kl_prod_two' [CountableOrCountablyGenerated α β] {ξ ψ : Measure β} [IsProbabilityMeasure ξ]
     [IsProbabilityMeasure ψ] [IsFiniteMeasure μ] [IsFiniteMeasure ν]:
-    kl (μ.prod ξ) (ν.prod ψ) = kl μ ν + kl ξ ψ * (μ Set.univ) := by
+    kl (μ.prod ξ) (ν.prod ψ) = kl μ ν + kl ξ ψ * (μ .univ) := by
   simp only [← condKL_const, ← kl_compProd, Measure.compProd_const]
 
 /--Tensorization property for KL divergence-/
@@ -783,7 +781,7 @@ lemma Measure.pi_map_piCongrLeft {ι ι' : Type*} [hι : Fintype ι] [hι' : Fin
   refine Measure.pi_eq (fun s _ ↦ ?_) |>.symm
   rw [e_meas.measurableEmbedding.map_apply]
   let s' : (i : ι) → Set (β (e i)) := fun i ↦ s (e i)
-  have : e_meas ⁻¹' Set.pi Set.univ s = Set.pi Set.univ s' := by
+  have : e_meas ⁻¹' Set.univ.pi s = Set.univ.pi s' := by
     ext x
     simp only [Set.mem_preimage, Set.mem_pi, Set.mem_univ, forall_true_left, s']
     refine (e.forall_congr ?_).symm

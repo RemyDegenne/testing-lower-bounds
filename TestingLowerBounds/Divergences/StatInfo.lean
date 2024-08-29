@@ -83,7 +83,7 @@ lemma statInfo_of_measure_false_eq_zero (μ ν : Measure 𝒳) (hπ : π {false}
 lemma statInfo_comp_le (μ ν : Measure 𝒳) (π : Measure Bool) (η : Kernel 𝒳 𝒳') [IsMarkovKernel η] :
     statInfo (η ∘ₘ μ) (η ∘ₘ ν) π ≤ statInfo μ ν π := by
   refine tsub_le_tsub ?_ (bayesBinaryRisk_le_bayesBinaryRisk_comp _ _ _ _)
-  simp [Measure.bind_apply MeasurableSet.univ (Kernel.measurable _)]
+  simp [Measure.bind_apply .univ (Kernel.measurable _)]
 
 lemma toReal_statInfo_eq_toReal_sub [IsFiniteMeasure ν] [IsFiniteMeasure π] :
     (statInfo μ ν π).toReal = (min (π {false} * μ univ) (π {true} * ν univ)).toReal
@@ -940,7 +940,7 @@ lemma fDiv_eq_lintegral_fDiv_statInfoFun_of_mutuallySingular [IsFiniteMeasure μ
       ← lintegral_mul_const _]
     swap
     · simp_rw [derivAtTop_statInfoFun_eq]
-      refine (Measurable.ite (MeasurableSet.const _) ?_ ?_).coe_real_ereal.ereal_toENNReal <;>
+      refine (Measurable.ite (.const _) ?_ ?_).coe_real_ereal.ereal_toENNReal <;>
       · refine Measurable.ite (measurableSet_le (fun _ a ↦ a) ?_) ?_ ?_ <;> exact measurable_const
     rw [← lintegral_add_left]
     swap; · exact measurable_statInfoFun2.ennreal_ofReal.mul_const _
