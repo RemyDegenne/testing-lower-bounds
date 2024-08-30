@@ -233,7 +233,7 @@ lemma Measure.absolutelyContinuous_comp {μ ν : Measure α} {κ η : Kernel α 
     (hμν : μ ≪ ν) (hκη : ∀ᵐ a ∂μ, κ a ≪ η a) :
     κ ∘ₘ μ ≪ η ∘ₘ ν := by
   simp_rw [Measure.comp_eq_snd_compProd, Measure.snd]
-  exact Measure.AbsolutelyContinuous.map (Kernel.Measure.absolutelyContinuous_compProd hμν hκη)
+  exact Measure.AbsolutelyContinuous.map (Measure.absolutelyContinuous_compProd hμν hκη)
     measurable_snd
 
 lemma Measure.absolutelyContinuous_comp_left {μ ν : Measure α} [SFinite μ] [SFinite ν]
@@ -263,7 +263,7 @@ lemma singularPart_compProd'' [MeasurableSpace.CountableOrCountablyGenerated α 
   simp_rw [Measure.compProd_add_left, Measure.singularPart_add]
   have : (ν.withDensity (∂μ/∂ν) ⊗ₘ Kernel.withDensity η (Kernel.rnDeriv κ η)).singularPart
       (ν ⊗ₘ η) = 0 := by
-    refine Measure.singularPart_eq_zero_of_ac (Kernel.Measure.absolutelyContinuous_compProd ?_ ?_)
+    refine Measure.singularPart_eq_zero_of_ac (Measure.absolutelyContinuous_compProd ?_ ?_)
     · exact withDensity_absolutelyContinuous _ _
     · exact ae_of_all _ (Kernel.withDensity_absolutelyContinuous _)
   rw [this, add_zero, ← add_assoc]
@@ -276,7 +276,7 @@ lemma singularPart_compProd'' [MeasurableSpace.CountableOrCountablyGenerated α 
       (Kernel.singularPart κ η) η
   · rw [Measure.singularPart_eq_self]
     exact Kernel.Measure.mutuallySingular_compProd_right (ν.withDensity (∂μ/∂ν)) ν
-      (eventually_of_forall <| Kernel.mutuallySingular_singularPart _ _)
+      (.of_forall <| Kernel.mutuallySingular_singularPart _ _)
 
 lemma singularPart_compProd [MeasurableSpace.CountableOrCountablyGenerated α β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]

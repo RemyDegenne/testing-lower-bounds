@@ -452,7 +452,7 @@ lemma bayesBinaryRisk_ne_top (μ ν : Measure 𝒳) [IsFiniteMeasure μ]
     (π : Measure Bool) [IsFiniteMeasure π] :
     bayesBinaryRisk μ ν π ≠ ∞ := by
   refine lt_top_iff_ne_top.mp ((bayesBinaryRisk_le_min μ ν π).trans_lt ?_)
-  exact min_lt_iff.mpr <| Or.inl <| ENNReal.mul_lt_top (measure_ne_top π _) (measure_ne_top μ _)
+  exact min_lt_iff.mpr <| Or.inl <| ENNReal.mul_lt_top (measure_lt_top π _) (measure_lt_top μ _)
 
 lemma bayesBinaryRisk_of_measure_true_eq_zero (μ ν : Measure 𝒳) (hπ : π {true} = 0) :
     bayesBinaryRisk μ ν π = 0 := by
@@ -623,7 +623,7 @@ lemma bayesBinaryRisk_eq_lintegral_ennnorm (μ ν : Measure 𝒳) [IsFiniteMeasu
     ENNReal.ofReal_inv_of_pos zero_lt_two, ENNReal.ofReal_ofNat,
     ENNReal.ofReal_sub _ (by positivity), ENNReal.ofReal_toReal (measure_ne_top _ _),
     MeasureTheory.ofReal_integral_eq_lintegral_ofReal _
-    (Filter.eventually_of_forall fun _ ↦ by positivity)]
+    (.of_forall fun _ ↦ by positivity)]
   swap
   · refine ⟨Measurable.aestronglyMeasurable (by fun_prop), ?_⟩
     simp_rw [HasFiniteIntegral, Real.nnnorm_abs]
@@ -658,8 +658,8 @@ lemma bayesBinaryRisk_eq_lintegral_ennnorm (μ ν : Measure 𝒳) [IsFiniteMeasu
           rw [Measure.lintegral_rnDeriv
             (absolutelyContinuous_measure_comp_twoHypKernel_right μ ν h_true)]
       _ < ⊤ :=
-        ENNReal.add_lt_top.mpr ⟨ENNReal.mul_lt_top (measure_ne_top _ _) (measure_ne_top _ _),
-          ENNReal.mul_lt_top (measure_ne_top _ _) (measure_ne_top _ _)⟩
+        ENNReal.add_lt_top.mpr ⟨ENNReal.mul_lt_top (measure_lt_top _ _) (measure_lt_top _ _),
+          ENNReal.mul_lt_top (measure_lt_top _ _) (measure_lt_top _ _)⟩
   simp_rw [Real.ennnorm_eq_ofReal_abs]
 
 end ProbabilityTheory
