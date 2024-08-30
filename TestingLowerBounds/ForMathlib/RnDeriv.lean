@@ -5,7 +5,6 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import Mathlib.MeasureTheory.Measure.Tilted
 import Mathlib.MeasureTheory.Function.ConditionalExpectation.Basic
-import TestingLowerBounds.ForMathlib.SetIntegral
 
 /-!
 
@@ -110,18 +109,6 @@ lemma rnDeriv_eq_zero_ae_of_zero_measure (ν : Measure α) {s : Set α} (hs : Me
     (hμ : μ s = 0) : ∀ᵐ x ∂ν, x ∈ s → (μ.rnDeriv ν) x = 0 := by
   rw [← MeasureTheory.setLIntegral_eq_zero_iff hs (Measure.measurable_rnDeriv μ ν)]
   exact le_antisymm (hμ ▸ Measure.setLIntegral_rnDeriv_le s) (zero_le _)
-
---PRed, see #15540
-lemma measure_sub_singularPart (μ ν : Measure α) [HaveLebesgueDecomposition μ ν] [IsFiniteMeasure μ] :
-    μ - μ.singularPart ν = ν.withDensity (μ.rnDeriv ν) := by
-  nth_rw 1 [← rnDeriv_add_singularPart μ ν]
-  exact Measure.add_sub_cancel
-
---PRed, see #15540
-lemma measure_sub_rnDeriv (μ ν : Measure α) [HaveLebesgueDecomposition μ ν] [IsFiniteMeasure μ] :
-    μ - ν.withDensity (μ.rnDeriv ν) = μ.singularPart ν := by
-  nth_rw 1 [← singularPart_add_rnDeriv μ ν]
-  exact Measure.add_sub_cancel
 
 /--Singular part set of μ with respect to ν.-/
 def singularPartSet (μ ν : Measure α) := {x | ν.rnDeriv (μ + ν) x = 0}

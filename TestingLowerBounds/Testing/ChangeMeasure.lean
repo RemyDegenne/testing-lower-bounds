@@ -90,7 +90,7 @@ lemma measure_sub_le_measure_mul_exp [SigmaFinite μ] [IsFiniteMeasure ν] (hμ�
     calc - (μ {x | c < llr μ ν x}).toReal
       ≤ 0 := by simp
     _ ≤ (ν s).toReal * exp c := by positivity
-  rw [← div_le_iff (exp_pos _), div_eq_mul_inv, ← exp_neg]
+  rw [← div_le_iff₀ (exp_pos _), div_eq_mul_inv, ← exp_neg]
   calc ((μ s).toReal - (μ {x | c < llr μ ν x}).toReal) * rexp (-c)
     ≤ (μ (s \ {x | c < llr μ ν x})).toReal * rexp (-c) := by
         gcongr

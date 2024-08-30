@@ -419,7 +419,7 @@ lemma todo1 (μ ν : Measure α) (κ η : Kernel α γ)
   have h02 : ∂(μ' ⊗ₘ (singularPart κ η))/∂(ν ⊗ₘ η) =ᵐ[ν ⊗ₘ η] 0 := by
     rw [Measure.rnDeriv_eq_zero]
     exact Measure.mutuallySingular_compProd_right μ' ν
-      (eventually_of_forall <| mutuallySingular_singularPart _ _)
+      (.of_forall <| mutuallySingular_singularPart _ _)
   filter_upwards [h_add, h_add', h01, h02] with a h_add h_add' h01 h02
   rw [h_add, Pi.add_apply, h_add', Pi.add_apply, h01, h02]
   simp
@@ -509,8 +509,7 @@ lemma Measure.absolutelyContinuous_Kernel_of_compProd {μ ν : Measure α} {κ �
   rw [← rnDeriv_add_singularPart κ η, Measure.compProd_add_right,
     Measure.AbsolutelyContinuous.add_left_iff] at h
   have : μ ⊗ₘ singularPart κ η ⟂ₘ ν ⊗ₘ η :=
-    Measure.mutuallySingular_compProd_right μ ν
-      (eventually_of_forall <| mutuallySingular_singularPart _ _)
+    Measure.mutuallySingular_compProd_right μ ν (.of_forall <| mutuallySingular_singularPart _ _)
   have h_zero : μ ⊗ₘ singularPart κ η = 0 :=
     Measure.eq_zero_of_absolutelyContinuous_of_mutuallySingular h.2 this
   simp_rw [← Measure.measure_univ_eq_zero]

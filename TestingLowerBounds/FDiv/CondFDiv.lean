@@ -457,7 +457,7 @@ lemma condFDiv_compProd_meas_eq_top [CountableOrCountablyGenerated (α × β) γ
         ¬ Integrable (fun x ↦ (condFDiv f (Kernel.snd' κ x) (Kernel.snd' η x) (ξ x)).toReal) μ := by
   by_cases h_empty : Nonempty α
   swap; simp only [isEmpty_prod, not_nonempty_iff.mp h_empty, true_or, condFDiv_of_isEmpty_left,
-    EReal.zero_ne_top, IsEmpty.forall_iff, eventually_of_forall, not_true_eq_false,
+    EReal.zero_ne_top, IsEmpty.forall_iff, Eventually.of_forall, not_true_eq_false,
     Integrable.of_isEmpty, or_self]
   have := countableOrCountablyGenerated_right_of_prod_left_of_nonempty (α := α) (β := β) (γ := γ)
   rw [condFDiv_eq_top_iff hf_cvx]
