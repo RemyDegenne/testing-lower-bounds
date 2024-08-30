@@ -44,7 +44,7 @@ lemma setLIntegral_nnnorm_exp_neg_llr_le [SigmaFinite ν] [SigmaFinite μ]
         rw [hx]
     _ = ∫⁻ a in t, ν.rnDeriv μ a ∂μ := by
         refine setLIntegral_congr_fun ht ?_
-        filter_upwards [Measure.rnDeriv_ne_top ν μ] with x hx _
+        filter_upwards [ν.rnDeriv_ne_top μ] with x hx _
         rw [← ofReal_norm_eq_coe_nnnorm]
         simp [hx]
     _ ≤ ν t := Measure.setLIntegral_rnDeriv_le t

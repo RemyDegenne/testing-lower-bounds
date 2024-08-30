@@ -187,7 +187,7 @@ lemma ae_compProd_integrable_llr_iff [CountableOrCountablyGenerated (α × β) �
     Kernel.ae_compProd_iff (measurableSet_integrable_llr κ η)
   _ ↔ ∀ᵐ a ∂μ, ∀ᵐ b ∂ξ a, Integrable (llr (κ (a, b)) (η (a, b))) (κ (a, b)) := by
     apply Filter.eventually_congr
-    rw [Measure.ae_compProd_iff (Kernel.measurableSet_absolutelyContinuous _ _)] at h_ac
+    rw [Measure.ae_compProd_iff (κ.measurableSet_absolutelyContinuous _)] at h_ac
     filter_upwards [h_ac] with a ha
     apply Filter.eventually_congr
     filter_upwards [ha] with b hb using (integrable_rnDeriv_smul_iff hb)
