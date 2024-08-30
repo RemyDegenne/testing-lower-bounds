@@ -796,7 +796,7 @@ lemma fDiv_mono'' (hf_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν
 /- The hypothesis `hfg'` can probably be removed if we ask for the functions to be convex, since then it is true that `derivAtTop` is monotone, but we still don't have the result formalized. Moreover in the convex case we can also relax `hf_int` and only ask for a.e. strong measurability of `f` (at least when `μ` and `ν` are finite), because then the negative part of the function is always integrable, hence if `f` is not integrable `g` is also not integrable. -/
 lemma fDiv_mono' (hf_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
     (hfg : f ≤ g) (hfg' : derivAtTop f ≤ derivAtTop g) : fDiv f μ ν ≤ fDiv g μ ν :=
-  fDiv_mono'' hf_int (eventually_of_forall hfg) hfg'
+  fDiv_mono'' hf_int (.of_forall hfg) hfg'
 
 lemma fDiv_nonneg_of_nonneg (hf : 0 ≤ f) (hf' : 0 ≤ derivAtTop f) :
     0 ≤ fDiv f μ ν :=
@@ -824,7 +824,7 @@ lemma fDiv_eq_zero_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_mass : μ .u
   simp only [ENNReal.one_toReal, Function.const_one, log_one, mul_zero, lt_self_iff_false,
     or_false, hf_one] at h_eq
   exact (Measure.rnDeriv_eq_one_iff_eq hμν).mp <| ENNReal.eventuallyEq_of_toReal_eventuallyEq
-    (Measure.rnDeriv_ne_top _ _) (eventually_of_forall fun _ ↦ ENNReal.one_ne_top) h_eq
+    (Measure.rnDeriv_ne_top _ _) (.of_forall fun _ ↦ ENNReal.one_ne_top) h_eq
 
 lemma fDiv_eq_zero_iff' [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
     (hf_deriv : derivAtTop f = ⊤) (hf_cvx : StrictConvexOn ℝ (Ici 0) f)

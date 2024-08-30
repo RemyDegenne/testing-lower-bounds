@@ -656,7 +656,7 @@ lemma meas_univ_add_mul_hellingerDiv_eq_zero_iff (ha_ne_one : a ≠ 1)
   · rw [meas_univ_add_mul_hellingerDiv_zero_eq ha_zero, ← Measure.rnDeriv_eq_zero,
       EReal.coe_ennreal_eq_zero]
     simp_rw [← not_le, ← ae_iff]
-    exact eventually_congr <| eventually_of_forall <| fun _ ↦ nonpos_iff_eq_zero
+    exact eventually_congr <| .of_forall <| fun _ ↦ nonpos_iff_eq_zero
   rw [meas_univ_add_mul_hellingerDiv_eq ha_zero ha_ne_one h_top]
   norm_cast
   refine integral_rpow_rnDeriv_eq_zero_iff_mutuallySingular ha_zero ?_
@@ -770,7 +770,7 @@ lemma integrable_hellingerDiv_iff_of_lt_one (ha_nonneg : 0 ≤ a) (ha : a < 1)
     [IsFiniteKernel κ] [IsFiniteKernel η] :
     Integrable (fun x ↦ (hellingerDiv a (κ x) (η x)).toReal) μ
       ↔ Integrable (fun x ↦ ∫ b, hellingerFun a ((∂κ x/∂η x) b).toReal ∂η x) μ := by
-  refine integrable_congr (eventually_of_forall fun x ↦ ?_)
+  refine integrable_congr (.of_forall fun x ↦ ?_)
   simp_rw [hellingerDiv_eq_integral_of_lt_one ha_nonneg ha, EReal.toReal_coe]
 
 lemma integrable_hellingerDiv_iff' (ha_pos : 0 < a) (ha_ne_one : a ≠ 1)
@@ -805,7 +805,7 @@ lemma integrable_hellingerDiv_iff' (ha_pos : 0 < a) (ha_ne_one : a ≠ 1)
   obtain ⟨C, ⟨hC_finite, hC⟩⟩ := IsFiniteKernel.exists_univ_le (κ := η)
   refine integrable_add_iff_integrable_left <| (integrable_const C.toReal).mono' ?_ ?_
   · exact η.measurable_coe .univ |>.ennreal_toReal.neg.aestronglyMeasurable
-  refine eventually_of_forall (fun x ↦ ?_)
+  refine .of_forall (fun x ↦ ?_)
   rw [norm_eq_abs, abs_neg, abs_eq_self.mpr ENNReal.toReal_nonneg, ENNReal.toReal_le_toReal
     (measure_ne_top _ _) (lt_top_iff_ne_top.mp hC_finite)]
   exact hC x
@@ -831,7 +831,7 @@ lemma integrable_hellingerDiv_zero [CountableOrCountablyGenerated α β]
     apply Measurable.ennreal_toReal
     exact Kernel.measurable_kernel_prod_mk_left
       (measurableSet_eq_fun (κ.measurable_rnDeriv η).ennreal_toReal measurable_const)
-  · refine eventually_of_forall (fun x ↦ ?_)
+  · refine .of_forall fun x ↦ ?_
     simp only [norm_eq_abs, ENNReal.abs_toReal, ENNReal.toReal_le_toReal
     (measure_ne_top _ _) (lt_top_iff_ne_top.mp hC_finite)]
     exact measure_mono (Set.subset_univ _) |>.trans (hC x)
@@ -840,7 +840,7 @@ lemma integrable_hellingerDiv_iff'_of_lt_one (ha_pos : 0 < a) (ha : a < 1)
     [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η] :
     Integrable (fun x ↦ (hellingerDiv a (κ x) (η x)).toReal) μ
       ↔ Integrable (fun x ↦ ∫ b, ((∂κ x/∂η x) b).toReal ^ a ∂η x) μ :=
-  integrable_hellingerDiv_iff' ha_pos ha.ne (eventually_of_forall
+  integrable_hellingerDiv_iff' ha_pos ha.ne (.of_forall
     (fun _ ↦ integrable_rpow_rnDeriv_of_lt_one ha_pos.le ha)) (not_le_of_gt ha).elim
 
 /-- Conditional Hellinger divergence of order `a`. -/
@@ -947,7 +947,7 @@ lemma condHellingerDiv_zero_eq [CountableOrCountablyGenerated α β]
     condHellingerDiv 0 κ η μ = ∫ x, (hellingerDiv 0 (κ x) (η x)).toReal ∂μ :=
   condHellingerDiv_of_ae_finite_of_integrable
     ((hellingerDiv_ae_ne_top_iff' _ _).mpr
-      ⟨eventually_of_forall (fun _ ↦ integrable_hellingerFun_zero), by simp⟩)
+      ⟨.of_forall fun _ ↦ integrable_hellingerFun_zero, by simp⟩)
     integrable_hellingerDiv_zero
 
 lemma condHellingerDiv_zero_of_ae_integrable_of_integrable [IsFiniteKernel κ] [IsFiniteKernel η]
@@ -955,7 +955,7 @@ lemma condHellingerDiv_zero_of_ae_integrable_of_integrable [IsFiniteKernel κ] [
     condHellingerDiv 0 κ η μ = ∫ x, (hellingerDiv 0 (κ x) (η x)).toReal ∂μ :=
   condHellingerDiv_of_ae_finite_of_integrable
     ((hellingerDiv_ae_ne_top_iff' _ _).mpr
-      ⟨eventually_of_forall (fun _ ↦ integrable_hellingerFun_zero), by simp⟩) h_int2
+      ⟨.of_forall fun _ ↦ integrable_hellingerFun_zero, by simp⟩) h_int2
 
 --TODO: try to generalize this to the case `a = 0`
 lemma condHellingerDiv_of_ae_integrable_of_ae_ac_of_integrable' (ha_pos : 0 < a) (ha_ne_one : a ≠ 1)
@@ -981,7 +981,7 @@ lemma condHellingerDiv_of_integrable'_of_lt_one (ha_pos : 0 < a) (ha : a < 1)
     condHellingerDiv a κ η μ = ∫ x, (hellingerDiv a (κ x) (η x)).toReal ∂μ :=
   condHellingerDiv_of_ae_finite_of_integrable
     ((hellingerDiv_ae_ne_top_iff_of_lt_one ha _ _).mpr
-      (eventually_of_forall <| fun _ ↦ integrable_rpow_rnDeriv_of_lt_one ha_pos.le ha))
+      (.of_forall <| fun _ ↦ integrable_rpow_rnDeriv_of_lt_one ha_pos.le ha))
     (integrable_hellingerDiv_iff'_of_lt_one ha_pos ha |>.mpr h_int')
 
 lemma condHellingerDiv_eq_top_iff [IsFiniteKernel κ] [IsFiniteKernel η] :
@@ -1062,7 +1062,7 @@ lemma condHellingerDiv_eq_top_iff_of_lt_one' (ha_pos : 0 < a) (ha : a < 1)
     condHellingerDiv a κ η μ = ⊤
       ↔ ¬ Integrable (fun x ↦ ∫ b, ((∂κ x/∂η x) b).toReal ^ a ∂η x) μ := by
   simp_rw [condHellingerDiv_eq_top_iff_of_lt_one ha,
-    (eventually_of_forall <| fun _ ↦ integrable_hellingerFun_rnDeriv_of_lt_one ha_pos.le ha),
+    (Eventually.of_forall <| fun _ ↦ integrable_hellingerFun_rnDeriv_of_lt_one ha_pos.le ha),
     integrable_hellingerDiv_iff'_of_lt_one ha_pos ha, not_true, false_or]
 
 lemma condHellingerDiv_ne_top_iff_of_lt_one' (ha_pos : 0 < a) (ha : a < 1)
@@ -1113,7 +1113,7 @@ lemma condHellingerDiv_eq_integral'_of_one_lt (ha : 1 < a)
         hellingerDiv_ne_top_iff_of_one_lt ha _ _ |>.mpr ⟨hx_int, hx_ac⟩
     _ = ∫ x, ((a - 1)⁻¹ * ∫ b, ((∂κ x/∂η x) b).toReal ^ a ∂η x
         - (a - 1)⁻¹ * ((η x) .univ).toReal) ∂μ := by
-      refine integral_congr_ae (eventually_of_forall fun x ↦ ?_)
+      refine integral_congr_ae (.of_forall fun x ↦ ?_)
       dsimp
       rw [EReal.toReal_sub (ne_of_beq_false (by rfl)) (ne_of_beq_false (by rfl))]
       congr
@@ -1166,7 +1166,7 @@ lemma condHellingerDiv_eq_integral'_of_lt_one (ha_pos : 0 < a) (ha : a < 1)
       exact hellingerDiv_eq_integral_of_lt_one' ha_pos ha _ _
     _ = ∫ x, ((a - 1)⁻¹ * ∫ b, ((∂κ x/∂η x) b).toReal ^ a ∂η x --from here to the end the proof is the same as the one of `condHellingerDiv_eq_integral'_of_one_lt`, consider separating this part as a lemma
         - (a - 1)⁻¹ * ((η x) .univ).toReal) ∂μ := by
-      refine integral_congr_ae (eventually_of_forall fun x ↦ ?_)
+      refine integral_congr_ae (.of_forall fun x ↦ ?_)
       dsimp
       rw [EReal.toReal_sub (ne_of_beq_false (by rfl)) (ne_of_beq_false (by rfl))]
       congr

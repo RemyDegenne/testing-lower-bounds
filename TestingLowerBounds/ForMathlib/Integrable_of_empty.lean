@@ -19,7 +19,7 @@ lemma Integrable.of_isEmpty_codomain {α β : Type*} [MeasurableSpace α] [Norme
 @[simp]
 lemma integral_of_isEmpty {α β : Type*} [MeasurableSpace α] [NormedAddCommGroup β]
     [NormedSpace ℝ β] [IsEmpty α] (f : α → β) (μ : Measure α) : ∫ x, f x ∂μ = 0 :=
-  integral_eq_zero_of_ae <| eventually_of_forall (IsEmpty.forall_iff.mpr True.intro)
+  integral_eq_zero_of_ae <| .of_forall (IsEmpty.forall_iff.mpr True.intro)
 
 --PRed, see #15459
 @[simp]

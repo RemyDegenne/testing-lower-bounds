@@ -9,7 +9,6 @@ import Mathlib.Order.CompletePartialOrder
 import TestingLowerBounds.FDiv.Basic
 import TestingLowerBounds.Testing.Binary
 import Mathlib.MeasureTheory.Constructions.Prod.Integral
-import TestingLowerBounds.ForMathlib.SetIntegral
 
 /-!
 # Statistical information
@@ -66,7 +65,7 @@ lemma statInfo_le_min : statInfo μ ν π ≤ min (π {false} * μ univ) (π {tr
 lemma statInfo_ne_top [IsFiniteMeasure μ] [IsFiniteMeasure π] :
     statInfo μ ν π ≠ ⊤ :=
   (statInfo_le_min.trans_lt <| min_lt_iff.mpr <| Or.inl
-    <| ENNReal.mul_lt_top (measure_ne_top π _) (measure_ne_top μ _)).ne
+    <| ENNReal.mul_lt_top (measure_lt_top π _) (measure_lt_top μ _)).ne
 
 lemma statInfo_symm : statInfo μ ν π = statInfo ν μ (π.map Bool.not) := by
   simp_rw [statInfo, bayesBinaryRisk_symm _ _ π]
@@ -730,18 +729,18 @@ lemma lintegral_f_rnDeriv_eq_lintegralfDiv_statInfoFun_of_absolutelyContinuous
     ← integral_statInfoFun_curvatureMeasure' hf_cvx hf_cont hf_one hfderiv_one]
   have (x : 𝒳) : ENNReal.ofReal (∫ γ, statInfoFun 1 γ ((∂μ/∂ν) x).toReal ∂curvatureMeasure f) =
       ∫⁻ γ, ENNReal.ofReal (statInfoFun 1 γ ((∂μ/∂ν) x).toReal) ∂curvatureMeasure f := by
-    rw [integral_eq_lintegral_of_nonneg_ae (eventually_of_forall fun y ↦ statInfoFun_nonneg _ _ _)
+    rw [integral_eq_lintegral_of_nonneg_ae (.of_forall fun y ↦ statInfoFun_nonneg _ _ _)
         h_meas.of_uncurry_left.stronglyMeasurable.aestronglyMeasurable]
     refine ENNReal.ofReal_toReal <| (lintegral_ofReal_le_lintegral_nnnorm _).trans_lt ?_ |>.ne
     exact (integrable_statInfoFun 1 _).hasFiniteIntegral
   simp_rw [this]
   rw [lintegral_lintegral_swap h_meas.ennreal_ofReal.aemeasurable]
   congr with y
-  rw [integral_eq_lintegral_of_nonneg_ae (eventually_of_forall fun _ ↦ statInfoFun_nonneg _ _ _)
+  rw [integral_eq_lintegral_of_nonneg_ae (.of_forall fun _ ↦ statInfoFun_nonneg _ _ _)
     h_meas.of_uncurry_right.stronglyMeasurable.aestronglyMeasurable, ENNReal.ofReal_toReal]
   refine (integrable_toReal_iff ?_ ?_).mp ?_
   · exact h_meas.comp (f := fun x ↦ (x, y)) (by fun_prop) |>.ennreal_ofReal.aemeasurable
-  · exact eventually_of_forall fun _ ↦ ENNReal.ofReal_ne_top
+  · exact .of_forall fun _ ↦ ENNReal.ofReal_ne_top
   · simp_rw [ENNReal.toReal_ofReal (statInfoFun_nonneg 1 _ _)]
     exact integrable_statInfoFun_rnDeriv 1 y μ ν
 
@@ -764,12 +763,12 @@ lemma fDiv_ne_top_iff_integrable_fDiv_statInfoFun_of_absolutelyContinuous'
   rotate_left
   · exact hf_cont.measurable.comp (Measure.measurable_rnDeriv μ ν).ennreal_toReal
       |>.ennreal_ofReal.aemeasurable
-  · exact eventually_of_forall fun _ ↦ ENNReal.ofReal_ne_top
+  · exact .of_forall fun _ ↦ ENNReal.ofReal_ne_top
   rw [integrable_toReal_iff]
   rotate_left
   · exact (fDiv_statInfoFun_stronglyMeasurable μ ν).measurable.comp (f := fun x ↦ (1, x))
       (by fun_prop) |>.ereal_toENNReal.aemeasurable
-  · exact eventually_of_forall fun _ ↦ EReal.toENNReal_ne_top_iff.mpr fDiv_statInfoFun_ne_top
+  · exact .of_forall fun _ ↦ EReal.toENNReal_ne_top_iff.mpr fDiv_statInfoFun_ne_top
   rw [lintegral_f_rnDeriv_eq_lintegralfDiv_statInfoFun_of_absolutelyContinuous hf_cvx hf_cont
     hf_one hfderiv_one h_ac]
 
@@ -823,21 +822,21 @@ lemma fDiv_eq_integral_fDiv_statInfoFun_of_absolutelyContinuous'
         ∂curvatureMeasure f ∂ν).toReal := by
     rw [integral_eq_lintegral_of_nonneg_ae]
     rotate_left
-    · exact eventually_of_forall fun _ ↦ (integral_nonneg (fun _ ↦ statInfoFun_nonneg _ _ _))
+    · exact .of_forall fun _ ↦ (integral_nonneg (fun _ ↦ statInfoFun_nonneg _ _ _))
     · refine (StronglyMeasurable.integral_prod_left ?_).aestronglyMeasurable
       exact (measurable_swap_iff.mpr h_meas).stronglyMeasurable
     congr with x
-    rw [integral_eq_lintegral_of_nonneg_ae (eventually_of_forall fun y ↦ statInfoFun_nonneg _ _ _)
+    rw [integral_eq_lintegral_of_nonneg_ae (.of_forall fun y ↦ statInfoFun_nonneg _ _ _)
       h_meas.of_uncurry_left.stronglyMeasurable.aestronglyMeasurable]
     refine ENNReal.ofReal_toReal <| (lintegral_ofReal_le_lintegral_nnnorm _).trans_lt ?_ |>.ne
     exact (integrable_statInfoFun 1 _).hasFiniteIntegral
   rw [int_eq_lint, lintegral_lintegral_swap h_meas.ennreal_ofReal.aemeasurable,
     integral_eq_lintegral_of_nonneg_ae]
   rotate_left
-  · exact eventually_of_forall fun _ ↦ (integral_nonneg (fun _ ↦ statInfoFun_nonneg _ _ _))
+  · exact .of_forall fun _ ↦ (integral_nonneg (fun _ ↦ statInfoFun_nonneg _ _ _))
   · exact h_meas.stronglyMeasurable.integral_prod_left.aestronglyMeasurable
   congr with γ
-  rw [integral_eq_lintegral_of_nonneg_ae (eventually_of_forall fun _ ↦ statInfoFun_nonneg _ _ _)
+  rw [integral_eq_lintegral_of_nonneg_ae (.of_forall fun _ ↦ statInfoFun_nonneg _ _ _)
     h_meas.of_uncurry_right.stronglyMeasurable.aestronglyMeasurable, ENNReal.ofReal_toReal]
   have h_lt_top := (integrable_statInfoFun_rnDeriv 1 γ μ ν).hasFiniteIntegral
   simp_rw [HasFiniteIntegral, lt_top_iff_ne_top] at h_lt_top
@@ -877,7 +876,7 @@ lemma fDiv_eq_lintegral_fDiv_statInfoFun_of_absolutelyContinuous [IsFiniteMeasur
   · rw [fDiv_eq_integral_fDiv_statInfoFun_of_absolutelyContinuous hf_cvx hf_cont h_int h_ac,
       integral_eq_lintegral_of_nonneg_ae]
     rotate_left
-    · exact eventually_of_forall <| fun _ ↦ EReal.toReal_nonneg fDiv_statInfoFun_nonneg
+    · exact .of_forall <| fun _ ↦ EReal.toReal_nonneg fDiv_statInfoFun_nonneg
     · exact (fDiv_statInfoFun_stronglyMeasurable μ ν).measurable.comp (f := fun x ↦ (1, x))
         (by fun_prop) |>.ereal_toReal.aestronglyMeasurable
     simp_rw [← EReal.toENNReal_of_ne_top fDiv_statInfoFun_ne_top]
@@ -887,7 +886,7 @@ lemma fDiv_eq_lintegral_fDiv_statInfoFun_of_absolutelyContinuous [IsFiniteMeasur
     refine (integrable_toReal_iff ?_ ?_).mp ?_
     · exact (fDiv_statInfoFun_stronglyMeasurable μ ν).measurable.comp (f := fun x ↦ (1, x))
         (by fun_prop) |>.ereal_toENNReal.aemeasurable
-    · exact eventually_of_forall fun _ ↦ EReal.toENNReal_ne_top_iff.mpr fDiv_statInfoFun_ne_top
+    · exact .of_forall fun _ ↦ EReal.toENNReal_ne_top_iff.mpr fDiv_statInfoFun_ne_top
     simp_rw [EReal.toReal_toENNReal fDiv_statInfoFun_nonneg, h_int]
   · classical
     rw [fDiv_of_absolutelyContinuous h_ac, if_neg h_int]
@@ -904,7 +903,7 @@ lemma fDiv_eq_lintegral_fDiv_statInfoFun_of_absolutelyContinuous [IsFiniteMeasur
     refine (integrable_toReal_iff ?_ ?_).mpr h
     · exact (fDiv_statInfoFun_stronglyMeasurable μ ν).measurable.comp (f := fun x ↦ (1, x))
         (by fun_prop) |>.ereal_toENNReal.aemeasurable
-    · exact eventually_of_forall fun _ ↦ EReal.toENNReal_ne_top_iff.mpr fDiv_statInfoFun_ne_top
+    · exact .of_forall fun _ ↦ EReal.toENNReal_ne_top_iff.mpr fDiv_statInfoFun_ne_top
 
 lemma lintegral_statInfoFun_one_zero (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f) :
     ∫⁻ x, ENNReal.ofReal (statInfoFun 1 x 0) ∂curvatureMeasure f
@@ -913,8 +912,7 @@ lemma lintegral_statInfoFun_one_zero (hf_cvx : ConvexOn ℝ univ f) (hf_cont : C
   have := convex_taylor hf_cvx hf_cont (a := 1) (b := 0)
   simp only [zero_sub, mul_neg, mul_one, sub_neg_eq_add] at this
   rw [this, intervalIntegral.integral_of_ge (zero_le_one' _), integral_neg, neg_neg,
-    ← ofReal_integral_eq_lintegral_ofReal _
-    (eventually_of_forall fun x ↦ statInfoFun_nonneg 1 x 0)]
+    ← ofReal_integral_eq_lintegral_ofReal _ (.of_forall fun x ↦ statInfoFun_nonneg 1 x 0)]
   rotate_left
   · refine Integrable.mono' (g := (Ioc 0 1).indicator 1) ?_
       measurable_statInfoFun2.aestronglyMeasurable ?_
@@ -922,8 +920,8 @@ lemma lintegral_statInfoFun_one_zero (hf_cvx : ConvexOn ℝ univ f) (hf_cont : C
         (integrableOn_const.mpr (Or.inr measure_Ioc_lt_top)) measurableSet_Ioc
     · simp_rw [Real.norm_of_nonneg (statInfoFun_nonneg 1 _ 0),
         statInfoFun_of_one_of_right_le_one zero_le_one, sub_zero]
-      exact eventually_of_forall fun x ↦ Set.indicator_le_indicator' fun hx ↦ hx.2
-  rw [EReal.coe_ennreal_ofReal, max_eq_left (integral_nonneg_of_ae <| eventually_of_forall
+      exact .of_forall fun x ↦ Set.indicator_le_indicator' fun hx ↦ hx.2
+  rw [EReal.coe_ennreal_ofReal, max_eq_left (integral_nonneg_of_ae <| .of_forall
     fun x ↦ statInfoFun_nonneg 1 x 0), ← integral_indicator measurableSet_Ioc]
   simp_rw [statInfoFun_of_one_of_right_le_one zero_le_one, sub_zero]
 
@@ -1029,11 +1027,10 @@ lemma fDiv_eq_lintegral_fDiv_statInfoFun [IsFiniteMeasure μ] [IsFiniteMeasure �
     rw [ENNReal.toReal_toEReal_of_ne_top (measure_ne_top ν _), ← EReal.coe_ennreal_mul,
       ← ENNReal.toEReal_sub h_ne_top]
     swap
-    · exact lintegral_mul_const' _ _ (measure_ne_top ν _) ▸ lintegral_mono fun x ↦ h_le x
+    · exact lintegral_mul_const' _ _ (measure_ne_top ν _) ▸ lintegral_mono h_le
     rw [← lintegral_mul_const' _ _ (measure_ne_top ν _),
       ← lintegral_sub (measurable_statInfoFun2.ennreal_ofReal.mul_const _)
-      (lintegral_mul_const' _ _ (measure_ne_top ν _) ▸ h_ne_top)
-      (eventually_of_forall fun x ↦ h_le x)]
+      (lintegral_mul_const' _ _ (measure_ne_top ν _) ▸ h_ne_top) (.of_forall h_le)]
     congr with x
     rw [EReal.toENNReal_sub (mul_nonneg (EReal.coe_nonneg.mpr (statInfoFun_nonneg 1 x 0))
       (EReal.coe_ennreal_nonneg _)),

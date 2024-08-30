@@ -23,10 +23,8 @@ import TestingLowerBounds.ForMathlib.KernelFstSnd
 import TestingLowerBounds.ForMathlib.LeftRightDeriv
 import TestingLowerBounds.ForMathlib.LogLikelihoodRatioCompProd
 import TestingLowerBounds.ForMathlib.MaxMinEqAbs
-import TestingLowerBounds.ForMathlib.MonotoneOnTendsto
 import TestingLowerBounds.ForMathlib.RadonNikodym
 import TestingLowerBounds.ForMathlib.RnDeriv
-import TestingLowerBounds.ForMathlib.SetIntegral
 import TestingLowerBounds.Kernel.Basic
 import TestingLowerBounds.Kernel.BayesInv
 import TestingLowerBounds.Kernel.Monoidal
