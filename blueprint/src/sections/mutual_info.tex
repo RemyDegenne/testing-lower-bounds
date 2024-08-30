@@ -1,45 +1,17 @@
 
+\section{Mutual information}
+
 \paragraph{Definitions}
-
-\begin{definition}
-  \label{def:fMutualInfo}
-  %\lean{}
-  %\leanok
-  \uses{def:fDiv, lem:fDiv_properties}
-  The $f$-mutual information associated with an $f$-divergence is, for $\rho \in \mathcal M(\mathcal X \times \mathcal Y)$~,
-  \begin{align*}
-  I_f(\rho) = D_f(\rho, \rho_X \times \rho_Y) \: .
-  \end{align*}
-\end{definition}
-
-TODO: discuss the relation of this definition and the usual $I_f(X, Y)$ notation.
-
-TODO: this might not be the right definition for the $f$-mutual information. The right definition of the mutual information associated with a divergence might be $\inf_{\xi \in \mathcal P(\mathcal Y)} D(\rho, \rho_X \times \xi)$. Why the asymmetry though? Should the inf be over product measures?
-
 
 \begin{definition}
   \label{def:mutualInfo}
   %\lean{}
   %\leanok
-  \uses{def:KL, def:fMutualInfo, lem:kl_properties}
+  \uses{def:KL, lem:kl_properties}
   The mutual information is, for $\rho \in \mathcal M(\mathcal X \times \mathcal Y)$~,
   \begin{align*}
   I(\rho) = \KL(\rho, \rho_X \times \rho_Y) \: .
   \end{align*}
-  This is the $f$-mutual information for $f(x) = x \log(x)$.
-\end{definition}
-
-
-\begin{definition}
-  \label{def:condFMutualInfo}
-  %\lean{}
-  %\leanok
-  \uses{def:condFDiv, lem:fDiv_properties}
-  Let $\kappa : \mathcal Z \rightsquigarrow \mathcal X \times \mathcal Y$. The conditional $f$-mutual information of $\kappa$ with respect to $\nu \in \mathcal M(\mathcal Z)$ is
-  \begin{align*}
-  I_f(\kappa \mid \nu) = D_f(\kappa, \kappa_X \times \kappa_Y \mid \nu)
-  \end{align*}
-  where $\kappa_X : \mathcal Z \rightsquigarrow \mathcal X$ is obtained from $\kappa$ by composition with the kernel that projects on the space $\mathcal X$, and similarly for $\kappa_Y$.
 \end{definition}
 
 
@@ -47,27 +19,26 @@ TODO: this might not be the right definition for the $f$-mutual information. The
   \label{def:condMutualInfo}
   %\lean{}
   %\leanok
-  \uses{def:condKL, def:condFMutualInfo, lem:kl_properties}
+  \uses{def:condKL, lem:kl_properties}
   Let $\kappa : \mathcal Z \rightsquigarrow \mathcal X \times \mathcal Y$. The conditional mutual information of $\kappa$ with respect to $\nu \in \mathcal M(\mathcal Z)$ is
   \begin{align*}
   I(\kappa \mid \nu) = \KL(\kappa, \kappa_X \times \kappa_Y \mid \nu) \: .
   \end{align*}
-  This is $I_f(\kappa \mid \nu)$ for $f(x) = x \log(x)$.
 \end{definition}
 
 
 \paragraph{Properties}
 
 \begin{lemma}
-  \label{lem:fMutualInfo_eq_condFDiv}
+  \label{lem:mutualInfo_eq_condKL}
   %\lean{}
   %\leanok
-  \uses{def:fMutualInfo, def:fDiv, def:condFDiv}
+  \uses{def:mutualInfo, def:KL, def:condKL}
   For $\mu \in \mathcal M(\mathcal X)$ and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ a Markov kernel,
   \begin{align*}
-  I_f(\mu \otimes \kappa)
-  = D_f(\mu \otimes \kappa, \mu \times (\kappa \circ \mu))
-  = D_f(\kappa, \kappa \circ \mu \mid \mu)
+  I(\mu \otimes \kappa)
+  = KL(\mu \otimes \kappa, \mu \times (\kappa \circ \mu))
+  = KL(\kappa, \kappa \circ \mu \mid \mu)
   \: ,
   \end{align*}
   where in the conditional divergence the measure $\kappa \circ \mu$ should be understood as the constant kernel from $\mathcal X$ to $\mathcal Y$ with that value.
@@ -75,17 +46,17 @@ TODO: this might not be the right definition for the $f$-mutual information. The
 
 \begin{proof}%\leanok
 \uses{}
-The first equality is the definition of $I_f$, together with $(\mu \otimes \kappa)_X = \mu$ (since $\kappa$ is Markov) and $(\mu \otimes \kappa)_Y = \kappa \circ \mu$.
-The second equality is from $D_f(\kappa, \eta \mid \mu) = D_f(\mu \otimes \kappa, \mu \otimes \eta)$. (TODO: now from a lemma, soon by definition).
+The first equality is the definition of $I$, together with $(\mu \otimes \kappa)_X = \mu$ (since $\kappa$ is Markov) and $(\mu \otimes \kappa)_Y = \kappa \circ \mu$.
+The second equality is from $KL(\kappa, \eta \mid \mu) = KL(\mu \otimes \kappa, \mu \otimes \eta)$. (TODO: now from a lemma, soon by definition).
 \end{proof}
 
 
 \begin{lemma}
-  \label{lem:fMutualInfo_symm}
+  \label{lem:mutualInfo_symm}
   %\lean{}
   %\leanok
-  \uses{def:fMutualInfo}
-  $I_f(\rho_\leftrightarrow) = I_f(\rho)$~.
+  \uses{def:mutualInfo}
+  $I(\rho_\leftrightarrow) = I(\rho)$~.
 \end{lemma}
 
 \begin{proof}%\leanok
@@ -106,52 +77,139 @@ The second equality is from $D_f(\kappa, \eta \mid \mu) = D_f(\mu \otimes \kappa
 \end{lemma}
 
 \begin{proof}%\leanok
-\uses{lem:jensenShannon_eq_kl, lem:fMutualInfo_eq_condFDiv}
-Use Lemma~\ref{lem:fMutualInfo_eq_condFDiv} and Lemma~\ref{lem:jensenShannon_eq_kl}.
+\uses{lem:jensenShannon_eq_kl, lem:mutualInfo_eq_condKL}
+Use Lemma~\ref{lem:mutualInfo_eq_condKL} and Lemma~\ref{lem:jensenShannon_eq_kl}.
 \end{proof}
 
 
 \begin{theorem}[Data-processing]
-  \label{thm:fMutualInfo_data_proc}
+  \label{thm:mutualInfo_data_proc}
   %\lean{}
   %\leanok
-  \uses{def:fMutualInfo}
+  \uses{def:mutualInfo}
   For $\rho \in \mathcal M(\mathcal X \times \mathcal Y)$, $\kappa : \mathcal X \rightsquigarrow \mathcal X'$ and $\eta : \mathcal Y \rightsquigarrow \mathcal Y'$ two Markov kernels,
   \begin{align*}
-  I_f((\kappa \parallel \eta) \circ \rho) \le I_f(\rho) \: .
+  I((\kappa \parallel \eta) \circ \rho) \le I(\rho) \: .
   \end{align*}
 \end{theorem}
 
 \begin{proof}%\leanok
-\uses{thm:fDiv_data_proc_2}
-$((\kappa \parallel \eta) \circ \rho)_{X'} = (\kappa \parallel \eta) \circ \rho_X$ and $((\kappa \parallel \eta) \circ \rho)_{Y'} = (\kappa \parallel \eta) \circ \rho_Y$ hence by the data-processing inequality for $D_f$ (Theorem~\ref{thm:fDiv_data_proc_2}),
+\uses{thm:kl_data_proc}
+$((\kappa \parallel \eta) \circ \rho)_{X'} = \kappa \circ \rho_X$ and $((\kappa \parallel \eta) \circ \rho)_{Y'} = \eta \circ \rho_Y$ hence
 \begin{align*}
-I_f((\kappa \parallel \eta) \circ \rho)
-&= D_f((\kappa \parallel \eta) \circ \rho, (\kappa \parallel \eta) \circ (\rho_X \times \rho_Y))
+((\kappa \parallel \eta) \circ \rho)_{X'} \times ((\kappa \parallel \eta) \circ \rho)_{Y'}
+&= (\kappa \circ \rho_X) \times (\eta \circ \rho_Y)
+= (\kappa \parallel \eta) \circ (\rho_X \times \rho_Y)
+\: .
+\end{align*}
+
+By the data-processing inequality for $\KL$ (Theorem~\ref{thm:kl_data_proc}),
+\begin{align*}
+I((\kappa \parallel \eta) \circ \rho)
+&= \KL((\kappa \parallel \eta) \circ \rho, (\kappa \parallel \eta) \circ (\rho_X \times \rho_Y))
 \\
-&\le D_f(\rho, (\rho_X \times \rho_Y))
+&\le \KL(\rho, \rho_X \times \rho_Y)
 \\
-&= I_f(\rho)
+&= I(\rho)
 \: .
 \end{align*}
 \end{proof}
 
 \begin{corollary}
-  \label{cor:fMutualInfo_compProd_le}
+  \label{cor:mutualInfo_compProd_le}
   %\lean{}
   %\leanok
-  \uses{def:fMutualInfo}
+  \uses{def:mutualInfo}
   For $\mu \in \mathcal X$, $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal Y \rightsquigarrow \mathcal Z$ two Markov kernels,
   \begin{align*}
-  I_f(\mu \otimes (\eta \circ \kappa)) \le I_f(\mu \otimes \kappa)
+  I(\mu \otimes (\eta \circ \kappa)) \le I(\mu \otimes \kappa)
   \: .
   \end{align*}
 \end{corollary}
 
 That corollary corresponds to the following situation: 3 random variables $X, Y, Z$ have the dependency structure $X \to Y \to Z$ and $\mu$ is the law of $X$, $\mu \otimes \kappa$ is the law of $(X, Y)$ and $\mu \otimes (\eta \circ \kappa)$ is the law of $(X, Z)$.
-With the usual $I_f(X, Y)$ notation, the corollary statement is $I_f(X, Z) \le I_f(X, Y)$~.
+With the usual $I(X, Y)$ notation, the corollary statement is $I(X, Z) \le I(X, Y)$~.
 
 \begin{proof}%\leanok
-\uses{thm:fMutualInfo_data_proc}
-First, rewrite $\mu \otimes (\eta \circ \kappa) = (\mathrm{id} \parallel \eta) \circ (\mu \otimes \kappa)$. Then apply Theorem~\ref{thm:fMutualInfo_data_proc}.
+\uses{thm:mutualInfo_data_proc}
+First, rewrite $\mu \otimes (\eta \circ \kappa) = (\mathrm{id} \parallel \eta) \circ (\mu \otimes \kappa)$. Then apply Theorem~\ref{thm:mutualInfo_data_proc}.
+\end{proof}
+
+
+
+
+\section{New definitions related to the mutual information}
+
+\begin{definition}
+  \label{def:fMutualInfoLeft}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv, lem:fDiv_properties}
+  The left $f$-mutual information for a measure $\mu \in \mathcal M(\mathcal X)$ and a kernel $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ is
+  \begin{align*}
+  I_f^L(\mu, \kappa) = \inf_{\xi \in \mathcal P(\mathcal Y)} D_f(\mu \times \xi, \mu \otimes \kappa) \: .
+  \end{align*}
+\end{definition}
+
+
+\begin{definition}
+  \label{def:fMutualInfoRight}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv, lem:fDiv_properties}
+  The right $f$-mutual information for a measure $\mu \in \mathcal M(\mathcal X)$ and a kernel $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ is
+  \begin{align*}
+  I_f^R(\mu, \kappa) = \inf_{\xi \in \mathcal P(\mathcal Y)} D_f(\mu \otimes \kappa, \mu \times \xi) \: .
+  \end{align*}
+\end{definition}
+
+
+\begin{lemma}
+  \label{lem:fMutualInfoLeft_eq_renyi}
+  %\lean{}
+  %\leanok
+  \uses{def:fMutualInfoLeft, def:Renyi}
+  For $\mu \in \mathcal P(\{0,1\})$, $\kappa : \{0,1\} \rightsquigarrow \mathcal Y$ and $f : x \mapsto x \log x$ (such that $D_f = \KL$),
+  \begin{align*}
+  I_f^L(\mu, \kappa) = (1 - \mu_0) R_{\mu_0}(\kappa_0, \kappa_1) \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:renyi_eq_inf_kl}
+
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:fMutualInfoRight_eq_mutualInfo}
+  %\lean{}
+  %\leanok
+  \uses{def:fMutualInfoRight, def:mutualInfo}
+  For $\mu \in \mathcal P(\mathcal X)$, $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ and $f : x \mapsto x \log x$ (such that $D_f = \KL$),
+  \begin{align*}
+  I_f^R(\mu, \kappa) = I(\mu \otimes \kappa) \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+
+\end{proof}
+
+
+\begin{corollary}
+  \label{cor:fMutualInfoRight_eq_jensenShannon}
+  %\lean{}
+  %\leanok
+  \uses{def:fMutualInfoRight, def:jensenShannon}
+  For $\mu \in \mathcal P(\{0,1\})$, $\kappa : \{0,1\} \rightsquigarrow \mathcal Y$ and $f : x \mapsto x \log x$ (such that $D_f = \KL$),
+  \begin{align*}
+  I_f^R(\mu, \kappa) = \JS_{\mu_0}(\kappa_0, \kappa_1) \: .
+  \end{align*}
+\end{corollary}
+
+\begin{proof}%\leanok
+\uses{lem:fMutualInfoRight_eq_mutualInfo, lem:mutualInfo_eq_jensenShannon}
+
 \end{proof}
