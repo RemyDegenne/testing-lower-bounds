@@ -30,7 +30,7 @@ variable {α : Type*} {mα : MeasurableSpace α} {μ ν : Measure α}
 section move_this
 
 lemma integrable_rnDeriv_smul {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
-    [Measure.HaveLebesgueDecomposition μ ν] (hμν : μ ≪ ν)
+    [μ.HaveLebesgueDecomposition ν] (hμν : μ ≪ ν)
     [SigmaFinite μ] {f : α → E} (hf : Integrable f μ) :
     Integrable (fun x ↦ (μ.rnDeriv ν x).toReal • f x) ν :=
   (integrable_rnDeriv_smul_iff hμν).mpr hf
