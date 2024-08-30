@@ -56,13 +56,14 @@ end KernelId
 
 section Copy
 
+/-- The deterministic kernel that maps `x : α` to the Dirac measure at `(x, x) : α × α`. -/
 noncomputable
-def copy (α : Type*) [MeasurableSpace α] : Kernel α (α × α) := Kernel.id ×ₖ Kernel.id
+def copy (α : Type*) [MeasurableSpace α] : Kernel α (α × α) :=
+  Kernel.deterministic (fun x ↦ (x, x)) (measurable_id.prod measurable_id)
 
 instance : IsMarkovKernel (copy α) := by rw [copy]; infer_instance
 
-lemma copy_apply (a : α) : copy α a = Measure.dirac (a, a) := by
-  rw [copy, prod_apply, id_apply, Measure.dirac_prod_dirac]
+lemma copy_apply (a : α) : copy α a = Measure.dirac (a, a) := by simp [copy, deterministic_apply]
 
 end Copy
 
@@ -91,6 +92,7 @@ end Discard
 
 section Swap
 
+/-- The deterministic kernel that maps `(x, y)` to the Dirac measure at `(y, x)`. -/
 noncomputable
 def swap (α β : Type*) [MeasurableSpace α] [MeasurableSpace β] : Kernel (α × β) (β × α) :=
   Kernel.deterministic Prod.swap measurable_swap
@@ -123,8 +125,19 @@ end Swap
 
 section ParallelComp
 
+--open Classical in
 noncomputable
 def parallelComp (κ : Kernel α β) (η : Kernel γ δ) : Kernel (α × γ) (β × δ) :=
+  --if h : IsSFiniteKernel κ ∧ IsSFiniteKernel η then
+  --{ toFun := fun p ↦ (κ p.1).prod (η p.2)
+  --  measurable' := by
+  --    have : IsSFiniteKernel κ := h.1
+  --    have : IsSFiniteKernel η := h.2
+  --    refine Measure.measurable_of_measurable_coe _ fun s hs ↦ ?_
+  --    simp_rw [Measure.prod_apply hs]
+  --    --refine measurable_compProdFun
+  --    sorry }
+  --else 0
   (prodMkRight γ κ) ×ₖ (prodMkLeft α η)
 
 scoped[ProbabilityTheory] infixl:100 " ∥ₖ " => ProbabilityTheory.Kernel.parallelComp
