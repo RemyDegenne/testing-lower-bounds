@@ -5,7 +5,6 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import Mathlib.MeasureTheory.Measure.Tilted
 import Mathlib.MeasureTheory.Function.ConditionalExpectation.Basic
-import TestingLowerBounds.ForMathlib.SetIntegral
 
 /-!
 
@@ -38,16 +37,15 @@ variable {α β : Type*} {m mα : MeasurableSpace α} {mβ : MeasurableSpace β}
 lemma rnDeriv_add_self_right (ν μ : Measure α) [SigmaFinite μ] [SigmaFinite ν] :
     ν.rnDeriv (μ + ν) =ᵐ[ν] fun x ↦ (μ.rnDeriv ν x + 1)⁻¹ := by
   have hν_ac : ν ≪ μ + ν := by rw [add_comm]; exact rfl.absolutelyContinuous.add_right _
-  filter_upwards [Measure.rnDeriv_add' μ ν ν, Measure.rnDeriv_self ν,
-    Measure.inv_rnDeriv hν_ac] with a h1 h2 h3
+  filter_upwards [μ.rnDeriv_add' ν ν, ν.rnDeriv_self, Measure.inv_rnDeriv hν_ac] with a h1 h2 h3
   rw [Pi.inv_apply, h1, Pi.add_apply, h2, inv_eq_iff_eq_inv] at h3
   rw [h3]
 
 lemma rnDeriv_add_self_left (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν] :
     μ.rnDeriv (μ + ν) =ᵐ[ν] fun x ↦ μ.rnDeriv ν x / (μ.rnDeriv ν x + 1) := by
   have h_add : (μ + ν).rnDeriv (μ + ν) =ᵐ[ν] μ.rnDeriv (μ + ν) + ν.rnDeriv (μ + ν) :=
-    (ae_add_measure_iff.mp (Measure.rnDeriv_add' μ ν (μ + ν))).2
-  have h_one_add := (ae_add_measure_iff.mp (Measure.rnDeriv_self (μ + ν))).2
+    (ae_add_measure_iff.mp (μ.rnDeriv_add' ν (μ + ν))).2
+  have h_one_add := (ae_add_measure_iff.mp (μ + ν).rnDeriv_self).2
   have : (μ.rnDeriv (μ + ν)) =ᵐ[ν] fun x ↦ 1 - (μ.rnDeriv ν x + 1)⁻¹ := by
     filter_upwards [h_add, h_one_add, rnDeriv_add_self_right ν μ] with a h4 h5 h6
     rw [h5, Pi.add_apply] at h4
@@ -55,7 +53,7 @@ lemma rnDeriv_add_self_left (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite �
     rw [h6]
     simp only [ne_eq, ENNReal.inv_eq_top, add_eq_zero, one_ne_zero, and_false, not_false_eq_true,
       ENNReal.add_sub_cancel_right]
-  filter_upwards [this, Measure.rnDeriv_lt_top μ ν] with a ha ha_lt_top
+  filter_upwards [this, μ.rnDeriv_lt_top ν] with a ha ha_lt_top
   rw [ha, div_eq_mul_inv]
   refine ENNReal.sub_eq_of_eq_add (by simp) ?_
   nth_rewrite 2 [← one_mul (μ.rnDeriv ν a + 1)⁻¹]
@@ -67,7 +65,7 @@ lemma rnDeriv_add_self_left (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite �
 
 lemma rnDeriv_eq_div (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν] :
     μ.rnDeriv ν =ᵐ[ν] fun x ↦ μ.rnDeriv (μ + ν) x / ν.rnDeriv (μ + ν) x := by
-  filter_upwards [rnDeriv_add_self_right ν μ, rnDeriv_add_self_left μ ν, Measure.rnDeriv_lt_top μ ν]
+  filter_upwards [rnDeriv_add_self_right ν μ, rnDeriv_add_self_left μ ν, μ.rnDeriv_lt_top ν]
       with a ha1 ha2 ha_lt_top
   rw [ha1, ha2, ENNReal.div_eq_inv_mul, inv_inv, ENNReal.div_eq_inv_mul, ← mul_assoc,
       ENNReal.mul_inv_cancel, one_mul]
@@ -91,9 +89,8 @@ lemma rnDeriv_div_rnDeriv {ξ : Measure α} [SigmaFinite μ] [SigmaFinite ν] [S
       rw [two_mul]
     rw [this]
     exact Measure.absolutelyContinuous_of_le_smul le_rfl
-  filter_upwards [h_ac h1, h_ac h2, h_ac <| Measure.rnDeriv_lt_top (μ + ν) ξ,
-    Measure.rnDeriv_lt_top ν (μ + ν), Measure.rnDeriv_pos h_ac]
-    with a h1 h2 h_lt_top1 h_lt_top2 h_pos
+  filter_upwards [h_ac h1, h_ac h2, h_ac <| (μ + ν).rnDeriv_lt_top ξ, ν.rnDeriv_lt_top (μ + ν),
+    Measure.rnDeriv_pos h_ac] with a h1 h2 h_lt_top1 h_lt_top2 h_pos
   rw [← h1, ← h2, Pi.mul_apply, Pi.mul_apply, div_eq_mul_inv,
     ENNReal.mul_inv (Or.inr h_lt_top1.ne) (Or.inl h_lt_top2.ne), div_eq_mul_inv, mul_assoc,
     mul_comm ((μ + ν).rnDeriv ξ a), mul_assoc, ENNReal.inv_mul_cancel h_pos.ne' h_lt_top1.ne,
@@ -108,20 +105,8 @@ lemma rnDeriv_eq_div' {ξ : Measure α} [SigmaFinite μ] [SigmaFinite ν] [Sigma
 
 lemma rnDeriv_eq_zero_ae_of_zero_measure (ν : Measure α) {s : Set α} (hs : MeasurableSet s)
     (hμ : μ s = 0) : ∀ᵐ x ∂ν, x ∈ s → (μ.rnDeriv ν) x = 0 := by
-  rw [← MeasureTheory.setLIntegral_eq_zero_iff hs (Measure.measurable_rnDeriv μ ν)]
+  rw [← setLIntegral_eq_zero_iff hs (μ.measurable_rnDeriv ν)]
   exact le_antisymm (hμ ▸ Measure.setLIntegral_rnDeriv_le s) (zero_le _)
-
---PRed, see #15540
-lemma measure_sub_singularPart (μ ν : Measure α) [HaveLebesgueDecomposition μ ν] [IsFiniteMeasure μ] :
-    μ - μ.singularPart ν = ν.withDensity (μ.rnDeriv ν) := by
-  nth_rw 1 [← rnDeriv_add_singularPart μ ν]
-  exact Measure.add_sub_cancel
-
---PRed, see #15540
-lemma measure_sub_rnDeriv (μ ν : Measure α) [HaveLebesgueDecomposition μ ν] [IsFiniteMeasure μ] :
-    μ - ν.withDensity (μ.rnDeriv ν) = μ.singularPart ν := by
-  nth_rw 1 [← singularPart_add_rnDeriv μ ν]
-  exact Measure.add_sub_cancel
 
 /--Singular part set of μ with respect to ν.-/
 def singularPartSet (μ ν : Measure α) := {x | ν.rnDeriv (μ + ν) x = 0}
@@ -154,19 +139,17 @@ lemma measure_inter_compl_singularPartSet' (μ ν : Measure α) [SigmaFinite μ]
           ν.rnDeriv (μ + ν) x * (μ.rnDeriv (μ + ν) x / ν.rnDeriv (μ + ν) x) ∂(μ + ν)
         = ∫⁻ x in t ∩ sᶜ, μ.rnDeriv (μ + ν) x ∂(μ + ν) := by
       refine setLIntegral_congr_fun (ht.inter hs.compl) ?_
-      filter_upwards [Measure.rnDeriv_lt_top ν (μ + ν)] with x hx_top hx
+      filter_upwards [ν.rnDeriv_lt_top (μ + ν)] with x hx_top hx
       rw [div_eq_mul_inv, mul_comm, mul_assoc, ENNReal.inv_mul_cancel, mul_one]
       · simp only [Set.mem_inter_iff, Set.mem_compl_iff, Set.mem_setOf_eq, s] at hx
         exact hx.2
       · exact hx_top.ne
     rw [this, Measure.setLIntegral_rnDeriv (rfl.absolutelyContinuous.add_right _)]
   rw [this, setLIntegral_rnDeriv_mul hν_ac _ (ht.inter hs.compl)]
-  swap
-  · exact ((Measure.measurable_rnDeriv _ _).div (Measure.measurable_rnDeriv _ _)).aemeasurable
+  swap; · exact ((μ.measurable_rnDeriv _).div (ν.measurable_rnDeriv _)).aemeasurable
   refine setLIntegral_congr_fun (ht.inter hs.compl) ?_
-  filter_upwards [Measure.rnDeriv_eq_div μ ν] with x hx
-  rw [hx]
-  exact fun _ ↦ rfl
+  filter_upwards [μ.rnDeriv_eq_div ν] with x hx
+  exact hx ▸ fun _ ↦ rfl
 
 lemma measure_inter_compl_singularPartSet (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν]
     {t : Set α} (ht : MeasurableSet t) :
@@ -206,14 +189,14 @@ lemma absolutelyContinuous_restrict_compl_singularPartSet
   exact withDensity_absolutelyContinuous _ _
 
 example [SigmaFinite μ] [SigmaFinite ν] :
-    μ (singularPartSet μ ν) = μ.singularPart ν Set.univ := by
+    μ (singularPartSet μ ν) = μ.singularPart ν .univ := by
   rw [← restrict_singularPartSet_eq_singularPart]
   simp only [MeasurableSet.univ, restrict_apply, Set.univ_inter]
 
 lemma rnDeriv_eq_zero_ae_of_singularPartSet (μ ν ξ : Measure α) [SigmaFinite μ] [SigmaFinite ν] :
-    ∀ᵐ x ∂ξ, x ∈ Measure.singularPartSet μ ν → (ν.rnDeriv ξ) x = 0 :=
-  Measure.rnDeriv_eq_zero_ae_of_zero_measure _ Measure.measurableSet_singularPartSet
-    (Measure.measure_singularPartSet μ ν)
+    ∀ᵐ x ∂ξ, x ∈ μ.singularPartSet ν → (ν.rnDeriv ξ) x = 0 :=
+  ν.rnDeriv_eq_zero_ae_of_zero_measure ξ Measure.measurableSet_singularPartSet
+    (μ.measure_singularPartSet ν)
 
 section Trim
 
@@ -250,20 +233,19 @@ lemma rnDeriv_toReal_pos [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν) :
 lemma ae_rnDeriv_ne_zero_imp_of_ae_aux [SigmaFinite μ] [SigmaFinite ν] {p : α → Prop}
     (h : ∀ᵐ a ∂μ, p a) (hμν : μ ≪ ν) :
     ∀ᵐ a ∂ν, μ.rnDeriv ν a ≠ 0 → p a := by
-  rw [Measure.haveLebesgueDecomposition_add ν μ, ae_add_measure_iff]
+  rw [ν.haveLebesgueDecomposition_add μ, ae_add_measure_iff]
   constructor
-  · rw [← Measure.haveLebesgueDecomposition_add ν μ]
+  · rw [← ν.haveLebesgueDecomposition_add μ]
     have : ∀ᵐ x ∂(ν.singularPart μ), μ.rnDeriv ν x = 0 := by
-      refine ae_eq_of_forall_setLIntegral_eq_of_sigmaFinite (Measure.measurable_rnDeriv _ _)
+      refine ae_eq_of_forall_setLIntegral_eq_of_sigmaFinite (μ.measurable_rnDeriv _)
         measurable_const (fun s hs _ ↦ ?_)
-      simp only [lintegral_const, MeasurableSet.univ, Measure.restrict_apply, Set.univ_inter,
-        zero_mul]
+      simp only [lintegral_const, Measure.restrict_apply .univ, Set.univ_inter, zero_mul]
       rw [← Measure.restrict_singularPartSet_eq_singularPart, Measure.restrict_restrict hs,
         Measure.setLIntegral_rnDeriv hμν]
-      exact measure_mono_null Set.inter_subset_right (Measure.measure_singularPartSet _ _)
+      exact measure_mono_null Set.inter_subset_right (ν.measure_singularPartSet _)
     filter_upwards [this] with x hx h_absurd using absurd hx h_absurd
   · have h_ac : μ.withDensity (ν.rnDeriv μ) ≪ μ := withDensity_absolutelyContinuous _ _
-    rw [← Measure.haveLebesgueDecomposition_add ν μ]
+    rw [← ν.haveLebesgueDecomposition_add μ]
     suffices ∀ᵐx ∂μ, μ.rnDeriv ν x ≠ 0 → p x from h_ac this
     filter_upwards [h] with _ h _ using h
 
@@ -271,7 +253,7 @@ lemma ae_rnDeriv_ne_zero_imp_of_ae [SigmaFinite μ] [SigmaFinite ν] {p : α →
     (h : ∀ᵐ a ∂μ, p a) :
     ∀ᵐ a ∂ν, μ.rnDeriv ν a ≠ 0 → p a := by
   suffices ∀ᵐ a ∂ν, (ν.withDensity (μ.rnDeriv ν)).rnDeriv ν a ≠ 0 → p a by
-    have h := Measure.rnDeriv_withDensity ν (Measure.measurable_rnDeriv μ ν)
+    have h := ν.rnDeriv_withDensity (μ.measurable_rnDeriv ν)
     filter_upwards [this, h] with x hx1 hx2
     rwa [hx2] at hx1
   refine ae_rnDeriv_ne_zero_imp_of_ae_aux ?_ (withDensity_absolutelyContinuous _ _)
@@ -280,7 +262,7 @@ lemma ae_rnDeriv_ne_zero_imp_of_ae [SigmaFinite μ] [SigmaFinite ν] {p : α →
 lemma ae_integrable_mul_rnDeriv_of_ae_integrable {κ : α → Measure β} [SigmaFinite μ] [SigmaFinite ν]
     (g : α → β → ℝ) (h : ∀ᵐ a ∂μ, Integrable (fun x ↦ g a x) (κ a)) :
     ∀ᵐ a ∂ν, Integrable (fun x ↦ (μ.rnDeriv ν a).toReal * g a x) (κ a) := by
-  apply @Measure.ae_rnDeriv_ne_zero_imp_of_ae _ _ _ ν at h
+  apply μ.ae_rnDeriv_ne_zero_imp_of_ae (ν := ν) at h
   filter_upwards [h] with a ha
   by_cases h_zero : μ.rnDeriv ν a = 0
   · rw [h_zero]
@@ -301,9 +283,9 @@ lemma ae_integrable_of_ae_integrable_mul_rnDeriv {κ : α → Measure β} [Sigma
 lemma _root_.MeasureTheory.Measure.integral_toReal_rnDeriv' {α : Type*} {m : MeasurableSpace α}
     {μ : Measure α} {ν : Measure α} [IsFiniteMeasure μ] [SigmaFinite ν] :
     ∫ (x : α), (μ.rnDeriv ν x).toReal ∂ν
-      = (μ Set.univ).toReal - ((μ.singularPart ν) Set.univ).toReal := by
-  rw [← ENNReal.toReal_sub_of_le (μ.singularPart_le ν Set.univ) (measure_ne_top _ _),
-    ← Measure.sub_apply .univ (Measure.singularPart_le μ ν), Measure.measure_sub_singularPart,
+      = (μ .univ).toReal - ((μ.singularPart ν) .univ).toReal := by
+  rw [← ENNReal.toReal_sub_of_le (μ.singularPart_le ν .univ) (measure_ne_top _ _),
+    ← Measure.sub_apply .univ (μ.singularPart_le ν), Measure.measure_sub_singularPart,
     ← Measure.setIntegral_toReal_rnDeriv_eq_withDensity, integral_univ]
 
 end MeasureTheory.Measure

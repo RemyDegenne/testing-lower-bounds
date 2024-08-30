@@ -35,10 +35,10 @@ lemma map_comp (κ : Kernel α β) (η : Kernel β γ) {f : γ → δ} (hf : Mea
   · exact hf hs
 
 lemma fst_comp (κ : Kernel α β) (η : Kernel β (γ × δ)) : (η ∘ₖ κ).fst = η.fst ∘ₖ κ :=
-  Kernel.map_comp κ η measurable_fst
+  κ.map_comp η measurable_fst
 
 lemma snd_comp (κ : Kernel α β) (η : Kernel β (γ × δ)) : (η ∘ₖ κ).snd = η.snd ∘ₖ κ :=
-  Kernel.map_comp κ η measurable_snd
+  κ.map_comp η measurable_snd
 
 lemma deterministic_prod_deterministic {f : α → β} {g : α → γ}
     (hf : Measurable f) (hg : Measurable g) :

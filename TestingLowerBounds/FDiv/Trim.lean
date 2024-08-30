@@ -123,6 +123,6 @@ lemma fDiv_trim_le [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ mα)
   refine (fDiv_add_measure_le _ _ _ hf hf_cvx).trans ?_
   refine add_le_add ?_ ?_
   · exact fDiv_trim_le_of_ac hm (withDensity_absolutelyContinuous ν (∂μ/∂ν)) hf hf_cvx hf_cont
-  · rw [trim_measurableSet_eq hm MeasurableSet.univ]
+  · rw [trim_measurableSet_eq hm .univ]
 
 end ProbabilityTheory

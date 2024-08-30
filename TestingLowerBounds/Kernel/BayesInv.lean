@@ -51,7 +51,7 @@ instance : IsMarkovKernel (κ†μ) := by rw [bayesInv]; infer_instance
 /-- The main property of the Bayesian inverse. -/
 lemma compProd_bayesInv (κ : Kernel α β) (μ : Measure α) [IsFiniteMeasure μ] [IsFiniteKernel κ] :
     (κ ∘ₘ μ) ⊗ₘ (κ†μ) = (μ ⊗ₘ κ).map Prod.swap := by
-  have h := Measure.disintegrate ((μ ⊗ₘ κ).map Prod.swap) ((μ ⊗ₘ κ).map Prod.swap).condKernel
+  have h := ((μ ⊗ₘ κ).map Prod.swap).disintegrate ((μ ⊗ₘ κ).map Prod.swap).condKernel
   rwa [Measure.fst_swap_compProd] at h
 
 lemma compProd_bayesInv' (κ : Kernel α β) (μ : Measure α) [IsFiniteMeasure μ] [IsFiniteKernel κ] :

@@ -54,27 +54,27 @@ lemma EReal.exp_neg_llr' [SigmaFinite μ] [SigmaFinite ν] (hμν : ν ≪ μ) :
 
 @[measurability]
 lemma measurable_ereal_llr (μ ν : Measure α) : Measurable (EReal.llr μ ν) :=
-  (Measure.measurable_rnDeriv μ ν).ennreal_log
+  (μ.measurable_rnDeriv ν).ennreal_log
 
 @[measurability]
 lemma stronglyMeasurable_ereal_llr (μ ν : Measure α) : StronglyMeasurable (EReal.llr μ ν) :=
   (measurable_ereal_llr μ ν).stronglyMeasurable
 
-lemma EReal.llr_smul_left [IsFiniteMeasure μ] [Measure.HaveLebesgueDecomposition μ ν]
+lemma EReal.llr_smul_left [IsFiniteMeasure μ] [μ.HaveLebesgueDecomposition ν]
     (hμν : μ ≪ ν) (c : ℝ≥0∞) (hc_ne_top : c ≠ ∞) :
     EReal.llr (c • μ) ν =ᵐ[μ] fun x ↦ EReal.llr μ ν x + ENNReal.log c := by
   simp only [EReal.llr, EReal.llr_def]
-  have h := Measure.rnDeriv_smul_left_of_ne_top μ ν hc_ne_top
+  have h := μ.rnDeriv_smul_left_of_ne_top ν hc_ne_top
   filter_upwards [hμν.ae_le h] with x hx_eq
   rw [hx_eq]
   simp only [Pi.smul_apply, smul_eq_mul, ENNReal.toReal_mul]
   rw [ENNReal.log_mul_add, add_comm]
 
-lemma EReal.llr_smul_right [IsFiniteMeasure μ] [Measure.HaveLebesgueDecomposition μ ν]
+lemma EReal.llr_smul_right [IsFiniteMeasure μ] [μ.HaveLebesgueDecomposition ν]
     (hμν : μ ≪ ν) (c : ℝ≥0∞) (hc : c ≠ 0) (hc_ne_top : c ≠ ∞) :
     EReal.llr μ (c • ν) =ᵐ[μ] fun x ↦ EReal.llr μ ν x - ENNReal.log c := by
   simp only [llr, llr_def]
-  have h := Measure.rnDeriv_smul_right_of_ne_top μ ν hc hc_ne_top
+  have h := μ.rnDeriv_smul_right_of_ne_top ν hc hc_ne_top
   filter_upwards [hμν.ae_le h] with x hx_eq
   rw [hx_eq]
   simp only [Pi.smul_apply, smul_eq_mul, ENNReal.toReal_mul]
