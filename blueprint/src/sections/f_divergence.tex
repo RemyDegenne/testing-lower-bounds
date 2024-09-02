@@ -1323,6 +1323,127 @@ The results are both applications of the data-processing inequality, Theorem~\re
 
 
 
+\subsection{Data-processing and mean values}
+
+In this section $d_f(p, q)$ denotes the $f$-divergence between two Bernoulli distributions with means $p$ and $q$.
+
+
+\begin{lemma}
+  \label{lem:fDiv_bernoulli_convex}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  For all $y \in [0,1]$, $x \mapsto d_f(x, y)$ is convex and attains a minimum at $x = y$.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+
+\begin{align*}
+d_f(x, y)
+&= y f(\frac{x}{y}) + (1 - y) f(\frac{1 - x}{1 - y})
+\: , \\
+(x \mapsto d_f(x, y))'_+(x)
+&= f'_+(\frac{x}{y}) - f'_+(\frac{1 - x}{1 - y})
+\: .
+\end{align*}
+$f'_+$ is non-decreasing, hence we get that $(x \mapsto d_f(x, y))'_+$ is also non-decreasing and $x \mapsto d_f(x, y)$ is convex.
+
+For $x \le y$, $x/y \le 1 \le (1-x)/(1-y)$, hence $f'_+(\frac{x}{y}) \le f'_+(\frac{1 - x}{1 - y})$ and $(x \mapsto d_f(x, y))'_+(x) \le 0$. The opposite holds for $x \ge y$.
+
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:fDiv_bounded_ge_fDiv_mean}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu \in \mathcal P([0,1])$. Then
+  \begin{align*}
+  D_f(\mu, \nu) \ge d_f(\mu[X], \nu[X]) \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{thm:fDiv_data_proc_2}
+Let $u$ be the uniform distribution on $[0,1]$. Then $D_f(\mu, \nu) = D_f(\mu \times u, \nu \times u)$ (by lemma TODO about kernel with identity as first coordinate).
+Let $g : [0,1] \times [0,1] \to \{0,1\}$ be the measurable function with $g(x, y) = \mathbb{I}\{y \le x\}$. We also write $g$ for the corresponding deterministic kernel. By the data-processing inequality (Theorem~\ref{thm:fDiv_data_proc_2}),
+\begin{align*}
+D_f(\mu \times u, \nu \times u)
+\ge D_f(g \circ (\mu \times u), g \circ (\nu \times u))
+\: .
+\end{align*}
+Those two last measures are Bernoulli distributions with means $\mu[X]$ and $\nu[X]$.
+\end{proof}
+
+
+\begin{corollary}
+  \label{cor:fDiv_ge_fDiv_mean_comp}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu \in \mathcal P(\mathcal X)$ and let $\kappa : \mathcal X \rightsquigarrow [0,1]$. Then
+  \begin{align*}
+  D_f(\mu, \nu) \ge d_f((\kappa \circ \mu)[X], (\kappa \circ \nu)[X]) \: .
+  \end{align*}
+\end{corollary}
+
+\begin{proof}%\leanok
+\uses{lem:fDiv_bounded_ge_fDiv_mean}
+First, by the data-processing inequality (Theorem~\ref{thm:fDiv_data_proc_2}),
+$D_f(\mu, \nu) \ge D_f(\kappa \circ \mu, \kappa \circ \nu)$~.
+Then use Lemma~\ref{lem:fDiv_bounded_ge_fDiv_mean}.
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:fDiv_estimation_ge}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv, def:bayesRisk}
+  Let $\pi, \xi \in \mathcal P(\Theta)$ and $P, Q : \Theta \rightsquigarrow \mathcal X$. Suppose that the loss $\ell'$ takes values in $[0,1]$. Then
+  \begin{align*}
+  D_f(\pi \otimes Q, \xi \otimes P)
+  &\ge d_f(\mathcal R_\pi^Q, \mathcal R_\xi^P)
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{cor:fDiv_ge_fDiv_mean_comp, lem:fDiv_bernoulli_convex}
+Suppose first that $\mathcal R_\pi^Q \ge \mathcal R_\xi^P$.
+Let $\hat{y}_B$ be a Bayes estimator for the estimation task $(P, y, \ell')$ with prior $\xi$. If it does not exist, the proof can be adapted by taking an estimator with risk $\varepsilon$-close to the Bayes risk for any $\varepsilon > 0$.
+By Corollary~\ref{cor:fDiv_ge_fDiv_mean_comp},
+\begin{align*}
+D_f(\pi \otimes Q, \xi \otimes P)
+&\ge d_f(\ell' \circ (y \parallel \hat{y}_B) \circ (\pi \otimes Q) [X], \ell' \circ (y \parallel \hat{y}_B) \circ (\xi \otimes P) [X])
+\\
+&= d_f(\ell' \circ (y \parallel \hat{y}_B) \circ (\pi \otimes Q) [X], \mathcal R_\xi^P)
+\: .
+\end{align*}
+By definition of the Bayes risk as an infimum,
+\begin{align*}
+\ell' \circ (y \parallel \hat{y}_B) \circ (\pi \otimes Q) [X]
+\ge \mathcal R_\pi^Q
+\ge \mathcal R_\xi^P
+\: .
+\end{align*}
+Since $x \mapsto d_f(x, y)$ is monotone on $[y, 1]$,
+\begin{align*}
+D_f(\pi \otimes Q, \xi \otimes P)
+&\ge d_f(\ell' \circ (y \parallel \hat{y}_B) \circ (\pi \otimes Q) [X], \mathcal R_\xi^P)
+\\
+&\ge d_f(\mathcal R_\pi^Q, \mathcal R_\xi^P)
+\: .
+\end{align*}
+This concludes the proof for $\mathcal R_\pi^Q \ge \mathcal R_\xi^P$. If that inequality is reversed, we proceed similarly but take the Bayes estimator for $Q$.
+\end{proof}
+
+
+
+
+
 \subsection{Convexity}
 
 \begin{theorem}[Joint convexity]

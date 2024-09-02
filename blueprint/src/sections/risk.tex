@@ -310,6 +310,7 @@ R^P_\pi(\hat{y})
   if there exists such a measurable argmin.
 \end{definition}
 
+
 \begin{lemma}
   \label{lem:bayesianRisk_genBayesEstimator}
   \lean{ProbabilityTheory.bayesianRisk_of_isGenBayesEstimator}
@@ -345,6 +346,76 @@ By Lemma~\ref{lem:bayesianRisk_ge_inf_bayesInv}, the Bayesian risk of the genera
 \end{proof}
 
 
+\begin{lemma}
+  \label{lem:bayesRisk_eq_rnDeriv}
+  %\lean{}
+  %\leanok
+  \uses{def:genBayesEstimator, def:bayesRisk}
+  When the generalized Bayes estimator is well defined, the Bayes risk with respect to the prior $\pi \in \mathcal M(\Theta)$ is
+  \begin{align*}
+  \mathcal R^P_\pi = (P \circ \pi)\left[x \mapsto \inf_{z \in \mathcal Z} \pi \left[\theta \mapsto \frac{d P_\theta}{d (P \circ \pi)}(x) \ell'(y(\theta), z)\right]\right]
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:rnDeriv_bayesInv}
+
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:bayesRisk_binary_eq_sub_bayesInv}
+  %\lean{}
+  %\leanok
+  \uses{def:genBayesEstimator, def:bayesRisk}
+  When the generalized Bayes estimator is well defined, the Bayes risk with respect to the prior $\pi \in \mathcal M(\Theta)$ for $\mathcal Y = \mathcal Z = \Theta$, $y = \mathrm{id}$ and $\ell' = \mathbb{I}\{\theta \ne z\}$ is
+  \begin{align*}
+  \mathcal R^P_\pi = (P \circ \pi)[1] - (P \circ \pi)\left[x \mapsto \sup_{z \in \mathcal Z} P_\pi^\dagger(x) \{z\}\right]
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{thm:isBayesEstimator_genBayesEstimator}
+
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:bayesRisk_binary_eq_sub}
+  %\lean{}
+  %\leanok
+  \uses{def:genBayesEstimator, def:bayesRisk}
+  When the generalized Bayes estimator is well defined, the Bayes risk with respect to the prior $\pi \in \mathcal M(\Theta)$ for $\mathcal Y = \mathcal Z = \Theta$, $y = \mathrm{id}$ and $\ell' = \mathbb{I}\{\theta \ne z\}$ is
+  \begin{align*}
+  \mathcal R^P_\pi = (P \circ \pi)[1] - (P \circ \pi)\left[x \mapsto \sup_{z \in \mathcal Z} \frac{d P_z}{d (P \circ \pi)}(x) \pi\{z\} \right]
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:bayesRisk_binary_eq_sub_bayesInv}
+
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:genBayesEstimator_binary}
+  %\lean{}
+  %\leanok
+  \uses{def:genBayesEstimator}
+  The generalized Bayes estimator for prior $\pi \in \mathcal P(\Theta)$ on the estimation problem defined by $\mathcal Y = \mathcal Z = \Theta$, $y = \mathrm{id}$ and $\ell' = \mathbb{I}\{\theta \ne z\}$ is
+  \begin{align*}
+  x \mapsto \arg\max_z \left( \pi\{z\} \frac{d P_z}{d (P \circ \pi)}(x) \right)
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:bayesRisk_binary_eq_sub}
+
+\end{proof}
 
 
 

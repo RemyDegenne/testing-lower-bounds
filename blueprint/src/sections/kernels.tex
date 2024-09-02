@@ -269,6 +269,11 @@ TODO: as a consequence, in standard Borel spaces we also have disintegration of 
   If such an inverse exists it is unique up to a $(\kappa \circ \mu)$-null set, and we talk about \emph{the} Bayesian inverse of $\kappa$ with respect to $\mu$.
 \end{definition}
 
+The bayesian interpretation of this definition is that $\mu$ represents a prior over a parameter and $\kappa$ gives the distribution of data given the parameter. $\kappa \circ \mu$ is the distribution of the data, and $\kappa_\mu^\dagger$ gives the posterior distribution of the parameter given the data.
+
+The measure $\rho = \mu \otimes \kappa$ is a joint probability distribution over $\mathcal X \times \mathcal Y$ with marginals $\rho_X = \mu$ and $\rho_Y = \kappa \circ \mu$ (if $\kappa$ is Markov). By construction, that joint probability distribution can be written as the composition-product of the first marginal $\rho_X$ and a kernel $\kappa$. The Bayesian inverse, if it exists, gives a way to write the joint as a composition-product of the second marginal $\rho_Y$ and a kernel. 
+
+If the joint space is such that every product distribution can be disintegrated (see Theorem~\ref{thm:disintegration}), then the Bayesian inverse exists.
 
 \begin{lemma}[Existence of the Bayesian inverse]
   \label{lem:exists_bayesInv}
@@ -283,8 +288,6 @@ TODO: as a consequence, in standard Borel spaces we also have disintegration of 
 
 \end{proof}
 
-
-The bayesian interpretation of this definition is that $\mu$ represents a prior over a parameter and $\kappa$ gives the distribution of data given the parameter. $\kappa \circ \mu$ is the distribution of the data, and $\kappa_\mu^\dagger$ gives the posterior distribution of the parameter given the data.
 
 See \cite{clerc2017pointless} and \cite{dahlqvist2018borel} for a category theory point of view on Bayesian inversion.
 
@@ -302,6 +305,7 @@ See \cite{clerc2017pointless} and \cite{dahlqvist2018borel} for a category theor
 TODO: uniqueness of the conditional kernel.
 \end{proof}
 
+
 \begin{lemma}
   \label{lem:bayesInv_comp_self}
   \lean{ProbabilityTheory.bayesInv_comp_self}
@@ -314,6 +318,7 @@ TODO: uniqueness of the conditional kernel.
 \uses{}
 The measure $\kappa_\mu^\dagger \circ (\kappa \circ \mu)$ is the projection on $\mathcal X$ of $(\kappa \circ \mu) \otimes \kappa_\mu^\dagger$. But $(\kappa \circ \mu) \otimes \kappa_\mu^\dagger = (\mu \otimes \kappa)_\leftrightarrow$ by definition of the Bayesian inverse. Since $\kappa$ is a Markov kernel, the projection on $\mathcal X$ of that measure is simply $\mu$.
 \end{proof}
+
 
 \begin{lemma}
   \label{lem:bayesInv_self}
@@ -330,6 +335,7 @@ By Lemma~\ref{lem:bayesInv_comp_self}, $\kappa_\mu^\dagger \circ \kappa \circ \m
 This is true by definition of $\kappa_\mu^\dagger$~.
 \end{proof}
 
+
 \begin{lemma}
   \label{lem:bayesInv_id}
   \lean{ProbabilityTheory.bayesInv_id}
@@ -342,6 +348,7 @@ This is true by definition of $\kappa_\mu^\dagger$~.
 \uses{lem:eq_bayesInv_of_compProd_eq}
 It suffices to show that $\mu \otimes \textup{id} = ((\textup{id} \circ \mu) \otimes \textup{id})_\leftrightarrow$~, which is clear.
 \end{proof}
+
 
 \begin{lemma}
   \label{lem:bayesInv_comp}
@@ -360,6 +367,48 @@ It suffices to show that $\mu \otimes \textup{id} = ((\textup{id} \circ \mu) \ot
 It suffices to show that $\mu \otimes (\eta \circ \kappa) = ((\eta \circ \kappa \circ \mu) \otimes (\kappa_{\mu}^\dagger \circ \eta_{\kappa \circ \mu}^\dagger))_\leftrightarrow$.
 
 TODO: transcribe the code.
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:rnDeriv_bayesInv}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesInv}
+  Let $\mu \in \mathcal M(\mathcal X)$ and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ such that $\kappa_\mu^\dagger$ exists and there exists $\nu \in \mathcal M(\mathcal X)$ such that $\kappa_\mu^\dagger$. Then for $\mu$-almost all $x$ and $(\kappa \circ \mu)$-almost all $y$,
+  \begin{align*}
+  \frac{d \kappa_\mu^\dagger(y)}{d \mu}(x) = \frac{d \kappa(x)}{d(\kappa \circ \mu)}(y)
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+$\mu$-almost all $x$ and $(\kappa \circ \mu)$-almost all $y$ is the same as $(\mu \times (\kappa \circ \mu))$-almost all $(x, y)$.
+It suffices to show that for all measurable sets of $\mathcal X \times \mathcal Y$, the integrals with respect to that product measure of the two sides of the equality on the set are equal. Furthermore, it is sufficient to show it for sets of the form $s \times t$ since those are a $\pi$-system.
+
+TODO: do we have $\kappa_\mu^\dagger(y) \ll \mu$ and $\kappa(x) \ll \kappa \circ \mu$ a.e.?
+\begin{align*}
+\int_{x \in s, y \in t} \frac{d \kappa_\mu^\dagger(y)}{d \mu}(x) \partial (\mu \times (\kappa \circ \mu))
+&= \int_{y \in t} \int_{x \in s} \frac{d \kappa_\mu^\dagger(y)}{d \mu}(x) \partial \mu \partial (\kappa \circ \mu)
+\\
+&= \int_{y \in t} \kappa_\mu^\dagger(y)(s) \partial (\kappa \circ \mu)
+\\
+&= ((\kappa \circ \mu) \otimes \kappa_\mu^\dagger) (t \times s)
+\: .
+\end{align*}
+
+\begin{align*}
+\int_{x \in s, y \in t} \frac{d \kappa(x)}{d(\kappa \circ \mu)}(y) \partial (\mu \otimes \kappa)
+&= \int_{x \in s} \int_{y \in t} \frac{d \kappa(x)}{d(\kappa \circ \mu)}(y) \partial (\kappa \circ \mu) \partial \mu
+\\
+&= \int_{x \in s} \kappa(x)(t) \partial \mu
+\\
+&= (\mu \otimes \kappa) (s \times t)
+\: .
+\end{align*}
+
+By the defining property of the Bayesian inverse, those two quantities are equal.
 \end{proof}
 
 
@@ -395,6 +444,7 @@ TODO: find a way to hide the following dummy lemma
   lem:bayesInv_comp_self,
   lem:bayesInv_self,
   lem:bayesInv_id,
-  lem:bayesInv_comp
+  lem:bayesInv_comp,
+  lem:rnDeriv_bayesInv
 }
 \end{proof}
