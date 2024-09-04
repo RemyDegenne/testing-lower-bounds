@@ -27,7 +27,7 @@ import TestingLowerBounds.ForMathlib.RadonNikodym
 import TestingLowerBounds.ForMathlib.RnDeriv
 import TestingLowerBounds.Kernel.Basic
 import TestingLowerBounds.Kernel.BayesInv
-import TestingLowerBounds.Kernel.Monoidal
+import TestingLowerBounds.Kernel.ParallelComp
 import TestingLowerBounds.MeasureCompProd
 import TestingLowerBounds.SqHellinger
 import TestingLowerBounds.StatInfoFun
