@@ -63,7 +63,7 @@ lemma integrable_fDiv_iff [CountableOrCountablyGenerated α β] [IsFiniteMeasure
     simp_rw [fDiv_ne_top_iff_of_derivAtTop_ne_top h_top] at h_fin
     have : (fun x ↦ (fDiv f (κ x) (η x)).toReal)
         =ᵐ[μ] (fun x ↦ ∫ y, f ((∂κ x/∂η x) y).toReal ∂(η x)
-          + (derivAtTop f).toReal * ((κ x).singularPart (η x) Set.univ).toReal) := by
+          + (derivAtTop f).toReal * ((κ x).singularPart (η x) .univ).toReal) := by
       filter_upwards [h_fin'] with x hx1
       rw [fDiv_of_ne_top hx1, EReal.toReal_add]
       · simp only [EReal.toReal_coe, add_right_inj]
@@ -75,12 +75,12 @@ lemma integrable_fDiv_iff [CountableOrCountablyGenerated α β] [IsFiniteMeasure
       · simp [EReal.mul_eq_bot, h_cvx.derivAtTop_ne_bot, h_top, measure_ne_top]
     rw [integrable_congr this]
     have h_int : Integrable (fun x ↦ (derivAtTop f).toReal
-        * ((κ x).singularPart (η x) Set.univ).toReal) μ :=
+        * ((κ x).singularPart (η x) .univ).toReal) μ :=
       Integrable.const_mul integrable_singularPart (derivAtTop f).toReal
     have h_eq : (fun x ↦ ∫ y, f ((∂κ x/∂η x) y).toReal ∂η x)
         = (fun x ↦ (∫ y, f ((∂κ x/∂η x) y).toReal ∂η x +
-          (derivAtTop f).toReal * ((κ x).singularPart (η x) Set.univ).toReal)
-          - (derivAtTop f).toReal * ((κ x).singularPart (η x) Set.univ).toReal) := by
+          (derivAtTop f).toReal * ((κ x).singularPart (η x) .univ).toReal)
+          - (derivAtTop f).toReal * ((κ x).singularPart (η x) .univ).toReal) := by
       ext; simp
     exact ⟨fun h ↦ h_eq ▸ h.sub h_int, fun h ↦ h.add h_int⟩
 
@@ -155,7 +155,7 @@ lemma fDiv_compProd_left_ne_top_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ κ) ≠ ⊤ ↔
       Integrable (fun a ↦ f ((∂μ/∂ν) a).toReal) ν ∧ (derivAtTop f = ⊤ → μ ≪ ν) := by
   rw [fDiv_compProd_ne_top_iff hf h_cvx]
-  have h_one : ∀ a, ∂(κ a)/∂(κ a) =ᵐ[κ a] 1 := fun a ↦ Measure.rnDeriv_self (κ a)
+  have h_one : ∀ a, ∂(κ a)/∂(κ a) =ᵐ[κ a] 1 := fun a ↦ (κ a).rnDeriv_self
   simp only [ENNReal.toReal_mul, Measure.AbsolutelyContinuous.rfl, eventually_true, and_true]
   have : ∀ a, ∫ b, f (((∂μ/∂ν) a).toReal * ((∂κ a/∂κ a) b).toReal) ∂κ a
         = ∫ _, f (((∂μ/∂ν) a).toReal) ∂κ a := by
@@ -202,7 +202,7 @@ lemma fDiv_compProd_right
     simp only [measure_univ, ENNReal.one_toReal, one_mul] at h
     rw [integral_congr_ae h.symm, Measure.integral_compProd]
     · congr
-      rw [singularPart_compProd_left, Measure.compProd_apply MeasurableSet.univ]
+      rw [singularPart_compProd_left, Measure.compProd_apply .univ]
       simp
     · rw [← ne_eq, fDiv_ne_top_iff] at h_top
       exact h_top.1
@@ -217,7 +217,7 @@ lemma fDiv_toReal_eq_ae {γ : Type*} [MeasurableSpace γ]
       Integrable (fun x ↦ f ((∂κ (a, b)/∂η (a, b)) x).toReal) (η (a, b))) :
     ∀ᵐ a ∂μ, ∀ᵐ b ∂ξ a, (fDiv f (κ (a, b)) (η (a, b))).toReal =
       ∫ x, f ((∂κ (a, b)/∂η (a, b)) x).toReal ∂η (a, b)
-      + (derivAtTop f).toReal * (((κ (a, b)).singularPart (η (a, b)) Set.univ)).toReal := by
+      + (derivAtTop f).toReal * (((κ (a, b)).singularPart (η (a, b)) .univ)).toReal := by
   filter_upwards [eventually_all.mpr h_ac, h_int] with a ha_ae ha_int
   filter_upwards [eventually_all.mpr ha_ae, ha_int] with b hb_ae hb_int
   rw [← EReal.toReal_coe (∫ _, _ ∂_), fDiv_of_integrable hb_int, ← EReal.toReal_coe_ennreal,
@@ -241,10 +241,10 @@ lemma f_rnDeriv_ae_le_integral [CountableOrCountablyGenerated α β]
     (hf_cvx : ConvexOn ℝ (Ici 0) f) (hf_cont : ContinuousOn f (Ici 0))
     (h_int : Integrable (fun p ↦ f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) p).toReal) (ν ⊗ₘ η))
     (hκη : ∀ᵐ a ∂μ, κ a ≪ η a) :
-    (fun a ↦ f ((∂μ/∂ν) a * κ a Set.univ).toReal)
+    (fun a ↦ f ((∂μ/∂ν) a * κ a .univ).toReal)
       ≤ᵐ[ν] fun a ↦ ∫ b, f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) (a, b)).toReal ∂(η a) := by
   have h_compProd := Kernel.rnDeriv_measure_compProd' μ ν κ η
-  have h_lt_top := Measure.ae_ae_of_ae_compProd <| Measure.rnDeriv_lt_top (μ ⊗ₘ κ) (ν ⊗ₘ η)
+  have h_lt_top := Measure.ae_ae_of_ae_compProd <| (μ ⊗ₘ κ).rnDeriv_lt_top (ν ⊗ₘ η)
   have := Measure.integrable_toReal_rnDeriv (μ := μ ⊗ₘ κ) (ν := ν ⊗ₘ η)
   rw [Measure.integrable_compProd_iff] at this
   swap
@@ -253,13 +253,13 @@ lemma f_rnDeriv_ae_le_integral [CountableOrCountablyGenerated α β]
   have hκη' : ∀ᵐ a ∂ν, (∂μ/∂ν) a ≠ 0 → κ a ≪ η a := Measure.ae_rnDeriv_ne_zero_imp_of_ae hκη
   filter_upwards [hκη', h_compProd, h_lt_top, h_int.compProd_mk_left_ae', this.1]
     with a h_ac h_eq h_lt_top h_int' h_rnDeriv_int
-  calc f ((∂μ/∂ν) a * κ a Set.univ).toReal
+  calc f ((∂μ/∂ν) a * κ a .univ).toReal
     = f ((∂μ/∂ν) a * ∫⁻ b, (∂κ a/∂η a) b ∂η a).toReal := by
         by_cases h0 : (∂μ/∂ν) a = 0
         · simp [h0]
         · rw [Measure.lintegral_rnDeriv (h_ac h0)]
   _ = f (∫⁻ b,(∂μ/∂ν) a * (∂κ a/∂η a) b ∂η a).toReal := by
-        rw [lintegral_const_mul _ (Measure.measurable_rnDeriv _ _)]
+        rw [lintegral_const_mul _ ((κ a).measurable_rnDeriv _)]
   _ = f (∫⁻ b, (∂μ ⊗ₘ κ/∂ν ⊗ₘ η) (a, b) ∂η a).toReal := by rw [lintegral_congr_ae h_eq]
   _ = f (∫ b, ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) (a, b)).toReal ∂η a) := by
         rw [integral_toReal _ h_lt_top]
@@ -275,21 +275,21 @@ lemma integrable_f_rnDeriv_mul_kernel [CountableOrCountablyGenerated α β]
     (hf_cvx : ConvexOn ℝ (Ici 0) f) (hf_cont : ContinuousOn f (Ici 0))
     (h_int : Integrable (fun p ↦ f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) p).toReal) (ν ⊗ₘ η))
     (hκη : ∀ᵐ a ∂μ, κ a ≪ η a) :
-    Integrable (fun a ↦ f ((∂μ/∂ν) a * κ a Set.univ).toReal) ν := by
+    Integrable (fun a ↦ f ((∂μ/∂ν) a * κ a .univ).toReal) ν := by
   obtain ⟨c, c', h⟩ : ∃ c c', ∀ x, 0 ≤ x → c * x + c' ≤ f x :=
     hf_cvx.exists_affine_le (convex_Ici 0)
-  refine integrable_of_le_of_le (f := fun a ↦ f ((∂μ/∂ν) a * κ a Set.univ).toReal)
-    (g₁ := fun x ↦ c * ((∂μ/∂ν) x * κ x Set.univ).toReal + c')
+  refine integrable_of_le_of_le (f := fun a ↦ f ((∂μ/∂ν) a * κ a .univ).toReal)
+    (g₁ := fun x ↦ c * ((∂μ/∂ν) x * κ x .univ).toReal + c')
     (g₂ := fun x ↦ ∫ b, f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) (x, b)).toReal ∂(η x))
     ?_ ?_ ?_ ?_ ?_
-  · exact (hf.comp_measurable ((Measure.measurable_rnDeriv _ _).mul
-      (Kernel.measurable_coe _ MeasurableSet.univ)).ennreal_toReal).aestronglyMeasurable
+  · exact (hf.comp_measurable ((μ.measurable_rnDeriv _).mul
+      (κ.measurable_coe .univ)).ennreal_toReal).aestronglyMeasurable
   · exact ae_of_all _ (fun x ↦ h _ ENNReal.toReal_nonneg)
   · exact f_rnDeriv_ae_le_integral μ ν κ η hf_cvx hf_cont h_int hκη
   · refine (Integrable.const_mul ?_ _).add (integrable_const _)
     simp_rw [ENNReal.toReal_mul]
     have h := integrable_rnDeriv_mul_withDensity μ ν κ η
-    have h_ae : ∀ᵐ a ∂ν, (∂μ/∂ν) a ≠ 0 → Kernel.withDensity η (Kernel.rnDeriv κ η) a = κ a := by
+    have h_ae : ∀ᵐ a ∂ν, (∂μ/∂ν) a ≠ 0 → η.withDensity (κ.rnDeriv η) a = κ a := by
       refine Measure.ae_rnDeriv_ne_zero_imp_of_ae ?_
       filter_upwards [hκη] with x hx
       rw [Kernel.withDensity_rnDeriv_eq hx]
@@ -307,7 +307,7 @@ lemma integrable_f_rnDeriv_mul_withDensity [CountableOrCountablyGenerated α β]
     (hf_cvx : ConvexOn ℝ (Ici 0) f) (hf_cont : ContinuousOn f (Ici 0))
     (h_int : Integrable (fun p ↦ f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) p).toReal) (ν ⊗ₘ η)) :
     Integrable (fun a ↦
-      f ((∂μ/∂ν) a * Kernel.withDensity η (Kernel.rnDeriv κ η) a Set.univ).toReal) ν := by
+      f ((∂μ/∂ν) a * η.withDensity (κ.rnDeriv η) a .univ).toReal) ν := by
   refine integrable_f_rnDeriv_mul_kernel μ ν _ η hf hf_cvx hf_cont ?_ ?_
   · refine (integrable_congr ?_).mp h_int
     filter_upwards [Measure.rnDeriv_measure_compProd_Kernel_withDensity μ ν κ η] with x hx
@@ -321,8 +321,7 @@ lemma integral_f_rnDeriv_mul_le_integral [CountableOrCountablyGenerated α β]
     (hf_cvx : ConvexOn ℝ (Ici 0) f) (hf_cont : ContinuousOn f (Ici 0))
     (h_int : Integrable (fun p ↦ f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) p).toReal) (ν ⊗ₘ η))
     (hκη : ∀ᵐ a ∂μ, κ a ≪ η a) :
-    ∫ x, f ((∂μ/∂ν) x * κ x Set.univ).toReal ∂ν
-      ≤ ∫ x, f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) x).toReal ∂(ν ⊗ₘ η) := by
+    ∫ x, f ((∂μ/∂ν) x * κ x .univ).toReal ∂ν ≤ ∫ x, f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) x).toReal ∂(ν ⊗ₘ η) := by
   rw [Measure.integral_compProd h_int]
   refine integral_mono_ae ?_ ?_ ?_
   · exact integrable_f_rnDeriv_mul_kernel μ ν κ η hf hf_cvx hf_cont h_int hκη
@@ -337,12 +336,12 @@ lemma integral_f_rnDeriv_mul_withDensity_le_integral [CountableOrCountablyGenera
     (hf : StronglyMeasurable f)
     (hf_cvx : ConvexOn ℝ (Ici 0) f) (hf_cont : ContinuousOn f (Ici 0))
     (h_int : Integrable (fun p ↦ f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) p).toReal) (ν ⊗ₘ η)) :
-    ∫ x, f ((∂μ/∂ν) x * Kernel.withDensity η (Kernel.rnDeriv κ η) x Set.univ).toReal ∂ν
+    ∫ x, f ((∂μ/∂ν) x * η.withDensity (κ.rnDeriv η) x .univ).toReal ∂ν
       ≤ ∫ x, f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) x).toReal ∂(ν ⊗ₘ η) := by
-  calc ∫ x, f ((∂μ/∂ν) x * Kernel.withDensity η (Kernel.rnDeriv κ η) x Set.univ).toReal ∂ν
-    ≤ ∫ x, f ((∂μ ⊗ₘ (Kernel.withDensity η (Kernel.rnDeriv κ η))/∂ν ⊗ₘ η) x).toReal
+  calc ∫ x, f ((∂μ/∂ν) x * η.withDensity (κ.rnDeriv η) x .univ).toReal ∂ν
+    ≤ ∫ x, f ((∂μ ⊗ₘ (η.withDensity (κ.rnDeriv η))/∂ν ⊗ₘ η) x).toReal
       ∂(ν ⊗ₘ η) := by
-        refine integral_f_rnDeriv_mul_le_integral μ ν (Kernel.withDensity η (Kernel.rnDeriv κ η))
+        refine integral_f_rnDeriv_mul_le_integral μ ν (η.withDensity (κ.rnDeriv η))
           η hf hf_cvx hf_cont ?_ ?_
         · refine (integrable_congr ?_).mpr h_int
           filter_upwards [Measure.rnDeriv_measure_compProd_Kernel_withDensity μ ν κ η] with x hx
@@ -358,12 +357,11 @@ lemma f_rnDeriv_le_add [CountableOrCountablyGenerated α β]
     (κ η : Kernel α β) [IsMarkovKernel κ] [IsFiniteKernel η]
     (hf_cvx : ConvexOn ℝ (Ici 0) f) (h_deriv : derivAtTop f = ⊤ → ∀ᵐ a ∂μ, κ a ≪ η a) :
     ∀ᵐ a ∂ ν, f ((∂μ/∂ν) a).toReal
-      ≤ f ((∂μ/∂ν) a * Kernel.withDensity η (Kernel.rnDeriv κ η) a Set.univ).toReal
-        + (derivAtTop f).toReal * ((∂μ/∂ν) a).toReal
-          * (Kernel.singularPart κ η a Set.univ).toReal := by
+      ≤ f ((∂μ/∂ν) a * η.withDensity (κ.rnDeriv η) a .univ).toReal
+        + (derivAtTop f).toReal * ((∂μ/∂ν) a).toReal * (κ.singularPart η a .univ).toReal := by
   by_cases h_deriv_top : derivAtTop f = ⊤
   · simp only [ENNReal.toReal_mul, h_deriv_top, EReal.toReal_top, zero_mul, add_zero]
-    have h_ae : ∀ᵐ a ∂ν, (∂μ/∂ν) a ≠ 0 → Kernel.withDensity η (Kernel.rnDeriv κ η) a = κ a := by
+    have h_ae : ∀ᵐ a ∂ν, (∂μ/∂ν) a ≠ 0 → η.withDensity (κ.rnDeriv η) a = κ a := by
       refine Measure.ae_rnDeriv_ne_zero_imp_of_ae ?_
       filter_upwards [h_deriv h_deriv_top] with a ha_ac
       rw [Kernel.withDensity_rnDeriv_eq ha_ac]
@@ -374,25 +372,24 @@ lemma f_rnDeriv_le_add [CountableOrCountablyGenerated α β]
       simp
   refine ae_of_all _ (fun a ↦ ?_)
   simp only [ENNReal.toReal_mul]
-  let κ' := Kernel.withDensity η (Kernel.rnDeriv κ η)
+  let κ' := η.withDensity (κ.rnDeriv η)
   calc f ((∂μ/∂ν) a).toReal
-  _ ≤ f (((∂μ/∂ν) a).toReal * (κ' a Set.univ).toReal)
-        + (derivAtTop f).toReal * ((∂μ/∂ν) a).toReal * (1 - (κ' a Set.univ).toReal) := by
+  _ ≤ f (((∂μ/∂ν) a).toReal * (κ' a .univ).toReal)
+        + (derivAtTop f).toReal * ((∂μ/∂ν) a).toReal * (1 - (κ' a .univ).toReal) := by
       refine le_add_derivAtTop' hf_cvx h_deriv_top ENNReal.toReal_nonneg ENNReal.toReal_nonneg ?_
-      calc (κ' a Set.univ).toReal
-      _ ≤ (κ a Set.univ).toReal := by
+      calc (κ' a .univ).toReal
+      _ ≤ (κ a .univ).toReal := by
           gcongr
           · exact measure_ne_top _ _
-          · exact Kernel.withDensity_rnDeriv_le κ η a Set.univ
+          · exact κ.withDensity_rnDeriv_le η a .univ
       _ = 1 := by simp
-  _ = f (((∂μ/∂ν) a).toReal * (κ' a Set.univ).toReal)
-        + (derivAtTop f).toReal * ((∂μ/∂ν) a).toReal
-          * (Kernel.singularPart κ η a Set.univ).toReal := by
+  _ = f (((∂μ/∂ν) a).toReal * (κ' a .univ).toReal)
+        + (derivAtTop f).toReal * ((∂μ/∂ν) a).toReal * (κ.singularPart η a .univ).toReal := by
       congr
       norm_cast
       unfold_let κ'
       rw [sub_eq_iff_eq_add, ← ENNReal.one_toReal, ← measure_univ (μ := κ a)]
-      conv_lhs => rw [← Kernel.rnDeriv_add_singularPart κ η, add_comm]
+      conv_lhs => rw [← κ.rnDeriv_add_singularPart η, add_comm]
       simp only [Kernel.coe_add, Pi.add_apply, Measure.coe_add]
       rw [ENNReal.toReal_add]
       · exact measure_ne_top _ _
@@ -410,11 +407,10 @@ lemma integrable_f_rnDeriv_of_integrable_compProd' [CountableOrCountablyGenerate
     hf_cvx.exists_affine_le (convex_Ici 0)
   refine integrable_of_le_of_le (f := fun a ↦ f ((∂μ/∂ν) a).toReal)
     (g₁ := fun a ↦ c * ((∂μ/∂ν) a).toReal + c')
-    (g₂ := fun a ↦ f ((∂μ/∂ν) a * Kernel.withDensity η (Kernel.rnDeriv κ η) a Set.univ).toReal
-        + (derivAtTop f).toReal * ((∂μ/∂ν) a).toReal
-          * (Kernel.singularPart κ η a Set.univ).toReal)
+    (g₂ := fun a ↦ f ((∂μ/∂ν) a * η.withDensity (κ.rnDeriv η) a .univ).toReal
+        + (derivAtTop f).toReal * ((∂μ/∂ν) a).toReal * (κ.singularPart η a .univ).toReal)
     ?_ ?_ ?_ ?_ ?_
-  · exact (hf.comp_measurable (Measure.measurable_rnDeriv _ _).ennreal_toReal).aestronglyMeasurable
+  · exact (hf.comp_measurable (μ.measurable_rnDeriv _).ennreal_toReal).aestronglyMeasurable
   · exact ae_of_all _ (fun x ↦ h _ ENNReal.toReal_nonneg)
   · exact f_rnDeriv_le_add μ ν κ η hf_cvx h_deriv
   · exact (Measure.integrable_toReal_rnDeriv.const_mul _).add (integrable_const _)
@@ -449,25 +445,23 @@ lemma integral_f_rnDeriv_le_integral_add [CountableOrCountablyGenerated α β]
     (h_deriv : derivAtTop f = ⊤ → ∀ᵐ a ∂μ, κ a ≪ η a) :
     ∫ x, f ((∂μ/∂ν) x).toReal ∂ν
       ≤ ∫ x, f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) x).toReal ∂(ν ⊗ₘ η)
-      + (derivAtTop f).toReal
-        * ∫ a, ((∂μ/∂ν) a).toReal * (Kernel.singularPart κ η a Set.univ).toReal ∂ν := by
+        + (derivAtTop f).toReal
+          * ∫ a, ((∂μ/∂ν) a).toReal * (κ.singularPart η a .univ).toReal ∂ν := by
   suffices ∫ x, f ((∂μ/∂ν) x).toReal ∂ν
-      ≤ ∫ x, f ((∂μ/∂ν) x * Kernel.withDensity η (Kernel.rnDeriv κ η) x Set.univ).toReal ∂ν
-      + (derivAtTop f).toReal
-        * ∫ a, ((∂μ/∂ν) a).toReal * (Kernel.singularPart κ η a Set.univ).toReal ∂ν by
+      ≤ ∫ x, f ((∂μ/∂ν) x * η.withDensity (κ.rnDeriv η) x .univ).toReal ∂ν
+        + (derivAtTop f).toReal * ∫ a, ((∂μ/∂ν) a).toReal * (κ.singularPart η a .univ).toReal ∂ν by
     refine this.trans ?_
     gcongr
     exact integral_f_rnDeriv_mul_withDensity_le_integral μ ν κ η hf hf_cvx hf_cont h_int
-  let κ' := Kernel.withDensity η (Kernel.rnDeriv κ η)
+  let κ' := η.withDensity (κ.rnDeriv η)
   have h : ∀ᵐ a ∂ν, f ((∂μ/∂ν) a).toReal
-      ≤ f ((∂μ/∂ν) a * κ' a Set.univ).toReal
-        + (derivAtTop f).toReal * ((∂μ/∂ν) a).toReal
-          * (Kernel.singularPart κ η a Set.univ).toReal :=
+      ≤ f ((∂μ/∂ν) a * κ' a .univ).toReal
+        + (derivAtTop f).toReal * ((∂μ/∂ν) a).toReal * (κ.singularPart η a .univ).toReal :=
     f_rnDeriv_le_add _ _ _ _ hf_cvx h_deriv
-  have h_int_mul : Integrable (fun a ↦ f ((∂μ/∂ν) a * κ' a Set.univ).toReal) ν :=
+  have h_int_mul : Integrable (fun a ↦ f ((∂μ/∂ν) a * κ' a .univ).toReal) ν :=
     integrable_f_rnDeriv_mul_withDensity μ ν κ η hf hf_cvx hf_cont h_int
   have h_int_right : Integrable (fun a ↦ (derivAtTop f).toReal
-      * ((∂μ/∂ν) a).toReal * (Kernel.singularPart κ η a Set.univ).toReal) ν := by
+      * ((∂μ/∂ν) a).toReal * (κ.singularPart η a .univ).toReal) ν := by
     simp_rw [mul_assoc]
     refine Integrable.const_mul ?_ _
     simp_rw [Kernel.singularPart_eq_singularPart_measure]
@@ -492,28 +486,25 @@ lemma le_fDiv_compProd [CountableOrCountablyGenerated α β] (μ ν : Measure α
   obtain h_int := (fDiv_ne_top_iff.mp h_top).1
   rw [← ne_eq, fDiv_compProd_ne_top_iff hf hf_cvx] at h_top
   obtain ⟨_, _, h3⟩ := h_top
-  calc ∫ x, f ((∂μ/∂ν) x).toReal ∂ν + derivAtTop f * Measure.singularPart μ ν Set.univ
+  calc ∫ x, f ((∂μ/∂ν) x).toReal ∂ν + derivAtTop f * μ.singularPart ν .univ
     ≤ ∫ x, f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) x).toReal ∂(ν ⊗ₘ η)
-      + (derivAtTop f).toReal
-        * ∫ a, ((∂μ/∂ν) a).toReal * (Kernel.singularPart κ η a Set.univ).toReal ∂ν
-      + derivAtTop f * Measure.singularPart μ ν Set.univ := by
+      + (derivAtTop f).toReal * ∫ a, ((∂μ/∂ν) a).toReal * (κ.singularPart η a .univ).toReal ∂ν
+      + derivAtTop f * μ.singularPart ν .univ := by
         gcongr
         norm_cast
         exact integral_f_rnDeriv_le_integral_add μ ν κ η hf hf_cvx hf_cont h_int (fun h ↦ (h3 h).2)
   _ = ∫ x, f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) x).toReal ∂(ν ⊗ₘ η)
-      + (derivAtTop f).toReal
-        * (((ν.withDensity (∂μ/∂ν)) ⊗ₘ κ).singularPart (ν ⊗ₘ η) Set.univ).toReal
-      + derivAtTop f * Measure.singularPart μ ν Set.univ := by
+      + (derivAtTop f).toReal * (((ν.withDensity (∂μ/∂ν)) ⊗ₘ κ).singularPart (ν ⊗ₘ η) .univ).toReal
+      + derivAtTop f * μ.singularPart ν .univ := by
         simp_rw [Kernel.singularPart_eq_singularPart_measure]
-        rw [integral_rnDeriv_mul_singularPart _ _ _ _ MeasurableSet.univ, Set.univ_prod_univ]
+        rw [integral_rnDeriv_mul_singularPart _ _ _ _ .univ, Set.univ_prod_univ]
   _ = ∫ p, f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) p).toReal ∂ν ⊗ₘ η
-      + derivAtTop f * (μ ⊗ₘ κ).singularPart (ν ⊗ₘ η) Set.univ := by
+      + derivAtTop f * (μ ⊗ₘ κ).singularPart (ν ⊗ₘ η) .univ := by
         rw [add_assoc]
         congr
         by_cases h_top : derivAtTop f = ⊤
         · simp only [h_top, EReal.toReal_top, EReal.coe_zero, zero_mul, zero_add]
-          rw [Measure.singularPart_eq_zero_of_ac (h3 h_top).1,
-            Measure.singularPart_eq_zero_of_ac]
+          rw [Measure.singularPart_eq_zero_of_ac (h3 h_top).1, Measure.singularPart_eq_zero_of_ac]
           · simp
           · rw [Kernel.Measure.absolutelyContinuous_compProd_iff]
             exact h3 h_top
@@ -521,7 +512,7 @@ lemma le_fDiv_compProd [CountableOrCountablyGenerated α β] (μ ν : Measure α
         simp only [EReal.toReal_coe]
         rw [← EReal.coe_ennreal_toReal (measure_ne_top _ _),
           ← EReal.coe_ennreal_toReal (measure_ne_top _ _)]
-        conv_rhs => rw [Measure.haveLebesgueDecomposition_add μ ν]
+        conv_rhs => rw [μ.haveLebesgueDecomposition_add ν]
         rw [Measure.compProd_add_left, add_comm, Measure.singularPart_add]
         simp only [Measure.coe_add, Pi.add_apply]
         rw [ENNReal.toReal_add (measure_ne_top _ _) (measure_ne_top _ _)]
@@ -531,26 +522,25 @@ lemma le_fDiv_compProd [CountableOrCountablyGenerated α β] (μ ν : Measure α
         congr
         rw [singularPart_compProd]
         simp only [Measure.coe_add, Pi.add_apply]
-        rw [Measure.compProd_apply MeasurableSet.univ]
-        rw [Measure.compProd_apply MeasurableSet.univ]
+        simp_rw [Measure.compProd_apply .univ]
         simp only [Measure.singularPart_singularPart, Set.preimage_univ]
         rw [← lintegral_add_right]
         · rw [← lintegral_one]
           congr with a
-          have h : κ a Set.univ = 1 := by simp
-          rw [← Kernel.rnDeriv_add_singularPart κ η] at h
+          have h : κ a .univ = 1 := by simp
+          rw [← κ.rnDeriv_add_singularPart η] at h
           simp only [Kernel.coe_add, Pi.add_apply, Measure.add_toOuterMeasure,
             OuterMeasure.coe_add] at h
           exact h.symm
-        · exact Kernel.measurable_coe _ MeasurableSet.univ
+        · exact Kernel.measurable_coe _ .univ
 
 lemma fDiv_fst_le [Nonempty β] [StandardBorelSpace β]
     (μ ν : Measure (α × β)) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (hf : StronglyMeasurable f)
     (hf_cvx : ConvexOn ℝ (Ici 0) f) (hf_cont : ContinuousOn f (Ici 0)) :
     fDiv f μ.fst ν.fst ≤ fDiv f μ ν := by
-  rw [← Measure.disintegrate μ μ.condKernel, ← Measure.disintegrate ν ν.condKernel,
-    Measure.fst_compProd, Measure.fst_compProd]
+  rw [← μ.disintegrate μ.condKernel, ← ν.disintegrate ν.condKernel, Measure.fst_compProd,
+    Measure.fst_compProd]
   exact le_fDiv_compProd μ.fst ν.fst μ.condKernel ν.condKernel hf hf_cvx hf_cont
 
 lemma fDiv_snd_le [Nonempty α] [StandardBorelSpace α]

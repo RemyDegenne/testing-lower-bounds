@@ -49,7 +49,7 @@ def twoHypKernel (μ ν : Measure 𝒳) : Kernel Bool 𝒳 where
 @[simp] lemma twoHypKernel_apply (b : Bool) : twoHypKernel μ ν b = bif b then ν else μ := rfl
 
 instance [IsFiniteMeasure μ] [IsFiniteMeasure ν] : IsFiniteKernel (twoHypKernel μ ν) :=
-  ⟨max (μ Set.univ) (ν Set.univ), max_lt (measure_lt_top _ _) (measure_lt_top _ _),
+  ⟨max (μ .univ) (ν .univ), max_lt (measure_lt_top _ _) (measure_lt_top _ _),
     fun b ↦ by cases b <;> simp⟩
 
 instance [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
@@ -99,14 +99,14 @@ lemma sum_smul_rnDeriv_twoHypKernel (μ ν : Measure 𝒳) [IsFiniteMeasure μ] 
     (π : Measure Bool) [IsFiniteMeasure π] :
     (π {true} • ν.rnDeriv (twoHypKernel μ ν ∘ₘ π) + π {false} • (μ.rnDeriv (twoHypKernel μ ν ∘ₘ π)))
       =ᵐ[twoHypKernel μ ν ∘ₘ π] 1 := by
-  have h1 := Measure.rnDeriv_smul_left_of_ne_top ν (twoHypKernel μ ν ∘ₘ π)
+  have h1 := ν.rnDeriv_smul_left_of_ne_top (twoHypKernel μ ν ∘ₘ π)
     (measure_ne_top π {true})
-  have h2 := Measure.rnDeriv_smul_left_of_ne_top μ (twoHypKernel μ ν ∘ₘ π)
+  have h2 := μ.rnDeriv_smul_left_of_ne_top (twoHypKernel μ ν ∘ₘ π)
     (measure_ne_top π {false})
   have : IsFiniteMeasure (π {true} • ν) := ν.smul_finite (measure_ne_top _ _)
   have : IsFiniteMeasure (π {false} • μ) := μ.smul_finite (measure_ne_top _ _)
-  have h3 := Measure.rnDeriv_add (π {true} • ν) (π {false} • μ) (twoHypKernel μ ν ∘ₘ π)
-  have h4 := Measure.rnDeriv_self (twoHypKernel μ ν ∘ₘ π)
+  have h3 := (π {true} • ν).rnDeriv_add  (π {false} • μ) (twoHypKernel μ ν ∘ₘ π)
+  have h4 := (twoHypKernel μ ν ∘ₘ π).rnDeriv_self
   filter_upwards [h1, h2, h3, h4] with a h1 h2 h3 h4
   simp only [Pi.add_apply, Pi.smul_apply, smul_eq_mul, Pi.one_apply] at h1 h2 h3 h4 ⊢
   rw [← h1, ← h2, ← h3, ← measure_comp_twoHypKernel, h4]
@@ -133,13 +133,12 @@ def twoHypKernelInv (μ ν : Measure 𝒳) (π : Measure Bool) : Kernel 𝒳 Boo
   measurable' := by
     refine Measurable.ite ?_ ?_ measurable_const
     · refine measurableSet_preimage ?_ (measurableSet_singleton _)
-      exact ((Measure.measurable_rnDeriv _ _).const_mul _).add
-        ((Measure.measurable_rnDeriv _ _).const_mul _)
+      exact ((ν.measurable_rnDeriv _).const_mul _).add ((μ.measurable_rnDeriv _).const_mul _)
     refine Measure.measurable_of_measurable_coe _ (fun s _ ↦ ?_)
     simp only [Measure.coe_add, Measure.coe_smul, Pi.add_apply, Pi.smul_apply,
       MeasurableSpace.measurableSet_top, Measure.dirac_apply', smul_eq_mul]
-    exact ((measurable_const.mul (Measure.measurable_rnDeriv _ _)).mul measurable_const).add
-      ((measurable_const.mul (Measure.measurable_rnDeriv _ _)).mul measurable_const)
+    exact ((measurable_const.mul (ν.measurable_rnDeriv _)).mul measurable_const).add
+      ((measurable_const.mul (μ.measurable_rnDeriv _)).mul measurable_const)
 
 lemma twoHypKernelInv_apply (μ ν : Measure 𝒳) (π : Measure Bool) (x : 𝒳) :
     twoHypKernelInv μ ν π x
@@ -211,7 +210,7 @@ lemma measure_prod_ext {μ ν : Measure (𝒳 × 𝒴)} [IsFiniteMeasure μ]
   · exact fun t ⟨A, hA, B, hB, ht⟩ ↦ ht ▸ h A hA B hB
   · intro t ht h_eq
     rw [measure_compl ht (measure_ne_top μ t), measure_compl ht (h_eq ▸ measure_ne_top μ t), h_eq,
-      ← Set.univ_prod_univ, ← h Set.univ MeasurableSet.univ Set.univ MeasurableSet.univ]
+      ← Set.univ_prod_univ, ← h _ .univ _ .univ]
   · intro A h_disj h_meas h_eq
     simp_rw [measure_iUnion h_disj h_meas, h_eq]
 
@@ -403,7 +402,7 @@ lemma nonempty_subtype_isMarkovKernel_of_nonempty {𝒳 : Type*} {m𝒳 : Measur
 
 @[simp]
 lemma bayesBinaryRisk_self (μ : Measure 𝒳) (π : Measure Bool) :
-    bayesBinaryRisk μ μ π = min (π {false}) (π {true}) * μ Set.univ := by
+    bayesBinaryRisk μ μ π = min (π {false}) (π {true}) * μ .univ := by
   rw [bayesBinaryRisk_eq]
   refine le_antisymm ?_ ?_
   · let η : Kernel 𝒳 Bool :=
@@ -418,7 +417,7 @@ lemma bayesBinaryRisk_self (μ : Measure 𝒳) (π : Measure Bool) :
       _ ≥ ⨅ κ, ⨅ (_ : IsMarkovKernel κ), min (π {false}) (π {true}) * (κ ∘ₘ μ) {false}
           + min (π {false}) (π {true}) * (κ ∘ₘ μ) {true} := by
         gcongr <;> simp
-      _ = ⨅ κ, ⨅ (_ : IsMarkovKernel κ), min (π {false}) (π {true}) * μ Set.univ := by
+      _ = ⨅ κ, ⨅ (_ : IsMarkovKernel κ), min (π {false}) (π {true}) * μ .univ := by
         simp_rw [← mul_add, ← measure_union (show Disjoint {false} {true} from by simp)
           (by trivial), (set_fintype_card_eq_univ_iff ({false} ∪ {true})).mp rfl,
           Measure.comp_apply_univ]
@@ -435,7 +434,7 @@ lemma bayesBinaryRisk_dirac (a b : ℝ≥0∞) (x : 𝒳) (π : Measure Bool) :
   simp [lintegral_dirac]
 
 lemma bayesBinaryRisk_le_min (μ ν : Measure 𝒳) (π : Measure Bool) :
-    bayesBinaryRisk μ ν π ≤ min (π {false} * μ Set.univ) (π {true} * ν Set.univ) := by
+    bayesBinaryRisk μ ν π ≤ min (π {false} * μ .univ) (π {true} * ν .univ) := by
   convert bayesBinaryRisk_le_bayesBinaryRisk_comp μ ν π (Kernel.discard 𝒳)
   simp_rw [Measure.comp_discard, bayesBinaryRisk_dirac]
 
@@ -469,10 +468,10 @@ lemma bayesBinaryRisk_of_measure_false_eq_zero (μ ν : Measure 𝒳) (hπ : π 
 lemma bayesBinaryRisk_symm (μ ν : Measure 𝒳) (π : Measure Bool) :
     bayesBinaryRisk μ ν π = bayesBinaryRisk ν μ (π.map Bool.not) := by
   have : (Bool.not ⁻¹' {true}) = {false} := by ext x; simp
-  have h1 : (Measure.map Bool.not π) {true} = π {false} := by
+  have h1 : (π.map Bool.not) {true} = π {false} := by
     rw [Measure.map_apply (by exact fun _ a ↦ a) (by trivial), this]
   have : (Bool.not ⁻¹' {false}) = {true} := by ext x; simp
-  have h2 : (Measure.map Bool.not π) {false} = π {true} := by
+  have h2 : (π.map Bool.not) {false} = π {true} := by
     rw [Measure.map_apply (by exact fun _ a ↦ a) (by trivial), this]
   simp_rw [bayesBinaryRisk_eq, h1, h2, add_comm, iInf_subtype']
   -- from this point on the proof is basically a change of variable inside the iInf,
@@ -480,7 +479,7 @@ lemma bayesBinaryRisk_symm (μ ν : Measure 𝒳) (π : Measure Bool) :
   -- the `Bool.not` operation, maybe it can be shortened or something can be separated as
   -- a different lemma, but I'm not sure how useful this would be
   let e : (Kernel 𝒳 Bool) ≃ (Kernel 𝒳 Bool) := by
-    have h_id : Kernel.comap (Kernel.deterministic Bool.not (fun _ a ↦ a)) Bool.not (fun _ a ↦ a)
+    have h_id : (Kernel.deterministic Bool.not (fun _ a ↦ a)).comap Bool.not (fun _ a ↦ a)
         = Kernel.id := by
       ext x : 1
       simp_rw [Kernel.comap_apply, Kernel.deterministic_apply, Kernel.id_apply, Bool.not_not]
@@ -561,7 +560,7 @@ lemma toReal_bayesBinaryRisk_eq_integral_min (μ ν : Measure 𝒳) [IsFiniteMea
       <;> exact Measure.measurable_rnDeriv _ _ |>.const_mul _ |>.ennreal_toNNReal |>.coe_nnreal_real
   congr 1
   apply lintegral_congr_ae
-  filter_upwards [Measure.rnDeriv_ne_top μ _, Measure.rnDeriv_ne_top ν _] with x hxμ hxν
+  filter_upwards [μ.rnDeriv_ne_top _, ν.rnDeriv_ne_top _] with x hxμ hxν
   have : (π {false} * μ.rnDeriv (twoHypKernel μ ν ∘ₘ π) x) ≠ ⊤ :=
     (ENNReal.mul_ne_top (measure_ne_top _ _) hxμ)
   have : (π {true} * ν.rnDeriv (twoHypKernel μ ν ∘ₘ π) x) ≠ ⊤ :=
@@ -576,7 +575,7 @@ lemma toReal_bayesBinaryRisk_eq_integral_min (μ ν : Measure 𝒳) [IsFiniteMea
 lemma toReal_bayesBinaryRisk_eq_integral_abs (μ ν : Measure 𝒳) [IsFiniteMeasure μ]
     [IsFiniteMeasure ν] (π : Measure Bool) [IsFiniteMeasure π] :
     (bayesBinaryRisk μ ν π).toReal
-      = 2⁻¹ * (((twoHypKernel μ ν ∘ₘ π) Set.univ).toReal
+      = 2⁻¹ * (((twoHypKernel μ ν ∘ₘ π) .univ).toReal
         - ∫ x, |(π {false} * μ.rnDeriv (twoHypKernel μ ν ∘ₘ π) x).toReal
           - (π {true} * ν.rnDeriv (twoHypKernel μ ν ∘ₘ π) x).toReal| ∂(twoHypKernel μ ν ∘ₘ π)) := by
   simp_rw [toReal_bayesBinaryRisk_eq_integral_min, min_eq_add_sub_abs_sub, integral_mul_left]
@@ -596,13 +595,13 @@ lemma toReal_bayesBinaryRisk_eq_integral_abs (μ ν : Measure 𝒳) [IsFiniteMea
   simp only [ENNReal.toReal_mul, MeasurableSet.univ, sub_left_inj, integral_mul_left]
   nth_rw 5 [measure_comp_twoHypKernel]
   calc
-    _ = (π {false}).toReal * (μ Set.univ).toReal + (π {true}).toReal
+    _ = (π {false}).toReal * (μ .univ).toReal + (π {true}).toReal
         * ∫ (a : 𝒳), ((∂ν/∂twoHypKernel μ ν ∘ₘ π) a).toReal ∂(twoHypKernel μ ν ∘ₘ π) := by
       by_cases hπ_false : π {false} = 0
       · simp [hπ_false, bayesBinaryRisk_of_measure_false_eq_zero]
       rw [Measure.integral_toReal_rnDeriv
         (absolutelyContinuous_measure_comp_twoHypKernel_left μ ν hπ_false)]
-    _ = (π {false}).toReal * (μ Set.univ).toReal + (π {true}).toReal * (ν Set.univ).toReal := by
+    _ = (π {false}).toReal * (μ .univ).toReal + (π {true}).toReal * (ν .univ).toReal := by
       by_cases hπ_true : π {true} = 0
       · simp [hπ_true, bayesBinaryRisk_of_measure_true_eq_zero]
       rw [Measure.integral_toReal_rnDeriv
@@ -615,15 +614,14 @@ lemma toReal_bayesBinaryRisk_eq_integral_abs (μ ν : Measure 𝒳) [IsFiniteMea
 
 lemma bayesBinaryRisk_eq_lintegral_ennnorm (μ ν : Measure 𝒳) [IsFiniteMeasure μ]
     [IsFiniteMeasure ν] (π : Measure Bool) [IsFiniteMeasure π] :
-    bayesBinaryRisk μ ν π = 2⁻¹ * (((twoHypKernel μ ν ∘ₘ π) Set.univ)
+    bayesBinaryRisk μ ν π = 2⁻¹ * (((twoHypKernel μ ν ∘ₘ π) .univ)
         - ∫⁻ x, ‖(π {false} * (∂μ/∂(twoHypKernel μ ν ∘ₘ π)) x).toReal
           - (π {true} * (∂ν/∂(twoHypKernel μ ν ∘ₘ π)) x).toReal‖₊ ∂(twoHypKernel μ ν ∘ₘ π)) := by
   rw [← ENNReal.ofReal_toReal (bayesBinaryRisk_ne_top μ ν π),
     toReal_bayesBinaryRisk_eq_integral_abs, ENNReal.ofReal_mul (inv_nonneg.mpr zero_le_two),
     ENNReal.ofReal_inv_of_pos zero_lt_two, ENNReal.ofReal_ofNat,
     ENNReal.ofReal_sub _ (by positivity), ENNReal.ofReal_toReal (measure_ne_top _ _),
-    MeasureTheory.ofReal_integral_eq_lintegral_ofReal _
-    (.of_forall fun _ ↦ by positivity)]
+    ofReal_integral_eq_lintegral_ofReal _ (.of_forall fun _ ↦ by positivity)]
   swap
   · refine ⟨Measurable.aestronglyMeasurable (by fun_prop), ?_⟩
     simp_rw [HasFiniteIntegral, Real.nnnorm_abs]
@@ -647,7 +645,7 @@ lemma bayesBinaryRisk_eq_lintegral_ennnorm (μ ν : Measure 𝒳) [IsFiniteMeasu
         gcongr <;>
         · rw [Real.ennnorm_eq_ofReal_abs, ENNReal.abs_toReal]
           exact ENNReal.ofReal_toReal_le
-      _ = π {false} * μ Set.univ + π {true} * ν Set.univ := by
+      _ = π {false} * μ .univ + π {true} * ν .univ := by
         congr 1
         · by_cases h_false : π {false} = 0
           · rw [h_false, zero_mul, zero_mul]

@@ -200,14 +200,14 @@ This concludes the proof for $\mathcal R_\pi^Q \ge \mathcal R_\xi^P$. If that in
   Let $\pi, \xi \in \mathcal P(\Theta)$ and $P, Q : \Theta \rightsquigarrow \mathcal X$. Suppose that the loss $\ell'$ takes values in $[0,1]$. Then
   \begin{align*}
   \KL(\pi \otimes Q, \pi \otimes P)
-  &\ge \kl(\mathcal R_\pi^Q, \mathcal R_\xi^P) - \kl(\pi, \xi)
+  &\ge \kl(\mathcal R_\pi^Q, \mathcal R_\xi^P) - \KL(\pi, \xi)
   \: .
   \end{align*}
 \end{corollary}
 
 \begin{proof}%\leanok
 \uses{lem:kl_estimation_ge, thm:kl_compProd}
-Use $\KL(\pi \otimes Q, \xi \otimes P) = \kl(\pi, \xi) + \KL(\pi \otimes Q, \pi \otimes P)$ in Lemma~\ref{lem:kl_estimation_ge}.
+Use $\KL(\pi \otimes Q, \xi \otimes P) = \KL(\pi, \xi) + \KL(\pi \otimes Q, \pi \otimes P)$ in Lemma~\ref{lem:kl_estimation_ge}.
 \end{proof}
 
 
