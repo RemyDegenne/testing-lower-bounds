@@ -155,7 +155,7 @@ lemma bayesRiskPrior_compProd_le_bayesRiskPrior (E : estimationProblem Θ 𝒴 �
     [IsSFiniteKernel P] (π : Measure Θ) (κ : Kernel (Θ × 𝒳) 𝒳') [IsMarkovKernel κ] :
     bayesRiskPrior E (P ⊗ₖ κ) π ≤ bayesRiskPrior E P π := by
   have : P = (Kernel.deterministic Prod.fst (by fun_prop)) ∘ₖ (P ⊗ₖ κ) := by
-    rw [Kernel.deterministic_comp_eq_map, ← Kernel.fst, Kernel.fst_compProd]
+    rw [Kernel.deterministic_comp_eq_map, ← Kernel.fst_eq, Kernel.fst_compProd]
   nth_rw 2 [this]
   exact bayesRiskPrior_le_bayesRiskPrior_comp _ _ _ _
 

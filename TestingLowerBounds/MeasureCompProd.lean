@@ -43,11 +43,11 @@ Defined using `MeasureTheory.Measure.bind` -/
 scoped[ProbabilityTheory] notation3 κ " ∘ₘ " μ:100 => MeasureTheory.Measure.bind μ κ
 
 lemma Measure.map_comp (μ : Measure α) (κ : Kernel α β) {f : β → γ} (hf : Measurable f) :
-    (κ ∘ₘ μ).map f = (κ.map f hf) ∘ₘ μ := by
+    (κ ∘ₘ μ).map f = (κ.map f) ∘ₘ μ := by
   ext s hs
   rw [Measure.map_apply hf hs, Measure.bind_apply (hf hs) κ.measurable,
     Measure.bind_apply hs (Kernel.measurable _)]
-  simp_rw [Kernel.map_apply' _ _ _ hs]
+  simp_rw [Kernel.map_apply' _ hf _ hs]
 
 lemma Measure.comp_assoc {μ : Measure α} {κ : Kernel α β} {η : Kernel β γ} :
     η ∘ₘ (κ ∘ₘ μ) = (η ∘ₖ κ) ∘ₘ μ :=

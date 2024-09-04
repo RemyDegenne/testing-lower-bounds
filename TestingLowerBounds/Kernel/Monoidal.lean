@@ -115,8 +115,7 @@ lemma swap_copy : (swap α α) ∘ₖ (copy α) = copy α := by
 lemma swap_swap : (swap α β) ∘ₖ (swap β α) = Kernel.id := by
   simp_rw [swap, Kernel.deterministic_comp_deterministic, Prod.swap_swap_eq, Kernel.id]
 
-lemma swap_comp_eq_map {κ : Kernel α (β × γ)} :
-    (swap β γ) ∘ₖ κ = κ.map Prod.swap measurable_swap := by
+lemma swap_comp_eq_map {κ : Kernel α (β × γ)} : (swap β γ) ∘ₖ κ = κ.map Prod.swap := by
   rw [swap, deterministic_comp_eq_map]
 
 end Swap

@@ -31,14 +31,14 @@ lemma measure_zero : StieltjesFunction.measure 0 = 0 :=
 --PR this to mathlib, just after `StieltjesFunction.measure_Iic`
 lemma measure_Iio {l : ℝ} (hf : Tendsto f atBot (𝓝 l)) (x : ℝ) :
     f.measure (Iio x) = ofReal (leftLim f x - l) := by
-  rw [← Iic_diff_right, measure_diff _ (measurableSet_singleton x), measure_singleton,
+  rw [← Iic_diff_right, measure_diff _ (nullMeasurableSet_singleton x), measure_singleton,
     f.measure_Iic hf, ← ofReal_sub _ (sub_nonneg.mpr <| Monotone.leftLim_le f.mono' (le_refl _))]
     <;> simp
 
 --PR this to mathlib, just after `StieltjesFunction.measure_Ici`
 lemma measure_Ioi {l : ℝ} (hf : Tendsto f atTop (𝓝 l)) (x : ℝ) :
     f.measure (Ioi x) = ofReal (l - f x) := by
-  rw [← Ici_diff_left, measure_diff _ (measurableSet_singleton x), measure_singleton,
+  rw [← Ici_diff_left, measure_diff _ (nullMeasurableSet_singleton x), measure_singleton,
     f.measure_Ici hf, ← ofReal_sub _ (sub_nonneg.mpr <| Monotone.leftLim_le f.mono' (le_refl _))]
     <;> simp
 
