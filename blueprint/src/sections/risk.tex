@@ -392,6 +392,7 @@ By Lemma~\ref{lem:bayesianRisk_ge_inf_bayesInv}, the Bayesian risk of the genera
   \mathcal R^P_\pi = (P \circ \pi)[1] - (P \circ \pi)\left[x \mapsto \sup_{z \in \mathcal Z} \frac{d P_z}{d (P \circ \pi)}(x) \pi\{z\} \right]
   \: .
   \end{align*}
+  When $\pi$ is a probability measure and $P$ is a Markov kernel, $(P \circ \pi)[1] = 1$.
 \end{lemma}
 
 \begin{proof}%\leanok
@@ -418,9 +419,28 @@ By Lemma~\ref{lem:bayesianRisk_ge_inf_bayesInv}, the Bayesian risk of the genera
 \end{proof}
 
 
+\begin{lemma}
+  \label{lem:bayesRisk_binary_le_sub_prod}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesRisk, def:genBayesEstimator}
+  Suppose that $\Theta$ is finite and let $\xi \in \mathcal P(\Theta)$.
+  The Bayes risk with respect to the prior $\pi \in \mathcal P(\Theta)$ for $\mathcal Y = \mathcal Z = \Theta$, $y = \mathrm{id}$, $P$ a Markov kernel and $\ell' = \mathbb{I}\{\theta \ne z\}$ satisfies
+  \begin{align*}
+  \mathcal R^P_\pi \le 1 - \left(\prod_{\theta \in \Theta} \pi_\theta^{\xi_\theta}\right) (P \circ \pi)\left[x \mapsto \prod_{\theta \in \Theta} \left(\frac{d P_\theta}{d (P \circ \pi)}(x)\right)^{\xi_\theta} \right]
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:bayesRisk_binary_eq_sub}
+
+\end{proof}
 
 
 \subsection{Bayes risk increase}
+
+TODO: remove this section? It's not used for anything now.
 
 The following is a new definition, which is a natural generalization of the DeGroot statistical information.
 
