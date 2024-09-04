@@ -92,7 +92,7 @@ lemma bayesianRisk_le_iSup_risk (E : estimationProblem Θ 𝒴 𝒵) (P : Kernel
 lemma bayesianRisk_comap_measurableEquiv (E : estimationProblem Θ 𝒴 𝒵) (P : Kernel Θ 𝒳)
     [IsSFiniteKernel P]
     (κ : Kernel 𝒳 𝒵) [IsSFiniteKernel κ] (π : Measure Θ) (e : Θ ≃ᵐ Θ') :
-    bayesianRisk (E.comap e.symm e.symm.measurable) (Kernel.comap P e.symm e.symm.measurable)
+    bayesianRisk (E.comap e.symm e.symm.measurable) (P.comap e.symm e.symm.measurable)
       κ (π.map e) = bayesianRisk E P κ π := by
   simp only [bayesianRisk, risk, estimationProblem.comap_y, Function.comp_apply,
     estimationProblem.comap_ℓ]
@@ -100,7 +100,7 @@ lemma bayesianRisk_comap_measurableEquiv (E : estimationProblem Θ 𝒴 𝒵) (P
   · congr with θ
     congr -- todo: `congr with z hz` gives a warning. bug.
     ext z hz
-    · rw [Kernel.comp_apply' _ _ _ hz, Kernel.comp_apply' _ _ _ hz, Kernel.comap_apply]
+    · rw [κ.comp_apply' _ _ hz, κ.comp_apply' _ _ hz, Kernel.comap_apply]
       simp
     · simp
   · refine Measurable.lintegral_kernel_prod_right ?_
@@ -119,7 +119,7 @@ lemma bayesRiskPrior_le_bayesRiskPrior_comp (E : estimationProblem Θ 𝒴 𝒵)
     bayesRiskPrior E P π ≤ bayesRiskPrior E (η ∘ₖ P) π := by
   simp only [bayesRiskPrior, bayesianRisk, risk, le_iInf_iff]
   intro κ hκ
-  rw [← Kernel.comp_assoc κ η]
+  rw [← κ.comp_assoc η]
   exact iInf_le_of_le (κ ∘ₖ η) (iInf_le_of_le inferInstance le_rfl)
 
 /-- An estimator is a Bayes estimator for a prior `π` if it attains the Bayes risk for `π`. -/
@@ -155,12 +155,12 @@ lemma bayesRiskPrior_compProd_le_bayesRiskPrior (E : estimationProblem Θ 𝒴 �
     [IsSFiniteKernel P] (π : Measure Θ) (κ : Kernel (Θ × 𝒳) 𝒳') [IsMarkovKernel κ] :
     bayesRiskPrior E (P ⊗ₖ κ) π ≤ bayesRiskPrior E P π := by
   have : P = (Kernel.deterministic Prod.fst (by fun_prop)) ∘ₖ (P ⊗ₖ κ) := by
-    rw [Kernel.deterministic_comp_eq_map, ← Kernel.fst, Kernel.fst_compProd]
+    rw [Kernel.deterministic_comp_eq_map, ← Kernel.fst_eq, Kernel.fst_compProd]
   nth_rw 2 [this]
   exact bayesRiskPrior_le_bayesRiskPrior_comp _ _ _ _
 
 -- Do we also need a version without the `IsMarkovKernel` assumption? it would be of the form:
--- `bayesRiskPrior E π ≤ ⨅ z : 𝒵, ∫⁻ θ, E.ℓ (E.y θ, z) * (E.P θ) Set.univ ∂π`
+-- `bayesRiskPrior E π ≤ ⨅ z : 𝒵, ∫⁻ θ, E.ℓ (E.y θ, z) * (E.P θ) .univ ∂π`
 lemma bayesRiskPrior_le_inf (E : estimationProblem Θ 𝒴 𝒵) (P : Kernel Θ 𝒳)
     (π : Measure Θ) [IsMarkovKernel P] :
     bayesRiskPrior E P π ≤ ⨅ z : 𝒵, ∫⁻ θ, E.ℓ (E.y θ, z) ∂π := by
@@ -183,7 +183,7 @@ lemma bayesianRisk_eq_lintegral_bayesInv_prod [StandardBorelSpace Θ] [Nonempty 
   have := E.ℓ_meas
   have := E.y_meas
   simp only [bayesianRisk, risk]
-  rw [← MeasureTheory.Measure.lintegral_compProd (f := fun θz ↦ E.ℓ (E.y θz.1, θz.2)) (by fun_prop)]
+  rw [← Measure.lintegral_compProd (f := fun θz ↦ E.ℓ (E.y θz.1, θz.2)) (by fun_prop)]
   congr
   calc π ⊗ₘ (κ ∘ₖ P) = (Kernel.id ∥ₖ κ) ∘ₘ (π ⊗ₘ P) := Measure.parallelComp_comp_compProd.symm
   _ = (Kernel.id ∥ₖ κ) ∘ₘ ((P†π) ×ₖ Kernel.id) ∘ₘ P ∘ₘ π := by rw [bayesInv_prod_id_comp]
@@ -197,7 +197,7 @@ lemma bayesianRisk_eq_integral_integral_integral [StandardBorelSpace Θ] [Nonemp
   have := E.ℓ_meas
   have := E.y_meas
   rw [bayesianRisk_eq_lintegral_bayesInv_prod,
-    Measure.lintegral_bind (Kernel.measurable ((P†π) ×ₖ κ)) (by fun_prop)]
+    Measure.lintegral_bind ((P†π) ×ₖ κ).measurable (by fun_prop)]
   congr with x
   rw [Kernel.prod_apply, lintegral_prod_symm' _ (by fun_prop)]
 
