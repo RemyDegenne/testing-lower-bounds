@@ -40,7 +40,7 @@ section TwoHypKernel
 /-- The kernel that sends `false` to `μ` and `true` to `ν`. -/
 def twoHypKernel (μ ν : Measure 𝒳) : Kernel Bool 𝒳 where
   toFun := fun b ↦ bif b then ν else μ
-  measurable' := measurable_discrete _
+  measurable' := .of_discrete
 
 @[simp] lemma twoHypKernel_true : twoHypKernel μ ν true = ν := rfl
 
@@ -288,7 +288,7 @@ def simpleBinaryHypTest : estimationProblem Bool Bool Bool where
   y := id
   y_meas := measurable_id
   ℓ := fun (y, z) ↦ if y = z then 0 else 1
-  ℓ_meas := measurable_discrete _
+  ℓ_meas := .of_discrete
 
 @[simp]
 lemma risk_simpleBinaryHypTest_true (μ ν : Measure 𝒳) (κ : Kernel 𝒳 Bool) :
@@ -342,7 +342,7 @@ lemma binaryGenBayesEstimator_isGenBayesEstimator (μ ν : Measure 𝒳) [IsFini
       (binaryGenBayesEstimator μ ν π) π := by
   refine ⟨?_, ?_⟩
   · simp_rw [binaryGenBayesEstimator]
-    refine ((measurable_discrete _).comp' (measurable_one.indicator (measurableSet_le ?_ ?_)))
+    refine Measurable.of_discrete.comp' (measurable_one.indicator (measurableSet_le ?_ ?_))
       <;> fun_prop
   · filter_upwards [bayesInv_twoHypKernel μ ν π, twoHypKernelInv_apply' μ ν π {true},
       twoHypKernelInv_apply' μ ν π {false}] with x hx h_true h_false
@@ -512,10 +512,10 @@ lemma bayesianRisk_binary_of_deterministic_indicator (μ ν : Measure 𝒳) (π 
     {E : Set 𝒳} (hE : MeasurableSet E) :
     bayesianRisk simpleBinaryHypTest (twoHypKernel μ ν)
       (Kernel.deterministic (fun x ↦ Bool.ofNat (E.indicator 1 x))
-        ((measurable_discrete _).comp' (measurable_one.indicator hE))) π
+        (Measurable.of_discrete.comp' (measurable_one.indicator hE))) π
       = π {false} * μ E + π {true} * ν Eᶜ := by
   have h_meas : Measurable fun x ↦ Bool.ofNat (E.indicator 1 x) :=
-    (measurable_discrete _).comp' (measurable_one.indicator hE)
+    Measurable.of_discrete.comp' (measurable_one.indicator hE)
   have h1 : (fun x ↦ Bool.ofNat (E.indicator 1 x)) ⁻¹' {false} = Eᶜ := by
     ext; simp [Bool.ofNat]
   have h2 : (fun x ↦ Bool.ofNat (E.indicator 1 x)) ⁻¹' {true} = E := by

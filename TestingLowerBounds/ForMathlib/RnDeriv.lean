@@ -278,14 +278,4 @@ lemma ae_integrable_of_ae_integrable_mul_rnDeriv {κ : α → Measure β} [Sigma
   apply (integrable_const_mul_iff _ (g a)).mp ha
   exact isUnit_iff_ne_zero.mpr h_pos.ne'
 
---PR this to mathlib maybe just after `integral_toReal_rnDeriv` (we need to check that measure_sub_singularPart is imported there)?
---PRed, see #15545.
-lemma _root_.MeasureTheory.Measure.integral_toReal_rnDeriv' {α : Type*} {m : MeasurableSpace α}
-    {μ : Measure α} {ν : Measure α} [IsFiniteMeasure μ] [SigmaFinite ν] :
-    ∫ (x : α), (μ.rnDeriv ν x).toReal ∂ν
-      = (μ .univ).toReal - ((μ.singularPart ν) .univ).toReal := by
-  rw [← ENNReal.toReal_sub_of_le (μ.singularPart_le ν .univ) (measure_ne_top _ _),
-    ← Measure.sub_apply .univ (μ.singularPart_le ν), Measure.measure_sub_singularPart,
-    ← Measure.setIntegral_toReal_rnDeriv_eq_withDensity, integral_univ]
-
 end MeasureTheory.Measure

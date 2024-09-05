@@ -96,7 +96,7 @@ lemma statInfo_boolMeasure_le_statInfo {E : Set 𝒳} (hE : MeasurableSet E) :
     statInfo (Bool.boolMeasure (μ Eᶜ) (μ E)) (Bool.boolMeasure (ν Eᶜ) (ν E)) π
       ≤ statInfo μ ν π := by
   have h_meas : Measurable fun x ↦ Bool.ofNat (E.indicator 1 x) :=
-    ((measurable_discrete _).comp' (measurable_one.indicator hE))
+    (Measurable.of_discrete.comp' (measurable_one.indicator hE))
   let η : Kernel 𝒳 Bool := Kernel.deterministic (fun x ↦ Bool.ofNat (E.indicator 1 x)) h_meas
   have h_false : (fun x ↦ Bool.ofNat (E.indicator 1 x)) ⁻¹' {false} = Eᶜ := by
     ext x; simp [Bool.ofNat]
