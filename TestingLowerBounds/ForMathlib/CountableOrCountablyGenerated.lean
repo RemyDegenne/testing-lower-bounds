@@ -47,11 +47,13 @@ lemma countableOrCountablyGenerated_right_of_prod_left_of_nonempty [Nonempty α]
 --https://math.stackexchange.com/questions/3413063/if-product-sigma-field-is-countably-generated-is-each-factor
 --is it worth it to formalize that proof? I may need to formalize also the hint, if I don't find it on mathlib, this may take a bit of time but I think it may be worth it. However I have to decide whether to do it now or later.
 
-lemma countablyGenerated_left_of_prod_of_nonempty [Nonempty β] (h : CountablyGenerated (α × β)) : CountablyGenerated α := by
+lemma countablyGenerated_left_of_prod_of_nonempty [Nonempty β] (h : CountablyGenerated (α × β)) :
+    CountablyGenerated α := by
   -- contrapose h
   sorry
 
-lemma countablyGenerated_right_of_prod_of_nonempty [Nonempty α] (h : CountablyGenerated (α × β)) : CountablyGenerated β := by
+lemma countablyGenerated_right_of_prod_of_nonempty [Nonempty α] (h : CountablyGenerated (α × β)) :
+    CountablyGenerated β := by
   -- contrapose h
   sorry
 
