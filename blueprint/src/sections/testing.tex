@@ -106,49 +106,6 @@ We start with some preparatory lemmas.
 
 
 \begin{lemma}
-  \label{lem:kl_bounded_ge_kl_mean}
-  %\lean{}
-  %\leanok
-  \uses{def:KL}
-  Let $\mu, \nu \in \mathcal P([0,1])$. Then
-  \begin{align*}
-  \KL(\mu, \nu) \ge \kl(\mu[X], \nu[X]) \: .
-  \end{align*}
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{thm:kl_data_proc}
-Let $u$ be the uniform distribution on $[0,1]$. Then $\KL(\mu, \nu) = \KL(\mu \times u, \nu \times u)$ (by lemma TODO about kernel with identity as first coordinate).
-Let $f : [0,1] \times [0,1] \to \{0,1\}$ be the measurable function with $f(x, y) = \mathbb{I}\{y \le x\}$. We also write $f$ for the corresponding deterministic kernel. By the data-processing inequality (Theorem~\ref{thm:kl_data_proc}),
-\begin{align*}
-\KL(\mu \times u, \nu \times u)
-\ge \KL(f \circ (\mu \times u), f \circ (\nu \times u))
-\: .
-\end{align*}
-Those two last measures are Bernoulli distributions with means $\mu[X]$ and $\nu[X]$.
-\end{proof}
-
-
-\begin{corollary}
-  \label{cor:kl_ge_kl_mean_comp}
-  %\lean{}
-  %\leanok
-  \uses{def:KL}
-  Let $\mu, \nu \in \mathcal P(\mathcal X)$ and let $\kappa : \mathcal X \rightsquigarrow [0,1]$. Then
-  \begin{align*}
-  \KL(\mu, \nu) \ge \kl((\kappa \circ \mu)[X], (\kappa \circ \nu)[X]) \: .
-  \end{align*}
-\end{corollary}
-
-\begin{proof}%\leanok
-\uses{thm:kl_data_proc, lem:kl_bounded_ge_kl_mean}
-First, by the data-processing inequality (Theorem~\ref{thm:kl_data_proc}),
-$\KL(\mu, \nu) \ge \KL(\kappa \circ \mu, \kappa \circ \nu)$~.
-Then uses Lemma~\ref{lem:kl_bounded_ge_kl_mean}.
-\end{proof}
-
-
-\begin{lemma}
   \label{lem:kl_estimation_ge}
   %\lean{}
   %\leanok
@@ -162,33 +119,8 @@ Then uses Lemma~\ref{lem:kl_bounded_ge_kl_mean}.
 \end{lemma}
 
 \begin{proof}%\leanok
-\uses{cor:kl_ge_kl_mean_comp}
-Suppose first that $\mathcal R_\pi^Q \ge \mathcal R_\xi^P$.
-Let $\hat{y}_B$ be a Bayes estimator for the estimation task $(P, y, \ell')$ with prior $\xi$. If it does not exist, the proof can be adapted by taking an estimator with risk $\varepsilon$-close to the Bayes risk for any $\varepsilon > 0$.
-By Corollary~\ref{cor:kl_ge_kl_mean_comp},
-\begin{align*}
-\KL(\pi \otimes Q, \xi \otimes P)
-&\ge \kl(\ell' \circ (y \parallel \hat{y}_B) \circ (\pi \otimes Q) [X], \ell' \circ (y \parallel \hat{y}_B) \circ (\xi \otimes P) [X])
-\\
-&= \kl(\ell' \circ (y \parallel \hat{y}_B) \circ (\pi \otimes Q) [X], \mathcal R_\xi^P)
-\: .
-\end{align*}
-By definition of the Bayes risk as an infimum,
-\begin{align*}
-\ell' \circ (y \parallel \hat{y}_B) \circ (\pi \otimes Q) [X]
-\ge \mathcal R_\pi^Q
-\ge \mathcal R_\xi^P
-\: .
-\end{align*}
-Since $x \mapsto \kl(x, y)$ is monotone on $[y, 1]$,
-\begin{align*}
-\KL(\pi \otimes Q, \xi \otimes P)
-&\ge \kl(\ell' \circ (y \parallel \hat{y}_B) \circ (\pi \otimes Q) [X], \mathcal R_\xi^P)
-\\
-&\ge \kl(\mathcal R_\pi^Q, \mathcal R_\xi^P)
-\: .
-\end{align*}
-This concludes the proof for $\mathcal R_\pi^Q \ge \mathcal R_\xi^P$. If that inequality is reversed, we proceed similarly but take the Bayes estimator for $Q$.
+\uses{lem:fDiv_estimation_ge}
+This is Lemma~\ref{lem:fDiv_estimation_ge} specialized to the Kullback-Leibler divergence.
 \end{proof}
 
 
