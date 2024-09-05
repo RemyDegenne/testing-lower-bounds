@@ -3,12 +3,13 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import TestingLowerBounds.CurvatureMeasure
-import TestingLowerBounds.StatInfoFun
-import Mathlib.Order.CompletePartialOrder
-import TestingLowerBounds.FDiv.Basic
-import TestingLowerBounds.Testing.Binary
+import Mathlib.Analysis.SpecialFunctions.Log.ENNRealLogExp
 import Mathlib.MeasureTheory.Constructions.Prod.Integral
+import Mathlib.Order.CompletePartialOrder
+import TestingLowerBounds.CurvatureMeasure
+import TestingLowerBounds.FDiv.Basic
+import TestingLowerBounds.StatInfoFun
+import TestingLowerBounds.Testing.Binary
 
 /-!
 # Statistical information
