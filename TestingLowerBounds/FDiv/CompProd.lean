@@ -5,6 +5,7 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import TestingLowerBounds.FDiv.Basic
 import TestingLowerBounds.FDiv.IntegralRnDerivSingularPart
+import TestingLowerBounds.MeasureCompProd
 import Mathlib.Probability.Kernel.Disintegration.StandardBorel
 /-!
 

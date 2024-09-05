@@ -1,3 +1,4 @@
+import TestingLowerBounds.CompProd
 import TestingLowerBounds.Convex
 import TestingLowerBounds.CurvatureMeasure
 import TestingLowerBounds.DerivAtTop
@@ -18,6 +19,7 @@ import TestingLowerBounds.FDiv.Trim
 import TestingLowerBounds.ForMathlib.ByParts
 import TestingLowerBounds.ForMathlib.CountableOrCountablyGenerated
 import TestingLowerBounds.ForMathlib.EReal
+import TestingLowerBounds.ForMathlib.GiryMonad
 import TestingLowerBounds.ForMathlib.Integrable_of_empty
 import TestingLowerBounds.ForMathlib.KernelFstSnd
 import TestingLowerBounds.ForMathlib.LeftRightDeriv
@@ -27,7 +29,9 @@ import TestingLowerBounds.ForMathlib.RadonNikodym
 import TestingLowerBounds.ForMathlib.RnDeriv
 import TestingLowerBounds.Kernel.Basic
 import TestingLowerBounds.Kernel.BayesInv
-import TestingLowerBounds.Kernel.Monoidal
+import TestingLowerBounds.Kernel.Deterministic
+import TestingLowerBounds.Kernel.DeterministicComp
+import TestingLowerBounds.Kernel.ParallelComp
 import TestingLowerBounds.MeasureCompProd
 import TestingLowerBounds.SqHellinger
 import TestingLowerBounds.StatInfoFun
