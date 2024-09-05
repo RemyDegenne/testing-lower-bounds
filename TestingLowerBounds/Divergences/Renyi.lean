@@ -76,7 +76,6 @@ also for a general finite measure `ν`, in particular the integral form
 We use ENNReal.log instead of Real.log, because it is monotone on `ℝ≥0∞`, while the real log is
 monotone only on `(0, ∞)` (`Real.log 0 = 0`). This allows us to transfer inequalities from the
 Hellinger divergence to the Rényi divergence. -/
-
 noncomputable def renyiDiv (a : ℝ) (μ ν : Measure α) : EReal :=
   if a = 1 then kl μ ν
   else (a - 1)⁻¹ * ENNReal.log ((↑(ν .univ) + (a - 1) * (hellingerDiv a μ ν)).toENNReal)

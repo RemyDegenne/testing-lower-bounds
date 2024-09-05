@@ -3,9 +3,7 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne
 -/
-import TestingLowerBounds.Convex
 import TestingLowerBounds.ForMathlib.LeftRightDeriv
-import TestingLowerBounds.ForMathlib.EReal
 
 /-!
 
@@ -72,6 +70,7 @@ lemma MonotoneOn.monotone_ite_bot (hf : MonotoneOn (rightDeriv f) (Ioi 0)) :
   | inr hx =>
     simp only [not_le.mpr hx, ↓reduceIte, bot_le]
 
+/-- Limsup of the right derivative at infinity. -/
 noncomputable
 def derivAtTop (f : ℝ → ℝ) : EReal := limsup (fun x ↦ (rightDeriv f x : EReal)) atTop
 

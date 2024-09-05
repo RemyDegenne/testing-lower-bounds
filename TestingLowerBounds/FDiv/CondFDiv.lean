@@ -3,11 +3,10 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import TestingLowerBounds.CompProd
+import Mathlib.MeasureTheory.Order.Group.Lattice
 import TestingLowerBounds.FDiv.CompProd
 import TestingLowerBounds.ForMathlib.CountableOrCountablyGenerated
 import TestingLowerBounds.ForMathlib.Integrable_of_empty
-import Mathlib.MeasureTheory.Order.Group.Lattice
 /-!
 
 # Conditional f-divergence

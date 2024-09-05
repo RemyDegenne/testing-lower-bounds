@@ -26,6 +26,9 @@ namespace ProbabilityTheory
 
 variable {α : Type*} {mα : MeasurableSpace α} {μ ν : Measure α} {a : ℝ}
 
+/-- Chernoff divergence of order `a` between two measures `μ, ν`.
+This is the infimum over probability measures `ξ` of the maximum of the Rényi divergences
+of order `a` from `ξ` to `μ` and from `ξ` to `ν`. -/
 noncomputable def chernoffDiv (a : ℝ) (μ ν : Measure α) : EReal :=
   ⨅ (ξ : Measure α) (_hξ : IsProbabilityMeasure ξ), max (renyiDiv a ξ μ) (renyiDiv a ξ ν)
 

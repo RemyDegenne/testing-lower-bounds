@@ -52,7 +52,8 @@ lemma iSup_bool {α : Type*} [CompleteLinearOrder α] (s : Bool → α) :
   simp [le_total]
 
 section BoolMeasure
---maybe it could be useful to have a notation for the construction of a measure on bool from the two values, for example:
+
+/-- A measure on `Bool` constructed from the two values it takes on `false` and `true`. -/
 noncomputable
 def boolMeasure (a b : ℝ≥0∞) : Measure Bool := a • Measure.dirac false + b • Measure.dirac true
 
