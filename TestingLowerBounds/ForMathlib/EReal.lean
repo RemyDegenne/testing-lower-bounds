@@ -1,5 +1,3 @@
-import Mathlib.Data.Real.EReal
-import Mathlib.MeasureTheory.Constructions.BorelSpace.Order
 import Mathlib.MeasureTheory.Constructions.BorelSpace.Real
 
 open scoped ENNReal NNReal Topology

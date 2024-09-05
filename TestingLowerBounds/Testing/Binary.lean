@@ -4,9 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import TestingLowerBounds.ForMathlib.MaxMinEqAbs
-import TestingLowerBounds.Testing.Risk
 import TestingLowerBounds.Testing.BoolMeasure
-import Mathlib.MeasureTheory.Order.Group.Lattice
+import TestingLowerBounds.Testing.Risk
 
 /-!
 # Simple Bayesian binary hypothesis testing

@@ -3,10 +3,9 @@ Copyright (c) 2024 Lorenzo Luccioli. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import Mathlib.MeasureTheory.Measure.Stieltjes
-import TestingLowerBounds.DerivAtTop
 import Mathlib.Algebra.Lie.OfAssociative
 import Mathlib.MeasureTheory.Measure.Regular
+import TestingLowerBounds.DerivAtTop
 
 open MeasureTheory Set Filter Topology StieltjesFunction
 

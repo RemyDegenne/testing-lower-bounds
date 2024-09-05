@@ -3,9 +3,8 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne
 -/
-import TestingLowerBounds.ForMathlib.EReal
 import Mathlib.Analysis.SpecialFunctions.Log.ENNRealLogExp
-import Mathlib.MeasureTheory.Measure.LogLikelihoodRatio
+import Mathlib.MeasureTheory.Decomposition.RadonNikodym
 
 /-!
 
@@ -26,12 +25,14 @@ namespace MeasureTheory
 
 variable {α : Type*} {mα : MeasurableSpace α} {μ ν : Measure α}
 
+/-- Log-likelihood ratio between two measures: logarithm (using `ENNReal.log`) of the
+Radon-Nikodym derivative. -/
 noncomputable
 def EReal.llr (μ ν : Measure α) (x : α) : EReal := ENNReal.log (μ.rnDeriv ν x)
 
 lemma EReal.llr_def (μ ν : Measure α) : EReal.llr μ ν = fun x ↦ ENNReal.log (μ.rnDeriv ν x) := rfl
 
-lemma EReal.exp_llr (μ ν : Measure α) [SigmaFinite μ] (x : α) :
+lemma EReal.exp_llr (μ ν : Measure α) (x : α) :
     EReal.exp (EReal.llr μ ν x) = μ.rnDeriv ν x := by simp [EReal.llr]
 
 lemma EReal.neg_llr [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν) :
