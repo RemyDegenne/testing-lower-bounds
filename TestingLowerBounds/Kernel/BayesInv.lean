@@ -43,6 +43,7 @@ noncomputable
 def bayesInv (κ : Kernel α β) (μ : Measure α) [IsFiniteMeasure μ] [IsFiniteKernel κ] : Kernel β α :=
   ((μ ⊗ₘ κ).map Prod.swap).condKernel
 
+@[inherit_doc]
 scoped[ProbabilityTheory] notation κ "†" μ => ProbabilityTheory.bayesInv κ μ
 
 /-- The Bayesian inverse is a Markov kernel. -/

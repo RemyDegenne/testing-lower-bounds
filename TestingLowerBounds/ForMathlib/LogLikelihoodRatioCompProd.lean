@@ -1,6 +1,6 @@
+import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
 import Mathlib.MeasureTheory.Measure.LogLikelihoodRatio
 import TestingLowerBounds.FDiv.CompProd
-import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
 
 open Real MeasureTheory MeasurableSpace
 

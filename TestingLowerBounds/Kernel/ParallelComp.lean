@@ -3,7 +3,6 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import Mathlib.Probability.Kernel.Composition
 import TestingLowerBounds.Kernel.DeterministicComp
 
 /-!
@@ -22,10 +21,12 @@ variable {α β γ δ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace
 section ParallelComp
 
 -- todo: give direct definition, and use this to build compProd?
+/-- Parallel product of two kernels. -/
 noncomputable
 def parallelComp (κ : Kernel α β) (η : Kernel γ δ) : Kernel (α × γ) (β × δ) :=
   (prodMkRight γ κ) ×ₖ (prodMkLeft α η)
 
+@[inherit_doc]
 scoped[ProbabilityTheory] infixl:100 " ∥ₖ " => ProbabilityTheory.Kernel.parallelComp
 
 lemma parallelComp_apply (κ : Kernel α β) [IsSFiniteKernel κ]

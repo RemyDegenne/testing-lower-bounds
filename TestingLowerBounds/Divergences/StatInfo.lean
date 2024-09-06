@@ -3,12 +3,13 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import TestingLowerBounds.CurvatureMeasure
-import TestingLowerBounds.StatInfoFun
-import Mathlib.Order.CompletePartialOrder
-import TestingLowerBounds.FDiv.Basic
-import TestingLowerBounds.Testing.Binary
+import Mathlib.Analysis.SpecialFunctions.Log.ENNRealLogExp
 import Mathlib.MeasureTheory.Constructions.Prod.Integral
+import Mathlib.Order.CompletePartialOrder
+import TestingLowerBounds.CurvatureMeasure
+import TestingLowerBounds.FDiv.Basic
+import TestingLowerBounds.StatInfoFun
+import TestingLowerBounds.Testing.Binary
 
 /-!
 # Statistical information
@@ -1064,7 +1065,8 @@ lemma fDiv_statInfoFun_comp_right_le [IsFiniteMeasure μ] [IsFiniteMeasure ν]
   · exact EReal.coe_ennreal_le_coe_ennreal_iff.mpr <| statInfo_comp_le _ _ _ _
   · simp_rw [Measure.comp_apply_univ, le_refl]
 
--- The name is `fDiv_comp_right_le'`, since there is already `fDiv_comp_right_le` in the `fDiv.CompProd` file.
+-- The name is `fDiv_comp_right_le'`, since there is already `fDiv_comp_right_le`
+-- in the `fDiv.CompProd` file.
 /-- **Data processing inequality** for the f-divergence. -/
 lemma fDiv_comp_right_le' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (η : Kernel 𝒳 𝒳') [IsMarkovKernel η] (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f) :
@@ -1076,7 +1078,8 @@ lemma fDiv_comp_right_le' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     fDiv_statInfoFun_comp_right_le η zero_le_one
 
 lemma le_fDiv_compProd' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (κ η : Kernel 𝒳 𝒳') [IsMarkovKernel κ] [IsMarkovKernel η] (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f) :
+    (κ η : Kernel 𝒳 𝒳') [IsMarkovKernel κ] [IsMarkovKernel η] (hf_cvx : ConvexOn ℝ univ f)
+    (hf_cont : Continuous f) :
     fDiv f μ ν ≤ fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ η) := by
   nth_rw 1 [← Measure.fst_compProd μ κ, ← Measure.fst_compProd ν η]
   simp_rw [Measure.fst, ← Measure.comp_deterministic_eq_map measurable_fst]
@@ -1090,14 +1093,16 @@ lemma fDiv_compProd_right' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
   exact fDiv_comp_right_le' _ hf_cvx hf_cont
 
 lemma fDiv_comp_le_compProd' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (κ η : Kernel 𝒳 𝒳') [IsMarkovKernel κ] [IsMarkovKernel η] (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f) :
+    (κ η : Kernel 𝒳 𝒳') [IsMarkovKernel κ] [IsMarkovKernel η] (hf_cvx : ConvexOn ℝ univ f)
+    (hf_cont : Continuous f) :
     fDiv f (κ ∘ₘ μ) (η ∘ₘ ν) ≤ fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ η) := by
   nth_rw 1 [← Measure.snd_compProd μ κ, ← Measure.snd_compProd ν η]
   simp_rw [Measure.snd, ← Measure.comp_deterministic_eq_map measurable_snd]
   exact fDiv_comp_right_le' _ hf_cvx hf_cont
 
 lemma fDiv_comp_le_compProd_right' [IsFiniteMeasure μ]
-    (κ η : Kernel 𝒳 𝒳') [IsMarkovKernel κ] [IsMarkovKernel η] (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f) :
+    (κ η : Kernel 𝒳 𝒳') [IsMarkovKernel κ] [IsMarkovKernel η] (hf_cvx : ConvexOn ℝ univ f)
+    (hf_cont : Continuous f) :
     fDiv f (κ ∘ₘ μ) (η ∘ₘ μ) ≤ fDiv f (μ ⊗ₘ κ) (μ ⊗ₘ η) :=
   fDiv_comp_le_compProd' κ η hf_cvx hf_cont
 

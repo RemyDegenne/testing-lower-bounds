@@ -3,7 +3,7 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import Mathlib.MeasureTheory.Measure.Tilted
+import Mathlib.MeasureTheory.Decomposition.RadonNikodym
 import Mathlib.MeasureTheory.Function.ConditionalExpectation.Basic
 
 /-!

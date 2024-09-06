@@ -108,8 +108,7 @@ lemma Measure.mutuallySingular_compProd_iff_of_same_right (μ ν : Measure α) [
   simp_rw [Measure.MutuallySingular.self_iff, (hκ _).ne] at hh
   exact ae_eq_bot.mp (Filter.eventually_false_iff_eq_bot.mp hh)
 
-lemma ae_compProd_of_ae_fst (κ : Kernel α γ)
-    [SFinite μ] [IsSFiniteKernel κ] {p : α → Prop} (hp : MeasurableSet {x | p x})
+lemma ae_compProd_of_ae_fst (κ : Kernel α γ) {p : α → Prop} (hp : MeasurableSet {x | p x})
     (h : ∀ᵐ a ∂μ, p a) :
     ∀ᵐ x ∂(μ ⊗ₘ κ), p x.1 := by
   refine ae_compProd_of_ae_ae (measurable_fst hp) ?_
@@ -118,31 +117,27 @@ lemma ae_compProd_of_ae_fst (κ : Kernel α γ)
 
 lemma ae_eq_compProd_of_ae_eq_fst {β : Type*} {_ : MeasurableSpace β} [AddGroup β]
     [MeasurableSingletonClass β] [MeasurableSub₂ β]
-    (μ : Measure α) (κ : Kernel α γ)
-    [SFinite μ] [IsSFiniteKernel κ] {f g : α → β}
+    (μ : Measure α) (κ : Kernel α γ) {f g : α → β}
     (hf : Measurable f) (hg : Measurable g) (h : f =ᵐ[μ] g) :
     (fun p ↦ f p.1) =ᵐ[μ ⊗ₘ κ] (fun p ↦ g p.1) :=
   ae_compProd_of_ae_fst κ (measurableSet_eq_fun hf hg) h
 
 lemma ae_eq_compProd_of_forall_ae_eq {β : Type*} {_ : MeasurableSpace β} [AddGroup β]
     [MeasurableSingletonClass β] [MeasurableSub₂ β]
-    (μ : Measure α) (κ : Kernel α γ)
-    [SFinite μ] [IsSFiniteKernel κ] {f g : α → γ → β}
+    (μ : Measure α) (κ : Kernel α γ) {f g : α → γ → β}
     (hf : Measurable (Function.uncurry f)) (hg : Measurable (Function.uncurry g))
     (h : ∀ a, f a =ᵐ[κ a] g a) :
     (fun p ↦ f p.1 p.2) =ᵐ[μ ⊗ₘ κ] (fun p ↦ g p.1 p.2) :=
   ae_compProd_of_ae_ae (measurableSet_eq_fun hf hg)
     (ae_of_all _ (fun a ↦ measure_mono_null (fun x ↦ by simp) (h a)))
 
-lemma ENNReal.ae_eq_compProd_of_ae_eq_fst (μ : Measure α) (κ : Kernel α γ)
-    [SFinite μ] [IsSFiniteKernel κ] {f g : α → ℝ≥0∞}
+lemma ENNReal.ae_eq_compProd_of_ae_eq_fst (μ : Measure α) (κ : Kernel α γ) {f g : α → ℝ≥0∞}
     (hf : Measurable f) (hg : Measurable g) (h : f =ᵐ[μ] g) :
     (fun p ↦ f p.1) =ᵐ[μ ⊗ₘ κ] (fun p ↦ g p.1) :=
   ae_compProd_of_ae_fst κ (measurableSet_eq_fun' hf hg) h
 
 lemma ENNReal.ae_eq_compProd_of_forall_ae_eq
-    (μ : Measure α) (κ : Kernel α γ)
-    [SFinite μ] [IsSFiniteKernel κ] {f g : α → γ → ℝ≥0∞}
+    (μ : Measure α) (κ : Kernel α γ) {f g : α → γ → ℝ≥0∞}
     (hf : Measurable (Function.uncurry f)) (hg : Measurable (Function.uncurry g))
     (h : ∀ a, f a =ᵐ[κ a] g a) :
     (fun p ↦ f p.1 p.2) =ᵐ[μ ⊗ₘ κ] (fun p ↦ g p.1 p.2) :=
