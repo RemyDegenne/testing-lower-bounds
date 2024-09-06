@@ -40,3 +40,4 @@ import TestingLowerBounds.Testing.BoolMeasure
 import TestingLowerBounds.Testing.ChangeMeasure
 import TestingLowerBounds.Testing.RenyiChangeMeasure
 import TestingLowerBounds.Testing.Risk
+import TestingLowerBounds.Testing.TwoHypKernel
