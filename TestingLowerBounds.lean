@@ -42,6 +42,3 @@ import TestingLowerBounds.Testing.ChangeMeasure
 import TestingLowerBounds.Testing.RenyiChangeMeasure
 import TestingLowerBounds.Testing.Risk
 import TestingLowerBounds.Testing.TwoHypKernel
-
-#axiom_blame ProbabilityTheory.fDiv_comp_right_le
-#axiom_blame ProbabilityTheory.fDiv_comp_right_le'

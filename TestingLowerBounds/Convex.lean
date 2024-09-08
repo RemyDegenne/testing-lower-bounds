@@ -32,26 +32,48 @@ variable {f g : ℝ → ℝ} {s : Set ℝ} {x : ℝ}
 
 namespace ConvexOn
 
+lemma affine_le_of_mem_interior (hf : ConvexOn ℝ s f) {x y : ℝ} (hx : x ∈ interior s) (hy : y ∈ s) :
+    rightDeriv f x * y + (f x - rightDeriv f x * x) ≤ f y := by
+  rw [add_comm]
+  rcases lt_trichotomy x y with hxy | h_eq | hyx
+  · have : rightDeriv f x ≤ slope f x y := rightDeriv_le_slope hf hx hy hxy
+    rw [slope_def_field] at this
+    rwa [le_div_iff₀ (by simp [hxy]), le_sub_iff_add_le, add_comm, mul_sub, add_sub,
+      add_sub_right_comm] at this
+  · simp [h_eq]
+  · have : slope f x y ≤ rightDeriv f x :=
+      (slope_le_leftDeriv hf hx hy hyx).trans (leftDeriv_le_rightDeriv_of_mem_interior hf hx)
+    rw [slope_def_field] at this
+    rw [← neg_div_neg_eq, neg_sub, neg_sub] at this
+    rwa [div_le_iff₀ (by simp [hyx]), sub_le_iff_le_add, mul_sub, ← sub_le_iff_le_add',
+      sub_sub_eq_add_sub, add_sub_right_comm] at this
+
 lemma exists_affine_le (hf : ConvexOn ℝ s f) (hs : Convex ℝ s) :
     ∃ c c', ∀ x ∈ s, c * x + c' ≤ f x := by
   cases Set.eq_empty_or_nonempty (interior s) with
-  | inl h =>
-    -- todo: there is at most one point in s
-    sorry
-  | inr h =>
+  | inl h => -- there is at most one point in `s`
+    cases Set.eq_empty_or_nonempty s with
+    | inl h' => simp [h']
+    | inr h' => -- there is exactly one point in `s`
+      obtain ⟨x, hxs⟩ := h'
+      have h_eq x' y (hx' : x' ∈ s) (hy : y ∈ s) : x' = y := by
+        by_contra h_ne
+        wlog h_lt : x' < y
+        · refine this hf hs h y hy _ x' hy hx' (Ne.symm h_ne) ?_
+          exact lt_of_le_of_ne (not_lt.mp h_lt) (Ne.symm h_ne)
+        · have h_subset : Set.Icc x' y ⊆ s := by
+            rw [← segment_eq_Icc h_lt.le]
+            exact hs.segment_subset hx' hy
+          have : Set.Ioo x' y ⊆ interior s := by
+            rw [← interior_Icc]
+            exact interior_mono h_subset
+          simp only [h, Set.subset_empty_iff, Set.Ioo_eq_empty_iff] at this
+          exact this h_lt
+      refine ⟨0, f x, fun y hy ↦ ?_⟩
+      simp [h_eq x y hxs hy]
+  | inr h => -- there is a point in the interior of `s`
     obtain ⟨x, hx⟩ := h
     refine ⟨rightDeriv f x, f x - rightDeriv f x * x, fun y hy ↦ ?_⟩
-    rw [add_comm]
-    cases lt_trichotomy x y with
-    | inl hxy =>
-      have : rightDeriv f x ≤ slope f x y := rightDeriv_le_slope hf hx hy hxy
-      rw [slope_def_field] at this
-      rwa [le_div_iff₀ (by simp [hxy]), le_sub_iff_add_le, add_comm, mul_sub, add_sub,
-        add_sub_right_comm] at this
-    | inr hyx =>
-      suffices slope f x y ≤ rightDeriv f x by
-        rw [slope_def_field] at this
-        sorry
-      sorry
+    exact affine_le_of_mem_interior hf hx hy
 
 end ConvexOn
