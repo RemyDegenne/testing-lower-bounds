@@ -782,7 +782,8 @@ lemma fDiv_ne_top_iff_integrable_fDiv_statInfoFun_of_absolutelyContinuous
     (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f) (h_ac : μ ≪ ν) :
     fDiv f μ ν ≠ ⊤
       ↔ Integrable (fun x ↦ (fDiv (statInfoFun 1 x) μ ν).toReal) (curvatureMeasure f) := by
-  rw [fDiv_eq_fDiv_centeredFunction hf_cvx, EReal.add_ne_top_iff_of_ne_bot_of_ne_top]
+  rw [fDiv_eq_fDiv_centeredFunction (hf_cvx.subset (fun _ _ ↦ trivial) (convex_Ici 0)),
+    EReal.add_ne_top_iff_of_ne_bot_of_ne_top]
   rotate_left
   · exact EReal.add_top_iff_ne_bot.mp rfl
   · exact Ne.symm (ne_of_beq_false rfl)
@@ -855,7 +856,7 @@ lemma fDiv_eq_integral_fDiv_statInfoFun_of_absolutelyContinuous
     (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) (h_ac : μ ≪ ν) :
     fDiv f μ ν = ∫ x, (fDiv (statInfoFun 1 x) μ ν).toReal ∂(curvatureMeasure f)
       + f 1 * ν univ + rightDeriv f 1 * (μ univ - ν univ) := by
-  rw [fDiv_eq_fDiv_centeredFunction hf_cvx]
+  rw [fDiv_eq_fDiv_centeredFunction (hf_cvx.subset (fun _ _ ↦ trivial) (convex_Ici 0))]
   congr
   · have h : ConvexOn ℝ univ (fun x ↦ f x - f 1 - rightDeriv f 1 * (x - 1)) := by
       simp_rw [mul_sub, sub_eq_add_neg, neg_add, neg_neg, ← neg_mul]
