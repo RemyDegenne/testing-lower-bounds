@@ -361,14 +361,12 @@ lemma fDiv_add_linear {c : ℝ} [IsFiniteMeasure μ] [IsFiniteMeasure ν]
   simp
 
 lemma fDiv_eq_fDiv_centeredFunction [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (hf_cvx : ConvexOn ℝ univ f) :
+    (hf_cvx : ConvexOn ℝ (Ici 0) f) :
     fDiv f μ ν = fDiv (fun x ↦ f x - f 1 - rightDeriv f 1 * (x - 1)) μ ν
       + f 1 * ν univ + rightDeriv f 1 * ((μ univ).toReal - (ν univ).toReal) := by
   simp_rw [sub_eq_add_neg (f _), sub_eq_add_neg (_ + _), ← neg_mul]
-  rw [fDiv_add_linear']
-  swap; · exact hf_cvx.subset (fun _ _ ↦ trivial) (convex_Ici 0) |>.add_const _
-  rw [fDiv_add_const]
-  swap; · exact hf_cvx.subset (fun _ _ ↦ trivial) (convex_Ici 0)
+  rw [fDiv_add_linear' ?_, fDiv_add_const _ _ hf_cvx]
+  swap; · exact hf_cvx.add_const _
   simp_rw [EReal.coe_neg, neg_mul]
   rw [add_assoc, add_comm (_ * _), ← add_assoc, add_assoc _ (-(_ * _)), add_comm (-(_ * _)),
     ← sub_eq_add_neg (_ * _), EReal.sub_self, add_zero]
