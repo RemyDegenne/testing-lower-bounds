@@ -6,6 +6,7 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 import Mathlib.Analysis.Convex.Integral
 import TestingLowerBounds.Convex
 import TestingLowerBounds.DerivAtTop
+import TestingLowerBounds.ForMathlib.Integrable
 import TestingLowerBounds.ForMathlib.RadonNikodym
 import TestingLowerBounds.ForMathlib.RnDeriv
 
@@ -54,16 +55,6 @@ namespace ProbabilityTheory
 
 variable {α β : Type*} {m mα : MeasurableSpace α} {mβ : MeasurableSpace β}
   {μ ν : Measure α} {κ η : Kernel α β} {f g : ℝ → ℝ}
-
-lemma integrable_toReal_iff {f : α → ℝ≥0∞} (hf : AEMeasurable f μ) (hf_ne_top : ∀ᵐ x ∂μ, f x ≠ ∞) :
-    Integrable (fun x ↦ (f x).toReal) μ ↔ ∫⁻ x, f x ∂μ ≠ ∞ := by
-  refine ⟨fun h ↦ ?_, fun h ↦ integrable_toReal_of_lintegral_ne_top hf h⟩
-  rw [Integrable, HasFiniteIntegral] at h
-  have : ∀ᵐ x ∂μ, f x = ↑‖(f x).toReal‖₊ := by
-    filter_upwards [hf_ne_top] with x hx
-    rw [← ofReal_norm_eq_coe_nnnorm, norm_of_nonneg ENNReal.toReal_nonneg, ENNReal.ofReal_toReal hx]
-  rw [lintegral_congr_ae this]
-  exact h.2.ne
 
 lemma integrable_f_rnDeriv_of_derivAtTop_ne_top (μ ν : Measure α) [IsFiniteMeasure μ]
     [IsFiniteMeasure ν] (hf : StronglyMeasurable f)
@@ -775,9 +766,10 @@ lemma fDiv_nonneg [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
   _ ≤ fDiv f μ ν := le_fDiv hf_cvx hf_cont
 
 /- The hypothesis `hfg'` can maybe become something like `f ≤ᵐ[atTop] g`, but then we would need
-some lemma like `derivAtTop_mono`, and I'm not sure this is true in gneral, without any assumption on `f`.
-We could prove it if we had some lemma saying that the new derivAtTop is equal to the old definition,
-this is probably false in general, but under some assumptions it should be true. -/
+some lemma like `derivAtTop_mono`, and I'm not sure this is true in gneral, without any assumption
+on `f`.
+We could prove it if we had some lemma saying that the new derivAtTop is equal to the
+old definition. This is probably false in general, but under some assumptions it should be true. -/
 lemma fDiv_mono'' (hf_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
     (hfg : f ≤ᵐ[ν.map (fun x ↦ ((∂μ/∂ν) x).toReal)] g) (hfg' : derivAtTop f ≤ derivAtTop g) :
     fDiv f μ ν ≤ fDiv g μ ν := by
@@ -789,7 +781,11 @@ lemma fDiv_mono'' (hf_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν
       ae_of_ae_map (μ.measurable_rnDeriv ν).ennreal_toReal.aemeasurable hfg
   · exact EReal.coe_ennreal_nonneg _
 
-/- The hypothesis `hfg'` can probably be removed if we ask for the functions to be convex, since then it is true that `derivAtTop` is monotone, but we still don't have the result formalized. Moreover in the convex case we can also relax `hf_int` and only ask for a.e. strong measurability of `f` (at least when `μ` and `ν` are finite), because then the negative part of the function is always integrable, hence if `f` is not integrable `g` is also not integrable. -/
+/- The hypothesis `hfg'` can probably be removed if we ask for the functions to be convex,
+since then it is true that `derivAtTop` is monotone, but we still don't have the result formalized.
+Moreover in the convex case we can also relax `hf_int` and only ask for a.e. strong measurability
+of `f` (at least when `μ` and `ν` are finite), because then the negative part of the function
+is always integrable, hence if `f` is not integrable `g` is also not integrable. -/
 lemma fDiv_mono' (hf_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
     (hfg : f ≤ g) (hfg' : derivAtTop f ≤ derivAtTop g) : fDiv f μ ν ≤ fDiv g μ ν :=
   fDiv_mono'' hf_int (.of_forall hfg) hfg'

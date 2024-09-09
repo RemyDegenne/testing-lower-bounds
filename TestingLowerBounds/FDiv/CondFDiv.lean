@@ -307,7 +307,9 @@ lemma condFDiv_eq_top_iff_fDiv_compProd_eq_top [IsFiniteMeasure μ]
   rw [← not_iff_not]
   exact condFDiv_ne_top_iff_fDiv_compProd_ne_top hf h_cvx
 
-lemma fDiv_compProd_left (μ : Measure α) [IsFiniteMeasure μ]
+/-- For f-divergences, the divergence between two composition-products with same first measure is
+equal to the conditional divergence. -/
+theorem fDiv_compProd_left (μ : Measure α) [IsFiniteMeasure μ]
     (κ η : Kernel α β) [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η]
     (hf : StronglyMeasurable f) (h_cvx : ConvexOn ℝ (Ici 0) f) :
     fDiv f (μ ⊗ₘ κ) (μ ⊗ₘ η) = condFDiv f κ η μ := by
