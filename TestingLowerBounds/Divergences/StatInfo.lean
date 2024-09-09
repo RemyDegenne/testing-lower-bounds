@@ -318,18 +318,22 @@ using the Lebesgue decomposition and we should be done quite easily.
 --   rw [h1, h2]
 --   sorry
 
-lemma toReal_statInfo_eq_integral_max_of_gt [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    [IsFiniteMeasure π] (h : π {true} * ν univ < π {false} * μ univ) :
+lemma toReal_statInfo_eq_integral_max_of_ge [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    [IsFiniteMeasure π] (h : π {true} * ν univ ≤ π {false} * μ univ) :
     (statInfo μ ν π).toReal
       = ∫ x, max 0 ((π {true}).toReal - (π {false} * (∂μ/∂ν) x).toReal) ∂ν := by
   by_cases h_false : π {false} = 0
-  · simp [h_false] at h
+  · simp only [h_false, zero_mul, nonpos_iff_eq_zero, mul_eq_zero, Measure.measure_univ_eq_zero]
+      at h
+    rcases h with (h | h)
+    · simp [show π = 0 from Measure.measure_bool_ext h_false h]
+    · simp [h]
   by_cases h_true : π {true} = 0
   · have (x : 𝒳) : 0 ≥ -((π {false}).toReal * ((∂μ/∂ν) x).toReal) := neg_nonpos.mpr (by positivity)
     simp [statInfo, h_true, bayesBinaryRisk_of_measure_true_eq_zero, max_eq_left (this _)]
   have hνac : ν ≪ (twoHypKernel μ ν ∘ₘ π) :=
     absolutelyContinuous_measure_comp_twoHypKernel_right μ ν h_true
-  rw [toReal_statInfo_eq_min_sub_integral, min_eq_right ((ENNReal.toReal_le_toReal _ _).mpr h.le)]
+  rw [toReal_statInfo_eq_min_sub_integral, min_eq_right ((ENNReal.toReal_le_toReal _ _).mpr h)]
     <;> try simp only [ne_eq, measure_ne_top _ _, not_false_eq_true, ENNReal.mul_ne_top]
   let s := μ.singularPartSet ν
   have hs : MeasurableSet s := Measure.measurableSet_singularPartSet
@@ -419,7 +423,7 @@ lemma toReal_statInfo_eq_integral_abs (μ ν : Measure 𝒳) [IsFiniteMeasure μ
       = 2⁻¹ * (-|(π {false} * μ univ).toReal - (π {true} * ν univ).toReal|
         + ∫ x, |(π {false} * (∂μ/∂ν) x).toReal - (π {true}).toReal| ∂ν
         + (π {false} * (μ.singularPart ν) univ).toReal) := by
-  rcases le_or_lt (π {false} * μ univ) (π {true} * ν univ) with (h | h)
+  rcases le_total (π {false} * μ univ) (π {true} * ν univ) with (h | h)
   · rw [abs_of_nonpos]
     swap
     · refine sub_nonpos.mpr <| (ENNReal.toReal_le_toReal ?_ ?_).mpr h
@@ -445,9 +449,9 @@ lemma toReal_statInfo_eq_integral_abs (μ ν : Measure 𝒳) [IsFiniteMeasure μ
       _ = _ := by ring
   · rw [abs_of_nonneg]
     swap
-    · refine sub_nonneg.mpr <| (ENNReal.toReal_le_toReal ?_ ?_).mpr h.le
+    · refine sub_nonneg.mpr <| (ENNReal.toReal_le_toReal ?_ ?_).mpr h
         <;> try simp only [ne_eq, measure_ne_top _ _, not_false_eq_true, ENNReal.mul_ne_top]
-    simp_rw [toReal_statInfo_eq_integral_max_of_gt h, max_eq_add_add_abs_sub, zero_add, zero_sub,
+    simp_rw [toReal_statInfo_eq_integral_max_of_ge h, max_eq_add_add_abs_sub, zero_add, zero_sub,
       integral_mul_left, abs_neg, neg_sub]
     calc
       _ = 2⁻¹ * (∫ _, (π {true}).toReal ∂ν - ∫ x, (π {false} * (∂μ/∂ν) x).toReal ∂ν
@@ -778,7 +782,8 @@ lemma fDiv_ne_top_iff_integrable_fDiv_statInfoFun_of_absolutelyContinuous
     (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f) (h_ac : μ ≪ ν) :
     fDiv f μ ν ≠ ⊤
       ↔ Integrable (fun x ↦ (fDiv (statInfoFun 1 x) μ ν).toReal) (curvatureMeasure f) := by
-  rw [fDiv_eq_fDiv_centeredFunction hf_cvx, EReal.add_ne_top_iff_of_ne_bot_of_ne_top]
+  rw [fDiv_eq_fDiv_centeredFunction (hf_cvx.subset (fun _ _ ↦ trivial) (convex_Ici 0)),
+    EReal.add_ne_top_iff_of_ne_bot_of_ne_top]
   rotate_left
   · exact EReal.add_top_iff_ne_bot.mp rfl
   · exact Ne.symm (ne_of_beq_false rfl)
@@ -851,7 +856,7 @@ lemma fDiv_eq_integral_fDiv_statInfoFun_of_absolutelyContinuous
     (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) (h_ac : μ ≪ ν) :
     fDiv f μ ν = ∫ x, (fDiv (statInfoFun 1 x) μ ν).toReal ∂(curvatureMeasure f)
       + f 1 * ν univ + rightDeriv f 1 * (μ univ - ν univ) := by
-  rw [fDiv_eq_fDiv_centeredFunction hf_cvx]
+  rw [fDiv_eq_fDiv_centeredFunction (hf_cvx.subset (fun _ _ ↦ trivial) (convex_Ici 0))]
   congr
   · have h : ConvexOn ℝ univ (fun x ↦ f x - f 1 - rightDeriv f 1 * (x - 1)) := by
       simp_rw [mul_sub, sub_eq_add_neg, neg_add, neg_neg, ← neg_mul]
