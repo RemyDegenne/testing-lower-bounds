@@ -4,9 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import Mathlib.Analysis.Convex.Integral
+import Mathlib.Probability.Notation
 import TestingLowerBounds.ForMathlib.Integrable
-import TestingLowerBounds.Integrable.FRNDeriv
-import TestingLowerBounds.Integrable.FRNDerivKernel
+import TestingLowerBounds.IntegrableFRNDeriv
 
 /-!
 
@@ -52,7 +52,7 @@ open scoped ENNReal NNReal Topology
 namespace ProbabilityTheory
 
 variable {α β : Type*} {m mα : MeasurableSpace α} {mβ : MeasurableSpace β}
-  {μ ν : Measure α} {κ η : Kernel α β} {f g : ℝ → ℝ}
+  {μ ν : Measure α} {f g : ℝ → ℝ}
 
 open Classical in
 /-- f-Divergence of two measures. -/
@@ -844,26 +844,5 @@ lemma fDiv_restrict_of_integrable (μ ν : Measure α) [IsFiniteMeasure μ] [IsF
     EReal.coe_mul]
   rw [EReal.coe_ennreal_toReal, mul_comm]
   exact measure_ne_top _ _
-
-lemma measurable_fDiv [CountableOrCountablyGenerated α β]
-    (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] (hf : StronglyMeasurable f) :
-    Measurable (fun a ↦ fDiv f (κ a) (η a)) := by
-  let s := {a | Integrable (fun x ↦ f ((∂κ a/∂η a) x).toReal) (η a)}
-  have hs : MeasurableSet s := measurableSet_integrable_f_rnDeriv κ η hf
-  classical
-  have h_eq : (fun a ↦ fDiv f (κ a) (η a))
-      = fun a ↦ if a ∈ s then ∫ x, f ((∂κ a/∂η a) x).toReal ∂(η a)
-          + derivAtTop f * (κ a).singularPart (η a) .univ
-        else ⊤ := by
-    ext a
-    split_ifs with ha
-    · rw [fDiv_of_integrable ha]
-    · rw [fDiv_of_not_integrable ha]
-  rw [h_eq]
-  refine Measurable.ite hs ?_ measurable_const
-  refine Measurable.add ?_ ?_
-  · exact (measurable_integral_f_rnDeriv _ _ hf).coe_real_ereal
-  · refine Measurable.const_mul ?_ _
-    exact ((Measure.measurable_coe .univ).comp (κ.measurable_singularPart η)).coe_ereal_ennreal
 
 end ProbabilityTheory

@@ -323,9 +323,9 @@ lemma lowerSemicontinuous_add : LowerSemicontinuous fun (p : EReal × EReal) ↦
 
 instance : MeasurableAdd₂ EReal := ⟨EReal.lowerSemicontinuous_add.measurable⟩
 
-instance : MeasurableMul₂ EReal := by
-  constructor
-  sorry
+--instance : MeasurableMul₂ EReal := by
+--  constructor
+--  sorry
 
 theorem nhdsWithin_top : 𝓝[≠] (⊤ : EReal) = (atTop).map Real.toEReal := by
   apply (nhdsWithin_hasBasis nhds_top_basis_Ici _).ext (atTop_basis.map Real.toEReal)
