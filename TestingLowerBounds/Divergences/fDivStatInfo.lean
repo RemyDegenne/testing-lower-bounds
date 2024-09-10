@@ -8,7 +8,7 @@ import Mathlib.MeasureTheory.Constructions.Prod.Integral
 import Mathlib.Order.CompletePartialOrder
 import TestingLowerBounds.CurvatureMeasure
 import TestingLowerBounds.Divergences.StatInfo
-import TestingLowerBounds.FDiv.Basic
+import TestingLowerBounds.FDiv.Measurable
 
 /-!
 # fDiv and StatInfo
