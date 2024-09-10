@@ -102,16 +102,4 @@ lemma exp_neg_max_renyiDiv_le_add_measure [IsProbabilityMeasure μ]
   rw [this] at h
   rwa [neg_sub_left, exp_neg, mul_inv_le_iff' (exp_pos _), add_comm (log 4 / a)]
 
-lemma exp_neg_chernoffDiv_le_add_measure [IsFiniteMeasure ν] [IsFiniteMeasure ν']
-    (s : Set α) {a : ℝ} (ha : 0 < a) (h_ne_top : chernoffDiv (1 + a) ν ν' ≠ ⊤) :
-    2⁻¹ * exp (- (chernoffDiv (1 + a) ν ν').toReal - log 4 / a)
-      ≤ (ν s).toReal + (ν' sᶜ).toReal := by
-  have h μ (_ : IsProbabilityMeasure μ)
-      (hν : renyiDiv (1 + a) μ ν ≠ ⊤) (hν' : renyiDiv (1 + a) μ ν' ≠ ⊤) :
-      2⁻¹ * exp (- max (renyiDiv (1 + a) μ ν).toReal (renyiDiv (1 + a) μ ν').toReal - log 4 / a)
-        ≤ (ν s).toReal + (ν' sᶜ).toReal :=
-    exp_neg_max_renyiDiv_le_add_measure s ha hν hν'
-  -- this will need lemmas about restricting the inf in chernoffDiv measures with finite renyiDiv.
-  sorry
-
 end ProbabilityTheory
