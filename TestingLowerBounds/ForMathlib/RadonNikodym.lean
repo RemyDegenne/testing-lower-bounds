@@ -450,7 +450,7 @@ lemma rnDeriv_measure_compProd_right' (μ : Measure α) (κ η : Kernel α γ)
   filter_upwards [ha, h a] with b hb1 hb2
   rw [hb1, hb2]
 
-lemma Measure.absolutelyContinuous_Kernel_of_compProd
+lemma Measure.absolutelyContinuous_kernel_of_compProd
     [SFinite μ] [SFinite ν] [IsFiniteKernel κ] [IsFiniteKernel η]
     (h : μ ⊗ₘ κ ≪ ν ⊗ₘ η) :
     ∀ᵐ a ∂μ, κ a ≪ η a := by
@@ -471,13 +471,13 @@ lemma Measure.absolutelyContinuous_Kernel_of_compProd
 lemma Measure.absolutelyContinuous_compProd_iff
     [SFinite μ] [SFinite ν] [IsFiniteKernel κ] [IsFiniteKernel η] [∀ a, NeZero (κ a)] :
     μ ⊗ₘ κ ≪ ν ⊗ₘ η ↔ μ ≪ ν ∧ ∀ᵐ a ∂μ, κ a ≪ η a :=
-  ⟨fun h ↦ ⟨Measure.absolutelyContinuous_of_compProd h, absolutelyContinuous_Kernel_of_compProd h⟩,
+  ⟨fun h ↦ ⟨Measure.absolutelyContinuous_of_compProd h, absolutelyContinuous_kernel_of_compProd h⟩,
     fun h ↦ Measure.absolutelyContinuous_compProd h.1 h.2⟩
 
 lemma Measure.absolutelyContinuous_compProd_right_iff
     {μ : Measure α} {κ η : Kernel α γ} [SFinite μ] [IsFiniteKernel κ] [IsFiniteKernel η] :
     μ ⊗ₘ κ ≪ μ ⊗ₘ η ↔ ∀ᵐ a ∂μ, κ a ≪ η a :=
-  ⟨absolutelyContinuous_Kernel_of_compProd, fun h ↦ Measure.absolutelyContinuous_compProd_right h⟩
+  ⟨absolutelyContinuous_kernel_of_compProd, fun h ↦ Measure.absolutelyContinuous_compProd_right h⟩
 
 end MeasureCompProd
 

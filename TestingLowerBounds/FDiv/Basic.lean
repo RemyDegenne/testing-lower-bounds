@@ -3,9 +3,10 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import TestingLowerBounds.DerivAtTop
-import TestingLowerBounds.ForMathlib.RadonNikodym
-import TestingLowerBounds.ForMathlib.RnDeriv
+import Mathlib.Analysis.Convex.Integral
+import Mathlib.Probability.Notation
+import TestingLowerBounds.ForMathlib.Integrable
+import TestingLowerBounds.IntegrableFRNDeriv
 
 /-!
 
@@ -44,45 +45,14 @@ Most results will require these conditions on `f`:
 Foobars, barfoos
 -/
 
-open Real MeasureTheory Filter Set
+open Real MeasureTheory Filter Set MeasurableSpace
 
 open scoped ENNReal NNReal Topology
 
 namespace ProbabilityTheory
 
 variable {α β : Type*} {m mα : MeasurableSpace α} {mβ : MeasurableSpace β}
-  {μ ν : Measure α} {κ η : Kernel α β} {f g : ℝ → ℝ}
-
-lemma integrable_toReal_iff {f : α → ℝ≥0∞} (hf : AEMeasurable f μ) (hf_ne_top : ∀ᵐ x ∂μ, f x ≠ ∞) :
-    Integrable (fun x ↦ (f x).toReal) μ ↔ ∫⁻ x, f x ∂μ ≠ ∞ := by
-  refine ⟨fun h ↦ ?_, fun h ↦ integrable_toReal_of_lintegral_ne_top hf h⟩
-  rw [Integrable, HasFiniteIntegral] at h
-  have : ∀ᵐ x ∂μ, f x = ↑‖(f x).toReal‖₊ := by
-    filter_upwards [hf_ne_top] with x hx
-    rw [← ofReal_norm_eq_coe_nnnorm, norm_of_nonneg ENNReal.toReal_nonneg, ENNReal.ofReal_toReal hx]
-  rw [lintegral_congr_ae this]
-  exact h.2.ne
-
-lemma integrable_f_rnDeriv_of_derivAtTop_ne_top (μ ν : Measure α) [IsFiniteMeasure μ]
-    [IsFiniteMeasure ν] (hf : StronglyMeasurable f)
-    (hf_cvx : ConvexOn ℝ (Ici 0) f) (hf_deriv : derivAtTop f ≠ ⊤) :
-    Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν := by
-  obtain ⟨c, c', h⟩ : ∃ c c', ∀ x, _ → c * x + c' ≤ f x :=
-    hf_cvx.exists_affine_le (convex_Ici 0)
-  refine integrable_of_le_of_le (f := fun x ↦ f ((∂μ/∂ν) x).toReal)
-    (g₁ := fun x ↦ c * ((∂μ/∂ν) x).toReal + c')
-    (g₂ := fun x ↦ (derivAtTop f).toReal * ((∂μ/∂ν) x).toReal + f 0)
-    ?_ ?_ ?_ ?_ ?_
-  · exact (hf.comp_measurable (μ.measurable_rnDeriv ν).ennreal_toReal).aestronglyMeasurable
-  · exact ae_of_all _ (fun x ↦ h _ ENNReal.toReal_nonneg)
-  · refine ae_of_all _ (fun x ↦ ?_)
-    have h := le_add_derivAtTop'' hf_cvx hf_deriv le_rfl
-      (ENNReal.toReal_nonneg : 0 ≤ ((∂μ/∂ν) x).toReal)
-    rwa [zero_add, add_comm] at h
-  · refine (Integrable.const_mul ?_ _).add (integrable_const _)
-    exact Measure.integrable_toReal_rnDeriv
-  · refine (Integrable.const_mul ?_ _).add (integrable_const _)
-    exact Measure.integrable_toReal_rnDeriv
+  {μ ν : Measure α} {f g : ℝ → ℝ}
 
 open Classical in
 /-- f-Divergence of two measures. -/
@@ -361,14 +331,12 @@ lemma fDiv_add_linear {c : ℝ} [IsFiniteMeasure μ] [IsFiniteMeasure ν]
   simp
 
 lemma fDiv_eq_fDiv_centeredFunction [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (hf_cvx : ConvexOn ℝ univ f) :
+    (hf_cvx : ConvexOn ℝ (Ici 0) f) :
     fDiv f μ ν = fDiv (fun x ↦ f x - f 1 - rightDeriv f 1 * (x - 1)) μ ν
       + f 1 * ν univ + rightDeriv f 1 * ((μ univ).toReal - (ν univ).toReal) := by
   simp_rw [sub_eq_add_neg (f _), sub_eq_add_neg (_ + _), ← neg_mul]
-  rw [fDiv_add_linear']
-  swap; · exact hf_cvx.subset (fun _ _ ↦ trivial) (convex_Ici 0) |>.add_const _
-  rw [fDiv_add_const]
-  swap; · exact hf_cvx.subset (fun _ _ ↦ trivial) (convex_Ici 0)
+  rw [fDiv_add_linear' ?_, fDiv_add_const _ _ hf_cvx]
+  swap; · exact hf_cvx.add_const _
   simp_rw [EReal.coe_neg, neg_mul]
   rw [add_assoc, add_comm (_ * _), ← add_assoc, add_assoc _ (-(_ * _)), add_comm (-(_ * _)),
     ← sub_eq_add_neg (_ * _), EReal.sub_self, add_zero]
@@ -775,9 +743,10 @@ lemma fDiv_nonneg [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
   _ ≤ fDiv f μ ν := le_fDiv hf_cvx hf_cont
 
 /- The hypothesis `hfg'` can maybe become something like `f ≤ᵐ[atTop] g`, but then we would need
-some lemma like `derivAtTop_mono`, and I'm not sure this is true in gneral, without any assumption on `f`.
-We could prove it if we had some lemma saying that the new derivAtTop is equal to the old definition,
-this is probably false in general, but under some assumptions it should be true. -/
+some lemma like `derivAtTop_mono`, and I'm not sure this is true in gneral, without any assumption
+on `f`.
+We could prove it if we had some lemma saying that the new derivAtTop is equal to the
+old definition. This is probably false in general, but under some assumptions it should be true. -/
 lemma fDiv_mono'' (hf_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
     (hfg : f ≤ᵐ[ν.map (fun x ↦ ((∂μ/∂ν) x).toReal)] g) (hfg' : derivAtTop f ≤ derivAtTop g) :
     fDiv f μ ν ≤ fDiv g μ ν := by
@@ -789,7 +758,11 @@ lemma fDiv_mono'' (hf_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν
       ae_of_ae_map (μ.measurable_rnDeriv ν).ennreal_toReal.aemeasurable hfg
   · exact EReal.coe_ennreal_nonneg _
 
-/- The hypothesis `hfg'` can probably be removed if we ask for the functions to be convex, since then it is true that `derivAtTop` is monotone, but we still don't have the result formalized. Moreover in the convex case we can also relax `hf_int` and only ask for a.e. strong measurability of `f` (at least when `μ` and `ν` are finite), because then the negative part of the function is always integrable, hence if `f` is not integrable `g` is also not integrable. -/
+/- The hypothesis `hfg'` can probably be removed if we ask for the functions to be convex,
+since then it is true that `derivAtTop` is monotone, but we still don't have the result formalized.
+Moreover in the convex case we can also relax `hf_int` and only ask for a.e. strong measurability
+of `f` (at least when `μ` and `ν` are finite), because then the negative part of the function
+is always integrable, hence if `f` is not integrable `g` is also not integrable. -/
 lemma fDiv_mono' (hf_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
     (hfg : f ≤ g) (hfg' : derivAtTop f ≤ derivAtTop g) : fDiv f μ ν ≤ fDiv g μ ν :=
   fDiv_mono'' hf_int (.of_forall hfg) hfg'
@@ -871,58 +844,5 @@ lemma fDiv_restrict_of_integrable (μ ν : Measure α) [IsFiniteMeasure μ] [IsF
     EReal.coe_mul]
   rw [EReal.coe_ennreal_toReal, mul_comm]
   exact measure_ne_top _ _
-
-section Measurability
-
-lemma measurableSet_integrable_f_kernel_rnDeriv [MeasurableSpace.CountableOrCountablyGenerated α β]
-    (κ η ξ : Kernel α β) [IsFiniteKernel ξ] (hf : StronglyMeasurable f) :
-    MeasurableSet {a | Integrable (fun x ↦ f (κ.rnDeriv η a x).toReal) (ξ a)} :=
-  measurableSet_kernel_integrable
-    (hf.comp_measurable (κ.measurable_rnDeriv η).ennreal_toReal)
-
-lemma measurableSet_integrable_f_rnDeriv [MeasurableSpace.CountableOrCountablyGenerated α β]
-    (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] (hf : StronglyMeasurable f) :
-    MeasurableSet {a | Integrable (fun x ↦ f ((∂κ a/∂η a) x).toReal) (η a)} := by
-  convert measurableSet_integrable_f_kernel_rnDeriv κ η η hf using 3 with a
-  refine integrable_congr ?_
-  filter_upwards [κ.rnDeriv_eq_rnDeriv_measure η a] with b hb
-  rw [hb]
-
-lemma measurable_integral_f_rnDeriv [MeasurableSpace.CountableOrCountablyGenerated α β]
-    (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] (hf : StronglyMeasurable f) :
-    Measurable fun a ↦ ∫ x, f ((∂κ a/∂η a) x).toReal ∂(η a) := by
-  have : ∀ a, ∫ x, f ((∂κ a/∂η a) x).toReal ∂η a
-      = ∫ x, f (κ.rnDeriv η a x).toReal ∂η a := by
-    refine fun a ↦ integral_congr_ae ?_
-    filter_upwards [κ.rnDeriv_eq_rnDeriv_measure η a] with x hx
-    rw [hx]
-  simp_rw [this]
-  refine (StronglyMeasurable.integral_kernel_prod_left ?_).measurable
-  refine hf.comp_measurable ?_
-  exact ((κ.measurable_rnDeriv η).comp measurable_swap).ennreal_toReal
-
-lemma measurable_fDiv [MeasurableSpace.CountableOrCountablyGenerated α β]
-    (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
-    (hf : StronglyMeasurable f) :
-    Measurable (fun a ↦ fDiv f (κ a) (η a)) := by
-  let s := {a | Integrable (fun x ↦ f ((∂κ a/∂η a) x).toReal) (η a)}
-  have hs : MeasurableSet s := measurableSet_integrable_f_rnDeriv κ η hf
-  classical
-  have h_eq : (fun a ↦ fDiv f (κ a) (η a))
-      = fun a ↦ if a ∈ s then ∫ x, f ((∂κ a/∂η a) x).toReal ∂(η a)
-          + derivAtTop f * (κ a).singularPart (η a) .univ
-        else ⊤ := by
-    ext a
-    split_ifs with ha
-    · rw [fDiv_of_integrable ha]
-    · rw [fDiv_of_not_integrable ha]
-  rw [h_eq]
-  refine Measurable.ite hs ?_ measurable_const
-  refine Measurable.add ?_ ?_
-  · exact (measurable_integral_f_rnDeriv _ _ hf).coe_real_ereal
-  · refine Measurable.const_mul ?_ _
-    exact ((Measure.measurable_coe .univ).comp (κ.measurable_singularPart η)).coe_ereal_ennreal
-
-end Measurability
 
 end ProbabilityTheory

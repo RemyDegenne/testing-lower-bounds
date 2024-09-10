@@ -213,12 +213,17 @@ lemma bayesianRisk_ge_lintegral_iInf_bayesInv [StandardBorelSpace Θ] [Nonempty 
     _ = ⨅ z, ∫⁻ (θ : Θ), E.ℓ (E.y θ, z) ∂(P†π) x := by
       rw [lintegral_const, measure_univ, mul_one]
 
+section IsGenBayesEstimator
+
 /-! ### Generalized Bayes estimator -/
+
+variable [StandardBorelSpace Θ] [Nonempty Θ] {f : 𝒳 → 𝒵}
+  [IsFiniteKernel P] [IsFiniteMeasure π]
 
 /-- We say that a measurable function `f : 𝒳 → 𝒵` is a Generalized Bayes estimator for the
 estimation problem `E` with respect to the prior `π` if for `(P ∘ₘ π)`-almost every `x` it is of
 the form `x ↦ argmin_z P†π(x)[θ ↦ ℓ(y(θ), z)]`.-/
-structure IsGenBayesEstimator [StandardBorelSpace Θ] [Nonempty Θ]
+structure IsGenBayesEstimator
     (E : estimationProblem Θ 𝒴 𝒵) (P : Kernel Θ 𝒳) [IsFiniteKernel P] (f : 𝒳 → 𝒵)
     (π : Measure Θ) [IsFiniteMeasure π] : Prop where
   measurable : Measurable f
@@ -227,18 +232,11 @@ structure IsGenBayesEstimator [StandardBorelSpace Θ] [Nonempty Θ]
 
 /-- Given a Generalized Bayes estimator `f`, we can define a deterministic kernel. -/
 noncomputable
-abbrev IsGenBayesEstimator.Kernel [StandardBorelSpace Θ] [Nonempty Θ]
-    {E : estimationProblem Θ 𝒴 𝒵} {P : Kernel Θ 𝒳} [IsFiniteKernel P]
-    {π : Measure Θ} [IsFiniteMeasure π]
-    {f : 𝒳 → 𝒵} (h : IsGenBayesEstimator E P f π) : Kernel 𝒳 𝒵 :=
+abbrev IsGenBayesEstimator.Kernel (h : IsGenBayesEstimator E P f π) : Kernel 𝒳 𝒵 :=
   Kernel.deterministic f h.measurable
 
-lemma bayesianRisk_of_isGenBayesEstimator [StandardBorelSpace Θ] [Nonempty Θ]
-    {E : estimationProblem Θ 𝒴 𝒵} {P : Kernel Θ 𝒳} [IsFiniteKernel P]
-    {π : Measure Θ} [IsFiniteMeasure π]
-    {f : 𝒳 → 𝒵} (hf : IsGenBayesEstimator E P f π) :
-    bayesianRisk E P hf.Kernel π
-      = ∫⁻ x, ⨅ z, ∫⁻ θ, E.ℓ (E.y θ, z) ∂(P†π) x ∂(P ∘ₘ π) := by
+lemma bayesianRisk_of_isGenBayesEstimator (hf : IsGenBayesEstimator E P f π) :
+    bayesianRisk E P hf.Kernel π = ∫⁻ x, ⨅ z, ∫⁻ θ, E.ℓ (E.y θ, z) ∂(P†π) x ∂(P ∘ₘ π) := by
   have := E.ℓ_meas
   have := E.y_meas
   rw [bayesianRisk_eq_integral_integral_integral]
@@ -247,10 +245,7 @@ lemma bayesianRisk_of_isGenBayesEstimator [StandardBorelSpace Θ] [Nonempty Θ]
   rwa [Kernel.deterministic_apply,
     lintegral_dirac' _ (Measurable.lintegral_prod_left (by fun_prop))]
 
-lemma isBayesEstimator_of_isGenBayesEstimator [StandardBorelSpace Θ] [Nonempty Θ]
-    {E : estimationProblem Θ 𝒴 𝒵} {P : Kernel Θ 𝒳} [IsFiniteKernel P]
-    {π : Measure Θ} [IsFiniteMeasure π]
-    {f : 𝒳 → 𝒵} (hf : IsGenBayesEstimator E P f π) :
+lemma isBayesEstimator_of_isGenBayesEstimator (hf : IsGenBayesEstimator E P f π) :
     IsBayesEstimator E P hf.Kernel π := by
   simp_rw [IsBayesEstimator, bayesRiskPrior]
   apply le_antisymm
@@ -261,18 +256,22 @@ lemma isBayesEstimator_of_isGenBayesEstimator [StandardBorelSpace Θ] [Nonempty 
 
 /-- The estimation problem `E` admits a Generalized Bayes estimator with respect to
 the prior `π`. -/
-class HasGenBayesEstimator [StandardBorelSpace Θ] [Nonempty Θ] (E : estimationProblem Θ 𝒴 𝒵)
+class HasGenBayesEstimator (E : estimationProblem Θ 𝒴 𝒵)
     (P : Kernel Θ 𝒳) [IsFiniteKernel P] (π : Measure Θ) [IsFiniteMeasure π] where
   /-- The Generalized Bayes estimator. -/
   estimator : 𝒳 → 𝒵
   property : IsGenBayesEstimator E P estimator π
 
-lemma bayesRiskPrior_eq_of_hasGenBayesEstimator [StandardBorelSpace Θ] [Nonempty Θ]
+lemma bayesRiskPrior_eq_of_hasGenBayesEstimator
     (E : estimationProblem Θ 𝒴 𝒵) (P : Kernel Θ 𝒳) [IsFiniteKernel P]
     (π : Measure Θ) [IsFiniteMeasure π]
     [h : HasGenBayesEstimator E P π] :
     bayesRiskPrior E P π = ∫⁻ x, ⨅ z, ∫⁻ θ, E.ℓ (E.y θ, z) ∂((P†π) x) ∂(P ∘ₘ π) := by
   rw [← isBayesEstimator_of_isGenBayesEstimator h.property, bayesianRisk_of_isGenBayesEstimator]
+
+end IsGenBayesEstimator
+
+section BayesRiskIncrease
 
 /-! ### Bayes risk increase -/
 
@@ -304,5 +303,7 @@ lemma bayesRiskIncrease_discard_comp_le_bayesRiskIncrease (E : estimationProblem
       ≤ bayesRiskIncrease E P π (Kernel.discard 𝒳) := by
   convert le_bayesRiskIncrease_comp E P π κ (Kernel.discard 𝒳')
   simp
+
+end BayesRiskIncrease
 
 end ProbabilityTheory

@@ -10,7 +10,7 @@ import Mathlib.MeasureTheory.Function.ConditionalExpectation.Basic
 
 -/
 
-open Real MeasureTheory Filter
+open Real MeasureTheory Filter Set
 
 open scoped ENNReal MeasureTheory
 

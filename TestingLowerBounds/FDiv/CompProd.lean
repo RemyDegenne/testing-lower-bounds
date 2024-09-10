@@ -36,7 +36,7 @@ variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
 
 section Conditional
 
-/--Equivalence between two possible versions of the first condition for the finiteness of the
+/-- Equivalence between two possible versions of the first condition for the finiteness of the
 conditional f divergence, the second version is the preferred one.-/
 lemma fDiv_ae_ne_top_iff [IsFiniteKernel κ] [IsFiniteKernel η] :
     (∀ᵐ a ∂μ, fDiv f (κ a) (η a) ≠ ⊤)
@@ -44,7 +44,7 @@ lemma fDiv_ae_ne_top_iff [IsFiniteKernel κ] [IsFiniteKernel η] :
       ∧ (derivAtTop f = ⊤ → ∀ᵐ a ∂μ, κ a ≪ η a) := by
   simp_rw [fDiv_ne_top_iff, eventually_and, eventually_all]
 
-/--Equivalence between two possible versions of the second condition for the finiteness of the
+/-- Equivalence between two possible versions of the second condition for the finiteness of the
 conditional f divergence, the second version is the preferred one.-/
 lemma integrable_fDiv_iff [CountableOrCountablyGenerated α β] [IsFiniteMeasure μ] [IsFiniteKernel κ]
     [IsFiniteKernel η] (h_cvx : ConvexOn ℝ (Ici 0) f)

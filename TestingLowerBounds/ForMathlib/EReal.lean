@@ -1,7 +1,7 @@
 import Mathlib.MeasureTheory.Constructions.BorelSpace.Real
 
 open scoped ENNReal NNReal Topology
-open Filter
+open Filter Set
 
 namespace EReal
 
@@ -323,9 +323,105 @@ lemma lowerSemicontinuous_add : LowerSemicontinuous fun (p : EReal × EReal) ↦
 
 instance : MeasurableAdd₂ EReal := ⟨EReal.lowerSemicontinuous_add.measurable⟩
 
+section MeasurableMul
+
+variable {α β γ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {mγ : MeasurableSpace γ}
+
+theorem measurable_from_prod_countable'' [Countable β] [MeasurableSingletonClass β]
+    {f : β × α → γ} (hf : ∀ y, Measurable fun x => f (y, x)) :
+    Measurable f := by
+  change Measurable ((fun (p : α × β) ↦ f (p.2, p.1)) ∘ Prod.swap)
+  exact (measurable_from_prod_countable hf).comp measurable_swap
+
+theorem measurable_of_measurable_real_prod {f : EReal × β → γ}
+    (h_real : Measurable fun p : ℝ × β ↦ f (p.1, p.2))
+    (h_bot : Measurable fun x ↦ f (⊥, x)) (h_top : Measurable fun x ↦ f (⊤, x)) :
+    Measurable f := by
+  have : (univ : Set (EReal × β)) = ({⊥, ⊤} ×ˢ univ) ∪ ({⊥, ⊤}ᶜ ×ˢ univ) := by
+    ext x
+    simp only [mem_univ, mem_union, mem_prod, mem_insert_iff, mem_singleton_iff, and_true,
+      mem_compl_iff, not_or, true_iff]
+    tauto
+  refine measurable_of_measurable_union_cover ({⊥, ⊤} ×ˢ univ)
+    ({⊥, ⊤}ᶜ ×ˢ univ) ?_ ?_ ?_ ?_ ?_
+  · refine MeasurableSet.prod ?_ MeasurableSet.univ
+    simp only [measurableSet_insert, MeasurableSet.singleton]
+  · refine (MeasurableSet.compl ?_).prod MeasurableSet.univ
+    simp only [measurableSet_insert, MeasurableSet.singleton]
+  · rw [this]
+  · let e : ({⊥, ⊤} ×ˢ univ : Set (EReal × β)) ≃ᵐ ({⊥, ⊤} : Set EReal) × β :=
+      (MeasurableEquiv.Set.prod ({⊥, ⊤} : Set EReal) (univ : Set β)).trans
+        (MeasurableEquiv.prodCongr (MeasurableEquiv.refl _) (MeasurableEquiv.Set.univ β))
+    have : ((fun (a : ({⊥, ⊤} : Set EReal) × β) ↦ f (a.1, a.2)) ∘ e)
+        = fun (a : ({⊥, ⊤} ×ˢ univ : Set (EReal × β))) ↦ f a := rfl
+    rw [← this]
+    refine Measurable.comp ?_ e.measurable
+    refine measurable_from_prod_countable'' fun y ↦ ?_
+    simp only
+    have h' := y.2
+    simp only [mem_insert_iff, mem_singleton_iff, bot_ne_top, or_false, top_ne_bot, or_true] at h'
+    cases h' with
+    | inl h => rwa [h]
+    | inr h => rwa [h]
+  · let e : ({⊥, ⊤}ᶜ ×ˢ univ : Set (EReal × β)) ≃ᵐ ℝ × β :=
+      (MeasurableEquiv.Set.prod ({⊥, ⊤}ᶜ : Set EReal) (univ : Set β)).trans
+        (MeasurableEquiv.prodCongr MeasurableEquiv.erealEquivReal (MeasurableEquiv.Set.univ β))
+    rw [← MeasurableEquiv.measurable_comp_iff e.symm]
+    exact h_real
+
+theorem measurable_of_measurable_real_real {f : EReal × EReal → β}
+    (h_real : Measurable fun p : ℝ × ℝ ↦ f (p.1, p.2))
+    (h_bot_left : Measurable fun r : ℝ ↦ f (⊥, r))
+    (h_top_left : Measurable fun r : ℝ ↦ f (⊤, r))
+    (h_bot_right : Measurable fun r : ℝ ↦ f (r, ⊥))
+    (h_top_right : Measurable fun r : ℝ ↦ f (r, ⊤)) :
+    Measurable f := by
+  refine measurable_of_measurable_real_prod ?_ ?_ ?_
+  · refine measurable_swap_iff.mp <| measurable_of_measurable_real_prod ?_ h_bot_right h_top_right
+    exact h_real.comp measurable_swap
+  · exact measurable_of_measurable_real h_bot_left
+  · exact measurable_of_measurable_real h_top_left
+
+private lemma measurable_const_mul (c : EReal) : Measurable fun (x : EReal) ↦ c * x := by
+  refine measurable_of_measurable_real ?_
+  induction c with
+  | h_bot =>
+    have : (fun (p : ℝ) ↦ (⊥ : EReal) * p)
+        = fun p ↦ if p = 0 then (0 : EReal) else (if p < 0 then ⊤ else ⊥) := by
+      ext p
+      split_ifs with h1 h2
+      · simp [h1]
+      · rw [bot_mul_coe_of_neg h2]
+      · rw [bot_mul_coe_of_pos]
+        exact lt_of_le_of_ne (not_lt.mp h2) (Ne.symm h1)
+    rw [this]
+    refine Measurable.piecewise (measurableSet_singleton _) measurable_const ?_
+    exact Measurable.piecewise measurableSet_Iio measurable_const measurable_const
+  | h_real c => exact (measurable_id.const_mul _).coe_real_ereal
+  | h_top =>
+    have : (fun (p : ℝ) ↦ (⊤ : EReal) * p)
+        = fun p ↦ if p = 0 then (0 : EReal) else (if p < 0 then ⊥ else ⊤) := by
+      ext p
+      split_ifs with h1 h2
+      · simp [h1]
+      · rw [top_mul_coe_of_neg h2]
+      · rw [top_mul_coe_of_pos]
+        exact lt_of_le_of_ne (not_lt.mp h2) (Ne.symm h1)
+    rw [this]
+    refine Measurable.piecewise (measurableSet_singleton _) measurable_const ?_
+    exact Measurable.piecewise measurableSet_Iio measurable_const measurable_const
+
 instance : MeasurableMul₂ EReal := by
-  constructor
-  sorry
+  refine ⟨measurable_of_measurable_real_real ?_ ?_ ?_ ?_ ?_⟩
+  · exact (measurable_fst.mul measurable_snd).coe_real_ereal
+  · exact (measurable_const_mul _).comp measurable_coe_real_ereal
+  · exact (measurable_const_mul _).comp measurable_coe_real_ereal
+  · simp_rw [mul_comm _ ⊥]
+    exact (measurable_const_mul _).comp measurable_coe_real_ereal
+  · simp_rw [mul_comm _ ⊤]
+    exact (measurable_const_mul _).comp measurable_coe_real_ereal
+
+end MeasurableMul
 
 theorem nhdsWithin_top : 𝓝[≠] (⊤ : EReal) = (atTop).map Real.toEReal := by
   apply (nhdsWithin_hasBasis nhds_top_basis_Ici _).ext (atTop_basis.map Real.toEReal)
