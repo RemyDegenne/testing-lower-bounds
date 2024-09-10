@@ -382,17 +382,44 @@ theorem measurable_of_measurable_real_real {f : EReal × EReal → β}
   · exact measurable_of_measurable_real h_bot_left
   · exact measurable_of_measurable_real h_top_left
 
+private lemma measurable_const_mul (c : EReal) : Measurable fun (x : EReal) ↦ c * x := by
+  refine measurable_of_measurable_real ?_
+  induction c with
+  | h_bot =>
+    have : (fun (p : ℝ) ↦ (⊥ : EReal) * p)
+        = fun p ↦ if p = 0 then (0 : EReal) else (if p < 0 then ⊤ else ⊥) := by
+      ext p
+      split_ifs with h1 h2
+      · simp [h1]
+      · rw [bot_mul_coe_of_neg h2]
+      · rw [bot_mul_coe_of_pos]
+        exact lt_of_le_of_ne (not_lt.mp h2) (Ne.symm h1)
+    rw [this]
+    refine Measurable.piecewise (measurableSet_singleton _) measurable_const ?_
+    exact Measurable.piecewise measurableSet_Iio measurable_const measurable_const
+  | h_real c => exact (measurable_id.const_mul _).coe_real_ereal
+  | h_top =>
+    have : (fun (p : ℝ) ↦ (⊤ : EReal) * p)
+        = fun p ↦ if p = 0 then (0 : EReal) else (if p < 0 then ⊥ else ⊤) := by
+      ext p
+      split_ifs with h1 h2
+      · simp [h1]
+      · rw [top_mul_coe_of_neg h2]
+      · rw [top_mul_coe_of_pos]
+        exact lt_of_le_of_ne (not_lt.mp h2) (Ne.symm h1)
+    rw [this]
+    refine Measurable.piecewise (measurableSet_singleton _) measurable_const ?_
+    exact Measurable.piecewise measurableSet_Iio measurable_const measurable_const
+
 instance : MeasurableMul₂ EReal := by
   refine ⟨measurable_of_measurable_real_real ?_ ?_ ?_ ?_ ?_⟩
   · exact (measurable_fst.mul measurable_snd).coe_real_ereal
-  · simp only
-    sorry
-  · simp only
-    sorry
-  · simp only
-    sorry
-  · simp only
-    sorry
+  · exact (measurable_const_mul _).comp measurable_coe_real_ereal
+  · exact (measurable_const_mul _).comp measurable_coe_real_ereal
+  · simp_rw [mul_comm _ ⊥]
+    exact (measurable_const_mul _).comp measurable_coe_real_ereal
+  · simp_rw [mul_comm _ ⊤]
+    exact (measurable_const_mul _).comp measurable_coe_real_ereal
 
 end MeasurableMul
 
