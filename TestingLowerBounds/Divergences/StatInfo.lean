@@ -3,7 +3,7 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import TestingLowerBounds.IntegrableFRNDeriv
+import TestingLowerBounds.Integrable.FRNDeriv
 import TestingLowerBounds.StatInfoFun
 import TestingLowerBounds.Testing.Binary
 /-!

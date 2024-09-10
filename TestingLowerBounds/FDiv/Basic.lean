@@ -5,8 +5,8 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import Mathlib.Analysis.Convex.Integral
 import TestingLowerBounds.ForMathlib.Integrable
-import TestingLowerBounds.ForMathlib.RadonNikodym
-import TestingLowerBounds.IntegrableFRNDeriv
+import TestingLowerBounds.Integrable.FRNDeriv
+import TestingLowerBounds.Integrable.FRNDerivKernel
 
 /-!
 
@@ -45,7 +45,7 @@ Most results will require these conditions on `f`:
 Foobars, barfoos
 -/
 
-open Real MeasureTheory Filter Set
+open Real MeasureTheory Filter Set MeasurableSpace
 
 open scoped ENNReal NNReal Topology
 
@@ -845,38 +845,8 @@ lemma fDiv_restrict_of_integrable (μ ν : Measure α) [IsFiniteMeasure μ] [IsF
   rw [EReal.coe_ennreal_toReal, mul_comm]
   exact measure_ne_top _ _
 
-section Measurability
-
-lemma measurableSet_integrable_f_kernel_rnDeriv [MeasurableSpace.CountableOrCountablyGenerated α β]
-    (κ η ξ : Kernel α β) [IsFiniteKernel ξ] (hf : StronglyMeasurable f) :
-    MeasurableSet {a | Integrable (fun x ↦ f (κ.rnDeriv η a x).toReal) (ξ a)} :=
-  measurableSet_kernel_integrable
-    (hf.comp_measurable (κ.measurable_rnDeriv η).ennreal_toReal)
-
-lemma measurableSet_integrable_f_rnDeriv [MeasurableSpace.CountableOrCountablyGenerated α β]
+lemma measurable_fDiv [CountableOrCountablyGenerated α β]
     (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] (hf : StronglyMeasurable f) :
-    MeasurableSet {a | Integrable (fun x ↦ f ((∂κ a/∂η a) x).toReal) (η a)} := by
-  convert measurableSet_integrable_f_kernel_rnDeriv κ η η hf using 3 with a
-  refine integrable_congr ?_
-  filter_upwards [κ.rnDeriv_eq_rnDeriv_measure η a] with b hb
-  rw [hb]
-
-lemma measurable_integral_f_rnDeriv [MeasurableSpace.CountableOrCountablyGenerated α β]
-    (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] (hf : StronglyMeasurable f) :
-    Measurable fun a ↦ ∫ x, f ((∂κ a/∂η a) x).toReal ∂(η a) := by
-  have : ∀ a, ∫ x, f ((∂κ a/∂η a) x).toReal ∂η a
-      = ∫ x, f (κ.rnDeriv η a x).toReal ∂η a := by
-    refine fun a ↦ integral_congr_ae ?_
-    filter_upwards [κ.rnDeriv_eq_rnDeriv_measure η a] with x hx
-    rw [hx]
-  simp_rw [this]
-  refine (StronglyMeasurable.integral_kernel_prod_left ?_).measurable
-  refine hf.comp_measurable ?_
-  exact ((κ.measurable_rnDeriv η).comp measurable_swap).ennreal_toReal
-
-lemma measurable_fDiv [MeasurableSpace.CountableOrCountablyGenerated α β]
-    (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
-    (hf : StronglyMeasurable f) :
     Measurable (fun a ↦ fDiv f (κ a) (η a)) := by
   let s := {a | Integrable (fun x ↦ f ((∂κ a/∂η a) x).toReal) (η a)}
   have hs : MeasurableSet s := measurableSet_integrable_f_rnDeriv κ η hf
@@ -895,7 +865,5 @@ lemma measurable_fDiv [MeasurableSpace.CountableOrCountablyGenerated α β]
   · exact (measurable_integral_f_rnDeriv _ _ hf).coe_real_ereal
   · refine Measurable.const_mul ?_ _
     exact ((Measure.measurable_coe .univ).comp (κ.measurable_singularPart η)).coe_ereal_ennreal
-
-end Measurability
 
 end ProbabilityTheory
