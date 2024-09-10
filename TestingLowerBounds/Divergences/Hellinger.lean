@@ -258,7 +258,24 @@ lemma tendsto_rightDeriv_hellingerFun_atTop_of_one_lt (ha : 1 < a) :
 
 lemma tendsto_rightDeriv_hellingerFun_atTop_of_lt_one (ha : a < 1) :
     Tendsto (rightDeriv (hellingerFun a)) atTop (𝓝 0) := by
-  sorry
+  by_cases ha_zero : a = 0
+  · rw [ha_zero]
+    have : rightDeriv (hellingerFun 0) =ᶠ[atTop] fun _ ↦ 0 := by
+      filter_upwards [eventually_ne_atTop 0] with x hx
+      simp [rightDeriv_hellingerFun _ hx]
+    rw [tendsto_congr' this]
+    exact tendsto_const_nhds
+  · have : rightDeriv (hellingerFun a) =ᶠ[atTop] fun x ↦ (a - 1)⁻¹ * a * x ^ (a - 1) := by
+      filter_upwards [eventually_ne_atTop 0] with x hx
+      rw [rightDeriv_hellingerFun _ hx]
+      simp [ha_zero, ha.ne]
+    rw [tendsto_congr' this]
+    have h_zero : 0 = (a - 1)⁻¹ * a * 0 := by simp
+    rw [h_zero]
+    refine Tendsto.const_mul _ ?_
+    have : (fun (x : ℝ) ↦ x ^ (a - 1)) = (fun x ↦ x ^ (-(1 - a))) := by ext x; simp
+    rw [this]
+    exact tendsto_rpow_neg_atTop (by linarith)
 
 lemma derivAtTop_hellingerFun_of_one_lt (ha : 1 < a) : derivAtTop (hellingerFun a) = ⊤ :=
   derivAtTop_of_tendsto_atTop <| tendsto_rightDeriv_hellingerFun_atTop_of_one_lt ha
