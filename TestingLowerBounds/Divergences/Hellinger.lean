@@ -5,6 +5,7 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import TestingLowerBounds.Divergences.KullbackLeibler
 import Mathlib.Analysis.Convex.SpecificFunctions.Pow
+import Mathlib.Analysis.SpecialFunctions.Pow.Deriv
 
 /-!
 # Helliger divergence
@@ -151,6 +152,7 @@ lemma hellingerFun_zero'' : hellingerFun 0 = Set.indicator {0} 1 := by
   ext x
   by_cases h : x = 0 <;> simp [hellingerFun_zero, h]
 
+@[simp]
 lemma hellingerFun_one : hellingerFun 1 = fun x ↦ x * log x := by
   ext x
   simp [hellingerFun]
@@ -217,13 +219,63 @@ lemma convexOn_hellingerFun (ha_pos : 0 ≤ a) : ConvexOn ℝ (Set.Ici 0) (helli
   · simp_rw [hellingerFun, ← smul_eq_mul, if_neg ha_pos.ne', if_neg ha.ne']
     exact (convexOn_rpow ha.le).sub (concaveOn_const _ (convex_Ici 0)) |>.smul (by simp [ha.le])
 
+lemma hasDerivAt_hellingerFun (a : ℝ) {x : ℝ} (hx : x ≠ 0) :
+    HasDerivAt (hellingerFun a)
+      (if a = 0 then 0
+      else if a = 1 then log x + 1
+      else (a - 1)⁻¹ * a * x ^ (a - 1)) x := by
+  split_ifs with h1 h2
+  · rw [h1, hellingerFun_zero]
+    refine HasDerivAt.congr_of_eventuallyEq (f := fun _ ↦ 0) (hasDerivAt_const _ _) ?_
+    filter_upwards [eventually_ne_nhds hx] with y hy
+    simp [hy]
+  · simp only [h2, hellingerFun_one]
+    exact Real.hasDerivAt_mul_log hx
+  · rw [hellingerFun_of_ne_zero_of_ne_one h1 h2, mul_assoc]
+    refine HasDerivAt.const_mul _ ?_
+    exact (Real.hasDerivAt_rpow_const (Or.inl hx)).sub_const _
+
+lemma rightDeriv_hellingerFun (a : ℝ) {x : ℝ} (hx : x ≠ 0) :
+    rightDeriv (hellingerFun a) x =
+      if a = 0 then 0
+      else if a = 1 then log x + 1
+      else (a - 1)⁻¹ * a * x ^ (a - 1) :=
+  rightDeriv_of_hasDerivAt (hasDerivAt_hellingerFun a hx)
+
 lemma tendsto_rightDeriv_hellingerFun_atTop_of_one_lt (ha : 1 < a) :
     Tendsto (rightDeriv (hellingerFun a)) atTop atTop := by
-  sorry
+  have : rightDeriv (hellingerFun a) =ᶠ[atTop] fun x ↦ (a - 1)⁻¹ * a * x ^ (a - 1) := by
+    filter_upwards [eventually_ne_atTop 0] with x hx
+    rw [rightDeriv_hellingerFun _ hx]
+    simp [(zero_lt_one.trans ha).ne', ha.ne']
+  rw [tendsto_congr' this]
+  simp_rw [mul_assoc, tendsto_const_mul_atTop_iff]
+  have h1 : ¬ a < 0 := by linarith
+  have h2 : ¬ a < 1 := by linarith
+  simp only [inv_pos, sub_pos, ha, zero_lt_one.trans ha, true_and, h1, false_and, or_false,
+    inv_neg'', sub_neg, h2]
+  exact tendsto_rpow_atTop (by linarith)
 
 lemma tendsto_rightDeriv_hellingerFun_atTop_of_lt_one (ha : a < 1) :
     Tendsto (rightDeriv (hellingerFun a)) atTop (𝓝 0) := by
-  sorry
+  by_cases ha_zero : a = 0
+  · rw [ha_zero]
+    have : rightDeriv (hellingerFun 0) =ᶠ[atTop] fun _ ↦ 0 := by
+      filter_upwards [eventually_ne_atTop 0] with x hx
+      simp [rightDeriv_hellingerFun _ hx]
+    rw [tendsto_congr' this]
+    exact tendsto_const_nhds
+  · have : rightDeriv (hellingerFun a) =ᶠ[atTop] fun x ↦ (a - 1)⁻¹ * a * x ^ (a - 1) := by
+      filter_upwards [eventually_ne_atTop 0] with x hx
+      rw [rightDeriv_hellingerFun _ hx]
+      simp [ha_zero, ha.ne]
+    rw [tendsto_congr' this]
+    have h_zero : 0 = (a - 1)⁻¹ * a * 0 := by simp
+    rw [h_zero]
+    refine Tendsto.const_mul _ ?_
+    have : (fun (x : ℝ) ↦ x ^ (a - 1)) = (fun x ↦ x ^ (-(1 - a))) := by ext x; simp
+    rw [this]
+    exact tendsto_rpow_neg_atTop (by linarith)
 
 lemma derivAtTop_hellingerFun_of_one_lt (ha : 1 < a) : derivAtTop (hellingerFun a) = ⊤ :=
   derivAtTop_of_tendsto_atTop <| tendsto_rightDeriv_hellingerFun_atTop_of_one_lt ha
