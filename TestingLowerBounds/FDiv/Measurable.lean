@@ -11,7 +11,7 @@ import TestingLowerBounds.ForMathlib.RadonNikodym
 
 -/
 
-open MeasureTheory MeasurableSpace
+open MeasureTheory MeasurableSpace Set
 
 namespace ProbabilityTheory
 
@@ -46,8 +46,6 @@ lemma measurable_integral_f_rnDeriv (κ η : Kernel α β) [IsFiniteKernel κ] [
   refine hf.comp_measurable ?_
   exact ((κ.measurable_rnDeriv η).comp measurable_swap).ennreal_toReal
 
-instance : MeasurableMul₂ EReal := sorry
-
 lemma measurable_fDiv (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
     (hf : StronglyMeasurable f) :
     Measurable (fun a ↦ fDiv f (κ a) (η a)) := by
@@ -68,6 +66,5 @@ lemma measurable_fDiv (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel
   · exact (measurable_integral_f_rnDeriv _ _ hf).coe_real_ereal
   · refine Measurable.const_mul ?_ _
     exact ((Measure.measurable_coe .univ).comp (κ.measurable_singularPart η)).coe_ereal_ennreal
-
 
 end ProbabilityTheory

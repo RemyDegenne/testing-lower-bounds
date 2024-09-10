@@ -323,9 +323,43 @@ lemma lowerSemicontinuous_add : LowerSemicontinuous fun (p : EReal × EReal) ↦
 
 instance : MeasurableAdd₂ EReal := ⟨EReal.lowerSemicontinuous_add.measurable⟩
 
---instance : MeasurableMul₂ EReal := by
---  constructor
---  sorry
+section MeasurableMul
+
+variable {β γ : Type*} [MeasurableSpace β] [MeasurableSpace γ]
+
+theorem measurable_of_measurable_real_prod {f : EReal × β → γ}
+    (h_real : Measurable fun p : ℝ × β ↦ f (p.1, p.2))
+    (h_bot : Measurable fun x ↦ f (⊥, x)) (h_top : Measurable fun x ↦ f (⊤, x)) :
+    Measurable f :=
+  -- we have already `measurable_of_measurable_real`
+  sorry
+
+theorem measurable_of_measurable_real_real {f : EReal × EReal → β}
+    (h_real : Measurable fun p : ℝ × ℝ ↦ f (p.1, p.2))
+    (h_bot_left : Measurable fun r : ℝ ↦ f (⊥, r))
+    (h_top_left : Measurable fun r : ℝ ↦ f (⊤, r))
+    (h_bot_right : Measurable fun r : ℝ ↦ f (r, ⊥))
+    (h_top_right : Measurable fun r : ℝ ↦ f (r, ⊤)) :
+    Measurable f := by
+  refine measurable_of_measurable_real_prod ?_ ?_ ?_
+  · refine measurable_swap_iff.mp <| measurable_of_measurable_real_prod ?_ h_bot_right h_top_right
+    exact h_real.comp measurable_swap
+  · exact measurable_of_measurable_real h_bot_left
+  · exact measurable_of_measurable_real h_top_left
+
+instance : MeasurableMul₂ EReal := by
+  refine ⟨measurable_of_measurable_real_real ?_ ?_ ?_ ?_ ?_⟩
+  · exact (measurable_fst.mul measurable_snd).coe_real_ereal
+  · simp only
+    sorry
+  · simp only
+    sorry
+  · simp only
+    sorry
+  · simp only
+    sorry
+
+end MeasurableMul
 
 theorem nhdsWithin_top : 𝓝[≠] (⊤ : EReal) = (atTop).map Real.toEReal := by
   apply (nhdsWithin_hasBasis nhds_top_basis_Ici _).ext (atTop_basis.map Real.toEReal)
