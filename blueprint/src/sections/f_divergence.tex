@@ -578,6 +578,24 @@ TODO: find a way to hide the following dummy lemma
 \end{proof}
 
 
+\begin{theorem}
+  \label{thm:integration_by_parts}
+  %\lean{}
+  %\leanok
+  \notready
+  \uses{}
+  If $f$ and $g$ are two Stieltjes functions with associated measures $\mu_f$ and $\mu_g$ and $f$ is continuous on $[a, b]$, then
+  \begin{align*}
+  \int_x f(x) \partial\mu_g = f(b)g(b) - f(a)g(a) - \int_x g(x) \partial\mu_f \: .
+  \end{align*}
+\end{theorem}
+
+\begin{proof} \notready
+\uses{}
+
+\end{proof}
+
+
 \begin{lemma}
   \label{lem:convex_taylor}
   \lean{ConvexOn.convex_taylor}
@@ -592,13 +610,13 @@ TODO: find a way to hide the following dummy lemma
 \end{lemma}
 
 \begin{proof}\leanok
-\uses{}
+\uses{thm:integration_by_parts}
 Let $\Lambda$ be the Lebesgue measure and let $x < y$. Since $f$ has right derivative $f'_+$ in $(x,y)$ and $f'_+$ is integrable on that interval,
 \begin{align*}
 f(y) - f(x) = \int_{z \in (x, y]} f'_+(z) \partial \Lambda
 \: .
 \end{align*}
-We now integrate by parts, using Theorem TODO. $\Lambda$ is the measure obtained from the Stieltjes function $z \mapsto z - y$.
+We now integrate by parts, using Theorem~\ref{thm:integration_by_parts}. $\Lambda$ is the measure obtained from the Stieltjes function $z \mapsto z - y$.
 \begin{align*}
 \int_{z \in (x, y]} f'_+(z) \partial \Lambda
 &= - \int_{z \in (x,y]} (z - y)\partial \gamma_f + f'_+(y)(y - y) - f'_+(x)(x - y)
@@ -928,7 +946,7 @@ D_f(g_* \mu, g_* \nu)
 \end{lemma}
 
 \begin{proof}%\leanok
-\uses{lem:fDiv_map_eq_fDiv_trim_of_ac}
+\uses{lem:fDiv_map_eq_fDiv_trim_of_ac, thm:fDiv_trim_le}
 By Lemma~\ref{lem:fDiv_map_eq_fDiv_trim_of_ac},  $D_f(g_* \mu, g_* \nu) = D_f(\mu_{| g^* \mathcal Y}, \nu_{| g^* \mathcal Y})$. Then apply Theorem~\ref{thm:fDiv_trim_le}.
 \end{proof}
 
