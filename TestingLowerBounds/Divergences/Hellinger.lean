@@ -244,7 +244,17 @@ lemma rightDeriv_hellingerFun (a : ℝ) {x : ℝ} (hx : x ≠ 0) :
 
 lemma tendsto_rightDeriv_hellingerFun_atTop_of_one_lt (ha : 1 < a) :
     Tendsto (rightDeriv (hellingerFun a)) atTop atTop := by
-  sorry
+  have : rightDeriv (hellingerFun a) =ᶠ[atTop] fun x ↦ (a - 1)⁻¹ * a * x ^ (a - 1) := by
+    filter_upwards [eventually_ne_atTop 0] with x hx
+    rw [rightDeriv_hellingerFun _ hx]
+    simp [(zero_lt_one.trans ha).ne', ha.ne']
+  rw [tendsto_congr' this]
+  simp_rw [mul_assoc, tendsto_const_mul_atTop_iff]
+  have h1 : ¬ a < 0 := by linarith
+  have h2 : ¬ a < 1 := by linarith
+  simp only [inv_pos, sub_pos, ha, zero_lt_one.trans ha, true_and, h1, false_and, or_false,
+    inv_neg'', sub_neg, h2]
+  exact tendsto_rpow_atTop (by linarith)
 
 lemma tendsto_rightDeriv_hellingerFun_atTop_of_lt_one (ha : a < 1) :
     Tendsto (rightDeriv (hellingerFun a)) atTop (𝓝 0) := by
