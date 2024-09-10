@@ -63,7 +63,6 @@ lemma kl_toReal_of_ac (h : μ ≪ ν) : (kl μ ν).toReal = ∫ a, llr μ ν a �
 lemma rightDeriv_mul_log {x : ℝ} (hx : x ≠ 0) : rightDeriv (fun x ↦ x * log x) x = log x + 1 :=
   rightDeriv_of_hasDerivAt (Real.hasDerivAt_mul_log hx)
 
-
 lemma derivAtTop_mul_log : derivAtTop (fun x ↦ x * log x) = ⊤ := by
   refine derivAtTop_of_tendsto_atTop ?_
   have h_tendsto : Tendsto (fun x ↦ log x + 1) atTop atTop :=

@@ -151,6 +151,7 @@ lemma hellingerFun_zero'' : hellingerFun 0 = Set.indicator {0} 1 := by
   ext x
   by_cases h : x = 0 <;> simp [hellingerFun_zero, h]
 
+@[simp]
 lemma hellingerFun_one : hellingerFun 1 = fun x ↦ x * log x := by
   ext x
   simp [hellingerFun]
@@ -216,6 +217,26 @@ lemma convexOn_hellingerFun (ha_pos : 0 ≤ a) : ConvexOn ℝ (Set.Ici 0) (helli
     exact convexOn_mul_log
   · simp_rw [hellingerFun, ← smul_eq_mul, if_neg ha_pos.ne', if_neg ha.ne']
     exact (convexOn_rpow ha.le).sub (concaveOn_const _ (convex_Ici 0)) |>.smul (by simp [ha.le])
+
+lemma hasDerivAt_rpow (a : ℝ) {x : ℝ} (hx : 0 < x) :
+    HasDerivAt (fun x ↦ x ^ a) (a * x ^ (a - 1)) x := by
+  sorry
+
+lemma rightDeriv_hellingerFun (ha : 0 ≤ a) {x : ℝ} (hx : 0 < x) :
+    rightDeriv (hellingerFun a) x =
+      if a = 0 then 0
+      else if a = 1 then log x + 1
+      else (a - 1)⁻¹ * a * x ^ (a - 1) := by
+  split_ifs with h1 h2
+  · rw [h1]
+    sorry
+  · simp only [h2, hellingerFun_one]
+    exact rightDeriv_mul_log hx.ne'
+  · rw [hellingerFun_of_ne_zero_of_ne_one h1 h2, rightDeriv_const_mul, mul_assoc,
+      mul_eq_mul_left_iff]
+    left
+    refine rightDeriv_of_hasDerivAt ?_
+    exact (hasDerivAt_rpow a hx).sub_const _
 
 lemma tendsto_rightDeriv_hellingerFun_atTop_of_one_lt (ha : 1 < a) :
     Tendsto (rightDeriv (hellingerFun a)) atTop atTop := by
