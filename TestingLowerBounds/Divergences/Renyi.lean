@@ -38,7 +38,7 @@ variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {
 -- todo: move
 lemma exp_mul_llr [SigmaFinite μ] [SigmaFinite ν] (hνμ : ν ≪ μ) :
     (fun x ↦ exp (a * llr μ ν x)) =ᵐ[ν] fun x ↦ (μ.rnDeriv ν x).toReal ^ a := by
-  filter_upwards [Measure.rnDeriv_lt_top μ ν, Measure.rnDeriv_pos' hνμ] with x hx_lt_top hx_pos
+  filter_upwards [μ.rnDeriv_lt_top ν, Measure.rnDeriv_pos' hνμ] with x hx_lt_top hx_pos
   simp only [llr_def]
   have h_pos : 0 < ((∂μ/∂ν) x).toReal :=  ENNReal.toReal_pos hx_pos.ne' hx_lt_top.ne
   rw [← log_rpow h_pos, exp_log (rpow_pos_of_pos h_pos _)]
@@ -53,7 +53,7 @@ lemma exp_mul_llr' [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν) :
   rw [← log_rpow h_pos, exp_log (rpow_pos_of_pos h_pos _)]
 
 lemma integrable_rpow_rnDeriv_compProd_right_iff [CountableOrCountablyGenerated α β]
-    (ha_pos : 0 < a) (ha_one : a ≠ 1) (κ η : kernel α β) (μ : Measure α)
+    (ha_pos : 0 < a) (ha_one : a ≠ 1) (κ η : Kernel α β) (μ : Measure α)
     [IsFiniteKernel κ] [IsFiniteKernel η] [IsFiniteMeasure μ]
     (h_ac : 1 ≤ a → ∀ᵐ (x : α) ∂μ, κ x ≪ η x) :
     Integrable (fun x ↦ ((μ ⊗ₘ κ).rnDeriv (μ ⊗ₘ η) x).toReal ^ a) (μ ⊗ₘ η)
@@ -76,10 +76,9 @@ also for a general finite measure `ν`, in particular the integral form
 We use ENNReal.log instead of Real.log, because it is monotone on `ℝ≥0∞`, while the real log is
 monotone only on `(0, ∞)` (`Real.log 0 = 0`). This allows us to transfer inequalities from the
 Hellinger divergence to the Rényi divergence. -/
-
 noncomputable def renyiDiv (a : ℝ) (μ ν : Measure α) : EReal :=
   if a = 1 then kl μ ν
-  else (a - 1)⁻¹ * ENNReal.log ((↑(ν Set.univ) + (a - 1) * (hellingerDiv a μ ν)).toENNReal)
+  else (a - 1)⁻¹ * ENNReal.log ((↑(ν .univ) + (a - 1) * (hellingerDiv a μ ν)).toENNReal)
 
 @[simp]
 lemma renyiDiv_zero (μ ν : Measure α) [SigmaFinite μ] [IsFiniteMeasure ν] :
@@ -99,7 +98,7 @@ lemma renyiDiv_one (μ ν : Measure α) : renyiDiv 1 μ ν = kl μ ν := by
 
 lemma renyiDiv_of_ne_one (ha_ne_one : a ≠ 1) (μ ν : Measure α) :
     renyiDiv a μ ν
-      = (a - 1)⁻¹ * ENNReal.log ((↑(ν Set.univ) + (a - 1) * (hellingerDiv a μ ν)).toENNReal) := by
+      = (a - 1)⁻¹ * ENNReal.log ((↑(ν .univ) + (a - 1) * (hellingerDiv a μ ν)).toENNReal) := by
   rw [renyiDiv, if_neg ha_ne_one]
 
 @[simp]
@@ -108,7 +107,7 @@ lemma renyiDiv_zero_measure_left (ν : Measure α) [IsFiniteMeasure ν] :
   by_cases ha : a = 1
   · simp [ha]
   rw_mod_cast [renyiDiv_of_ne_one ha, hellingerDiv_zero_measure_left, ← mul_assoc, ← neg_sub a 1,
-    ← neg_inv, ← neg_mul_eq_mul_neg, mul_inv_cancel (sub_ne_zero.mpr ha)]
+    ← neg_inv, ← neg_mul_eq_mul_neg, mul_inv_cancel₀ (sub_ne_zero.mpr ha)]
   simp only [EReal.coe_neg, EReal.coe_one, neg_mul, one_mul, ← sub_eq_add_neg,
     EReal.sub_self_le_zero, EReal.toENNReal_of_nonpos, ENNReal.log_zero]
   rcases lt_or_gt_of_ne ha with (ha | ha)
@@ -312,7 +311,7 @@ lemma renyiDiv_eq_log_integral' (ha_pos : 0 < a) (ha : a ≠ 1) [IsFiniteMeasure
 
 end IntegralForm
 
-lemma renyiDiv_symm' (ha_pos : 0 < a) (ha : a < 1) (h_eq : μ Set.univ = ν Set.univ)
+lemma renyiDiv_symm' (ha_pos : 0 < a) (ha : a < 1) (h_eq : μ .univ = ν .univ)
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     (1 - a) * renyiDiv a μ ν = a * renyiDiv (1 - a) ν μ := by
   rw [renyiDiv_of_ne_one ha.ne, renyiDiv_of_ne_one (by linarith)]
@@ -322,10 +321,10 @@ lemma renyiDiv_symm' (ha_pos : 0 < a) (ha : a < 1) (h_eq : μ Set.univ = ν Set.
     hellingerDiv_symm' ha_pos ha h_eq
   have : (1 - (a : EReal)) * ↑(a - 1)⁻¹ = -1 := by
     norm_cast
-    rw [← neg_neg (1 - a), neg_sub, neg_mul, mul_inv_cancel]
+    rw [← neg_neg (1 - a), neg_sub, neg_mul, mul_inv_cancel₀]
     · simp
     · linarith
-  rw [this, ← EReal.coe_mul, inv_neg, mul_neg, mul_inv_cancel ha_pos.ne', h_eq]
+  rw [this, ← EReal.coe_mul, inv_neg, mul_neg, mul_inv_cancel₀ ha_pos.ne', h_eq]
   simp only [EReal.coe_neg, EReal.coe_one, one_mul]
   congr 4
   norm_cast
@@ -343,7 +342,7 @@ lemma coe_cgf_llr_of_lt_one (ha_pos : 0 < a) (ha : a < 1)
     [hν : NeZero ν] [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hνμ : ν ≪ μ) :
     cgf (llr μ ν) ν a = (a - 1) * renyiDiv a μ ν := by
   rw_mod_cast [renyiDiv_eq_log_integral_of_lt_one ha_pos ha, ← mul_assoc,
-    mul_inv_cancel (by linarith), one_mul, cgf, mgf]
+    mul_inv_cancel₀ (by linarith), one_mul, cgf, mgf]
   have h_ms : ¬ μ ⟂ₘ ν :=
     fun h ↦ hν.out <| Measure.eq_zero_of_absolutelyContinuous_of_mutuallySingular hνμ h.symm
   rw [ENNReal.log_ofReal_of_pos]
@@ -370,7 +369,7 @@ lemma coe_cgf_llr' (ha_pos : 0 < a) [hν : NeZero μ] [IsFiniteMeasure μ] [IsFi
     (h_int : Integrable (fun x ↦ ((∂μ/∂ν) x).toReal ^ (1 + a)) ν) (hμν : μ ≪ ν) :
     cgf (llr μ ν) μ a = a * renyiDiv (1 + a) μ ν := by
   rw_mod_cast [renyiDiv_eq_log_integral' (by linarith) (by linarith) h_int hμν, ← mul_assoc,
-    add_sub_cancel_left, mul_inv_cancel ha_pos.ne', one_mul, cgf, mgf]
+    add_sub_cancel_left, mul_inv_cancel₀ ha_pos.ne', one_mul, cgf, mgf]
   have h_ms : ¬ μ ⟂ₘ ν :=
     fun h ↦ hν.out <| Measure.eq_zero_of_absolutelyContinuous_of_mutuallySingular hμν h
   rw [ENNReal.log_ofReal_of_pos _, integral_congr_ae (exp_mul_llr' hμν)]
@@ -406,24 +405,24 @@ end RenyiMeasure
 
 section Conditional
 
-variable {β γ : Type*} {mβ : MeasurableSpace β} {mγ : MeasurableSpace γ} {κ η : kernel α β}
+variable {β γ : Type*} {mβ : MeasurableSpace β} {mγ : MeasurableSpace γ} {κ η : Kernel α β}
 
 
 /-- Rényi divergence between two kernels κ and η conditional to a measure μ.
 It is defined as `Rₐ(κ, η | μ) := Rₐ(μ ⊗ₘ κ, μ ⊗ₘ η)`. -/
 noncomputable
-def condRenyiDiv (a : ℝ) (κ η : kernel α β) (μ : Measure α) : EReal :=
+def condRenyiDiv (a : ℝ) (κ η : Kernel α β) (μ : Measure α) : EReal :=
   renyiDiv a (μ ⊗ₘ κ) (μ ⊗ₘ η)
 
 /-Maybe this can be stated in a nicer way, but I didn't find a way to do it. It's probably good
 enough to use `condRenyiDiv_of_lt_one`.-/
-lemma condRenyiDiv_zero (κ η : kernel α β) (μ : Measure α)
+lemma condRenyiDiv_zero (κ η : Kernel α β) (μ : Measure α)
     [IsFiniteKernel κ] [IsFiniteKernel η] [IsFiniteMeasure μ] :
     condRenyiDiv 0 κ η μ = - ENNReal.log ((μ ⊗ₘ η) {x | 0 < (∂μ ⊗ₘ κ/∂μ ⊗ₘ η) x}) := by
   rw [condRenyiDiv, renyiDiv_zero]
 
 @[simp]
-lemma condRenyiDiv_one [CountableOrCountablyGenerated α β] (κ η : kernel α β) (μ : Measure α)
+lemma condRenyiDiv_one [CountableOrCountablyGenerated α β] (κ η : Kernel α β) (μ : Measure α)
     [IsFiniteKernel κ] [∀ x, NeZero (κ x)] [IsFiniteKernel η] [IsFiniteMeasure μ] :
     condRenyiDiv 1 κ η μ = condKL κ η μ := by
   rw [condRenyiDiv, renyiDiv_one, kl_compProd_left]
@@ -431,20 +430,20 @@ lemma condRenyiDiv_one [CountableOrCountablyGenerated α β] (κ η : kernel α 
 section TopAndBounds
 
 lemma condRenyiDiv_eq_top_iff_of_one_lt [CountableOrCountablyGenerated α β] (ha : 1 < a)
-    (κ η : kernel α β) (μ : Measure α) [IsFiniteKernel κ] [IsFiniteKernel η] [IsFiniteMeasure μ] :
+    (κ η : Kernel α β) (μ : Measure α) [IsFiniteKernel κ] [IsFiniteKernel η] [IsFiniteMeasure μ] :
     condRenyiDiv a κ η μ = ⊤
       ↔ ¬ (∀ᵐ x ∂μ, Integrable (fun b ↦ ((∂κ x/∂η x) b).toReal ^ a) (η x))
         ∨ ¬Integrable (fun x ↦ ∫ (b : β), ((∂κ x/∂η x) b).toReal ^ a ∂η x) μ
         ∨ ¬ ∀ᵐ x ∂μ, κ x ≪ η x := by
   rw [condRenyiDiv, renyiDiv_eq_top_iff_of_one_lt ha,
-    kernel.Measure.absolutelyContinuous_compProd_right_iff, ← or_assoc]
+    Kernel.Measure.absolutelyContinuous_compProd_right_iff, ← or_assoc]
   refine or_congr_left' fun h_ac ↦ ?_
   rw [integrable_rpow_rnDeriv_compProd_right_iff (by linarith) ha.ne']
   swap;· exact fun _ ↦ not_not.mp h_ac
   tauto
 
 lemma condRenyiDiv_ne_top_iff_of_one_lt [CountableOrCountablyGenerated α β] (ha : 1 < a)
-    (κ η : kernel α β) (μ : Measure α) [IsFiniteKernel κ] [IsFiniteKernel η] [IsFiniteMeasure μ] :
+    (κ η : Kernel α β) (μ : Measure α) [IsFiniteKernel κ] [IsFiniteKernel η] [IsFiniteMeasure μ] :
     condRenyiDiv a κ η μ ≠ ⊤
       ↔ (∀ᵐ x ∂μ, Integrable (fun b ↦ ((∂κ x/∂η x) b).toReal ^ a) (η x))
         ∧ Integrable (fun x ↦ ∫ (b : β), ((∂κ x/∂η x) b).toReal ^ a ∂η x) μ
@@ -455,10 +454,10 @@ lemma condRenyiDiv_ne_top_iff_of_one_lt [CountableOrCountablyGenerated α β] (h
 
 lemma condRenyiDiv_eq_top_iff_of_lt_one [CountableOrCountablyGenerated α β]
     (ha_nonneg : 0 ≤ a) (ha : a < 1)
-    (κ η : kernel α β) (μ : Measure α) [IsFiniteKernel κ] [IsFiniteKernel η] [IsFiniteMeasure μ] :
+    (κ η : Kernel α β) (μ : Measure α) [IsFiniteKernel κ] [IsFiniteKernel η] [IsFiniteMeasure μ] :
     condRenyiDiv a κ η μ = ⊤ ↔ ∀ᵐ a ∂μ, κ a ⟂ₘ η a := by
   rw [condRenyiDiv, renyiDiv_eq_top_iff_mutuallySingular_of_lt_one ha_nonneg ha,
-    kernel.Measure.mutuallySingular_compProd_iff_of_same_left]
+    Kernel.Measure.mutuallySingular_compProd_iff_of_same_left]
 
 lemma condRenyiDiv_of_not_ae_integrable_of_one_lt [CountableOrCountablyGenerated α β] (ha : 1 < a)
     [IsFiniteKernel κ] [IsFiniteKernel η] [IsFiniteMeasure μ]
@@ -485,13 +484,13 @@ lemma condRenyiDiv_of_mutuallySingular_of_lt_one [CountableOrCountablyGenerated 
     (h_ms : ∀ᵐ x ∂μ, κ x ⟂ₘ η x) :
     condRenyiDiv a κ η μ = ⊤ := by
   rw [condRenyiDiv, renyiDiv_eq_top_iff_mutuallySingular_of_lt_one ha_nonneg ha]
-  exact (kernel.Measure.mutuallySingular_compProd_iff_of_same_left μ κ η).mpr h_ms
+  exact (Kernel.Measure.mutuallySingular_compProd_iff_of_same_left μ κ η).mpr h_ms
 
 lemma condRenyiDiv_of_ne_zero [CountableOrCountablyGenerated α β] (ha_nonneg : 0 ≤ a)
-    (ha_ne_one : a ≠ 1) (κ η : kernel α β) (μ : Measure α) [IsFiniteKernel κ] [∀ x, NeZero (κ x)]
+    (ha_ne_one : a ≠ 1) (κ η : Kernel α β) (μ : Measure α) [IsFiniteKernel κ] [∀ x, NeZero (κ x)]
     [IsFiniteKernel η] [IsFiniteMeasure μ] :
     condRenyiDiv a κ η μ = (a - 1)⁻¹
-      * ENNReal.log (↑((μ ⊗ₘ η) Set.univ) + (a - 1) * (condHellingerDiv a κ η μ)).toENNReal := by
+      * ENNReal.log (↑((μ ⊗ₘ η) .univ) + (a - 1) * (condHellingerDiv a κ η μ)).toENNReal := by
   rw [condRenyiDiv, renyiDiv_of_ne_one ha_ne_one, hellingerDiv_compProd_left ha_nonneg _]
 
 end TopAndBounds
@@ -501,11 +500,11 @@ end Conditional
 
 section DataProcessingInequality
 
-variable {β : Type*} {mβ : MeasurableSpace β} {κ η : kernel α β}
+variable {β : Type*} {mβ : MeasurableSpace β} {κ η : Kernel α β}
 
 lemma le_renyiDiv_of_le_hellingerDiv {a : ℝ} {μ₁ ν₁ : Measure α} {μ₂ ν₂ : Measure β}
     [SigmaFinite μ₁] [SigmaFinite ν₁] [SigmaFinite μ₂] [SigmaFinite ν₂]
-    (h_eq : ν₁ Set.univ = ν₂ Set.univ) (h_le : hellingerDiv a μ₁ ν₁ ≤ hellingerDiv a μ₂ ν₂) :
+    (h_eq : ν₁ .univ = ν₂ .univ) (h_le : hellingerDiv a μ₁ ν₁ ≤ hellingerDiv a μ₂ ν₂) :
     renyiDiv a μ₁ ν₁ ≤ renyiDiv a μ₂ ν₂ := by
   rcases lt_trichotomy a 1 with (ha | rfl | ha)
   · simp_rw [renyiDiv_of_ne_one ha.ne, h_eq]
@@ -514,7 +513,7 @@ lemma le_renyiDiv_of_le_hellingerDiv {a : ℝ} {μ₁ ν₁ : Measure α} {μ₂
     gcongr
     · simp only [EReal.coe_nonneg, inv_nonneg, sub_nonneg, ha.le]
     refine ENNReal.log_monotone <| EReal.toENNReal_le_toENNReal ?_
-    gcongr (ν₂ Set.univ) + ?_
+    gcongr (ν₂ .univ) + ?_
     apply EReal.neg_le_neg_iff.mp
     norm_cast
     simp_rw [← neg_mul, ← EReal.coe_neg, neg_sub]
@@ -533,10 +532,10 @@ lemma le_renyiDiv_of_le_hellingerDiv {a : ℝ} {μ₁ ν₁ : Measure α} {μ₂
 
 lemma le_renyiDiv_compProd [CountableOrCountablyGenerated α β] (ha_pos : 0 < a)
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (κ η : kernel α β) [IsMarkovKernel κ] [IsMarkovKernel η] :
+    (κ η : Kernel α β) [IsMarkovKernel κ] [IsMarkovKernel η] :
     renyiDiv a μ ν ≤ renyiDiv a (μ ⊗ₘ κ) (ν ⊗ₘ η) := by
   refine le_renyiDiv_of_le_hellingerDiv ?_ (le_hellingerDiv_compProd ha_pos μ ν κ η)
-  rw [Measure.compProd_apply MeasurableSet.univ]
+  rw [Measure.compProd_apply .univ]
   simp
 
 lemma renyiDiv_fst_le [Nonempty β] [StandardBorelSpace β] (ha_pos : 0 < a)
@@ -551,15 +550,15 @@ lemma renyiDiv_snd_le [Nonempty α] [StandardBorelSpace α] (ha_pos : 0 < a)
 
 lemma renyiDiv_comp_le_compProd [Nonempty α] [StandardBorelSpace α] (ha_pos : 0 < a)
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
-    renyiDiv a (μ ∘ₘ κ) (ν ∘ₘ η) ≤ renyiDiv a (μ ⊗ₘ κ) (ν ⊗ₘ η) :=
+    (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
+    renyiDiv a (κ ∘ₘ μ) (η ∘ₘ ν) ≤ renyiDiv a (μ ⊗ₘ κ) (ν ⊗ₘ η) :=
   le_renyiDiv_of_le_hellingerDiv (Measure.snd_compProd ν η ▸ Measure.snd_univ)
     (hellingerDiv_comp_le_compProd ha_pos μ ν κ η)
 
 lemma renyiDiv_comp_left_le [Nonempty α] [StandardBorelSpace α]
     (ha_pos : 0 < a) (μ : Measure α) [IsFiniteMeasure μ]
-    (κ η : kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
-    renyiDiv a (μ ∘ₘ κ) (μ ∘ₘ η) ≤ condRenyiDiv a κ η μ :=
+    (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
+    renyiDiv a (κ ∘ₘ μ) (η ∘ₘ μ) ≤ condRenyiDiv a κ η μ :=
   le_renyiDiv_of_le_hellingerDiv (Measure.snd_compProd μ η ▸ Measure.snd_univ)
     (hellingerDiv_comp_le_compProd ha_pos μ μ κ η)
 
@@ -567,10 +566,10 @@ lemma renyiDiv_comp_left_le [Nonempty α] [StandardBorelSpace α]
 lemma renyiDiv_comp_right_le [Nonempty α] [StandardBorelSpace α] (ha_pos : 0 < a)
     [CountableOrCountablyGenerated α β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (κ : kernel α β) [IsMarkovKernel κ] :
-    renyiDiv a (μ ∘ₘ κ) (ν ∘ₘ κ) ≤ renyiDiv a μ ν := by
+    (κ : Kernel α β) [IsMarkovKernel κ] :
+    renyiDiv a (κ ∘ₘ μ) (κ ∘ₘ ν) ≤ renyiDiv a μ ν := by
   refine le_renyiDiv_of_le_hellingerDiv ?_ (hellingerDiv_comp_right_le ha_pos μ ν κ)
-  rw [← Measure.snd_compProd ν κ, Measure.snd_univ, Measure.compProd_apply MeasurableSet.univ]
+  rw [← Measure.snd_compProd ν κ, Measure.snd_univ, Measure.compProd_apply .univ]
   simp
 
 end DataProcessingInequality

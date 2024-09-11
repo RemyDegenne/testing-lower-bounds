@@ -1,15 +1,38 @@
-import Mathlib.Data.Real.EReal
-import Mathlib.MeasureTheory.Constructions.BorelSpace.Order
+import Mathlib.MeasureTheory.Constructions.BorelSpace.Real
 
-open scoped ENNReal NNReal
+open scoped ENNReal NNReal Topology
+open Filter Set
 
 namespace EReal
 
 instance : CharZero EReal := inferInstanceAs (CharZero (WithBot (WithTop ℝ)))
 
+instance : NoZeroDivisors EReal where
+  eq_zero_or_eq_zero_of_mul_eq_zero := by
+    intro a b h
+    contrapose! h
+    induction a <;> induction b <;> try {· simp_all [← EReal.coe_mul]}
+    · rcases lt_or_gt_of_ne h.2 with (h | h)
+        <;> simp [EReal.bot_mul_of_neg, EReal.bot_mul_of_pos, h]
+    · rcases lt_or_gt_of_ne h.1 with (h | h)
+        <;> simp [EReal.mul_bot_of_pos, EReal.mul_bot_of_neg, h]
+    · rcases lt_or_gt_of_ne h.1 with (h | h)
+        <;> simp [EReal.mul_top_of_neg, EReal.mul_top_of_pos, h]
+    · rcases lt_or_gt_of_ne h.2 with (h | h)
+        <;> simp [EReal.top_mul_of_pos, EReal.top_mul_of_neg, h]
+
 lemma coe_ennreal_toReal {x : ℝ≥0∞} (hx : x ≠ ∞) : (x.toReal : EReal) = x := by
   lift x to ℝ≥0 using hx
   rfl
+
+lemma lt_neg_iff_lt_neg {x y : EReal} : x < -y ↔ y < -x := by
+  nth_rw 1 [← neg_neg x, neg_lt_neg_iff]
+
+lemma le_neg_iff_le_neg {x y : EReal} : x ≤ -y ↔ y ≤ -x := by
+  nth_rw 1 [← neg_neg x, neg_le_neg_iff]
+
+lemma neg_le_iff_neg_le {x y : EReal} : -x ≤ y ↔ -y ≤ x := by
+  nth_rw 1 [← neg_neg y, neg_le_neg_iff]
 
 lemma top_mul_ennreal_coe {x : ℝ≥0∞} (hx : x ≠ 0) : ⊤ * (x : EReal) = ⊤ := by
   by_cases hx_top : x = ∞
@@ -48,6 +71,12 @@ lemma mul_eq_top (a b : EReal) :
   | neg_bot _ hx => simp [hx, EReal.coe_mul_bot_of_neg hx]
   | bot_bot => simp
 
+lemma mul_ne_top (a b : EReal) :
+    a * b ≠ ⊤ ↔ (a ≠ ⊥ ∨ 0 ≤ b) ∧ (0 ≤ a ∨ b ≠ ⊥) ∧ (a ≠ ⊤ ∨ b ≤ 0) ∧ (a ≤ 0 ∨ b ≠ ⊤) := by
+  rw [ne_eq, mul_eq_top]
+  set_option push_neg.use_distrib true in push_neg
+  rfl
+
 lemma mul_eq_bot (a b : EReal) :
     a * b = ⊥ ↔ (a = ⊥ ∧ 0 < b) ∨ (0 < a ∧ b = ⊥) ∨ (a = ⊤ ∧ b < 0) ∨ (a < 0 ∧ b = ⊤) := by
   induction a, b using EReal.induction₂_symm with
@@ -76,10 +105,70 @@ lemma mul_eq_bot (a b : EReal) :
   | neg_bot _ hx => simp [hx.le, EReal.coe_mul_bot_of_neg hx]
   | bot_bot => simp
 
+lemma mul_ne_bot (a b : EReal) :
+    a * b ≠ ⊥ ↔ (a ≠ ⊥ ∨ b ≤ 0) ∧ (a ≤ 0 ∨ b ≠ ⊥) ∧ (a ≠ ⊤ ∨ 0 ≤ b) ∧ (0 ≤ a ∨ b ≠ ⊤) := by
+  rw [ne_eq, mul_eq_bot]
+  set_option push_neg.use_distrib true in push_neg
+  rfl
+
+lemma mul_pos_iff {a b : EReal} : 0 < a * b ↔ 0 < a ∧ 0 < b ∨ a < 0 ∧ b < 0 := by
+  induction a, b using EReal.induction₂_symm with
+  | symm h => simp [mul_comm, h, and_comm]
+  | top_top => simp
+  | top_pos _ hx => simp [EReal.top_mul_coe_of_pos hx, hx]
+  | top_zero => simp
+  | top_neg _ hx => simp [hx, EReal.top_mul_coe_of_neg hx, le_of_lt]
+  | top_bot => simp
+  | pos_bot _ hx => simp [hx, EReal.coe_mul_bot_of_pos hx, le_of_lt]
+  | coe_coe x y => simp [← coe_mul, _root_.mul_pos_iff]
+  | zero_bot => simp
+  | neg_bot _ hx => simp [hx, EReal.coe_mul_bot_of_neg hx]
+  | bot_bot => simp
+
+lemma mul_neg_iff {a b : EReal} : a * b < 0 ↔ 0 < a ∧ b < 0 ∨ a < 0 ∧ 0 < b := by
+  nth_rw 1 [← neg_zero]
+  rw [lt_neg_iff_lt_neg, ← mul_neg, mul_pos_iff, neg_lt_iff_neg_lt, lt_neg_iff_lt_neg, neg_zero]
+
+lemma mul_nonneg_iff {a b : EReal} : 0 ≤ a * b ↔ 0 ≤ a ∧ 0 ≤ b ∨ a ≤ 0 ∧ b ≤ 0 := by
+  induction a, b using EReal.induction₂_symm with
+  | symm h => simp [mul_comm, h, and_comm]
+  | top_top => simp
+  | top_pos _ hx => simp [EReal.top_mul_coe_of_pos hx, hx, le_of_lt]
+  | top_zero => simp
+  | top_neg _ hx => simp [hx, EReal.top_mul_coe_of_neg hx]
+  | top_bot => simp
+  | pos_bot _ hx => simp [hx, EReal.coe_mul_bot_of_pos hx]
+  | coe_coe x y => simp [← coe_mul, _root_.mul_nonneg_iff]
+  | zero_bot => simp
+  | neg_bot _ hx => simp [hx, EReal.coe_mul_bot_of_neg hx, le_of_lt]
+  | bot_bot => simp
+
+lemma mul_nonpos_iff {a b : EReal} : a * b ≤ 0 ↔ 0 ≤ a ∧ b ≤ 0 ∨ a ≤ 0 ∧ 0 ≤ b := by
+  nth_rw 1 [← neg_zero]
+  rw [le_neg_iff_le_neg, ← mul_neg, mul_nonneg_iff, neg_le_iff_neg_le, le_neg_iff_le_neg, neg_zero]
+
 lemma add_ne_top {x y : EReal} (hx : x ≠ ⊤) (hy : y ≠ ⊤) : x + y ≠ ⊤ := by
   induction x <;> tauto
   induction y <;> tauto
   exact ne_of_beq_false rfl
+
+lemma add_ne_top_iff_of_ne_bot {x y : EReal} (hx : x ≠ ⊥) (hy : y ≠ ⊥) :
+    x + y ≠ ⊤ ↔ x ≠ ⊤ ∧ y ≠ ⊤ := by
+  refine ⟨?_, fun h ↦ add_ne_top h.1 h.2⟩
+  induction x <;> simp_all
+  induction y <;> simp_all
+
+lemma add_ne_top_iff_of_ne_bot_of_ne_top {x y : EReal} (hy : y ≠ ⊥) (hy' : y ≠ ⊤) :
+    x + y ≠ ⊤ ↔ x ≠ ⊤ := by
+  induction x <;> simp [add_ne_top_iff_of_ne_bot, hy, hy']
+
+lemma add_ne_bot_iff {x y : EReal} : x + y ≠ ⊥ ↔ x ≠ ⊥ ∧ y ≠ ⊥ := by
+  simp_rw [ne_eq, EReal.add_eq_bot_iff]
+  push_neg
+  rfl
+
+lemma add_ne_bot {x y : EReal} (hx : x ≠ ⊥) (hy : y ≠ ⊥) : x + y ≠ ⊥ :=
+  add_ne_bot_iff.mpr ⟨hx, hy⟩
 
 lemma coe_mul_add_of_nonneg {x : ℝ} (hx_nonneg : 0 ≤ x) (y z : EReal) :
     x * (y + z) = x * y + x * z := by
@@ -122,6 +211,9 @@ lemma sub_self {x : EReal} (h_top : x ≠ ⊤) (h_bot : x ≠ ⊥) : x - x = 0 :
 
 lemma sub_self_le_zero {x : EReal} : x - x ≤ 0 := by
   induction x <;> simp
+
+lemma top_sub_of_ne_top {x : EReal} (hx : x ≠ ⊤) : ⊤ - x = ⊤ := by
+  induction x <;> tauto
 
 lemma top_mul_add_of_nonneg {x y : EReal} (hx : 0 ≤ x) (hy : 0 ≤ y) :
     ⊤ * (x + y) = ⊤ * x + ⊤ * y := by
@@ -202,6 +294,14 @@ lemma toReal_ne_zero_iff {x : EReal} : x.toReal ≠ 0 ↔ x ≠ 0 ∧ x ≠ ⊤ 
 lemma toReal_eq_zero_iff {x : EReal} : x.toReal = 0 ↔ x = 0 ∨ x = ⊤ ∨ x = ⊥ := by
   induction x <;> norm_num
 
+lemma sub_nonneg {x y : EReal} (hy : y ≠ ⊤) (hy' : y ≠ ⊥) : 0 ≤ x - y ↔ y ≤ x := by
+  lift y to ℝ using ⟨hy, hy'⟩
+  induction x <;> simp [← EReal.coe_sub]
+
+lemma sub_nonpos {x y : EReal} (hy : y ≠ ⊤) (hy' : y ≠ ⊥) : x - y ≤ 0 ↔ x ≤ y := by
+  lift y to ℝ using ⟨hy, hy'⟩
+  induction x <;> simp [← EReal.coe_sub]
+
 @[simp]
 lemma nsmul_eq_mul {n : ℕ} {x : EReal} : n • x = n * x := by
   induction n with
@@ -223,9 +323,140 @@ lemma lowerSemicontinuous_add : LowerSemicontinuous fun (p : EReal × EReal) ↦
 
 instance : MeasurableAdd₂ EReal := ⟨EReal.lowerSemicontinuous_add.measurable⟩
 
+section MeasurableMul
+
+variable {α β γ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {mγ : MeasurableSpace γ}
+
+theorem measurable_from_prod_countable'' [Countable β] [MeasurableSingletonClass β]
+    {f : β × α → γ} (hf : ∀ y, Measurable fun x => f (y, x)) :
+    Measurable f := by
+  change Measurable ((fun (p : α × β) ↦ f (p.2, p.1)) ∘ Prod.swap)
+  exact (measurable_from_prod_countable hf).comp measurable_swap
+
+theorem measurable_of_measurable_real_prod {f : EReal × β → γ}
+    (h_real : Measurable fun p : ℝ × β ↦ f (p.1, p.2))
+    (h_bot : Measurable fun x ↦ f (⊥, x)) (h_top : Measurable fun x ↦ f (⊤, x)) :
+    Measurable f := by
+  have : (univ : Set (EReal × β)) = ({⊥, ⊤} ×ˢ univ) ∪ ({⊥, ⊤}ᶜ ×ˢ univ) := by
+    ext x
+    simp only [mem_univ, mem_union, mem_prod, mem_insert_iff, mem_singleton_iff, and_true,
+      mem_compl_iff, not_or, true_iff]
+    tauto
+  refine measurable_of_measurable_union_cover ({⊥, ⊤} ×ˢ univ)
+    ({⊥, ⊤}ᶜ ×ˢ univ) ?_ ?_ ?_ ?_ ?_
+  · refine MeasurableSet.prod ?_ MeasurableSet.univ
+    simp only [measurableSet_insert, MeasurableSet.singleton]
+  · refine (MeasurableSet.compl ?_).prod MeasurableSet.univ
+    simp only [measurableSet_insert, MeasurableSet.singleton]
+  · rw [this]
+  · let e : ({⊥, ⊤} ×ˢ univ : Set (EReal × β)) ≃ᵐ ({⊥, ⊤} : Set EReal) × β :=
+      (MeasurableEquiv.Set.prod ({⊥, ⊤} : Set EReal) (univ : Set β)).trans
+        (MeasurableEquiv.prodCongr (MeasurableEquiv.refl _) (MeasurableEquiv.Set.univ β))
+    have : ((fun (a : ({⊥, ⊤} : Set EReal) × β) ↦ f (a.1, a.2)) ∘ e)
+        = fun (a : ({⊥, ⊤} ×ˢ univ : Set (EReal × β))) ↦ f a := rfl
+    rw [← this]
+    refine Measurable.comp ?_ e.measurable
+    refine measurable_from_prod_countable'' fun y ↦ ?_
+    simp only
+    have h' := y.2
+    simp only [mem_insert_iff, mem_singleton_iff, bot_ne_top, or_false, top_ne_bot, or_true] at h'
+    cases h' with
+    | inl h => rwa [h]
+    | inr h => rwa [h]
+  · let e : ({⊥, ⊤}ᶜ ×ˢ univ : Set (EReal × β)) ≃ᵐ ℝ × β :=
+      (MeasurableEquiv.Set.prod ({⊥, ⊤}ᶜ : Set EReal) (univ : Set β)).trans
+        (MeasurableEquiv.prodCongr MeasurableEquiv.erealEquivReal (MeasurableEquiv.Set.univ β))
+    rw [← MeasurableEquiv.measurable_comp_iff e.symm]
+    exact h_real
+
+theorem measurable_of_measurable_real_real {f : EReal × EReal → β}
+    (h_real : Measurable fun p : ℝ × ℝ ↦ f (p.1, p.2))
+    (h_bot_left : Measurable fun r : ℝ ↦ f (⊥, r))
+    (h_top_left : Measurable fun r : ℝ ↦ f (⊤, r))
+    (h_bot_right : Measurable fun r : ℝ ↦ f (r, ⊥))
+    (h_top_right : Measurable fun r : ℝ ↦ f (r, ⊤)) :
+    Measurable f := by
+  refine measurable_of_measurable_real_prod ?_ ?_ ?_
+  · refine measurable_swap_iff.mp <| measurable_of_measurable_real_prod ?_ h_bot_right h_top_right
+    exact h_real.comp measurable_swap
+  · exact measurable_of_measurable_real h_bot_left
+  · exact measurable_of_measurable_real h_top_left
+
+private lemma measurable_const_mul (c : EReal) : Measurable fun (x : EReal) ↦ c * x := by
+  refine measurable_of_measurable_real ?_
+  induction c with
+  | h_bot =>
+    have : (fun (p : ℝ) ↦ (⊥ : EReal) * p)
+        = fun p ↦ if p = 0 then (0 : EReal) else (if p < 0 then ⊤ else ⊥) := by
+      ext p
+      split_ifs with h1 h2
+      · simp [h1]
+      · rw [bot_mul_coe_of_neg h2]
+      · rw [bot_mul_coe_of_pos]
+        exact lt_of_le_of_ne (not_lt.mp h2) (Ne.symm h1)
+    rw [this]
+    refine Measurable.piecewise (measurableSet_singleton _) measurable_const ?_
+    exact Measurable.piecewise measurableSet_Iio measurable_const measurable_const
+  | h_real c => exact (measurable_id.const_mul _).coe_real_ereal
+  | h_top =>
+    have : (fun (p : ℝ) ↦ (⊤ : EReal) * p)
+        = fun p ↦ if p = 0 then (0 : EReal) else (if p < 0 then ⊥ else ⊤) := by
+      ext p
+      split_ifs with h1 h2
+      · simp [h1]
+      · rw [top_mul_coe_of_neg h2]
+      · rw [top_mul_coe_of_pos]
+        exact lt_of_le_of_ne (not_lt.mp h2) (Ne.symm h1)
+    rw [this]
+    refine Measurable.piecewise (measurableSet_singleton _) measurable_const ?_
+    exact Measurable.piecewise measurableSet_Iio measurable_const measurable_const
+
 instance : MeasurableMul₂ EReal := by
-  constructor
-  sorry
+  refine ⟨measurable_of_measurable_real_real ?_ ?_ ?_ ?_ ?_⟩
+  · exact (measurable_fst.mul measurable_snd).coe_real_ereal
+  · exact (measurable_const_mul _).comp measurable_coe_real_ereal
+  · exact (measurable_const_mul _).comp measurable_coe_real_ereal
+  · simp_rw [mul_comm _ ⊥]
+    exact (measurable_const_mul _).comp measurable_coe_real_ereal
+  · simp_rw [mul_comm _ ⊤]
+    exact (measurable_const_mul _).comp measurable_coe_real_ereal
+
+end MeasurableMul
+
+theorem nhdsWithin_top : 𝓝[≠] (⊤ : EReal) = (atTop).map Real.toEReal := by
+  apply (nhdsWithin_hasBasis nhds_top_basis_Ici _).ext (atTop_basis.map Real.toEReal)
+  · simp only [EReal.image_coe_Ici, true_and]
+    intro x hx
+    by_cases hx_bot : x = ⊥
+    · simp [hx_bot]
+    lift x to ℝ using ⟨hx.ne_top, hx_bot⟩
+    refine ⟨x, fun x ⟨h1, h2⟩ ↦ ?_⟩
+    simp [h1, h2.ne_top]
+  · simp only [EReal.image_coe_Ici, true_implies]
+    refine fun x ↦ ⟨x, ⟨EReal.coe_lt_top x, fun x ⟨(h1 : _ ≤ x), h2⟩ ↦ ?_⟩⟩
+    simp [h1, Ne.lt_top' fun a ↦ h2 a.symm]
+
+lemma nhdsWithin_bot : 𝓝[≠] (⊥ : EReal) = (atBot).map Real.toEReal := by
+  apply (nhdsWithin_hasBasis nhds_bot_basis_Iic _).ext (atBot_basis.map Real.toEReal)
+  · simp only [EReal.image_coe_Iic, Set.subset_compl_singleton_iff, Set.mem_Ioc, lt_self_iff_false,
+      bot_le, and_true, not_false_eq_true, true_and]
+    intro x hx
+    by_cases hx_top : x = ⊤
+    · simp [hx_top]
+    lift x to ℝ using ⟨hx_top, hx.ne_bot⟩
+    refine ⟨x, fun x ⟨h1, h2⟩ ↦ ?_⟩
+    simp [h2, h1.ne_bot]
+  · simp only [EReal.image_coe_Iic, true_implies]
+    refine fun x ↦ ⟨x, ⟨EReal.bot_lt_coe x, fun x ⟨(h1 : x ≤ _), h2⟩ ↦ ?_⟩⟩
+    simp [h1, Ne.bot_lt' fun a ↦ h2 a.symm]
+
+theorem tendsto_toReal_atTop : Tendsto EReal.toReal (𝓝[≠] ⊤) atTop := by
+  rw [nhdsWithin_top, tendsto_map'_iff]
+  exact tendsto_id
+
+theorem tendsto_toReal_atBot : Tendsto EReal.toReal (𝓝[≠] ⊥) atBot := by
+  rw [nhdsWithin_bot, tendsto_map'_iff]
+  exact tendsto_id
 
 /-- Reinterpret an EReal number `x` as an ENNReal number. Returns `0` if `x < 0`. -/
 noncomputable def toENNReal (x : EReal) : ENNReal :=
@@ -236,10 +467,16 @@ noncomputable def toENNReal (x : EReal) : ENNReal :=
 theorem toENNReal_top : (⊤ : EReal).toENNReal = ⊤ := rfl
 
 @[simp]
+lemma toENNReal_of_ne_top {x : EReal} (hx : x ≠ ⊤) : x.toENNReal = ENNReal.ofReal x.toReal :=
+  if_neg hx
+
+@[simp]
 theorem toENNReal_eq_top_iff {x : EReal} : x.toENNReal = ⊤ ↔ x = ⊤ := by
   by_cases h : x = ⊤
   · simp [h]
   · simp [h, toENNReal]
+
+theorem toENNReal_ne_top_iff {x : EReal} : x.toENNReal ≠ ⊤ ↔ x ≠ ⊤ := toENNReal_eq_top_iff.not
 
 @[simp]
 theorem toENNReal_of_nonpos {x : EReal} (hx : x ≤ 0) : x.toENNReal = 0 := by
@@ -251,6 +488,9 @@ theorem toENNReal_of_nonpos {x : EReal} (hx : x ≤ 0) : x.toENNReal = 0 := by
 
 theorem toENNReal_eq_zero_iff {x : EReal} : x.toENNReal = 0 ↔ x ≤ 0 := by
   induction x <;> simp [toENNReal]
+
+theorem toENNReal_ne_zero_iff {x : EReal} : x.toENNReal ≠ 0 ↔ 0 < x := by
+  simp [toENNReal_eq_zero_iff.not]
 
 @[simp]
 theorem coe_toENNReal {x : EReal} (hx : 0 ≤ x) : (x.toENNReal : EReal) = x := by
@@ -280,6 +520,63 @@ theorem toENNReal_le_toENNReal {x y : EReal} (h : x ≤ y) : x.toENNReal ≤ y.t
     refine EReal.toReal_le_toReal h (coe_ne_bot _) hy_top
   · simp_all
 
+@[simp]
+lemma real_coe_toENNReal (x : ℝ) : (x : EReal).toENNReal = ENNReal.ofReal x := rfl
+
+@[simp]
+lemma toReal_toENNReal {x : EReal} (hx : 0 ≤ x) : x.toENNReal.toReal = x.toReal := by
+  by_cases h : x = ⊤
+  · simp [h]
+  · simp [h, toReal_nonneg hx]
+
+@[measurability]
+theorem _root_.measurable_ereal_toENNReal : Measurable EReal.toENNReal :=
+  EReal.measurable_of_measurable_real (by simpa using ENNReal.measurable_ofReal)
+
+@[measurability, fun_prop]
+theorem _root_.Measurable.ereal_toENNReal {α : Type*} {_ : MeasurableSpace α}
+    {f : α → EReal} (hf : Measurable f) :
+    Measurable fun x => (f x).toENNReal :=
+  measurable_ereal_toENNReal.comp hf
+
+lemma toENNReal_add {x y : EReal} (hx : 0 ≤ x) (hy : 0 ≤ y) :
+    (x + y).toENNReal = x.toENNReal + y.toENNReal := by
+  induction x <;> induction y <;> try {· simp_all}
+  norm_cast
+  simp_rw [real_coe_toENNReal]
+  simp_all [ENNReal.ofReal_add]
+
+lemma toENNReal_sub {x y : EReal} (hy : 0 ≤ y) :
+    (x - y).toENNReal = x.toENNReal - y.toENNReal := by
+  induction x <;> induction y <;> try {· simp_all}
+  · rename_i x y
+    simp only [ne_eq, coe_ne_top, not_false_eq_true, toENNReal_of_ne_top, toReal_coe]
+    by_cases hxy : x ≤ y
+    · rw [toENNReal_of_nonpos]
+      swap; · exact (sub_nonpos (coe_ne_top y) (coe_ne_bot y)).mpr <| EReal.coe_le_coe_iff.mpr hxy
+      simp_all
+    · rw [toENNReal_of_ne_top, ← EReal.coe_sub, toReal_coe,
+        ENNReal.ofReal_sub x (EReal.coe_nonneg.mp hy)]
+      exact Ne.symm (ne_of_beq_false rfl)
+  · rw [ENNReal.sub_eq_top_iff.mpr (by simp), top_sub_of_ne_top (coe_ne_top _), toENNReal_top]
+
+lemma toENNReal_mul {x y : EReal} (hx : 0 ≤ x) :
+    (x * y).toENNReal = x.toENNReal * y.toENNReal := by
+  induction x <;> induction y
+    <;> try {· simp_all [mul_nonpos_iff, ENNReal.ofReal_mul, ← EReal.coe_mul]}
+  · rcases eq_or_lt_of_le hx with (hx | hx)
+    · simp [← hx]
+    · simp_all [EReal.mul_top_of_pos hx]
+  · rename_i a
+    rcases lt_trichotomy a 0 with (ha | ha | ha)
+    · simp_all [le_of_lt, top_mul_of_neg (EReal.coe_neg'.mpr ha)]
+    · simp [ha]
+    · simp_all [top_mul_of_pos (EReal.coe_pos.mpr ha)]
+
+lemma toENNReal_mul' {x y : EReal} (hy : 0 ≤ y) :
+    (x * y).toENNReal = x.toENNReal * y.toENNReal := by
+  rw [mul_comm, toENNReal_mul hy, mul_comm]
+
 end EReal
 
 namespace ENNReal
@@ -305,5 +602,9 @@ lemma toEReal_sub (hy_top : y ≠ ⊤) (h_le : y ≤ x) :
 theorem min_mul : min a b * c = min (a * c) (b * c) := mul_right_mono.map_min
 
 theorem mul_min : a * min b c = min (a * b) (a * c) := mul_left_mono.map_min
+
+@[simp]
+lemma toReal_toEReal_of_ne_top (hx : x ≠ ⊤) : x.toReal.toEReal = x.toEReal := by
+  cases x <;> tauto
 
 end ENNReal

@@ -39,7 +39,7 @@ def deGrootInfo (μ ν : Measure 𝒳) (p : ℝ≥0∞) (hp : p ≤ 1) : ℝ≥0
 
 /-- **Data processing inequality** for the DeGroot statistical information. -/
 lemma deGrootInfo_comp_le (μ ν : Measure 𝒳) (p : ℝ≥0∞) (hp : p ≤ 1)
-    (η : kernel 𝒳 𝒳') [IsMarkovKernel η] :
-    deGrootInfo (μ ∘ₘ η) (ν ∘ₘ η) p hp ≤ deGrootInfo μ ν p hp := statInfo_comp_le _ _ _ _
+    (η : Kernel 𝒳 𝒳') [IsMarkovKernel η] :
+    deGrootInfo (η ∘ₘ μ) (η ∘ₘ ν) p hp ≤ deGrootInfo μ ν p hp := statInfo_comp_le _ _ _ _
 
 end ProbabilityTheory

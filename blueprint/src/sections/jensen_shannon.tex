@@ -4,7 +4,7 @@
   \label{def:jensenShannon}
   %\lean{}
   %\leanok
-  \uses{def:KL}
+  \uses{def:KL, lem:kl_properties}
   The Jensen-Shannon divergence indexed by $\alpha \in (0,1)$ between two measures $\mu$ and $\nu$ is
   \begin{align*}
     \JS_\alpha(\mu, \nu) = \alpha \KL(\mu, \alpha \mu + (1 - \alpha)\nu) + (1 - \alpha) \KL(\nu, \alpha \mu + (1 - \alpha)\nu) \: .
@@ -38,7 +38,7 @@
 \end{lemma}
 
 \begin{proof}%\leanok
-\uses{lem:fDiv_add_smul_right, lem:fDiv_add_smul_right', lem:fDiv_add, lem:fDiv_mul}
+\uses{lem:fDiv_add_smul_right, lem:fDiv_add_smul_right', lem:fDiv_add, lem:fDiv_mul, lem:fDiv_properties}
 $(\mu, \nu) \mapsto \KL(\mu, \alpha \mu + (1 - \alpha) \nu)$ is an $f$-divergence for the function $x \mapsto x\log\left(\frac{x}{\alpha x + 1 - \alpha}\right)$ (Lemma~\ref{lem:fDiv_add_smul_right}).
 
 $(\mu, \nu) \mapsto \KL(\nu, \alpha \mu + (1 - \alpha) \nu)$ is an $f$-divergence for the function $x \mapsto x\log\left(\frac{1}{\alpha x + 1 - \alpha}\right)$ (Lemma~\ref{lem:fDiv_add_smul_right'}).

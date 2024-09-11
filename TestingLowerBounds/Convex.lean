@@ -1,11 +1,10 @@
 /-
 Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Rémy Degenne
+Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import TestingLowerBounds.ForMathlib.EReal
-import Mathlib.Analysis.Convex.Integral
-import Mathlib.Analysis.Calculus.MeanValue
+import Mathlib.Analysis.InnerProductSpace.Basic
+import TestingLowerBounds.ForMathlib.LeftRightDeriv
 
 /-!
 
@@ -33,48 +32,52 @@ variable {f g : ℝ → ℝ} {s : Set ℝ} {x : ℝ}
 
 namespace ConvexOn
 
+lemma affine_le_of_mem_interior (hf : ConvexOn ℝ s f) {x y : ℝ} (hx : x ∈ interior s) (hy : y ∈ s) :
+    rightDeriv f x * y + (f x - rightDeriv f x * x) ≤ f y := by
+  rw [add_comm]
+  rcases lt_trichotomy x y with hxy | h_eq | hyx
+  · have : rightDeriv f x ≤ slope f x y := rightDeriv_le_slope hf hx hy hxy
+    rw [slope_def_field] at this
+    rwa [le_div_iff₀ (by simp [hxy]), le_sub_iff_add_le, add_comm, mul_sub, add_sub,
+      add_sub_right_comm] at this
+  · simp [h_eq]
+  · have : slope f x y ≤ rightDeriv f x :=
+      (slope_le_leftDeriv hf hx hy hyx).trans (leftDeriv_le_rightDeriv_of_mem_interior hf hx)
+    rw [slope_def_field] at this
+    rw [← neg_div_neg_eq, neg_sub, neg_sub] at this
+    rwa [div_le_iff₀ (by simp [hyx]), sub_le_iff_le_add, mul_sub, ← sub_le_iff_le_add',
+      sub_sub_eq_add_sub, add_sub_right_comm] at this
+
+lemma _root_.Convex.subsingleton_of_interior_eq_empty (hs : Convex ℝ s) (h : interior s = ∅) :
+    s.Subsingleton := by
+  intro x hx y hy
+  by_contra h_ne
+  wlog h_lt : x < y
+  · refine this hs h hy hx (Ne.symm h_ne) ?_
+    exact lt_of_le_of_ne (not_lt.mp h_lt) (Ne.symm h_ne)
+  · have h_subset : Set.Icc x y ⊆ s := by
+      rw [← segment_eq_Icc h_lt.le]
+      exact hs.segment_subset hx hy
+    have : Set.Ioo x y ⊆ interior s := by
+      rw [← interior_Icc]
+      exact interior_mono h_subset
+    simp only [h, Set.subset_empty_iff, Set.Ioo_eq_empty_iff] at this
+    exact this h_lt
+
 lemma exists_affine_le (hf : ConvexOn ℝ s f) (hs : Convex ℝ s) :
     ∃ c c', ∀ x ∈ s, c * x + c' ≤ f x := by
-  sorry
-
-lemma sSup_affine_eq (hf : ConvexOn ℝ s f) (hs : Convex ℝ s) (hxs : x ∈ s) :
-    sSup {z : ℝ | ∃ c c', z = c * x + c' ∧ ∀ y, c * y + c' ≤ f y} = f x := by
-  sorry
-
-lemma iSup_affine_eq (hf : ConvexOn ℝ s f) (hs : Convex ℝ s) (hxs : x ∈ s) :
-    ⨆ p : {p' : ℝ × ℝ | ∀ y : ℝ, p'.1 * y + p'.2 ≤ f y}, p.1.1 * x + p.1.2 = f x := by
-  sorry
-
-lemma slope_tendsto_atTop (hf_cvx : ConvexOn ℝ (Set.Ici 0) f) :
-    Tendsto (fun x ↦ f x / x) atTop atTop ∨ ∃ l, Tendsto (fun x ↦ f x / x) atTop (𝓝 l) := by
-  have h_mono : ∀ x y (hx : 0 < x) (hy : x ≤ y), (f x - f 0) / x ≤ (f y - f 0) / y := by
-    intro x y hx_pos hxy_le
-    have h := hf_cvx.secant_mono (a := 0) (x := x) (y := y) (by simp) hx_pos.le
-      (hx_pos.le.trans hxy_le) hx_pos.ne' (hx_pos.trans_le hxy_le).ne' hxy_le
-    simpa using h
-  suffices Tendsto (fun x ↦ if x ≤ 1 then (f 1 - f 0) else (f x - f 0) / x) atTop atTop
-      ∨ ∃ l, Tendsto (fun x ↦ if x ≤ 1 then (f 1 - f 0) else (f x - f 0) / x) atTop (𝓝 l) by
-    sorry
-  refine tendsto_of_monotone (fun x y hxy ↦ ?_)
-  split_ifs with hx hy hy
-  · exact le_rfl
-  · simpa using h_mono 1 y zero_lt_one (not_le.mp hy).le
-  · exact absurd (hxy.trans hy) hx
-  · simpa using h_mono x y (zero_lt_one.trans (not_le.mp hx)) hxy
-
-lemma comp_neg {𝕜 F β : Type*} [LinearOrderedField 𝕜] [AddCommGroup F]
-    [OrderedAddCommMonoid β] [Module 𝕜 F] [SMul 𝕜 β] {f : F → β} {s : Set F}
-    (hf : ConvexOn 𝕜 s f) :
-    ConvexOn 𝕜 (-s) (fun x ↦ f (-x)) := by
-  refine ⟨hf.1.neg, fun x hx y hy a b ha hb hab ↦ ?_⟩
-  simp_rw [neg_add_rev, ← smul_neg, add_comm]
-  exact hf.2 hx hy ha hb hab
-
-lemma comp_neg_iff {𝕜 F β : Type*} [LinearOrderedField 𝕜] [AddCommGroup F]
-    [OrderedAddCommMonoid β] [Module 𝕜 F] [SMul 𝕜 β] {f : F → β} {s : Set F}  :
-    ConvexOn 𝕜 (-s) (fun x ↦ f (-x)) ↔ ConvexOn 𝕜 s f := by
-  refine ⟨fun h ↦ ?_, fun h ↦ ConvexOn.comp_neg h⟩
-  rw [← neg_neg s, ← Function.comp_id f, ← neg_comp_neg, ← Function.comp.assoc]
-  exact h.comp_neg
+  cases Set.eq_empty_or_nonempty (interior s) with
+  | inl h => -- there is at most one point in `s`
+    have hs_sub : s.Subsingleton := hs.subsingleton_of_interior_eq_empty h
+    cases Set.eq_empty_or_nonempty s with
+    | inl h' => simp [h']
+    | inr h' => -- there is exactly one point in `s`
+      obtain ⟨x, hxs⟩ := h'
+      refine ⟨0, f x, fun y hys ↦ ?_⟩
+      simp [hs_sub hxs hys]
+  | inr h => -- there is a point in the interior of `s`
+    obtain ⟨x, hx⟩ := h
+    refine ⟨rightDeriv f x, f x - rightDeriv f x * x, fun y hy ↦ ?_⟩
+    exact affine_le_of_mem_interior hf hx hy
 
 end ConvexOn

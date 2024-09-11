@@ -12,17 +12,19 @@
   if $\mu \ll \nu$ and $x \mapsto \log \frac{d \mu}{d \nu}(x)$ is $\mu$-integrable and $+\infty$ otherwise.
 \end{definition}
 
+
 \begin{lemma}
   \label{lem:kl_eq_fDiv}
   \lean{ProbabilityTheory.kl_eq_fDiv}
   \leanok
-  \uses{def:KL, def:fDiv}
+  \uses{def:KL, def:fDiv, lem:fDiv_properties}
   $\KL(\mu, \nu) = D_f(\mu, \nu)$ for $f: x \mapsto x \log x$.
 \end{lemma}
 
 \begin{proof}\leanok
 Simple computation.
 \end{proof}
+
 
 \begin{definition}[Conditional Kullback-Leibler divergence]
   \label{def:condKL}
@@ -36,17 +38,20 @@ Simple computation.
   if $x \mapsto \KL(\kappa(x), \eta(x))$ is $\mu$-integrable and $+\infty$ otherwise.
 \end{definition}
 
+
 \begin{lemma}
   \label{lem:condKL_eq_condFDiv}
   \lean{ProbabilityTheory.kl_eq_fDiv}
   \leanok
-  \uses{def:condKL, def:condFDiv}
+  \uses{def:condKL, def:condFDiv, lem:fDiv_properties}
   $\KL(\kappa, \eta \mid \mu) = D_f(\kappa, \eta \mid \mu)$ for $f: x \mapsto x \log x$.
 \end{lemma}
 
 \begin{proof}\leanok
 Simple computation.
 \end{proof}
+
+
 
 \subsection{Properties inherited from f-divergences}
 
@@ -79,6 +84,7 @@ Since $\KL$ is an f-divergence, every inequality for f-divergences can be transl
   KL is an f-divergence thanks to Lemma~\ref{lem:kl_eq_fDiv} and Lemma~\ref{lem:condKL_eq_condFDiv}, then apply Lemma~\ref{lem:condFDiv_const}.
 \end{proof}
 
+
 \begin{theorem}[Marginals]
   \label{thm:kl_fst_le}
   \lean{ProbabilityTheory.kl_fst_le, ProbabilityTheory.kl_snd_le}
@@ -94,6 +100,7 @@ Since $\KL$ is an f-divergence, every inequality for f-divergences can be transl
 Apply Theorem~\ref{thm:fDiv_fst_le_2}.
 \end{proof}
 
+
 \begin{theorem}[Data-processing]
   \label{thm:kl_data_proc}
   \lean{ProbabilityTheory.kl_comp_right_le}
@@ -108,6 +115,7 @@ Apply Theorem~\ref{thm:fDiv_fst_le_2}.
 Apply Theorem~\ref{thm:fDiv_data_proc_2}.
 \end{proof}
 
+
 \begin{lemma}
   \label{lem:kl_ge}
   \lean{ProbabilityTheory.kl_ge_mul_log}
@@ -119,6 +127,7 @@ Apply Theorem~\ref{thm:fDiv_data_proc_2}.
 \begin{proof}\leanok
 \uses{lem:le_fDiv, lem:kl_eq_fDiv}
 \end{proof}
+
 
 \begin{lemma}[Gibbs' inequality]
   \label{lem:kl_nonneg}
@@ -133,6 +142,7 @@ Apply Theorem~\ref{thm:fDiv_data_proc_2}.
 Apply Lemma~\ref{lem:kl_ge} and use $\mu(\mathcal X) = \nu (\mathcal X)$.
 \end{proof}
 
+
 \begin{lemma}[Converse Gibbs' inequality]
   \label{lem:kl_eq_zero_iff}
   \lean{ProbabilityTheory.kl_eq_zero_iff'}
@@ -146,6 +156,7 @@ Apply Lemma~\ref{lem:kl_ge} and use $\mu(\mathcal X) = \nu (\mathcal X)$.
 KL is an f-divergence thanks to Lemma~\ref{lem:kl_eq_fDiv}, then apply Lemma~\ref{lem:fDiv_eq_zero_iff}.
 \end{proof}
 
+
 \begin{lemma}
   \label{lem:kl_convex}
   %\lean{}
@@ -158,6 +169,7 @@ KL is an f-divergence thanks to Lemma~\ref{lem:kl_eq_fDiv}, then apply Lemma~\re
 \uses{thm:fDiv_convex, lem:kl_eq_fDiv}
 Apply Theorem~\ref{thm:fDiv_convex}
 \end{proof}
+
 
 %TODO : this may be moved to another section about integrability
 \begin{lemma}
@@ -276,6 +288,7 @@ For the case where $\mu \otimes \kappa \ll \nu \otimes \eta$ and $p \mapsto \log
 Write $\mu = \mu_X \otimes \mu_{Y|X}$ and $\nu = \nu_X \otimes \nu_{Y|X}$, then use Theorem~\ref{thm:kl_compProd}.
 \end{proof}
 
+
 \begin{lemma}
   \label{lem:kl_prod_two'}
   \lean{ProbabilityTheory.kl_prod_two'}
@@ -290,6 +303,7 @@ Write $\mu = \mu_X \otimes \mu_{Y|X}$ and $\nu = \nu_X \otimes \nu_{Y|X}$, then 
 Write $\mu_1 \times \mu_2$ and $\nu_1 \times \nu_2$ as composition products of a measure and a constant kernel, then apply the chain rule (Theorem~\ref{thm:kl_compProd}) and Lemma~\ref{lem:condKL_const}.
 \end{proof}
  
+
 \begin{theorem}[Tensorization]
   \label{thm:kl_prod_two}
   \lean{ProbabilityTheory.kl_prod_two}
@@ -305,6 +319,7 @@ Write $\mu_1 \times \mu_2$ and $\nu_1 \times \nu_2$ as composition products of a
 \uses{lem:kl_prod_two'}
 This is a particular case of Lemma~\ref{lem:kl_prod_two'}.
 \end{proof}
+
 
 \begin{theorem}[Tensorization - finite product]
   \label{thm:kl_pi}
@@ -322,6 +337,7 @@ This is a particular case of Lemma~\ref{lem:kl_prod_two'}.
 \uses{thm:kl_prod_two}
 Induction on the size of $I$, using Theorem~\ref{thm:kl_prod_two}.
 \end{proof}
+
 
 \begin{lemma}
   \label{lem:kl_chain_rule_cond_event}
@@ -353,6 +369,7 @@ Using the chain rule (Theorem~\ref{thm:kl_compProd}),
 
 \end{proof}
 
+
 \begin{lemma}
   \label{lem:expectation_llr_event}
   %\lean{}
@@ -365,4 +382,38 @@ Using the chain rule (Theorem~\ref{thm:kl_compProd}),
 \begin{proof}
 \uses{lem:kl_ge}
 Apply Lemma~\ref{lem:kl_ge} to the measures $\mu$ and $\nu$ restricted to $E$. $\mu\left[\mathbb{I}(E)\log \frac{d \mu}{d \nu}\right]$ is the KL between those two distributions.
+\end{proof}
+
+
+
+
+TODO: find a way to hide the following dummy lemma
+\begin{lemma}[Dummy lemma: KL properties]
+  \label{lem:kl_properties}
+  %\lean{}
+  \leanok
+  \uses{def:KL, def:condKL}
+  Dummy node to summarize properties of the Kullback-Leibler divergence.
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{
+  lem:kl_eq_fDiv,
+  lem:condKL_eq_condFDiv,
+  lem:kl_self,
+  lem:condKL_const,
+  thm:kl_fst_le,
+  thm:kl_data_proc,
+  lem:kl_ge,
+  lem:kl_nonneg,
+  lem:kl_eq_zero_iff,
+  lem:kl_convex,
+  thm:kl_compProd,
+  thm:kl_compProd_bayesInv,
+  thm:kl_fst_add_condKL,
+  lem:kl_prod_two',
+  thm:kl_prod_two,
+  thm:kl_pi,
+  lem:kl_chain_rule_cond_event
+}
 \end{proof}

@@ -4,7 +4,7 @@ Let $f : \mathbb{R} \to \mathbb{R}$ be convex on $[0, +\infty)$. Remark that $f(
 
 \begin{definition}
   \label{def:derivAtTop}
-  \lean{ProbabilityTheory.derivAtTop}
+  \lean{derivAtTop}
   \leanok
   %\uses{}
   We define $f'(\infty) := \limsup_{x \to + \infty} f(x)/x$. This can be equal to $+\infty$ (but not $-\infty$).
@@ -12,7 +12,7 @@ Let $f : \mathbb{R} \to \mathbb{R}$ be convex on $[0, +\infty)$. Remark that $f(
 
 \begin{lemma}
   \label{lem:integrable_f_rnDeriv_of_derivAtTop_ne_top}
-  \lean{ProbabilityTheory.integrable_f_rnDeriv_of_derivAtTop_ne_top}
+  \lean{MeasureTheory.integrable_f_rnDeriv_of_derivAtTop_ne_top}
   \leanok
   \uses{def:derivAtTop}
   If $\mu$ and $\nu$ are two finite measures and $f'(\infty) < \infty$, then $x \mapsto f\left(\frac{d\mu}{d\nu}(x)\right)$ is $\nu$-integrable. 
@@ -28,8 +28,9 @@ Those functions are integrable since the measures are finite.
   %\lean{}
   %\leanok
   %\uses{}
+  \notready
   For $f$ convex, $f\left(\mu [g \mid m]\right) \le \mu [f \circ g \mid m]$.
 \end{theorem}
 
-\begin{proof}
+\begin{proof} %\leanok
 \end{proof}

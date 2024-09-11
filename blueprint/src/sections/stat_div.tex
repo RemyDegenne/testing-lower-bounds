@@ -1,9 +1,3 @@
-A divergence between measures is a function which maps two measures on any common space $\mathcal X$ to a value in $[-\infty, +\infty]$.
-For two probability measures $\mu$ and $\nu$, we will want the divergence $D(\mu, \nu)$ to be non-negative and to be zero if $\mu = \nu$~: divergences are meant to be notions of dissimilarity between measures.
-
-We will pay particular attention to how the divergence behaves with respect to transformations of the measures.
-For a Markov kernel $\kappa : \mathcal X \rightsquigarrow \mathcal Y$~, a fundamental property of all divergences we will consider is the \emph{data-processing inequality}, which states that $D(\kappa \circ \mu, \kappa \circ \nu) \le D(\mu, \nu)$.
-That is, processing data with a (possibly random) common transformation $\kappa$ can only lose information about the difference between the two measures.
 
 \section{Statistical divergences}
 
@@ -11,7 +5,7 @@ That is, processing data with a (possibly random) common transformation $\kappa$
   \label{def:statInfo}
   \lean{ProbabilityTheory.statInfo}
   \leanok
-  \uses{def:bayesBinaryRisk, def:riskIncrease}
+  \uses{def:bayesBinaryRisk, def:riskIncrease, lem:bayesBinaryRisk_properties}
   The statistical information between measures $\mu$ and $\nu$ with respect to prior $\xi \in \mathcal M(\{0,1\})$ is
   $\mathcal I_\xi(\mu, \nu) = \min\{\xi_0 \mu(\mathcal X), \xi_1 \nu(\mathcal X)\} - \mathcal B_\xi(\mu, \nu)$.
   This is the risk increase $I_\xi^P(d_{\mathcal X})$ in the binary hypothesis testing problem for $d_{\mathcal X} : \mathcal X \rightsquigarrow *$ the Markov kernel to the point space.
@@ -22,13 +16,13 @@ This is a simple generalization of both the DeGroot statistical information as w
 
 \begin{lemma}
   \label{lem:statInfo_self}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.statInfo_self}
+  \leanok
   \uses{def:statInfo}
   For $\mu \in \mathcal M(\mathcal X)$, $\mathcal I_\xi(\mu, \mu) = 0$~.
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{lem:bayesBinaryRisk_self}
 Use Lemma~\ref{lem:bayesBinaryRisk_self}.
 \end{proof}
@@ -49,13 +43,13 @@ Use Lemma~\ref{lem:bayesBinaryRisk_le}.
 
 \begin{lemma}
   \label{lem:statInfo_le}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.statInfo_le_min}
+  \leanok
   \uses{def:statInfo}
   For $\mu, \nu \in \mathcal M(\mathcal X)$, $\mathcal I_\xi(\mu, \nu) \le \min\{\xi_0 \mu(\mathcal X), \xi_1 \nu(\mathcal X)\}$~.
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{lem:bayesBinaryRisk_nonneg}
 Use Lemma~\ref{lem:bayesBinaryRisk_nonneg}.
 \end{proof}
@@ -63,16 +57,17 @@ Use Lemma~\ref{lem:bayesBinaryRisk_nonneg}.
 
 \begin{lemma}
   \label{lem:statInfo_symm}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.statInfo_symm}
+  \leanok
   \uses{def:statInfo}
   For $\mu, \nu \in \mathcal M(\mathcal X)$ and $\xi \in \mathcal M(\{0,1\})$, $\mathcal I_\xi(\mu, \nu) = \mathcal I_{\xi_\leftrightarrow}(\nu, \mu)$~.
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{lem:bayesBinaryRisk_symm}
 Use Lemma~\ref{lem:bayesBinaryRisk_symm}.
 \end{proof}
+
 
 \begin{theorem}[Data-processing inequality]
   \label{thm:data_proc_statInfo}
@@ -100,14 +95,14 @@ Alternatively, we can use Lemma~\ref{lem:riskIncrease_comp_del}.
 
 \begin{corollary}
   \label{cor:statInfo_data_proc_event}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.statInfo_boolMeasure_le_statInfo}
+  \leanok
   \uses{def:statInfo}
   Let $\mu, \nu$ be two measures on $\mathcal X$, $\xi \in \mathcal M(\{0,1\})$ and let $E$ be an event on $\mathcal X$. Let $\mu_E$ and $\nu_E$ be the two Bernoulli distributions with respective means $\mu(E)$ and $\nu(E)$.
   Then $\mathcal I_\xi(\mu, \nu) \ge \mathcal I_\xi(\mu_E, \nu_E)$.
 \end{corollary}
 
-\begin{proof}
+\begin{proof}\leanok
 \uses{thm:data_proc_statInfo}
 Apply Theorem~\ref{thm:data_proc_statInfo} to the deterministic kernel $\mathcal X \rightsquigarrow \{0,1\}$ given by the function $x \mapsto \mathbb{I}\{x \in E\}$.
 \end{proof}
@@ -115,8 +110,8 @@ Apply Theorem~\ref{thm:data_proc_statInfo} to the deterministic kernel $\mathcal
 
 \begin{lemma}
   \label{lem:statInfo_eq_sub_min}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.statInfo_eq_min_sub_lintegral, ProbabilityTheory.statInfo_eq_min_sub_lintegral', ProbabilityTheory.toReal_statInfo_eq_min_sub_integral}
+  \leanok
   \uses{def:statInfo}
   For finite measures $\mu, \nu$ and $\xi \in \mathcal M(\{0,1\})$, for any measure $\zeta$ with $\mu \ll \zeta$ and $\nu \ll \zeta$~,
   \begin{align*}
@@ -127,7 +122,7 @@ Apply Theorem~\ref{thm:data_proc_statInfo} to the deterministic kernel $\mathcal
   This holds in particular for $\zeta = P \circ \xi$.
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{thm:bayesBinaryRisk_eq}
 Apply Theorem~\ref{thm:bayesBinaryRisk_eq} to get that result for $\zeta = P \circ \xi$. Then for other $\zeta$ with $\mu \ll \zeta$ and $\nu \ll \zeta$~, use $\frac{d \mu}{d\zeta} = \frac{d \mu}{d(P \circ \xi)} / \frac{d (P \circ \xi)}{d\zeta}$~.
 \end{proof}
@@ -135,8 +130,8 @@ Apply Theorem~\ref{thm:bayesBinaryRisk_eq} to get that result for $\zeta = P \ci
 
 \begin{lemma}
   \label{lem:statInfo_eq_integral_abs_sub}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.statInfo_eq_abs_add_lintegral_abs}
+  \leanok
   \uses{def:statInfo}
   For finite measures $\mu, \nu$ and $\xi \in \mathcal M(\{0,1\})$, for any measure $\zeta$ with $\mu \ll \zeta$ and $\nu \ll \zeta$~,
   \begin{align*}
@@ -157,8 +152,8 @@ The result for other $\zeta$ follows from simple manipulations of Radon-Nikodym 
 
 \begin{theorem}[Integral form of the statistical information]
   \label{thm:statInfo_eq_integral}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.toReal_statInfo_eq_integral_max_of_le, ProbabilityTheory.toReal_statInfo_eq_integral_max_of_ge}
+  \leanok
   \uses{def:statInfo}
   For finite measures $\mu, \nu$ and $\xi \in \mathcal M(\{0,1\})$,
   \begin{align*}
@@ -174,7 +169,7 @@ The result for other $\zeta$ follows from simple manipulations of Radon-Nikodym 
 
 For probability measures, this theorem makes the statistical information an $f$-divergence (which is defined later in this document).
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{thm:bayesBinaryRisk_eq}
 By Theorem~\ref{thm:bayesBinaryRisk_eq},
 \begin{align*}
@@ -204,10 +199,11 @@ If on the other hand $\xi_0\mu(\mathcal X) \ge \xi_1\nu(\mathcal X)$~, with simi
 \end{align*}
 \end{proof}
 
+
 \begin{corollary}
   \label{cor:statInfo_eq_integral_abs}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.toReal_statInfo_eq_integral_abs}
+  \leanok
   \uses{def:statInfo}
   For finite measures $\mu, \nu$ and $\xi \in \mathcal M(\{0,1\})$,
   \begin{align*}
@@ -217,7 +213,7 @@ If on the other hand $\xi_0\mu(\mathcal X) \ge \xi_1\nu(\mathcal X)$~, with simi
   \end{align*}
 \end{corollary}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{thm:statInfo_eq_integral}
 Start from Theorem~\ref{thm:statInfo_eq_integral}, then use $\max\{a,b\} = \frac{1}{2}\left( a + b + \vert a - b \vert \right)$~.
 The two cases of Theorem~\ref{thm:statInfo_eq_integral} lead to the same expression.
@@ -226,8 +222,8 @@ The two cases of Theorem~\ref{thm:statInfo_eq_integral} lead to the same express
 
 \begin{lemma}
   \label{lem:statInfo_eq_sub_inf_event}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.statInfo_eq_min_sub_iInf_measurableSet}
+  \leanok
   \uses{def:statInfo}
   For finite measures $\mu, \nu$ and $\xi \in \mathcal M(\{0,1\})$,
   \begin{align*}
@@ -237,7 +233,7 @@ The two cases of Theorem~\ref{thm:statInfo_eq_integral} lead to the same express
   \end{align*}
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{lem:bayesBinaryRisk_eq_event}
 This is a direct application of Lemma~\ref{lem:bayesBinaryRisk_eq_event}.
 \end{proof}
@@ -264,104 +260,47 @@ This is a direct application of Lemma~\ref{lem:bayesBinaryRisk_eq_event}.
 \end{proof}
 
 
+TODO: find a way to hide the following dummy lemma
+\begin{lemma}[Dummy lemma: statInfo properties]
+  \label{lem:statInfo_properties}
+  %\lean{}
+  \leanok
+  \uses{def:statInfo}
+  Dummy node to summarize properties of the statistical information.
+\end{lemma}
 
-\subsection{DeGroot statistical information}
+\begin{proof}\leanok
+\uses{
+  lem:statInfo_self,
+  lem:statInfo_nonneg,
+  lem:statInfo_le,
+  lem:statInfo_symm,
+  thm:data_proc_statInfo,
+  cor:statInfo_data_proc_event,
+  lem:statInfo_eq_sub_min,
+  lem:statInfo_eq_integral_abs_sub,
+  thm:statInfo_eq_integral,
+  cor:statInfo_eq_integral_abs,
+  lem:statInfo_eq_sub_inf_event,
+  lem:statInfo_eq_sup_event
+}
+\end{proof}
 
-TODO: we could also call the more general statistical information defined above the DeGroot statistical information.
 
 \begin{definition}
   \label{def:deGrootInfo}
   \lean{ProbabilityTheory.deGrootInfo}
   \leanok
-  \uses{def:statInfo}
-  The DeGroot statistical information between finite measures $\mu$ and $\nu$ for $\pi \in [0,1]$ is $I_\pi(\mu, \nu) = \mathcal I_{(\pi, 1 - \pi)}(\mu, \nu)$~.
+  \uses{def:statInfo, lem:statInfo_properties}
+  The DeGroot statistical information between finite measures $\mu$ and $\nu$ for $\pi \in [0,1]$ is $I_\pi (\mu, \nu) = \mathcal I_{(\pi, 1 - \pi)}(\mu, \nu)$~.
 \end{definition}
-
-\begin{lemma}
-  \label{lem:deGrootInfo_self}
-  \lean{ProbabilityTheory.deGrootInfo}
-  \leanok
-  \uses{def:deGrootInfo}
-  For $\mu \in \mathcal M(\mathcal X)$, $I_\pi(\mu, \mu) = 0$~.
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{lem:statInfo_self}
-Use Lemma~\ref{lem:statInfo_self}.
-\end{proof}
-
-\begin{lemma}
-  \label{lem:deGrootInfo_nonneg}
-  %\lean{}
-  %\leanok
-  \uses{def:deGrootInfo}
-  For $\mu, \nu \in \mathcal M(\mathcal X)$, $I_\pi(\mu, \nu) \ge 0$~.
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{lem:statInfo_nonneg}
-Use Lemma~\ref{lem:statInfo_nonneg}.
-\end{proof}
-
-\begin{lemma}
-  \label{lem:deGrootInfo_symm}
-  %\lean{}
-  %\leanok
-  \uses{def:deGrootInfo}
-  For $\mu, \nu \in \mathcal M(\mathcal X)$ and $\pi \in [0,1]$, $I_\pi(\mu, \nu) = I_{1 - \pi}(\nu, \mu)$~.
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{lem:statInfo_symm}
-Use Lemma~\ref{lem:statInfo_symm}.
-\end{proof}
-
-\begin{theorem}[Data-processing inequality]
-  \label{thm:data_proc_deGrootInfo}
-  \lean{ProbabilityTheory.deGrootInfo_comp_le}
-  \leanok
-  \uses{def:deGrootInfo}
-  For $\mu, \nu \in \mathcal M(\mathcal X)$ and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ a Markov kernel, $I_\pi(\kappa \circ \mu, \kappa \circ \nu) \le I_\pi(\mu, \nu)$~.
-\end{theorem}
-
-\begin{proof}\leanok
-\uses{thm:data_proc_statInfo}
-Apply Theorem~\ref{thm:data_proc_statInfo}.
-\end{proof}
-
-
-\begin{lemma}[Integral form of the DeGroot statistical information]
-  \label{lem:deGrootInfo_eq_integral}
-  %\lean{}
-  %\leanok
-  \uses{def:deGrootInfo}
-  For finite measures $\mu, \nu$ and $\pi \in [0,1]$,
-  \begin{align*}
-  I_\pi(\mu, \nu)
-  &= \nu\left[ x \mapsto \pi \max \left\{0 , \frac{d \mu}{d\nu}(x) - \frac{1 - \pi}{\pi} \right\} \right] + \pi \mu_{\perp \nu}(\mathcal X) & \text{ if } \pi \mu(\mathcal X) \le (1 - \pi) \nu(\mathcal X)
-  \: , \\
-  I_\pi(\mu, \nu)
-  &= \nu\left[ x \mapsto \pi \max \left\{0 , \frac{1 - \pi}{\pi} - \frac{d \mu}{d\nu}(x) \right\} \right] & \text{ if } \pi \mu(\mathcal X) \ge (1 - \pi) \nu(\mathcal X)
-  \: .
-  \end{align*}
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{thm:statInfo_eq_integral}
-Apply Theorem~\ref{thm:statInfo_eq_integral}.
-\end{proof}
-
-
-
-
-\subsection{Hockey-stick divergence}
 
 
 \begin{definition}
   \label{def:eGamma}
   \lean{ProbabilityTheory.eGamma}
   \leanok
-  \uses{def:statInfo}
+  \uses{def:statInfo, lem:statInfo_properties}
   The $E_\gamma$ or hockey-stick divergence between finite measures $\mu$ and $\nu$ for $\gamma \in (0,+\infty)$ is $E_\gamma(\mu, \nu) = \mathcal I_{(1,\gamma)}(\mu, \nu)$~.
 \end{definition}
 
@@ -369,65 +308,150 @@ Note that our definition of the $E_\gamma$ divergence extends the one from the l
 The extension makes sense in light of Theorem~\ref{thm:fDiv_eq_integral_eGamma}.
 It is also extended from probability measures to finite measures.
 
-\begin{lemma}
-  \label{lem:eGamma_self}
-  %\lean{}
-  %\leanok
-  \uses{def:eGamma}
-  For $\mu \in \mathcal M(\mathcal X)$, $E_\gamma(\mu, \mu) = 0$~.
-\end{lemma}
 
-\begin{proof}%\leanok
-\uses{lem:statInfo_self}
-Use Lemma~\ref{lem:statInfo_self}.
-\end{proof}
+%\subsection{DeGroot statistical information}
+%
+%TODO: we could also call the more general statistical information defined above the DeGroot statistical information.
+%
+%\begin{lemma}
+%   \label{lem:deGrootInfo_self}
+%   \lean{ProbabilityTheory.deGrootInfo}
+%   \leanok
+%   \uses{def:deGrootInfo}
+%   For $\mu \in \mathcal M(\mathcal X)$, $I_\pi(\mu, \mu) = 0$~.
+% \end{lemma}
 
-\begin{lemma}
-  \label{lem:eGamma_nonneg}
-  %\lean{}
-  %\leanok
-  \uses{def:eGamma}
-  For $\mu, \nu \in \mathcal M(\mathcal X)$, $E_\gamma(\mu, \nu) \ge 0$~.
-\end{lemma}
+% \begin{proof}%\leanok
+% \uses{lem:statInfo_self}
+% Use Lemma~\ref{lem:statInfo_self}.
+% \end{proof}
 
-\begin{proof}%\leanok
-\uses{lem:statInfo_nonneg}
-Use Lemma~\ref{lem:statInfo_nonneg}.
-\end{proof}
+% \begin{lemma}
+%   \label{lem:deGrootInfo_nonneg}
+%   %\lean{}
+%   %\leanok
+%   \uses{def:deGrootInfo}
+%   For $\mu, \nu \in \mathcal M(\mathcal X)$, $I_\pi(\mu, \nu) \ge 0$~.
+% \end{lemma}
 
-\begin{theorem}[Data-processing inequality]
-  \label{thm:data_proc_eGamma}
-  \lean{ProbabilityTheory.eGamma_comp_le}
-  \leanok
-  \uses{def:eGamma}
-  For $\mu, \nu \in \mathcal M(\mathcal X)$ and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ a Markov kernel, $E_\gamma(\kappa \circ \mu, \kappa \circ \nu) \le E_\gamma(\mu, \nu)$~.
-\end{theorem}
+% \begin{proof}%\leanok
+% \uses{lem:statInfo_nonneg}
+% Use Lemma~\ref{lem:statInfo_nonneg}.
+% \end{proof}
 
-\begin{proof}\leanok
-\uses{thm:data_proc_statInfo}
-Apply Theorem~\ref{thm:data_proc_statInfo}.
-\end{proof}
+% \begin{lemma}
+%   \label{lem:deGrootInfo_symm}
+%   %\lean{}
+%   %\leanok
+%   \uses{def:deGrootInfo}
+%   For $\mu, \nu \in \mathcal M(\mathcal X)$ and $\pi \in [0,1]$, $I_\pi(\mu, \nu) = I_{1 - \pi}(\nu, \mu)$~.
+% \end{lemma}
 
-\begin{lemma}[Integral form of the hockey-stick divergence]
-  \label{lem:eGamma_eq_integral}
-  %\lean{}
-  %\leanok
-  \uses{def:eGamma}
-  For finite measures $\mu, \nu$ and $\gamma \in (0,+\infty)$,
-  \begin{align*}
-  E_\gamma(\mu, \nu)
-  &= \nu\left[ x \mapsto \max \left\{0 , \frac{d \mu}{d\nu}(x) - \gamma \right\} \right] + \mu_{\perp \nu}(\mathcal X) & \text{ if } \mu(\mathcal X) \le \gamma \nu(\mathcal X)
-  \: , \\
-  E_\gamma(\mu, \nu)
-  &= \nu\left[ x \mapsto \max \left\{0 , \gamma - \frac{d \mu}{d\nu}(x) \right\} \right] & \text{ if } \mu(\mathcal X) \ge \gamma \nu(\mathcal X)
-  \: .
-  \end{align*}
-\end{lemma}
+% \begin{proof}%\leanok
+% \uses{lem:statInfo_symm}
+% Use Lemma~\ref{lem:statInfo_symm}.
+% \end{proof}
 
-\begin{proof}%\leanok
-\uses{thm:statInfo_eq_integral}
-Apply Theorem~\ref{thm:statInfo_eq_integral}.
-\end{proof}
+% \begin{theorem}[Data-processing inequality]
+%   \label{thm:data_proc_deGrootInfo}
+%   \lean{ProbabilityTheory.deGrootInfo_comp_le}
+%   \leanok
+%   \uses{def:deGrootInfo}
+%   For $\mu, \nu \in \mathcal M(\mathcal X)$ and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ a Markov kernel, $I_\pi(\kappa \circ \mu, \kappa \circ \nu) \le I_\pi(\mu, \nu)$~.
+% \end{theorem}
+
+% \begin{proof}\leanok
+% \uses{thm:data_proc_statInfo}
+% Apply Theorem~\ref{thm:data_proc_statInfo}.
+% \end{proof}
+
+
+% \begin{lemma}[Integral form of the DeGroot statistical information]
+%   \label{lem:deGrootInfo_eq_integral}
+%   %\lean{}
+%   %\leanok
+%   \uses{def:deGrootInfo}
+%   For finite measures $\mu, \nu$ and $\pi \in [0,1]$,
+%   \begin{align*}
+%   I_\pi(\mu, \nu)
+%   &= \nu\left[ x \mapsto \pi \max \left\{0 , \frac{d \mu}{d\nu}(x) - \frac{1 - \pi}{\pi} \right\} \right] + \pi \mu_{\perp \nu}(\mathcal X) & \text{ if } \pi \mu(\mathcal X) \le (1 - \pi) \nu(\mathcal X)
+%   \: , \\
+%   I_\pi(\mu, \nu)
+%   &= \nu\left[ x \mapsto \pi \max \left\{0 , \frac{1 - \pi}{\pi} - \frac{d \mu}{d\nu}(x) \right\} \right] & \text{ if } \pi \mu(\mathcal X) \ge (1 - \pi) \nu(\mathcal X)
+%   \: .
+%   \end{align*}
+% \end{lemma}
+
+% \begin{proof}%\leanok
+% \uses{thm:statInfo_eq_integral}
+% Apply Theorem~\ref{thm:statInfo_eq_integral}.
+% \end{proof}
+
+
+
+
+% \subsection{Hockey-stick divergence}
+
+
+% \begin{lemma}
+%   \label{lem:eGamma_self}
+%   %\lean{}
+%   %\leanok
+%   \uses{def:eGamma}
+%   For $\mu \in \mathcal M(\mathcal X)$, $E_\gamma(\mu, \mu) = 0$~.
+% \end{lemma}
+
+% \begin{proof}%\leanok
+% \uses{lem:statInfo_self}
+% Use Lemma~\ref{lem:statInfo_self}.
+% \end{proof}
+
+% \begin{lemma}
+%   \label{lem:eGamma_nonneg}
+%   %\lean{}
+%   %\leanok
+%   \uses{def:eGamma}
+%   For $\mu, \nu \in \mathcal M(\mathcal X)$, $E_\gamma(\mu, \nu) \ge 0$~.
+% \end{lemma}
+
+% \begin{proof}%\leanok
+% \uses{lem:statInfo_nonneg}
+% Use Lemma~\ref{lem:statInfo_nonneg}.
+% \end{proof}
+
+% \begin{theorem}[Data-processing inequality]
+%   \label{thm:data_proc_eGamma}
+%   \lean{ProbabilityTheory.eGamma_comp_le}
+%   \leanok
+%   \uses{def:eGamma}
+%   For $\mu, \nu \in \mathcal M(\mathcal X)$ and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ a Markov kernel, $E_\gamma(\kappa \circ \mu, \kappa \circ \nu) \le E_\gamma(\mu, \nu)$~.
+% \end{theorem}
+
+% \begin{proof}\leanok
+% \uses{thm:data_proc_statInfo}
+% Apply Theorem~\ref{thm:data_proc_statInfo}.
+% \end{proof}
+
+% \begin{lemma}[Integral form of the hockey-stick divergence]
+%   \label{lem:eGamma_eq_integral}
+%   %\lean{}
+%   %\leanok
+%   \uses{def:eGamma}
+%   For finite measures $\mu, \nu$ and $\gamma \in (0,+\infty)$,
+%   \begin{align*}
+%   E_\gamma(\mu, \nu)
+%   &= \nu\left[ x \mapsto \max \left\{0 , \frac{d \mu}{d\nu}(x) - \gamma \right\} \right] + \mu_{\perp \nu}(\mathcal X) & \text{ if } \mu(\mathcal X) \le \gamma \nu(\mathcal X)
+%   \: , \\
+%   E_\gamma(\mu, \nu)
+%   &= \nu\left[ x \mapsto \max \left\{0 , \gamma - \frac{d \mu}{d\nu}(x) \right\} \right] & \text{ if } \mu(\mathcal X) \ge \gamma \nu(\mathcal X)
+%   \: .
+%   \end{align*}
+% \end{lemma}
+
+% \begin{proof}%\leanok
+% \uses{thm:statInfo_eq_integral}
+% Apply Theorem~\ref{thm:statInfo_eq_integral}.
+% \end{proof}
 
 
 
@@ -437,7 +461,7 @@ Apply Theorem~\ref{thm:statInfo_eq_integral}.
   \label{def:TV}
   %\lean{}
   %\leanok
-  \uses{def:statInfo}
+  \uses{def:statInfo, lem:statInfo_properties}
   The total variation distance between finite measures $\mu$ and $\nu$ is $\TV(\mu, \nu) = \mathcal I_{(1,1)}(\mu, \nu)$~.
 \end{definition}
 

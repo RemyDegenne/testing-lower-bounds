@@ -1,7 +1,7 @@
 
 The goal of this section is to obtain bounds on the risk of simple binary hypothesis testing $B_\pi(\mu^{\otimes n}, \nu^{\otimes n})$ or on $\inf_{E} \max\{\mu^{\otimes n}(E), \nu^{\otimes n}(E^c)\}$ that show how those quantities depends on the number of samples $n \in \mathbb{N}$.
 
-The main idea is to relate these to divergences that tensorize, or on which we have tensorization inequalities. Those divergences are $\KL$, $R_\alpha$, $\JS_\alpha$ (and more generally the mutual information if we want to consider more than two hypotheses).
+The main idea is to relate these to divergences that tensorize, or on which we have tensorization inequalities. Those divergences are $\KL$, $R_\alpha$, $C_\alpha$, $\JS_\alpha$ (and more generally the mutual information if we want to consider more than two hypotheses).
 
 
 
@@ -106,80 +106,59 @@ We start with some preparatory lemmas.
 
 
 \begin{lemma}
-  \label{lem:kl_bounded_ge_kl_mean}
-  %\lean{}
-  %\leanok
-  \uses{def:KL}
-  Let $\mu, \nu \in \mathcal P([0,1])$. Then
-  \begin{align*}
-  \KL(\mu, \nu) \ge \kl(\mu[X], \nu[X]) \: .
-  \end{align*}
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{thm:kl_data_proc}
-Let $u$ be the uniform distribution on $[0,1]$. Then $\KL(\mu, \nu) = \KL(\mu \times u, \nu \times u)$ (by lemma TODO about kernel with identity as first coordinate).
-Let $f : [0,1] \times [0,1] \to \{0,1\}$ be the measurable function with $f(x, y) = \mathbb{I}\{y \le x\}$. We also write $f$ for the corresponding deterministic kernel. By the data-processing inequality (Theorem~\ref{thm:kl_data_proc}),
-\begin{align*}
-\KL(\mu \times u, \nu \times u)
-\ge \KL(f \circ (\mu \times u), f \circ (\nu \times u))
-\: .
-\end{align*}
-Those two last measures are Bernoulli distributions with means $\mu[X]$ and $\nu[X]$.
-\end{proof}
-
-
-\begin{corollary}
-  \label{cor:kl_ge_kl_mean_comp}
-  %\lean{}
-  %\leanok
-  \uses{def:KL}
-  Let $\mu, \nu \in \mathcal P(\mathcal X)$ and let $\kappa : \mathcal X \rightsquigarrow [0,1]$. Then
-  \begin{align*}
-  \KL(\mu, \nu) \ge \kl((\kappa \circ \mu)[X], (\kappa \circ \nu)[X]) \: .
-  \end{align*}
-\end{corollary}
-
-\begin{proof}%\leanok
-\uses{thm:kl_data_proc, lem:kl_bounded_ge_kl_mean}
-First, by the data-processing inequality (Theorem~\ref{thm:kl_data_proc}),
-$\KL(\mu, \nu) \ge \KL(\kappa \circ \mu, \kappa \circ \nu)$~.
-Then uses Lemma~\ref{lem:kl_bounded_ge_kl_mean}.
-\end{proof}
-
-
-\begin{lemma}
   \label{lem:kl_estimation_ge}
   %\lean{}
   %\leanok
-  \uses{def:KL, def:bayesBinaryRisk}
-  Let $\mu, \nu \in \mathcal P(\mathcal X)$ and let $\alpha, \beta \in (0, 1)$. Let $P, Q : \{0,1\} \rightsquigarrow \mathcal X$. We write $\pi_\alpha$ for the probability measure on $\{0,1\}$ with $\pi_\alpha(\{0\}) = \alpha$. Then
+  \uses{def:KL, def:bayesRisk}
+  Let $\pi, \xi \in \mathcal P(\Theta)$ and $P, Q : \Theta \rightsquigarrow \mathcal X$. Suppose that the loss $\ell'$ takes values in $[0,1]$. Then
   \begin{align*}
-  \KL(\pi_\beta \otimes Q, \pi_\alpha \otimes P)
-  &\ge \kl(B_\beta(Q(0), Q(1)), B_\alpha(P(0), P(1)))
+  \KL(\pi \otimes Q, \xi \otimes P)
+  &\ge \kl(\mathcal R_\pi^Q, \mathcal R_\xi^P)
   \: .
   \end{align*}
 \end{lemma}
 
 \begin{proof}%\leanok
-\uses{thm:kl_data_proc, lem:bayesBinaryRisk_bernoulli}
-Suppose first that $B_\beta(Q(0), Q(1)) \ge B_\alpha(P(0), P(1))$.
-Let $\hat{y}_B$ be the generalized Bayes estimator for the simple binary hypothesis testing task $(P, y, \ell)$, which is deterministic and returns 1 for $x \in E$ for some event $E$ and 0 otherwise. By the data-processing inequality for $\KL$ (Theorem~\ref{thm:kl_data_proc}),
-\begin{align*}
-\KL(\pi_\beta \otimes Q, \pi_\alpha \otimes P)
-&\ge \KL(\ell \circ (\mathrm{id} \parallel \hat{y}_B) \circ (\pi_\beta \otimes Q), \ell \circ (\mathrm{id} \parallel \hat{y}_B) \circ (\pi_\alpha \otimes P))
-\\
-&= \kl(\beta Q(0)(E) + (1 - \beta) Q(1)(E^c), B_\alpha(P(0), P(1)))
-\end{align*}
-Since $\inf_{E} [\beta Q(0)(E) + (1 - \beta) Q(1)(E^c)] = B_\beta(Q(0), Q(1)) \ge B_\alpha(P(0), P(1))$ and $x \mapsto \kl(x, y)$ is monotone on $[y, 1]$,
-\begin{align*}
-\KL(\pi_\beta \otimes Q, \pi_\alpha \otimes P)
-&\ge \kl(\inf_{E} [\beta Q(0)(E) + (1 - \beta) Q(1)(E^c)], B_\alpha(P(0), P(1)))
-\\
-&= \kl(B_\beta(Q(0), Q(1)), B_\alpha(P(0), P(1)))
-\: .
-\end{align*}
-This concludes the proof for $B_\beta(Q(0), Q(1)) \ge B_\alpha(P(0), P(1))$. If that inequality is reversed, we proceed similarly but take the Bayes estimator for $Q$.
+\uses{lem:fDiv_estimation_ge}
+This is Lemma~\ref{lem:fDiv_estimation_ge} specialized to the Kullback-Leibler divergence.
+\end{proof}
+
+
+\begin{corollary}
+  \label{cor:kl_estimation_ge_sub_kl'}
+  %\lean{}
+  %\leanok
+  \uses{def:KL, def:bayesRisk}
+  Let $\pi, \xi \in \mathcal P(\Theta)$ and $P, Q : \Theta \rightsquigarrow \mathcal X$. Suppose that the loss $\ell'$ takes values in $[0,1]$. Then
+  \begin{align*}
+  \KL(\pi \otimes Q, \pi \otimes P)
+  &\ge \kl(\mathcal R_\pi^Q, \mathcal R_\xi^P) - \KL(\pi, \xi)
+  \: .
+  \end{align*}
+\end{corollary}
+
+\begin{proof}%\leanok
+\uses{lem:kl_estimation_ge, thm:kl_compProd}
+Use $\KL(\pi \otimes Q, \xi \otimes P) = \KL(\pi, \xi) + \KL(\pi \otimes Q, \pi \otimes P)$ in Lemma~\ref{lem:kl_estimation_ge}.
+\end{proof}
+
+
+\begin{corollary}
+  \label{cor:kl_estimation_ge_binary}
+  %\lean{}
+  %\leanok
+  \uses{def:KL, def:bayesBinaryRisk}
+  Let $\alpha, \beta \in (0, 1)$. Let $P, Q : \{0,1\} \rightsquigarrow \mathcal X$. We write $\pi_\alpha$ for the probability measure on $\{0,1\}$ with $\pi_\alpha(\{0\}) = \alpha$. Then
+  \begin{align*}
+  \KL(\pi_\beta \otimes Q, \pi_\alpha \otimes P)
+  &\ge \kl(B_\beta(Q(0), Q(1)), B_\alpha(P(0), P(1)))
+  \: .
+  \end{align*}
+\end{corollary}
+
+\begin{proof}%\leanok
+\uses{lem:kl_estimation_ge}
+Apply Lemma~\ref{lem:kl_estimation_ge}.
 \end{proof}
 
 
@@ -197,8 +176,7 @@ This concludes the proof for $B_\beta(Q(0), Q(1)) \ge B_\alpha(P(0), P(1))$. If 
 \end{corollary}
 
 \begin{proof}%\leanok
-\uses{lem:kl_estimation_ge, thm:kl_compProd}
-Use $\KL(\pi_\beta \otimes Q, \pi_\alpha \otimes P) = \kl(\beta, \alpha) + \KL(\pi_\beta \otimes Q, \pi_\beta \otimes P)$ in Lemma~\ref{lem:kl_estimation_ge}.
+Apply Corollary~\ref{cor:kl_estimation_ge_sub_kl'}.
 \end{proof}
 
 
@@ -389,12 +367,89 @@ The main tool of this section is the next lemma, which relates the probability o
 \end{proof}
 
 
+\begin{lemma}[Change of measure - functions]
+  \label{lem:llr_change_measure_fun}
+  %\lean{}
+  %\leanok
+  \uses{}
+  Let $\mu, \nu$ be two measures on $\mathcal X$ with $\mu \ll \nu$ and let $f : \mathcal X \to [0,1]$ be a measurable function. Let $\beta \in \mathbb{R}$. Then
+  \begin{align*}
+  \nu[f] e^{\beta} \ge \mu[f] - \mu\left\{ \log\frac{d \mu}{d \nu} > \beta \right\} \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+\begin{align*}
+\nu[f]
+\ge \mu\left[f e^{- \log\frac{d \mu}{d \nu} }\right]
+&\ge \mu\left[f \mathbb{I}\left\{\log\frac{d \mu}{d \nu} \le \beta\right\} e^{- \log\frac{d \mu}{d \nu} }\right]
+\\
+&\ge e^{- \beta}\mu\left[f \mathbb{I}\left\{\log\frac{d \mu}{d \nu} \le \beta\right\} \right]
+\\
+&\ge e^{- \beta}\left( \mu[f] - \mu\left[f \mathbb{I}\left\{ \log\frac{d \mu}{d \nu} > \beta \right\}\right] \right)
+\\
+&\ge e^{- \beta}\left( \mu[f] - \mu \left\{ \log\frac{d \mu}{d \nu} > \beta \right\}\right)
+\: .
+\end{align*}
+The first and second inequalities use $f \ge 0$ and the last inequality uses $f \le 1$~.
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:change_measure_risk}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesRisk}
+  Consider an estimation problem with loss $\ell' : \mathcal Y \times \mathcal Z \to [0,1]$. Let $\pi, \zeta \in \mathcal P(\Theta)$ and $P, Q : \Theta \rightsquigarrow \mathcal X$ be such that $\zeta \otimes Q \ll \pi \otimes P$. Then for all $\beta \in \mathbb{R}$,
+  \begin{align*}
+  \mathcal R_\pi^P e^{\beta}
+  \ge \mathcal R_\zeta^Q - (\zeta \otimes Q)\left\{ \log\frac{d (\zeta \otimes Q)}{d (\pi \otimes P)} > \beta \right\}
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:llr_change_measure_fun}
+Let $\hat{y}_B$ be a Bayes estimator for $(P, y, \ell')$. If no such estimator exists, the proof can be adapted by taking an estimator with risk $\varepsilon$-close to the Bayes risk and then minimizing over $\varepsilon > 0$.
+Apply Lemma~\ref{lem:llr_change_measure_fun} to the function $(\theta, x) \mapsto \hat{y}_B(x)\left[ z \mapsto \ell'(y(\theta), z) \right]$~, which takes values in $[0,1]$ and to the measures $\pi \otimes P$ and $\zeta \otimes Q$.
+\begin{align*}
+\mathcal R_\pi^P e^{\beta}
+&\ge (\zeta \otimes Q)\left[ (\theta, x) \mapsto \hat{y}_B(x)\left[ z \mapsto \ell'(y(\theta), z) \right] \right]
+  - (\zeta \otimes Q)\left\{ \log\frac{d (\zeta \otimes Q)}{d (\pi \otimes P)} > \beta \right\}
+\\
+&\ge \mathcal R_\zeta^Q - (\zeta \otimes Q)\left\{ \log\frac{d (\zeta \otimes Q)}{d (\pi \otimes P)} > \beta \right\}
+\: .
+\end{align*}
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:change_measure_risk_inf}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesRisk}
+  Consider an estimation problem with loss $\ell' : \mathcal Y \times \mathcal Z \to [0,1]$. Let $\pi, \zeta \in \mathcal P(\Theta)$ and $P : \Theta \rightsquigarrow \mathcal X$. Then for all $\beta \in \mathbb{R}$,
+  \begin{align*}
+  \mathcal R_\pi^P e^{\beta}
+  \ge \mathcal R_\zeta^{d_{\mathcal X}} - \inf_{\xi \in \mathcal P(\mathcal X)}(\zeta \times \xi)\left\{ \log\frac{d (\zeta \times \xi)}{d (\pi \otimes P)} > \beta \right\}
+  \: ,
+  \end{align*}
+  in which the infimum over $\xi$ is restricted to probability measures such that $\zeta \times \xi \ll \pi \otimes P$ and $d_{\mathcal X} : \Theta \rightsquigarrow *$ is the discard kernel.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:change_measure_risk, lem:bayesRisk_const}
+For any $\xi$, we apply Lemma~\ref{lem:change_measure_risk} to $\zeta \times \xi$ and $\pi \otimes P$ and remark that by Lemma~\ref{lem:bayesRisk_const} the risk for a constant kernel with value $\xi$ is independent of $\xi$ and equal to $\mathcal R_\zeta^{d_{\mathcal X}}$.
+\end{proof}
+
+
 \begin{lemma}[3 points change of measure]
   \label{lem:llr_change_measure_add}
   \lean{ProbabilityTheory.one_sub_le_add_measure_mul_exp}
   \leanok
   %\uses{}
-  Let $\mu, \nu, \xi$ be three probability measures on $\mathcal X$ and let $E$ be an event on $\mathcal X$. Let $\beta_1, \beta_2 \in \mathbb{R}$. Then
+  Let $\mu, \nu, \xi \in \mathcal P(\mathcal X)$ and let $E$ be an event on $\mathcal X$. Let $\beta_1, \beta_2 \in \mathbb{R}$. Then
   \begin{align*}
   \mu(E) e^{\beta_1} + \nu(E^c) e^{\beta_2} \ge 1 - \xi\left\{ \log\frac{d \xi}{d \mu} > \beta_1 \right\} - \xi\left\{ \log\frac{d \xi}{d \nu} > \beta_2 \right\} \: .
   \end{align*}
@@ -424,6 +479,51 @@ Two applications of Lemma~\ref{lem:llr_change_measure}, then sum them and use $\
 \uses{lem:llr_change_measure}
 Use Lemma~\ref{lem:llr_change_measure} with the choice $\KL(\mu, \nu) + \beta$ for $\beta$.
 \end{proof}
+
+
+\begin{lemma}
+  \label{lem:change_measure_risk_mean}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesBinaryRisk, def:Renyi, def:KL, def:renyiMeasure}
+  For $\alpha \in (0,1)$, let $\pi_\alpha \in \mathcal P(\{0,1\})$ be the measure $(\alpha, 1 - \alpha)$.
+  Let $\alpha, \gamma \in (0,1)$, $\mu, \nu \in \mathcal P(\mathcal X)$ and let $P : \{0,1\} \rightsquigarrow \mathcal X$ be the kernel with $P(0) = \mu$ and $P(1) = \nu$~. Then for all $\beta \in \mathbb{R}$~,
+  \begin{align*}
+  &\mathcal B_{\pi_\alpha}(\mu, \nu) e^{\kl(\gamma, \alpha) + (1 - \gamma) R_\gamma(\mu, \nu) + \beta}
+  \\
+  &\ge \min\{\gamma, 1 - \gamma\} - (\pi_\gamma \times \mu^{(\gamma, \nu)})\left\{ \log\frac{d (\pi_\gamma \times \mu^{(\gamma, \nu)})}{d (\pi_\alpha \otimes P)} > \KL(\pi_\gamma \times \mu^{(\gamma, \nu)}, \pi_\alpha \otimes P) + \beta \right\}
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:change_measure_risk_inf}
+An application of Lemma~\ref{lem:change_measure_risk_inf} gives
+\begin{align*}
+\mathcal B_{\pi_\alpha}(\mu, \nu) e^{\beta}
+\ge \min\{\gamma, 1 - \gamma\} - \inf_{\xi \in \mathcal P(\mathcal X)}(\pi_\gamma \times \xi)\left\{ \log\frac{d (\pi_\gamma \times \xi)}{d (\pi_\alpha \otimes P)} > \beta \right\}
+\: .
+\end{align*}
+
+Take $\xi = \mu^{(\gamma, \nu)}$ and
+\begin{align*}
+\beta
+&= \KL(\pi_\gamma \times \xi, \pi_\alpha \otimes P) + \beta'
+\\
+&= \kl(\gamma, \alpha) + \KL(\pi_\gamma \times \xi, \pi_\gamma \otimes P) + \beta'
+\\
+&= \kl(\gamma, \alpha) + (1 - \gamma) R_\gamma(\mu, \nu) + \beta'
+\: .
+\end{align*}
+We obtain
+\begin{align*}
+&\mathcal B_{\pi_\alpha}(\mu, \nu) e^{\kl(\gamma, \alpha) + (1 - \gamma) R_\gamma(\mu, \nu) + \beta'}
+\\
+&\ge \min\{\gamma, 1 - \gamma\} - (\pi_\gamma \times \xi)\left\{ \log\frac{d (\pi_\gamma \times \xi)}{d (\pi_\alpha \otimes P)} > \KL(\pi_\gamma \times \xi, \pi_\alpha \otimes P) + \beta' \right\}
+\: .
+\end{align*}
+\end{proof}
+
 
 \begin{lemma}[Change of measure - variance]
   \label{lem:llr_change_measure_variance}
@@ -466,6 +566,7 @@ This is a Chernoff bound, using that the cumulant generating function of $\log\f
 Then $\mu\left[\left(\frac{d \mu}{d \nu}\right)^\alpha \right] = \nu\left[\left(\frac{d \mu}{d \nu}\right)^{1+\alpha} \right] = e^{\alpha R_{1+\alpha}(\mu, \nu)}$.
 \end{proof}
 
+
 \begin{lemma}
   \label{lem:renyi_change_measure}
   \lean{ProbabilityTheory.measure_sub_le_measure_mul_exp_renyiDiv}
@@ -480,6 +581,25 @@ Then $\mu\left[\left(\frac{d \mu}{d \nu}\right)^\alpha \right] = \nu\left[\left(
 \begin{proof}\leanok
 \uses{lem:llr_change_measure, lem:renyi_chernoff_bound}
 Use Lemma~\ref{lem:llr_change_measure} with the choice $R_{1+\alpha}(\mu, \nu) + \beta$ for $\beta$. Then apply Lemma~\ref{lem:renyi_chernoff_bound}.
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:change_measure_risk_cgf}
+  %\lean{}
+  %\leanok
+  \uses{def:bayesBinaryRisk, def:Renyi}
+  For $\alpha \in (0,1)$, let $\pi_\alpha \in \mathcal P(\{0,1\})$ be the measure $(\alpha, 1 - \alpha)$.
+  Let $\alpha, \gamma \in (0,1)$, $\mu, \nu \in \mathcal P(\mathcal X)$ and let $P : \{0,1\} \rightsquigarrow \mathcal X$ be the kernel with $P(0) = \mu$ and $P(1) = \nu$~. Then for all $\beta > 0$ and $\varepsilon>0$~,
+  \begin{align*}
+  \mathcal B_{\pi_\alpha}(\mu, \nu) e^{\inf_{\xi \in \mathcal P(\mathcal X)} R_{1 + \varepsilon}(\pi_\gamma \times \xi, \pi_\alpha \otimes P) + \beta}
+  &\ge \min\{\gamma, 1 - \gamma\} - e^{-\varepsilon \beta}
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}
+\uses{lem:change_measure_risk_inf, lem:renyi_chernoff_bound}
 \end{proof}
 
 
@@ -524,8 +644,8 @@ Then apply Lemma~\ref{lem:renyi_chernoff_bound}.
 
 \begin{lemma}
   \label{lem:testing_bound_renyi_one_add}
-  \lean{ProbabilityTheory.exp_neg_chernoffDiv_le_add_measure}
-  \leanok
+  %\lean{}
+  %\leanok
   \uses{def:Renyi, def:Chernoff}
   Let $\mu, \nu$ be two probability measures on $\mathcal X$ and let $E$ be an event on $\mathcal X$. Let $\alpha > 0$. Then
   \begin{align*}
@@ -614,47 +734,18 @@ Since $\beta > 0$ is arbitrary, we can take a supremum over $\beta$ on the right
 
 \section{Sample complexity}
 
-An estimation problem of the shape $(P^{\otimes n}, y, \ell')$ corresponds to estimating from $n$ i.i.d. samples of the distribution. From the data-processing inequality, we get that the risk (Bayes risk, minimax risk...) decreases with the number of samples (Lemma~\ref{lem:bayesRisk_mono_prod} for example).
-Intuitively, having more information allows for better estimation.
-
-In a sequence of estimation tasks $(P^{\otimes n}, y, \ell')$ for $n \in \mathbb{N}$, the \emph{sample complexity} is the minimal $n$ such that the risk is less than a desired value.
-
-\begin{lemma}
-  \label{lem:bayesRisk_mono_prod}
-  %\lean{}
-  %\leanok
-  \uses{def:bayesRisk}
-  If $n \le m$ then $\mathcal R_\pi^{P^{\otimes n}} \ge \mathcal R_\pi^{P^{\otimes m}}$.
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{thm:data_proc_bayesRisk}
-Use the data-processing inequality, Theorem~\ref{thm:data_proc_bayesRisk}.
-\end{proof}
-
-
-\begin{definition}
-  \label{def:priorSampleComplexity}
-  %\lean{}
-  %\leanok
-  \uses{def:bayesRisk}
-  The sample complexity of Bayesian estimation with respect to a prior $\pi \in \mathcal M(\Theta)$ at risk level $\delta \in \mathbb{R}_{+,\infty}$ is
-  \begin{align*}
-  n_\pi^P(\delta) = \min \{n \in \mathbb{N} \mid \mathcal R_\pi^{P^{\otimes n}} \le \delta\} \: .
-  \end{align*}
-\end{definition}
-
+We study the sample complexity of binary hypothesis testing.
 
 \begin{definition}
   \label{def:binaryPriorSampleComplexity}
   %\lean{}
   %\leanok
-  \uses{def:bayesBinaryRisk, def:priorSampleComplexity}
+  \uses{def:bayesBinaryRisk, def:priorSampleComplexity, lem:bayesBinaryRisk_properties}
   The sample complexity of simple binary hypothesis testing with prior $(\pi, 1 - \pi) \in \mathcal P(\{0, 1\})$ at risk level $\delta \in \mathbb{R}_{+, \infty}$ is
   \begin{align*}
   n(\mu, \nu, \pi, \delta) = \min\{n \in \mathbb{N} \mid B_\pi(\mu^{\otimes n}, \nu^{\otimes n}) \le \delta\} \: .
   \end{align*}
-  This is the sample complexity $n_\xi^P(\delta)$ specialized to simple binary hypothesis testing.
+  This is the sample complexity $n_\xi^P(\delta)$ of Definition~\ref{def:priorSampleComplexity} specialized to simple binary hypothesis testing.
 \end{definition}
 
 

@@ -3,7 +3,6 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne
 -/
-import TestingLowerBounds.ForMathlib.Measure
 import Mathlib.MeasureTheory.Measure.LogLikelihoodRatio
 
 /-!
@@ -45,7 +44,7 @@ lemma setLIntegral_nnnorm_exp_neg_llr_le [SigmaFinite ν] [SigmaFinite μ]
         rw [hx]
     _ = ∫⁻ a in t, ν.rnDeriv μ a ∂μ := by
         refine setLIntegral_congr_fun ht ?_
-        filter_upwards [Measure.rnDeriv_ne_top ν μ] with x hx _
+        filter_upwards [ν.rnDeriv_ne_top μ] with x hx _
         rw [← ofReal_norm_eq_coe_nnnorm]
         simp [hx]
     _ ≤ ν t := Measure.setLIntegral_rnDeriv_le t
@@ -91,7 +90,7 @@ lemma measure_sub_le_measure_mul_exp [SigmaFinite μ] [IsFiniteMeasure ν] (hμ�
     calc - (μ {x | c < llr μ ν x}).toReal
       ≤ 0 := by simp
     _ ≤ (ν s).toReal * exp c := by positivity
-  rw [← div_le_iff (exp_pos _), div_eq_mul_inv, ← exp_neg]
+  rw [← div_le_iff₀ (exp_pos _), div_eq_mul_inv, ← exp_neg]
   calc ((μ s).toReal - (μ {x | c < llr μ ν x}).toReal) * rexp (-c)
     ≤ (μ (s \ {x | c < llr μ ν x})).toReal * rexp (-c) := by
         gcongr

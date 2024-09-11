@@ -4,12 +4,12 @@
   \label{def:hellingerAlpha}
   \lean{ProbabilityTheory.hellingerDiv}
   \leanok
-  \uses{def:KL, def:fDiv}
+  \uses{def:KL, def:fDiv, lem:fDiv_properties, lem:kl_properties}
   Let $\mu, \nu$ be two measures on $\mathcal X$. The Hellinger divergence of order $\alpha \in [0,+\infty)$ between $\mu$ and $\nu$ is
   \begin{align*}
   \He_\alpha(\mu, \nu) = \left\{
   \begin{array}{ll}
-    \nu \{x \mid 0 = \frac{d\mu}{d\nu} x\} & \text{for } \alpha = 0 \\
+    \nu \{x \mid \frac{d\mu}{d\nu} (x) = 0\} & \text{for } \alpha = 0 \\
     \KL(\mu, \nu) & \text{for } \alpha = 1
     \\
     D_{f_\alpha}(\mu, \nu) & \text{for } \alpha \in (0,+\infty) \backslash \{1\}
@@ -17,6 +17,7 @@
   \end{align*}
   with $f_\alpha : x \mapsto \frac{x^{\alpha} - 1}{\alpha - 1}$.
 \end{definition}
+
 
 \begin{lemma}
   \label{lem:hellingerAlpha_ne_top_of_lt_one}
@@ -29,6 +30,7 @@
 \begin{proof}\leanok
 \uses{}
 \end{proof}
+
 
 \begin{lemma}
   \label{lem:hellingerAlpha_eq_integral}
@@ -45,6 +47,7 @@
 \begin{proof}\leanok
 \uses{}
 \end{proof}
+
 
 \begin{lemma}
   \label{lem:integral_rpow_rnDeriv}
@@ -72,6 +75,7 @@
   \end{align*}
 \end{proof}
 
+
 \begin{lemma}
   \label{lem:hellingerAlpha_symm}
   \lean{ProbabilityTheory.hellingerDiv_symm'}
@@ -90,7 +94,7 @@ Use Lemma~\ref{lem:integral_rpow_rnDeriv}.
   \label{def:condHellingerAlpha}
   \lean{ProbabilityTheory.condHellingerDiv}
   \leanok
-  \uses{def:condFDiv}
+  \uses{def:condFDiv, lem:fDiv_properties}
   Let $\mu$ be a measure on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two kernels. The conditional Hellinger divergence of order $\alpha \in (0,+\infty) \backslash \{1\}$ between $\kappa$ and $\eta$ conditionally to $\mu$ is
   \begin{align*}
   \He_\alpha(\kappa, \eta \mid \mu) = D_{f_\alpha}(\kappa, \eta \mid \mu) \: ,
@@ -117,6 +121,7 @@ Since $\He_\alpha$ is an f-divergence, every inequality for f-divergences can be
 Apply Theorem~\ref{thm:fDiv_data_proc_2}.
 \end{proof}
 
+
 \begin{lemma}
   \label{lem:hellingerAlpha_nonneg}
   \lean{ProbabilityTheory.hellingerDiv_nonneg}
@@ -130,6 +135,7 @@ Apply Theorem~\ref{thm:fDiv_data_proc_2}.
 Apply Lemma~\ref{lem:fDiv_nonneg}.
 \end{proof}
 
+
 \begin{lemma}
   \label{lem:hellingerAlpha_convex}
   %\lean{}
@@ -141,4 +147,26 @@ Apply Lemma~\ref{lem:fDiv_nonneg}.
 \begin{proof}
 \uses{thm:fDiv_convex}
 Apply Theorem~\ref{thm:fDiv_convex}
+\end{proof}
+
+
+
+TODO: find a way to hide the following dummy lemma
+\begin{lemma}[Dummy lemma: hellingerAlpha properties]
+  \label{lem:hellingerAlpha_properties}
+  %\lean{}
+  \leanok
+  \uses{def:hellingerAlpha, def:condHellingerAlpha}
+  Dummy node to summarize properties of the Hellinger $\alpha$-divergence.
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{
+  lem:hellingerAlpha_ne_top_of_lt_one,
+  lem:hellingerAlpha_eq_integral,
+  lem:hellingerAlpha_symm,
+  thm:hellingerAlpha_data_proc,
+  lem:hellingerAlpha_nonneg,
+  lem:hellingerAlpha_convex
+}
 \end{proof}

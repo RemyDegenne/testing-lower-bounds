@@ -3,10 +3,9 @@ Copyright (c) 2024 Lorenzo Luccioli. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import Mathlib.MeasureTheory.Measure.Stieltjes
-import TestingLowerBounds.DerivAtTop
-import Mathlib.Algebra.Lie.OfAssociative
+import Mathlib.MeasureTheory.Function.L1Space
 import Mathlib.MeasureTheory.Measure.Regular
+import TestingLowerBounds.DerivAtTop
 
 open MeasureTheory Set Filter Topology StieltjesFunction
 
@@ -39,11 +38,16 @@ lemma const_mul_statInfoFun {a : ℝ} (ha : 0 ≤ a) :
   · simp_rw [mul_le_mul_left ha]
   · simp
 
+lemma statInfoFun_neg_neg (h : β ≠ γ) : statInfoFun (-β) (-γ) = statInfoFun β γ := by
+  ext
+  rcases lt_or_gt_of_ne h with (hγβ | hγβ)
+    <;> simp [statInfoFun, sub_eq_add_neg, hγβ.le, hγβ.not_le, add_comm]
+
 --TODO: for now I will leave the continuity assumption in some lemmas, it should be derived from the convexity but the lemma is not yet in mathlib, when it gets there we can remove this assumption
 
 section Measurability
 
-lemma stronglymeasurable_statInfoFun : StronglyMeasurable statInfoFun.uncurry.uncurry := by
+lemma stronglyMeasurable_statInfoFun : StronglyMeasurable statInfoFun.uncurry.uncurry := by
   apply Measurable.stronglyMeasurable
   change Measurable (fun (p : (ℝ × ℝ) × ℝ) ↦ if p.1.2 ≤ p.1.1 then max 0 (p.1.2 - p.1.1 * p.2)
     else max 0 (p.1.1 * p.2 - p.1.2))
@@ -54,11 +58,11 @@ lemma stronglymeasurable_statInfoFun : StronglyMeasurable statInfoFun.uncurry.un
 
 lemma measurable_statInfoFun2 : Measurable fun γ ↦ statInfoFun β γ x := by
   change Measurable (statInfoFun.uncurry.uncurry ∘ (fun (γ : ℝ) ↦ ((β, γ), x)))
-  exact stronglymeasurable_statInfoFun.measurable.comp (by fun_prop)
+  exact stronglyMeasurable_statInfoFun.measurable.comp (by fun_prop)
 
 lemma stronglyMeasurable_statInfoFun3 : StronglyMeasurable (statInfoFun β γ) := by
   change StronglyMeasurable (statInfoFun.uncurry.uncurry ∘ (fun (x : ℝ) ↦ ((β, γ), x)))
-  refine stronglymeasurable_statInfoFun.measurable.comp (by fun_prop) |>.stronglyMeasurable
+  refine stronglyMeasurable_statInfoFun.measurable.comp (by fun_prop) |>.stronglyMeasurable
 
 end Measurability
 
@@ -71,19 +75,19 @@ lemma statInfoFun_of_gt (h : γ > β) : statInfoFun β γ x = max 0 (β * x - γ
 
 lemma statInfoFun_of_pos_of_le_of_le (hβ : 0 < β) (hγ : γ ≤ β) (hx : x ≤ γ / β) :
     statInfoFun β γ x = γ - β * x :=
-  statInfoFun_of_le hγ ▸ max_eq_right_iff.mpr <| sub_nonneg.mpr <| (le_div_iff' hβ).mp hx
+  statInfoFun_of_le hγ ▸ max_eq_right_iff.mpr <| sub_nonneg.mpr <| (le_div_iff₀' hβ).mp hx
 
 lemma statInfoFun_of_pos_of_le_of_ge (hβ : 0 < β) (hγ : γ ≤ β) (hx : x ≥ γ / β) :
     statInfoFun β γ x = 0 :=
-  statInfoFun_of_le hγ ▸ max_eq_left_iff.mpr <| sub_nonpos.mpr <| (div_le_iff' hβ).mp hx
+  statInfoFun_of_le hγ ▸ max_eq_left_iff.mpr <| sub_nonpos.mpr <| (div_le_iff₀' hβ).mp hx
 
 lemma statInfoFun_of_pos_of_gt_of_le (hβ : 0 < β) (hγ : γ > β) (hx : x ≤ γ / β) :
     statInfoFun β γ x = 0 :=
-  statInfoFun_of_gt hγ ▸ max_eq_left_iff.mpr <| sub_nonpos.mpr <| (le_div_iff' hβ).mp hx
+  statInfoFun_of_gt hγ ▸ max_eq_left_iff.mpr <| sub_nonpos.mpr <| (le_div_iff₀' hβ).mp hx
 
 lemma statInfoFun_of_pos_of_gt_of_ge (hβ : 0 < β) (hγ : γ > β) (hx : x ≥ γ / β) :
     statInfoFun β γ x = β * x - γ :=
-  statInfoFun_of_gt hγ ▸ max_eq_right_iff.mpr <| sub_nonneg.mpr <| (div_le_iff' hβ).mp hx
+  statInfoFun_of_gt hγ ▸ max_eq_right_iff.mpr <| sub_nonneg.mpr <| (div_le_iff₀' hβ).mp hx
 
 lemma statInfoFun_of_neg_of_le_of_le (hβ : β < 0) (hγ : γ ≤ β) (hx : x ≤ γ / β) :
     statInfoFun β γ x = 0 :=
@@ -131,68 +135,85 @@ lemma convexOn_statInfoFun (β γ : ℝ) : ConvexOn ℝ univ (fun x ↦ statInfo
 
 section derivAtTop
 
-lemma tendsto_statInfoFun_div_at_top_of_pos_of_le (hβ : 0 < β) (hγ : γ ≤ β) :
-    Tendsto (fun x ↦ statInfoFun β γ x / x) atTop (𝓝 0) := by
-  refine tendsto_atTop_of_eventually_const (fun x hx ↦ ?_) (i₀ := γ / β)
-  rw [statInfoFun_of_le hγ, div_eq_zero_iff]
-  exact Or.inl <| max_eq_left_iff.mpr <| tsub_nonpos.mpr <| (div_le_iff' hβ).mp hx
-
-lemma tendsto_statInfoFun_div_at_top_of_pos_of_gt (hβ : 0 < β) (hγ : γ > β) :
-    Tendsto (fun x ↦ statInfoFun β γ x / x) atTop (𝓝 β) := by
-  have h : (fun x ↦ β + -γ / x) =ᶠ[atTop] fun x ↦ statInfoFun β γ x / x := by
-    filter_upwards [eventually_ge_atTop (γ / β), eventually_ne_atTop 0] with x hx hx'
-    rw [statInfoFun_of_pos_of_gt_of_ge hβ hγ hx]
-    ring_nf
-    simp_rw [mul_assoc, mul_inv_cancel hx', mul_one]
-  nth_rw 2 [← add_zero β]
-  refine Tendsto.congr' h (Tendsto.const_add β ?_)
-  exact Tendsto.div_atTop tendsto_const_nhds fun _ a ↦ a
-
-lemma tendsto_statInfoFun_div_at_top_of_neg_of_le (hβ : β < 0) (hγ : γ ≤ β) :
-    Tendsto (fun x ↦ statInfoFun β γ x / x) atTop (𝓝 (-β)) := by
-  have h : (fun x ↦ γ / x - β) =ᶠ[atTop] fun x ↦ statInfoFun β γ x / x := by
-    filter_upwards [eventually_ge_atTop (γ / β), eventually_ne_atTop 0] with x hx hx'
-    rw [statInfoFun_of_neg_of_le_of_ge hβ hγ hx]
-    ring_nf
-    simp_rw [mul_inv_cancel hx', one_mul]
-  rw [neg_eq_zero_sub β]
-  refine Tendsto.congr' h (Tendsto.sub_const ?_ β)
-  exact Tendsto.div_atTop tendsto_const_nhds fun _ a ↦ a
-
-lemma tendsto_statInfoFun_div_at_top_of_neg_of_gt (hβ : β < 0) (hγ : γ > β) :
-    Tendsto (fun x ↦ statInfoFun β γ x / x) atTop (𝓝 0) := by
-  refine tendsto_atTop_of_eventually_const (fun x hx ↦ ?_) (i₀ := γ / β)
-  rw [statInfoFun_of_gt hγ, div_eq_zero_iff]
-  refine Or.inl <| max_eq_left_iff.mpr <| tsub_nonpos.mpr <| (div_le_iff_of_neg' hβ).mp hx
-
 lemma derivAtTop_statInfoFun_of_nonneg_of_le (hβ : 0 ≤ β) (hγ : γ ≤ β) :
     derivAtTop (fun x ↦ statInfoFun β γ x) = 0 := by
-  rcases eq_or_lt_of_le hβ with (rfl | hβ)
-  · simp
-  exact derivAtTop_of_tendsto (tendsto_statInfoFun_div_at_top_of_pos_of_le hβ hγ)
+  rw [← derivAtTop_zero]
+  refine derivAtTop_congr ?_
+  rw [EventuallyEq, eventually_atTop]
+  refine ⟨1, fun x hx ↦ ?_⟩
+  rw [statInfoFun_of_le hγ]
+  simp only [Pi.zero_apply, max_eq_left_iff, tsub_le_iff_right, zero_add]
+  refine hγ.trans ?_
+  conv_lhs => rw [← mul_one β]
+  gcongr
 
 lemma derivAtTop_statInfoFun_of_nonneg_of_gt (hβ : 0 ≤ β) (hγ : γ > β) :
     derivAtTop (fun x ↦ statInfoFun β γ x) = β := by
   rcases eq_or_lt_of_le hβ with (rfl | hβ)
   · simp
-  exact derivAtTop_of_tendsto (tendsto_statInfoFun_div_at_top_of_pos_of_gt hβ hγ)
+  have : (β : EReal) = derivAtTop (fun x ↦ β * x - γ) := by
+    rw [derivAtTop_sub_const]
+    swap; · exact (ConvexOn.const_mul_id _).subset (subset_univ _) (convex_Ici _)
+    change _ = derivAtTop (fun x ↦ β * x)
+    rw [derivAtTop_const_mul _ hβ.ne']
+    swap; · exact convexOn_id (convex_Ici _)
+    simp only [derivAtTop_id', mul_one]
+  rw [this]
+  refine derivAtTop_congr ?_
+  rw [EventuallyEq, eventually_atTop]
+  refine ⟨γ / β, fun x hx ↦ ?_⟩
+  rw [statInfoFun_of_pos_of_gt_of_ge hβ hγ hx]
 
 lemma derivAtTop_statInfoFun_of_nonpos_of_le (hβ : β ≤ 0) (hγ : γ ≤ β) :
     derivAtTop (fun x ↦ statInfoFun β γ x) = -β := by
   rcases eq_or_lt_of_le hβ with (rfl | hβ)
   · simp
-  exact derivAtTop_of_tendsto (tendsto_statInfoFun_div_at_top_of_neg_of_le hβ hγ)
+  have : -(β : EReal) = derivAtTop (fun x ↦ γ - β * x) := by
+    simp_rw [sub_eq_add_neg, ← neg_mul]
+    rw [derivAtTop_const_add]
+    swap
+    · change ConvexOn ℝ (Ici _) (fun x ↦ (-β) • x)
+      refine (convexOn_id (convex_Ici _)).smul ?_
+      simp [hβ.le]
+    rw [derivAtTop_const_mul]
+    · simp
+    · exact convexOn_id (convex_Ici _)
+    · simp only [ne_eq, neg_eq_zero, hβ.ne, not_false_eq_true]
+  rw [this]
+  refine derivAtTop_congr ?_
+  rw [EventuallyEq, eventually_atTop]
+  refine ⟨γ / β, fun x hx ↦ ?_⟩
+  rw [statInfoFun_of_neg_of_le_of_ge hβ hγ hx]
 
 lemma derivAtTop_statInfoFun_of_nonpos_of_gt (hβ : β ≤ 0) (hγ : γ > β) :
     derivAtTop (fun x ↦ statInfoFun β γ x) = 0 := by
   rcases eq_or_lt_of_le hβ with (rfl | hβ)
   · simp
-  exact derivAtTop_of_tendsto (tendsto_statInfoFun_div_at_top_of_neg_of_gt hβ hγ)
+  rw [← derivAtTop_zero]
+  refine derivAtTop_congr ?_
+  rw [EventuallyEq, eventually_atTop]
+  refine ⟨γ / β, fun x hx ↦ ?_⟩
+  rw [statInfoFun_of_gt hγ]
+  simp only [Pi.zero_apply, max_eq_left_iff, tsub_le_iff_right, zero_add]
+  rwa [ge_iff_le, div_le_iff_of_neg hβ, mul_comm] at hx
+
+lemma derivAtTop_statInfoFun_eq :
+    derivAtTop (fun x ↦ statInfoFun β γ x)
+      = if 0 ≤ β then (if γ ≤ β then 0 else β) else if γ ≤ β then -β else 0 := by
+  by_cases hβ : 0 ≤ β <;> by_cases hγ : γ ≤ β <;> simp [derivAtTop_statInfoFun_of_nonneg_of_le,
+    derivAtTop_statInfoFun_of_nonneg_of_gt, derivAtTop_statInfoFun_of_nonpos_of_le,
+    derivAtTop_statInfoFun_of_nonpos_of_gt, hβ, hγ, lt_of_not_le, le_of_lt (lt_of_not_le _)]
 
 lemma derivAtTop_statInfoFun_ne_top (β γ : ℝ) : derivAtTop (fun x ↦ statInfoFun β γ x) ≠ ⊤ := by
   rcases le_total 0 β with (hβ | hβ) <;> rcases le_or_lt γ β with (hγ | hγ) <;>
     simp [derivAtTop_statInfoFun_of_nonneg_of_le, derivAtTop_statInfoFun_of_nonneg_of_gt,
       derivAtTop_statInfoFun_of_nonpos_of_le, derivAtTop_statInfoFun_of_nonpos_of_gt, hβ, hγ]
+
+lemma derivAtTop_statInfoFun_nonneg (β γ : ℝ) : 0 ≤ derivAtTop (fun x ↦ statInfoFun β γ x) := by
+  rcases le_total 0 β with (hβ | hβ) <;> rcases le_or_lt γ β with (hγ | hγ) <;>
+    simp [derivAtTop_statInfoFun_of_nonneg_of_le, derivAtTop_statInfoFun_of_nonneg_of_gt,
+      ← EReal.coe_neg, derivAtTop_statInfoFun_of_nonpos_of_le,
+      derivAtTop_statInfoFun_of_nonpos_of_gt, hβ, hγ]
 
 end derivAtTop
 
@@ -323,8 +344,8 @@ lemma integrable_statInfoFun {μ : Measure ℝ} [IsLocallyFiniteMeasure μ] (β 
     Integrable (fun γ ↦ statInfoFun β γ x) μ := by
   refine ⟨measurable_statInfoFun2.stronglyMeasurable.aestronglyMeasurable, ?_⟩
   refine ((lintegral_nnnorm_statInfoFun_le _ _).trans_lt ?_)
-  refine ENNReal.mul_lt_top ?_ ENNReal.ofReal_ne_top
-  exact (measure_mono uIoc_subset_uIcc).trans_lt isCompact_uIcc.measure_lt_top |>.ne
+  refine ENNReal.mul_lt_top ?_ ENNReal.ofReal_lt_top
+  exact (measure_mono uIoc_subset_uIcc).trans_lt isCompact_uIcc.measure_lt_top
 
 end statInfoFun_γ
 
