@@ -135,75 +135,108 @@ lemma todo' (X Y : C) :
   slice_lhs 2 3 => rw [← h]
   simp only [triangle_assoc]
 
+namespace Kleisli
+
+variable {W X Y Z X₁ Y₁ Z₁ X₂ Y₂ Z₂ X₃ Y₃ Z₃ : Kleisli T}
+
+private lemma tensor_comp [CommutativeMonad T]
+    (f₁ : X₁ ⟶ Y₁) (f₂ : X₂ ⟶ Y₂) (g₁ : Y₁ ⟶ Z₁) (g₂ : Y₂ ⟶ Z₂) :
+    f₁ ≫ g₁ ⊗ f₂ ≫ g₂ = (f₁ ⊗ f₂) ≫ (g₁ ⊗ g₂) := by
+  simp only [tensorHom_def, comp_whiskerRight, whiskerLeft_comp, Category.assoc]
+  slice_lhs 2 3 => rw [← whisker_exchange]
+  simp
+
+private lemma leftUnitor_naturality [CommutativeMonad T] (f : X ⟶ Y) :
+    𝟙_ (Kleisli T) ◁ f ≫ (λ_ Y).hom = (λ_ X).hom ≫ f := by
+  simp only [Kleisli.whiskerLeft_def, Monad.unit_dStr_left, Kleisli.leftUnitor_def,
+    Functor.mapIso_hom, Kleisli.Adjunction.toKleisli_map, Kleisli.comp_def, Functor.map_comp,
+    Category.assoc, Monad.right_unit, Category.comp_id]
+  simp only [Kleisli.tensorUnit_def, Kleisli.Adjunction.toKleisli_obj, id_whiskerLeft,
+    Category.assoc, Iso.cancel_iso_hom_left]
+  slice_lhs 2 3 => rw [T.lStr_unit_comp Y]
+  rw [← T.map_comp]
+  simp
+
+private lemma rightUnitor_naturality [CommutativeMonad T] (f : X ⟶ Y) :
+    f ▷ 𝟙_ (Kleisli T) ≫ (ρ_ Y).hom = (ρ_ X).hom ≫ f := by
+  simp only [Kleisli.whiskerRight_def, Monad.unit_dStr_right, Kleisli.rightUnitor_def,
+    Functor.mapIso_hom, Kleisli.Adjunction.toKleisli_map, Kleisli.comp_def, Functor.map_comp,
+    Category.assoc, Monad.right_unit, Category.comp_id, todo]
+  simp only [Kleisli.tensorUnit_def, Kleisli.Adjunction.toKleisli_obj,
+    MonoidalCategory.whiskerRight_id, Category.assoc, Iso.cancel_iso_hom_left]
+  slice_lhs 2 3 => rw [T.rStr_unit_comp Y]
+  rw [← T.map_comp]
+  simp
+
+private lemma pentagon [CommutativeMonad T] (W X Y Z : Kleisli T) :
+    (α_ W X Y).hom ▷ Z ≫ (α_ W (X ⊗ Y) Z).hom ≫ W ◁ (α_ X Y Z).hom
+      = (α_ (W ⊗ X) Y Z).hom ≫ (α_ W X (Y ⊗ Z)).hom := by
+  simp only [Kleisli.associator_def, Functor.mapIso_hom, Kleisli.Adjunction.toKleisli_map]
+  simp only [Kleisli.whiskerRight_def, Kleisli.whiskerLeft_def, Functor.id_obj]
+  simp only [Kleisli.tensorObj_def, Monad.unit_dStr_right, comp_whiskerRight, Category.assoc,
+    Monad.rStr_unit_comm, Monad.unit_dStr_left, MonoidalCategory.whiskerLeft_comp,
+    Monad.lStr_unit_comm, Kleisli.comp_def, Functor.map_comp, Monad.right_unit, Category.comp_id]
+  simp only [MonoidalCategory.comp_whiskerRight]
+  slice_lhs 2 3 => rw [Monad.rStr_unit_comm]
+  simp only [Functor.id_obj, Functor.map_id, Category.id_comp,
+    Category.assoc, Category.comp_id]
+  have h := T.η.naturality
+  simp only [Functor.id_obj, Functor.id_map] at h
+  slice_rhs 2 3 => rw [← h]
+  slice_lhs 1 2 => rw [h]
+  slice_lhs 2 3 => rw [← T.map_comp]
+  slice_lhs 2 3 => rw [← T.map_comp]
+  rw [← T.map_comp]
+  rw [todo]
+  slice_lhs 3 4 => rw [← h]
+  simp only [Functor.id_obj, Category.comp_id, pentagon_assoc]
+
+private lemma triangle [CommutativeMonad T] (X Y : Kleisli T) :
+    (α_ X (𝟙_ (Kleisli T)) Y).hom ≫ X ◁ (λ_ Y).hom = (ρ_ X).hom ▷ Y := by
+  simp only [Kleisli.associator_def, Functor.mapIso_hom, Kleisli.Adjunction.toKleisli_map,
+    Kleisli.leftUnitor_def, Kleisli.rightUnitor_def]
+  simp only [Kleisli.tensorUnit_def, Kleisli.Adjunction.toKleisli_obj]
+  simp only [Kleisli.whiskerLeft_def, Functor.id_obj, Monad.unit_dStr_left,
+    MonoidalCategory.whiskerLeft_comp, Category.assoc, Monad.lStr_unit_comm, Kleisli.comp_def,
+    Functor.map_comp, Kleisli.whiskerRight_def, Monad.unit_dStr_right, comp_whiskerRight,
+    Monad.rStr_unit_comm]
+  simp only [Kleisli.tensorObj_def, Monad.right_unit, Category.comp_id]
+  simp only [Functor.id_obj, Category.comp_id, MonoidalCategory.comp_whiskerRight, Category.assoc,
+    Monad.rStr_unit_comm]
+  exact todo' (T := T) _ _
+
 instance [CommutativeMonad T] : MonoidalCategory (Kleisli T) where
-  tensor_comp {X₁ Y₁ Z₁ X₂ Y₂ Z₂} f₁ f₂ g₁ g₂ := by
-    simp only [Kleisli.tensorHom_def, Kleisli.comp_whiskerRight, Kleisli.whiskerLeft_comp,
-      Category.assoc]
-    slice_lhs 2 3 => rw [← Kleisli.whisker_exchange]
-    simp
+  tensor_comp := Kleisli.tensor_comp
   associator_naturality f₁ f₂ f₃ := by
+    simp only [Kleisli.associator_def, Functor.mapIso_hom, Kleisli.Adjunction.toKleisli_map]
     simp only [Kleisli.tensorObj_def, Kleisli.tensorHom_def, Kleisli.comp_whiskerRight,
-      Category.assoc, Kleisli.associator_def, Functor.mapIso_hom, Kleisli.Adjunction.toKleisli_map,
-      Kleisli.whiskerLeft_comp]
+      Category.assoc, Kleisli.whiskerLeft_comp]
     simp only [Kleisli.whiskerRight_def, Monad.unit_dStr_right, comp_whiskerRight, Category.assoc,
       Kleisli.whiskerLeft_def, Functor.id_obj, Monad.unit_dStr_left, whisker_assoc,
       tensor_whiskerLeft, whiskerRight_tensor, MonoidalCategory.whiskerLeft_comp]
     simp only [Kleisli.comp_def, Functor.map_comp, Category.assoc, Monad.right_unit,
       Category.comp_id]
+    simp only [Functor.id_obj, Functor.map_id, Category.id_comp]
     have h1 := T.η.naturality
     simp only [Functor.id_obj, Functor.id_map] at h1
     sorry
-  leftUnitor_naturality {X Y} f := by
-    simp only [Kleisli.whiskerLeft_def, Monad.unit_dStr_left, Kleisli.leftUnitor_def,
-      Functor.mapIso_hom, Kleisli.Adjunction.toKleisli_map, Kleisli.comp_def, Functor.map_comp,
-      Category.assoc, Monad.right_unit, Category.comp_id]
-    simp only [Kleisli.tensorUnit_def, Kleisli.Adjunction.toKleisli_obj, id_whiskerLeft,
-      Category.assoc, Iso.cancel_iso_hom_left]
-    slice_lhs 2 3 => rw [T.lStr_unit_comp Y]
-    rw [← T.map_comp]
-    simp
-  rightUnitor_naturality {X Y} f := by
-    simp only [Kleisli.whiskerRight_def, Monad.unit_dStr_right, Kleisli.rightUnitor_def,
-      Functor.mapIso_hom, Kleisli.Adjunction.toKleisli_map, Kleisli.comp_def, Functor.map_comp,
-      Category.assoc, Monad.right_unit, Category.comp_id, todo]
-    simp only [Kleisli.tensorUnit_def, Kleisli.Adjunction.toKleisli_obj,
-      MonoidalCategory.whiskerRight_id, Category.assoc, Iso.cancel_iso_hom_left]
-    slice_lhs 2 3 => rw [T.rStr_unit_comp Y]
-    rw [← T.map_comp]
-    simp
-  pentagon W X Y Z := by
-    simp only [Kleisli.associator_def, Functor.mapIso_hom, Kleisli.Adjunction.toKleisli_map]
-    simp only [Kleisli.whiskerRight_def, Kleisli.whiskerLeft_def, Functor.id_obj]
-    simp only [Kleisli.tensorObj_def, Monad.unit_dStr_right, comp_whiskerRight, Category.assoc,
-      Monad.rStr_unit_comm, Monad.unit_dStr_left, MonoidalCategory.whiskerLeft_comp,
-      Monad.lStr_unit_comm, Kleisli.comp_def, Functor.map_comp, Monad.right_unit, Category.comp_id]
-    have h := T.η.naturality
-    simp only [Functor.id_obj, Functor.id_map] at h
-    slice_rhs 2 3 => rw [← h]
-    slice_lhs 1 2 => rw [h]
-    slice_lhs 2 3 => rw [← T.map_comp]
-    slice_lhs 2 3 => rw [← T.map_comp]
-    rw [← T.map_comp]
-    sorry
-    -- rw [todo]
-    -- slice_lhs 3 4 => rw [← h]
-    -- simp only [pentagon_assoc]
-  triangle X Y := by
-    simp only [Kleisli.associator_def, Functor.mapIso_hom, Kleisli.Adjunction.toKleisli_map,
-      Kleisli.leftUnitor_def, Kleisli.rightUnitor_def]
-    simp only [Kleisli.tensorUnit_def, Kleisli.Adjunction.toKleisli_obj]
-    simp only [Kleisli.whiskerLeft_def, Functor.id_obj, Monad.unit_dStr_left,
-      MonoidalCategory.whiskerLeft_comp, Category.assoc, Monad.lStr_unit_comm, Kleisli.comp_def,
-      Functor.map_comp, Kleisli.whiskerRight_def, Monad.unit_dStr_right, comp_whiskerRight,
-      Monad.rStr_unit_comm]
-    simp only [Kleisli.tensorObj_def, Monad.right_unit, Category.comp_id]
-    sorry
-    -- exact todo' _ _
+  leftUnitor_naturality := Kleisli.leftUnitor_naturality
+  rightUnitor_naturality := Kleisli.rightUnitor_naturality
+  pentagon := Kleisli.pentagon
+  triangle := Kleisli.triangle
+
+def braiding [BraidedCategory C] [CommutativeMonad T] (X Y : Kleisli T) :
+    X ⊗ Y ≅ Y ⊗ X :=
+  (Kleisli.Adjunction.toKleisli T).mapIso (@BraidedCategory.braiding C _ _ _ X Y)
+
+lemma braiding_def [BraidedCategory C] [CommutativeMonad T] (X Y : Kleisli T) :
+    Kleisli.braiding X Y
+      = (Kleisli.Adjunction.toKleisli T).mapIso (@BraidedCategory.braiding C _ _ _ X Y) := rfl
 
 instance [SymmetricCategory C] [SymmetricMonad T] : BraidedCategory (Kleisli T) where
-  braiding X Y := (Kleisli.Adjunction.toKleisli T).mapIso
-    (@BraidedCategory.braiding C _ _ _ X Y)
+  braiding := Kleisli.braiding
   braiding_naturality_right X Y Z f := by
+    simp only [Kleisli.braiding_def, Functor.mapIso_hom, Kleisli.Adjunction.toKleisli_map]
     simp only [Kleisli.tensorObj_def, Kleisli.whiskerLeft_def, Functor.id_obj, Monad.unit_dStr_left,
       Functor.mapIso_hom, Kleisli.Adjunction.toKleisli_map, Kleisli.comp_def, Functor.map_comp,
       Category.assoc, Monad.right_unit, Category.comp_id, Kleisli.whiskerRight_def,
@@ -214,6 +247,7 @@ instance [SymmetricCategory C] [SymmetricMonad T] : BraidedCategory (Kleisli T) 
     slice_rhs 1 2 => rw [← BraidedCategory.braiding_naturality_right]
     simp
   braiding_naturality_left {X Y} f Z := by
+    simp only [Kleisli.braiding_def, Functor.mapIso_hom, Kleisli.Adjunction.toKleisli_map]
     simp only [Kleisli.tensorObj_def, Kleisli.whiskerRight_def, Monad.unit_dStr_right,
       Functor.mapIso_hom, Kleisli.Adjunction.toKleisli_map, Kleisli.comp_def, Functor.map_comp,
       Category.assoc, Monad.right_unit, Category.comp_id, Kleisli.whiskerLeft_def, Functor.id_obj,
@@ -224,6 +258,7 @@ instance [SymmetricCategory C] [SymmetricMonad T] : BraidedCategory (Kleisli T) 
     slice_rhs 1 2 => rw [← BraidedCategory.braiding_naturality_left]
     simp
   hexagon_forward X Y Z := by
+    simp only [Kleisli.braiding_def, Functor.mapIso_hom, Kleisli.Adjunction.toKleisli_map]
     simp only [Kleisli.tensorObj_def, Kleisli.associator_def, Functor.mapIso_hom,
       Kleisli.Adjunction.toKleisli_map, BraidedCategory.braiding_tensor_right, Category.assoc,
       Kleisli.comp_def, Functor.map_comp, Monad.right_unit, Category.comp_id,
@@ -247,6 +282,7 @@ instance [SymmetricCategory C] [SymmetricMonad T] : BraidedCategory (Kleisli T) 
     -- slice_rhs 1 2 => rw [← T.map_comp, ← hη]
     -- simp
   hexagon_reverse X Y Z := by
+    simp only [Kleisli.braiding_def, Functor.mapIso_hom, Kleisli.Adjunction.toKleisli_map]
     simp only [Kleisli.tensorObj_def, Kleisli.associator_def, Functor.mapIso_inv,
       Kleisli.Adjunction.toKleisli_map, Functor.mapIso_hom, BraidedCategory.braiding_tensor_left,
       Category.assoc, Kleisli.comp_def, Functor.map_comp, Monad.right_unit, Category.comp_id,
@@ -270,9 +306,6 @@ instance [SymmetricCategory C] [SymmetricMonad T] : BraidedCategory (Kleisli T) 
     -- slice_rhs 1 2 => rw [← T.map_comp, ← hη]
     -- simp
 
-lemma Kleisli.braiding_def [SymmetricCategory C] [SymmetricMonad T] (X Y : Kleisli T) :
-    β_ X Y = (Kleisli.Adjunction.toKleisli T).mapIso (@BraidedCategory.braiding C _ _ _ X Y) := rfl
-
 instance [SymmetricCategory C] [SymmetricMonad T] : SymmetricCategory (Kleisli T) where
   symmetry X Y := by
     simp only [Kleisli.tensorObj_def, Kleisli.braiding_def, Functor.mapIso_hom,
@@ -282,6 +315,8 @@ instance [SymmetricCategory C] [SymmetricMonad T] : SymmetricCategory (Kleisli T
     -- rw [← T.η.naturality]
     -- simp only [Functor.id_obj, Functor.id_map, SymmetricCategory.symmetry_assoc]
     -- rfl
+
+end Kleisli
 
 end Kleisli
 
