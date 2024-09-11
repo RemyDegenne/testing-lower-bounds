@@ -35,7 +35,12 @@ import TestingLowerBounds.ForMathlib.RnDeriv
 import TestingLowerBounds.IntegrableFRNDeriv
 import TestingLowerBounds.Kernel.Basic
 import TestingLowerBounds.Kernel.BayesInv
-import TestingLowerBounds.Kernel.Category
+import TestingLowerBounds.Kernel.Category.Category
+import TestingLowerBounds.Kernel.Category.CommutativeMonad
+import TestingLowerBounds.Kernel.Category.Kleisli
+import TestingLowerBounds.Kernel.Category.Markov
+import TestingLowerBounds.Kernel.Category.MeasCat
+import TestingLowerBounds.Kernel.Category.SFiniteKernel
 import TestingLowerBounds.Kernel.Deterministic
 import TestingLowerBounds.Kernel.DeterministicComp
 import TestingLowerBounds.Kernel.ParallelComp
