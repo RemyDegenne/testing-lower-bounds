@@ -18,13 +18,13 @@ universe u v
 
 namespace CategoryTheory
 
-section Kleisli
+namespace Kleisli
 
 variable {C : Type u} [Category.{v} C] {T : Monad C}
 
-lemma Kleisli.id_def {X : Kleisli T} : 𝟙 X = T.η.app X := rfl
+lemma id_def {X : Kleisli T} : 𝟙 X = T.η.app X := rfl
 
-lemma Kleisli.comp_def {X Y Z : Kleisli T} (f : X ⟶ Y) (g : Y ⟶ Z) :
+lemma comp_def {X Y Z : Kleisli T} (f : X ⟶ Y) (g : Y ⟶ Z) :
     f ≫ g = @CategoryStruct.comp C Category.toCategoryStruct _ _ _ f (T.map g) ≫ T.μ.app Z := by
   simp only [Category.assoc]
   rfl
@@ -36,49 +36,47 @@ section Strong
 variable [Strong T]
 
 instance : MonoidalCategoryStruct (Kleisli T) where
-  tensorObj X Y := (Kleisli.Adjunction.toKleisli T).obj (X ⊗ Y)
+  tensorObj X Y := (Adjunction.toKleisli T).obj (X ⊗ Y)
   whiskerLeft X Y₁ Y₂ f :=
     ((T.η.app X ⊗ f) ≫ T.dStr X Y₂ : @tensorObj C _ _ X Y₁ ⟶ T.obj (X ⊗ Y₂))
   whiskerRight {X₁ X₂} f Y :=
     ((f ⊗ T.η.app Y) ≫ T.dStr X₂ Y : @tensorObj C _ _ X₁ Y ⟶ T.obj (X₂ ⊗ Y))
-  tensorUnit := (Kleisli.Adjunction.toKleisli T).obj (𝟙_ C)
-  associator X Y Z := (Kleisli.Adjunction.toKleisli T).mapIso
+  tensorUnit := (Adjunction.toKleisli T).obj (𝟙_ C)
+  associator X Y Z := (Adjunction.toKleisli T).mapIso
     (@MonoidalCategoryStruct.associator C _ _ X Y Z)
-  leftUnitor X := (Kleisli.Adjunction.toKleisli T).mapIso
-    (@MonoidalCategoryStruct.leftUnitor C _ _ X)
-  rightUnitor X := (Kleisli.Adjunction.toKleisli T).mapIso
-    (@MonoidalCategoryStruct.rightUnitor C _ _ X)
+  leftUnitor X := (Adjunction.toKleisli T).mapIso (@MonoidalCategoryStruct.leftUnitor C _ _ X)
+  rightUnitor X := (Adjunction.toKleisli T).mapIso (@MonoidalCategoryStruct.rightUnitor C _ _ X)
 
-lemma Kleisli.tensorObj_def (X Y : Kleisli T) : X ⊗ Y = @tensorObj C _ _ X Y := rfl
+lemma tensorObj_def (X Y : Kleisli T) : X ⊗ Y = @tensorObj C _ _ X Y := rfl
 
-lemma Kleisli.tensorHom_def {X₁ Y₁ X₂ Y₂ : Kleisli T} (f : X₁ ⟶ Y₁) (g: X₂ ⟶ Y₂) :
+lemma tensorHom_def {X₁ Y₁ X₂ Y₂ : Kleisli T} (f : X₁ ⟶ Y₁) (g: X₂ ⟶ Y₂) :
     f ⊗ g = (f ▷ X₂) ≫ (Y₁ ◁ g) := rfl
 
-lemma Kleisli.whiskerLeft_def (X : Kleisli T) {Y₁ Y₂ : Kleisli T} (f : Y₁ ⟶ Y₂) :
+lemma whiskerLeft_def (X : Kleisli T) {Y₁ Y₂ : Kleisli T} (f : Y₁ ⟶ Y₂) :
     X ◁ f = (T.η.app X ⊗ f) ≫ T.dStr X Y₂ := rfl
 
-lemma Kleisli.whiskerRight_def {X₁ X₂ : Kleisli T} (f : X₁ ⟶ X₂) (Y : Kleisli T) :
+lemma whiskerRight_def {X₁ X₂ : Kleisli T} (f : X₁ ⟶ X₂) (Y : Kleisli T) :
     f ▷ Y = ((f ⊗ T.η.app Y) ≫ T.dStr X₂ Y : @tensorObj C _ _ X₁ Y ⟶ T.obj (X₂ ⊗ Y)) := rfl
 
-lemma Kleisli.tensorUnit_def : 𝟙_ (Kleisli T) = (Kleisli.Adjunction.toKleisli T).obj (𝟙_ C) := rfl
+lemma tensorUnit_def : 𝟙_ (Kleisli T) = (Kleisli.Adjunction.toKleisli T).obj (𝟙_ C) := rfl
 
-lemma Kleisli.associator_def (X Y Z : Kleisli T) :
+lemma associator_def (X Y Z : Kleisli T) :
     α_ X Y Z = (Adjunction.toKleisli T).mapIso (@MonoidalCategoryStruct.associator C _ _ X Y Z) :=
   rfl
 
-lemma Kleisli.leftUnitor_def (X : Kleisli T) :
+lemma leftUnitor_def (X : Kleisli T) :
     λ_ X = (Adjunction.toKleisli T).mapIso (@MonoidalCategoryStruct.leftUnitor C _ _ X) := rfl
 
-lemma Kleisli.rightUnitor_def (X : Kleisli T) :
+lemma rightUnitor_def (X : Kleisli T) :
     ρ_ X = (Adjunction.toKleisli T).mapIso (@MonoidalCategoryStruct.rightUnitor C _ _ X) := rfl
 
-lemma Kleisli.wiskerLeft_id {X Y : Kleisli T} : X ◁ 𝟙 Y = 𝟙 (X ⊗ Y) := by
+lemma wiskerLeft_id {X Y : Kleisli T} : X ◁ 𝟙 Y = 𝟙 (X ⊗ Y) := by
   simp [id_def, whiskerLeft_def, tensorObj_def]
 
-lemma Kleisli.id_whiskerRight {X Y : Kleisli T} : 𝟙 X ▷ Y = 𝟙 (X ⊗ Y) := by
+lemma id_whiskerRight {X Y : Kleisli T} : 𝟙 X ▷ Y = 𝟙 (X ⊗ Y) := by
   simp [id_def, whiskerRight_def, tensorObj_def]
 
-lemma Kleisli.whiskerLeft_comp (X : Kleisli T) {Y₁ Y₂ Y₃ : Kleisli T}
+lemma whiskerLeft_comp (X : Kleisli T) {Y₁ Y₂ Y₃ : Kleisli T}
     (f : Y₁ ⟶ Y₂) (g : Y₂ ⟶ Y₃) :
     X ◁ (f ≫ g) = X ◁ f ≫ X ◁ g := by
   simp [associator_def, whiskerRight_def, whiskerLeft_def, tensorObj_def, tensorUnit_def,
@@ -86,13 +84,13 @@ lemma Kleisli.whiskerLeft_comp (X : Kleisli T) {Y₁ Y₂ Y₃ : Kleisli T}
 
 end Strong
 
-lemma Kleisli.comp_whiskerRight [CommutativeMonad T] {Y₁ Y₂ Y₃ : Kleisli T}
+lemma comp_whiskerRight [CommutativeMonad T] {Y₁ Y₂ Y₃ : Kleisli T}
     (f : Y₁ ⟶ Y₂) (g : Y₂ ⟶ Y₃) (X : Kleisli T) :
     (f ≫ g) ▷ X = f ▷ X ≫ g ▷ X := by
   simp [associator_def, whiskerRight_def, whiskerLeft_def, tensorObj_def, tensorUnit_def,
     leftUnitor_def, rightUnitor_def, comp_def]
 
-lemma Kleisli.whisker_exchange [CommutativeMonad T] {W X Y Z : Kleisli T}
+lemma whisker_exchange [CommutativeMonad T] {W X Y Z : Kleisli T}
     (f : W ⟶ X) (g : Y ⟶ Z) :
     W ◁ g ≫ f ▷ Z = f ▷ Y ≫ X ◁ g := by
   simp only [tensorObj_def, whiskerLeft_def, Functor.id_obj, Monad.unit_dStr_left, whiskerRight_def,
@@ -103,8 +101,6 @@ lemma Kleisli.whisker_exchange [CommutativeMonad T] {W X Y Z : Kleisli T}
   simp only [Category.assoc]
   congr 2
   exact T.lStr_rStr_comm X Z
-
-namespace Kleisli
 
 variable {W X Y Z X₁ Y₁ Z₁ X₂ Y₂ Z₂ X₃ Y₃ Z₃ : Kleisli T}
 
@@ -188,8 +184,6 @@ instance [SymmetricCategory C] [SymmetricMonad T] : SymmetricCategory (Kleisli T
       Functor.map_comp, Category.assoc, η_naturality_assoc, η_naturality,
       SymmetricCategory.symmetry_assoc, Monad.left_unit, Functor.id_obj, Category.comp_id]
     rfl
-
-end Kleisli
 
 end Kleisli
 

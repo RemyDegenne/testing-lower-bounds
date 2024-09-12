@@ -37,7 +37,9 @@ import TestingLowerBounds.Kernel.Basic
 import TestingLowerBounds.Kernel.BayesInv
 import TestingLowerBounds.Kernel.Category.Category
 import TestingLowerBounds.Kernel.Category.CommutativeMonad
+import TestingLowerBounds.Kernel.Category.Giry
 import TestingLowerBounds.Kernel.Category.Kleisli
+import TestingLowerBounds.Kernel.Category.KleisliMarkov
 import TestingLowerBounds.Kernel.Category.Markov
 import TestingLowerBounds.Kernel.Category.MeasCat
 import TestingLowerBounds.Kernel.Category.SFiniteKernel
