@@ -40,7 +40,7 @@ class CopyDiscardCategory (C : Type u) [𝒞 : Category.{v} C] [MonoidalCategory
 
 export CopyDiscardCategoryStruct (del copy)
 
-variable {C : Type u} [𝒞 : Category.{v} C] [MonoidalCategory C] [CopyDiscardCategory C]
+variable {C : Type u} [𝒞 : Category.{v} C] [MonoidalCategory C]
 
 -- omitted copy_assoc copy_tensor
 attribute [reassoc (attr := simp)] CopyDiscardCategory.del_copy
@@ -48,12 +48,20 @@ attribute [reassoc (attr := simp)] CopyDiscardCategory.del_copy
   CopyDiscardCategory.copy_braiding CopyDiscardCategory.del_tensor
   CopyDiscardCategory.copy_unit CopyDiscardCategory.del_unit
 
-class MarkovCategory (C : Type u) [𝒞 : Category.{u} C] [MonoidalCategory C]
+class MarkovCategory (C : Type u) [𝒞 : Category.{v} C] [MonoidalCategory C]
     extends CopyDiscardCategory C where
-  /-- Every morphism is discardable. -/
-  comp_del ⦃X Y : C⦄ (f : X ⟶ Y) : f ≫ del Y = del X := by aesop_cat
+  /-- The discard morphism is unique. -/
+  del_unique {X : C} (f : X ⟶ 𝟙_ C) : f = del X
 
-attribute [reassoc (attr := simp)] MarkovCategory.comp_del
+attribute [simp] MarkovCategory.del_unique
+
+lemma del_congr [MarkovCategory C] {X : C} (f g : X ⟶ 𝟙_ C) : f = g := by simp
+
+@[reassoc (attr := simp)]
+lemma comp_del [MarkovCategory C] ⦃X Y : C⦄ (f : X ⟶ Y) : f ≫ del Y = del X := del_congr _ _
+
+@[simp]
+lemma del_unit [MarkovCategory C] : del (𝟙_ C) = 𝟙 (𝟙_ C) := del_congr _ _
 
 end MarkovCategory
 

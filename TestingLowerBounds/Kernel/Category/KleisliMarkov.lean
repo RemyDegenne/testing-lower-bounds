@@ -33,6 +33,8 @@ lemma Adjunction.toKleisli.map_tensorHom [SymmetricCategory C] [SymmetricMonad T
   rw [MonoidalCategory.tensorHom_def]
   simp
 
+section CopyDiscardCategory
+
 variable [CopyDiscardCategory C] [SymmetricMonad T]
 
 instance : CopyDiscardCategoryStruct (Kleisli T) where
@@ -95,6 +97,30 @@ instance : CopyDiscardCategory (Kleisli T) where
     rfl
   copy_unit := by simp [copy_def, tensorUnit_def, leftUnitor_def]
   del_unit := by simp [del_def, tensorUnit_def, id_def]
+
+end CopyDiscardCategory
+
+section Markov
+
+variable [MarkovCategory C] [SymmetricMonad T] [Affine T]
+
+instance : MarkovCategory (Kleisli T) where
+  del_unique {X} f := by
+    let iso : T.obj (𝟙_ C) ≅ 𝟙_ C := Affine.affine
+    simp only [tensorUnit_def, Adjunction.toKleisli_obj] at f
+    rw [del_def]
+    have : f = (@CategoryStruct.comp C Category.toCategoryStruct _ _ _ f iso.hom) ≫ iso.inv := by
+      simp only [Category.assoc, Iso.hom_inv_id, Category.comp_id]
+    rw [this]
+    simp only [MarkovCategory.del_unique, Adjunction.toKleisli_map]
+    have : T.η.app (𝟙_ C) = (@CategoryStruct.comp C Category.toCategoryStruct _ _ _ (T.η.app (𝟙_ C))
+        iso.hom) ≫ iso.inv := by simp only [Category.assoc, Iso.hom_inv_id, Category.comp_id]
+    rw [this, MarkovCategory.del_unique (@CategoryStruct.comp C Category.toCategoryStruct _ _ _
+      (T.η.app (𝟙_ C)) iso.hom)]
+    have : del ((𝟭 C).obj (𝟙_ C)) = 𝟙 (𝟙_ C) := del_unit
+    rw [this, Category.id_comp iso.inv]
+
+end Markov
 
 end Kleisli
 

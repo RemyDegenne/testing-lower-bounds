@@ -256,8 +256,6 @@ end LeftRightStrength
 class Affine {C : Type u} [Category.{v} C] [MonoidalCategory C] (T : Monad C) where
   affine : T.obj (𝟙_ C) ≅ 𝟙_ C := by aesop_cat
 
--- The Giry monad is not affine unless we restrict the measures to probability measures.
-
 end CommutativeMonad
 
 end CategoryTheory
