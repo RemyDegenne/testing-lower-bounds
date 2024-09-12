@@ -71,7 +71,7 @@ def Monad.lStr (T : Monad C) [LeftStrong T] (X Y : C) :
     X ⊗ T.obj Y ⟶ T.obj (X ⊗ Y) :=
   LeftStrong.leftStr.app (X, Y)
 
-@[simp]
+@[reassoc (attr := simp)]
 lemma Monad.lStr_unit_comp (T : Monad C) [LeftStrong T] (X : C) :
     (λ_ (T.obj X)).inv ≫ T.lStr (𝟙_ C) X = T.map (λ_ X).inv :=
   LeftStrong.left_unit_comp _
@@ -81,30 +81,35 @@ lemma Monad.lStr_assoc (T : Monad C) [LeftStrong T] (X Y Z : C) :
       = (α_ X Y (T.obj Z)).hom ≫ (X ◁ T.lStr Y Z) ≫ T.lStr X (Y ⊗ Z) :=
   LeftStrong.left_assoc _ _ _
 
-@[simp]
+@[reassoc (attr := simp)]
 lemma Monad.lStr_unit_comm (T : Monad C) [LeftStrong T] (X Y : C) :
     (X ◁ T.η.app Y) ≫ T.lStr X Y = T.η.app (X ⊗ Y) :=
   LeftStrong.left_unit_comm _ _
 
+@[reassoc (attr := simp)]
 lemma Monad.lStr_mul_comm (T : Monad C) [LeftStrong T] (X Y : C) :
     (X ◁ T.μ.app Y) ≫ T.lStr X Y
       = T.lStr X (T.obj Y) ≫ T.map (T.lStr X Y) ≫ T.μ.app (X ⊗ Y) :=
   LeftStrong.left_mul_comm _ _
 
+@[reassoc (attr := simp)]
 lemma Monad.lStr_naturality (T : Monad C) [LeftStrong T] {X₁ X₂ Y₁ Y₂ : C}
     (f : (X₁, X₂) ⟶ (Y₁, Y₂)) :
     (f.1 ⊗ T.map f.2) ≫ T.lStr Y₁ Y₂ = T.lStr X₁ X₂ ≫ T.map (f.1 ⊗ f.2) := by
   simpa using LeftStrong.leftStr.naturality _
 
+@[reassoc (attr := simp)]
 lemma Monad.lStr_naturality' (T : Monad C) [LeftStrong T] {X₁ X₂ Y₁ Y₂ : C}
     (f₁ : X₁ ⟶ Y₁) (f₂ : X₂ ⟶ Y₂) :
     (f₁ ⊗ T.map f₂) ≫ T.lStr Y₁ Y₂ = T.lStr X₁ X₂ ≫ T.map (f₁ ⊗ f₂) := T.lStr_naturality (f₁, f₂)
 
+@[reassoc (attr := simp)]
 lemma Monad.lStr_naturality_id_left (T : Monad C) [LeftStrong T] {X Y₂ : C} (Y₁ : C)
     (f : X ⟶ Y₂) :
     (Y₁ ◁ T.map f) ≫ T.lStr Y₁ Y₂ = T.lStr Y₁ X ≫ T.map (Y₁ ◁ f) := by
   simpa using T.lStr_naturality (𝟙 Y₁, f)
 
+@[reassoc (attr := simp)]
 lemma Monad.lStr_naturality_id_right (T : Monad C) [LeftStrong T] {X Y₁ : C}
     (f : X ⟶ Y₁) (Y₂ : C) :
     (f ▷ T.obj Y₂) ≫ T.lStr Y₁ Y₂ = T.lStr X Y₂ ≫ T.map (f ▷ Y₂) := by
@@ -114,7 +119,7 @@ def Monad.rStr (T : Monad C) [RightStrong T] (X Y : C) :
     T.obj X ⊗ Y ⟶ T.obj (X ⊗ Y) :=
   RightStrong.rightStr.app (X, Y)
 
-@[simp]
+@[reassoc (attr := simp)]
 lemma Monad.rStr_unit_comp (T : Monad C) [RightStrong T] (X : C) :
     (ρ_ (T.obj X)).inv ≫ T.rStr X (𝟙_ C) = T.map (ρ_ X).inv :=
   RightStrong.right_unit_comp _
@@ -124,30 +129,35 @@ lemma Monad.rStr_assoc (T : Monad C) [RightStrong T] (X Y Z : C) :
       = (α_ (T.obj X) Y Z).inv ≫ (T.rStr X Y ▷ Z) ≫ T.rStr (X ⊗ Y) Z :=
   RightStrong.right_assoc _ _ _
 
-@[simp]
+@[reassoc (attr := simp)]
 lemma Monad.rStr_unit_comm (T : Monad C) [RightStrong T] (X Y : C) :
     T.η.app X ▷ Y ≫ T.rStr X Y = T.η.app (X ⊗ Y) :=
   RightStrong.right_unit_comm _ _
 
+@[reassoc (attr := simp)]
 lemma Monad.rStr_mul_comm (T : Monad C) [RightStrong T] (X Y : C) :
     T.μ.app X ▷ Y ≫ T.rStr X Y
       = T.rStr (T.obj X) Y ≫ T.map (T.rStr X Y) ≫ T.μ.app (X ⊗ Y) :=
   RightStrong.right_mul_comm _ _
 
+@[reassoc (attr := simp)]
 lemma Monad.rStr_naturality (T : Monad C) [RightStrong T] {X₁ X₂ Y₁ Y₂ : C}
     (f : (X₁, X₂) ⟶ (Y₁, Y₂)) :
     (T.map f.1 ⊗ f.2) ≫ T.rStr Y₁ Y₂ = T.rStr X₁ X₂ ≫ T.map (f.1 ⊗ f.2) := by
   simpa using RightStrong.rightStr.naturality _
 
+@[reassoc (attr := simp)]
 lemma Monad.rStr_naturality' (T : Monad C) [RightStrong T] {X₁ X₂ Y₁ Y₂ : C}
     (f₁ : X₁ ⟶ Y₁) (f₂ : X₂ ⟶ Y₂) :
     (T.map f₁ ⊗ f₂) ≫ T.rStr Y₁ Y₂ = T.rStr X₁ X₂ ≫ T.map (f₁ ⊗ f₂) := T.rStr_naturality (f₁, f₂)
 
+@[reassoc (attr := simp)]
 lemma Monad.rStr_naturality_id_left (T : Monad C) [RightStrong T] {X Y₂ : C} (Y₁ : C)
     (f : X ⟶ Y₂) :
     (T.obj Y₁ ◁ f) ≫ T.rStr Y₁ Y₂ = T.rStr Y₁ X ≫ T.map (Y₁ ◁ f) := by
   simpa using T.rStr_naturality (𝟙 Y₁, f)
 
+@[reassoc (attr := simp)]
 lemma Monad.rStr_naturality_id_right (T : Monad C) [RightStrong T] {X Y₁ : C}
     (f : X ⟶ Y₁) (Y₂ : C) :
     (T.map f ▷ Y₂) ≫ T.rStr Y₁ Y₂ = T.rStr X Y₂ ≫ T.map (f ▷ Y₂) := by
@@ -157,11 +167,13 @@ def Monad.dStr (T : Monad C) [Strong T] (X Y : C) :
     T.obj X ⊗ T.obj Y ⟶ T.obj (X ⊗ Y) :=
   (T.lStr (T.obj X) Y) ≫ T.map (T.rStr X Y) ≫ T.μ.app (X ⊗ Y)
 
+@[reassoc (attr := simp)]
 lemma Monad.lStr_rStr (T : Monad C) [Strong T] (X Y Z : C) :
     (T.lStr X Y ▷ Z) ≫ T.rStr (X ⊗ Y) Z
       = (α_ X (T.obj Y) Z).hom ≫ (X ◁ T.rStr Y Z) ≫ T.lStr X (Y ⊗ Z) ≫ T.map (α_ _ _ _).inv :=
   Strong.left_right _ _ _
 
+@[reassoc (attr := simp)]
 lemma Monad.lStr_rStr_comm (T : Monad C) [CommutativeMonad T] (X Y : C) :
     T.lStr (T.obj X) Y ≫ T.map (T.rStr X Y) ≫ T.μ.app (X ⊗ Y)
       = T.rStr X (T.obj Y) ≫ T.map (T.lStr X Y) ≫ T.μ.app (X ⊗ Y) :=
@@ -171,7 +183,7 @@ lemma Monad.dStr_eq (T : Monad C) [CommutativeMonad T] (X Y : C) :
     T.dStr X Y = T.rStr X (T.obj Y) ≫ T.map (T.lStr X Y) ≫ T.μ.app (X ⊗ Y) :=
   T.lStr_rStr_comm X Y
 
-@[simp]
+@[reassoc (attr := simp)]
 lemma Monad.unit_whiskerRight_dStr (T : Monad C) [Strong T] (X Y : C) :
     (T.η.app X ▷ T.obj Y) ≫ T.dStr X Y = T.lStr X Y := by
   simp only [dStr, Functor.id_obj]
@@ -181,7 +193,7 @@ lemma Monad.unit_whiskerRight_dStr (T : Monad C) [Strong T] (X Y : C) :
   rw [← T.map_comp]
   simp
 
-@[simp]
+@[reassoc (attr := simp)]
 lemma Monad.unit_whiskerLeft_dStr (T : Monad C) [CommutativeMonad T] (X Y : C) :
     (T.obj X ◁ T.η.app Y) ≫ T.dStr X Y = T.rStr X Y := by
   simp only [T.dStr_eq, Functor.id_obj]
@@ -191,27 +203,37 @@ lemma Monad.unit_whiskerLeft_dStr (T : Monad C) [CommutativeMonad T] (X Y : C) :
   rw [← T.map_comp]
   simp
 
-@[simp]
+@[reassoc (attr := simp)]
 lemma Monad.unit_dStr_left (T : Monad C) [Strong T] (X : C) {Y₁ Y₂ : C}
     (f : Y₁ ⟶ T.obj Y₂) :
     (T.η.app X ⊗ f) ≫ T.dStr X Y₂ = X ◁ f ≫ T.lStr X Y₂ := by
   simp [tensorHom_def']
 
-@[simp]
+@[reassoc (attr := simp)]
 lemma Monad.unit_dStr_right (T : Monad C) [CommutativeMonad T] (X : C) {Y₁ Y₂ : C}
     (f : Y₁ ⟶ T.obj Y₂) :
     (f ⊗ T.η.app X) ≫ T.dStr Y₂ X = f ▷ X ≫ T.rStr Y₂ X := by
   simp [tensorHom_def]
 
-@[simp]
+@[reassoc (attr := simp)]
 lemma Monad.lStr_comp_braiding (T : Monad C) [SymmetricCategory C] [SymmetricMonad T] (X Y : C) :
     T.lStr X Y ≫ T.map (β_ X Y).hom = (β_ X (T.obj Y)).hom ≫ T.rStr Y X :=
   SymmetricMonad.braiding_left_right _ _
 
-@[simp]
+--@[reassoc (attr := simp)]
+lemma Monad.braiding_comp_rStr (T : Monad C) [SymmetricCategory C] [SymmetricMonad T] (X Y : C) :
+    (β_ X (T.obj Y)).hom ≫ T.rStr Y X = T.lStr X Y ≫ T.map (β_ X Y).hom :=
+  (Monad.lStr_comp_braiding T X Y).symm
+
+@[reassoc (attr := simp)]
 lemma Monad.rStr_comp_braiding (T : Monad C) [SymmetricCategory C] [SymmetricMonad T] (X Y : C) :
     T.rStr X Y ≫ T.map (β_ X Y).hom = (β_ (T.obj X) Y).hom ≫ T.lStr Y X :=
   SymmetricMonad.braiding_right_left _ _
+
+--@[reassoc (attr := simp)]
+lemma Monad.braiding_comp_lStr (T : Monad C) [SymmetricCategory C] [SymmetricMonad T] (X Y : C) :
+    (β_ (T.obj X) Y).hom ≫ T.lStr Y X = T.rStr X Y ≫ T.map (β_ X Y).hom :=
+  (Monad.rStr_comp_braiding T X Y).symm
 
 end LeftRightStrength
 
