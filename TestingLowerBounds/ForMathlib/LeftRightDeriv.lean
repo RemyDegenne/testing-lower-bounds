@@ -209,6 +209,11 @@ lemma leftDeriv_add_apply {f g : ℝ → ℝ} {x : ℝ} (hf : DifferentiableWith
   simp_rw [leftDeriv_def, ← derivWithin_add (uniqueDiffWithinAt_Iio x) hf hg]
   rfl
 
+lemma leftDeriv_add_apply' {f g : ℝ → ℝ} {x : ℝ} (hf : DifferentiableWithinAt ℝ f (Iio x) x)
+    (hg : DifferentiableWithinAt ℝ g (Iio x) x) :
+    leftDeriv (fun x ↦ f x + g x) x = leftDeriv f x + leftDeriv g x :=
+  leftDeriv_add_apply hf hg
+
 lemma leftDeriv_add {f g : ℝ → ℝ} (hf : ∀ x, DifferentiableWithinAt ℝ f (Iio x) x)
     (hg : ∀ x, DifferentiableWithinAt ℝ g (Iio x) x) :
     leftDeriv (f + g) = fun x ↦ leftDeriv f x + leftDeriv g x := by
@@ -219,23 +224,45 @@ lemma leftDeriv_add' {f g : ℝ → ℝ} (hf : ∀ x, DifferentiableWithinAt ℝ
     leftDeriv (fun x ↦ f x + g x) = fun x ↦ leftDeriv f x + leftDeriv g x := by
   simp_rw [← Pi.add_apply f g, leftDeriv_add hf hg]
 
+lemma rightDeriv_add_const_apply {f : ℝ → ℝ} {x : ℝ} (hf : DifferentiableWithinAt ℝ f (Ioi x) x)
+    (c : ℝ) :
+    rightDeriv (fun x ↦ f x + c) x = rightDeriv f x := by
+  rw [rightDeriv_add_apply' hf (differentiableWithinAt_const c), rightDeriv_const,
+    Pi.zero_apply, add_zero]
+
 lemma rightDeriv_add_const {f : ℝ → ℝ} (hf : ∀ x, DifferentiableWithinAt ℝ f (Ioi x) x) (c : ℝ) :
     rightDeriv (fun x ↦ f x + c) = rightDeriv f := by
-  simp [rightDeriv_add' hf (fun _ ↦ differentiableWithinAt_const c)]
+  ext x; exact rightDeriv_add_const_apply (hf x) c
+
+lemma leftDeriv_add_const_apply {f : ℝ → ℝ} {x : ℝ} (hf : DifferentiableWithinAt ℝ f (Iio x) x)
+    (c : ℝ) :
+    leftDeriv (fun x ↦ f x + c) x = leftDeriv f x := by
+  rw [leftDeriv_add_apply' hf (differentiableWithinAt_const c), leftDeriv_const,
+    Pi.zero_apply, add_zero]
 
 lemma leftDeriv_add_const {f : ℝ → ℝ} (hf : ∀ x, DifferentiableWithinAt ℝ f (Iio x) x) (c : ℝ) :
     leftDeriv (fun x ↦ f x + c) = leftDeriv f := by
-  simp [leftDeriv_add' hf (fun _ ↦ differentiableWithinAt_const c)]
+  ext x; exact leftDeriv_add_const_apply (hf x) c
+
+lemma rightDeriv_add_linear_apply {f : ℝ → ℝ} {x : ℝ} (hf : DifferentiableWithinAt ℝ f (Ioi x) x)
+    (a : ℝ) :
+    rightDeriv (fun x ↦ f x + a * x) x = rightDeriv f x + a := by
+  rw [rightDeriv_add_apply' hf (by fun_prop), rightDeriv_const_mul, rightDeriv_id']
+  simp
 
 lemma rightDeriv_add_linear {f : ℝ → ℝ} (hf : ∀ x, DifferentiableWithinAt ℝ f (Ioi x) x) (a : ℝ) :
     rightDeriv (fun x ↦ f x + a * x) = rightDeriv f + fun _ ↦ a := by
-  rw [rightDeriv_add' hf (by fun_prop), rightDeriv_const_mul, rightDeriv_id']
-  ext; simp
+  ext x; exact rightDeriv_add_linear_apply (hf x) a
+
+lemma leftDeriv_add_linear_apply {f : ℝ → ℝ} {x : ℝ} (hf : DifferentiableWithinAt ℝ f (Iio x) x)
+    (a : ℝ) :
+    leftDeriv (fun x ↦ f x + a * x) x = leftDeriv f x + a := by
+  rw [leftDeriv_add_apply' hf (by fun_prop), leftDeriv_const_mul, leftDeriv_id']
+  simp
 
 lemma leftDeriv_add_linear {f : ℝ → ℝ} (hf : ∀ x, DifferentiableWithinAt ℝ f (Iio x) x) (a : ℝ) :
     leftDeriv (fun x ↦ f x + a * x) = leftDeriv f + fun _ ↦ a := by
-  rw [leftDeriv_add' hf (by fun_prop), leftDeriv_const_mul, leftDeriv_id']
-  ext; simp
+  ext x; exact leftDeriv_add_linear_apply (hf x) a
 
 
 namespace ConvexOn
