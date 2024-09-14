@@ -809,20 +809,15 @@ lemma fDiv_map_measurableEmbedding [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     swap
     · rw [hg.integrable_map_iff]
       refine (integrable_congr ?_).mpr h_int
-      filter_upwards [hg.rnDeriv_map μ ν] with a ha
-      simp [ha]
+      filter_upwards [hg.rnDeriv_map μ ν] with a ha using ha ▸ rfl
     rw [hg.integral_map]
     congr 2
     · refine integral_congr_ae ?_
-      filter_upwards [hg.rnDeriv_map μ ν] with a ha
-      simp [ha]
-    · rw [hg.singularPart_map μ ν, hg.map_apply]
-      simp
+      filter_upwards [hg.rnDeriv_map μ ν] with a ha using ha ▸ rfl
+    · rw [hg.singularPart_map μ ν, hg.map_apply, preimage_univ]
   · rw [fDiv_of_not_integrable h_int, fDiv_of_not_integrable]
-    rw [hg.integrable_map_iff]
-    rwa [(integrable_congr ?_)]
-    filter_upwards [hg.rnDeriv_map μ ν] with a ha
-    simp [ha]
+    rwa [hg.integrable_map_iff, integrable_congr ?_]
+    filter_upwards [hg.rnDeriv_map μ ν] with a ha using ha ▸ rfl
 
 lemma fDiv_restrict_of_integrable (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     {s : Set α} (hs : MeasurableSet s) (h_int : IntegrableOn (fun x ↦ f ((∂μ/∂ν) x).toReal) s ν) :

@@ -524,8 +524,7 @@ lemma le_renyiDiv_of_le_hellingerDiv {a : ℝ} {μ₁ ν₁ : Measure α} {μ₂
   · simp_rw [renyiDiv_of_ne_one ha.ne', h_eq]
     gcongr
     · simp only [EReal.coe_nonneg, inv_nonneg, sub_nonneg, ha.le]
-    refine ENNReal.log_monotone ?_
-    apply EReal.toENNReal_le_toENNReal
+    refine ENNReal.log_monotone <| EReal.toENNReal_le_toENNReal ?_
     gcongr
     norm_cast
     linarith
@@ -533,10 +532,9 @@ lemma le_renyiDiv_of_le_hellingerDiv {a : ℝ} {μ₁ ν₁ : Measure α} {μ₂
 lemma le_renyiDiv_compProd [CountableOrCountablyGenerated α β] (ha_pos : 0 < a)
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : Kernel α β) [IsMarkovKernel κ] [IsMarkovKernel η] :
-    renyiDiv a μ ν ≤ renyiDiv a (μ ⊗ₘ κ) (ν ⊗ₘ η) := by
-  refine le_renyiDiv_of_le_hellingerDiv ?_ (le_hellingerDiv_compProd ha_pos μ ν κ η)
-  rw [Measure.compProd_apply .univ]
-  simp
+    renyiDiv a μ ν ≤ renyiDiv a (μ ⊗ₘ κ) (ν ⊗ₘ η) :=
+  le_renyiDiv_of_le_hellingerDiv Measure.compProd_apply_univ.symm
+    (le_hellingerDiv_compProd ha_pos μ ν κ η)
 
 lemma renyiDiv_fst_le [Nonempty β] [StandardBorelSpace β] (ha_pos : 0 < a)
     (μ ν : Measure (α × β)) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
@@ -567,10 +565,8 @@ lemma renyiDiv_comp_right_le [Nonempty α] [StandardBorelSpace α] (ha_pos : 0 <
     [CountableOrCountablyGenerated α β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ : Kernel α β) [IsMarkovKernel κ] :
-    renyiDiv a (κ ∘ₘ μ) (κ ∘ₘ ν) ≤ renyiDiv a μ ν := by
-  refine le_renyiDiv_of_le_hellingerDiv ?_ (hellingerDiv_comp_right_le ha_pos μ ν κ)
-  rw [← Measure.snd_compProd ν κ, Measure.snd_univ, Measure.compProd_apply .univ]
-  simp
+    renyiDiv a (κ ∘ₘ μ) (κ ∘ₘ ν) ≤ renyiDiv a μ ν :=
+  le_renyiDiv_of_le_hellingerDiv Measure.comp_apply_univ (hellingerDiv_comp_right_le ha_pos μ ν κ)
 
 end DataProcessingInequality
 

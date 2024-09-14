@@ -335,10 +335,11 @@ lemma fDiv_ne_top_iff_integrable_fDiv_statInfoFun_of_absolutelyContinuous
     curvatureMeasure_add_const, curvatureMeasure_add_linear, curvatureMeasure_add_const]
   · exact (hf_cvx.add_const _).add (const_mul_id (-rightDeriv f 1)) |>.add_const _
   · exact ((hf_cont.add continuous_const).add (continuous_mul_left _)).add continuous_const
-  · have hf_diff x := differentiableWithinAt_Ioi hf_cvx x
-    rw [rightDeriv_add_const (by fun_prop), rightDeriv_add_linear (by fun_prop),
-      rightDeriv_add_const hf_diff]
-    simp
+  · have hf_diff := differentiableWithinAt_Ioi'
+      (hf_cvx.subset (fun _ _ ↦ trivial) (convex_Ici 0)) zero_lt_one
+    rw [rightDeriv_add_const_apply, rightDeriv_add_linear_apply, rightDeriv_add_const_apply hf_diff,
+      add_neg_cancel] <;> fun_prop
+
 
 lemma integrable_f_rnDeriv_iff_integrable_fDiv_statInfoFun_of_absolutelyContinuous
     [IsFiniteMeasure μ] [IsFiniteMeasure ν]
@@ -399,18 +400,18 @@ lemma fDiv_eq_integral_fDiv_statInfoFun_of_absolutelyContinuous
       + f 1 * ν univ + rightDeriv f 1 * (μ univ - ν univ) := by
   rw [fDiv_eq_fDiv_centeredFunction (hf_cvx.subset (fun _ _ ↦ trivial) (convex_Ici 0))]
   congr
-  · have h : ConvexOn ℝ univ (fun x ↦ f x - f 1 - rightDeriv f 1 * (x - 1)) := by
-      simp_rw [mul_sub, sub_eq_add_neg, neg_add, neg_neg, ← neg_mul]
-      exact (hf_cvx.add_const _).add ((ConvexOn.const_mul_id _).add (convexOn_const _ convex_univ))
-    rw [fDiv_eq_integral_fDiv_statInfoFun_of_absolutelyContinuous'
-      h (by continuity) (by simp) _ _ h_ac]
+  · rw [fDiv_eq_integral_fDiv_statInfoFun_of_absolutelyContinuous'
+      _ (by continuity) (by simp) _ _ h_ac]
     · simp_rw [mul_sub, sub_eq_add_neg, neg_add, neg_neg, ← neg_mul, ← add_assoc,
         curvatureMeasure_add_const, curvatureMeasure_add_linear, curvatureMeasure_add_const]
-    · have hf_diff x := differentiableWithinAt_Ioi hf_cvx x
+    · simp_rw [mul_sub, sub_eq_add_neg, neg_add, neg_neg, ← neg_mul]
+      exact (hf_cvx.add_const _).add ((ConvexOn.const_mul_id _).add (convexOn_const _ convex_univ))
+    · have hf_diff := differentiableWithinAt_Ioi'
+        (hf_cvx.subset (fun _ _ ↦ trivial) (convex_Ici 0)) zero_lt_one
       simp_rw [mul_sub, sub_eq_add_neg, neg_add, neg_neg, ← neg_mul, ← add_assoc]
-      rw [rightDeriv_add_const (by fun_prop), rightDeriv_add_linear (by fun_prop),
-        rightDeriv_add_const hf_diff]
-      simp
+      rw [rightDeriv_add_const_apply, rightDeriv_add_linear_apply,
+        rightDeriv_add_const_apply hf_diff, add_neg_cancel]
+      <;> fun_prop
     · exact (h_int.sub (integrable_const _)).sub
         ((Measure.integrable_toReal_rnDeriv.sub (integrable_const 1)).const_mul _)
   all_goals exact ENNReal.toReal_toEReal_of_ne_top (measure_ne_top _ _)
@@ -623,13 +624,24 @@ lemma fDiv_comp_right_le' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
   exact lintegral_mono fun x ↦ EReal.toENNReal_le_toENNReal <|
     fDiv_statInfoFun_comp_right_le η zero_le_one
 
+lemma fDiv_fst_le' (μ ν : Measure (𝒳 × 𝒳')) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f) :
+    fDiv f μ.fst ν.fst ≤ fDiv f μ ν := by
+  simp_rw [Measure.fst, ← Measure.comp_deterministic_eq_map measurable_fst]
+  exact fDiv_comp_right_le' _ hf_cvx hf_cont
+
+lemma fDiv_snd_le' (μ ν : Measure (𝒳 × 𝒳')) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f) :
+    fDiv f μ.snd ν.snd ≤ fDiv f μ ν := by
+  simp_rw [Measure.snd, ← Measure.comp_deterministic_eq_map measurable_snd]
+  exact fDiv_comp_right_le' _ hf_cvx hf_cont
+
 lemma le_fDiv_compProd' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : Kernel 𝒳 𝒳') [IsMarkovKernel κ] [IsMarkovKernel η] (hf_cvx : ConvexOn ℝ univ f)
     (hf_cont : Continuous f) :
     fDiv f μ ν ≤ fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ η) := by
   nth_rw 1 [← Measure.fst_compProd μ κ, ← Measure.fst_compProd ν η]
-  simp_rw [Measure.fst, ← Measure.comp_deterministic_eq_map measurable_fst]
-  exact fDiv_comp_right_le' _ hf_cvx hf_cont
+  exact fDiv_fst_le' _ _ hf_cvx hf_cont
 
 lemma fDiv_compProd_right' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ : Kernel 𝒳 𝒳') [IsMarkovKernel κ] (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f) :
@@ -643,26 +655,13 @@ lemma fDiv_comp_le_compProd' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (hf_cont : Continuous f) :
     fDiv f (κ ∘ₘ μ) (η ∘ₘ ν) ≤ fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ η) := by
   nth_rw 1 [← Measure.snd_compProd μ κ, ← Measure.snd_compProd ν η]
-  simp_rw [Measure.snd, ← Measure.comp_deterministic_eq_map measurable_snd]
-  exact fDiv_comp_right_le' _ hf_cvx hf_cont
+  exact fDiv_snd_le' _ _ hf_cvx hf_cont
 
 lemma fDiv_comp_le_compProd_right' [IsFiniteMeasure μ]
     (κ η : Kernel 𝒳 𝒳') [IsMarkovKernel κ] [IsMarkovKernel η] (hf_cvx : ConvexOn ℝ univ f)
     (hf_cont : Continuous f) :
     fDiv f (κ ∘ₘ μ) (η ∘ₘ μ) ≤ fDiv f (μ ⊗ₘ κ) (μ ⊗ₘ η) :=
   fDiv_comp_le_compProd' κ η hf_cvx hf_cont
-
-lemma fDiv_fst_le' (μ ν : Measure (𝒳 × 𝒳')) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f) :
-    fDiv f μ.fst ν.fst ≤ fDiv f μ ν := by
-  simp_rw [Measure.fst, ← Measure.comp_deterministic_eq_map measurable_fst]
-  exact fDiv_comp_right_le' _ hf_cvx hf_cont
-
-lemma fDiv_snd_le' (μ ν : Measure (𝒳 × 𝒳')) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f) :
-    fDiv f μ.snd ν.snd ≤ fDiv f μ ν := by
-  simp_rw [Measure.snd, ← Measure.comp_deterministic_eq_map measurable_snd]
-  exact fDiv_comp_right_le' _ hf_cvx hf_cont
 
 end DataProcessingInequality
 

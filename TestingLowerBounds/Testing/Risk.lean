@@ -41,8 +41,8 @@ an objective function `y` on the parameter space and a cost function `ℓ`.
 We don't put the data generating kernel into this structure, since we will often perform operations
 on it and we don't want to duplicate all kernel operations on `estimationProblem`. -/
 @[ext]
-structure estimationProblem (Θ 𝒴 𝒵 : Type*) [mΘ : MeasurableSpace Θ]
-    [m𝒴 : MeasurableSpace 𝒴] [m𝒵 : MeasurableSpace 𝒵] :=
+structure estimationProblem (Θ 𝒴 𝒵 : Type*) [MeasurableSpace Θ]
+    [MeasurableSpace 𝒴] [MeasurableSpace 𝒵] :=
   /-- The objective function. -/
   y : Θ → 𝒴
   y_meas : Measurable y
