@@ -43,7 +43,9 @@ import TestingLowerBounds.Kernel.Category.Kleisli
 import TestingLowerBounds.Kernel.Category.KleisliMarkov
 import TestingLowerBounds.Kernel.Category.Markov
 import TestingLowerBounds.Kernel.Category.MeasCat
+import TestingLowerBounds.Kernel.Category.MeasCatMarkov
 import TestingLowerBounds.Kernel.Category.SFiniteKernel
+import TestingLowerBounds.Kernel.Category.Stoch
 import TestingLowerBounds.Kernel.Coherence
 import TestingLowerBounds.Kernel.Deterministic
 import TestingLowerBounds.Kernel.DeterministicComp
