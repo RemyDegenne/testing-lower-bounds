@@ -85,4 +85,27 @@ instance : LeftStrong ProbGiry where
   left_unit_comm X Y := sorry
   left_mul_comm X Y := sorry
 
+instance : RightStrong ProbGiry where
+  rightStr := sorry
+  right_unit_comp X := sorry
+  right_assoc X Y Z := sorry
+  right_unit_comm X Y := sorry
+  right_mul_comm X Y := sorry
+
+noncomputable
+instance : Strong ProbGiry where
+  left_right X Y Z := sorry
+
+noncomputable
+instance : CommutativeMonad ProbGiry where
+  comm X Y := sorry
+
+noncomputable
+instance : SymmetricMonad ProbGiry where
+  braiding_left_right X Y := sorry
+  braiding_right_left X Y := sorry
+
+instance : Affine ProbGiry where
+  affine := sorry
+
 end MeasCat

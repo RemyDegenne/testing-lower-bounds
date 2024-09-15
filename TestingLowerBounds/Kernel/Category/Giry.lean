@@ -238,28 +238,3 @@ def ProbGiry : CategoryTheory.Monad MeasCat where
   right_unit _ := Subtype.eq <| funext ProbabilityMeasure.join_map_dirac
 
 end MeasCat
-
-/-
-import Mathlib
-
-noncomputable section
-open CategoryTheory
-
-def KernelCat := Kleisli MeasCat.Giry
-
-
-namespace KernelCat
-instance : Category KernelCat := inferInstanceAs (Category <| Kleisli _)
-
-instance : CoeSort KernelCat (Type _) where
-  coe X := show MeasCat from X
-
-example (X : KernelCat) : MeasurableSpace X := inferInstance
-
-example {X Y : KernelCat} (f : X ⟶ Y) : ProbabilityTheory.Kernel X Y where
-  toFun := f.val
-  measurable' := f.property
-
-example {X Y : KernelCat} (f : ProbabilityTheory.Kernel X Y) : X ⟶ Y := ⟨f, f.measurable⟩
-
--/

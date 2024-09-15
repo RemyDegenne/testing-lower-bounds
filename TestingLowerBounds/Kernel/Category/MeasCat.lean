@@ -23,6 +23,7 @@ namespace MeasCat
 -- TODO: should we replace the definition of `MeasCat` with one using
 -- `CategoryTheory.MonoidalCategory.MonoidalPredicate`?
 
+@[simps]
 def terminalLimitCone : Limits.LimitCone (Functor.empty MeasCat) where
   cone :=
     { pt := MeasCat.of PUnit

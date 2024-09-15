@@ -143,8 +143,7 @@ instance : MonoidalCategory SFiniteCat where
   triangle X Y := sorry
 
 noncomputable
-def swapIso (X Y : SFiniteCat) :
-    (MonoidalCategory.tensorObj X Y) ≅ (MonoidalCategory.tensorObj Y X) where
+def swapIso (X Y : SFiniteCat) : X ⊗ Y ≅ Y ⊗ X where
   hom := sorry
   inv := sorry
   hom_inv_id := sorry
