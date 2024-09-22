@@ -29,8 +29,7 @@ lemma integrable_toReal_iff {f : α → ℝ≥0∞} (hf : AEMeasurable f μ) (hf
   exact h.2.ne
 
 theorem Integrable.neg' [NormedAddCommGroup β]
-    {f : α → β} (hf : Integrable f μ) : Integrable (fun x ↦ - f x) μ :=
-  ⟨hf.aestronglyMeasurable.neg, hf.hasFiniteIntegral.neg⟩
+    {f : α → β} (hf : Integrable f μ) : Integrable (fun x ↦ - f x) μ := hf.neg
 
 @[simp]
 lemma integrable_add_iff_integrable_left' [NormedAddCommGroup β]

@@ -188,7 +188,7 @@ lemma absolutelyContinuous_restrict_compl_singularPartSet
   rw [restrict_compl_singularPartSet_eq_withDensity]
   exact withDensity_absolutelyContinuous _ _
 
-example [SigmaFinite μ] [SigmaFinite ν] :
+lemma measure_singularPartSet' (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν] :
     μ (singularPartSet μ ν) = μ.singularPart ν .univ := by
   rw [← restrict_singularPartSet_eq_singularPart]
   simp only [MeasurableSet.univ, restrict_apply, Set.univ_inter]
