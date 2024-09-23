@@ -20,9 +20,8 @@ namespace ProbabilityTheory
 variable {α β : Type*} {m mα : MeasurableSpace α} {mβ : MeasurableSpace β}
   {μ ν : Measure α} {f g : ℝ → ℝ}
 
-/-- Limsup of the right derivative at infinity. -/
 noncomputable
-def derivAtZero (f : ℝ → ℝ) : EReal := Function.rightLim (fun x ↦ (rightDeriv f x : EReal)) 0
+def rightLimZero (f : ℝ → ℝ) : EReal := Function.rightLim (fun x ↦ (f x : EReal)) (0 : ℝ)
 
 open Classical in
 /-- f-Divergence of two measures. -/
@@ -30,12 +29,12 @@ noncomputable
 def fDiv' (f : ℝ → ℝ) (μ ν : Measure α) : EReal :=
   if ¬ Integrable (fun x ↦ f (μ.rnDeriv ν x).toReal) ν then ⊤
   else ∫ x in (ν.singularPartSet μ)ᶜ, f (μ.rnDeriv ν x).toReal ∂ν
-    + derivAtTop f * μ.singularPart ν .univ + derivAtZero f * ν.singularPart μ univ
+    + derivAtTop f * μ.singularPart ν .univ + rightLimZero f * ν.singularPart μ univ
 
 lemma fDiv'_eq_fDiv [SigmaFinite μ] [IsFiniteMeasure ν] (hfc : ContinuousOn f (Ici 0))
     (h_int : Integrable (fun x ↦ f (μ.rnDeriv ν x).toReal) ν) :
     fDiv' f μ ν = fDiv f μ ν := by
-  have h_zero : derivAtZero f = f 0 := sorry
+  have h_zero : rightLimZero f = f 0 := sorry
   rw [fDiv', if_neg, h_zero]
   swap; · simp [h_int]
   rw [fDiv_of_integrable h_int]
