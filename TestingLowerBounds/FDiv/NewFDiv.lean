@@ -23,6 +23,19 @@ variable {α β : Type*} {m mα : MeasurableSpace α} {mβ : MeasurableSpace β}
 noncomputable
 def rightLimZero (f : ℝ → ℝ) : EReal := Function.rightLim (fun x ↦ (f x : EReal)) (0 : ℝ)
 
+lemma rightLimZero_of_tendsto (h : Tendsto f (𝓝[>] 0) (𝓝 (f 0))) :
+    rightLimZero f = f 0 := rightLim_eq_of_tendsto NeBot.ne' (EReal.tendsto_coe.mpr h)
+
+lemma rightLimZero_of_tendsto_atTop (h : Tendsto f (𝓝[>] 0) atTop) :
+    rightLimZero f = ⊤ := by
+  refine rightLim_eq_of_tendsto NeBot.ne' ?_
+  rw [EReal.tendsto_nhds_top_iff_real]
+  rw [tendsto_atTop] at h
+  intro x
+  filter_upwards [h (x + 1)] with y hy
+  norm_cast
+  exact (lt_add_one x).trans_le hy
+
 open Classical in
 /-- f-Divergence of two measures. -/
 noncomputable
@@ -31,10 +44,14 @@ def fDiv' (f : ℝ → ℝ) (μ ν : Measure α) : EReal :=
   else ∫ x in (ν.singularPartSet μ)ᶜ, f (μ.rnDeriv ν x).toReal ∂ν
     + derivAtTop f * μ.singularPart ν .univ + rightLimZero f * ν.singularPart μ univ
 
-lemma fDiv'_eq_fDiv [SigmaFinite μ] [IsFiniteMeasure ν] (hfc : ContinuousOn f (Ici 0))
-    (h_int : Integrable (fun x ↦ f (μ.rnDeriv ν x).toReal) ν) :
+lemma fDiv'_eq_fDiv [SigmaFinite μ] [IsFiniteMeasure ν] (hfc : ContinuousOn f (Ici 0)) :
     fDiv' f μ ν = fDiv f μ ν := by
-  have h_zero : rightLimZero f = f 0 := sorry
+  by_cases h_int : Integrable (fun x ↦ f (μ.rnDeriv ν x).toReal) ν
+  swap; · rw [fDiv_of_not_integrable h_int, fDiv', if_pos h_int]
+  have h_zero : rightLimZero f = f 0 := by
+    refine rightLimZero_of_tendsto ?_
+    have h_tendsto_ge : Tendsto f (𝓝[≥] 0) (𝓝 (f 0)) := (hfc 0 (mem_Ici.mpr le_rfl)).tendsto
+    exact tendsto_nhdsWithin_mono_left (Ioi_subset_Ici le_rfl) h_tendsto_ge
   rw [fDiv', if_neg, h_zero]
   swap; · simp [h_int]
   rw [fDiv_of_integrable h_int]
@@ -50,7 +67,7 @@ lemma fDiv'_eq_fDiv [SigmaFinite μ] [IsFiniteMeasure ν] (hfc : ContinuousOn f 
   have h := Measure.rnDeriv_eq_zero_ae_of_singularPartSet ν μ ν
   rw [← Measure.measure_singularPartSet' ν μ]
   have : ∫ x in ν.singularPartSet μ, f ((∂μ/∂ν) x).toReal ∂ν
-      = ∫ x in ν.singularPartSet μ, f 0 ∂ν := by
+      = ∫ _ in ν.singularPartSet μ, f 0 ∂ν := by
     refine setIntegral_congr_ae Measure.measurableSet_singularPartSet ?_
     filter_upwards [h] with x hx h_mem
     rw [hx h_mem, ENNReal.zero_toReal]
