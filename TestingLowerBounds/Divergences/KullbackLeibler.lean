@@ -93,9 +93,18 @@ lemma kl_eq_fDiv [SigmaFinite μ] [SigmaFinite ν] :
   · rw [kl_of_not_integrable h_int, fDiv_of_not_integrable]
     rwa [integrable_rnDeriv_mul_log_iff hμν]
 
+lemma llr_self (μ : Measure α) [SigmaFinite μ] : llr μ μ =ᵐ[μ] 0 := by
+  unfold llr
+  filter_upwards [μ.rnDeriv_self] with a ha
+  simp [ha]
+
 @[simp]
 lemma kl_self (μ : Measure α) [SigmaFinite μ] : kl μ μ = 0 := by
-  rw [kl_eq_fDiv, fDiv_self (by norm_num)]
+  have := llr_self μ
+  rw [kl, if_pos]
+  · simp [integral_congr_ae this]
+  · rw [integrable_congr this]
+    exact ⟨Measure.AbsolutelyContinuous.rfl, integrable_zero _ _ μ⟩
 
 @[simp]
 lemma kl_zero_left : kl 0 ν = 0 := by
