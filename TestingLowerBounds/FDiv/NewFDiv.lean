@@ -40,11 +40,12 @@ open Classical in
 /-- f-Divergence of two measures. -/
 noncomputable
 def fDiv' (f : ℝ → ℝ) (μ ν : Measure α) : EReal :=
+  -- todo: IntegrableOn (fun x ↦ f (μ.rnDeriv ν x).toReal) (ν.singularPartSet μ) ν
   if ¬ Integrable (fun x ↦ f (μ.rnDeriv ν x).toReal) ν then ⊤
   else ∫ x in (ν.singularPartSet μ)ᶜ, f (μ.rnDeriv ν x).toReal ∂ν
     + derivAtTop f * μ.singularPart ν .univ + rightLimZero f * ν.singularPart μ univ
 
-lemma fDiv'_eq_fDiv [SigmaFinite μ] [IsFiniteMeasure ν] (hfc : ContinuousOn f (Ici 0)) :
+lemma fDiv'_eq_fDiv [SigmaFinite μ] [SigmaFinite ν] (hfc : ContinuousOn f (Ici 0)) :
     fDiv' f μ ν = fDiv f μ ν := by
   by_cases h_int : Integrable (fun x ↦ f (μ.rnDeriv ν x).toReal) ν
   swap; · rw [fDiv_of_not_integrable h_int, fDiv', if_pos h_int]
@@ -65,18 +66,23 @@ lemma fDiv'_eq_fDiv [SigmaFinite μ] [IsFiniteMeasure ν] (hfc : ContinuousOn f 
     add_comm, EReal.coe_add]
   congr
   have h := Measure.rnDeriv_eq_zero_ae_of_singularPartSet ν μ ν
-  rw [← Measure.measure_singularPartSet' ν μ]
-  have : ∫ x in ν.singularPartSet μ, f ((∂μ/∂ν) x).toReal ∂ν
-      = ∫ _ in ν.singularPartSet μ, f 0 ∂ν := by
-    refine setIntegral_congr_ae Measure.measurableSet_singularPartSet ?_
+  have h' : ∀ᵐ (x : α) ∂ν, x ∈ ν.singularPartSet μ → f ((∂μ/∂ν) x).toReal = f 0 := by
     filter_upwards [h] with x hx h_mem
     rw [hx h_mem, ENNReal.zero_toReal]
-  rw [this]
+  rw [← Measure.measure_singularPartSet' ν μ,
+    setIntegral_congr_ae Measure.measurableSet_singularPartSet h']
   simp only [integral_const, MeasurableSet.univ, Measure.restrict_apply, univ_inter, smul_eq_mul,
     EReal.coe_mul]
   rw [mul_comm]
+  by_cases h0 : f 0 = 0
+  · simp [h0]
   congr
   refine EReal.coe_ennreal_toReal ?_
-  simp
+  have h_int' : IntegrableOn (fun x ↦ f (μ.rnDeriv ν x).toReal) (ν.singularPartSet μ) ν :=
+    h_int.integrableOn
+  rw [← ae_restrict_iff' Measure.measurableSet_singularPartSet] at h'
+  rw [integrableOn_congr_fun_ae h'] at h_int'
+  simp only [integrableOn_const, h0, false_or] at h_int'
+  exact h_int'.ne
 
 end ProbabilityTheory
