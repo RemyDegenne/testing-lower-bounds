@@ -25,6 +25,15 @@ def id : Kernel α α := Kernel.deterministic id measurable_id
 
 instance : IsMarkovKernel (Kernel.id : Kernel α α) := by rw [Kernel.id]; infer_instance
 
+@[simp]
+lemma deterministic_id [MeasurableSpace α] :
+    Kernel.deterministic (id : α → α) (mβ := inferInstance) measurable_id = Kernel.id := rfl
+
+@[simp]
+lemma deterministic_measurableEquiv_refl [MeasurableSpace α] :
+    Kernel.deterministic (MeasurableEquiv.refl α) (mβ := inferInstance) measurable_id
+      = Kernel.id := rfl
+
 lemma id_apply (a : α) : Kernel.id a = Measure.dirac a := by
   rw [Kernel.id, deterministic_apply, id_def]
 
