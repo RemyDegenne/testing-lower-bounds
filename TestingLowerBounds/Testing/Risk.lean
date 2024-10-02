@@ -71,12 +71,52 @@ noncomputable
 def risk (E : estimationProblem Θ 𝒴 𝒵) (P : Kernel Θ 𝒳) (κ : Kernel 𝒳 𝒵) (θ : Θ) : ℝ≥0∞ :=
   ∫⁻ z, E.ℓ (E.y θ, z) ∂((κ ∘ₖ P) θ)
 
+/-- put `y` into `ℓ`, made them a kernel -/
+noncomputable
+def abstractRisk (ℓ : Kernel (Θ × 𝒵) ℝ≥0∞) (P : Kernel Θ 𝒳) (κ : Kernel 𝒳 𝒵) (θ : Θ) : ℝ≥0∞ :=
+  ∫⁻ x, x ∂(ℓ ∘ₖ (Kernel.id ×ₖ (κ ∘ₖ P))) θ
+
+lemma risk_eq_abstractRisk [IsSFiniteKernel P] [IsSFiniteKernel κ] {θ : Θ} :
+    risk E P κ θ
+      = abstractRisk (Kernel.deterministic (fun p ↦ E.ℓ (E.y p.1, p.2)) sorry) P κ θ := by
+  rw [risk, abstractRisk, Kernel.deterministic_comp_eq_map, Kernel.lintegral_map,
+    Kernel.lintegral_prod, Kernel.id, Kernel.lintegral_deterministic']
+  · rfl
+  · sorry
+  · sorry
+  · sorry
+  · exact measurable_id
+
+noncomputable
+def riskKernel (E : estimationProblem Θ 𝒴 𝒵) (P : Kernel Θ 𝒳) (κ : Kernel 𝒳 𝒵) : Kernel Θ ℝ≥0∞ :=
+  (Kernel.deterministic E.ℓ E.ℓ_meas) ∘ₖ (Kernel.deterministic E.y E.y_meas ∥ₖ κ) ∘ₖ (Kernel.id ×ₖ P)
+
+lemma risk_eq_lintegral_riskKernel [IsSFiniteKernel P] [IsSFiniteKernel κ] {θ : Θ} :
+    risk E P κ θ = ∫⁻ x, x ∂(riskKernel E P κ θ) := by
+  rw [riskKernel, Kernel.comp_assoc, Kernel.deterministic_comp_eq_map,
+    Kernel.lintegral_map _ E.ℓ_meas _ measurable_id', Kernel.parallelComp_comp_prod, Kernel.comp_id,
+    Kernel.lintegral_prod _ _ _ E.ℓ_meas, Kernel.lintegral_deterministic']
+  · rfl
+  · sorry
+
+lemma riskKernel_comp (η : Kernel 𝒳 𝒳') (κ : Kernel 𝒳' 𝒵) [IsSFiniteKernel P] [IsSFiniteKernel κ]
+    [IsSFiniteKernel η] :
+    riskKernel E (η ∘ₖ P) κ = riskKernel E P (κ ∘ₖ η) := by
+  conv_rhs => rw [riskKernel, Kernel.comp_assoc, Kernel.parallelComp_comp_prod, Kernel.comp_assoc,
+   ← Kernel.parallelComp_comp_prod, ← Kernel.comp_assoc]
+  rfl
+
 /-- The bayesian risk of an estimator `κ` on an estimation problem `E` with data generating
 kernel `P` with respect to a prior `π`. -/
 noncomputable
 def bayesianRisk (E : estimationProblem Θ 𝒴 𝒵) (P : Kernel Θ 𝒳)
     (κ : Kernel 𝒳 𝒵) (π : Measure Θ) : ℝ≥0∞ :=
   ∫⁻ θ, risk E P κ θ ∂π
+
+lemma bayesianRisk_eq_lintegral_riskKernel [IsSFiniteKernel P] [IsSFiniteKernel κ] :
+    bayesianRisk E P κ π = ∫⁻ x, x ∂(riskKernel E P κ ∘ₘ π) := by
+  simp_rw [Measure.lintegral_bind (Kernel.measurable _) measurable_id', bayesianRisk,
+    risk_eq_lintegral_riskKernel]
 
 @[simp]
 lemma bayesianRisk_of_isEmpty [IsEmpty Θ] : bayesianRisk E P κ π = 0 := by simp [bayesianRisk]

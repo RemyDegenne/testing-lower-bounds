@@ -54,7 +54,7 @@ lemma Real.monotone_toEReal : Monotone toEReal := Monotone.of_map_inf fun _ ↦ 
 variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
   {μ ν : Measure α} {f g : ℝ → ℝ} {x : ℝ}
 
-lemma ite_bot_ae_eq_atTop (f : ℝ → EReal) :
+lemma ite_bot_ae_eq_atTop (f : ℝ → β) [CompleteLattice β] :
     (fun x ↦ if 1 ≤ x then f x else ⊥) =ᶠ[atTop] f := by
   rw [Filter.EventuallyEq, eventually_atTop]
   exact ⟨1, fun x hx ↦ by simp [hx]⟩
