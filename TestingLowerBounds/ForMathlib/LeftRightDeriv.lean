@@ -27,7 +27,7 @@ lemma comp_neg_iff {𝕜 F β : Type*} [LinearOrderedField 𝕜] [AddCommGroup F
     [OrderedAddCommMonoid β] [Module 𝕜 F] [SMul 𝕜 β] {f : F → β} {s : Set F}  :
     ConvexOn 𝕜 (-s) (fun x ↦ f (-x)) ↔ ConvexOn 𝕜 s f := by
   refine ⟨fun h ↦ ?_, fun h ↦ ConvexOn.comp_neg h⟩
-  rw [← neg_neg s, ← Function.comp_id f, ← neg_comp_neg, ← Function.comp.assoc]
+  rw [← neg_neg s, ← Function.comp_id f, ← neg_comp_neg, ← Function.comp_assoc]
   exact h.comp_neg
 
 --this can be stated in much greater generality
@@ -73,7 +73,7 @@ lemma rightDeriv_eq_leftDeriv_apply (f : ℝ → ℝ) (x : ℝ) :
     contrapose! hf_diff
     convert DifferentiableWithinAt.comp x hf_diff ((differentiable_neg _).differentiableWithinAt)
       h_map' using 1
-    simp [Function.comp.assoc]
+    simp [Function.comp_assoc]
   simp_rw [leftDeriv]
   rw [derivWithin.comp _ ((neg_neg x).symm ▸ hf_diff) (differentiable_neg _).differentiableWithinAt
     h_map (uniqueDiffWithinAt_Iio (-x)), neg_neg, ← rightDeriv_def, derivWithin_neg]
@@ -87,7 +87,7 @@ lemma rightDeriv_eq_leftDeriv (f : ℝ → ℝ) :
 
 lemma leftDeriv_eq_rightDeriv_apply (f : ℝ → ℝ) (x : ℝ) :
     leftDeriv f x = - rightDeriv (fun y ↦ f (-y)) (-x) := by
-  simp [rightDeriv_eq_leftDeriv_apply, Function.comp.assoc]
+  simp [rightDeriv_eq_leftDeriv_apply, Function.comp_assoc]
 
 lemma leftDeriv_eq_rightDeriv (f : ℝ → ℝ) :
     leftDeriv f = fun x ↦ - rightDeriv (fun y ↦ f (-y)) (-x) := by

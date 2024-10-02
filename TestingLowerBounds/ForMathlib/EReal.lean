@@ -423,41 +423,6 @@ instance : MeasurableMul₂ EReal := by
 
 end MeasurableMul
 
-theorem nhdsWithin_top : 𝓝[≠] (⊤ : EReal) = (atTop).map Real.toEReal := by
-  apply (nhdsWithin_hasBasis nhds_top_basis_Ici _).ext (atTop_basis.map Real.toEReal)
-  · simp only [EReal.image_coe_Ici, true_and]
-    intro x hx
-    by_cases hx_bot : x = ⊥
-    · simp [hx_bot]
-    lift x to ℝ using ⟨hx.ne_top, hx_bot⟩
-    refine ⟨x, fun x ⟨h1, h2⟩ ↦ ?_⟩
-    simp [h1, h2.ne_top]
-  · simp only [EReal.image_coe_Ici, true_implies]
-    refine fun x ↦ ⟨x, ⟨EReal.coe_lt_top x, fun x ⟨(h1 : _ ≤ x), h2⟩ ↦ ?_⟩⟩
-    simp [h1, Ne.lt_top' fun a ↦ h2 a.symm]
-
-lemma nhdsWithin_bot : 𝓝[≠] (⊥ : EReal) = (atBot).map Real.toEReal := by
-  apply (nhdsWithin_hasBasis nhds_bot_basis_Iic _).ext (atBot_basis.map Real.toEReal)
-  · simp only [EReal.image_coe_Iic, Set.subset_compl_singleton_iff, Set.mem_Ioc, lt_self_iff_false,
-      bot_le, and_true, not_false_eq_true, true_and]
-    intro x hx
-    by_cases hx_top : x = ⊤
-    · simp [hx_top]
-    lift x to ℝ using ⟨hx_top, hx.ne_bot⟩
-    refine ⟨x, fun x ⟨h1, h2⟩ ↦ ?_⟩
-    simp [h2, h1.ne_bot]
-  · simp only [EReal.image_coe_Iic, true_implies]
-    refine fun x ↦ ⟨x, ⟨EReal.bot_lt_coe x, fun x ⟨(h1 : x ≤ _), h2⟩ ↦ ?_⟩⟩
-    simp [h1, Ne.bot_lt' fun a ↦ h2 a.symm]
-
-theorem tendsto_toReal_atTop : Tendsto EReal.toReal (𝓝[≠] ⊤) atTop := by
-  rw [nhdsWithin_top, tendsto_map'_iff]
-  exact tendsto_id
-
-theorem tendsto_toReal_atBot : Tendsto EReal.toReal (𝓝[≠] ⊥) atBot := by
-  rw [nhdsWithin_bot, tendsto_map'_iff]
-  exact tendsto_id
-
 /-- Reinterpret an EReal number `x` as an ENNReal number. Returns `0` if `x < 0`. -/
 noncomputable def toENNReal (x : EReal) : ENNReal :=
   if x = ⊤ then ⊤

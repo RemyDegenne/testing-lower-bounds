@@ -25,7 +25,6 @@ import TestingLowerBounds.ForMathlib.CountableOrCountablyGenerated
 import TestingLowerBounds.ForMathlib.EReal
 import TestingLowerBounds.ForMathlib.GiryMonad
 import TestingLowerBounds.ForMathlib.Integrable
-import TestingLowerBounds.ForMathlib.Integrable_of_empty
 import TestingLowerBounds.ForMathlib.KernelFstSnd
 import TestingLowerBounds.ForMathlib.LeftRightDeriv
 import TestingLowerBounds.ForMathlib.LogLikelihoodRatioCompProd
