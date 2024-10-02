@@ -7,7 +7,6 @@ import Mathlib.MeasureTheory.Order.Group.Lattice
 import Mathlib.Probability.Kernel.Integral
 import TestingLowerBounds.FDiv.CompProd
 import TestingLowerBounds.ForMathlib.CountableOrCountablyGenerated
-import TestingLowerBounds.ForMathlib.Integrable_of_empty
 
 /-!
 

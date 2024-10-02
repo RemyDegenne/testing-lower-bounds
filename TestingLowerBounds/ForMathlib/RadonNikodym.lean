@@ -319,7 +319,7 @@ lemma rnDeriv_measure_compProd_aux
   · intro t ht ht_eq
     calc ∫⁻ p in tᶜ, (∂μ ⊗ₘ κ/∂ν ⊗ₘ η) p ∂ν ⊗ₘ η
       = ∫⁻ p, (∂μ ⊗ₘ κ/∂ν ⊗ₘ η) p ∂ν ⊗ₘ η - ∫⁻ p in t, (∂μ ⊗ₘ κ/∂ν ⊗ₘ η) p ∂ν ⊗ₘ η := by
-          refine (ENNReal.sub_eq_of_add_eq ?_ ?_).symm
+          refine (ENNReal.sub_eq_of_eq_add ?_ ?_).symm
           · rw [h_left _ ht]
             exact measure_ne_top _ _
           · rw [add_comm, lintegral_add_compl _ ht]
@@ -340,7 +340,7 @@ lemma rnDeriv_measure_compProd_aux
           congr
           rw [Measure.lintegral_compProd h_meas]
     _ = ∫⁻ p in tᶜ, (∂μ/∂ν) p.1 * rnDeriv κ η p.1 p.2 ∂ν ⊗ₘ η := by
-          refine ENNReal.sub_eq_of_add_eq ?_ ?_
+          refine ENNReal.sub_eq_of_eq_add ?_ ?_
           · rw [← ht_eq, h_left _ ht]
             exact measure_ne_top _ _
           rw [add_comm, lintegral_add_compl _ ht]
