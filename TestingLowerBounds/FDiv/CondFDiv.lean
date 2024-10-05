@@ -316,7 +316,7 @@ theorem fDiv_compProd_left (μ : Measure α) [IsFiniteMeasure μ]
   · simp only [h_deriv, EReal.toReal_top, EReal.coe_zero, zero_mul]
     suffices (μ ⊗ₘ κ).singularPart (μ ⊗ₘ η) = 0 by
       simp [this]
-    rw [Measure.singularPart_eq_zero, Kernel.Measure.absolutelyContinuous_compProd_right_iff]
+    rw [Measure.singularPart_eq_zero, Measure.absolutelyContinuous_compProd_right_iff]
     exact h3 h_deriv
   · congr 1
     rw [EReal.coe_toReal h_deriv h_cvx.derivAtTop_ne_bot, integral_singularPart _ _ _ .univ,

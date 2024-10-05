@@ -100,7 +100,7 @@ lemma fDiv_compProd_ne_top_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν]
         ∧ Integrable (fun a ↦ ∫ b, f ((∂μ/∂ν) a * (∂κ a/∂η a) b).toReal ∂(η a)) ν
         ∧ (derivAtTop f = ⊤ → μ ≪ ν ∧ ∀ᵐ a ∂μ, κ a ≪ η a) := by
   rw [fDiv_ne_top_iff, integrable_f_rnDeriv_compProd_iff hf h_cvx,
-    Kernel.Measure.absolutelyContinuous_compProd_iff, and_assoc]
+    Measure.absolutelyContinuous_compProd_iff, and_assoc]
 
 lemma fDiv_compProd_eq_top_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] (hf : StronglyMeasurable f)
@@ -507,7 +507,7 @@ lemma le_fDiv_compProd [CountableOrCountablyGenerated α β] (μ ν : Measure α
         · simp only [h_top, EReal.toReal_top, EReal.coe_zero, zero_mul, zero_add]
           rw [Measure.singularPart_eq_zero_of_ac (h3 h_top).1, Measure.singularPart_eq_zero_of_ac]
           · simp
-          · rw [Kernel.Measure.absolutelyContinuous_compProd_iff]
+          · rw [Measure.absolutelyContinuous_compProd_iff]
             exact h3 h_top
         lift (derivAtTop f) to ℝ using ⟨h_top, hf_cvx.derivAtTop_ne_bot⟩ with df
         simp only [EReal.toReal_coe]

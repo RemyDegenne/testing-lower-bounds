@@ -19,6 +19,9 @@ namespace ProbabilityTheory.Kernel
 variable {α γ : Type*} {mα : MeasurableSpace α} {mγ : MeasurableSpace γ}
   {μ ν : Measure α} {κ η : Kernel α γ}
 
+lemma Measure.lintegral_rnDeriv_le : ∫⁻ x, μ.rnDeriv ν x ∂ν ≤ μ univ :=
+  (setLIntegral_univ _).symm ▸ Measure.setLIntegral_rnDeriv_le univ
+
 section Unique
 
 variable {ξ : Kernel α γ} {f : α → γ → ℝ≥0∞}
@@ -64,18 +67,15 @@ end Unique
 
 variable [CountableOrCountablyGenerated α γ]
 
-instance instIsFiniteKernel_withDensity_rnDeriv [hκ : IsFiniteKernel κ] [IsFiniteKernel η] :
+instance [hκ : IsFiniteKernel κ] [IsFiniteKernel η] :
     IsFiniteKernel (withDensity η (rnDeriv κ η)) := by
-  constructor
   refine ⟨hκ.bound, hκ.bound_lt_top, fun a ↦ ?_⟩
   rw [Kernel.withDensity_apply', setLIntegral_univ]
   swap; · exact measurable_rnDeriv κ η
-  rw [lintegral_congr_ae (rnDeriv_eq_rnDeriv_measure _ _ a), ← setLIntegral_univ]
-  exact (Measure.setLIntegral_rnDeriv_le _).trans (measure_le_bound _ _ _)
+  rw [lintegral_congr_ae (rnDeriv_eq_rnDeriv_measure _ _ a)]
+  exact (Measure.lintegral_rnDeriv_le).trans (measure_le_bound _ _ _)
 
-instance instIsFiniteKernel_singularPart [hκ : IsFiniteKernel κ] [IsFiniteKernel η] :
-    IsFiniteKernel (singularPart κ η) := by
-  constructor
+instance [hκ : IsFiniteKernel κ] [IsFiniteKernel η] : IsFiniteKernel (singularPart κ η) := by
   refine ⟨hκ.bound, hκ.bound_lt_top, fun a ↦ ?_⟩
   have h : withDensity η (rnDeriv κ η) a univ + singularPart κ η a univ = κ a univ := by
     conv_rhs => rw [← rnDeriv_add_singularPart κ η]

@@ -40,13 +40,13 @@ lemma singularPart_compProd'' [CountableOrCountablyGenerated α β]
   rw [this, add_zero, ← add_assoc]
   congr
   · rw [Measure.singularPart_eq_self]
-    exact Kernel.Measure.mutuallySingular_compProd_left (μ.mutuallySingular_singularPart ν)
+    exact Measure.mutuallySingular_compProd_left (μ.mutuallySingular_singularPart ν)
       (η.withDensity (κ.rnDeriv η)) η
   · rw [Measure.singularPart_eq_self]
-    exact Kernel.Measure.mutuallySingular_compProd_left (μ.mutuallySingular_singularPart ν)
+    exact Measure.mutuallySingular_compProd_left (μ.mutuallySingular_singularPart ν)
       (κ.singularPart η) η
   · rw [Measure.singularPart_eq_self]
-    exact Kernel.Measure.mutuallySingular_compProd_right (ν.withDensity (∂μ/∂ν)) ν
+    exact Measure.mutuallySingular_compProd_right (ν.withDensity (∂μ/∂ν)) ν
       (.of_forall <| κ.mutuallySingular_singularPart _)
 
 lemma singularPart_compProd [CountableOrCountablyGenerated α β]
