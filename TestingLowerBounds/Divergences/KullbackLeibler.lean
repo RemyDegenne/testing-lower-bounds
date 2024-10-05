@@ -544,7 +544,6 @@ lemma kl_compProd_right (κ : Kernel α β) [CountableOrCountablyGenerated α β
   rw [kl_eq_fDiv, kl_eq_fDiv]
   exact fDiv_compProd_right μ ν κ continuous_mul_log.stronglyMeasurable convexOn_mul_log
 
-
 /--The chain rule for the KL divergence.-/
 lemma kl_compProd [CountableOrCountablyGenerated α β] [IsMarkovKernel κ] [IsMarkovKernel η]
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
@@ -552,14 +551,14 @@ lemma kl_compProd [CountableOrCountablyGenerated α β] [IsMarkovKernel κ] [IsM
   by_cases h_prod : (μ ⊗ₘ κ) ≪ (ν ⊗ₘ η)
   swap
   · simp only [h_prod, not_false_eq_true, kl_of_not_ac]
-    have h := Kernel.Measure.absolutelyContinuous_compProd_iff.mpr.mt h_prod
+    have h := Measure.absolutelyContinuous_compProd_iff.mpr.mt h_prod
     set_option push_neg.use_distrib true in push_neg at h
     rcases h with (hμν | hκη)
     · simp only [hμν, not_false_eq_true, kl_of_not_ac]
       exact (EReal.top_add_of_ne_bot (condKL_ne_bot _ _ _)).symm
     · simp only [hκη, not_false_eq_true, condKL_of_not_ae_ac]
       exact (EReal.add_top_of_ne_bot (kl_ne_bot _ _)).symm
-  have ⟨hμν, hκη⟩ := Kernel.Measure.absolutelyContinuous_compProd_iff.mp h_prod
+  have ⟨hμν, hκη⟩ := Measure.absolutelyContinuous_compProd_iff.mp h_prod
   by_cases h_int : Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ)
   swap
   · simp only [h_int, not_false_eq_true, kl_of_not_integrable]

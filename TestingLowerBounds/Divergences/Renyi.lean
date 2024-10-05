@@ -436,7 +436,7 @@ lemma condRenyiDiv_eq_top_iff_of_one_lt [CountableOrCountablyGenerated α β] (h
         ∨ ¬Integrable (fun x ↦ ∫ (b : β), ((∂κ x/∂η x) b).toReal ^ a ∂η x) μ
         ∨ ¬ ∀ᵐ x ∂μ, κ x ≪ η x := by
   rw [condRenyiDiv, renyiDiv_eq_top_iff_of_one_lt ha,
-    Kernel.Measure.absolutelyContinuous_compProd_right_iff, ← or_assoc]
+    Measure.absolutelyContinuous_compProd_right_iff, ← or_assoc]
   refine or_congr_left' fun h_ac ↦ ?_
   rw [integrable_rpow_rnDeriv_compProd_right_iff (by linarith) ha.ne']
   swap;· exact fun _ ↦ not_not.mp h_ac
@@ -457,7 +457,7 @@ lemma condRenyiDiv_eq_top_iff_of_lt_one [CountableOrCountablyGenerated α β]
     (κ η : Kernel α β) (μ : Measure α) [IsFiniteKernel κ] [IsFiniteKernel η] [IsFiniteMeasure μ] :
     condRenyiDiv a κ η μ = ⊤ ↔ ∀ᵐ a ∂μ, κ a ⟂ₘ η a := by
   rw [condRenyiDiv, renyiDiv_eq_top_iff_mutuallySingular_of_lt_one ha_nonneg ha,
-    Kernel.Measure.mutuallySingular_compProd_iff_of_same_left]
+    Measure.mutuallySingular_compProd_iff_of_same_left]
 
 lemma condRenyiDiv_of_not_ae_integrable_of_one_lt [CountableOrCountablyGenerated α β] (ha : 1 < a)
     [IsFiniteKernel κ] [IsFiniteKernel η] [IsFiniteMeasure μ]
@@ -484,7 +484,7 @@ lemma condRenyiDiv_of_mutuallySingular_of_lt_one [CountableOrCountablyGenerated 
     (h_ms : ∀ᵐ x ∂μ, κ x ⟂ₘ η x) :
     condRenyiDiv a κ η μ = ⊤ := by
   rw [condRenyiDiv, renyiDiv_eq_top_iff_mutuallySingular_of_lt_one ha_nonneg ha]
-  exact (Kernel.Measure.mutuallySingular_compProd_iff_of_same_left μ κ η).mpr h_ms
+  exact (Measure.mutuallySingular_compProd_iff_of_same_left μ κ η).mpr h_ms
 
 lemma condRenyiDiv_of_ne_zero [CountableOrCountablyGenerated α β] (ha_nonneg : 0 ≤ a)
     (ha_ne_one : a ≠ 1) (κ η : Kernel α β) (μ : Measure α) [IsFiniteKernel κ] [∀ x, NeZero (κ x)]
