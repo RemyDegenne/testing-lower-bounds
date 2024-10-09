@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import Mathlib.MeasureTheory.Function.L1Space
+import Mathlib.MeasureTheory.Decomposition.RadonNikodym
 
 /-!
 
@@ -15,7 +16,7 @@ open scoped ENNReal
 
 namespace MeasureTheory
 
-variable {α β : Type*} {mα : MeasurableSpace α} {μ : Measure α}
+variable {α β : Type*} {mα : MeasurableSpace α} {μ ν : Measure α}
 
 lemma integrable_toReal_iff {f : α → ℝ≥0∞} (hf : AEMeasurable f μ) (hf_ne_top : ∀ᵐ x ∂μ, f x ≠ ∞) :
     Integrable (fun x ↦ (f x).toReal) μ ↔ ∫⁻ x, f x ∂μ ≠ ∞ := by
@@ -43,5 +44,11 @@ lemma integrable_add_iff_integrable_right' [NormedAddCommGroup β]
     {f g : α → β} (hf : Integrable f μ) :
     Integrable (fun x ↦ f x + g x) μ ↔ Integrable g μ :=
   integrable_add_iff_integrable_right hf
+
+lemma Integrable.rnDeriv_smul {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+    [μ.HaveLebesgueDecomposition ν] (hμν : μ ≪ ν)
+    [SigmaFinite μ] {f : α → E} (hf : Integrable f μ) :
+    Integrable (fun x ↦ (μ.rnDeriv ν x).toReal • f x) ν :=
+  (integrable_rnDeriv_smul_iff hμν).mpr hf
 
 end MeasureTheory
