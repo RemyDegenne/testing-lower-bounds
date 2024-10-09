@@ -18,6 +18,7 @@ namespace ProbabilityTheory.Kernel
 variable {α β γ δ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
   {mγ : MeasurableSpace γ} {mδ : MeasurableSpace δ}
 
+-- PR #17596
 @[simp]
 lemma snd_compProd_prodMkLeft
     (κ : Kernel α β) (η : Kernel β γ) [IsSFiniteKernel κ] [IsSFiniteKernel η] :
@@ -27,6 +28,7 @@ lemma snd_compProd_prodMkLeft
   · rfl
   · exact measurable_snd hs
 
+-- PR #17596
 lemma map_comp (κ : Kernel α β) (η : Kernel β γ) {f : γ → δ} (hf : Measurable f) :
     (η ∘ₖ κ).map f = (η.map f) ∘ₖ κ := by
   ext a s hs
@@ -34,18 +36,22 @@ lemma map_comp (κ : Kernel α β) (η : Kernel β γ) {f : γ → δ} (hf : Mea
   · simp_rw [map_apply' _ hf _ hs]
   · exact hf hs
 
+-- PR #17596
 lemma fst_comp (κ : Kernel α β) (η : Kernel β (γ × δ)) : (η ∘ₖ κ).fst = η.fst ∘ₖ κ := by
   simp_rw [fst_eq, map_comp κ η measurable_fst]
 
+-- PR #17596
 lemma snd_comp (κ : Kernel α β) (η : Kernel β (γ × δ)) : (η ∘ₖ κ).snd = η.snd ∘ₖ κ := by
   simp_rw [snd_eq, map_comp κ η measurable_snd]
 
+-- PR #17596
 lemma deterministic_prod_deterministic {f : α → β} {g : α → γ}
     (hf : Measurable f) (hg : Measurable g) :
     deterministic f hf ×ₖ deterministic g hg
       = deterministic (fun a ↦ (f a, g a)) (hf.prod_mk hg) := by
   ext; simp_rw [prod_apply, deterministic_apply, Measure.dirac_prod_dirac]
 
+-- PR #17596
 lemma deterministic_comp_deterministic {f : α → β} {g : β → γ}
     (hf : Measurable f) (hg : Measurable g) :
     (deterministic g hg) ∘ₖ (deterministic f hf) = deterministic (g ∘ f) (hg.comp hf) := by
