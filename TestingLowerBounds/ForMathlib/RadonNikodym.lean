@@ -19,6 +19,8 @@ namespace ProbabilityTheory.Kernel
 variable {α γ : Type*} {mα : MeasurableSpace α} {mγ : MeasurableSpace γ}
   {μ ν : Measure α} {κ η : Kernel α γ}
 
+-- PR #17591
+@[simp]
 lemma singularPart_self [CountableOrCountablyGenerated α γ]
     (κ : Kernel α γ) [IsFiniteKernel κ] :
     κ.singularPart κ = 0 := by

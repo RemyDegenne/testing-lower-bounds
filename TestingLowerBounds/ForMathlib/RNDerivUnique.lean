@@ -26,6 +26,7 @@ section Unique
 
 variable {ξ : Kernel α γ} {f : α → γ → ℝ≥0∞}
 
+-- PR #17591
 lemma eq_rnDeriv_measure [IsFiniteKernel η] (h : κ = η.withDensity f + ξ)
     (hf : Measurable (Function.uncurry f)) (hξ : ∀ a, ξ a ⟂ₘ η a) (a : α) :
     f a =ᵐ[η a] ∂(κ a)/∂(η a) := by
@@ -33,6 +34,7 @@ lemma eq_rnDeriv_measure [IsFiniteKernel η] (h : κ = η.withDensity f + ξ)
     rw [h, coe_add, Pi.add_apply, η.withDensity_apply hf, add_comm]
   exact (κ a).eq_rnDeriv₀ (hf.comp measurable_prod_mk_left).aemeasurable (hξ a) this
 
+-- PR #17591
 lemma eq_singularPart_measure [IsFiniteKernel η]
     (h : κ = η.withDensity f + ξ)
     (hf : Measurable (Function.uncurry f)) (hξ : ∀ a, ξ a ⟂ₘ η a) (a : α) :
@@ -43,21 +45,25 @@ lemma eq_singularPart_measure [IsFiniteKernel η]
 
 variable [CountableOrCountablyGenerated α γ]
 
+-- PR #17591
 lemma rnDeriv_eq_rnDeriv_measure (κ ν : Kernel α γ) [IsFiniteKernel κ] [IsFiniteKernel ν] (a : α) :
     rnDeriv κ ν a =ᵐ[ν a] ∂(κ a)/∂(ν a) :=
   eq_rnDeriv_measure (rnDeriv_add_singularPart κ ν).symm (measurable_rnDeriv κ ν)
     (mutuallySingular_singularPart κ ν) a
 
+-- PR #17591
 lemma singularPart_eq_singularPart_measure [IsFiniteKernel κ] [IsFiniteKernel η] (a : α) :
     singularPart κ η a = (κ a).singularPart (η a) :=
   eq_singularPart_measure (rnDeriv_add_singularPart κ η).symm (measurable_rnDeriv κ η)
     (mutuallySingular_singularPart κ η) a
 
+-- PR #17591
 lemma eq_rnDeriv [IsFiniteKernel κ] [IsFiniteKernel η] (h : κ = η.withDensity f + ξ)
     (hf : Measurable (Function.uncurry f)) (hξ : ∀ a, ξ a ⟂ₘ η a) (a : α) :
     f a =ᵐ[η a] rnDeriv κ η a :=
   (eq_rnDeriv_measure h hf hξ a).trans (rnDeriv_eq_rnDeriv_measure _ _ a).symm
 
+-- PR #17591
 lemma eq_singularPart [IsFiniteKernel κ] [IsFiniteKernel η] (h : κ = η.withDensity f + ξ)
     (hf : Measurable (Function.uncurry f)) (hξ : ∀ a, ξ a ⟂ₘ η a) (a : α) :
     ξ a = singularPart κ η a :=
