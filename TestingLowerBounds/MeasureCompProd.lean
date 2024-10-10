@@ -53,7 +53,7 @@ lemma Measure.comp_assoc {μ : Measure α} {κ : Kernel α β} {η : Kernel β �
 
 lemma Measure.comp_deterministic_eq_map {f : α → β} (hf : Measurable f) :
     Kernel.deterministic f hf ∘ₘ μ = μ.map f :=
-  Measure.bind_dirac_eq_map μ hf
+  Measure.dirac_bind_eq_map μ hf
 
 lemma Measure.comp_id : Kernel.id ∘ₘ μ = μ := by
   rw [Kernel.id, Measure.comp_deterministic_eq_map, Measure.map_id]

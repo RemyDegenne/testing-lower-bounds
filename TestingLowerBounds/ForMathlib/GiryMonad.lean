@@ -17,13 +17,16 @@ namespace MeasureTheory
 
 variable {α β γ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {mγ : MeasurableSpace γ}
 
+-- PR #17630
 @[simp]
 lemma Measure.bind_const (μ : Measure α) (ν : Measure β) :
     μ.bind (fun _ ↦ ν) = μ Set.univ • ν := by
   ext s hs
   rw [bind_apply hs measurable_const, lintegral_const, smul_apply, smul_eq_mul, mul_comm]
 
-lemma Measure.bind_dirac_eq_map (μ : Measure α) {f : α → β} (hf : Measurable f) :
+-- PR #17630
+@[simp]
+lemma Measure.dirac_bind_eq_map (μ : Measure α) {f : α → β} (hf : Measurable f) :
     μ.bind (fun x ↦ Measure.dirac (f x)) = μ.map f := by
   ext s hs
   rw [bind_apply hs]
