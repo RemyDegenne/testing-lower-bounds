@@ -204,17 +204,17 @@ TODO: also show measurability.
   \uses{}
   Let $\mu, \nu \in \mathcal M(\mathcal X)$ with $\mu \ll \nu$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a finite kernel.
   Let $\mathcal B$ be the sigma-algebra on $\mathcal X \times \mathcal Y$ obtained by taking the comap of the sigma-algebra of $\mathcal Y$ by the projection.
-  Then $(\nu \otimes \kappa)$-almost everywhere,
+  Then for $(\nu \otimes \kappa)$-almost every $(x,y)$,
   \begin{align*}
-  \left( (x,y) \mapsto \frac{d(\kappa \circ \mu)}{d(\kappa \circ \nu)}(y) \right)
-  &= (\nu \otimes \kappa)\left[ (x, y) \mapsto \frac{d \mu}{d \nu}(x) \Big| \mathcal B \right]
+  \frac{d(\kappa \circ \mu)}{d(\kappa \circ \nu)}(y)
+  &= (\nu \otimes \kappa)\left[ (x, y) \mapsto \frac{d \mu}{d \nu}(x) \Big| \mathcal B \right](x,y)
   \: .
   \end{align*}
   
 \end{lemma}
 
 \begin{proof}%\leanok
-\uses{lem:rnDeriv_map_eq_condexp}
+\uses{lem:rnDeriv_map_eq_condexp,cor:rnDeriv_compProd_left}
 Let $\pi_Y : \mathcal X \times \mathcal Y \to \mathcal Y$ be the projection $\pi_Y(x,y) = y$.
 Remark that $\kappa \circ \mu = \pi_{Y*}(\mu \otimes \kappa)$ and similarly for $\nu$.
 By Lemma~\ref{lem:rnDeriv_map_eq_condexp}, $(\nu \otimes \kappa)$-almost everywhere,
