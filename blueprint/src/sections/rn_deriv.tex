@@ -33,6 +33,10 @@ Let $f$ and $\xi$ be such that $\kappa = f \cdot \eta + \xi$ with $\xi(x) \perp 
 Apply Lemma~\ref{lem:rnDeriv_unique}.
 \end{proof}
 
+
+
+\section{Composition-product}
+
 \begin{lemma}
   \label{lem:rnDeriv_compProd_aux}
   \lean{ProbabilityTheory.Kernel.rnDeriv_measure_compProd_aux}
@@ -124,4 +128,62 @@ Use Lemma~\ref{lem:rnDeriv_eq_ac} for $\mu', \kappa'$ (defined in previous lemma
 
 \begin{proof} \leanok
 \uses{lem:rnDeriv_compProd}
+\end{proof}
+
+
+
+\section{Composition}
+
+\begin{lemma}
+  \label{lem:rnDeriv_comp_eq_condexp}
+  %\lean{}
+  %\leanok
+  \uses{}
+  Let $\mu, \nu$ be two measures on $\mathcal X$ with $\mu \ll \nu$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a finite kernel.
+  Let $\mathcal B$ be the sigma-algebra on $\mathcal X \times \mathcal Y$ obtained by taking the comap of the sigma-algebra of $\mathcal Y$ by the projection.
+  Then
+  \begin{align*}
+  \left( (x,y) \mapsto \frac{d(\kappa \circ \mu)}{d(\kappa \circ \nu)}(y) \right)
+  &= (\nu \otimes \kappa)\left[ (x, y) \mapsto \frac{d \mu}{d \nu}(x) \Big| \mathcal B \right]
+  \: .
+  \end{align*}
+  
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+It suffices to show that the function is $\mathcal B$-measurable and that for all measurable sets $t$ of $\mathcal Y$,
+\begin{align*}
+\int_{p \in \mathcal X \times t} \frac{d(\kappa \circ \mu)}{d(\kappa \circ \nu)}(p_2) \partial(\nu \otimes \kappa)
+= \int_{p \in \mathcal X \times t} \frac{d \mu}{d \nu}(p_1) \partial(\nu \otimes \kappa)
+\: .
+\end{align*}
+
+TODO: measurability.
+
+We show that equality. Let $\pi_X : \mathcal X \times \mathcal Y \to \mathcal X$ and $\pi_Y : \mathcal X \times \mathcal Y \to \mathcal Y$ be the projections $\pi_X(x,y) = x$ and $\pi_Y(x,y) = y$.
+\begin{align*}
+\int_{p \in \mathcal X \times t} \frac{d(\kappa \circ \mu)}{d(\kappa \circ \nu)}(p_2) \partial(\nu \otimes \kappa)
+&= \int_{p \in \mathcal X \times t} \frac{d(\kappa \circ \mu)}{d(\kappa \circ \nu)}(\pi_Y(p)) \partial(\nu \otimes \kappa)
+\\
+&= \int_{y \in t} \frac{d(\kappa \circ \mu)}{d(\kappa \circ \nu)}(y) \partial(\pi_{Y*}(\nu \otimes \kappa))
+\\
+&= \int_{y \in t} \frac{d(\kappa \circ \mu)}{d(\kappa \circ \nu)}(y) \partial(\kappa \circ \nu)
+\\
+&= (\kappa \circ \mu)(t)
+\: .
+\end{align*}
+\begin{align*}
+\int_{p \in \mathcal X \times t} \frac{d \mu}{d \nu}(p_1) \partial(\nu \otimes \kappa)
+&= \int_{x \in \mathcal X} \int_{y \in t} \frac{d \mu}{d \nu}(x) \partial\kappa(x) \partial\nu
+\\
+&= \int_{x \in \mathcal X} \frac{d \mu}{d \nu}(x) \kappa(x)(t) \partial\nu
+\\
+&= \int_{x \in \mathcal X} \kappa(x)(t) \partial\mu
+\\
+&= (\kappa \circ \mu)(t)
+\: .
+\end{align*}
+
+
 \end{proof}
