@@ -27,16 +27,6 @@ namespace ProbabilityTheory
 
 variable {α : Type*} {mα : MeasurableSpace α} {μ ν : Measure α}
 
-section move_this
-
-lemma integrable_rnDeriv_smul {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
-    [μ.HaveLebesgueDecomposition ν] (hμν : μ ≪ ν)
-    [SigmaFinite μ] {f : α → E} (hf : Integrable f μ) :
-    Integrable (fun x ↦ (μ.rnDeriv ν x).toReal • f x) ν :=
-  (integrable_rnDeriv_smul_iff hμν).mpr hf
-
-end move_this
-
 open Classical in
 /-- Kullback-Leibler divergence between two measures. -/
 noncomputable def kl (μ ν : Measure α) : EReal :=
