@@ -770,6 +770,40 @@ That inequality states that for $\mu, \nu$ two measures on $\mathcal X$ and $\ka
   \item The last proof uses the representation of $f$-divergence as an integral over statistical (risk-based) divergences, then uses the data-processing inequality for those divergences.
 \end{enumerate}
 
+We first remark that it is sufficient to prove the DPI under an absolute continuity assumption on the measures. 
+
+\begin{lemma}
+  \label{lem:DPI_of_DPI_ac}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  Suppose that for all finite measures $\mu, \nu \in \mathcal M(\mathcal X)$ with $\mu \ll \nu$ and all Markov kernels $\kappa : \mathcal X \rightsquigarrow \mathcal Y$, $D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\kappa, \nu)$.
+  Then the same is true without the absolute continuity hypothesis.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:fDiv_add_measure_le}
+We use $\kappa \circ \mu = \kappa \circ (\frac{d\mu}{d\nu}\cdot \nu) + \kappa \circ \mu_{\perp \nu}$~.
+By Lemma~\ref{lem:fDiv_add_measure_le},
+\begin{align*}
+D_f(\kappa \circ \mu, \kappa \circ \nu)
+\le D_f\left(\kappa \circ (\frac{d\mu}{d\nu}\cdot \nu), \kappa \circ \nu\right)
+  + (\kappa \circ \mu_{\perp \nu})(\mathcal Y) f'(\infty)
+\: .
+\end{align*}
+Since $\kappa$ is a Markov kernel, $(\kappa \circ \mu_{\perp \nu})(\mathcal Y) = \mu_{\perp \nu}(\mathcal Y)$.
+
+By hypothesis, since $\frac{d\mu}{d\nu}\cdot \nu \ll \nu$, $D_f\left(\kappa \circ (\frac{d\mu}{d\nu}\cdot \nu), \kappa \circ \nu\right) \le D_f\left(\frac{d\mu}{d\nu}\cdot \nu, \nu\right)$.
+We get
+\begin{align*}
+D_f(\kappa \circ \mu, \kappa \circ \nu)
+&\le D_f\left(\frac{d\mu}{d\nu}\cdot \nu,\nu\right)
+  + \mu_{\perp \nu}(\mathcal Y) f'(\infty)
+\\
+&= D_f(\mu, \nu)
+\: .
+\end{align*}
+\end{proof}
 
 
 \subsubsection{Sigma-algebras}
