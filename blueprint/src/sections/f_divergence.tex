@@ -540,6 +540,9 @@ TODO: find a way to hide the following dummy lemma
 
 \subsection{Integral representation of $f$-divergences}
 
+We prove that any $f$-divergence is an integral over priors of statistical informations, in which the measure depends on $f$.
+The main references for this part are \cite{liese2006divergences} and \cite{liese2012phi}.
+
 
 \begin{definition}[Curvature measure]
   \label{def:curvatureMeasure}
@@ -872,25 +875,6 @@ D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A})
 We now show how the data-processing inequality on $\sigma$-algebras implies a data-processing inequality for composition with measurable functions.
 
 \begin{lemma}
-  \label{lem:rnDeriv_map_eq_condexp}
-  %\lean{}
-  %\leanok
-  \uses{}
-  Let $\mu, \nu \in \mathcal M(\mathcal X)$, $g : \mathcal X \to \mathcal Y$ a measurable function and denote by $g^* \mathcal Y$ the comap of the $\sigma$-algebra on $\mathcal Y$ by $g$.
-  Then $\nu$-almost everywhere,
-  \begin{align*}
-  \frac{d g_*\mu}{d g_*\nu}(g(x)) = \nu\left[ \frac{d \mu}{d \nu} \mid g^* \mathcal Y\right](x)
-  \: .
-  \end{align*}
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{}
-
-\end{proof}
-
-
-\begin{lemma}
   \label{lem:rnDeriv_map_eq_rnDeriv_trim}
   %\lean{}
   %\leanok
@@ -919,7 +903,7 @@ We now show how the data-processing inequality on $\sigma$-algebras implies a da
 \end{lemma}
 
 \begin{proof}%\leanok
-\uses{lem:rnDeriv_map_eq_condexp}
+\uses{lem:rnDeriv_map_eq_rnDeriv_trim}
 \begin{align*}
 D_f(g_* \mu, g_* \nu)
 &= \int_y f \left( \frac{d g_*\mu}{d g_*\nu}(y)\right) \partial(g_*\nu)
