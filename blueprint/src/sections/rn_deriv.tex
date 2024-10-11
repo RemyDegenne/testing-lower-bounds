@@ -111,11 +111,34 @@ Use Lemma~\ref{lem:rnDeriv_eq_ac} for $\mu', \kappa'$ (defined in previous lemma
   \lean{ProbabilityTheory.Kernel.rnDeriv_measure_compProd_left}
   \leanok
   \uses{def:kernel_rnDeriv}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a finite kernel. Then for $(\nu \otimes \kappa)$-almost all $(x, y)$, $\frac{d (\mu \otimes \kappa)}{d (\nu \otimes \kappa)}(x,y) = \frac{d\mu}{d\nu}(x)$.
+  Let $\mu, \nu \in \mathcal M(\mathcal X)$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a finite kernel. Then for $(\nu \otimes \kappa)$-almost all $(x, y)$, $\frac{d (\mu \otimes \kappa)}{d (\nu \otimes \kappa)}(x,y) = \frac{d\mu}{d\nu}(x)$.
 \end{corollary}
+TODO: with the new proof, this is not a corollary anymore.
 
 \begin{proof} \leanok
 \uses{lem:rnDeriv_compProd}
+TODO: this proof is not leanok. Replacing the current proof with this one will remove hypotheses.
+
+TODO: wlog $\mu \ll \nu$, and we can consider products of sets.
+\begin{align*}
+\int_{p \in s \times t} \frac{d (\mu \otimes \kappa)}{d (\nu \otimes \kappa)}(p) \partial(\nu \otimes \kappa)
+&= (\mu \otimes \kappa) (s \times t)
+\: .
+\end{align*}
+
+\begin{align*}
+\int_{p \in s \times t} \frac{d \mu}{d \nu}(p_1) \partial(\nu \otimes \kappa)
+&= \int_{x \in s} \int_{y \in t} \frac{d \mu}{d \nu}(x) \partial \kappa(x) \partial \nu
+\\
+&= \int_{x \in s} \frac{d \mu}{d \nu}(x) \kappa(x)(t) \partial \nu
+\\
+&= \int_{x \in s} \kappa(x)(t) \partial \mu
+\\
+&= (\mu \otimes \kappa) (s \times t)
+\: .
+\end{align*}
+
+
 \end{proof}
 
 \begin{corollary}
@@ -134,14 +157,54 @@ Use Lemma~\ref{lem:rnDeriv_eq_ac} for $\mu', \kappa'$ (defined in previous lemma
 
 \section{Composition}
 
+
 \begin{lemma}
+  \label{lem:rnDeriv_map_eq_condexp}
+  %\lean{}
+  %\leanok
+  \uses{}
+  Let $\mu, \nu \in \mathcal M(\mathcal X)$ with $\mu \ll \nu$, $g : \mathcal X \to \mathcal Y$ a measurable function and denote by $g^* \mathcal Y$ the comap of the $\sigma$-algebra on $\mathcal Y$ by $g$.
+  Then $\nu$-almost everywhere,
+  \begin{align*}
+  \frac{d g_*\mu}{d g_*\nu}(g(x)) = \nu\left[ \frac{d \mu}{d \nu} \mid g^* \mathcal Y\right](x)
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+We show that the integrals of the two functions agree on all $g^* \mathcal Y$-measurable sets. It suffices to show equality on all sets oc $\mathcal X$ of the form $g^{-1}(t)$ for $t$ a measurable set of $\mathcal Y$.
+TODO: also show measurability.
+\begin{align*}
+\int_{x \in g^{-1}(t)}\frac{d g_*\mu}{d g_*\nu}(g(x)) \partial\nu
+&= \int_{y \in t}\frac{d g_*\mu}{d g_*\nu}(y) \partial(g_*\nu)
+\\
+&= g_*\mu (t)
+\: .
+\end{align*}
+
+\begin{align*}
+\int_{x \in g^{-1}(t)}\nu\left[ \frac{d \mu}{d \nu} \mid g^* \mathcal Y\right](x) \partial\nu
+&= \int_{x \in g^{-1}(t)}\frac{d \mu}{d \nu}(x) \partial\nu
+\\
+&= \mu(g^{-1}(t))
+\\
+&= g_*\mu(t)
+\: .
+\end{align*}
+
+
+\end{proof}
+
+
+\begin{lemma}[\cite{csiszar1963informationstheoretische}]
   \label{lem:rnDeriv_comp_eq_condexp}
   %\lean{}
   %\leanok
   \uses{}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ with $\mu \ll \nu$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a finite kernel.
+  Let $\mu, \nu \in \mathcal M(\mathcal X)$ with $\mu \ll \nu$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a finite kernel.
   Let $\mathcal B$ be the sigma-algebra on $\mathcal X \times \mathcal Y$ obtained by taking the comap of the sigma-algebra of $\mathcal Y$ by the projection.
-  Then
+  Then $(\nu \otimes \kappa)$-almost everywhere,
   \begin{align*}
   \left( (x,y) \mapsto \frac{d(\kappa \circ \mu)}{d(\kappa \circ \nu)}(y) \right)
   &= (\nu \otimes \kappa)\left[ (x, y) \mapsto \frac{d \mu}{d \nu}(x) \Big| \mathcal B \right]
@@ -151,39 +214,16 @@ Use Lemma~\ref{lem:rnDeriv_eq_ac} for $\mu', \kappa'$ (defined in previous lemma
 \end{lemma}
 
 \begin{proof}%\leanok
-\uses{}
-It suffices to show that the function is $\mathcal B$-measurable and that for all measurable sets $t$ of $\mathcal Y$,
+\uses{lem:rnDeriv_map_eq_condexp}
+Let $\pi_Y : \mathcal X \times \mathcal Y \to \mathcal Y$ be the projection $\pi_Y(x,y) = y$.
+Remark that $\kappa \circ \mu = \pi_{Y*}(\mu \otimes \kappa)$ and similarly for $\nu$.
+By Lemma~\ref{lem:rnDeriv_map_eq_condexp}, $(\nu \otimes \kappa)$-almost everywhere,
 \begin{align*}
-\int_{p \in \mathcal X \times t} \frac{d(\kappa \circ \mu)}{d(\kappa \circ \nu)}(p_2) \partial(\nu \otimes \kappa)
-= \int_{p \in \mathcal X \times t} \frac{d \mu}{d \nu}(p_1) \partial(\nu \otimes \kappa)
+\frac{d(\kappa \circ \mu)}{d(\kappa \circ \nu)}(y)
+&= \frac{d \pi_{Y*}(\mu \otimes \kappa)}{d \pi_{Y*}(\nu \otimes \kappa)}(\pi_Y((x,y)))
+\\
+&= (\nu \otimes \kappa)\left[ \frac{d (\mu \otimes \kappa)}{d (\nu \otimes \kappa)} \mid \mathcal B\right](x,y)
 \: .
 \end{align*}
-
-TODO: measurability.
-
-We show that equality. Let $\pi_X : \mathcal X \times \mathcal Y \to \mathcal X$ and $\pi_Y : \mathcal X \times \mathcal Y \to \mathcal Y$ be the projections $\pi_X(x,y) = x$ and $\pi_Y(x,y) = y$.
-\begin{align*}
-\int_{p \in \mathcal X \times t} \frac{d(\kappa \circ \mu)}{d(\kappa \circ \nu)}(p_2) \partial(\nu \otimes \kappa)
-&= \int_{p \in \mathcal X \times t} \frac{d(\kappa \circ \mu)}{d(\kappa \circ \nu)}(\pi_Y(p)) \partial(\nu \otimes \kappa)
-\\
-&= \int_{y \in t} \frac{d(\kappa \circ \mu)}{d(\kappa \circ \nu)}(y) \partial(\pi_{Y*}(\nu \otimes \kappa))
-\\
-&= \int_{y \in t} \frac{d(\kappa \circ \mu)}{d(\kappa \circ \nu)}(y) \partial(\kappa \circ \nu)
-\\
-&= (\kappa \circ \mu)(t)
-\: .
-\end{align*}
-\begin{align*}
-\int_{p \in \mathcal X \times t} \frac{d \mu}{d \nu}(p_1) \partial(\nu \otimes \kappa)
-&= \int_{x \in \mathcal X} \int_{y \in t} \frac{d \mu}{d \nu}(x) \partial\kappa(x) \partial\nu
-\\
-&= \int_{x \in \mathcal X} \frac{d \mu}{d \nu}(x) \kappa(x)(t) \partial\nu
-\\
-&= \int_{x \in \mathcal X} \kappa(x)(t) \partial\mu
-\\
-&= (\kappa \circ \mu)(t)
-\: .
-\end{align*}
-
-
+Finally, by Corollary~\ref{cor:rnDeriv_compProd_left}, $\frac{d (\mu \otimes \kappa)}{d (\nu \otimes \kappa)} = \frac{d \mu}{d \nu}$ a.e.
 \end{proof}
