@@ -777,7 +777,8 @@ We first remark that it is sufficient to prove the DPI under an absolute continu
   %\lean{}
   %\leanok
   \uses{def:fDiv}
-  Suppose that for all finite measures $\mu, \nu \in \mathcal M(\mathcal X)$ with $\mu \ll \nu$ and all Markov kernels $\kappa : \mathcal X \rightsquigarrow \mathcal Y$, $D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\kappa, \nu)$.
+  Let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel and $\nu \in \mathcal M(\mathcal X)$ be a finite measure.
+  Suppose that for all finite measures $\mu \in \mathcal M(\mathcal X)$ with $\mu \ll \nu$, $D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu, \nu)$.
   Then the same is true without the absolute continuity hypothesis.
 \end{lemma}
 
@@ -954,21 +955,6 @@ D_f(g_* \mu, g_* \nu)
 \end{proof}
 
 
-\begin{lemma}[Superseded by Theorem~\ref{thm:fDiv_map_le}]
-  \label{lem:fDiv_map_le_of_ac}
-  %\lean{}
-  %\leanok
-  \uses{def:fDiv}
-  Let $\mu, \nu$ be two finite measures on $\mathcal X$ with $\mu \ll \nu$ and let $g : \mathcal X \to \mathcal Y$ be a measurable function. Then
-  $D_f(g_* \mu, g_* \nu) \le D_f(\mu, \nu)$.
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{lem:fDiv_map_eq_fDiv_trim_of_ac, thm:fDiv_trim_le}
-By Lemma~\ref{lem:fDiv_map_eq_fDiv_trim_of_ac},  $D_f(g_* \mu, g_* \nu) = D_f(\mu_{| g^* \mathcal Y}, \nu_{| g^* \mathcal Y})$. Then apply Theorem~\ref{thm:fDiv_trim_le}.
-\end{proof}
-
-
 \begin{theorem}
   \label{thm:fDiv_map_le}
   %\lean{}
@@ -979,28 +965,10 @@ By Lemma~\ref{lem:fDiv_map_eq_fDiv_trim_of_ac},  $D_f(g_* \mu, g_* \nu) = D_f(\m
 \end{theorem}
 
 \begin{proof}%\leanok
-\uses{lem:fDiv_map_le_of_ac, lem:fDiv_add_measure_le}
-We use $g_*\mu = g_*(\frac{d\mu}{d\nu}\cdot \nu) + g_*\mu_{\perp \nu}$~. 
-We have $g_*(\frac{d\mu}{d\nu}\cdot \nu) \ll g_*\nu$.
-By Lemma~\ref{lem:fDiv_add_measure_le},
-\begin{align*}
-D_f(g_* \mu, g_* \nu)
-\le D_f\left(g_*(\frac{d\mu}{d\nu}\cdot \nu), g_*\nu\right)
-  + g_*\mu_{\perp \nu}(\mathcal Y) f'(\infty)
-\: .
-\end{align*}
-Then we apply Lemma~\ref{lem:fDiv_map_le_of_ac} to the first term to get
-\begin{align*}
-D_f(g_* \mu, g_* \nu)
-&\le D_f\left(\frac{d\mu}{d\nu}\cdot \nu, \nu\right)
-  + g_*\mu_{\perp \nu}(\mathcal Y) f'(\infty)
-\\
-&= D_f\left(\frac{d\mu}{d\nu}\cdot \nu, \nu\right)
-  + \mu_{\perp \nu}(\mathcal X) f'(\infty)
-\\
-&= D_f(\mu, \nu)
-\: .
-\end{align*}
+\uses{lem:DPI_of_DPI_ac,lem:fDiv_map_eq_fDiv_trim_of_ac,thm:fDiv_trim_le}
+By Lemma~\ref{lem:DPI_of_DPI_ac} applied to the deterministic kernel with function $g$, it is sufficent to prove the inequality with the additional hypothesis $\mu \ll \nu$.
+
+By Lemma~\ref{lem:fDiv_map_eq_fDiv_trim_of_ac},  $D_f(g_* \mu, g_* \nu) = D_f(\mu_{| g^* \mathcal Y}, \nu_{| g^* \mathcal Y})$. Then apply Theorem~\ref{thm:fDiv_trim_le}.
 \end{proof}
 
 
