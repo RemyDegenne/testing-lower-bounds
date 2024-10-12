@@ -96,30 +96,30 @@ lemma rnDeriv_measure_compProd_left_of_ac {μ ν : Measure α} (hμν : μ ≪ �
     congr with i
     exact hf_eq i
 
-lemma rnDeriv_measure_compProd_left (μ ν : Measure α) (κ : Kernel α γ)
-    [IsFiniteMeasure μ] [IsFiniteMeasure ν] [IsFiniteKernel κ] :
-    ∂(μ ⊗ₘ κ)/∂(ν ⊗ₘ κ) =ᵐ[ν ⊗ₘ κ] fun p ↦ (∂μ/∂ν) p.1 := by
-  rw [Measure.haveLebesgueDecomposition_add μ ν]
+lemma todo (μ ν : Measure α) (κ η : Kernel α γ)
+    [IsFiniteMeasure μ] [IsFiniteMeasure ν] [IsFiniteKernel κ] [IsFiniteKernel η] :
+    ∂(ν.withDensity (μ.rnDeriv ν) ⊗ₘ κ)/∂(ν ⊗ₘ η) =ᵐ[ν ⊗ₘ η] ∂(μ ⊗ₘ κ)/∂(ν ⊗ₘ η) := by
+  conv_rhs => rw [Measure.haveLebesgueDecomposition_add μ ν]
   rw [Measure.compProd_add_left]
-  have h := Measure.rnDeriv_add (μ.singularPart ν ⊗ₘ κ) (ν.withDensity (μ.rnDeriv ν) ⊗ₘ κ)
-    (ν ⊗ₘ κ)
-  have h' : (fun p ↦ (∂μ.singularPart ν + ν.withDensity (∂μ/∂ν)/∂ν) p.1)
-      =ᵐ[ν ⊗ₘ κ] (fun p ↦ (∂μ.singularPart ν/∂ν + ∂ν.withDensity (∂μ/∂ν)/∂ν) p.1) := by
-    have h'' := Measure.rnDeriv_add (μ.singularPart ν) (ν.withDensity (μ.rnDeriv ν)) ν
-    refine ENNReal.ae_eq_compProd_of_ae_eq_fst _ _ ?_ ?_ h''
-    · exact Measure.measurable_rnDeriv _ _
-    · exact (Measure.measurable_rnDeriv _ _).add (Measure.measurable_rnDeriv _ _)
-  have h2 : ∂μ.singularPart ν ⊗ₘ κ/∂ν ⊗ₘ κ =ᵐ[ν ⊗ₘ κ] 0 := by
+  have h := Measure.rnDeriv_add' (μ.singularPart ν ⊗ₘ κ) (ν.withDensity (μ.rnDeriv ν) ⊗ₘ κ)
+    (ν ⊗ₘ η)
+  have h2 : ∂μ.singularPart ν ⊗ₘ κ/∂ν ⊗ₘ η =ᵐ[ν ⊗ₘ η] 0 := by
     refine Measure.rnDeriv_eq_zero_of_mutuallySingular ?_ ?_
     · exact Measure.mutuallySingular_compProd_left (μ.mutuallySingular_singularPart _) _ _
     · exact Measure.AbsolutelyContinuous.rfl
-  have h2' : (fun p ↦ (∂μ.singularPart ν/∂ν) p.1) =ᵐ[ν ⊗ₘ κ] 0 :=
-    ae_compProd_of_ae_fst κ ((μ.singularPart ν).measurable_rnDeriv ν (.singleton 0))
-      (μ.rnDeriv_singularPart ν)
-  have h3 := rnDeriv_measure_compProd_left_of_ac
-    (MeasureTheory.withDensity_absolutelyContinuous ν (μ.rnDeriv ν)) κ
-  filter_upwards [h, h', h2, h2', h3] with x hx hx' hx2 hx2' hx3
-  simp [hx, hx', hx2, hx2', hx3]
+  filter_upwards [h, h2] with x hx hx2
+  simp [hx, hx2]
+
+lemma rnDeriv_measure_compProd_left (μ ν : Measure α) (κ : Kernel α γ)
+    [IsFiniteMeasure μ] [IsFiniteMeasure ν] [IsFiniteKernel κ] :
+    ∂(μ ⊗ₘ κ)/∂(ν ⊗ₘ κ) =ᵐ[ν ⊗ₘ κ] fun p ↦ (∂μ/∂ν) p.1 := by
+  refine (todo μ ν κ κ).symm.trans ?_
+  refine (rnDeriv_measure_compProd_left_of_ac
+    (MeasureTheory.withDensity_absolutelyContinuous ν (μ.rnDeriv ν)) κ).trans ?_
+  refine ENNReal.ae_eq_compProd_of_ae_eq_fst _ _ ?_ ?_ ?_
+  · exact Measure.measurable_rnDeriv _ _
+  · exact Measure.measurable_rnDeriv _ _
+  · exact Measure.rnDeriv_withDensity ν (Measure.measurable_rnDeriv _ _)
 
 variable [CountableOrCountablyGenerated α γ]
 
@@ -249,10 +249,9 @@ lemma rnDeriv_measure_compProd_aux
   · intro t ht ht_eq
     calc ∫⁻ p in tᶜ, (∂μ ⊗ₘ κ/∂ν ⊗ₘ η) p ∂ν ⊗ₘ η
       = ∫⁻ p, (∂μ ⊗ₘ κ/∂ν ⊗ₘ η) p ∂ν ⊗ₘ η - ∫⁻ p in t, (∂μ ⊗ₘ κ/∂ν ⊗ₘ η) p ∂ν ⊗ₘ η := by
-          refine (ENNReal.sub_eq_of_eq_add ?_ ?_).symm
-          · rw [h_left _ ht]
-            exact measure_ne_top _ _
-          · rw [add_comm, lintegral_add_compl _ ht]
+          rw [setLintegral_compl ht]
+          rw [h_left _ ht]
+          exact measure_ne_top _ _
     _ = ∫⁻ p, (∂μ ⊗ₘ κ/∂ν ⊗ₘ η) p ∂ν ⊗ₘ η
         - ∫⁻ p in t, (∂μ/∂ν) p.1 * rnDeriv κ η p.1 p.2 ∂ν ⊗ₘ η := by rw [ht_eq]
     _ = (μ ⊗ₘ κ) univ
@@ -270,10 +269,9 @@ lemma rnDeriv_measure_compProd_aux
           congr
           rw [Measure.lintegral_compProd h_meas]
     _ = ∫⁻ p in tᶜ, (∂μ/∂ν) p.1 * rnDeriv κ η p.1 p.2 ∂ν ⊗ₘ η := by
-          refine ENNReal.sub_eq_of_eq_add ?_ ?_
-          · rw [← ht_eq, h_left _ ht]
-            exact measure_ne_top _ _
-          rw [add_comm, lintegral_add_compl _ ht]
+          rw [setLintegral_compl ht]
+          rw [← ht_eq, h_left _ ht]
+          exact measure_ne_top _ _
   · intro f' hf_disj hf_meas hf_eq
     rw [lintegral_iUnion hf_meas hf_disj, lintegral_iUnion hf_meas hf_disj]
     congr with i
