@@ -277,32 +277,27 @@ lemma rnDeriv_measure_compProd_aux
     congr with i
     exact hf_eq i
 
+lemma todo' (μ ν : Measure α) (κ η : Kernel α γ)
+    [IsFiniteMeasure μ] [IsFiniteMeasure ν] [IsFiniteKernel κ] [IsFiniteKernel η] :
+    ∂(μ ⊗ₘ withDensity η (rnDeriv κ η))/∂(ν ⊗ₘ η) =ᵐ[ν ⊗ₘ η] ∂(μ ⊗ₘ κ)/∂(ν ⊗ₘ η) := by
+  let κ' := withDensity η (rnDeriv κ η)
+  have h2 : μ ⊗ₘ κ = μ ⊗ₘ κ' + μ ⊗ₘ (singularPart κ η) := by
+    conv_lhs => conv in μ ⊗ₘ κ => rw [← rnDeriv_add_singularPart κ η]
+    rw [Measure.compProd_add_right]
+  rw [h2]
+  have h_add := Measure.rnDeriv_add (μ ⊗ₘ κ') (μ ⊗ₘ (singularPart κ η)) (ν ⊗ₘ η)
+  have h02 : ∂(μ ⊗ₘ (singularPart κ η))/∂(ν ⊗ₘ η) =ᵐ[ν ⊗ₘ η] 0 := by
+    rw [Measure.rnDeriv_eq_zero]
+    exact Measure.mutuallySingular_compProd_right μ ν
+      (.of_forall <| mutuallySingular_singularPart _ _)
+  filter_upwards [h_add, h02] with a h_add h02
+  rw [h_add, Pi.add_apply, h02]
+  simp
+
 lemma todo1 (μ ν : Measure α) (κ η : Kernel α γ)
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] [IsFiniteKernel κ] [IsFiniteKernel η] :
     ∂(ν.withDensity (∂μ/∂ν) ⊗ₘ withDensity η (rnDeriv κ η))/∂(ν ⊗ₘ η)
-      =ᵐ[ν ⊗ₘ η] ∂(μ ⊗ₘ κ)/∂(ν ⊗ₘ η) := by
-  let μ' := ν.withDensity (∂μ/∂ν)
-  let κ' := withDensity η (rnDeriv κ η)
-  have h1 : μ = μ' + μ.singularPart ν := by
-    conv_lhs => rw [μ.haveLebesgueDecomposition_add ν, add_comm]
-  have h2 : μ ⊗ₘ κ = μ' ⊗ₘ κ' + (μ.singularPart ν) ⊗ₘ κ + μ' ⊗ₘ (singularPart κ η) := by
-    conv_lhs => rw [h1, Measure.compProd_add_left]
-    conv_lhs => conv in μ' ⊗ₘ κ => rw [← rnDeriv_add_singularPart κ η]
-    rw [Measure.compProd_add_right, add_assoc, add_comm (μ' ⊗ₘ singularPart κ η), ← add_assoc]
-  rw [h2]
-  have h_add := Measure.rnDeriv_add (μ' ⊗ₘ κ' + μ.singularPart ν ⊗ₘ κ)
-    (μ' ⊗ₘ (singularPart κ η)) (ν ⊗ₘ η)
-  have h_add' := (μ' ⊗ₘ κ').rnDeriv_add (μ.singularPart ν ⊗ₘ κ) (ν ⊗ₘ η)
-  have h01 : ∂(μ.singularPart ν ⊗ₘ κ)/∂(ν ⊗ₘ η) =ᵐ[ν ⊗ₘ η] 0 := by
-    rw [Measure.rnDeriv_eq_zero]
-    exact Measure.mutuallySingular_compProd_left (μ.mutuallySingular_singularPart _) κ η
-  have h02 : ∂(μ' ⊗ₘ (singularPart κ η))/∂(ν ⊗ₘ η) =ᵐ[ν ⊗ₘ η] 0 := by
-    rw [Measure.rnDeriv_eq_zero]
-    exact Measure.mutuallySingular_compProd_right μ' ν
-      (.of_forall <| mutuallySingular_singularPart _ _)
-  filter_upwards [h_add, h_add', h01, h02] with a h_add h_add' h01 h02
-  rw [h_add, Pi.add_apply, h_add', Pi.add_apply, h01, h02]
-  simp
+      =ᵐ[ν ⊗ₘ η] ∂(μ ⊗ₘ κ)/∂(ν ⊗ₘ η) := (todo' _ ν κ η).trans (todo μ ν κ η)
 
 lemma todo2 (μ ν : Measure α) (κ η : Kernel α γ)
     [IsFiniteMeasure ν] [IsFiniteKernel κ] [IsFiniteKernel η] :
