@@ -30,6 +30,7 @@ import TestingLowerBounds.ForMathlib.KernelFstSnd
 import TestingLowerBounds.ForMathlib.LeftRightDeriv
 import TestingLowerBounds.ForMathlib.LogLikelihoodRatioCompProd
 import TestingLowerBounds.ForMathlib.MaxMinEqAbs
+import TestingLowerBounds.ForMathlib.RNDerivEqCondexp
 import TestingLowerBounds.ForMathlib.RNDerivUnique
 import TestingLowerBounds.ForMathlib.RadonNikodym
 import TestingLowerBounds.ForMathlib.RnDeriv
