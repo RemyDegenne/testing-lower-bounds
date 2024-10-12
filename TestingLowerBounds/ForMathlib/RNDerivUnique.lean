@@ -19,6 +19,7 @@ namespace ProbabilityTheory.Kernel
 variable {α γ : Type*} {mα : MeasurableSpace α} {mγ : MeasurableSpace γ}
   {μ ν : Measure α} {κ η : Kernel α γ}
 
+-- PR #17681
 lemma Measure.lintegral_rnDeriv_le : ∫⁻ x, μ.rnDeriv ν x ∂ν ≤ μ univ :=
   (setLIntegral_univ _).symm ▸ Measure.setLIntegral_rnDeriv_le univ
 
@@ -73,6 +74,7 @@ end Unique
 
 variable [CountableOrCountablyGenerated α γ]
 
+-- PR #17681
 instance [hκ : IsFiniteKernel κ] [IsFiniteKernel η] :
     IsFiniteKernel (withDensity η (rnDeriv κ η)) := by
   refine ⟨hκ.bound, hκ.bound_lt_top, fun a ↦ ?_⟩
@@ -81,6 +83,7 @@ instance [hκ : IsFiniteKernel κ] [IsFiniteKernel η] :
   rw [lintegral_congr_ae (rnDeriv_eq_rnDeriv_measure _ _ a)]
   exact (Measure.lintegral_rnDeriv_le).trans (measure_le_bound _ _ _)
 
+-- PR #17681
 instance [hκ : IsFiniteKernel κ] [IsFiniteKernel η] : IsFiniteKernel (singularPart κ η) := by
   refine ⟨hκ.bound, hκ.bound_lt_top, fun a ↦ ?_⟩
   have h : withDensity η (rnDeriv κ η) a univ + singularPart κ η a univ = κ a univ := by
