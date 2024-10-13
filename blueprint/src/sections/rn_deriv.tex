@@ -195,8 +195,38 @@ TODO: also show measurability.
 \end{proof}
 
 
-\begin{lemma}[\cite{csiszar1963informationstheoretische}]
+\begin{lemma}
   \label{lem:rnDeriv_comp_eq_condexp}
+  %\lean{}
+  %\leanok
+  \uses{}
+  Let $\mu, \nu \in \mathcal M(\mathcal X)$ with $\mu \ll \nu$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be a s-finite kernels with $\kappa(x) \ll \eta(x)$ $\nu$-a.e..
+  Let $\mathcal B$ be the sigma-algebra on $\mathcal X \times \mathcal Y$ obtained by taking the comap of the sigma-algebra of $\mathcal Y$ by the projection.
+  Then for $(\nu \otimes \eta)$-almost every $(x,y)$,
+  \begin{align*}
+  \frac{d(\kappa \circ \mu)}{d(\eta \circ \nu)}(y)
+  &= (\nu \otimes \eta)\left[ \frac{d (\mu \otimes \kappa)}{d (\nu \otimes \eta)} \Big| \mathcal B \right](x,y)
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:rnDeriv_map_eq_condexp}
+Let $\pi_Y : \mathcal X \times \mathcal Y \to \mathcal Y$ be the projection $\pi_Y(x,y) = y$.
+Remark that $\kappa \circ \mu = \pi_{Y*}(\mu \otimes \kappa)$ and similarly for $\nu, \eta$.
+By Lemma~\ref{lem:rnDeriv_map_eq_condexp}, $(\nu \otimes \eta)$-almost everywhere,
+\begin{align*}
+\frac{d(\kappa \circ \mu)}{d(\eta \circ \nu)}(y)
+&= \frac{d \pi_{Y*}(\mu \otimes \kappa)}{d \pi_{Y*}(\nu \otimes \eta)}(\pi_Y((x,y)))
+\\
+&= (\nu \otimes \eta)\left[ \frac{d (\mu \otimes \kappa)}{d (\nu \otimes \eta)} \mid \mathcal B\right](x,y)
+\: .
+\end{align*}
+\end{proof}
+
+
+\begin{lemma}[\cite{csiszar1963informationstheoretische}]
+  \label{lem:rnDeriv_comp_eq_condexp_right}
   %\lean{}
   %\leanok
   \uses{}
@@ -212,14 +242,10 @@ TODO: also show measurability.
 \end{lemma}
 
 \begin{proof}%\leanok
-\uses{lem:rnDeriv_map_eq_condexp,cor:rnDeriv_compProd_left}
-Let $\pi_Y : \mathcal X \times \mathcal Y \to \mathcal Y$ be the projection $\pi_Y(x,y) = y$.
-Remark that $\kappa \circ \mu = \pi_{Y*}(\mu \otimes \kappa)$ and similarly for $\nu$.
-By Lemma~\ref{lem:rnDeriv_map_eq_condexp}, $(\nu \otimes \kappa)$-almost everywhere,
+\uses{lem:rnDeriv_comp_eq_condexp,cor:rnDeriv_compProd_left}
+Apply Lemma~\ref{lem:rnDeriv_comp_eq_condexp} to get, $(\nu \otimes \kappa)$-almost everywhere,
 \begin{align*}
 \frac{d(\kappa \circ \mu)}{d(\kappa \circ \nu)}(y)
-&= \frac{d \pi_{Y*}(\mu \otimes \kappa)}{d \pi_{Y*}(\nu \otimes \kappa)}(\pi_Y((x,y)))
-\\
 &= (\nu \otimes \kappa)\left[ \frac{d (\mu \otimes \kappa)}{d (\nu \otimes \kappa)} \mid \mathcal B\right](x,y)
 \: .
 \end{align*}
