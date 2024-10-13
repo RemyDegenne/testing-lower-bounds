@@ -63,7 +63,7 @@ lemma setLIntegral_rnDeriv_mul_withDensity
   filter_upwards [κ.rnDeriv_measure_compProd' μ ν η] with a ha _
   rw [← lintegral_const_mul _ (κ.measurable_rnDeriv_right _ _)]
   refine setLIntegral_congr_fun ht ?_
-  filter_upwards [ha, κ.rnDeriv_eq_rnDeriv_measure η a] with b hb hb' _
+  filter_upwards [ha, κ.rnDeriv_eq_rnDeriv_measure] with b hb hb' _
   rw [hb, hb']
 
 lemma lintegral_rnDeriv_mul_withDensity (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
@@ -182,7 +182,7 @@ lemma integral_rnDeriv_mul_withDensity
     {t : Set β} (ht : MeasurableSet t) :
     ∫ a, ((∂μ/∂ν) a).toReal *(η.withDensity (κ.rnDeriv η) a t).toReal ∂ν
       = ((ν ⊗ₘ η).withDensity (∂(μ ⊗ₘ κ)/∂(ν ⊗ₘ η)) (.univ ×ˢ t)).toReal := by
-  rw [← setIntegral_rnDeriv_mul_withDensity μ ν κ η .univ ht, integral_univ]
+  rw [← setIntegral_rnDeriv_mul_withDensity μ ν κ η .univ ht, setIntegral_univ]
 
 lemma setIntegral_rnDeriv_mul_singularPart
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
@@ -206,7 +206,7 @@ lemma integral_rnDeriv_mul_singularPart
     {t : Set β} (ht : MeasurableSet t) :
     ∫ a, ((∂μ/∂ν) a).toReal * ((κ a).singularPart (η a) t).toReal ∂ν
       = (((ν.withDensity (∂μ/∂ν)) ⊗ₘ κ).singularPart (ν ⊗ₘ η) (.univ ×ˢ t)).toReal := by
-  rw [← setIntegral_rnDeriv_mul_singularPart μ ν κ η .univ ht, integral_univ]
+  rw [← setIntegral_rnDeriv_mul_singularPart μ ν κ η .univ ht, setIntegral_univ]
 
 lemma setIntegral_singularPart
     (μ : Measure α) [IsFiniteMeasure μ] (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
@@ -223,7 +223,7 @@ lemma integral_singularPart
     {s : Set β} (hs : MeasurableSet s) :
     ∫ a, ((κ a).singularPart (η a) s).toReal ∂μ
       = ((μ ⊗ₘ κ).singularPart (μ ⊗ₘ η) (.univ ×ˢ s)).toReal := by
-  rw [← integral_univ, setIntegral_singularPart _ _ _ .univ hs]
+  rw [← setIntegral_univ, setIntegral_singularPart _ _ _ .univ hs]
 
 end IntegralRnDeriv
 

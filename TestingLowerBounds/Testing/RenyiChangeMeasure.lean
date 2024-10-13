@@ -100,6 +100,6 @@ lemma exp_neg_max_renyiDiv_le_add_measure [IsProbabilityMeasure μ]
     · norm_num
     · positivity
   rw [this] at h
-  rwa [neg_sub_left, exp_neg, mul_inv_le_iff' (exp_pos _), add_comm (log 4 / a)]
+  rwa [neg_sub_left, exp_neg, mul_inv_le_iff₀ (exp_pos _), add_comm (log 4 / a)]
 
 end ProbabilityTheory
