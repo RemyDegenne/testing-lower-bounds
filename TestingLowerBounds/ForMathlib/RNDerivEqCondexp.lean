@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne
 -/
 import TestingLowerBounds.ForMathlib.RadonNikodym
+import TestingLowerBounds.MeasureCompProd
 
 /-!
 # Radon-Nikodym derivative of the composition of a measure and a kernel
@@ -42,12 +43,28 @@ lemma toReal_rnDeriv_map [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hμν : μ �
           rw [Measure.setIntegral_toReal_rnDeriv (hμν.map hg),
             Measure.setIntegral_toReal_rnDeriv hμν, Measure.map_apply hg ht]
   · refine StronglyMeasurable.aeStronglyMeasurable' ?_
-    refine Measurable.stronglyMeasurable ?_
-    refine @Measurable.ennreal_toReal _ (mβ.comap g) _ ?_
-    intro s hs
-    change MeasurableSet[mβ.comap g] ((_ ∘ g) ⁻¹' s)
-    rw [preimage_comp]
-    suffices MeasurableSet (∂Measure.map g μ/∂Measure.map g ν ⁻¹' s) by exact ⟨_, this, rfl⟩
-    exact Measure.measurable_rnDeriv _ _ hs
+    refine (@Measurable.ennreal_toReal _ (mβ.comap g) _ (fun s hs ↦ ?_)).stronglyMeasurable
+    exact ⟨_, Measure.measurable_rnDeriv _ _ hs, rfl⟩
+
+lemma toReal_rnDeriv_comp_eq_condexp_compProd [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hμν : μ ≪ ν)
+    [IsFiniteKernel κ] [IsFiniteKernel η] (hκη : ∀ᵐ x ∂μ, κ x ≪ η x) :
+    (fun ab ↦ ((κ ∘ₘ μ).rnDeriv (η ∘ₘ ν) ab.2).toReal)
+      =ᵐ[ν ⊗ₘ η] (ν ⊗ₘ η)[fun ab ↦ ((μ ⊗ₘ κ).rnDeriv (ν ⊗ₘ η) ab).toReal | mβ.comap Prod.snd] := by
+  have h_ac : μ ⊗ₘ κ ≪ ν ⊗ₘ η := Measure.absolutelyContinuous_compProd hμν hκη
+  refine Filter.EventuallyEq.trans ?_ (toReal_rnDeriv_map h_ac measurable_snd)
+  refine ae_of_all _ (fun ab ↦ ?_)
+  simp only
+  congr <;> rw [← Measure.snd, Measure.snd_compProd]
+
+lemma toReal_rnDeriv_comp [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hμν : μ ≪ ν)
+    [IsFiniteKernel κ] :
+    (fun ab ↦ ((κ ∘ₘ μ).rnDeriv (κ ∘ₘ ν) ab.2).toReal)
+      =ᵐ[ν ⊗ₘ κ] (ν ⊗ₘ κ)[fun ab ↦ (μ.rnDeriv ν ab.1).toReal | mβ.comap Prod.snd] := by
+  refine (toReal_rnDeriv_comp_eq_condexp_compProd hμν ?_).trans ?_
+  · exact ae_of_all _ (fun x ↦ Measure.AbsolutelyContinuous.rfl)
+  have h_eq := Kernel.rnDeriv_measure_compProd_left μ ν κ
+  refine condexp_congr_ae ?_
+  filter_upwards [h_eq] with x hx
+  rw [hx]
 
 end ProbabilityTheory
