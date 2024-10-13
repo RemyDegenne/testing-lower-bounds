@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import Mathlib.Probability.Kernel.MeasureCompProd
-import TestingLowerBounds.ForMathlib.GiryMonad
 import TestingLowerBounds.Kernel.ParallelComp
 
 
@@ -53,7 +52,7 @@ lemma Measure.comp_assoc {μ : Measure α} {κ : Kernel α β} {η : Kernel β �
 
 lemma Measure.comp_deterministic_eq_map {f : α → β} (hf : Measurable f) :
     Kernel.deterministic f hf ∘ₘ μ = μ.map f :=
-  Measure.dirac_bind_eq_map μ hf
+  Measure.bind_dirac_eq_map μ hf
 
 lemma Measure.comp_id : Kernel.id ∘ₘ μ = μ := by
   rw [Kernel.id, Measure.comp_deterministic_eq_map, Measure.map_id]
@@ -94,7 +93,7 @@ lemma Measure.compProd_const {ν : Measure β} [SFinite μ] [SFinite ν] :
   simp_rw [Kernel.const_apply]
 
 @[simp]
-lemma Measure.comp_const {ν : Measure β} : (Kernel.const α ν) ∘ₘ μ = μ .univ • ν := μ.bind_const ν
+lemma Measure.comp_const {ν : Measure β} : (Kernel.const α ν) ∘ₘ μ = μ .univ • ν := μ.bind_const
 
 lemma Measure.compProd_apply_toReal [SFinite μ] [IsFiniteKernel κ]
     {s : Set (α × β)} (hs : MeasurableSet s) :

@@ -186,7 +186,7 @@ lemma fDiv_id (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν] :
   by_cases h_int : Integrable (fun x ↦ ((∂μ/∂ν) x).toReal) ν
   · rw [fDiv_of_integrable h_int]
     simp only [id_eq, derivAtTop_id, one_mul]
-    rw [← integral_univ, Measure.setIntegral_toReal_rnDeriv_eq_withDensity]
+    rw [← setIntegral_univ, Measure.setIntegral_toReal_rnDeriv_eq_withDensity]
     have h_ne_top : (ν.withDensity (∂μ/∂ν)) .univ ≠ ∞ := by
       rw [withDensity_apply _ .univ, setLIntegral_univ]
       rwa [integrable_toReal_iff] at h_int

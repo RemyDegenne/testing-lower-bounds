@@ -875,7 +875,7 @@ lemma integrable_hellingerDiv_zero [CountableOrCountablyGenerated α β]
     ext x
     congr 1
     apply measure_congr
-    filter_upwards [κ.rnDeriv_eq_rnDeriv_measure η x] with y hy
+    filter_upwards [κ.rnDeriv_eq_rnDeriv_measure] with y hy
     simp only [Set.setOf_app_iff, eq_iff_iff, hy]
   simp_rw [h_eq]
   apply (integrable_const C.toReal).mono'

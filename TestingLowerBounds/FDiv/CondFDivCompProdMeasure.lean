@@ -44,7 +44,7 @@ lemma condFDiv_kernel_snd'_integrable_iff [CountableOrCountablyGenerated (α × 
     Integrable (fun a ↦ (condFDiv f (κ.snd' a) (η.snd' a) (ξ a)).toReal) μ ↔
       Integrable (fun a ↦ ∫ b, |∫ x, f ((∂κ (a, b)/∂η (a, b)) x).toReal ∂η (a, b)| ∂ξ a) μ := by
   by_cases h_empty : Nonempty α
-  swap; simp only [not_nonempty_iff.mp h_empty, Integrable.of_isEmpty]
+  swap; · have := not_nonempty_iff.mp h_empty; simp [Integrable.of_finite (μ := μ)]
   have := countableOrCountablyGenerated_right_of_prod_left_of_nonempty (α := α) (β := β) (γ := γ)
   have h_le : ∀ᵐ a ∂μ, ∀ᵐ b ∂ξ a, |∫ x, f ((∂κ (a, b)/∂η (a, b)) x).toReal ∂η (a, b)|
         - (fDiv f (κ (a, b)) (η (a, b))).toReal ≤ |(derivAtTop f).toReal|
@@ -137,9 +137,10 @@ lemma condFDiv_compProd_meas_eq_top [CountableOrCountablyGenerated (α × β) γ
       ↔ ¬ (∀ᵐ a ∂μ, condFDiv f (κ.snd' a) (η.snd' a) (ξ a) ≠ ⊤) ∨
         ¬ Integrable (fun x ↦ (condFDiv f (κ.snd' x) (η.snd' x) (ξ x)).toReal) μ := by
   by_cases h_empty : Nonempty α
-  swap; simp only [isEmpty_prod, not_nonempty_iff.mp h_empty, true_or, condFDiv_of_isEmpty_left,
-    EReal.zero_ne_top, IsEmpty.forall_iff, Eventually.of_forall, not_true_eq_false,
-    Integrable.of_isEmpty, or_self]
+  swap
+  · have := not_nonempty_iff.mp h_empty
+    simp only [condFDiv_of_isEmpty_left, EReal.zero_ne_top, ne_eq, IsEmpty.forall_iff,
+      Eventually.of_forall, not_true_eq_false, Integrable.of_finite, or_self]
   have := countableOrCountablyGenerated_right_of_prod_left_of_nonempty (α := α) (β := β) (γ := γ)
   rw [condFDiv_eq_top_iff hf_cvx]
   constructor

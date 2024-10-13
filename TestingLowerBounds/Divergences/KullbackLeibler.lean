@@ -563,7 +563,7 @@ lemma kl_compProd [CountableOrCountablyGenerated α β] [IsMarkovKernel κ] [IsM
     apply Integrable.congr (integrable_integral_llr_of_integrable_llr_compProd h_prod h_int)
     filter_upwards [hκη] with a ha
     apply integral_congr_ae
-    filter_upwards [ha.ae_le (κ.rnDeriv_eq_rnDeriv_measure η a)] with x hx
+    filter_upwards [ha.ae_le (κ.rnDeriv_eq_rnDeriv_measure)] with x hx
     rw [hx, llr_def]
   have intκη2 := ae_integrable_llr_of_integrable_llr_compProd h_prod h_int
   calc kl (μ ⊗ₘ κ) (ν ⊗ₘ η) = ∫ p, llr (μ ⊗ₘ κ) (ν ⊗ₘ η) p ∂(μ ⊗ₘ κ) :=
@@ -590,7 +590,7 @@ lemma kl_compProd [CountableOrCountablyGenerated α β] [IsMarkovKernel κ] [IsM
     · exact intκη
     apply integral_congr_ae
     filter_upwards [hκη, intκη2] with a ha hκηa
-    have h := ha.ae_le (κ.rnDeriv_eq_rnDeriv_measure η a)
+    have h := ha.ae_le (κ.rnDeriv_eq_rnDeriv_measure)
     rw [← integral_add']
     rotate_left
     · simp only [integrable_const]
@@ -606,7 +606,7 @@ lemma kl_compProd [CountableOrCountablyGenerated α β] [IsMarkovKernel κ] [IsM
     congr 2
     apply Kernel.integral_congr_ae₂
     filter_upwards [hκη] with a ha
-    have h := ha.ae_le (κ.rnDeriv_eq_rnDeriv_measure η a)
+    have h := ha.ae_le (κ.rnDeriv_eq_rnDeriv_measure)
     filter_upwards [h] with x hx
     congr
   _ = kl μ ν + condKL κ η μ := by
@@ -617,7 +617,7 @@ lemma kl_compProd [CountableOrCountablyGenerated α β] [IsMarkovKernel κ] [IsM
       simp_rw [llr_def]
       apply Integrable.congr intκη
       filter_upwards [hκη] with a ha
-      have h := ha.ae_le (κ.rnDeriv_eq_rnDeriv_measure η a)
+      have h := ha.ae_le (κ.rnDeriv_eq_rnDeriv_measure)
       apply integral_congr_ae
       filter_upwards [h] with x hx
       rw [hx]
