@@ -106,19 +106,17 @@ The second one uses Corollary~\ref{cor:rnDeriv_value}.
 Use Lemma~\ref{lem:rnDeriv_eq_ac} for $\mu', \kappa'$ (defined in previous lemmas) then \ref{lem:rnDeriv_compProd_aux} and \ref{lem:prod_rnDeriv_eq_ac}.
 \end{proof}
 
-\begin{corollary}
+
+\begin{lemma}
   \label{cor:rnDeriv_compProd_left}
   \lean{ProbabilityTheory.Kernel.rnDeriv_measure_compProd_left}
   \leanok
   \uses{def:kernel_rnDeriv}
   Let $\mu, \nu \in \mathcal M(\mathcal X)$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a finite kernel. Then for $(\nu \otimes \kappa)$-almost all $(x, y)$, $\frac{d (\mu \otimes \kappa)}{d (\nu \otimes \kappa)}(x,y) = \frac{d\mu}{d\nu}(x)$.
-\end{corollary}
-TODO: with the new proof, this is not a corollary anymore.
+\end{lemma}
 
 \begin{proof} \leanok
 \uses{lem:rnDeriv_compProd}
-TODO: this proof is not leanok. Replacing the current proof with this one will remove hypotheses.
-
 TODO: wlog $\mu \ll \nu$, and we can consider products of sets.
 \begin{align*}
 \int_{p \in s \times t} \frac{d (\mu \otimes \kappa)}{d (\nu \otimes \kappa)}(p) \partial(\nu \otimes \kappa)
@@ -160,8 +158,8 @@ TODO: wlog $\mu \ll \nu$, and we can consider products of sets.
 
 \begin{lemma}
   \label{lem:rnDeriv_map_eq_condexp}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.toReal_rnDeriv_map}
+  \leanok
   \uses{}
   Let $\mu, \nu \in \mathcal M(\mathcal X)$ with $\mu \ll \nu$, $g : \mathcal X \to \mathcal Y$ a measurable function and denote by $g^* \mathcal Y$ the comap of the $\sigma$-algebra on $\mathcal Y$ by $g$.
   Then $\nu$-almost everywhere,
@@ -171,7 +169,7 @@ TODO: wlog $\mu \ll \nu$, and we can consider products of sets.
   \end{align*}
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{}
 We show that the integrals of the two functions agree on all $g^* \mathcal Y$-measurable sets. It suffices to show equality on all sets oc $\mathcal X$ of the form $g^{-1}(t)$ for $t$ a measurable set of $\mathcal Y$.
 TODO: also show measurability.
@@ -199,8 +197,8 @@ TODO: also show measurability.
 
 \begin{lemma}
   \label{lem:rnDeriv_comp_eq_condexp}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.toReal_rnDeriv_comp_eq_condexp_compProd}
+  \leanok
   \uses{}
   Let $\mu, \nu \in \mathcal M(\mathcal X)$ with $\mu \ll \nu$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be a s-finite kernels with $\kappa(x) \ll \eta(x)$ $\nu$-a.e..
   Let $\mathcal B$ be the sigma-algebra on $\mathcal X \times \mathcal Y$ obtained by taking the comap of the sigma-algebra of $\mathcal Y$ by the projection.
@@ -212,7 +210,7 @@ TODO: also show measurability.
   \end{align*}
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{lem:rnDeriv_map_eq_condexp}
 Let $\pi_Y : \mathcal X \times \mathcal Y \to \mathcal Y$ be the projection $\pi_Y(x,y) = y$.
 Remark that $\kappa \circ \mu = \pi_{Y*}(\mu \otimes \kappa)$ and similarly for $\nu, \eta$.
@@ -229,8 +227,8 @@ By Lemma~\ref{lem:rnDeriv_map_eq_condexp}, $(\nu \otimes \eta)$-almost everywher
 
 \begin{lemma}[\cite{csiszar1963informationstheoretische}]
   \label{lem:rnDeriv_comp_eq_condexp_right}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.toReal_rnDeriv_comp}
+  \leanok
   \uses{}
   Let $\mu, \nu \in \mathcal M(\mathcal X)$ with $\mu \ll \nu$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a finite kernel.
   Let $\mathcal B$ be the sigma-algebra on $\mathcal X \times \mathcal Y$ obtained by taking the comap of the sigma-algebra of $\mathcal Y$ by the projection.
@@ -243,7 +241,7 @@ By Lemma~\ref{lem:rnDeriv_map_eq_condexp}, $(\nu \otimes \eta)$-almost everywher
   
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{lem:rnDeriv_comp_eq_condexp,cor:rnDeriv_compProd_left}
 Apply Lemma~\ref{lem:rnDeriv_comp_eq_condexp} to get, $(\nu \otimes \kappa)$-almost everywhere,
 \begin{align*}
