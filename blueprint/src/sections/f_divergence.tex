@@ -811,18 +811,6 @@ D_f(\kappa \circ \mu, \kappa \circ \nu)
 
 For $\mathcal A$ a sub-$\sigma$-algebra and $\mu$ a measure, we write $\mathcal \mu_{| \mathcal A}$ for the measure restricted to the $\sigma$-algebra.
 
-\begin{lemma}
-  \label{lem:rnDeriv_trim_of_ac}
-  \lean{MeasureTheory.Measure.toReal_rnDeriv_trim_of_ac}
-  \leanok
-  %\uses{}
-  Let $\mu, \nu$ be two finite measures on $\mathcal X$ with $\mu \ll \nu$ and let $\mathcal A$ be a sub-$\sigma$-algebra of $\mathcal X$.
-  Then $\frac{d \mu_{| \mathcal A}}{d \nu_{| \mathcal A}}$ is $\nu_{| \mathcal A}$-almost everywhere (hence also $\nu$-a.e.) equal to $\nu\left[ \frac{d \mu}{d \nu} \mid \mathcal A\right]$.
-\end{lemma}
-
-\begin{proof}\leanok
-\end{proof}
-
 \begin{lemma}[Superseded by Theorem~\ref{thm:fDiv_trim_le}]
   \label{lem:fDiv_trim_le_of_ac}
   \lean{ProbabilityTheory.fDiv_trim_le_of_ac}
@@ -909,24 +897,6 @@ D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A})
 
 We now show how the data-processing inequality on $\sigma$-algebras implies a data-processing inequality for composition with measurable functions.
 
-\begin{lemma}
-  \label{lem:rnDeriv_map_eq_rnDeriv_trim}
-  %\lean{}
-  %\leanok
-  \uses{}
-  Let $\mu, \nu \in \mathcal M(\mathcal X)$ with $\mu \ll \nu$, $g : \mathcal X \to \mathcal Y$ a measurable function and denote by $g^* \mathcal Y$ the comap of the $\sigma$-algebra on $\mathcal Y$ by $g$.
-  Then $\nu$-almost everywhere,
-  \begin{align*}
-  \frac{d g_*\mu}{d g_*\nu}(g(x)) = \frac{d \mu_{| g^* \mathcal Y}}{d \nu_{| g^* \mathcal Y}}(x)
-  \: .
-  \end{align*}
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{lem:rnDeriv_map_eq_condexp, lem:rnDeriv_trim_of_ac}
-Combine Lemma~\ref{lem:rnDeriv_map_eq_condexp} and Lemma~\ref{lem:rnDeriv_trim_of_ac}.
-\end{proof}
-
 
 \begin{lemma}
   \label{lem:fDiv_map_eq_fDiv_trim_of_ac}
@@ -939,6 +909,7 @@ Combine Lemma~\ref{lem:rnDeriv_map_eq_condexp} and Lemma~\ref{lem:rnDeriv_trim_o
 
 \begin{proof}%\leanok
 \uses{lem:rnDeriv_map_eq_rnDeriv_trim}
+Using Lemma~\ref{lem:rnDeriv_map_eq_rnDeriv_trim},
 \begin{align*}
 D_f(g_* \mu, g_* \nu)
 &= \int_y f \left( \frac{d g_*\mu}{d g_*\nu}(y)\right) \partial(g_*\nu)
