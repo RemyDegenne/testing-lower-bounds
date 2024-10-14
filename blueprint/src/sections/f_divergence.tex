@@ -972,6 +972,48 @@ By Lemma~\ref{lem:fDiv_map_eq_fDiv_trim_of_ac},  $D_f(g_* \mu, g_* \nu) = D_f(\m
 \end{proof}
 
 
+\begin{theorem}
+  \label{thm:fDiv_data_proc_3}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
+  Then $D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu, \nu)$.
+\end{theorem}
+
+\begin{proof}%\leanok
+\uses{lem:DPI_of_DPI_ac,lem:rnDeriv_comp_eq_condexp_right,thm:condexp_jensen}
+By Lemma~\ref{lem:DPI_of_DPI_ac}, it is sufficent to prove the inequality with the additional hypothesis $\mu \ll \nu$ (hence also $\kappa \circ \mu \ll \kappa \circ \nu$). In that case,
+\begin{align*}
+D_f(\kappa \circ \mu, \kappa \circ \nu)
+&= \int_y f \left( \frac{d(\kappa \circ \mu)}{d(\kappa \circ \nu)}(y) \right) \partial(\kappa \circ \nu)
+\\
+&= \int_{p} f \left( \frac{d(\kappa \circ \mu)}{d(\kappa \circ \nu)}(p_2) \right) \partial(\nu \otimes \kappa)
+\: .
+\end{align*}
+By Lemma~\ref{lem:rnDeriv_comp_eq_condexp_right}, $(\nu \otimes \kappa)$-almost everywhere,
+\begin{align*}
+\frac{d(\kappa \circ \mu)}{d(\kappa \circ \nu)}(p_2)
+&= (\nu \otimes \kappa)\left[ (x, y) \mapsto \frac{d \mu}{d \nu}(x) \mid \mathcal B \right](p)
+\: .
+\end{align*}
+Using that expression, then Jensen's inequality for the conditional expectation(Theorem~\ref{thm:condexp_jensen}), we get
+\begin{align*}
+D_f(\kappa \circ \mu, \kappa \circ \nu)
+&= \int_{p} f \left( (\nu \otimes \kappa)\left[ (x, y) \mapsto \frac{d \mu}{d \nu}(x) \mid \mathcal B \right](p) \right) \partial(\nu \otimes \kappa)
+\\
+&\le \int_{p} (\nu \otimes \kappa)\left[ (x, y) \mapsto f \left( \frac{d \mu}{d \nu}(x) \right) \mid \mathcal B \right](p) \partial(\nu \otimes \kappa)
+\: .
+\end{align*}
+The integral of a conditional expectation is equal to the integral of the function, hence
+\begin{align*}
+D_f(\kappa \circ \mu, \kappa \circ \nu)
+&\le \int_{p} f \left( \frac{d \mu}{d \nu}(p_1) \right) \partial(\nu \otimes \kappa)
+\: .
+\end{align*}
+Since $\kappa$ is a Markov kernel, this is equal to $\int_{x} f \left( \frac{d \mu}{d \nu}(x) \right) \partial\nu$, which is $D_f(\mu, \nu)$.
+\end{proof}
+
 \subsubsection{Kernel proof}
 
 This proof starts by establishing $D_f(\mu, \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \eta)$ for Markov kernels $\kappa$ and $\eta$, then deduces the DPI.
