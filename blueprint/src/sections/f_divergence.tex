@@ -813,14 +813,14 @@ For $\mathcal A$ a sub-$\sigma$-algebra and $\mu$ a measure, we write $\mathcal 
 
 \begin{lemma}[Superseded by Theorem~\ref{thm:fDiv_trim_le}]
   \label{lem:fDiv_trim_le_of_ac}
-  \lean{ProbabilityTheory.fDiv_trim_le_of_ac}
-  \leanok
+  %\lean{}
+  %\leanok
   \uses{def:fDiv}
   Let $\mu, \nu$ be two finite measures on $\mathcal X$ with $\mu \ll \nu$ and let $\mathcal A$ be a sub-$\sigma$-algebra of $\mathcal X$. Then
   $D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A}) \le D_f(\mu, \nu)$.
 \end{lemma}
 
-\begin{proof}\leanok
+\begin{proof}%\leanok
 \uses{thm:condexp_jensen, lem:rnDeriv_trim_of_ac}
 Since $\mu \ll \nu$, $\mu_{| \mathcal A} \ll \nu_{| \mathcal A}$ and
 \begin{align*}
