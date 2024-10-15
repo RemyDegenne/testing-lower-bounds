@@ -765,10 +765,15 @@ These functions can differ if $\mu$ and $\nu$ are finite measures with different
 This section contains three proofs of the data-processing inequality for $f$-divergences.
 That inequality states that for $\mu, \nu$ two measures on $\mathcal X$ and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ a Markov kernel, $D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu, \nu)$.
 \begin{enumerate}
-  \item A first proof deals only with measurable functions (or deterministic kernels): in that case the inequality is equivalent to an inequality about restrictions of the measures to sub-$\sigma$-algebras.
+  \item A first proof uses the convexity of $f$ through Jensen's inequality for conditional expectations. We first prove the DPI for measurable functions (or deterministic kernels) then use it to extend to the general case.
   \item A second proof deals with the general case and uses Radon-Nikodym derivatives of kernels. This restrict its applicability to measurable spaces that satisfy some particular countability assumptions.
   \item The last proof uses the representation of $f$-divergence as an integral over statistical (risk-based) divergences, then uses the data-processing inequality for those divergences.
 \end{enumerate}
+
+\begin{leanremark}
+Currently we don't have Lean proofs of Jensen's inequality for conditional expectations (used in proof 1) or of an integration by part lemma that is used in proof 3.
+Proof 2 gives the weakest results since it is restricted to spaces that satisfy countability assumptions, but it's the only one for which our Lean proof is \texttt{sorry}-free.
+\end{leanremark}
 
 We first remark that it is sufficient to prove the DPI under an absolute continuity assumption on the measures. 
 
@@ -807,85 +812,34 @@ D_f(\kappa \circ \mu, \kappa \circ \nu)
 \end{proof}
 
 
-\subsubsection{Sigma-algebras}
+The next Lemma implies that in order to prove the DPI, it is sufficient to prove $D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \kappa)$.
 
-For $\mathcal A$ a sub-$\sigma$-algebra and $\mu$ a measure, we write $\mathcal \mu_{| \mathcal A}$ for the measure restricted to the $\sigma$-algebra.
 
-\begin{lemma}
-  \label{lem:rnDeriv_trim_of_ac}
-  \lean{MeasureTheory.Measure.toReal_rnDeriv_trim_of_ac}
+\begin{lemma}[Composition-product with a kernel]
+  \label{thm:fDiv_compProd_right_1}
+  \lean{ProbabilityTheory.fDiv_compProd_right}
   \leanok
-  %\uses{}
-  Let $\mu, \nu$ be two finite measures on $\mathcal X$ with $\mu \ll \nu$ and let $\mathcal A$ be a sub-$\sigma$-algebra of $\mathcal X$.
-  Then $\frac{d \mu_{| \mathcal A}}{d \nu_{| \mathcal A}}$ is $\nu_{| \mathcal A}$-almost everywhere (hence also $\nu$-a.e.) equal to $\nu\left[ \frac{d \mu}{d \nu} \mid \mathcal A\right]$.
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
+  Then $D_f(\mu \otimes \kappa, \nu \otimes \kappa) = D_f(\mu, \nu)$.
 \end{lemma}
 
 \begin{proof}\leanok
-\end{proof}
-
-\begin{lemma}[Superseded by Theorem~\ref{thm:fDiv_trim_le}]
-  \label{lem:fDiv_trim_le_of_ac}
-  %\lean{}
-  %\leanok
-  \uses{def:fDiv}
-  Let $\mu, \nu$ be two finite measures on $\mathcal X$ with $\mu \ll \nu$ and let $\mathcal A$ be a sub-$\sigma$-algebra of $\mathcal X$. Then
-  $D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A}) \le D_f(\mu, \nu)$.
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{thm:condexp_jensen, lem:rnDeriv_trim_of_ac}
-Since $\mu \ll \nu$, $\mu_{| \mathcal A} \ll \nu_{| \mathcal A}$ and
+\uses{cor:rnDeriv_compProd_left}
+By Lemma~\ref{cor:rnDeriv_compProd_left} and the fact that $(\mu \otimes \kappa)_{\perp \nu \otimes \kappa} = \mu_{\perp \nu} \otimes \kappa$ (Lemma TODO),
 \begin{align*}
-D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A})
-&= \int_x f \left( \frac{d \mu_{| \mathcal A}}{d \nu_{| \mathcal A}}(x) \right) \partial\nu_{| \mathcal A} \: .
-\end{align*}
-Since $f \left( \frac{d \mu_{| \mathcal A}}{d \nu_{| \mathcal A}} \right)$ is $\mathcal A$-measurable, this integral is equal to the integral w.r.t. $\nu$.
-By Lemma~\ref{lem:rnDeriv_trim_of_ac}, this is equal to $\int_x f \left( \nu\left[ \frac{d \mu}{d \nu} \mid \mathcal A\right] (x) \right) \partial\nu$.
-
-By Theorem~\ref{thm:condexp_jensen}, $f \left( \nu\left[ \frac{d \mu}{d \nu} \mid \mathcal A\right] (x) \right) \le \nu\left[ f \circ \frac{d \mu}{d \nu} \mid \mathcal A\right] (x)$ almost everywhere.
-Finally
-\begin{align*}
-D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A})
-&= \int_x f \left( \nu\left[ \frac{d \mu}{d \nu} \mid \mathcal A\right] (x) \right) \partial\nu
+D_f(\mu \otimes \kappa, \nu \otimes \kappa)
+&= \int_{p} f \left(\frac{d (\mu \otimes \kappa)}{d (\nu \otimes \kappa)}(p)\right) \partial(\nu \otimes \kappa)
+  + f'(\infty) (\mu \otimes \kappa)_{\perp \nu \otimes \kappa}(\mathcal X)
 \\
-&\le \int_x \nu\left[ f \circ \frac{d \mu}{d \nu} \mid \mathcal A\right] (x) \partial\nu
+&= \int_{p} f \left(\frac{d \mu}{d \nu}(p_X)\right) \partial(\nu \otimes \kappa)
+  + f'(\infty) (\mu_{\perp \nu} \otimes \kappa)(\mathcal X)
 \\
-&= \int_x f \left( \frac{d \mu}{d \nu} (x) \right) \partial\nu
+&= \int_x \int_y f \left(\frac{d \mu}{d \nu}(x)\right) \partial \kappa(x) \partial \nu
+  + f'(\infty) \mu_{\perp \nu}(\mathcal X)
 \\
-&= D_f(\mu, \nu)
-\: .
-\end{align*}
-
-\end{proof}
-
-\begin{theorem}
-  \label{thm:fDiv_trim_le}
-  \lean{ProbabilityTheory.fDiv_trim_le}
-  \leanok
-  \uses{def:fDiv}
-  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\mathcal A$ be a sub-$\sigma$-algebra of $\mathcal X$. Then
-  $D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A}) \le D_f(\mu, \nu)$.
-\end{theorem}
-
-\begin{proof}\leanok
-\uses{lem:fDiv_trim_le_of_ac, lem:fDiv_add_measure_le}
-We decompose $\mu_{| \mathcal A}$ into two parts: $\mu_{| \mathcal A} = (\frac{d\mu}{d\nu}\cdot \nu)_{| \mathcal A} + (\mu_{\perp \nu})_{| \mathcal A}$~. 
-We have $(\frac{d\mu}{d\nu}\cdot \nu)_{| \mathcal A} \ll \nu_{| \mathcal A}$.
-By Lemma~\ref{lem:fDiv_add_measure_le},
-\begin{align*}
-D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A})
-\le D_f\left((\frac{d\mu}{d\nu}\cdot \nu)_{| \mathcal A}, \nu_{| \mathcal A}\right)
-  + (\mu_{\perp \nu})_{| \mathcal A}(\mathcal X) f'(\infty)
-\: .
-\end{align*}
-Then we apply Lemma~\ref{lem:fDiv_trim_le_of_ac} to the first term to get
-\begin{align*}
-D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A})
-&\le D_f\left(\frac{d\mu}{d\nu}\cdot \nu, \nu\right)
-  + (\mu_{\perp \nu})_{| \mathcal A}(\mathcal X) f'(\infty)
-\\
-&= D_f\left(\frac{d\mu}{d\nu}\cdot \nu, \nu\right)
-  + \mu_{\perp \nu}(\mathcal X) f'(\infty)
+&= \int_x f \left(\frac{d \mu}{d \nu}(x)\right) \partial \nu
+  + f'(\infty) \mu_{\perp \nu}(\mathcal X)
 \\
 &= D_f(\mu, \nu)
 \: .
@@ -893,88 +847,100 @@ D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A})
 \end{proof}
 
 
-\begin{theorem}
-  \label{thm:iSup_fDiv_trim}
+\begin{corollary}
+  \label{cor:fDiv_prod_right_1}
   %\lean{}
   %\leanok
   \uses{def:fDiv}
-  Let $\mu, \nu$ be two finite measures on $\mathcal X$. Then
-  $\sup_{\mathcal A \text{ finite}} D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A}) = D_f(\mu, \nu)$.
-\end{theorem}
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\xi$ be a measure on $\mathcal Y$.
+  Then $D_f(\mu \times \xi, \nu \times \xi) = D_f(\mu, \nu)$.
+\end{corollary}
 
 \begin{proof}
-\uses{thm:fDiv_trim_le}
+\uses{thm:fDiv_compProd_right_1}
+Apply Lemma~\ref{thm:fDiv_compProd_right_1} with $\kappa$ the constant kernel with value $\xi$.
 \end{proof}
 
 
-We now show how the data-processing inequality on $\sigma$-algebras implies a data-processing inequality for composition with measurable functions.
+\subsubsection{DPI: proof using Jensen's inequality for the conditional expectation}
 
-\begin{lemma}
-  \label{lem:rnDeriv_map_eq_rnDeriv_trim}
-  %\lean{}
-  %\leanok
-  \uses{}
-  Let $\mu, \nu \in \mathcal M(\mathcal X)$ with $\mu \ll \nu$, $g : \mathcal X \to \mathcal Y$ a measurable function and denote by $g^* \mathcal Y$ the comap of the $\sigma$-algebra on $\mathcal Y$ by $g$.
-  Then $\nu$-almost everywhere,
-  \begin{align*}
-  \frac{d g_*\mu}{d g_*\nu}(g(x)) = \frac{d \mu_{| g^* \mathcal Y}}{d \nu_{| g^* \mathcal Y}}(x)
-  \: .
-  \end{align*}
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{lem:rnDeriv_map_eq_condexp, lem:rnDeriv_trim_of_ac}
-Combine Lemma~\ref{lem:rnDeriv_map_eq_condexp} and Lemma~\ref{lem:rnDeriv_trim_of_ac}.
-\end{proof}
-
-
-\begin{lemma}
-  \label{lem:fDiv_map_eq_fDiv_trim_of_ac}
-  %\lean{}
-  %\leanok
-  \uses{def:fDiv}
-  Let $\mu, \nu \in \mathcal M(\mathcal X)$ be finite measures with $\mu \ll \nu$ and let $g : \mathcal X \to \mathcal Y$ be a measurable function. Denote by $g^* \mathcal Y$ the comap of the $\sigma$-algebra on $\mathcal Y$ by $g$. Then
-  $D_f(g_* \mu, g_* \nu) = D_f(\mu_{| g^* \mathcal Y}, \nu_{| g^* \mathcal Y})$~.
-\end{lemma}
-
-\begin{proof}%\leanok
-\uses{lem:rnDeriv_map_eq_rnDeriv_trim}
-\begin{align*}
-D_f(g_* \mu, g_* \nu)
-&= \int_y f \left( \frac{d g_*\mu}{d g_*\nu}(y)\right) \partial(g_*\nu)
-\\
-&= \int_x f \left( \frac{d g_*\mu}{d g_*\nu}(g(x))\right) \partial\nu
-\\
-&= \int_x f \left(\frac{d \mu_{| g^* \mathcal Y}}{d \nu_{| g^* \mathcal Y}}(x) \right) \partial\nu
-\\
-&= \int_x f \left(\frac{d \mu_{| g^* \mathcal Y}}{d \nu_{| g^* \mathcal Y}}(x) \right) \partial\nu_{| g^* \mathcal Y}
-\\
-&= D_f(\mu_{| g^* \mathcal Y}, \nu_{| g^* \mathcal Y})
-\: .
-\end{align*}
-\end{proof}
-
+This proof lifts the DPI on deterministic kernels to a DPI on all kernels.
+We first prove the DPI for the special cases of a composition with a deterministic kernel, which is the same as taking the map of the measures by a function.
 
 \begin{theorem}
   \label{thm:fDiv_map_le}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDiv_map_le}
+  \leanok
   \uses{def:fDiv}
-  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $g : \mathcal X \to \mathcal Y$ be a measurable function. Then
+  Let $\mu, \nu \in \mathcal M (\mathcal X)$ be two finite measures and let $g : \mathcal X \to \mathcal Y$ be a measurable function. Then
   $D_f(g_* \mu, g_* \nu) \le D_f(\mu, \nu)$.
 \end{theorem}
 
-\begin{proof}%\leanok
-\uses{lem:DPI_of_DPI_ac,lem:fDiv_map_eq_fDiv_trim_of_ac,thm:fDiv_trim_le}
-By Lemma~\ref{lem:DPI_of_DPI_ac} applied to the deterministic kernel with function $g$, it is sufficent to prove the inequality with the additional hypothesis $\mu \ll \nu$.
-
-By Lemma~\ref{lem:fDiv_map_eq_fDiv_trim_of_ac},  $D_f(g_* \mu, g_* \nu) = D_f(\mu_{| g^* \mathcal Y}, \nu_{| g^* \mathcal Y})$. Then apply Theorem~\ref{thm:fDiv_trim_le}.
+\begin{proof}\leanok
+\uses{lem:DPI_of_DPI_ac,lem:rnDeriv_map_eq_condexp,thm:condexp_jensen}
+By Lemma~\ref{lem:DPI_of_DPI_ac}, it is sufficient to prove the inequality with the additional hypothesis $\mu \ll \nu$ (hence also $g_* \mu \ll g_*\nu$). In that case,
+\begin{align*}
+D_f(g_* \mu, g_* \nu)
+&= \int_y f \left( \frac{d g_* \mu}{d g_* \nu}(y) \right) \partial(g_* \nu)
+\\
+&= \int_{x} f \left( \frac{d g_* \mu}{d g_* \nu}(g(x)) \right) \partial\nu
+\: .
+\end{align*}
+By Lemma~\ref{lem:rnDeriv_map_eq_condexp}, $\nu$-almost everywhere,
+\begin{align*}
+\frac{d g_* \mu}{d g_* \nu}(g(x))
+&= \nu\left[\frac{d \mu}{d \nu} \mid g^* \mathcal Y \right](x)
+\: .
+\end{align*}
+Using that expression, then Jensen's inequality for the conditional expectation(Theorem~\ref{thm:condexp_jensen}), we get
+\begin{align*}
+D_f(g_* \mu, g_* \nu)
+&= \int_{x} f \left( \nu\left[\frac{d \mu}{d \nu} \mid g^* \mathcal Y \right](x) \right) \partial\nu
+\\
+&\le \int_{x} \nu\left[ f \left( \frac{d \mu}{d \nu} \right) \mid g^* \mathcal Y \right](x) \partial\nu
+\: .
+\end{align*}
+The integral of a conditional expectation is equal to the integral of the function, hence
+\begin{align*}
+D_f(\kappa \circ \mu, \kappa \circ \nu)
+&\le \int_{x} f \left( \frac{d \mu}{d \nu}(x) \right) \partial\nu
+\: .
+\end{align*}
+This is equal to $D_f(\mu, \nu)$.
 \end{proof}
 
 
-\subsubsection{Kernel proof}
+\begin{theorem}
+  \label{thm:fDiv_data_proc_3}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
+  Then $D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu, \nu)$.
+\end{theorem}
 
-This proof starts by establishing $D_f(\mu, \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \eta)$ for Markov kernels $\kappa$ and $\eta$, then deduces the DPI.
+\begin{proof}%\leanok
+\uses{thm:fDiv_compProd_right_1, thm:fDiv_map_le}
+Let $\pi_Y : \mathcal X \times \mathcal Y \to \mathcal Y$ be the projection $\pi_Y((x,y)) = y$.
+Then $\kappa \circ \mu = \pi_{Y*}(\mu \otimes \kappa)$ and similarly for $\nu$.
+We can use the DPI for that function (Theorem~\ref{thm:fDiv_map_le}), then Lemma~\ref{thm:fDiv_compProd_right_1},
+\begin{align*}
+D_f(\kappa \circ \mu, \kappa \circ \nu)
+&= D_f(\pi_{Y*}(\mu \otimes \kappa), \pi_{Y*}(\nu \otimes \kappa))
+\\
+&\le D_f(\mu \otimes \kappa, \nu \otimes \kappa)
+\\
+&= D_f(\mu, \nu)
+\: .
+\end{align*}
+\end{proof}
+
+
+
+\subsubsection{DPI: proof using derivatives of kernels}
+
+This proof does not use Jensen's inequality for the conditional expectation, but only for the ordinary expectation. 
+It starts by establishing $D_f(\mu, \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \eta)$ for Markov kernels $\kappa$ and $\eta$, then deduces the DPI.
 Indeed, if the measurable spaces are standard Borel, we can write $\mu \otimes \kappa = ((\kappa \circ \mu) \otimes \kappa^\dagger_\mu)_\leftrightarrow$ for a Markov kernel $\kappa^\dagger_\mu$ (see Definition~\ref{def:bayesInv}; $(...)_\leftrightarrow$ is notation for composition with the map that swaps the coordinates) and then use the inequality to get
 \begin{align*}
 D(\kappa \circ \mu, \kappa \circ \nu)
@@ -996,7 +962,7 @@ The inequality $D_f(\mu, \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \eta)$ is 
   \lean{ProbabilityTheory.le_fDiv_compProd}
   \leanok
   \uses{def:fDiv}
-  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels.
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two Markov kernels, with either $\mathcal X$ countable or $\mathcal{Y}$ countably generated.
   Then $D_f(\mu, \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \eta)$.
 \end{theorem}
 
@@ -1028,6 +994,7 @@ D_f(\mu \otimes \kappa, \nu \otimes \eta)
 \end{align*}
 \end{proof}
 
+
 \begin{theorem}[Marginals]
   \label{thm:fDiv_fst_le_1}
   \lean{ProbabilityTheory.fDiv_fst_le}
@@ -1044,46 +1011,6 @@ We introduce conditional kernels and write $D(\mu, \nu) = D(\mu_X \otimes \mu_{Y
 For the second statement, we need Lemma~\ref{lem:fDiv_map_measurableEmbedding} to swap the role of the two coordinates.
 \end{proof}
 
-\begin{lemma}[Composition-product with a kernel]
-  \label{thm:fDiv_compProd_right_1}
-  \lean{ProbabilityTheory.fDiv_compProd_right}
-  \leanok
-  \uses{def:fDiv}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
-  Then $D_f(\mu \otimes \kappa, \nu \otimes \kappa) = D_f(\mu, \nu)$.
-\end{lemma}
-
-\begin{proof}\leanok
-\uses{cor:rnDeriv_compProd_left}
-By Corollary~\ref{cor:rnDeriv_compProd_left},
-\begin{align*}
-D_f(\mu \otimes \kappa, \nu \otimes \kappa)
-&= \int_{p} f\left(\frac{d (\mu \otimes \kappa)}{d (\nu \otimes \kappa)}(p)\right) \partial(\nu \otimes \kappa)
-\\
-&= \int_{p} f\left(\frac{d \mu}{d \nu}(p_X)\right) \partial(\nu \otimes \kappa)
-\\
-&= \int_x \int_y f\left(\frac{d \mu}{d \nu}(x)\right) \partial \kappa(x) \partial \nu
-\\
-&= \int_x f\left(\frac{d \mu}{d \nu}(x)\right) \partial \nu
-\\
-&= D_f(\mu, \nu)
-\: .
-\end{align*}
-\end{proof}
-
-\begin{corollary}
-  \label{cor:fDiv_prod_right_1}
-  %\lean{}
-  %\leanok
-  \uses{def:fDiv}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\xi$ be a measure on $\mathcal Y$.
-  Then $D_f(\mu \times \xi, \nu \times \xi) = D_f(\mu, \nu)$.
-\end{corollary}
-
-\begin{proof}
-\uses{thm:fDiv_compProd_right_1}
-Apply Lemma~\ref{thm:fDiv_compProd_right_1} with $\kappa$ the constant kernel with value $\xi$.
-\end{proof}
 
 \begin{lemma}
   \label{lem:fDiv_comp_le_compProd_1}
@@ -1099,6 +1026,7 @@ Apply Lemma~\ref{thm:fDiv_compProd_right_1} with $\kappa$ the constant kernel wi
 By definition, $\kappa \circ \mu$ is the marginal of $\mu \otimes \kappa$ (a measure on $\mathcal X \times \mathcal Y$) on $\mathcal Y$, and similarly for the other measure. Hence by Theorem~\ref{thm:fDiv_fst_le_1}, $D_f(\kappa \circ \mu, \eta \circ \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \eta)$. 
 \end{proof}
 
+
 \begin{theorem}[Conditioning increases f-divergence]
   \label{thm:fDiv_comp_le_condFDiv_1}
   \lean{ProbabilityTheory.fDiv_comp_left_le}
@@ -1112,6 +1040,7 @@ By definition, $\kappa \circ \mu$ is the marginal of $\mu \otimes \kappa$ (a mea
 \uses{lem:fDiv_comp_le_compProd_1, lem:fDiv_compProd_left}
 By Lemma~\ref{lem:fDiv_comp_le_compProd_1}, $D_f(\kappa \circ \mu, \eta \circ \mu) \le D_f(\mu \otimes \kappa, \mu \otimes \eta)$. This is equal to $D_f(\kappa, \eta \mid \mu)$ by Lemma~\ref{lem:fDiv_compProd_left}.
 \end{proof}
+
 
 \begin{theorem}[Data-processing]
   \label{thm:fDiv_data_proc_1}
@@ -1128,37 +1057,7 @@ By Lemma~\ref{lem:fDiv_comp_le_compProd_1}, $D_f(\kappa \circ \mu, \kappa \circ 
 \end{proof}
 
 
-\begin{corollary}
-  \label{cor:data_proc_event}
-  %\lean{}
-  %\leanok
-  \uses{def:fDiv}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $E$ be an event. Let $\mu_E$ and $\nu_E$ be the two Bernoulli distributions with respective means $\mu(E)$ and $\nu(E)$. Then $D_f(\mu, \nu) \ge D_f(\mu_E, \nu_E)$.
-\end{corollary}
-
-\begin{proof}
-\uses{thm:fDiv_data_proc_1}
-Use the deterministic kernel $\kappa : \mathcal X \rightsquigarrow \{0, 1\}$ with $\kappa(x) = \delta_1 \mathbb{I}\{x \in E\} + \delta_0 \mathbb{I}\{x \notin E\}$ in Theorem~\ref{thm:fDiv_data_proc_1}.
-\end{proof}
-
-\begin{lemma}
-  \label{lem:fDiv_compProd_prod_eq}
-  %\lean{}
-  %\leanok
-  \uses{def:fDiv}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow (\mathcal X \times \mathcal Y)$ be a Markov kernel such that for all $x$, $(\kappa(x))_X = \delta_x$. Then $D_f(\kappa \circ \mu, \kappa \circ \nu) = D_f(\mu, \nu)$.
-\end{lemma}
-
-\begin{proof}
-\uses{thm:fDiv_data_proc_1, thm:fDiv_fst_le_1}
-$D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu, \nu)$ by Theorem~\ref{thm:fDiv_data_proc_1}.
-For the other inequality, remark that $\mu = (\kappa \circ \mu)_X$ (and similarly for $\nu$). Hence by Theorem~\ref{thm:fDiv_fst_le_1} $D_f(\mu, \nu) \le D_f(\kappa \circ \mu, \kappa \circ \nu)$.
-\end{proof}
-
-
-
-
-\subsubsection{General measurable spaces}
+\subsubsection{DPI: proof using the integral representation}
 
 This proof uses that every $f$-divergence is an integral over $\gamma \ge 0$ of $f$-divergences for the function $\phi_{1,\gamma}$ of Definition~\ref{def:statInfoFun}. It suffices then to prove the DPI for those particular $f$-divergences. Those are equal to the $E_\gamma$ divergence, up to a term that is invariant by composition with a Markov kernel. Finally, we already know that the $E_\gamma$ divergence satisfies the DPI, and that completes the proof.
 
@@ -1191,6 +1090,7 @@ D_{\phi_{a,b}}(\mu, \nu)
 Similar computations lead to the result for $b \le a$.
 \end{proof}
 
+
 \begin{corollary}
   \label{cor:fDiv_statInfoFun_eq_statInfo}
   \lean{ProbabilityTheory.fDiv_statInfoFun_eq_StatInfo_of_nonneg}
@@ -1207,6 +1107,7 @@ Similar computations lead to the result for $b \le a$.
 \uses{lem:fDiv_statInfoFun_eq, cor:statInfo_eq_integral_abs}
 Combine Lemma~\ref{lem:fDiv_statInfoFun_eq} and Corollary~\ref{cor:statInfo_eq_integral_abs}.
 \end{proof}
+
 
 \begin{lemma}
   \label{lem:fDiv_phi_data_proc}
@@ -1227,6 +1128,7 @@ D_{\phi_{a,b}}(\mu, \nu) = \mathcal I_{(a,b)}(\mu, \nu) + \frac{1}{2} \left\vert
 The statistical information satisfies the data-processing inequality (Theorem~\ref{thm:data_proc_statInfo}) and the other terms are invariant by composition with a Markov kernel, hence $D_{\phi_{a,b}}$ also satisfies the data-processing inequality.
 \end{proof}
 
+
 \begin{theorem}[Data-processing]
   \label{thm:fDiv_data_proc_2}
   \lean{ProbabilityTheory.fDiv_comp_right_le'}
@@ -1246,6 +1148,76 @@ The first two terms are unchanged by composition with a Markov kernel. It thus s
 \end{proof}
 
 
+\subsection{Sigma-algebras}
+
+For $\mathcal A$ a sub-$\sigma$-algebra and $\mu$ a measure, we write $\mathcal \mu_{| \mathcal A}$ for the measure restricted to the $\sigma$-algebra.
+The measure $\mathcal \mu_{| \mathcal A}$ is equal to the map of $\mu$ by the identity, seen as a function to $\mathcal X$ with the $\sigma$-algebra $\mathcal A$.
+We can thus get a DPI for sub-sigma-algebras by using the DPI for maps.
+
+\begin{theorem}
+  \label{thm:fDiv_trim_le}
+  \lean{ProbabilityTheory.fDiv_trim_le}
+  \leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\mathcal A$ be a sub-$\sigma$-algebra of $\mathcal X$. Then
+  $D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A}) \le D_f(\mu, \nu)$.
+\end{theorem}
+
+\begin{proof}\leanok
+\uses{thm:fDiv_map_le}
+The measure $\mathcal \mu_{| \mathcal A}$ is equal to the map of $\mu$ by the identity, seen as a function to $\mathcal X$ with the $\sigma$-algebra $\mathcal A$.
+That function is measurable since $\mathcal A$ is a sub-sigma-algebra.
+We can apply Theorem~\ref{thm:fDiv_map_le}.
+\end{proof}
+
+
+\begin{theorem}
+  \label{thm:iSup_fDiv_trim}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$. Then
+  $\sup_{\mathcal A \text{ finite}} D_f(\mu_{| \mathcal A}, \nu_{| \mathcal A}) = D_f(\mu, \nu)$.
+\end{theorem}
+
+\begin{proof}
+\uses{thm:fDiv_trim_le}
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:fDiv_map_eq_fDiv_trim_of_ac}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu \in \mathcal M(\mathcal X)$ be finite measures with $\mu \ll \nu$ and let $g : \mathcal X \to \mathcal Y$ be a measurable function. Denote by $g^* \mathcal Y$ the comap of the $\sigma$-algebra on $\mathcal Y$ by $g$. Then
+  $D_f(g_* \mu, g_* \nu) = D_f(\mu_{| g^* \mathcal Y}, \nu_{| g^* \mathcal Y})$~.
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:rnDeriv_map_eq_rnDeriv_trim}
+Using Lemma~\ref{lem:rnDeriv_map_eq_rnDeriv_trim},
+\begin{align*}
+D_f(g_* \mu, g_* \nu)
+&= \int_y f \left( \frac{d g_*\mu}{d g_*\nu}(y)\right) \partial(g_*\nu)
+\\
+&= \int_x f \left( \frac{d g_*\mu}{d g_*\nu}(g(x))\right) \partial\nu
+\\
+&= \int_x f \left(\frac{d \mu_{| g^* \mathcal Y}}{d \nu_{| g^* \mathcal Y}}(x) \right) \partial\nu
+\\
+&= \int_x f \left(\frac{d \mu_{| g^* \mathcal Y}}{d \nu_{| g^* \mathcal Y}}(x) \right) \partial\nu_{| g^* \mathcal Y}
+\\
+&= D_f(\mu_{| g^* \mathcal Y}, \nu_{| g^* \mathcal Y})
+\: .
+\end{align*}
+\end{proof}
+
+
+
+\subsection{Consequences of the data-processing inequality}
+
+\subsubsection{Direct applications}
+
 \begin{theorem}
   \label{thm:fDiv_le_compProd_2}
   \lean{ProbabilityTheory.le_fDiv_compProd'}
@@ -1261,21 +1233,6 @@ Since $\kappa$ is a Markov kernel, $\mu$ is the composition of $\mu \otimes \kap
 The result is then an application of the data-processing inequality, Theorem~\ref{thm:fDiv_data_proc_2}.
 \end{proof}
 
-
-\begin{lemma}[Composition-product with a kernel]
-  \label{thm:fDiv_compProd_right_2}
-  \lean{ProbabilityTheory.fDiv_compProd_right'}
-  \leanok
-  \uses{def:fDiv}
-  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
-  Then $D_f(\mu \otimes \kappa, \nu \otimes \kappa) = D_f(\mu, \nu)$.
-\end{lemma}
-
-\begin{proof}\leanok
-\uses{thm:fDiv_le_compProd_2, thm:fDiv_data_proc_2}
-By Theorem~\ref{thm:fDiv_le_compProd_2}, $D_f(\mu, \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \kappa)$.
-For the reverse inequality, remark that $\mu \otimes \kappa = (\text{id} \times \kappa) \circ \mu$ where $\text{id}$ is the identity kernel and apply the data-processing inequality (Theorem~\ref{thm:fDiv_data_proc_2}). 
-\end{proof}
 
 \begin{theorem}
   \label{thm:fDiv_comp_le_compProd_2}
@@ -1293,13 +1250,31 @@ The result is then an application of the data-processing inequality, Theorem~\re
 \end{proof}
 
 
+% Commented out because identical to something above
+%
+% \begin{lemma}[Composition-product with a kernel]
+%   \label{thm:fDiv_compProd_right_2}
+%   \lean{ProbabilityTheory.fDiv_compProd_right'}
+%   \leanok
+%   \uses{def:fDiv}
+%   Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
+%   Then $D_f(\mu \otimes \kappa, \nu \otimes \kappa) = D_f(\mu, \nu)$.
+% \end{lemma}
+
+% \begin{proof}\leanok
+% \uses{thm:fDiv_le_compProd_2, thm:fDiv_data_proc_2}
+% By Theorem~\ref{thm:fDiv_le_compProd_2}, $D_f(\mu, \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \kappa)$.
+% For the reverse inequality, remark that $\mu \otimes \kappa = (\text{id} \times \kappa) \circ \mu$ where $\text{id}$ is the identity kernel and apply the data-processing inequality (Theorem~\ref{thm:fDiv_data_proc_2}). 
+% \end{proof}
+
+
 \begin{theorem}[Conditioning increases f-divergence]
   \label{thm:fDiv_comp_le_condFDiv_2}
   \lean{ProbabilityTheory.fDiv_comp_le_compProd_right'}
   \leanok
   \uses{def:fDiv, def:condFDiv}
   Let $\mu$ be a finite measure $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels.
-  Then $D_f(\kappa \circ \mu, \eta \circ \mu) \le D_f(\mu \otimes \kappa, \mu \otimes \eta)$~.
+  Then $D_f(\kappa \circ \mu, \eta \circ \mu) \le D_f(\mu \otimes \kappa, \mu \otimes \eta) = D_f(\kappa, \eta \mid \mu)$~.
 \end{theorem}
 
 \begin{proof}\leanok
@@ -1325,11 +1300,38 @@ The results are both applications of the data-processing inequality, Theorem~\re
 \end{proof}
 
 
+\begin{lemma}
+  \label{lem:fDiv_compProd_prod_eq}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow (\mathcal X \times \mathcal Y)$ be a Markov kernel such that for all $x$, $(\kappa(x))_X = \delta_x$. Then $D_f(\kappa \circ \mu, \kappa \circ \nu) = D_f(\mu, \nu)$.
+\end{lemma}
+
+\begin{proof}
+\uses{thm:fDiv_data_proc_1, thm:fDiv_fst_le_1}
+$D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu, \nu)$ by Theorem~\ref{thm:fDiv_data_proc_2}.
+For the other inequality, remark that $\mu = (\kappa \circ \mu)_X$ (and similarly for $\nu$). Hence by Theorem~\ref{thm:fDiv_fst_le_2} $D_f(\mu, \nu) \le D_f(\kappa \circ \mu, \kappa \circ \nu)$.
+\end{proof}
 
 
-\subsection{Data-processing and mean values}
+
+\subsubsection{Data-processing and mean values}
 
 In this section $d_f(p, q)$ denotes the $f$-divergence between two Bernoulli distributions with means $p$ and $q$.
+
+\begin{corollary}
+  \label{cor:data_proc_event}
+  %\lean{}
+  %\leanok
+  \uses{def:fDiv}
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $E$ be an event. Then $D_f(\mu, \nu) \ge d_f(\mu(E), \nu(E))$.
+\end{corollary}
+
+\begin{proof}
+\uses{thm:fDiv_data_proc_1}
+Use the deterministic kernel $\kappa : \mathcal X \rightsquigarrow \{0, 1\}$ with $\kappa(x) = \delta_1 \mathbb{I}\{x \in E\} + \delta_0 \mathbb{I}\{x \notin E\}$ in Theorem~\ref{thm:fDiv_data_proc_2}.
+\end{proof}
 
 
 \begin{lemma}
@@ -1458,7 +1460,7 @@ This concludes the proof for $\mathcal R_\pi^Q \ge \mathcal R_\xi^P$. If that in
   The function $(\mu, \nu) \mapsto D_f(\mu, \nu)$ is convex.
 \end{theorem}
 
-\begin{proof}
+\begin{proof}%\leanok
 \uses{thm:fDiv_comp_le_condFDiv_2}
 Let $\mu_0, \mu_1, \nu_0, \nu_1$ be four measures. Let $\lambda \in [0,1]$. Let $\xi$ be the probability measure on $\{0,1\}$ with $\xi(\{1\}) = \lambda$.
 Let $\kappa$ be the kernel $\{0,1\} \rightsquigarrow \mathcal X$ defined by $\kappa(0) = \mu_0$ and $\kappa(1) = \mu_1$.
@@ -1486,7 +1488,8 @@ TODO
 
 \subsection{Comparisons between divergences}
 
-Specific divergences are discussed in the next sections. We collate here general tools that can be used to compare $D_f$ and $D_g$ for two functions $f$ and $g$.
+We collate here general tools that can be used to compare $D_f$ and $D_g$ for two functions $f$ and $g$.
+Specific divergences are discussed in the next sections.
 
 \begin{lemma}
   \label{lem:fDiv_mono_fun}

@@ -5,20 +5,22 @@
   \lean{ProbabilityTheory.Kernel.rnDeriv}
   \leanok
   \uses{lem:kernel_properties}
-  Let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels. The Radon-Nikodym derivative of $\kappa$ with respect to $\eta$, denoted by $\frac{d \kappa}{d \eta}$, is a measurable function $\mathcal X \times \mathcal Y \to \mathbb{R}_{+, \infty}$ with $\kappa = \frac{d \kappa}{d \eta} \cdot \eta + \kappa_{\perp \eta}$, where for all $x$, $\kappa_{\perp \eta}(x) \perp \eta(x)$.
+  Let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels, with either $\mathcal X$ countable or $\mathcal{Y}$ countably generated. The Radon-Nikodym derivative of $\kappa$ with respect to $\eta$, denoted by $\frac{d \kappa}{d \eta}$, is a measurable function $\mathcal X \times \mathcal Y \to \mathbb{R}_{+, \infty}$ with $\kappa = \frac{d \kappa}{d \eta} \cdot \eta + \kappa_{\perp \eta}$, where for all $x$, $\kappa_{\perp \eta}(x) \perp \eta(x)$.
 \end{definition}
+
 
 \begin{lemma}
   \label{lem:rnDeriv_unique}
   \lean{ProbabilityTheory.Kernel.eq_rnDeriv_measure}
   \leanok
   \uses{def:kernel_rnDeriv}
-  Let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels. If for some $f$ and $\xi$, $\kappa = f \cdot \eta + \xi$ with $\xi(x) \perp \eta(x)$ for all $x$, then for all $x$, $f(x, y) = \frac{d \kappa(x)}{d \eta(x)}(y)$ for $\eta(x)$-almost all $y \in \mathcal Y$.
+  Let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels, with either $\mathcal X$ countable or $\mathcal{Y}$ countably generated. If for some $f$ and $\xi$, $\kappa = f \cdot \eta + \xi$ with $\xi(x) \perp \eta(x)$ for all $x$, then for all $x$, $f(x, y) = \frac{d \kappa(x)}{d \eta(x)}(y)$ for $\eta(x)$-almost all $y \in \mathcal Y$.
 \end{lemma}
 
 \begin{proof} \leanok
 Let $f$ and $\xi$ be such that $\kappa = f \cdot \eta + \xi$ with $\xi(x) \perp \eta(x)$ for all $x$. Then for all $x \in \mathcal X$, $\kappa(x) = f(x, \cdot) \cdot \eta(x) + \xi(x)$ with $\xi(x) \perp \eta(x)$. By the uniqueness result for the Radon-Nikodym derivative of measures, $f(x, \cdot) = \frac{d \kappa(x)}{d \eta(x)}$ almost everywhere.
 \end{proof}
+
 
 \begin{corollary}
   \label{cor:rnDeriv_value}
@@ -42,7 +44,8 @@ Apply Lemma~\ref{lem:rnDeriv_unique}.
   \lean{ProbabilityTheory.Kernel.rnDeriv_measure_compProd_aux}
   \leanok
   \uses{def:kernel_rnDeriv}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ with $\mu \ll \nu$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels with $\kappa(x) \ll \eta(x)$ for $\nu$-almost all $x$. Then for $(\nu \otimes \eta)$-almost all $(x, y)$, $\frac{d (\mu \otimes \kappa)}{d (\nu \otimes \eta)}(x,y) = \frac{d\mu}{d\nu}(x)\frac{d \kappa}{d \eta}(x,y)$.
+  Let $\mu, \nu$ be two measures on $\mathcal X$ with $\mu \ll \nu$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels with $\kappa(x) \ll \eta(x)$ for $\nu$-almost all $x$, with either $\mathcal X$ countable or $\mathcal{Y}$ countably generated.
+  Then for $(\nu \otimes \eta)$-almost all $(x, y)$, $\frac{d (\mu \otimes \kappa)}{d (\nu \otimes \eta)}(x,y) = \frac{d\mu}{d\nu}(x)\frac{d \kappa}{d \eta}(x,y)$.
   This implies that the equality is true for $\nu$-almost all $x$, for $\eta(x)$-almost all $y$.
 \end{lemma}
 
@@ -70,6 +73,7 @@ The second one uses Corollary~\ref{cor:rnDeriv_value}.
 \end{align*}
 \end{proof}
 
+
 \begin{lemma}
   \label{lem:rnDeriv_eq_ac}
   \lean{ProbabilityTheory.Kernel.todo1}
@@ -81,29 +85,17 @@ The second one uses Corollary~\ref{cor:rnDeriv_value}.
 \begin{proof} \leanok
 \end{proof}
 
+
 \begin{lemma}
   \label{lem:prod_rnDeriv_eq_ac}
   \lean{ProbabilityTheory.Kernel.todo2}
   \leanok
   \uses{def:kernel_rnDeriv}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels. Let $\mu' = \left(\frac{\partial \mu}{\partial \nu}\right) \cdot \nu$ and $\kappa' = \left(\frac{\partial \kappa}{\partial \eta}\right) \cdot \eta$. Then for $(\nu \otimes \eta)$-almost all $(x, y)$, $\frac{d\mu'}{d\nu}(x)\frac{d \kappa'}{d \eta}(x,y) = \frac{d\mu}{d\nu}(x)\frac{d \kappa}{d \eta}(x,y)$.
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels, with either $\mathcal X$ countable or $\mathcal{Y}$ countably generated.
+  Let $\mu' = \left(\frac{d \mu}{d \nu}\right) \cdot \nu$ and $\kappa' = \left(\frac{d \kappa}{d \eta}\right) \cdot \eta$. Then for $(\nu \otimes \eta)$-almost all $(x, y)$, $\frac{d\mu'}{d\nu}(x)\frac{d \kappa'}{d \eta}(x,y) = \frac{d\mu}{d\nu}(x)\frac{d \kappa}{d \eta}(x,y)$.
 \end{lemma}
 
 \begin{proof} \leanok
-\end{proof}
-
-\begin{lemma}
-  \label{lem:rnDeriv_compProd}
-  \lean{ProbabilityTheory.Kernel.rnDeriv_measure_compProd}
-  \leanok
-  \uses{def:kernel_rnDeriv}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels. Then for $(\nu \otimes \eta)$-almost all $(x, y)$, $\frac{d (\mu \otimes \kappa)}{d (\nu \otimes \eta)}(x,y) = \frac{d\mu}{d\nu}(x)\frac{d \kappa}{d \eta}(x,y)$.
-  This implies that the equality is true for $\nu$-almost all $x$, for $\eta(x)$-almost all $y$.
-\end{lemma}
-
-\begin{proof} \leanok
-\uses{lem:rnDeriv_compProd_aux, lem:rnDeriv_eq_ac, lem:prod_rnDeriv_eq_ac}
-Use Lemma~\ref{lem:rnDeriv_eq_ac} for $\mu', \kappa'$ (defined in previous lemmas) then \ref{lem:rnDeriv_compProd_aux} and \ref{lem:prod_rnDeriv_eq_ac}.
 \end{proof}
 
 
@@ -135,16 +127,32 @@ TODO: wlog $\mu \ll \nu$, and we can consider products of sets.
 &= (\mu \otimes \kappa) (s \times t)
 \: .
 \end{align*}
-
-
 \end{proof}
+
+
+\begin{lemma}
+  \label{lem:rnDeriv_compProd}
+  \lean{ProbabilityTheory.Kernel.rnDeriv_measure_compProd}
+  \leanok
+  \uses{def:kernel_rnDeriv}
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels, with either $\mathcal X$ countable or $\mathcal{Y}$ countably generated.
+  Then for $(\nu \otimes \eta)$-almost all $(x, y)$, $\frac{d (\mu \otimes \kappa)}{d (\nu \otimes \eta)}(x,y) = \frac{d\mu}{d\nu}(x)\frac{d \kappa}{d \eta}(x,y)$.
+  This implies that the equality is true for $\nu$-almost all $x$, for $\eta(x)$-almost all $y$.
+\end{lemma}
+
+\begin{proof} \leanok
+\uses{lem:rnDeriv_compProd_aux, lem:rnDeriv_eq_ac, lem:prod_rnDeriv_eq_ac}
+Use Lemma~\ref{lem:rnDeriv_eq_ac} for $\mu', \kappa'$ (defined in previous lemmas) then \ref{lem:rnDeriv_compProd_aux} and \ref{lem:prod_rnDeriv_eq_ac}.
+\end{proof}
+
 
 \begin{corollary}
   \label{cor:rnDeriv_compProd_right}
   \lean{ProbabilityTheory.Kernel.rnDeriv_measure_compProd_right}
   \leanok
   \uses{def:kernel_rnDeriv}
-  Let $\mu$ be a measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels. Then for $(\mu \otimes \eta)$-almost all $(x, y)$, $\frac{d (\mu \otimes \kappa)}{d (\mu \otimes \eta)}(x,y) = \frac{d \kappa}{d \eta}(x,y)$.
+  Let $\mu$ be a measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels, with either $\mathcal X$ countable or $\mathcal{Y}$ countably generated.
+  Then for $(\mu \otimes \eta)$-almost all $(x, y)$, $\frac{d (\mu \otimes \kappa)}{d (\mu \otimes \eta)}(x,y) = \frac{d \kappa}{d \eta}(x,y)$.
 \end{corollary}
 
 \begin{proof} \leanok
@@ -158,7 +166,7 @@ TODO: wlog $\mu \ll \nu$, and we can consider products of sets.
 
 \begin{lemma}
   \label{lem:rnDeriv_map_eq_condexp}
-  \lean{ProbabilityTheory.Measure.toReal_rnDeriv_map}
+  \lean{MeasureTheory.Measure.toReal_rnDeriv_map}
   \leanok
   \uses{}
   Let $\mu, \nu \in \mathcal M(\mathcal X)$ with $\mu \ll \nu$, $g : \mathcal X \to \mathcal Y$ a measurable function and denote by $g^* \mathcal Y$ the comap of the $\sigma$-algebra on $\mathcal Y$ by $g$.
@@ -200,7 +208,7 @@ TODO: also show measurability.
   \lean{ProbabilityTheory.toReal_rnDeriv_comp_eq_condexp_compProd}
   \leanok
   \uses{}
-  Let $\mu, \nu \in \mathcal M(\mathcal X)$ with $\mu \ll \nu$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be a s-finite kernels with $\kappa(x) \ll \eta(x)$ $\nu$-a.e..
+  Let $\mu, \nu \in \mathcal M(\mathcal X)$ with $\mu \ll \nu$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be finite kernels with $\kappa(x) \ll \eta(x)$ $\nu$-a.e..
   Let $\mathcal B$ be the sigma-algebra on $\mathcal X \times \mathcal Y$ obtained by taking the comap of the sigma-algebra of $\mathcal Y$ by the projection.
   Then for $(\nu \otimes \eta)$-almost every $(x,y)$,
   \begin{align*}
@@ -250,4 +258,45 @@ Apply Lemma~\ref{lem:rnDeriv_comp_eq_condexp} to get, $(\nu \otimes \kappa)$-alm
 \: .
 \end{align*}
 Finally, by Corollary~\ref{cor:rnDeriv_compProd_left}, $\frac{d (\mu \otimes \kappa)}{d (\nu \otimes \kappa)} = \frac{d \mu}{d \nu}$ a.e.
+\end{proof}
+
+
+\section{Sigma-algebras}
+
+For $\mathcal A$ a sub-$\sigma$-algebra and $\mu$ a measure, we write $\mathcal \mu_{| \mathcal A}$ for the measure restricted to the $\sigma$-algebra.
+
+\begin{lemma}
+  \label{lem:rnDeriv_trim_of_ac}
+  \lean{MeasureTheory.Measure.toReal_rnDeriv_trim_of_ac}
+  \leanok
+  %\uses{}
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ with $\mu \ll \nu$ and let $\mathcal A$ be a sub-$\sigma$-algebra of $\mathcal X$.
+  Then $\frac{d \mu_{| \mathcal A}}{d \nu_{| \mathcal A}}$ is $\nu_{| \mathcal A}$-almost everywhere (hence also $\nu$-a.e.) equal to $\nu\left[ \frac{d \mu}{d \nu} \mid \mathcal A\right]$.
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{lem:rnDeriv_map_eq_condexp}
+TODO: the current Lean proof is not the proof presented here (but a direct computation).
+
+The restriction $\mu_{| \mathcal A}$ is the map of $\mu$ by the identity, seen as a function from $\mathcal X$ with its $\sigma$-algebra to $\mathcal X$ with $\mathcal{A}$.
+We can thus apply Lemma~\ref{lem:rnDeriv_map_eq_condexp}.
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:rnDeriv_map_eq_rnDeriv_trim}
+  %\lean{}
+  %\leanok
+  \uses{}
+  Let $\mu, \nu \in \mathcal M(\mathcal X)$ with $\mu \ll \nu$, $g : \mathcal X \to \mathcal Y$ a measurable function and denote by $g^* \mathcal Y$ the comap of the $\sigma$-algebra on $\mathcal Y$ by $g$.
+  Then $\nu$-almost everywhere,
+  \begin{align*}
+  \frac{d g_*\mu}{d g_*\nu}(g(x)) = \frac{d \mu_{| g^* \mathcal Y}}{d \nu_{| g^* \mathcal Y}}(x)
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{lem:rnDeriv_map_eq_condexp, lem:rnDeriv_trim_of_ac}
+Combine Lemma~\ref{lem:rnDeriv_map_eq_condexp} and Lemma~\ref{lem:rnDeriv_trim_of_ac}.
 \end{proof}
