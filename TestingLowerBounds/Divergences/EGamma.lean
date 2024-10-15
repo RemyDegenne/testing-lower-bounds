@@ -3,7 +3,7 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne
 -/
-import TestingLowerBounds.Divergences.StatInfo
+import TestingLowerBounds.Divergences.StatInfo.StatInfo
 
 /-!
 # E_gamma / hockey-stick divergence

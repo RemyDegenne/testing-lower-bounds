@@ -779,15 +779,15 @@ We first remark that it is sufficient to prove the DPI under an absolute continu
 
 \begin{lemma}
   \label{lem:DPI_of_DPI_ac}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDiv_comp_le_of_comp_le_of_ac}
+  \leanok
   \uses{def:fDiv}
   Let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel and $\nu \in \mathcal M(\mathcal X)$ be a finite measure.
   Suppose that for all finite measures $\mu \in \mathcal M(\mathcal X)$ with $\mu \ll \nu$, $D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu, \nu)$.
   Then the same is true without the absolute continuity hypothesis.
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{lem:fDiv_add_measure_le}
 We use $\kappa \circ \mu = \kappa \circ (\frac{d\mu}{d\nu}\cdot \nu) + \kappa \circ \mu_{\perp \nu}$~.
 By Lemma~\ref{lem:fDiv_add_measure_le},
@@ -910,16 +910,16 @@ This is equal to $D_f(\mu, \nu)$.
 \end{proof}
 
 
-\begin{theorem}
+\begin{theorem}[Data-processing]
   \label{thm:fDiv_data_proc_3}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDiv_comp_right_le''}
+  \leanok
   \uses{def:fDiv}
   Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
   Then $D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu, \nu)$.
 \end{theorem}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{thm:fDiv_compProd_right_1, thm:fDiv_map_le}
 Let $\pi_Y : \mathcal X \times \mathcal Y \to \mathcal Y$ be the projection $\pi_Y((x,y)) = y$.
 Then $\kappa \circ \mu = \pi_{Y*}(\mu \otimes \kappa)$ and similarly for $\nu$.
