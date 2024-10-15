@@ -126,10 +126,10 @@ lemma Measure.snd_sum {ι : Type*} (μ : ι → Measure (α × β)) :
   · exact measurable_snd hs
 
 instance {μ : Measure (α × β)} [SFinite μ] : SFinite μ.fst :=
-  ⟨fun n ↦ (sFiniteSeq μ n).fst, inferInstance, by rw [← Measure.fst_sum, sum_sFiniteSeq μ]⟩
+  ⟨fun n ↦ (sfiniteSeq μ n).fst, inferInstance, by rw [← Measure.fst_sum, sum_sfiniteSeq μ]⟩
 
 instance {μ : Measure (α × β)} [SFinite μ] : SFinite μ.snd :=
-  ⟨fun n ↦ (sFiniteSeq μ n).snd, inferInstance, by rw [← Measure.snd_sum, sum_sFiniteSeq μ]⟩
+  ⟨fun n ↦ (sfiniteSeq μ n).snd, inferInstance, by rw [← Measure.snd_sum, sum_sfiniteSeq μ]⟩
 
 instance {μ : Measure α} [SFinite μ] {κ : Kernel α β} [IsSFiniteKernel κ] : SFinite (κ ∘ₘ μ) := by
   rw [Measure.comp_eq_snd_compProd]
