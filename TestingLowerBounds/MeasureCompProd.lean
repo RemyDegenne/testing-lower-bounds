@@ -172,6 +172,28 @@ lemma Measure.comp_apply_univ [IsMarkovKernel κ] : (κ ∘ₘ μ) .univ = μ .u
   rw [Measure.bind_apply .univ κ.measurable]
   simp
 
+@[simp]
+lemma Measure.fst_add {μ ν : Measure (α × β)} : (μ + ν).fst = μ.fst + ν.fst := by
+  ext s hs
+  simp_rw [Measure.coe_add, Pi.add_apply, Measure.fst_apply hs, Measure.coe_add, Pi.add_apply]
+
+@[simp]
+lemma Measure.snd_add {μ ν : Measure (α × β)} : (μ + ν).snd = μ.snd + ν.snd := by
+  ext s hs
+  simp_rw [Measure.coe_add, Pi.add_apply, Measure.snd_apply hs, Measure.coe_add, Pi.add_apply]
+
+lemma Measure.comp_add_right [SFinite μ] [SFinite ν] [IsSFiniteKernel κ] :
+    κ ∘ₘ (μ + ν) = κ ∘ₘ μ + κ ∘ₘ ν := by
+  simp_rw [comp_eq_snd_compProd]
+  rw [Measure.compProd_add_left]
+  simp
+
+lemma Measure.comp_add_left [SFinite μ] [IsSFiniteKernel κ] [IsSFiniteKernel η] :
+    (κ + η) ∘ₘ μ = κ ∘ₘ μ + η ∘ₘ μ := by
+  simp_rw [comp_eq_snd_compProd]
+  rw [Measure.compProd_add_right]
+  simp
+
 lemma Measure.compProd_smul_left (a : ℝ≥0∞) [SFinite μ] [IsSFiniteKernel κ] :
     (a • μ) ⊗ₘ κ = a • (μ ⊗ₘ κ) := by
   ext s hs
