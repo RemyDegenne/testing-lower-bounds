@@ -3,6 +3,9 @@ import TestingLowerBounds.Convex
 import TestingLowerBounds.CurvatureMeasure
 import TestingLowerBounds.DerivAtTop
 import TestingLowerBounds.Divergences.Chernoff
+import TestingLowerBounds.Divergences.CondHellinger
+import TestingLowerBounds.Divergences.CondKL
+import TestingLowerBounds.Divergences.CondRenyi
 import TestingLowerBounds.Divergences.DeGroot
 import TestingLowerBounds.Divergences.EGamma
 import TestingLowerBounds.Divergences.Hellinger

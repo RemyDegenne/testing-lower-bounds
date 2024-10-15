@@ -1,6 +1,10 @@
 
 \section{Statistical divergences}
 
+We define a family of divergences based on the risk of a binary estimation task.
+
+\subsection{Statistical information}
+
 \begin{definition}
   \label{def:statInfo}
   \lean{ProbabilityTheory.statInfo}
@@ -459,8 +463,8 @@ It is also extended from probability measures to finite measures.
 
 \begin{definition}
   \label{def:TV}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.tv}
+  \leanok
   \uses{def:statInfo, lem:statInfo_properties}
   The total variation distance between finite measures $\mu$ and $\nu$ is $\TV(\mu, \nu) = \mathcal I_{(1,1)}(\mu, \nu)$~.
 \end{definition}
@@ -469,26 +473,26 @@ This is also equal to $2 I_{1/2}(\mu, \nu)$ and to $E_1(\mu, \nu)$.
 
 \begin{lemma}
   \label{lem:tv_self}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.tv_self}
+  \leanok
   \uses{def:TV}
   For $\mu \in \mathcal M(\mathcal X)$, $\TV(\mu, \mu) = 0$~.
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{lem:statInfo_self}
 Use Lemma~\ref{lem:statInfo_self}.
 \end{proof}
 
 \begin{lemma}
   \label{lem:tv_nonneg}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.tv_nonneg}
+  \leanok
   \uses{def:TV}
   For $\mu, \nu \in \mathcal M(\mathcal X)$, $\TV(\mu, \nu) \ge 0$~.
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{lem:statInfo_nonneg}
 Use Lemma~\ref{lem:statInfo_nonneg}.
 \end{proof}
@@ -496,13 +500,13 @@ Use Lemma~\ref{lem:statInfo_nonneg}.
 
 \begin{lemma}
   \label{lem:tv_le}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.tv_le}
+  \leanok
   \uses{def:TV}
   For $\mu, \nu \in \mathcal M(\mathcal X)$, $\TV(\mu, \nu) \le \min\{\mu(\mathcal X), \nu(\mathcal X)\}$~.
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{lem:statInfo_le}
 Use Lemma~\ref{lem:statInfo_le}.
 \end{proof}
@@ -510,15 +514,34 @@ Use Lemma~\ref{lem:statInfo_le}.
 
 \begin{theorem}[Data-processing inequality]
   \label{thm:tv_data_proc}
-  %\lean{ProbabilityTheory.}
-  %\leanok
+  \lean{ProbabilityTheory.tv_comp_le}
+  \leanok
   \uses{def:TV}
   For $\mu, \nu \in \mathcal M(\mathcal X)$ and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ a Markov kernel, $\TV(\kappa \circ \mu, \kappa \circ \nu) \le \TV(\mu, \nu)$~.
 \end{theorem}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{thm:data_proc_statInfo}
 Apply Theorem~\ref{thm:data_proc_statInfo}.
+\end{proof}
+
+
+TODO: find a way to hide the following dummy lemma
+\begin{lemma}[Dummy lemma: TV properties]
+  \label{lem:tv_properties}
+  %\lean{}
+  \leanok
+  \uses{def:TV}
+  Dummy node to summarize properties of the total variation distance.
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{
+  lem:tv_self,
+  lem:tv_nonneg,
+  lem:tv_le,
+  thm:tv_data_proc
+}
 \end{proof}
 
 

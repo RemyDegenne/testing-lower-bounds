@@ -19,7 +19,12 @@ TODO: two possible concepts of conditional divergence are $D(\mu \otimes \kappa,
   A divergence between measures is a function $D$ which for any measurable space $\mathcal X$ and any two measures $\mu, \nu \in \mathcal M(\mathcal X)$, returns a value $D(\mu, \nu) \in \mathbb{R} \cup \{+\infty\}$.
 \end{definition}
 
-In Lean, such a definition for a divergence has to restrict the possible measurable spaces to be in a common universe.
+
+\begin{leanremark}
+In Lean, such a definition for a divergence would have to restrict the possible measurable spaces to be in a common universe.
+We don't implement that definition, but will only implement particular divergences.
+\end{leanremark}
+
 
 \begin{definition}[Data-processing inequality]
   \label{def:dpi}
@@ -90,18 +95,22 @@ Lemma~\ref{lem:div_le_div_compProd} gives one inequality. The other inequality i
   %\leanok
   \uses{def:div}
   Let $D$ be a divergence.
-  The conditional divergence of kernels $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ with respect to a measure $\mu \in \mathcal M(\mathcal X)$ is $D(\mu \otimes \kappa, \mu \otimes \eta)$. It is also denoted by $D(\kappa, \eta \mid \mu)$.
+  The conditional divergence of kernels $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ with respect to a measure $\mu \in \mathcal M(\mathcal X)$ is
+  $\mu[x \mapsto D(\kappa(x), \eta(x)]$.
+  It is denoted by $D(\kappa, \eta \mid \mu)$.
 \end{definition}
 
+For the important class of $f$-divergences that we will introduce later, $D(\kappa, \eta \mid \mu) = D(\mu \otimes \kappa, \mu \otimes \eta)$.
 
 \begin{lemma}[Conditioning increases divergence]
   \label{lem:div_comp_le_div_compProd_right}
   %\lean{}
   %\leanok
   \uses{def:div, def:dpi}
-  Let $D$ be a divergence that satisfies the DPI. Let $\mathcal \mu \in \mathcal M(\mathcal X)$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be Markov kernels. Then
+  Let $D$ be a divergence that satisfies the DPI and for which $D(\kappa, \eta \mid \mu) = D(\mu \otimes \kappa, \mu \otimes \eta)$.
+  Let $\mathcal \mu \in \mathcal M(\mathcal X)$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be Markov kernels. Then
   \begin{align*}
-  D(\kappa \circ \mu, \eta \circ \mu) \le D(\mu \otimes \kappa, \mu \otimes \eta) \: .
+  D(\kappa \circ \mu, \eta \circ \mu) \le D(\kappa, \eta \mid \mu) \: .
   \end{align*}
 \end{lemma}
 
