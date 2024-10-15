@@ -87,6 +87,28 @@ lemma integrable_fDiv_iff [CountableOrCountablyGenerated α β] [IsFiniteMeasure
 
 section CompProd
 
+lemma fDiv_compProd_right (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (κ : Kernel α β) [IsMarkovKernel κ] (hf : StronglyMeasurable f)
+    (h_cvx : ConvexOn ℝ (Ici 0) f) :
+    fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ κ) = fDiv f μ ν := by
+  by_cases h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν
+  swap
+  · rw [fDiv_of_not_integrable h_int, fDiv_of_not_integrable]
+    rwa [integrable_f_rnDeriv_compProd_left_iff hf h_cvx]
+  rw [fDiv_of_integrable, singularPart_compProd_left, Measure.compProd_apply_univ,
+    fDiv_of_integrable h_int]
+  swap; · rwa [integrable_f_rnDeriv_compProd_left_iff hf h_cvx]
+  congr
+  have h_eq : (fun x ↦ f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ κ) x).toReal)
+      =ᵐ[ν ⊗ₘ κ] fun x ↦ f ((∂μ/∂ν) x.1).toReal := by
+    filter_upwards [Kernel.rnDeriv_measure_compProd_left μ ν κ] with x hx
+    rw [hx]
+  rw [integral_congr_ae h_eq]
+  rw [Measure.integral_compProd]
+  · simp
+  · rw [← integrable_congr h_eq]
+    rwa [integrable_f_rnDeriv_compProd_left_iff hf h_cvx]
+
 /-! We show that the integrability of the functions used in `fDiv f (μ ⊗ₘ κ) (μ ⊗ₘ η)`
 and in `condFDiv f κ η μ` are equivalent. -/
 
@@ -183,30 +205,6 @@ lemma fDiv_compProd_left_eq_top_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν]
   rw [← not_iff_not, ← ne_eq, fDiv_compProd_left_ne_top_iff hf h_cvx]
   push_neg
   rfl
-
-lemma fDiv_compProd_right
-    (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (κ : Kernel α β) [IsMarkovKernel κ] (hf : StronglyMeasurable f)
-    (h_cvx : ConvexOn ℝ (Ici 0) f) :
-    fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ κ) = fDiv f μ ν := by
-  by_cases h_top : fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ κ) = ⊤
-  · symm
-    rw [h_top, fDiv_eq_top_iff]
-    have h_top' := (fDiv_compProd_left_eq_top_iff hf h_cvx).mp h_top
-    by_cases h : Integrable (fun a ↦ f ((∂μ/∂ν) a).toReal) ν
-    · exact Or.inr (h_top' h)
-    · exact Or.inl h
-  · have h_top' := (fDiv_compProd_left_ne_top_iff hf h_cvx).mp h_top
-    have h_top'' : fDiv f μ ν ≠ ⊤ := by rwa [fDiv_ne_top_iff]
-    rw [fDiv_of_ne_top h_top, fDiv_of_ne_top h_top'']
-    have h := integral_f_compProd_left_congr μ ν κ (f := f)
-    simp only [measure_univ, ENNReal.one_toReal, one_mul] at h
-    rw [integral_congr_ae h.symm, Measure.integral_compProd]
-    · congr
-      rw [singularPart_compProd_left, Measure.compProd_apply .univ]
-      simp
-    · rw [← ne_eq, fDiv_ne_top_iff] at h_top
-      exact h_top.1
 
 end CompProd
 
