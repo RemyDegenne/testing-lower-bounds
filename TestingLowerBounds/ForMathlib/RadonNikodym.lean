@@ -113,6 +113,13 @@ lemma rnDeriv_measure_compProd_left (μ ν : Measure α) (κ : Kernel α γ)
   · exact Measure.measurable_rnDeriv _ _
   · exact Measure.rnDeriv_withDensity ν (Measure.measurable_rnDeriv _ _)
 
+lemma rnDeriv_measure_compProd_left' (μ ν : Measure α) (κ : Kernel α γ)
+    [IsFiniteMeasure μ] [IsFiniteMeasure ν] [IsFiniteKernel κ] :
+    ∀ᵐ a ∂ν, (fun b ↦ (∂(μ ⊗ₘ κ)/∂(ν ⊗ₘ κ)) (a, b))
+      =ᵐ[κ a] fun _ ↦ (∂μ/∂ν) a := by
+  have h' := Measure.ae_ae_of_ae_compProd <| rnDeriv_measure_compProd_left μ ν κ
+  exact h'
+
 variable [CountableOrCountablyGenerated α γ]
 
 -- PR #17682

@@ -16,6 +16,7 @@ import TestingLowerBounds.FDiv.Basic
 import TestingLowerBounds.FDiv.CompProd
 import TestingLowerBounds.FDiv.CondFDiv
 import TestingLowerBounds.FDiv.CondFDivCompProdMeasure
+import TestingLowerBounds.FDiv.DPIJensen
 import TestingLowerBounds.FDiv.IntegralRnDerivSingularPart
 import TestingLowerBounds.FDiv.Measurable
 import TestingLowerBounds.FDiv.Trim
@@ -37,10 +38,10 @@ import TestingLowerBounds.Kernel.Deterministic
 import TestingLowerBounds.Kernel.DeterministicComp
 import TestingLowerBounds.Kernel.ParallelComp
 import TestingLowerBounds.MeasureCompProd
-import TestingLowerBounds.SqHellinger
-import TestingLowerBounds.StatInfoFun
 import TestingLowerBounds.Sorry.ByParts
 import TestingLowerBounds.Sorry.Jensen
+import TestingLowerBounds.SqHellinger
+import TestingLowerBounds.StatInfoFun
 import TestingLowerBounds.Testing.Binary
 import TestingLowerBounds.Testing.BoolMeasure
 import TestingLowerBounds.Testing.ChangeMeasure
