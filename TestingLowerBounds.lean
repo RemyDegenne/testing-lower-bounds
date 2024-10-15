@@ -8,9 +8,11 @@ import TestingLowerBounds.Divergences.EGamma
 import TestingLowerBounds.Divergences.Hellinger
 import TestingLowerBounds.Divergences.KullbackLeibler
 import TestingLowerBounds.Divergences.Renyi
-import TestingLowerBounds.Divergences.StatInfo
+import TestingLowerBounds.Divergences.StatInfo.DPI
+import TestingLowerBounds.Divergences.StatInfo.StatInfo
+import TestingLowerBounds.Divergences.StatInfo.StatInfoFun
+import TestingLowerBounds.Divergences.StatInfo.fDivStatInfo
 import TestingLowerBounds.Divergences.TotalVariation
-import TestingLowerBounds.Divergences.fDivStatInfo
 import TestingLowerBounds.ErealLLR
 import TestingLowerBounds.FDiv.Basic
 import TestingLowerBounds.FDiv.CompProd
@@ -41,7 +43,6 @@ import TestingLowerBounds.MeasureCompProd
 import TestingLowerBounds.Sorry.ByParts
 import TestingLowerBounds.Sorry.Jensen
 import TestingLowerBounds.SqHellinger
-import TestingLowerBounds.StatInfoFun
 import TestingLowerBounds.Testing.Binary
 import TestingLowerBounds.Testing.BoolMeasure
 import TestingLowerBounds.Testing.ChangeMeasure

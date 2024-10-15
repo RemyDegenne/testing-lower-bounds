@@ -7,7 +7,7 @@ import Mathlib.Analysis.SpecialFunctions.Log.ENNRealLogExp
 import Mathlib.MeasureTheory.Constructions.Prod.Integral
 import Mathlib.Order.CompletePartialOrder
 import TestingLowerBounds.CurvatureMeasure
-import TestingLowerBounds.Divergences.StatInfo
+import TestingLowerBounds.Divergences.StatInfo.StatInfo
 import TestingLowerBounds.FDiv.Measurable
 
 /-!
@@ -28,7 +28,7 @@ section StatInfoFun
 
 open Set Filter ConvexOn
 
-lemma nnReal_mul_fDiv {a : NNReal} :
+lemma nnreal_mul_fDiv_statInfoFun {a : NNReal} :
     a * fDiv (statInfoFun β γ) μ ν = fDiv (fun x ↦ statInfoFun (a * β) (a * γ) x) μ ν := by
   change (a.1 : EReal) * _ = _
   rw [← fDiv_mul a.2 ((convexOn_statInfoFun β γ).subset (fun _ _ ↦ trivial) (convex_Ici 0)) μ ν]
@@ -38,7 +38,7 @@ lemma nnReal_mul_fDiv {a : NNReal} :
 lemma fDiv_statInfoFun_nonneg : 0 ≤ fDiv (statInfoFun β γ) μ ν :=
   fDiv_nonneg_of_nonneg (fun x ↦ statInfoFun_nonneg β γ x) (derivAtTop_statInfoFun_nonneg β γ)
 
-lemma fDiv_statInfoFun_stronglyMeasurable (μ ν : Measure 𝒳) [SFinite ν] :
+lemma stronglyMeasurable_fDiv_statInfoFun (μ ν : Measure 𝒳) [SFinite ν] :
     StronglyMeasurable (Function.uncurry fun β γ ↦ fDiv (statInfoFun β γ) μ ν) := by
   simp_rw [fDiv]
   have h_meas := stronglyMeasurable_statInfoFun.measurable.comp
@@ -312,7 +312,7 @@ lemma fDiv_ne_top_iff_integrable_fDiv_statInfoFun_of_absolutelyContinuous'
   · exact .of_forall fun _ ↦ ENNReal.ofReal_ne_top
   rw [integrable_toReal_iff]
   rotate_left
-  · exact (fDiv_statInfoFun_stronglyMeasurable μ ν).measurable.comp (f := fun x ↦ (1, x))
+  · exact (stronglyMeasurable_fDiv_statInfoFun μ ν).measurable.comp (f := fun x ↦ (1, x))
       (by fun_prop) |>.ereal_toENNReal.aemeasurable
   · exact .of_forall fun _ ↦ EReal.toENNReal_ne_top_iff.mpr fDiv_statInfoFun_ne_top
   rw [lintegral_f_rnDeriv_eq_lintegralfDiv_statInfoFun_of_absolutelyContinuous hf_cvx hf_cont
@@ -425,14 +425,14 @@ lemma fDiv_eq_lintegral_fDiv_statInfoFun_of_absolutelyContinuous [IsFiniteMeasur
       integral_eq_lintegral_of_nonneg_ae]
     rotate_left
     · exact .of_forall <| fun _ ↦ EReal.toReal_nonneg fDiv_statInfoFun_nonneg
-    · exact (fDiv_statInfoFun_stronglyMeasurable μ ν).measurable.comp (f := fun x ↦ (1, x))
+    · exact (stronglyMeasurable_fDiv_statInfoFun μ ν).measurable.comp (f := fun x ↦ (1, x))
         (by fun_prop) |>.ereal_toReal.aestronglyMeasurable
     simp_rw [← EReal.toENNReal_of_ne_top fDiv_statInfoFun_ne_top]
     rw [ENNReal.toReal_toEReal_of_ne_top]
     rw [integrable_f_rnDeriv_iff_integrable_fDiv_statInfoFun_of_absolutelyContinuous hf_cvx
       hf_cont h_ac] at h_int
     refine (integrable_toReal_iff ?_ ?_).mp ?_
-    · exact (fDiv_statInfoFun_stronglyMeasurable μ ν).measurable.comp (f := fun x ↦ (1, x))
+    · exact (stronglyMeasurable_fDiv_statInfoFun μ ν).measurable.comp (f := fun x ↦ (1, x))
         (by fun_prop) |>.ereal_toENNReal.aemeasurable
     · exact .of_forall fun _ ↦ EReal.toENNReal_ne_top_iff.mpr fDiv_statInfoFun_ne_top
     simp_rw [EReal.toReal_toENNReal fDiv_statInfoFun_nonneg, h_int]
@@ -449,7 +449,7 @@ lemma fDiv_eq_lintegral_fDiv_statInfoFun_of_absolutelyContinuous [IsFiniteMeasur
     contrapose! h
     simp_rw [← EReal.toReal_toENNReal fDiv_statInfoFun_nonneg]
     refine (integrable_toReal_iff ?_ ?_).mpr h
-    · exact (fDiv_statInfoFun_stronglyMeasurable μ ν).measurable.comp (f := fun x ↦ (1, x))
+    · exact (stronglyMeasurable_fDiv_statInfoFun μ ν).measurable.comp (f := fun x ↦ (1, x))
         (by fun_prop) |>.ereal_toENNReal.aemeasurable
     · exact .of_forall fun _ ↦ EReal.toENNReal_ne_top_iff.mpr fDiv_statInfoFun_ne_top
 
@@ -553,7 +553,7 @@ lemma fDiv_eq_lintegral_fDiv_statInfoFun [IsFiniteMeasure μ] [IsFiniteMeasure �
     simp_rw [fDiv_eq_add_withDensity_singularPart μ ν ((convexOn_statInfoFun 1 _).subset
       (fun _ _ ↦ trivial) (convex_Ici 0))] at h_nonneg ⊢
     rw_mod_cast [← lintegral_add_left]
-    swap; · exact ((fDiv_statInfoFun_stronglyMeasurable (ν.withDensity (∂μ/∂ν)) ν).measurable.comp
+    swap; · exact ((stronglyMeasurable_fDiv_statInfoFun (ν.withDensity (∂μ/∂ν)) ν).measurable.comp
       (by fun_prop) (f := fun x ↦ (1, x))).ereal_toENNReal
     simp_rw [← EReal.toENNReal_add fDiv_statInfoFun_nonneg fDiv_statInfoFun_nonneg]
     have h_ne_top : (∫⁻ x, .ofReal (statInfoFun 1 x 0) ∂curvatureMeasure f) * ν univ ≠ ⊤ := by
@@ -597,72 +597,5 @@ lemma fDiv_eq_lintegral_fDiv_statInfoFun [IsFiniteMeasure μ] [IsFiniteMeasure �
   ring_nf
 
 end StatInfoFun
-
-section DataProcessingInequality
-
-/-- **Data processing inequality** for the f-divergence of `statInfoFun`. -/
-lemma fDiv_statInfoFun_comp_right_le [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (η : Kernel 𝒳 𝒳') [IsMarkovKernel η] (hβ : 0 ≤ β) :
-    fDiv (statInfoFun β γ) (η ∘ₘ μ) (η ∘ₘ ν) ≤ fDiv (statInfoFun β γ) μ ν := by
-  rcases le_total γ 0 with (hγ | hγ)
-  · rw [fDiv_statInfoFun_eq_zero_of_nonneg_of_nonpos hβ hγ,
-      fDiv_statInfoFun_eq_zero_of_nonneg_of_nonpos hβ hγ]
-  simp_rw [fDiv_statInfoFun_eq_StatInfo_of_nonneg hβ hγ]
-  gcongr ?_ + ?_
-  · exact EReal.coe_ennreal_le_coe_ennreal_iff.mpr <| statInfo_comp_le _ _ _ _
-  · simp_rw [Measure.comp_apply_univ, le_refl]
-
--- The name is `fDiv_comp_right_le'`, since there is already `fDiv_comp_right_le`
--- in the `fDiv.CompProd` file.
-/-- **Data processing inequality** for the f-divergence. -/
-lemma fDiv_comp_right_le' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (η : Kernel 𝒳 𝒳') [IsMarkovKernel η] (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f) :
-    fDiv f (η ∘ₘ μ) (η ∘ₘ ν) ≤ fDiv f μ ν := by
-  simp_rw [fDiv_eq_lintegral_fDiv_statInfoFun hf_cvx hf_cont, Measure.comp_apply_univ]
-  gcongr
-  simp only [EReal.coe_ennreal_le_coe_ennreal_iff]
-  exact lintegral_mono fun x ↦ EReal.toENNReal_le_toENNReal <|
-    fDiv_statInfoFun_comp_right_le η zero_le_one
-
-lemma fDiv_fst_le' (μ ν : Measure (𝒳 × 𝒳')) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f) :
-    fDiv f μ.fst ν.fst ≤ fDiv f μ ν := by
-  simp_rw [Measure.fst, ← Measure.comp_deterministic_eq_map measurable_fst]
-  exact fDiv_comp_right_le' _ hf_cvx hf_cont
-
-lemma fDiv_snd_le' (μ ν : Measure (𝒳 × 𝒳')) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f) :
-    fDiv f μ.snd ν.snd ≤ fDiv f μ ν := by
-  simp_rw [Measure.snd, ← Measure.comp_deterministic_eq_map measurable_snd]
-  exact fDiv_comp_right_le' _ hf_cvx hf_cont
-
-lemma le_fDiv_compProd' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (κ η : Kernel 𝒳 𝒳') [IsMarkovKernel κ] [IsMarkovKernel η] (hf_cvx : ConvexOn ℝ univ f)
-    (hf_cont : Continuous f) :
-    fDiv f μ ν ≤ fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ η) := by
-  nth_rw 1 [← Measure.fst_compProd μ κ, ← Measure.fst_compProd ν η]
-  exact fDiv_fst_le' _ _ hf_cvx hf_cont
-
-lemma fDiv_compProd_right' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (κ : Kernel 𝒳 𝒳') [IsMarkovKernel κ] (hf_cvx : ConvexOn ℝ univ f) (hf_cont : Continuous f) :
-    fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ κ) = fDiv f μ ν := by
-  refine le_antisymm ?_ (le_fDiv_compProd' κ κ hf_cvx hf_cont)
-  simp_rw [Measure.compProd_eq_comp]
-  exact fDiv_comp_right_le' _ hf_cvx hf_cont
-
-lemma fDiv_comp_le_compProd' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (κ η : Kernel 𝒳 𝒳') [IsMarkovKernel κ] [IsMarkovKernel η] (hf_cvx : ConvexOn ℝ univ f)
-    (hf_cont : Continuous f) :
-    fDiv f (κ ∘ₘ μ) (η ∘ₘ ν) ≤ fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ η) := by
-  nth_rw 1 [← Measure.snd_compProd μ κ, ← Measure.snd_compProd ν η]
-  exact fDiv_snd_le' _ _ hf_cvx hf_cont
-
-lemma fDiv_comp_le_compProd_right' [IsFiniteMeasure μ]
-    (κ η : Kernel 𝒳 𝒳') [IsMarkovKernel κ] [IsMarkovKernel η] (hf_cvx : ConvexOn ℝ univ f)
-    (hf_cont : Continuous f) :
-    fDiv f (κ ∘ₘ μ) (η ∘ₘ μ) ≤ fDiv f (μ ⊗ₘ κ) (μ ⊗ₘ η) :=
-  fDiv_comp_le_compProd' κ η hf_cvx hf_cont
-
-end DataProcessingInequality
 
 end ProbabilityTheory
