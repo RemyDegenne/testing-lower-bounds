@@ -158,11 +158,45 @@ Then, by Lemma~\ref{cor:rnDeriv_compProd_left}, $\frac{d (\mu \otimes \eta)}{d (
 
 
 \begin{lemma}
+  \label{lem:rnDeriv_compProd_right_of_ac}
+  %\lean{}
+  %\leanok
+  \uses{def:kernel_rnDeriv}
+  Let $\mu \in \mathcal M(\mathcal X)$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels with $\kappa(x) \ll \eta(x)$ for $\mu$-almost all $x$, with either $\mathcal X$ countable or $\mathcal{Y}$ countably generated.
+  Then $(\mu \otimes \eta)$-almost surely,
+  \begin{align*}
+  \frac{d (\mu \otimes \kappa)}{d (\mu \otimes \eta)} = \frac{d \kappa}{d \eta}
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:ae_rnDeriv_ne_zero}
+  \lean{MeasureTheory.Measure.ae_rnDeriv_ne_zero_imp_of_ae}
+  \leanok
+  \uses{}
+  Let $\mu, \nu \in \mathcal M(\mathcal X)$ be two $\sigma$-finite measures and let $p$ be a predicate on $\mathcal X$.
+  If $p$ is true $\mu$-almost surely, then for $\nu$-almost all $x$, either $\frac{d\mu}{d\nu}(x) = 0$ or $p(x)$.
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{}
+
+\end{proof}
+
+
+\begin{lemma}
   \label{lem:rnDeriv_compProd_aux}
   \lean{ProbabilityTheory.Kernel.rnDeriv_measure_compProd_aux}
   \leanok
   \uses{def:kernel_rnDeriv}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ with $\mu \ll \nu$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels with $\kappa(x) \ll \eta(x)$ for $\nu$-almost all $x$, with either $\mathcal X$ countable or $\mathcal{Y}$ countably generated.
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels with $\kappa(x) \ll \eta(x)$ for $\mu$-almost all $x$, with either $\mathcal X$ countable or $\mathcal{Y}$ countably generated.
   Then for $(\nu \otimes \eta)$-almost all $(x, y)$,
   \begin{align*}
   \frac{d (\mu \otimes \kappa)}{d (\nu \otimes \eta)}(x,y) = \frac{d\mu}{d\nu}(x)\frac{d \kappa}{d \eta}(x,y)
@@ -173,26 +207,24 @@ Then, by Lemma~\ref{cor:rnDeriv_compProd_left}, $\frac{d (\mu \otimes \eta)}{d (
 
 \begin{proof} \leanok
 \uses{cor:rnDeriv_value}
-It is sufficient to prove that the integrals of the two functions on all product sets $s \times t$ for $s$ and $t$ measurable are equal (since these sets are a $\pi$-system). The computation of first integral is immediate :
+First, by Theorem~\ref{thm:rnDeriv_chain_compProd}, for $(\nu \otimes \eta)$-almost all $(x,y)$,
 \begin{align*}
-\int_{p \in s \times t}\frac{d (\mu \otimes \kappa)}{d (\nu \otimes \eta)}(p) \partial(\nu \otimes \eta)
-&= (\mu \otimes \kappa)(s \times t)
+\frac{d(\mu \otimes \kappa)}{d(\nu \otimes \eta)}(x, y)
+= \frac{d \mu}{d \nu}(x) \frac{d(\mu \otimes \kappa)}{d(\mu \otimes \eta)}(x, y)
 \: .
 \end{align*}
-The second one uses Corollary~\ref{cor:rnDeriv_value}.
+It remains to show that $\frac{d \mu}{d \nu}(x) \frac{d(\mu \otimes \kappa)}{d(\mu \otimes \eta)}(x, y)$ is $(\nu \otimes \eta)$-almost everywhere equal to $\frac{d\mu}{d\nu}(x)\frac{d \kappa}{d \eta}(x,y)$.
+By Lemma~\ref{lem:rnDeriv_compProd_right_of_ac}, $(\mu \otimes \eta)$-almost surely,
 \begin{align*}
-\int_{p \in s \times t}\frac{d\mu}{d\nu}(p_X) \frac{d \kappa}{d \eta}(p) \partial(\nu \otimes \eta)
-&= \int_{x \in s} \int_{y \in t} \frac{d\mu}{d\nu}(x) \frac{d \kappa}{d \eta}(x,y) \partial\eta(x) \partial\nu
-\\
-&= \int_{x \in s} \frac{d\mu}{d\nu}(x) \int_{y \in t} \frac{d \kappa(x)}{d \eta(x)}(y) \partial\eta(x) \partial\nu
-\\
-&= \int_{x \in s} \frac{d\mu}{d\nu}(x) \kappa(x)(t) \partial\nu
-\\
-&= \int_{x \in s} \kappa(x)(t) \partial\mu
-\\
-&= (\mu \otimes \kappa)(s \times t)
+\frac{d \kappa}{d \eta} = \frac{d (\mu \otimes \kappa)}{d (\mu \otimes \eta)}
 \: .
 \end{align*}
+We then use Lemma~\ref{lem:ae_rnDeriv_ne_zero} to turn that into a $(\nu \otimes \eta)$-almost sure equality:
+\begin{align*}
+\frac{d(\mu \otimes \eta)}{d(\nu \otimes \eta)}\frac{d \kappa}{d \eta} = \frac{d(\mu \otimes \eta)}{d(\nu \otimes \eta)}\frac{d (\mu \otimes \kappa)}{d (\mu \otimes \eta)}
+\: .
+\end{align*}
+Finally, by Lemma~\ref{cor:rnDeriv_compProd_left}, $\frac{d(\mu \otimes \eta)}{d(\nu \otimes \eta)} = \frac{d\mu}{d\nu}$ almost surely.
 \end{proof}
 
 
@@ -201,7 +233,9 @@ The second one uses Corollary~\ref{cor:rnDeriv_value}.
   \lean{ProbabilityTheory.Kernel.todo1}
   \leanok
   \uses{def:kernel_rnDeriv}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels. Let $\mu' = \left(\frac{\partial \mu}{\partial \nu}\right) \cdot \nu$ and $\kappa' = \left(\frac{\partial \kappa}{\partial \eta}\right) \cdot \eta$. Then for $(\nu \otimes \eta)$-almost all $z$, $\frac{\partial(\mu' \otimes \kappa')}{\partial (\nu \otimes \eta)}(z) = \frac{\partial(\mu \otimes \kappa)}{\partial (\nu \otimes \eta)}(z)$.
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels, with either $\mathcal X$ countable or $\mathcal{Y}$ countably generated.
+  Let $\mu' = \left(\frac{\partial \mu}{\partial \nu}\right) \cdot \nu$ and $\kappa' = \left(\frac{\partial \kappa}{\partial \eta}\right) \cdot \eta$.
+  Then for $(\nu \otimes \eta)$-almost all $z$, $\frac{\partial(\mu' \otimes \kappa')}{\partial (\nu \otimes \eta)}(z) = \frac{\partial(\mu \otimes \kappa)}{\partial (\nu \otimes \eta)}(z)$.
 \end{lemma}
 
 \begin{proof} \leanok
