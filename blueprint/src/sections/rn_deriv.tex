@@ -173,8 +173,8 @@ Then, by Lemma~\ref{cor:rnDeriv_compProd_left}, $\frac{d (\mu \otimes \eta)}{d (
 
 \begin{lemma}
   \label{cor:rnDeriv_compProd_right}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.Kernel.rnDeriv_measure_compProd_right}
+  \leanok
   \uses{def:kernel_rnDeriv}
   Let $\mu \in \mathcal M(\mathcal X)$ be a finite measure and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels, with either $\mathcal X$ countable or $\mathcal{Y}$ countably generated.
   Then $(\mu \otimes \eta)$-almost surely,
@@ -184,7 +184,7 @@ Then, by Lemma~\ref{cor:rnDeriv_compProd_left}, $\frac{d (\mu \otimes \eta)}{d (
   \end{align*}
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{lem:rnDeriv_eq_ac}
 
 \end{proof}
