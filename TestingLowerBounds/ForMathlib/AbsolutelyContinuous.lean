@@ -108,6 +108,12 @@ lemma absolutelyContinuous_compProd_of_compProd'
   · refine mutuallySingular_compProd_left ?_ _ _
     exact (mutuallySingular_singularPart _ _).symm
 
+lemma absolutelyContinuous_compProd_iff'
+    [SigmaFinite μ] [SigmaFinite ν] [IsSFiniteKernel κ] [IsSFiniteKernel η] [∀ x, NeZero (κ x)] :
+    μ ⊗ₘ κ ≪ ν ⊗ₘ η ↔ μ ≪ ν ∧ μ ⊗ₘ κ ≪ μ ⊗ₘ η :=
+  ⟨fun h ↦ ⟨absolutelyContinuous_of_compProd h, absolutelyContinuous_compProd_of_compProd' h⟩,
+    fun h ↦ absolutelyContinuous_compProd_of_compProd h.1 h.2⟩
+
 variable [CountableOrCountablyGenerated α γ]
 
 lemma mutuallySingular_compProd_right
