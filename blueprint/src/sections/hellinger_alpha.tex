@@ -94,7 +94,7 @@ Use Lemma~\ref{lem:integral_rpow_rnDeriv}.
   \label{def:condHellingerAlpha}
   \lean{ProbabilityTheory.condHellingerDiv}
   \leanok
-  \uses{def:condFDiv, lem:fDiv_properties}
+  \uses{def:condFDiv, lem:condFDiv_properties, lem:fDiv_properties}
   Let $\mu$ be a measure on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two kernels. The conditional Hellinger divergence of order $\alpha \in (0,+\infty) \backslash \{1\}$ between $\kappa$ and $\eta$ conditionally to $\mu$ is
   \begin{align*}
   \He_\alpha(\kappa, \eta \mid \mu) = D_{f_\alpha}(\kappa, \eta \mid \mu) \: ,

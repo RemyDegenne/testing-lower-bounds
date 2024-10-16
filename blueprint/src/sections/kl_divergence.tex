@@ -43,7 +43,7 @@ Simple computation.
   \label{lem:condKL_eq_condFDiv}
   \lean{ProbabilityTheory.kl_eq_fDiv}
   \leanok
-  \uses{def:condKL, def:condFDiv, lem:fDiv_properties}
+  \uses{def:condKL, def:condFDiv, lem:condFDiv_properties}
   $\KL(\kappa, \eta \mid \mu) = D_f(\kappa, \eta \mid \mu)$ for $f: x \mapsto x \log x$.
 \end{lemma}
 
@@ -222,12 +222,49 @@ Then using 1.\ we can conclude that $x \mapsto \int_y \log \frac{d \kappa(x)}{d 
 
 \subsection{Chain rule and tensorization}
 
+\begin{theorem}
+  \label{thm:kl_compProd_aux}
+  %\lean{}
+  %\leanok
+  \uses{def:KL}
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ two Markov kernels.
+  Then $\KL(\mu \otimes \kappa, \nu \otimes \eta) = \KL(\mu, \nu) + \KL(\mu \otimes \kappa, \mu \otimes \eta)$.
+\end{theorem}
+
+\begin{proof}%\leanok
+\uses{thm:rnDeriv_chain_compProd, lem:integrable_llr_compProd_iff, lem:ac_compProd_iff}
+By Lemma~\ref{lem:ac_compProd_iff}, $\mu \otimes \kappa \ll \nu \otimes \eta \iff \left( \mu \ll \nu \ \wedge \ \mu \otimes \kappa \ll \mu \otimes \eta \right)$.
+Hence if any of the two sides of the equality is infinite due to a lack of absolute continuity, the other is as well.
+We now suppose that $\mu \otimes \kappa \ll \nu \otimes \eta$, $\mu \ll \nu$ and $\mu \otimes \kappa \ll \mu \otimes \eta$.
+
+TODO: deal with the non-integrable case, without using Lemma~\ref{lem:integrable_llr_compProd_iff} that requires countably generated sigma-algebras.
+
+Suppose then that all three log-likelihood ratios are integrable.
+We use the chain rule for Radon-Nikodym derivatives (Theorem~\ref{thm:rnDeriv_chain_compProd}).
+\begin{align*}
+\KL(\mu \otimes \kappa, \nu \otimes \eta)
+&= \int_p \log \frac{d(\mu \otimes \kappa)}{d(\nu \otimes \eta)}(p) \partial (\mu \otimes \kappa)
+\\
+&= \int_x \int_y\log \left(\frac{d\mu}{d \nu}(x)\frac{d(\mu \otimes \kappa)}{d (\mu \otimes \eta)}(x,y)\right) \partial \kappa(x) \partial\mu
+\\
+&= \int_x \int_y\log \left(\frac{d\mu}{d \nu}(x)\right) + \log \left(\frac{d(\mu \otimes \kappa)}{d (\mu \otimes \eta)}(x,y)\right) \partial \kappa(x) \partial\mu
+\\
+&= \int_x \log \left(\frac{d\mu}{d \nu}(x)\right)\partial\mu + \int_x \int_y\log \left(\frac{d(\mu \otimes \kappa)}{d (\mu \otimes \eta)}(x,y)\right) \partial \kappa(x) \partial\mu
+\\
+&= \int_x \log \left(\frac{d\mu}{d \nu}(x)\right)\partial\mu + \int_p\log \left(\frac{d(\mu \otimes \kappa)}{d (\mu \otimes \eta)}(p)\right) \partial (\mu \otimes \kappa)
+\\
+&= \KL(\mu, \nu) + \KL(\mu \otimes \kappa, \mu \otimes \eta)
+\: .
+\end{align*}
+\end{proof}
+
+
 \begin{theorem}[Chain rule, kernel version]
   \label{thm:kl_compProd}
   \lean{ProbabilityTheory.kl_compProd}
   \leanok
   \uses{def:KL, def:condKL}
-  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ two Markov kernels.
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ two Markov kernels, with either $\mathcal X$ countable or $\mathcal{Y}$ countably generated.
   Then $\KL(\mu \otimes \kappa, \nu \otimes \eta) = \KL(\mu, \nu) + \KL(\kappa, \eta \mid \mu)$.
 \end{theorem}
 

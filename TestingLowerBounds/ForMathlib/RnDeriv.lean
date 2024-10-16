@@ -282,6 +282,16 @@ lemma ae_rnDeriv_ne_zero_imp_of_ae [SigmaFinite μ] [SigmaFinite ν] {p : α →
   refine ae_rnDeriv_ne_zero_imp_of_ae_aux ?_ (withDensity_absolutelyContinuous _ _)
   exact (Measure.absolutelyContinuous_of_le (μ.withDensity_rnDeriv_le ν)) h
 
+lemma ae_eq_mul_rnDeriv_of_ae_eq {κ : α → Measure β} [SigmaFinite μ] [SigmaFinite ν]
+    {f g : α → β → ℝ≥0∞} (h : ∀ᵐ a ∂μ, f a =ᵐ[κ a] g a) :
+    ∀ᵐ a ∂ν, (fun b ↦ μ.rnDeriv ν a * f a b) =ᵐ[κ a] (fun b ↦ μ.rnDeriv ν a * g a b) := by
+  have h_imp := ae_rnDeriv_ne_zero_imp_of_ae h (ν := ν)
+  filter_upwards [h_imp] with a ha
+  by_cases h_zero : μ.rnDeriv ν a = 0
+  · simp [h_zero]
+  filter_upwards [ha h_zero] with h hb
+  rw [hb]
+
 lemma ae_integrable_mul_rnDeriv_of_ae_integrable {κ : α → Measure β} [SigmaFinite μ] [SigmaFinite ν]
     (g : α → β → ℝ) (h : ∀ᵐ a ∂μ, Integrable (fun x ↦ g a x) (κ a)) :
     ∀ᵐ a ∂ν, Integrable (fun x ↦ (μ.rnDeriv ν a).toReal * g a x) (κ a) := by

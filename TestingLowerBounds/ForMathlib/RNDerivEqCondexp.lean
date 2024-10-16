@@ -46,4 +46,9 @@ lemma toReal_rnDeriv_comp [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hμν : μ 
   filter_upwards [Kernel.rnDeriv_measure_compProd_left μ ν κ] with x hx
   rw [hx]
 
+theorem _root_.Measurable.setLIntegral_kernel_prod_right' [IsSFiniteKernel κ]
+    {f : α × β → ℝ≥0∞} (hf : Measurable f) {s : Set β} (hs : MeasurableSet s) :
+    Measurable fun a => ∫⁻ b in s, f (a, b) ∂κ a := by
+  simp_rw [← Kernel.lintegral_restrict κ hs]; exact hf.lintegral_kernel_prod_right'
+
 end ProbabilityTheory
