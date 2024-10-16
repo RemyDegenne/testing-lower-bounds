@@ -206,7 +206,7 @@ Then, by Lemma~\ref{cor:rnDeriv_compProd_left}, $\frac{d (\mu \otimes \eta)}{d (
 \end{lemma}
 
 \begin{proof} \leanok
-\uses{cor:rnDeriv_value}
+\uses{thm:rnDeriv_chain_compProd, lem:rnDeriv_compProd_right_of_ac, lem:ae_rnDeriv_ne_zero, cor:rnDeriv_compProd_left}
 First, by Theorem~\ref{thm:rnDeriv_chain_compProd}, for $(\nu \otimes \eta)$-almost all $(x,y)$,
 \begin{align*}
 \frac{d(\mu \otimes \kappa)}{d(\nu \otimes \eta)}(x, y)
