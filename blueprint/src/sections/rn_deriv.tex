@@ -1,5 +1,9 @@
 \chapter{Radon-Nikodym derivatives and disintegration}
 
+
+\section{Kernel Radon-Nikodym derivative}
+
+
 \begin{definition}
   \label{def:kernel_rnDeriv}
   \lean{ProbabilityTheory.Kernel.rnDeriv}
@@ -39,13 +43,131 @@ Apply Lemma~\ref{lem:rnDeriv_unique}.
 
 \section{Composition-product}
 
+
+\begin{lemma}
+  \label{lem:ac_compProd_iff}
+  \lean{MeasureTheory.Measure.absolutelyContinuous_compProd_of_compProd,MeasureTheory.Measure.absolutelyContinuous_compProd_of_compProd',MeasureTheory.Measure.absolutelyContinuous_of_compProd}
+  \leanok
+  \uses{lem:kernel_properties}
+  Let $\mu, \nu$ be two $\sigma$-finite measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two s-finite kernels. Then
+  \begin{itemize}
+    \item[(1a)] if $\mu \otimes \kappa \ll \nu \otimes \eta$ then $\mu \otimes \kappa \ll \mu \otimes \eta$,
+    \item[(1b)] if $\mu \otimes \kappa \ll \nu \otimes \eta$ and $\kappa(x) \ne 0$ for all $x$ then $\mu \ll \nu$,
+    \item[(2)]  if $\mu \ll \nu$ and $\mu \otimes \kappa \ll \mu \otimes \eta$ then $\mu \otimes \kappa \ll \nu \otimes \eta$.
+  \end{itemize}
+  In particular, if $\kappa(x) \ne 0$ for all $x$ then
+  \begin{align*}
+  \mu \otimes \kappa \ll \nu \otimes \eta
+  \iff \left( \mu \ll \eta \ \wedge \ \mu \otimes \kappa \ll \mu \otimes \eta \right)
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{lem:kernel_properties}
+
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:rnDeriv_eq_ac_left}
+  \lean{ProbabilityTheory.Kernel.todo}
+  \leanok
+  \uses{}
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels.
+  Let $\mu' = \left(\frac{\partial \mu}{\partial \nu}\right) \cdot \nu$.
+  Then for $(\nu \otimes \eta)$-almost all $z$, $\frac{d (\mu' \otimes \kappa)}{d (\nu \otimes \eta)}(z) = \frac{d (\mu \otimes \kappa)}{d (\nu \otimes \eta)}(z)$.
+\end{lemma}
+
+\begin{proof} \leanok
+\uses{lem:kernel_properties}
+\end{proof}
+
+
+\begin{lemma}
+  \label{cor:rnDeriv_compProd_left}
+  \lean{ProbabilityTheory.Kernel.rnDeriv_measure_compProd_left}
+  \leanok
+  \uses{}
+  Let $\mu, \nu \in \mathcal M(\mathcal X)$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a finite kernel. Then for $(\nu \otimes \kappa)$-almost all $(x, y)$, $\frac{d (\mu \otimes \kappa)}{d (\nu \otimes \kappa)}(x,y) = \frac{d\mu}{d\nu}(x)$.
+\end{lemma}
+
+\begin{proof} \leanok
+\uses{}
+We can suppose $\mu \ll \nu$ without loss of generality (by Lemma~\ref{lem:rnDeriv_eq_ac_left}).
+It suffices to show that the integrals of the two functions agree on all sets in the $\pi$-system of products of measurable sets. Let $s, t$ be two measurable sets of $\mathcal X$ and $\mathcal Y$ respectively.
+\begin{align*}
+\int_{p \in s \times t} \frac{d (\mu \otimes \kappa)}{d (\nu \otimes \kappa)}(p) \partial(\nu \otimes \kappa)
+&= (\mu \otimes \kappa) (s \times t)
+\: .
+\end{align*}
+
+\begin{align*}
+\int_{p \in s \times t} \frac{d \mu}{d \nu}(p_1) \partial(\nu \otimes \kappa)
+&= \int_{x \in s} \int_{y \in t} \frac{d \mu}{d \nu}(x) \partial \kappa(x) \partial \nu
+\\
+&= \int_{x \in s} \frac{d \mu}{d \nu}(x) \kappa(x)(t) \partial \nu
+\\
+&= \int_{x \in s} \kappa(x)(t) \partial \mu
+\\
+&= (\mu \otimes \kappa) (s \times t)
+\: .
+\end{align*}
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:rnDeriv_chain}
+  \lean{MeasureTheory.Measure.rnDeriv_mul_rnDeriv,MeasureTheory.Measure.rnDeriv_mul_rnDeriv'}
+  \leanok
+  \uses{}
+  Let $\mu, \nu, \xi$ be $\sigma$-finite measures on $\mathcal X$.
+  \begin{enumerate}
+    \item If $\mu \ll \nu$ then $\xi$-almost surely, $\frac{d \mu}{d \xi} = \frac{d \mu}{d \nu} \frac{d \nu}{d \xi}$.
+    \item If $\nu \ll \xi$ then $\nu$-almost surely, $\frac{d \mu}{d \xi} = \frac{d \mu}{d \nu} \frac{d \nu}{d \xi}$.
+  \end{enumerate}
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{}
+\end{proof}
+
+
+\begin{theorem}[Chain rule for Radon-Nikodym derivatives]
+  \label{thm:rnDeriv_chain_compProd}
+  \lean{ProbabilityTheory.rnDeriv_compProd}
+  \leanok
+  \uses{}
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels with $\mu \otimes \kappa \ll \mu \otimes \eta$. Then for $(\nu \otimes \eta)$-almost all $(x,y)$,
+  \begin{align*}
+  \frac{d(\mu \otimes \kappa)}{d(\nu \otimes \eta)}(x, y)
+  = \frac{d \mu}{d \nu}(x) \frac{d(\mu \otimes \kappa)}{d(\mu \otimes \eta)}(x, y)
+  \: .
+  \end{align*}
+\end{theorem}
+
+\begin{proof}\leanok
+\uses{lem:rnDeriv_chain,cor:rnDeriv_compProd_left}
+By the first point of Lemma~\ref{lem:rnDeriv_chain}, $(\nu \otimes \eta)$-almost surely,
+\begin{align*}
+\frac{d(\mu \otimes \kappa)}{d(\nu \otimes \eta)}
+  = \frac{d(\mu \otimes \kappa)}{d(\mu \otimes \eta)} \frac{d (\mu \otimes \eta)}{d (\nu \otimes \eta)} 
+\end{align*}
+Then, by Lemma~\ref{cor:rnDeriv_compProd_left}, $\frac{d (\mu \otimes \eta)}{d (\nu \otimes \eta)}$ is almost everywhere equal to $\frac{d\mu}{d\nu}$.
+\end{proof}
+
+
 \begin{lemma}
   \label{lem:rnDeriv_compProd_aux}
   \lean{ProbabilityTheory.Kernel.rnDeriv_measure_compProd_aux}
   \leanok
   \uses{def:kernel_rnDeriv}
   Let $\mu, \nu$ be two measures on $\mathcal X$ with $\mu \ll \nu$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels with $\kappa(x) \ll \eta(x)$ for $\nu$-almost all $x$, with either $\mathcal X$ countable or $\mathcal{Y}$ countably generated.
-  Then for $(\nu \otimes \eta)$-almost all $(x, y)$, $\frac{d (\mu \otimes \kappa)}{d (\nu \otimes \eta)}(x,y) = \frac{d\mu}{d\nu}(x)\frac{d \kappa}{d \eta}(x,y)$.
+  Then for $(\nu \otimes \eta)$-almost all $(x, y)$,
+  \begin{align*}
+  \frac{d (\mu \otimes \kappa)}{d (\nu \otimes \eta)}(x,y) = \frac{d\mu}{d\nu}(x)\frac{d \kappa}{d \eta}(x,y)
+  \: .
+  \end{align*}
   This implies that the equality is true for $\nu$-almost all $x$, for $\eta(x)$-almost all $y$.
 \end{lemma}
 
@@ -96,37 +218,6 @@ The second one uses Corollary~\ref{cor:rnDeriv_value}.
 \end{lemma}
 
 \begin{proof} \leanok
-\end{proof}
-
-
-\begin{lemma}
-  \label{cor:rnDeriv_compProd_left}
-  \lean{ProbabilityTheory.Kernel.rnDeriv_measure_compProd_left}
-  \leanok
-  \uses{}
-  Let $\mu, \nu \in \mathcal M(\mathcal X)$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a finite kernel. Then for $(\nu \otimes \kappa)$-almost all $(x, y)$, $\frac{d (\mu \otimes \kappa)}{d (\nu \otimes \kappa)}(x,y) = \frac{d\mu}{d\nu}(x)$.
-\end{lemma}
-
-\begin{proof} \leanok
-\uses{}
-TODO: wlog $\mu \ll \nu$, and we can consider products of sets.
-\begin{align*}
-\int_{p \in s \times t} \frac{d (\mu \otimes \kappa)}{d (\nu \otimes \kappa)}(p) \partial(\nu \otimes \kappa)
-&= (\mu \otimes \kappa) (s \times t)
-\: .
-\end{align*}
-
-\begin{align*}
-\int_{p \in s \times t} \frac{d \mu}{d \nu}(p_1) \partial(\nu \otimes \kappa)
-&= \int_{x \in s} \int_{y \in t} \frac{d \mu}{d \nu}(x) \partial \kappa(x) \partial \nu
-\\
-&= \int_{x \in s} \frac{d \mu}{d \nu}(x) \kappa(x)(t) \partial \nu
-\\
-&= \int_{x \in s} \kappa(x)(t) \partial \mu
-\\
-&= (\mu \otimes \kappa) (s \times t)
-\: .
-\end{align*}
 \end{proof}
 
 
