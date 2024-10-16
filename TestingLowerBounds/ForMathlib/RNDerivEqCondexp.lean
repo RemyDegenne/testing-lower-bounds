@@ -51,13 +51,4 @@ theorem _root_.Measurable.setLIntegral_kernel_prod_right' [IsSFiniteKernel κ]
     Measurable fun a => ∫⁻ b in s, f (a, b) ∂κ a := by
   simp_rw [← Kernel.lintegral_restrict κ hs]; exact hf.lintegral_kernel_prod_right'
 
-lemma rnDeriv_compProd [IsFiniteMeasure μ]
-    [IsFiniteKernel κ] [IsFiniteKernel η] (h_ac : μ ⊗ₘ κ ≪ μ ⊗ₘ η)
-    (ν : Measure α) [IsFiniteMeasure ν] :
-    (fun p ↦ μ.rnDeriv ν p.1 * (μ ⊗ₘ κ).rnDeriv (μ ⊗ₘ η) p)
-      =ᵐ[ν ⊗ₘ η] (μ ⊗ₘ κ).rnDeriv (ν ⊗ₘ η) := by
-  refine Filter.EventuallyEq.trans ?_ (Measure.rnDeriv_mul_rnDeriv h_ac)
-  filter_upwards [Kernel.rnDeriv_measure_compProd_left μ ν η] with p hp
-  rw [Pi.mul_apply, hp, mul_comm]
-
 end ProbabilityTheory
