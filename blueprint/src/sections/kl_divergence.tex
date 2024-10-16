@@ -233,7 +233,13 @@ Then using 1.\ we can conclude that $x \mapsto \int_y \log \frac{d \kappa(x)}{d 
 
 \begin{proof}%\leanok
 \uses{thm:rnDeriv_chain_compProd, lem:integrable_llr_compProd_iff, lem:ac_compProd_iff}
-TODO: explain how to deal with all the edge cases (absolute continuity, integrability).
+By Lemma~\ref{lem:ac_compProd_iff}, $\mu \otimes \kappa \ll \nu \otimes \eta \iff \left( \mu \ll \nu \ \wedge \ \mu \otimes \kappa \ll \mu \otimes \eta \right)$.
+Hence if any of the two sides of the equality is infinite due to a lack of absolute continuity, the other is as well.
+We now suppose that $\mu \otimes \kappa \ll \nu \otimes \eta$, $\mu \ll \nu$ and $\mu \otimes \kappa \ll \mu \otimes \eta$.
+
+TODO: deal with the non-integrable case, without using Lemma~\ref{lem:integrable_llr_compProd_iff} that requires countably generated sigma-algebras.
+
+Suppose then that all three log-likelihood ratios are integrable.
 We use the chain rule for Radon-Nikodym derivatives (Theorem~\ref{thm:rnDeriv_chain_compProd}).
 \begin{align*}
 \KL(\mu \otimes \kappa, \nu \otimes \eta)
