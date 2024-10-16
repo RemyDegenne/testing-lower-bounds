@@ -158,11 +158,25 @@ Then, by Lemma~\ref{cor:rnDeriv_compProd_left}, $\frac{d (\mu \otimes \eta)}{d (
 
 
 \begin{lemma}
-  \label{lem:rnDeriv_compProd_right_of_ac}
+  \label{lem:rnDeriv_eq_ac}
+  \lean{ProbabilityTheory.Kernel.todo1}
+  \leanok
+  \uses{def:kernel_rnDeriv}
+  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels, with either $\mathcal X$ countable or $\mathcal{Y}$ countably generated.
+  Let $\mu' = \left(\frac{\partial \mu}{\partial \nu}\right) \cdot \nu$ and $\kappa' = \left(\frac{\partial \kappa}{\partial \eta}\right) \cdot \eta$.
+  Then for $(\nu \otimes \eta)$-almost all $z$, $\frac{\partial(\mu' \otimes \kappa')}{\partial (\nu \otimes \eta)}(z) = \frac{\partial(\mu \otimes \kappa)}{\partial (\nu \otimes \eta)}(z)$.
+\end{lemma}
+
+\begin{proof} \leanok
+\end{proof}
+
+
+\begin{lemma}
+  \label{cor:rnDeriv_compProd_right}
   %\lean{}
   %\leanok
   \uses{def:kernel_rnDeriv}
-  Let $\mu \in \mathcal M(\mathcal X)$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels with $\kappa(x) \ll \eta(x)$ for $\mu$-almost all $x$, with either $\mathcal X$ countable or $\mathcal{Y}$ countably generated.
+  Let $\mu \in \mathcal M(\mathcal X)$ be a finite measure and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels, with either $\mathcal X$ countable or $\mathcal{Y}$ countably generated.
   Then $(\mu \otimes \eta)$-almost surely,
   \begin{align*}
   \frac{d (\mu \otimes \kappa)}{d (\mu \otimes \eta)} = \frac{d \kappa}{d \eta}
@@ -171,7 +185,7 @@ Then, by Lemma~\ref{cor:rnDeriv_compProd_left}, $\frac{d (\mu \otimes \eta)}{d (
 \end{lemma}
 
 \begin{proof}%\leanok
-\uses{}
+\uses{lem:rnDeriv_eq_ac}
 
 \end{proof}
 
@@ -192,11 +206,11 @@ Then, by Lemma~\ref{cor:rnDeriv_compProd_left}, $\frac{d (\mu \otimes \eta)}{d (
 
 
 \begin{lemma}
-  \label{lem:rnDeriv_compProd_aux}
-  \lean{ProbabilityTheory.Kernel.rnDeriv_measure_compProd_aux}
+  \label{lem:rnDeriv_compProd}
+  \lean{ProbabilityTheory.Kernel.rnDeriv_measure_compProd}
   \leanok
   \uses{def:kernel_rnDeriv}
-  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels with $\kappa(x) \ll \eta(x)$ for $\mu$-almost all $x$, with either $\mathcal X$ countable or $\mathcal{Y}$ countably generated.
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels, with either $\mathcal X$ countable or $\mathcal{Y}$ countably generated.
   Then for $(\nu \otimes \eta)$-almost all $(x, y)$,
   \begin{align*}
   \frac{d (\mu \otimes \kappa)}{d (\nu \otimes \eta)}(x,y) = \frac{d\mu}{d\nu}(x)\frac{d \kappa}{d \eta}(x,y)
@@ -206,7 +220,7 @@ Then, by Lemma~\ref{cor:rnDeriv_compProd_left}, $\frac{d (\mu \otimes \eta)}{d (
 \end{lemma}
 
 \begin{proof} \leanok
-\uses{thm:rnDeriv_chain_compProd, lem:rnDeriv_compProd_right_of_ac, lem:ae_rnDeriv_ne_zero, cor:rnDeriv_compProd_left}
+\uses{thm:rnDeriv_chain_compProd, cor:rnDeriv_compProd_right, lem:ae_rnDeriv_ne_zero, cor:rnDeriv_compProd_left}
 First, by Theorem~\ref{thm:rnDeriv_chain_compProd}, for $(\nu \otimes \eta)$-almost all $(x,y)$,
 \begin{align*}
 \frac{d(\mu \otimes \kappa)}{d(\nu \otimes \eta)}(x, y)
@@ -214,7 +228,7 @@ First, by Theorem~\ref{thm:rnDeriv_chain_compProd}, for $(\nu \otimes \eta)$-alm
 \: .
 \end{align*}
 It remains to show that $\frac{d \mu}{d \nu}(x) \frac{d(\mu \otimes \kappa)}{d(\mu \otimes \eta)}(x, y)$ is $(\nu \otimes \eta)$-almost everywhere equal to $\frac{d\mu}{d\nu}(x)\frac{d \kappa}{d \eta}(x,y)$.
-By Lemma~\ref{lem:rnDeriv_compProd_right_of_ac}, $(\mu \otimes \eta)$-almost surely,
+By Lemma~\ref{cor:rnDeriv_compProd_right}, $(\mu \otimes \eta)$-almost surely,
 \begin{align*}
 \frac{d \kappa}{d \eta} = \frac{d (\mu \otimes \kappa)}{d (\mu \otimes \eta)}
 \: .
@@ -226,64 +240,6 @@ We then use Lemma~\ref{lem:ae_rnDeriv_ne_zero} to turn that into a $(\nu \otimes
 \end{align*}
 Finally, by Lemma~\ref{cor:rnDeriv_compProd_left}, $\frac{d(\mu \otimes \eta)}{d(\nu \otimes \eta)} = \frac{d\mu}{d\nu}$ almost surely.
 \end{proof}
-
-
-\begin{lemma}
-  \label{lem:rnDeriv_eq_ac}
-  \lean{ProbabilityTheory.Kernel.todo1}
-  \leanok
-  \uses{def:kernel_rnDeriv}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels, with either $\mathcal X$ countable or $\mathcal{Y}$ countably generated.
-  Let $\mu' = \left(\frac{\partial \mu}{\partial \nu}\right) \cdot \nu$ and $\kappa' = \left(\frac{\partial \kappa}{\partial \eta}\right) \cdot \eta$.
-  Then for $(\nu \otimes \eta)$-almost all $z$, $\frac{\partial(\mu' \otimes \kappa')}{\partial (\nu \otimes \eta)}(z) = \frac{\partial(\mu \otimes \kappa)}{\partial (\nu \otimes \eta)}(z)$.
-\end{lemma}
-
-\begin{proof} \leanok
-\end{proof}
-
-
-\begin{lemma}
-  \label{lem:prod_rnDeriv_eq_ac}
-  \lean{ProbabilityTheory.Kernel.todo2}
-  \leanok
-  \uses{def:kernel_rnDeriv}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels, with either $\mathcal X$ countable or $\mathcal{Y}$ countably generated.
-  Let $\mu' = \left(\frac{d \mu}{d \nu}\right) \cdot \nu$ and $\kappa' = \left(\frac{d \kappa}{d \eta}\right) \cdot \eta$. Then for $(\nu \otimes \eta)$-almost all $(x, y)$, $\frac{d\mu'}{d\nu}(x)\frac{d \kappa'}{d \eta}(x,y) = \frac{d\mu}{d\nu}(x)\frac{d \kappa}{d \eta}(x,y)$.
-\end{lemma}
-
-\begin{proof} \leanok
-\end{proof}
-
-
-\begin{lemma}
-  \label{lem:rnDeriv_compProd}
-  \lean{ProbabilityTheory.Kernel.rnDeriv_measure_compProd}
-  \leanok
-  \uses{def:kernel_rnDeriv}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels, with either $\mathcal X$ countable or $\mathcal{Y}$ countably generated.
-  Then for $(\nu \otimes \eta)$-almost all $(x, y)$, $\frac{d (\mu \otimes \kappa)}{d (\nu \otimes \eta)}(x,y) = \frac{d\mu}{d\nu}(x)\frac{d \kappa}{d \eta}(x,y)$.
-  This implies that the equality is true for $\nu$-almost all $x$, for $\eta(x)$-almost all $y$.
-\end{lemma}
-
-\begin{proof} \leanok
-\uses{lem:rnDeriv_compProd_aux, lem:rnDeriv_eq_ac, lem:prod_rnDeriv_eq_ac}
-Use Lemma~\ref{lem:rnDeriv_eq_ac} for $\mu', \kappa'$ (defined in previous lemmas) then \ref{lem:rnDeriv_compProd_aux} and \ref{lem:prod_rnDeriv_eq_ac}.
-\end{proof}
-
-
-\begin{corollary}
-  \label{cor:rnDeriv_compProd_right}
-  \lean{ProbabilityTheory.Kernel.rnDeriv_measure_compProd_right}
-  \leanok
-  \uses{def:kernel_rnDeriv}
-  Let $\mu$ be a measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels, with either $\mathcal X$ countable or $\mathcal{Y}$ countably generated.
-  Then for $(\mu \otimes \eta)$-almost all $(x, y)$, $\frac{d (\mu \otimes \kappa)}{d (\mu \otimes \eta)}(x,y) = \frac{d \kappa}{d \eta}(x,y)$.
-\end{corollary}
-
-\begin{proof} \leanok
-\uses{lem:rnDeriv_compProd}
-\end{proof}
-
 
 
 \section{Composition}
