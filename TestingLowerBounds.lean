@@ -18,7 +18,7 @@ import TestingLowerBounds.Divergences.StatInfo.fDivStatInfo
 import TestingLowerBounds.Divergences.TotalVariation
 import TestingLowerBounds.ErealLLR
 import TestingLowerBounds.FDiv.Basic
-import TestingLowerBounds.FDiv.CompProd
+import TestingLowerBounds.FDiv.CompProd.CompProd
 import TestingLowerBounds.FDiv.CompProd.EqTopIff
 import TestingLowerBounds.FDiv.CondFDiv
 import TestingLowerBounds.FDiv.CondFDivCompProdMeasure

@@ -5,7 +5,7 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import Mathlib.MeasureTheory.Order.Group.Lattice
 import Mathlib.Probability.Kernel.Integral
-import TestingLowerBounds.FDiv.CompProd
+import TestingLowerBounds.FDiv.CompProd.CompProd
 import TestingLowerBounds.ForMathlib.CountableOrCountablyGenerated
 
 /-!
