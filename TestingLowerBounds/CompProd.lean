@@ -217,6 +217,28 @@ lemma integrable_f_rnDeriv_compProd_iff' [IsFiniteMeasure μ] [IsFiniteMeasure �
   simp only [Set.mem_univ, Set.indicator_of_mem, Pi.one_apply]
   exact Integrable.integral_compProd' (f := fun _ ↦ 1) (integrable_const _)
 
+lemma integrable_f_rnDeriv_compProd_iff'_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    [IsFiniteKernel κ] [IsFiniteKernel η] (h_ac : μ ⊗ₘ κ ≪ μ ⊗ₘ η)
+    (hf : StronglyMeasurable f) (h_cvx : ConvexOn ℝ (Set.Ici 0) f) :
+    Integrable (fun x ↦ f ((μ ⊗ₘ κ).rnDeriv (ν ⊗ₘ η) x).toReal) (ν ⊗ₘ η)
+      ↔ (∀ᵐ a ∂ν,
+        Integrable (fun x ↦ f (μ.rnDeriv ν a * ((μ ⊗ₘ κ).rnDeriv (μ ⊗ₘ η)) (a, x)).toReal) (η a))
+      ∧ Integrable (fun a ↦
+        ∫ b, f (μ.rnDeriv ν a * ((μ ⊗ₘ κ).rnDeriv (μ ⊗ₘ η)) (a, b)).toReal ∂(η a)) ν := by
+  rw [integrable_f_rnDeriv_compProd_iff' hf h_cvx]
+  congr! 1
+  · refine ⟨fun h ↦ ?_, fun h ↦ ?_⟩
+    all_goals
+    · filter_upwards [Kernel.rnDeriv_compProd' h_ac ν, h] with a ha h
+      refine (integrable_congr ?_).mp h
+      filter_upwards [ha] with b hb
+      rw [hb]
+  · refine integrable_congr ?_
+    filter_upwards [Kernel.rnDeriv_compProd' h_ac ν] with a ha
+    refine integral_congr_ae ?_
+    filter_upwards [ha] with b hb
+    rw [hb]
+
 lemma f_compProd_congr_left (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ : Kernel α β) [IsFiniteKernel κ] :
     ∀ᵐ a ∂ν, (fun b ↦ f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ κ) (a, b)).toReal)

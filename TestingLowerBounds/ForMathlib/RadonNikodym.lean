@@ -121,14 +121,19 @@ lemma rnDeriv_measure_compProd_left' (μ ν : Measure α) (κ : Kernel α γ)
   have h' := Measure.ae_ae_of_ae_compProd <| rnDeriv_measure_compProd_left μ ν κ
   exact h'
 
-lemma rnDeriv_compProd [IsFiniteMeasure μ]
-    [IsFiniteKernel κ] [IsFiniteKernel η] (h_ac : μ ⊗ₘ κ ≪ μ ⊗ₘ η)
-    (ν : Measure α) [IsFiniteMeasure ν] :
+lemma rnDeriv_compProd [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η]
+    (h_ac : μ ⊗ₘ κ ≪ μ ⊗ₘ η) (ν : Measure α) [IsFiniteMeasure ν] :
     (fun p ↦ μ.rnDeriv ν p.1 * (μ ⊗ₘ κ).rnDeriv (μ ⊗ₘ η) p)
       =ᵐ[ν ⊗ₘ η] (μ ⊗ₘ κ).rnDeriv (ν ⊗ₘ η) := by
   refine Filter.EventuallyEq.trans ?_ (Measure.rnDeriv_mul_rnDeriv h_ac)
   filter_upwards [Kernel.rnDeriv_measure_compProd_left μ ν η] with p hp
   rw [Pi.mul_apply, hp, mul_comm]
+
+lemma rnDeriv_compProd' [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η]
+    (h_ac : μ ⊗ₘ κ ≪ μ ⊗ₘ η) (ν : Measure α) [IsFiniteMeasure ν] :
+    ∀ᵐ a ∂ν, (fun b ↦ μ.rnDeriv ν a * (μ ⊗ₘ κ).rnDeriv (μ ⊗ₘ η) (a, b))
+      =ᵐ[η a] fun b ↦ (μ ⊗ₘ κ).rnDeriv (ν ⊗ₘ η) (a, b) :=
+  Measure.ae_ae_of_ae_compProd <| rnDeriv_compProd h_ac ν
 
 variable [CountableOrCountablyGenerated α γ]
 

@@ -113,6 +113,19 @@ lemma fDiv_congr (μ ν : Measure α) (h : ∀ x ≥ 0, f x = g x) :
   congr
   simp_rw [this]
 
+lemma fDiv_congr_measure {μ ν : Measure α} {μ' ν' : Measure β}
+    (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν
+      ↔ Integrable (fun x ↦ f ((∂μ'/∂ν') x).toReal) ν')
+    (h_eq : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν →
+      Integrable (fun x ↦ f ((∂μ'/∂ν') x).toReal) ν' →
+      ∫ x, f ((∂μ/∂ν) x).toReal ∂ν = ∫ x, f ((∂μ'/∂ν') x).toReal ∂ν')
+    (h_sing : μ.singularPart ν univ = μ'.singularPart ν' univ) :
+    fDiv f μ ν = fDiv f μ' ν' := by
+  rw [fDiv, fDiv, h_int, h_sing]
+  split_ifs with h
+  · rw [h_eq (h_int.mpr h) h]
+  · rfl
+
 lemma fDiv_eq_zero_of_forall_nonneg (μ ν : Measure α) (hf : ∀ x ≥ 0, f x = 0) :
     fDiv f μ ν = 0 := by
   have (x : α) : f ((∂μ/∂ν) x).toReal = 0 := hf _ ENNReal.toReal_nonneg
@@ -634,12 +647,25 @@ lemma fDiv_lt_top_of_derivAtTop_ne_top [IsFiniteMeasure μ] (hf : derivAtTop f �
     · simp [hf]
     · exact fun _ ↦ measure_ne_top _ _
 
+lemma fDiv_lt_top_of_derivAtTop_ne_top' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (h_top : derivAtTop f ≠ ⊤) (hf : StronglyMeasurable f) (h_cvx : ConvexOn ℝ (Ici 0) f) :
+    fDiv f μ ν < ⊤ := by
+  have h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν :=
+    integrable_f_rnDeriv_of_derivAtTop_ne_top μ ν hf h_cvx h_top
+  exact fDiv_lt_top_of_derivAtTop_ne_top h_top h_int
+
 lemma fDiv_lt_top_iff_of_derivAtTop_ne_top [IsFiniteMeasure μ] (hf : derivAtTop f ≠ ⊤) :
     fDiv f μ ν < ⊤ ↔ Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν := by
   refine ⟨fun h ↦ ?_, fDiv_lt_top_of_derivAtTop_ne_top hf⟩
   by_contra h_not_int
   rw [fDiv_of_not_integrable h_not_int] at h
   simp at h
+
+lemma fDiv_ne_top_of_derivAtTop_ne_top [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (h_top : derivAtTop f ≠ ⊤) (hf : StronglyMeasurable f) (h_cvx : ConvexOn ℝ (Ici 0) f) :
+    fDiv f μ ν ≠ ⊤ := by
+  rw [← lt_top_iff_ne_top]
+  exact fDiv_lt_top_of_derivAtTop_ne_top' h_top hf h_cvx
 
 lemma fDiv_ne_top_iff_of_derivAtTop_ne_top [IsFiniteMeasure μ] (hf : derivAtTop f ≠ ⊤) :
     fDiv f μ ν ≠ ⊤ ↔ Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν := by
@@ -661,10 +687,27 @@ lemma fDiv_eq_top_iff [IsFiniteMeasure μ] [SigmaFinite ν] :
   · simp only [h, false_and, or_false]
     exact fDiv_eq_top_iff_of_derivAtTop_ne_top h
 
+lemma fDiv_eq_top_iff' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (hf : StronglyMeasurable f) (h_cvx : ConvexOn ℝ (Ici 0) f) :
+    fDiv f μ ν = ⊤
+      ↔ derivAtTop f = ⊤ ∧ (¬ Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν ∨ ¬ μ ≪ ν) := by
+  by_cases h_top : derivAtTop f = ⊤
+  · rw [fDiv_eq_top_iff]
+    simp only [h_top, true_and]
+  · simp only [h_top, false_and, iff_false]
+    exact fDiv_ne_top_of_derivAtTop_ne_top h_top hf h_cvx
+
 lemma fDiv_ne_top_iff [IsFiniteMeasure μ] [SigmaFinite ν] :
     fDiv f μ ν ≠ ⊤
       ↔ (Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) ∧ (derivAtTop f = ⊤ → μ ≪ ν) := by
   rw [ne_eq, fDiv_eq_top_iff]
+  push_neg
+  rfl
+
+lemma fDiv_ne_top_iff' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (hf : StronglyMeasurable f) (h_cvx : ConvexOn ℝ (Ici 0) f) :
+    fDiv f μ ν ≠ ⊤ ↔ derivAtTop f = ⊤ → (Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν ∧ μ ≪ ν) := by
+  rw [ne_eq, fDiv_eq_top_iff' hf h_cvx]
   push_neg
   rfl
 
