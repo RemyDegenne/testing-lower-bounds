@@ -390,7 +390,7 @@ lemma hellingerDiv_zero_ne_top (μ ν : Measure α) [IsFiniteMeasure ν] :
 @[simp]
 lemma hellingerDiv_zero_measure_left (ν : Measure α) [IsFiniteMeasure ν] :
     hellingerDiv a 0 ν = (1 - a)⁻¹ * ν .univ := by
-  rw [hellingerDiv, fDiv_zero_measure, hellingerFun_apply_zero]
+  rw [hellingerDiv, fDiv_zero_measure_left, hellingerFun_apply_zero]
 
 @[simp]
 lemma hellingerDiv_zero_measure_right_of_lt_one (ha : a < 1) (μ : Measure α) :

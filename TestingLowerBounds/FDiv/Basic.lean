@@ -68,12 +68,6 @@ lemma fDiv_of_integrable (hf : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal)
     fDiv f μ ν = ∫ x, f ((∂μ/∂ν) x).toReal ∂ν + derivAtTop f * μ.singularPart ν .univ :=
   if_neg (not_not.mpr hf)
 
-lemma fDiv_of_mul_eq_top (h : derivAtTop f * μ.singularPart ν .univ = ⊤) :
-    fDiv f μ ν = ⊤ := by
-  by_cases hf : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν
-  · rw [fDiv, if_neg (not_not.mpr hf), h, EReal.coe_add_top]
-  · exact fDiv_of_not_integrable hf
-
 lemma fDiv_ne_bot [IsFiniteMeasure μ] (hf_cvx : ConvexOn ℝ (Ici 0) f) : fDiv f μ ν ≠ ⊥ := by
   rw [fDiv]
   split_ifs with h
@@ -93,47 +87,12 @@ lemma fDiv_ne_bot_of_derivAtTop_nonneg (hf : 0 ≤ derivAtTop f) : fDiv f μ ν 
     simp [h_ne_bot, not_lt.mpr (EReal.coe_ennreal_nonneg _), not_lt.mpr hf]
   · simp
 
-section Congr
-
-lemma fDiv_congr' (μ ν : Measure α) (hfg : ∀ᵐ x ∂ν.map (fun x ↦ ((∂μ/∂ν) x).toReal), f x = g x)
-    (hfg' : f =ᶠ[atTop] g) :
-    fDiv f μ ν = fDiv g μ ν := by
-  have h : (fun a ↦ f ((∂μ/∂ν) a).toReal) =ᶠ[ae ν] fun a ↦ g ((∂μ/∂ν) a).toReal :=
-    ae_of_ae_map (μ.measurable_rnDeriv ν).ennreal_toReal.aemeasurable hfg
-  rw [fDiv, derivAtTop_congr hfg']
-  congr 2
-  · exact eq_iff_iff.mpr ⟨fun hf ↦ hf.congr h, fun hf ↦ hf.congr h.symm⟩
-  · exact EReal.coe_eq_coe_iff.mpr (integral_congr_ae h)
-
-lemma fDiv_congr (μ ν : Measure α) (h : ∀ x ≥ 0, f x = g x) :
-    fDiv f μ ν = fDiv g μ ν := by
-  have (x : α) : f ((∂μ/∂ν) x).toReal = g ((∂μ/∂ν) x).toReal := h _ ENNReal.toReal_nonneg
-  simp_rw [fDiv, this, derivAtTop_congr_nonneg h]
-  congr
-  simp_rw [this]
-
-lemma fDiv_congr_measure {μ ν : Measure α} {μ' ν' : Measure β}
-    (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν
-      ↔ Integrable (fun x ↦ f ((∂μ'/∂ν') x).toReal) ν')
-    (h_eq : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν →
-      Integrable (fun x ↦ f ((∂μ'/∂ν') x).toReal) ν' →
-      ∫ x, f ((∂μ/∂ν) x).toReal ∂ν = ∫ x, f ((∂μ'/∂ν') x).toReal ∂ν')
-    (h_sing : μ.singularPart ν univ = μ'.singularPart ν' univ) :
-    fDiv f μ ν = fDiv f μ' ν' := by
-  rw [fDiv, fDiv, h_int, h_sing]
-  split_ifs with h
-  · rw [h_eq (h_int.mpr h) h]
-  · rfl
-
-end Congr
-
 section SimpleValues
 
-@[simp]
-lemma fDiv_zero (μ ν : Measure α) : fDiv (fun _ ↦ 0) μ ν = 0 := by simp [fDiv]
+@[simp] lemma fDiv_zero (μ ν : Measure α) : fDiv (fun _ ↦ 0) μ ν = 0 := by simp [fDiv]
 
 @[simp]
-lemma fDiv_zero_measure (ν : Measure α) [IsFiniteMeasure ν] : fDiv f 0 ν = f 0 * ν .univ := by
+lemma fDiv_zero_measure_left (ν : Measure α) [IsFiniteMeasure ν] : fDiv f 0 ν = f 0 * ν .univ := by
   have : (fun x ↦ f ((∂0/∂ν) x).toReal) =ᵐ[ν] fun _ ↦ f 0 := by
     filter_upwards [ν.rnDeriv_zero] with x hx
     rw [hx]
@@ -220,14 +179,44 @@ lemma fDiv_id' (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν] :
 
 end SimpleValues
 
+section Congr
+
+lemma fDiv_congr' (μ ν : Measure α) (hfg : ∀ᵐ x ∂ν.map (fun x ↦ ((∂μ/∂ν) x).toReal), f x = g x)
+    (hfg' : f =ᶠ[atTop] g) :
+    fDiv f μ ν = fDiv g μ ν := by
+  have h : (fun a ↦ f ((∂μ/∂ν) a).toReal) =ᶠ[ae ν] fun a ↦ g ((∂μ/∂ν) a).toReal :=
+    ae_of_ae_map (μ.measurable_rnDeriv ν).ennreal_toReal.aemeasurable hfg
+  rw [fDiv, derivAtTop_congr hfg']
+  congr 2
+  · exact eq_iff_iff.mpr ⟨fun hf ↦ hf.congr h, fun hf ↦ hf.congr h.symm⟩
+  · exact EReal.coe_eq_coe_iff.mpr (integral_congr_ae h)
+
+lemma fDiv_congr (μ ν : Measure α) (h : ∀ x ≥ 0, f x = g x) :
+    fDiv f μ ν = fDiv g μ ν := by
+  have (x : α) : f ((∂μ/∂ν) x).toReal = g ((∂μ/∂ν) x).toReal := h _ ENNReal.toReal_nonneg
+  simp_rw [fDiv, this, derivAtTop_congr_nonneg h]
+  congr
+  simp_rw [this]
+
+lemma fDiv_congr_measure {μ ν : Measure α} {μ' ν' : Measure β}
+    (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν
+      ↔ Integrable (fun x ↦ f ((∂μ'/∂ν') x).toReal) ν')
+    (h_eq : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν →
+      Integrable (fun x ↦ f ((∂μ'/∂ν') x).toReal) ν' →
+      ∫ x, f ((∂μ/∂ν) x).toReal ∂ν = ∫ x, f ((∂μ'/∂ν') x).toReal ∂ν')
+    (h_sing : μ.singularPart ν univ = μ'.singularPart ν' univ) :
+    fDiv f μ ν = fDiv f μ' ν' := by
+  rw [fDiv, fDiv, h_int, h_sing]
+  split_ifs with h
+  · rw [h_eq (h_int.mpr h) h]
+  · rfl
+
 lemma fDiv_eq_zero_of_forall_nonneg (μ ν : Measure α) (hf : ∀ x ≥ 0, f x = 0) :
     fDiv f μ ν = 0 := by
-  have (x : α) : f ((∂μ/∂ν) x).toReal = 0 := hf _ ENNReal.toReal_nonneg
-  rw [fDiv_of_integrable (by simp [this])]
-  simp_rw [this, integral_zero, EReal.coe_zero, zero_add]
-  convert zero_mul _
-  rw [derivAtTop_congr_nonneg, derivAtTop_zero]
-  exact fun x hx ↦ hf x hx
+  rw [← fDiv_zero (μ := μ) (ν := ν)]
+  exact fDiv_congr μ ν hf
+
+end Congr
 
 section MulAdd
 

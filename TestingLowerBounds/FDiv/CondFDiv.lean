@@ -188,7 +188,7 @@ lemma condFDiv_self (κ : Kernel α β) (μ : Measure α) (hf_one : f 1 = 0) [Is
 @[simp]
 lemma condFDiv_zero_left [IsFiniteMeasure μ] [IsFiniteKernel η] :
     condFDiv f 0 η μ = f 0 * ∫ a, ((η a) .univ).toReal ∂μ := by
-  rw [condFDiv_eq' _ _] <;> simp_rw [Kernel.zero_apply, fDiv_zero_measure]
+  rw [condFDiv_eq' _ _] <;> simp_rw [Kernel.zero_apply, fDiv_zero_measure_left]
   · simp_rw [EReal.toReal_mul, EReal.toReal_coe, EReal.toReal_coe_ennreal]
     norm_cast
     exact integral_mul_left (f 0) _
