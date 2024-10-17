@@ -4,12 +4,12 @@ import TestingLowerBounds.CurvatureMeasure
 import TestingLowerBounds.DerivAtTop
 import TestingLowerBounds.Divergences.Chernoff
 import TestingLowerBounds.Divergences.CondHellinger
-import TestingLowerBounds.Divergences.CondKL
 import TestingLowerBounds.Divergences.CondRenyi
 import TestingLowerBounds.Divergences.DeGroot
 import TestingLowerBounds.Divergences.EGamma
 import TestingLowerBounds.Divergences.Hellinger
-import TestingLowerBounds.Divergences.KullbackLeibler
+import TestingLowerBounds.Divergences.KullbackLeibler.CondKL
+import TestingLowerBounds.Divergences.KullbackLeibler.KullbackLeibler
 import TestingLowerBounds.Divergences.Renyi
 import TestingLowerBounds.Divergences.StatInfo.DPI
 import TestingLowerBounds.Divergences.StatInfo.StatInfo
@@ -18,7 +18,8 @@ import TestingLowerBounds.Divergences.StatInfo.fDivStatInfo
 import TestingLowerBounds.Divergences.TotalVariation
 import TestingLowerBounds.ErealLLR
 import TestingLowerBounds.FDiv.Basic
-import TestingLowerBounds.FDiv.CompProd
+import TestingLowerBounds.FDiv.CompProd.CompProd
+import TestingLowerBounds.FDiv.CompProd.EqTopIff
 import TestingLowerBounds.FDiv.CondFDiv
 import TestingLowerBounds.FDiv.CondFDivCompProdMeasure
 import TestingLowerBounds.FDiv.DPIJensen
