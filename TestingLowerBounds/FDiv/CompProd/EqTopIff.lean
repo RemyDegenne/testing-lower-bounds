@@ -11,8 +11,9 @@ import TestingLowerBounds.MeasureCompProd
 
 # f-Divergences of composition products: infinite values
 
-We determine when `fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ κ)` is infinite. Every measure and kernel are supposed
-finite.
+We determine when `fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ κ)` is infinite, with special attention given to the
+case `ν = μ`, which is linked to the conditional divergence.
+Every measure and kernel are supposed finite.
 
 Recall `fDiv_ne_top_iff'`:
 `fDiv f μ ν ≠ ⊤ ↔ derivAtTop f = ⊤ → (Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν ∧ μ ≪ ν)`
@@ -37,6 +38,8 @@ variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
 
 section CompProd
 
+-- todo: right vs left is inconsistent in the fDiv_compProd names
+@[simp]
 lemma fDiv_compProd_right (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ : Kernel α β) [IsMarkovKernel κ] (hf : StronglyMeasurable f)
     (h_cvx : ConvexOn ℝ (Ici 0) f) :
@@ -54,6 +57,18 @@ lemma fDiv_compProd_right (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMea
       exact h_int
   · rw [singularPart_compProd_left, Measure.compProd_apply_univ]
 
+lemma fDiv_compProd_ne_top_iff'' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] (hf : StronglyMeasurable f)
+    (h_cvx : ConvexOn ℝ (Ici 0) f) :
+    fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ η) ≠ ⊤ ↔
+      derivAtTop f = ⊤ →
+      ((∀ᵐ a ∂ν, Integrable (fun x ↦ f ((∂(μ ⊗ₘ κ)/∂(ν ⊗ₘ η)) (a, x)).toReal) (η a))
+        ∧ Integrable (fun a ↦ ∫ b, f ((∂(μ ⊗ₘ κ)/∂(ν ⊗ₘ η)) (a, b)).toReal ∂(η a)) ν
+        ∧ μ ⊗ₘ κ ≪ ν ⊗ₘ η) := by
+  rw [fDiv_ne_top_iff' hf h_cvx, ← and_assoc]
+  congr! 1
+  simp only [and_congr_left_iff, integrable_f_rnDeriv_compProd_iff' hf h_cvx]
+
 lemma fDiv_compProd_ne_top_iff' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] (hf : StronglyMeasurable f)
     (h_cvx : ConvexOn ℝ (Ici 0) f) :
@@ -68,6 +83,70 @@ lemma fDiv_compProd_ne_top_iff' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
   intro h_ac'
   have h_ac : μ ⊗ₘ κ ≪ μ ⊗ₘ η := Measure.absolutelyContinuous_compProd_of_compProd' h_ac'
   rw [integrable_f_rnDeriv_compProd_iff'_of_ac h_ac hf h_cvx]
+
+lemma fDiv_compProd_eq_top_iff'' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] (hf : StronglyMeasurable f)
+    (h_cvx : ConvexOn ℝ (Ici 0) f) :
+    fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ η) = ⊤ ↔
+      derivAtTop f = ⊤
+      ∧ ((∀ᵐ a ∂ν, Integrable (fun x ↦ f ((∂(μ ⊗ₘ κ)/∂(ν ⊗ₘ η)) (a, x)).toReal) (η a)) →
+          Integrable (fun a ↦ ∫ b, f ((∂(μ ⊗ₘ κ)/∂(ν ⊗ₘ η)) (a, b)).toReal ∂η a) ν →
+          μ ≪ ν →
+          ¬ μ ⊗ₘ κ ≪ μ ⊗ₘ η) := by
+  rw [← not_iff_not, ← ne_eq, fDiv_compProd_ne_top_iff'' hf h_cvx,
+    Measure.absolutelyContinuous_compProd_iff']
+  push_neg
+  rfl
+
+lemma fDiv_compProd_eq_top_iff' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] (hf : StronglyMeasurable f)
+    (h_cvx : ConvexOn ℝ (Ici 0) f) :
+    fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ η) = ⊤ ↔
+      derivAtTop f = ⊤
+      ∧ ((∀ᵐ a ∂ν, Integrable (fun x ↦ f ((∂μ/∂ν) a * (∂(μ ⊗ₘ κ)/∂(μ ⊗ₘ η)) (a, x)).toReal) (η a)) →
+          Integrable (fun a ↦ ∫ b, f ((∂μ/∂ν) a * (∂(μ ⊗ₘ κ)/∂(μ ⊗ₘ η)) (a, b)).toReal ∂η a) ν →
+          μ ≪ ν →
+          ¬ μ ⊗ₘ κ ≪ μ ⊗ₘ η) := by
+  rw [← not_iff_not, ← ne_eq, fDiv_compProd_ne_top_iff' hf h_cvx,
+    Measure.absolutelyContinuous_compProd_iff']
+  push_neg
+  rfl
+
+lemma fDiv_compProd_right_ne_top_iff' [IsFiniteMeasure μ]
+    [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] (hf : StronglyMeasurable f)
+    (h_cvx : ConvexOn ℝ (Ici 0) f) :
+    fDiv f (μ ⊗ₘ κ) (μ ⊗ₘ η) ≠ ⊤ ↔
+      derivAtTop f = ⊤ →
+      ((∀ᵐ a ∂μ, Integrable (fun x ↦ f ((∂(μ ⊗ₘ κ)/∂(μ ⊗ₘ η)) (a, x)).toReal) (η a))
+        ∧ Integrable (fun a ↦ ∫ b, f ((∂(μ ⊗ₘ κ)/∂(μ ⊗ₘ η)) (a, b)).toReal ∂(η a)) μ
+        ∧ μ ⊗ₘ κ ≪ μ ⊗ₘ η) := by
+  rw [fDiv_compProd_ne_top_iff'' hf h_cvx]
+
+lemma fDiv_compProd_right_eq_top_iff' [IsFiniteMeasure μ]
+    [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] (hf : StronglyMeasurable f)
+    (h_cvx : ConvexOn ℝ (Ici 0) f) :
+    fDiv f (μ ⊗ₘ κ) (μ ⊗ₘ η) = ⊤ ↔
+      derivAtTop f = ⊤
+      ∧ ((∀ᵐ a ∂μ, Integrable (fun x ↦ f ((∂(μ ⊗ₘ κ)/∂(μ ⊗ₘ η)) (a, x)).toReal) (η a)) →
+          Integrable (fun a ↦ ∫ b, f ((∂(μ ⊗ₘ κ)/∂(μ ⊗ₘ η)) (a, b)).toReal ∂η a) μ →
+          ¬ μ ⊗ₘ κ ≪ μ ⊗ₘ η) := by
+  rw [← not_iff_not, ← ne_eq, fDiv_compProd_right_ne_top_iff' hf h_cvx]
+  push_neg
+  rfl
+
+-- todo: not useful, since `fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ κ) = fDiv f μ ν`
+lemma fDiv_compProd_left_ne_top_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    [IsMarkovKernel κ] (hf : StronglyMeasurable f) (h_cvx : ConvexOn ℝ (Ici 0) f) :
+    fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ κ) ≠ ⊤ ↔
+      derivAtTop f = ⊤ → (Integrable (fun a ↦ f ((∂μ/∂ν) a).toReal) ν ∧ μ ≪ ν) := by
+  rw [fDiv_compProd_right _ _ _ hf h_cvx, fDiv_ne_top_iff' hf h_cvx]
+
+-- todo: not useful, since `fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ κ) = fDiv f μ ν`
+lemma fDiv_compProd_left_eq_top_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    [IsMarkovKernel κ] (hf : StronglyMeasurable f) (h_cvx : ConvexOn ℝ (Ici 0) f) :
+    fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ κ) = ⊤ ↔
+      derivAtTop f = ⊤ ∧ (Integrable (fun a ↦ f ((∂μ/∂ν) a).toReal) ν → ¬ μ ≪ ν) := by
+  rw [fDiv_compProd_right _ _ _ hf h_cvx, fDiv_eq_top_iff' hf h_cvx, imp_iff_not_or]
 
 variable [CountableOrCountablyGenerated α β]
 
@@ -127,39 +206,6 @@ lemma fDiv_compProd_right_eq_top_iff [IsFiniteMeasure μ]
         Integrable (fun a ↦ ∫ b, f ((∂κ a/∂η a) b).toReal ∂η a) μ →
         derivAtTop f = ⊤ ∧ ¬∀ᵐ a ∂μ, κ a ≪ η a := by
   rw [← not_iff_not, ← ne_eq, fDiv_compProd_right_ne_top_iff hf h_cvx]
-  push_neg
-  rfl
-
-lemma fDiv_compProd_left_ne_top_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    [IsMarkovKernel κ] (hf : StronglyMeasurable f) (h_cvx : ConvexOn ℝ (Ici 0) f) :
-    fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ κ) ≠ ⊤ ↔
-      Integrable (fun a ↦ f ((∂μ/∂ν) a).toReal) ν ∧ (derivAtTop f = ⊤ → μ ≪ ν) := by
-  rw [fDiv_compProd_ne_top_iff hf h_cvx]
-  have h_one : ∀ a, ∂(κ a)/∂(κ a) =ᵐ[κ a] 1 := fun a ↦ (κ a).rnDeriv_self
-  simp only [ENNReal.toReal_mul, Measure.AbsolutelyContinuous.rfl, eventually_true, and_true]
-  have : ∀ a, ∫ b, f (((∂μ/∂ν) a).toReal * ((∂κ a/∂κ a) b).toReal) ∂κ a
-        = ∫ _, f (((∂μ/∂ν) a).toReal) ∂κ a := by
-      refine fun a ↦ integral_congr_ae ?_
-      filter_upwards [h_one a] with b hb
-      simp [hb]
-  refine ⟨fun ⟨_, h2, h3⟩ ↦ ⟨?_, h3⟩, fun ⟨h1, h2⟩ ↦ ⟨?_, ?_, h2⟩⟩
-  · refine (integrable_congr ?_).mpr h2
-    refine ae_of_all _ (fun a ↦ ?_)
-    simp [this]
-  · refine ae_of_all _ (fun a ↦ ?_)
-    have : (fun x ↦ f (((∂μ/∂ν) a).toReal * ((∂κ a/∂κ a) x).toReal))
-        =ᵐ[κ a] (fun _ ↦ f ((∂μ/∂ν) a).toReal) := by
-      filter_upwards [h_one a] with b hb
-      simp [hb]
-    rw [integrable_congr this]
-    exact integrable_const _
-  · simpa only [this, integral_const, measure_univ, ENNReal.one_toReal, smul_eq_mul, one_mul]
-
-lemma fDiv_compProd_left_eq_top_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    [IsMarkovKernel κ] (hf : StronglyMeasurable f) (h_cvx : ConvexOn ℝ (Ici 0) f) :
-    fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ κ) = ⊤ ↔
-      Integrable (fun a ↦ f ((∂μ/∂ν) a).toReal) ν → (derivAtTop f = ⊤ ∧ ¬ μ ≪ ν) := by
-  rw [← not_iff_not, ← ne_eq, fDiv_compProd_left_ne_top_iff hf h_cvx]
   push_neg
   rfl
 
