@@ -26,6 +26,15 @@ namespace ProbabilityTheory
 
 variable {α : Type*} {mα : MeasurableSpace α} {μ ν : Measure α}
 
+section Move
+
+lemma llr_self (μ : Measure α) [SigmaFinite μ] : llr μ μ =ᵐ[μ] 0 := by
+  unfold llr
+  filter_upwards [μ.rnDeriv_self] with a ha
+  simp [ha]
+
+end Move
+
 open Classical in
 /-- Kullback-Leibler divergence between two measures. -/
 noncomputable def kl (μ ν : Measure α) : EReal :=
@@ -60,31 +69,13 @@ lemma derivAtTop_mul_log : derivAtTop (fun x ↦ x * log x) = ⊤ := by
   rw [EventuallyEq, eventually_atTop]
   exact ⟨1, fun _ hx ↦ rightDeriv_mul_log (zero_lt_one.trans_le hx).ne'⟩
 
-lemma fDiv_mul_log_eq_top_iff [IsFiniteMeasure μ] [SigmaFinite ν] :
-    fDiv (fun x ↦ x * log x) μ ν = ⊤ ↔ μ ≪ ν → ¬ Integrable (llr μ ν) μ := by
-  rw [fDiv_eq_top_iff]
-  simp only [derivAtTop_mul_log, true_and]
-  by_cases hμν : μ ≪ ν
-  · simp [hμν, integrable_rnDeriv_mul_log_iff hμν]
-  · simp [hμν]
-
-lemma kl_eq_fDiv [SigmaFinite μ] [SigmaFinite ν] :
-    kl μ ν = fDiv (fun x ↦ x * log x) μ ν := by
-  classical
-  by_cases hμν : μ ≪ ν
-  swap; · rw [fDiv_of_not_ac derivAtTop_mul_log hμν, kl_of_not_ac hμν]
-  by_cases h_int : Integrable (llr μ ν) μ
-  · rw [fDiv_of_derivAtTop_eq_top derivAtTop_mul_log, kl_of_ac_of_integrable hμν h_int,
-      if_pos ⟨(integrable_rnDeriv_mul_log_iff hμν).mpr h_int, hμν⟩]
-    simp_rw [← smul_eq_mul]
-    rw [integral_rnDeriv_smul hμν]
-    rfl
-  · rw [kl_of_not_integrable h_int, fDiv_of_not_integrable]
-    rwa [integrable_rnDeriv_mul_log_iff hμν]
-
 @[simp]
 lemma kl_self (μ : Measure α) [SigmaFinite μ] : kl μ μ = 0 := by
-  rw [kl_eq_fDiv, fDiv_self (by norm_num)]
+  have h := llr_self μ
+  rw [kl, if_pos]
+  · simp [integral_congr_ae h]
+  · rw [integrable_congr h]
+    exact ⟨Measure.AbsolutelyContinuous.rfl, integrable_zero _ _ μ⟩
 
 @[simp]
 lemma kl_zero_left : kl 0 ν = 0 := by
@@ -114,6 +105,35 @@ lemma kl_ne_top_iff' : kl μ ν ≠ ⊤ ↔ kl μ ν = ∫ x, llr μ ν x ∂μ 
     rw [kl_of_ac_of_integrable h1 h2]
   · simp_all only [ne_eq, EReal.coe_ne_top, not_false_eq_true, implies_true]
 
+@[simp]
+lemma kl_ne_bot (μ ν : Measure α) : kl μ ν ≠ ⊥ := by
+  rw [kl]
+  split_ifs with h
+  · simp only [ne_eq, EReal.coe_ne_bot, not_false_eq_true]
+  · norm_num
+
+lemma fDiv_mul_log_eq_top_iff [IsFiniteMeasure μ] [SigmaFinite ν] :
+    fDiv (fun x ↦ x * log x) μ ν = ⊤ ↔ μ ≪ ν → ¬ Integrable (llr μ ν) μ := by
+  rw [fDiv_eq_top_iff]
+  simp only [derivAtTop_mul_log, true_and]
+  by_cases hμν : μ ≪ ν
+  · simp [hμν, integrable_rnDeriv_mul_log_iff hμν]
+  · simp [hμν]
+
+lemma kl_eq_fDiv [SigmaFinite μ] [SigmaFinite ν] :
+    kl μ ν = fDiv (fun x ↦ x * log x) μ ν := by
+  classical
+  by_cases hμν : μ ≪ ν
+  swap; · rw [fDiv_of_not_ac derivAtTop_mul_log hμν, kl_of_not_ac hμν]
+  by_cases h_int : Integrable (llr μ ν) μ
+  · rw [fDiv_of_derivAtTop_eq_top derivAtTop_mul_log, kl_of_ac_of_integrable hμν h_int,
+      if_pos ⟨(integrable_rnDeriv_mul_log_iff hμν).mpr h_int, hμν⟩]
+    simp_rw [← smul_eq_mul]
+    rw [integral_rnDeriv_smul hμν]
+    rfl
+  · rw [kl_of_not_integrable h_int, fDiv_of_not_integrable]
+    rwa [integrable_rnDeriv_mul_log_iff hμν]
+
 lemma measurable_kl {β : Type*} [MeasurableSpace β] [CountableOrCountablyGenerated α β]
     (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
     Measurable (fun a ↦ kl (κ a) (η a)) := by
@@ -121,13 +141,6 @@ lemma measurable_kl {β : Type*} [MeasurableSpace β] [CountableOrCountablyGener
   exact measurable_fDiv _ _ continuous_mul_log.stronglyMeasurable
 
 section kl_nonneg
-
-@[simp]
-lemma kl_ne_bot (μ ν : Measure α) : kl μ ν ≠ ⊥ := by
-  rw [kl]
-  split_ifs with h
-  · simp only [ne_eq, EReal.coe_ne_bot, not_false_eq_true]
-  · norm_num
 
 lemma kl_ge_mul_log' [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
     (hμν : μ ≪ ν) :
