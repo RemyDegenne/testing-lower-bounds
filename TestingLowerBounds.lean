@@ -8,7 +8,6 @@ import TestingLowerBounds.Divergences.CondRenyi
 import TestingLowerBounds.Divergences.DeGroot
 import TestingLowerBounds.Divergences.EGamma
 import TestingLowerBounds.Divergences.Hellinger
-import TestingLowerBounds.Divergences.KullbackLeibler.CompProd
 import TestingLowerBounds.Divergences.KullbackLeibler.CondKL
 import TestingLowerBounds.Divergences.KullbackLeibler.KullbackLeibler
 import TestingLowerBounds.Divergences.Renyi
