@@ -18,6 +18,11 @@ namespace MeasureTheory.Measure
 
 variable {α β : Type*} {m mα : MeasurableSpace α} {mβ : MeasurableSpace β} {μ ν : Measure α}
 
+lemma withDensity_mono_measure (h : μ ≤ ν) {f : α → ℝ≥0∞} : μ.withDensity f ≤ ν.withDensity f := by
+  refine Measure.le_intro fun s hs _ ↦ ?_
+  rw [withDensity_apply _ hs, withDensity_apply _ hs]
+  exact lintegral_mono_fn' (fun _ ↦ le_rfl) (Measure.restrict_mono subset_rfl h)
+
 lemma rnDeriv_add_self_right (ν μ : Measure α) [SigmaFinite μ] [SigmaFinite ν] :
     ν.rnDeriv (μ + ν) =ᵐ[ν] fun x ↦ (μ.rnDeriv ν x + 1)⁻¹ := by
   have hν_ac : ν ≪ μ + ν := by rw [add_comm]; exact rfl.absolutelyContinuous.add_right _
