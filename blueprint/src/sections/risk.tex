@@ -255,7 +255,7 @@ TODO: can we build kernels such that this lemma is a consequence of one of the l
 \end{lemma}
 
 \begin{proof}\leanok
-\uses{}
+\uses{lem:bayesInv_properties}
 Use the main property of the Bayesian inverse.
 \begin{align*}
   (P_\pi^\dagger \times \hat{y}) \circ P \circ \pi
@@ -359,7 +359,7 @@ By Lemma~\ref{lem:bayesianRisk_ge_inf_bayesInv}, the Bayesian risk of the genera
 \end{lemma}
 
 \begin{proof}%\leanok
-\uses{lem:rnDeriv_bayesInv}
+\uses{lem:bayesInv_properties}
 
 \end{proof}
 
@@ -377,7 +377,7 @@ By Lemma~\ref{lem:bayesianRisk_ge_inf_bayesInv}, the Bayesian risk of the genera
 \end{lemma}
 
 \begin{proof}%\leanok
-\uses{thm:isBayesEstimator_genBayesEstimator}
+\uses{thm:isBayesEstimator_genBayesEstimator,lem:bayesInv_properties}
 
 \end{proof}
 
@@ -539,7 +539,7 @@ In this section, for a measure $\xi$ on $\{0,1\}$, we write $\xi_0$ for $\xi(\{0
 \end{lemma}
 
 \begin{proof}\leanok
-\uses{lem:kernel_properties}
+\uses{lem:bayesInv_properties}
 
 \end{proof}
 
