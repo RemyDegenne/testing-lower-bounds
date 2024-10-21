@@ -1387,8 +1387,8 @@ For $x \le y$, $x/y \le 1 \le (1-x)/(1-y)$, hence $f'_+(\frac{x}{y}) \le f'_+(\f
 \end{lemma}
 
 \begin{proof}%\leanok
-\uses{thm:fDiv_data_proc_2}
-Let $u$ be the uniform distribution on $[0,1]$. Then $D_f(\mu, \nu) = D_f(\mu \times u, \nu \times u)$ (by lemma TODO about kernel with identity as first coordinate).
+\uses{thm:fDiv_data_proc_2,lem:fDiv_compProd_prod_eq}
+Let $u$ be the uniform distribution on $[0,1]$. Then $D_f(\mu, \nu) = D_f(\mu \times u, \nu \times u)$ (by Lemma~\ref{lem:fDiv_compProd_prod_eq}).
 Let $g : [0,1] \times [0,1] \to \{0,1\}$ be the measurable function with $g(x, y) = \mathbb{I}\{y \le x\}$. We also write $g$ for the corresponding deterministic kernel. By the data-processing inequality (Theorem~\ref{thm:fDiv_data_proc_2}),
 \begin{align*}
 D_f(\mu \times u, \nu \times u)

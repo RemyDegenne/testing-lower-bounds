@@ -6,19 +6,14 @@ This is not an introductory text and we will not explain why the objects describ
 Our goal is to compile properties of information divergences and their uses in hypothesis testing. Most software libraries have tutorials, to learn how to use them, as well as a documentation listing all the available objects and methods of the library: in this project, we write the ``documentation'' of a part of the ``information theory library''.
 
 
-\section*{Source material}
-
-A very useful book (draft) about information theory and hypothesis testing: \cite{polyanskiy2024information} 
-
-Main reference for the properties of the Rényi divergence: \cite{van2014renyi}
-
-%As a reference, we want all notions needed in the recent paper \href{https://arxiv.org/abs/2403.01892}{[Degenne and Mathieu, Information Lower Bounds for Robust Mean Estimation, 2024]}. % TODO: why is this not a cite command?
 
 \section*{This document and the Lean implementation}
 
 This document is generated from a latex file written by the authors, thanks to the \texttt{leanblueprint} library developed by Patrick Massot (\url{https://github.com/PatrickMassot/leanblueprint}). It contains links to a Lean implementation of the results, but there is no technical guarantee that the results written here and the ones in the code match in any way.
 In particular, nothing in this document is automatically generated from the code.
 In summary, although the authors strive to make this document as close to the Lean implementation as possible, the only formally verified statements are those written in Lean.
+
+
 
 \section*{Assumptions}
 
@@ -31,6 +26,8 @@ However some statements, notably those involving conditional divergences, will r
 The countably generated assumption means that there is a countable set of sets that generates the sigma-algebra.
 This is the case for example in any standard Borel space, which covers the vast majority of applications.
 
+
+
 \section*{Notation}
 
 $\mathcal X$, $\mathcal Y$ will denote measurable spaces. Additional assumptions such as $\mathcal X$ being standard Borel will be specified where necessary.
@@ -38,11 +35,18 @@ $\mathcal X$, $\mathcal Y$ will denote measurable spaces. Additional assumptions
 $\mu$, $\nu$ denote measures on a space $\mathcal X$. A measure $\mu$ is said to be finite if $\mu(\mathcal X) < \infty$, to be a probability measure if $\mu(\mathcal X) = 1$. A measure is s-finite if it can be written as a countable sum of finite measures, and is $\sigma$-finite if it can be written as a countable sum of finite measures which are pairwise mutually singular.
 The set of measures on $\mathcal X$ is $\mathcal M(\mathcal X)$. The set of probability measures is denoted by $\mathcal P(\mathcal X)$.
 
+For a function $g : \mathcal X \to \mathcal Y$ which is $a.e.$-measurable with respect to $\mu$, $g_* \mu$ denotes the pushforward or map of $\mu$ by $g$. This is a measure on $\mathcal Y$ such that $g_* \mu (A) = \mu(g^{-1} A)$.
+For $g : \mathcal X \to \mathbb{R}_{+,\infty}$, $g \cdot \mu$ denotes the measure on $\mathcal X$ with density $g$ with respect to $\mu$. That is, $g \cdot \mu (A) = \int_{x \in A} g(x) \partial\mu$.
+The Radon-Nikodym of a measure $\mu$ with respect to another measure $\mu$ is denoted by $\frac{d\mu}{d\nu}$. The singular part of $\mu$ with respect to $\mu$ is $\mu_{\perp \nu}$.
+
 $\kappa, \eta$ are used to refer to transition kernels, and we write $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ to indicate that $\kappa$ is a transition kernel from $\mathcal X$ to $\mathcal Y$. That is, $\kappa$ is a measurable map from $\mathcal X$ to the measures on $\mathcal Y$.
 A kernel is finite if there exists $C < + \infty$ such that $\kappa(x, \mathcal Y) \le C$ for all $x \in \mathcal X$ (note that this is stronger than the condition that all $\kappa(x)$ are finite since it requires a uniform bound). It is s-finite if it can be written as a countable sum of finite kernels, and is called a Markov kernel if $\kappa(x)$ is a probability measure for all $x \in \mathcal X$.
+See Appendix~\ref{app:kernels} for more details about kernels and Appendix~\ref{app:rnDeriv} for results about Radon-Nikodym derivatives of kernels.
 
-TODO: composition/product of measures and kernels. $\mu \otimes \kappa$, $\kappa \circ \mu$.
 
-For a function $g : \mathcal X \to \mathcal Y$ which is $a.e.$-measurable with respect to $\mu$, $g_* \mu$ denotes the pushforward of $\mu$ by $g$. This is a measure on $\mathcal Y$ such that $g_* \mu (A) = \mu(g^{-1} A)$.
 
-For a function $g : \mathcal X \to \mathbb{R}_{+,\infty}$, $g \cdot \mu$ denotes the measure on $\mathcal X$ with density $g$ with respect to $\mu$. That is, $g \cdot \mu (A) = \int_{x \in A} g(x) \partial\mu$.
+\section*{Some references}
+
+A very useful book (draft) about information theory and hypothesis testing: \cite{polyanskiy2024information} 
+
+Main reference for the properties of the Rényi divergence: \cite{van2014renyi}

@@ -1,4 +1,5 @@
 \chapter{Probability transition kernels}
+\label{app:kernels}
 
 Consider, informally, a process where we first observe a random state (for example the result of a coin flip), and then, depending on the value of that first state, we produce another random value.
 For example, if the coin lands on heads, we roll two dice and observe the sum. If on the other hand the coin lands on tails, we roll only one die and observe the result.
@@ -258,13 +259,45 @@ TODO: as a consequence, in standard Borel spaces we also have disintegration of 
 
 
 
+TODO: find a way to hide the following dummy lemma
+\begin{lemma}[Dummy lemma: kernel properties]
+  \label{lem:kernel_properties}
+  %\lean{}
+  \leanok
+  \uses{
+    def:measure_measurableSpace,
+    def:kernel,
+    def:deterministic_kernel,
+    def:finite_kernel,
+    def:markov_kernel,
+    def:sFinite_kernel,
+    def:kernel_compProd,
+    def:kernel_comp,
+    def:kernel_prod,
+    def:kernel_parallel_prod,
+    def:measure_compProd,
+  }
+  Dummy node to summarize kernel properties.
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{
+  lem:measurable_measure_fun,
+  thm:kernel_ext,
+  thm:disintegration,
+}
+\end{proof}
+
+
+
+
 \section{Bayesian inverse of a kernel}
 
 \begin{definition}
   \label{def:bayesInv}
   \lean{ProbabilityTheory.bayesInv}
   \leanok
-  \uses{def:kernel_comp, def:measure_compProd}
+  \uses{lem:kernel_properties}
   For $\mu \in \mathcal M(\mathcal X)$ and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$, a Bayesian inverse of $\kappa$ is a Markov kernel $\kappa_\mu^\dagger : \mathcal Y \rightsquigarrow \mathcal X$ such that $\mu \otimes \kappa = ((\kappa \circ \mu) \otimes \kappa_\mu^\dagger)_\leftrightarrow$ in which $(\cdot)_\leftrightarrow$ denotes swapping the two coordinates.
   If such an inverse exists it is unique up to a $(\kappa \circ \mu)$-null set, and we talk about \emph{the} Bayesian inverse of $\kappa$ with respect to $\mu$.
 \end{definition}
@@ -412,33 +445,20 @@ By the defining property of the Bayesian inverse, those two quantities are equal
 \end{proof}
 
 
+
 TODO: find a way to hide the following dummy lemma
-\begin{lemma}[Dummy lemma: kernel properties]
-  \label{lem:kernel_properties}
+\begin{lemma}[Dummy lemma: bayesInv properties]
+  \label{lem:bayesInv_properties}
   %\lean{}
   \leanok
   \uses{
-    def:measure_measurableSpace,
-    def:kernel,
-    def:deterministic_kernel,
-    def:finite_kernel,
-    def:markov_kernel,
-    def:sFinite_kernel,
-    def:kernel_compProd,
-    def:kernel_comp,
-    def:kernel_prod,
-    def:kernel_parallel_prod,
-    def:measure_compProd,
     def:bayesInv
   }
-  Dummy node to summarize kernel properties.
+  Dummy node to summarize properties of the Bayesian inverse.
 \end{lemma}
 
 \begin{proof}\leanok
 \uses{
-  lem:measurable_measure_fun,
-  thm:kernel_ext,
-  thm:disintegration,
   lem:exists_bayesInv,
   lem:eq_bayesInv_of_compProd_eq,
   lem:bayesInv_comp_self,
