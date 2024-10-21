@@ -45,6 +45,8 @@ Apply Lemma~\ref{lem:rnDeriv_unique}.
 \section{Composition-product}
 
 
+\subsection{Absolute Continuity}
+
 \begin{lemma}
   \label{lem:ac_compProd_iff}
   \lean{MeasureTheory.Measure.absolutelyContinuous_compProd_of_compProd,MeasureTheory.Measure.absolutelyContinuous_compProd_of_compProd',MeasureTheory.Measure.absolutelyContinuous_of_compProd}
@@ -56,16 +58,92 @@ Apply Lemma~\ref{lem:rnDeriv_unique}.
     \item[(1b)] if $\mu \otimes \kappa \ll \nu \otimes \eta$ and $\kappa(x) \ne 0$ for all $x$ then $\mu \ll \nu$,
     \item[(2)]  if $\mu \ll \nu$ and $\mu \otimes \kappa \ll \mu \otimes \eta$ then $\mu \otimes \kappa \ll \nu \otimes \eta$.
   \end{itemize}
-  In particular, if $\kappa(x) \ne 0$ for all $x$ then
-  \begin{align*}
-  \mu \otimes \kappa \ll \nu \otimes \eta
-  \iff \left( \mu \ll \nu \ \wedge \ \mu \otimes \kappa \ll \mu \otimes \eta \right)
-  \: .
-  \end{align*}
+  In particular,
+  \begin{itemize}
+    \item if $\kappa(x) \ne 0$ for all $x$ then
+      $\mu \otimes \kappa \ll \nu \otimes \eta \iff \left( \mu \ll \nu \ \wedge \ \mu \otimes \kappa \ll \mu \otimes \eta \right)$~.
+    \item If $\mu \ll \nu$ then $\mu \otimes \kappa \ll \nu \otimes \eta \iff \mu \otimes \kappa \ll \mu \otimes \eta$~.
+  \end{itemize}
+  
 \end{lemma}
 
 \begin{proof}\leanok
 \uses{lem:kernel_properties}
+
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:mutuallySingular_compProd}
+  %\lean{}
+  %\leanok
+  \uses{lem:kernel_properties}
+  Let $\mu, \nu$ be two $\sigma$-finite measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels.
+  Let $\mu \sqcap \nu$ denote the infimum of $\mu$ and $\nu$.
+  Then
+  \begin{enumerate}
+    \item if $\mu \perp \nu$ then $\mu \otimes \kappa \perp \nu \otimes \eta$,
+    \item $\mu \otimes \kappa \perp \nu \otimes \eta \iff (\mu \sqcap \nu) \otimes \kappa \perp (\mu \sqcap \nu) \otimes \eta$, and the same holds for any measure which is equivalent to $\mu \sqcap \nu$, like $\frac{d \mu}{d \nu} \cdot \nu$~,
+    \item if $\mu \otimes \kappa \perp \nu \otimes \eta$ then for $(\mu \sqcap \nu)$-almost every $x$, $\kappa(x) \perp \eta(x)$.
+  \end{enumerate}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+First, let's state two facts about mutually singular measures that we will use without proof:
+\begin{itemize}
+  \item $\mu \perp (\nu + \nu') \iff \mu \perp \nu \ \wedge \ \mu \perp \nu'$~,
+  \item if $\mu \ll \mu'$ and  $\mu' \ll \mu$ then $\mu \perp \nu \iff \mu' \perp \nu$~.
+\end{itemize}
+
+\emph{1.} Let $s$ be a measurable set of $\mathcal X$ such that $\mu(s) = 0$ and $\nu(s^c) = 0$. One can check that the sets $s \times \mathcal Y$ and $s^c \times \mathcal Y$ demonstrate $\mu \otimes \kappa \perp \nu \otimes \eta$.
+
+\emph{2.} Write $\mu = \frac{d \mu}{d \nu} \cdot \nu + \mu_{\perp \nu}$ and $\nu = \frac{d \nu}{d \mu} \cdot \mu + \nu_{\perp \mu}$.
+Then
+\begin{align*}
+\mu \otimes \kappa \perp \nu \otimes \eta
+&\iff \left(\frac{d \mu}{d \nu} \cdot \nu\right) \otimes \kappa \perp \left(\frac{d \nu}{d \mu} \cdot \mu\right) \otimes \eta
+\\&\qquad \wedge \ \left(\frac{d \mu}{d \nu} \cdot \nu\right) \otimes \kappa \perp \nu_{\perp \mu} \otimes \eta
+\\&\qquad \wedge \ \mu_{\perp \nu} \otimes \kappa \perp \left(\frac{d \nu}{d \mu} \cdot \mu\right) \otimes \eta
+\\&\qquad \wedge \ \mu_{\perp \nu} \otimes \kappa \perp \nu_{\perp \mu} \otimes \eta
+\end{align*}
+The three last lines are true since $\mu \perp \nu_{\perp \mu}$ and $\mu_{\perp \nu} \perp \nu$. Only the first line remains.
+It suffices then to prove that $\mu \sqcap \nu$, $\frac{d \mu}{d \nu} \cdot \nu$ and $\frac{d \nu}{d \mu} \cdot \mu$ are equivalent.
+
+TODO
+
+\emph{3.} By 2. it suffices to consider the case $\nu = \mu$ and show that for $\mu$-almost every $x$, $\kappa(x) \perp \eta(x)$.
+Let $s$ be a measurable set of $\mathcal X \times \mathcal Y$ such that $(\mu \otimes \kappa)(s) = 0$ and $(\mu \otimes \eta)(s^c) = 0$.
+Then
+\begin{align*}
+0 &= (\mu \otimes \kappa)(s)
+\\
+&= \int_{x} \kappa(x)(\{y \mid (x, y) \in s\}) \partial \mu
+\: .
+\end{align*}
+Hence for $\mu$-almost all $x$, $\kappa(x)(\{y \mid (x, y) \in s\}) = 0$. Similarly, for $\mu$-almost all $x$, $\eta(x)(\{y \mid (x, y) \in s^c\}) = 0$. Since $\{y \mid (x, y) \in s^c\} = \{y \mid (x, y) \in s\}^c$, we have a measurable set witnessing $\kappa(x) \perp \eta(x)$ for $\mu$-almost all $x$.
+\end{proof}
+
+
+
+\subsection{Radon-Nikodym derivative and singular part}
+
+\begin{lemma}
+  \label{lem:singularPart_compProd}
+  %\lean{}
+  %\leanok
+  \uses{lem:kernel_properties}
+  Let $\mu, \nu$ be two $\sigma$-finite measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two s-finite kernels.
+  We denote $\frac{d\mu}{d\nu}\cdot \nu$ by $\mu_{\parallel \nu}$.
+  Then
+  \begin{align*}
+  (\mu \otimes \kappa)_{\perp (\nu \otimes \eta)} = \mu_{\perp \nu} \otimes \kappa + (\mu_{\parallel \nu} \otimes \kappa)_{\perp (\mu_{\parallel \nu} \otimes \eta)}
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
 
 \end{proof}
 
@@ -76,8 +154,8 @@ Apply Lemma~\ref{lem:rnDeriv_unique}.
   \leanok
   \uses{}
   Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels.
-  Let $\mu' = \left(\frac{\partial \mu}{\partial \nu}\right) \cdot \nu$.
-  Then for $(\nu \otimes \eta)$-almost all $z$, $\frac{d (\mu' \otimes \kappa)}{d (\nu \otimes \eta)}(z) = \frac{d (\mu \otimes \kappa)}{d (\nu \otimes \eta)}(z)$.
+  Let $\mu_{\parallel \nu} = \left(\frac{\partial \mu}{\partial \nu}\right) \cdot \nu$.
+  Then for $(\nu \otimes \eta)$-almost all $z$, $\frac{d (\mu_{\parallel \nu} \otimes \kappa)}{d (\nu \otimes \eta)}(z) = \frac{d (\mu \otimes \kappa)}{d (\nu \otimes \eta)}(z)$.
 \end{lemma}
 
 \begin{proof} \leanok
@@ -96,6 +174,7 @@ Apply Lemma~\ref{lem:rnDeriv_unique}.
 \begin{proof} \leanok
 \uses{}
 We can suppose $\mu \ll \nu$ without loss of generality (by Lemma~\ref{lem:rnDeriv_eq_ac_left}).
+That implies $\mu \otimes \kappa \ll \nu \otimes \kappa$.
 It suffices to show that the integrals of the two functions agree on all sets in the $\pi$-system of products of measurable sets. Let $s, t$ be two measurable sets of $\mathcal X$ and $\mathcal Y$ respectively.
 \begin{align*}
 \int_{p \in s \times t} \frac{d (\mu \otimes \kappa)}{d (\nu \otimes \kappa)}(p) \partial(\nu \otimes \kappa)
@@ -361,8 +440,6 @@ For $\mathcal A$ a sub-$\sigma$-algebra and $\mu$ a measure, we write $\mathcal 
 
 \begin{proof}\leanok
 \uses{lem:rnDeriv_map_eq_condexp}
-TODO: the current Lean proof is not the proof presented here (but a direct computation).
-
 The restriction $\mu_{| \mathcal A}$ is the map of $\mu$ by the identity, seen as a function from $\mathcal X$ with its $\sigma$-algebra to $\mathcal X$ with $\mathcal{A}$.
 We can thus apply Lemma~\ref{lem:rnDeriv_map_eq_condexp}.
 \end{proof}
