@@ -294,11 +294,30 @@ lemma toReal_ne_zero_iff {x : EReal} : x.toReal ≠ 0 ↔ x ≠ 0 ∧ x ≠ ⊤ 
 lemma toReal_eq_zero_iff {x : EReal} : x.toReal = 0 ↔ x = 0 ∨ x = ⊤ ∨ x = ⊥ := by
   induction x <;> norm_num
 
-lemma sub_nonneg {x y : EReal} (hy : y ≠ ⊤) (hy' : y ≠ ⊥) : 0 ≤ x - y ↔ y ≤ x := by
-  lift y to ℝ using ⟨hy, hy'⟩
-  induction x <;> simp [← EReal.coe_sub]
+lemma sub_nonneg' {x y : EReal} (h : x ≠ ⊤ ∨ y ≠ ⊤) (h' : x ≠ ⊥ ∨ y ≠ ⊥) :
+    0 ≤ x - y ↔ y ≤ x := by
+  induction x <;> induction y
+  · simp at h'
+  · simp
+  · simp
+  · simp
+  · norm_cast
+    simp
+  · simp
+  · simp
+  · simp
+  · simp at h
 
-lemma sub_nonpos {x y : EReal} (hy : y ≠ ⊤) (hy' : y ≠ ⊥) : x - y ≤ 0 ↔ x ≤ y := by
+lemma sub_nonneg {x y : EReal} (hy : y ≠ ⊤) (hy' : y ≠ ⊥) : 0 ≤ x - y ↔ y ≤ x := by
+  refine sub_nonneg' (Or.inr hy) (Or.inr hy')
+
+lemma sub_nonpos {x y : EReal} : x - y ≤ 0 ↔ x ≤ y := by
+  by_cases hy : y = ⊤
+  · simp [hy]
+  by_cases hy' : y = ⊥
+  · simp only [hy', le_bot_iff]
+    rw [sub_eq_add_neg, neg_bot]
+    induction x <;> simp
   lift y to ℝ using ⟨hy, hy'⟩
   induction x <;> simp [← EReal.coe_sub]
 
@@ -504,6 +523,13 @@ theorem _root_.Measurable.ereal_toENNReal {α : Type*} {_ : MeasurableSpace α}
     Measurable fun x => (f x).toENNReal :=
   measurable_ereal_toENNReal.comp hf
 
+lemma toENNReal_add_le {x y : EReal} :
+    (x + y).toENNReal ≤ x.toENNReal + y.toENNReal := by
+  induction x <;> induction y <;> try {· simp_all}
+  norm_cast
+  simp_rw [real_coe_toENNReal]
+  exact ENNReal.ofReal_add_le
+
 lemma toENNReal_add {x y : EReal} (hx : 0 ≤ x) (hy : 0 ≤ y) :
     (x + y).toENNReal = x.toENNReal + y.toENNReal := by
   induction x <;> induction y <;> try {· simp_all}
@@ -518,7 +544,7 @@ lemma toENNReal_sub {x y : EReal} (hy : 0 ≤ y) :
   simp only [ne_eq, coe_ne_top, not_false_eq_true, toENNReal_of_ne_top, toReal_coe]
   by_cases hxy : x ≤ y
   · rw [toENNReal_of_nonpos]
-    swap; · exact (sub_nonpos (coe_ne_top y) (coe_ne_bot y)).mpr <| EReal.coe_le_coe_iff.mpr hxy
+    swap; · exact sub_nonpos.mpr <| EReal.coe_le_coe_iff.mpr hxy
     simp_all
   · rw [toENNReal_of_ne_top, ← EReal.coe_sub, toReal_coe,
       ENNReal.ofReal_sub x (EReal.coe_nonneg.mp hy)]
