@@ -305,7 +305,9 @@ protected def add (f g : ERealStieltjes) : ERealStieltjes where
     have h_tendsto : ContinuousAt (fun (p : EReal × EReal) ↦ p.1 + p.2) (-f x, -g x) :=
       EReal.continuousAt_add (Or.inr hg_bot) (Or.inl hf_bot)
     rw [ContinuousAt] at h_tendsto
-    sorry
+    change Tendsto ((fun p : EReal × EReal ↦ p.1 + p.2) ∘ (fun x ↦ (-f x, -g x)))
+      (𝓝[≥] x) (𝓝 (-f x + -g x))
+    exact h_tendsto.comp <| Tendsto.prod_mk_nhds hf hg
 
 instance : Add ERealStieltjes where
   add := ERealStieltjes.add
