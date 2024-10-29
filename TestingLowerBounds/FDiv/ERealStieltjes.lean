@@ -793,6 +793,11 @@ lemma antitone_toENNReal_const_sub (a : ℝ) :
     Antitone (fun x ↦ (f a - f x).toENNReal) :=
   fun _ _ hxy ↦ EReal.toENNReal_le_toENNReal (EReal.sub_le_sub le_rfl (f.mono hxy))
 
+-- todo: missing hypotheses
+lemma leftLim_toENNReal_sub_eq (a b : ℝ) :
+    leftLim (fun x ↦ (f b - f x).toENNReal) a = (f b - f a).toENNReal := by
+  sorry
+
 -- This is different from `(f a - leftLim f a).toENNReal` iff `f a = ⊤`, `leftLim f a = ⊤` but
 -- `∀ x < a, f x < ⊤`.
 @[simp]
@@ -878,26 +883,45 @@ theorem measure_Icc (a b : ℝ) :
     exact f.mono hx.le
 
 @[simp]
-theorem measure_Ioo {a b : ℝ} : f.measure (Ioo a b) = (leftLim f b - f a).toENNReal := by
+theorem measure_Ioo {a b : ℝ} :
+    f.measure (Ioo a b) = leftLim (fun x ↦ (f x - f a).toENNReal) b := by
   rcases le_or_lt b a with (hab | hab)
   · simp only [not_lt, hab, Ioo_eq_empty, measure_empty]
     symm
+    refine leftLim_eq_of_tendsto NeBot.ne' ?_
+    refine (tendsto_congr' ?_).mpr tendsto_const_nhds
+    refine eventually_nhdsWithin_of_forall fun x hx ↦ ?_
+    simp only
     rw [EReal.toENNReal_eq_zero_iff, EReal.sub_nonpos]
-    exact f.mono.leftLim_le hab
-  · have A : Disjoint (Ioo a b) {b} := by simp
-    by_cases h_bot : leftLim f b = ⊥
-    · have hfa : f a = ⊥ := by
-        sorry
-      sorry
-    have D : f b - f a = f b - leftLim f b + (leftLim f b - f a) := by
-      sorry
-    have := f.measure_Ioc a b
-    simp only [← Ioo_union_Icc_eq_Ioc hab le_rfl, measure_singleton,
-      measure_union A (measurableSet_singleton b), Icc_self] at this
-    rw [D, ENNReal.ofReal_add, add_comm] at this
-    · simpa only [ENNReal.add_right_inj ENNReal.ofReal_ne_top]
-    · simp only [f.mono.leftLim_le le_rfl, sub_nonneg]
-    · simp only [f.mono.le_leftLim hab, sub_nonneg]
+    exact f.mono (hx.le.trans hab)
+  · obtain ⟨c, hc_mono, hc_mem, hc_tendsto⟩ := exists_seq_strictMono_tendsto' hab
+    have h_iUnion : Ioo a b = ⋃ i, Ioc a (c i) := by
+      ext x
+      simp only [mem_Ioo, mem_iUnion, mem_Ioc, exists_and_left, and_congr_right_iff]
+      refine fun _ ↦ ⟨fun h ↦ ?_, fun h ↦ ?_⟩
+      · exact (eventually_ge_of_tendsto_gt h hc_tendsto).exists
+      · obtain ⟨n, hn⟩ := h
+        exact hn.trans_lt (hc_mem _).2
+    have h_mono : Monotone fun x ↦ (f x - f a).toENNReal :=
+      fun _ _ hxy ↦ EReal.toENNReal_le_toENNReal (EReal.sub_le_sub (f.mono hxy) le_rfl)
+    rw [h_iUnion, Monotone.measure_iUnion]
+    · simp only [measure_Ioc]
+      rw [Monotone.leftLim_eq_sSup h_mono NeBot.ne']
+      apply le_antisymm
+      · refine iSup_le fun n ↦ ?_
+        refine le_sSup ?_
+        simp only [mem_image, mem_Iio]
+        exact ⟨c n, (hc_mem _).2, rfl⟩
+      · refine sSup_le fun y hy ↦ ?_
+        simp only [mem_image, mem_Iio] at hy
+        obtain ⟨x, hx_lt, rfl⟩ := hy
+        have : ∀ᶠ i in atTop, x < c i := eventually_gt_of_tendsto_gt hx_lt hc_tendsto
+        obtain ⟨n, hn⟩ := this.exists
+        exact le_iSup_of_le n (h_mono hn.le)
+    · intro i j hij x
+      simp only [mem_Ioc, and_imp]
+      intro hax hxc
+      exact ⟨hax, hxc.trans (hc_mono.monotone hij)⟩
 
 @[simp]
 theorem measure_Ico (a b : ℝ) : f.measure (Ico a b) = (leftLim f b - leftLim f a).toENNReal := by
