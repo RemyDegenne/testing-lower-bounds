@@ -261,6 +261,7 @@ section RightDeriv
 protected noncomputable def rightDeriv (f : DivFunction) : ERealStieltjes where
   toFun := fun x ↦
     if x < f.xmin.toReal then ⊥
+    else if x = f.xmin.toReal then Function.rightLim (fun y ↦ (rightDeriv f.realFun y : EReal)) x
     else if f.xmax ≤ ENNReal.ofReal x then ⊤
     else rightDeriv f.realFun x
   mono' := sorry
@@ -299,12 +300,12 @@ lemma derivAtTop_add : (f + g).derivAtTop = f.derivAtTop + g.derivAtTop := by
 @[simp]
 lemma derivAtTop_smul {c : ℝ≥0} : (c • f).derivAtTop = c * f.derivAtTop := sorry
 
-lemma lintegral_comp_rnDeriv_ne_top (μ ν : Measure α) [IsFiniteMeasure μ]
-    [IsFiniteMeasure ν] (hf_deriv : f.derivAtTop ≠ ∞) :
-    ∫⁻ x, f (μ.rnDeriv ν x).toReal ∂ν ≠ ∞ := by
-  obtain ⟨c, c', h⟩ : ∃ c c', ∀ x, _ → c * x + c' ≤ (f x).toReal :=
-    f.convexOn_toReal.exists_affine_le (convex_Ici 0)
-  sorry
+-- lemma lintegral_comp_rnDeriv_ne_top (μ ν : Measure α) [IsFiniteMeasure μ]
+--     [IsFiniteMeasure ν] (hf_deriv : f.derivAtTop ≠ ∞) :
+--     ∫⁻ x, f (μ.rnDeriv ν x).toReal ∂ν ≠ ∞ := by
+--   obtain ⟨c, c', h⟩ : ∃ c c', ∀ x, _ → c * x + c' ≤ (f x).toReal :=
+--     f.convexOn_toReal.exists_affine_le (convex_Ici 0)
+--   sorry
   -- refine integrable_of_le_of_le (f := fun x ↦ f (μ.rnDeriv ν x).toReal)
   --   (g₁ := fun x ↦ c * (μ.rnDeriv ν x).toReal + c')
   --   (g₂ := fun x ↦ (derivAtTop f).toReal * (μ.rnDeriv ν x).toReal + f 0)
