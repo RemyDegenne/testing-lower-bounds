@@ -199,14 +199,10 @@ end EReal
 
 /-- Bundled monotone right-continuous real functions, used to construct Stieltjes measures. -/
 structure ERealStieltjes where
+  /-- Bundled monotone right-continuous real functions, used to construct Stieltjes measures. -/
   toFun : ℝ → EReal
   mono' : Monotone toFun
   right_continuous' : ∀ x, ContinuousWithinAt toFun (Ici x) x
-
-def StieltjesFunction.erealStieltjes (f : StieltjesFunction) : ERealStieltjes where
-  toFun := fun x ↦ f x
-  mono' := sorry
-  right_continuous' x := sorry
 
 namespace ERealStieltjes
 
@@ -793,25 +789,68 @@ lemma antitone_toENNReal_const_sub (a : ℝ) :
     Antitone (fun x ↦ (f a - f x).toENNReal) :=
   fun _ _ hxy ↦ EReal.toENNReal_le_toENNReal (EReal.sub_le_sub le_rfl (f.mono hxy))
 
-lemma leftLim_toENNReal_sub_eq (a b : ℝ)
-    (h : f b = ⊤ → leftLim (↑f) a = ⊤ → ∃ x < a, f x = ⊤) :
-    leftLim (fun x ↦ (f b - f x).toENNReal) a = (f b - leftLim f a).toENNReal := by
-  rcases le_or_lt a b with (hab | hab)
+lemma leftLim_toENNReal_sub_left (a b : ℝ) :
+    leftLim (fun x ↦ (f x - f a).toENNReal) b = (leftLim f b - f a).toENNReal := by
+  rcases le_or_lt a b with (_ | hab)
   swap
   · refine leftLim_eq_of_tendsto NeBot.ne' ?_
     refine (tendsto_congr' ?_).mpr tendsto_const_nhds
-    have : ∀ᶠ x in 𝓝[<] a, b < x := by
+    have : ∀ᶠ x in 𝓝[<] b, x < a := by
       refine eventually_nhdsWithin_iff.mpr ?_
-      filter_upwards [eventually_gt_nhds hab] with x hx _ using hx
+      filter_upwards [eventually_lt_nhds hab] with x hx _ using hx
     filter_upwards [this] with x hx
     rw [EReal.toENNReal_of_nonpos, EReal.toENNReal_of_nonpos]
     · rw [EReal.sub_nonpos]
-      exact f.mono.le_leftLim hab
+      exact f.mono.leftLim_le hab.le
     · rw [EReal.sub_nonpos]
       exact f.mono hx.le
-  have h1 := EReal.continuous_toENNReal.tendsto (f b - leftLim f a)
-  have h2 := EReal.continuousAt_const_sub (c := f b) (x := leftLim f a)
-  by_cases hfb : f b = ⊤
+  by_cases hfa : f a = ⊥
+  · simp [hfa, sub_eq_add_neg]
+    by_cases h_lim : leftLim f b = ⊥
+    · simp only [h_lim, EReal.bot_add, ne_eq, bot_ne_top, not_false_eq_true,
+        EReal.toENNReal_of_ne_top, EReal.toReal_bot, ofReal_zero]
+      have h_lt x (hxb : x < b) : f x = ⊥ := eq_bot_mono (f.mono.le_leftLim hxb) h_lim
+      refine leftLim_eq_of_tendsto NeBot.ne' ?_
+      refine (tendsto_congr' ?_).mpr tendsto_const_nhds
+      refine eventually_nhdsWithin_of_forall fun x hx ↦ ?_
+      simp [h_lt x hx]
+    · rw [EReal.add_top_of_ne_bot h_lim, EReal.toENNReal_top]
+      refine leftLim_eq_of_tendsto NeBot.ne' ?_
+      refine (tendsto_congr' ?_).mpr tendsto_const_nhds
+      obtain ⟨x, hxb, hx⟩ : ∃ x < b, f x ≠ ⊥ := by
+        by_contra! h_bot
+        refine h_lim ?_
+        refine leftLim_eq_of_tendsto NeBot.ne' ?_
+        refine (tendsto_congr' ?_).mpr tendsto_const_nhds
+        exact eventually_nhdsWithin_of_forall h_bot
+      have : ∀ᶠ y in 𝓝[<] b, x < y := by
+        refine eventually_nhdsWithin_iff.mpr ?_
+        filter_upwards [eventually_gt_nhds hxb] with y hy _ using hy
+      filter_upwards [this] with y hy
+      rw [EReal.toENNReal_eq_top_iff, EReal.add_top_of_ne_bot]
+      exact fun h_bot ↦ hx (eq_bot_mono (f.mono hy.le) h_bot)
+  refine leftLim_eq_of_tendsto NeBot.ne' ?_
+  have h1 := EReal.continuous_toENNReal.tendsto (leftLim f b - f a)
+  have h2 := EReal.continuousAt_sub_const (c := f a) (x := leftLim f b) (Or.inr hfa)
+  exact h1.comp <| h2.tendsto.comp <| f.mono.tendsto_leftLim _
+
+lemma leftLim_toENNReal_sub_right (a : ℝ) (c : EReal)
+    (h : c = ⊤ → leftLim f a = ⊤ → ∃ x < a, f x = ⊤) :
+    leftLim (fun x ↦ (c - f x).toENNReal) a = (c - leftLim f a).toENNReal := by
+  rcases le_or_lt (leftLim f a) c with (hab | hab)
+  swap
+  · refine leftLim_eq_of_tendsto NeBot.ne' ?_
+    refine (tendsto_congr' ?_).mpr tendsto_const_nhds
+    have : ∀ᶠ x in 𝓝[<] a, c < f x := eventually_gt_of_tendsto_gt hab (f.mono.tendsto_leftLim _)
+    filter_upwards [this] with x hx
+    rw [EReal.toENNReal_of_nonpos, EReal.toENNReal_of_nonpos]
+    · rw [EReal.sub_nonpos]
+      exact hab.le
+    · rw [EReal.sub_nonpos]
+      exact hx.le
+  have h1 := EReal.continuous_toENNReal.tendsto (c - leftLim f a)
+  have h2 := EReal.continuousAt_const_sub (c := c) (x := leftLim f a)
+  by_cases hfb : c = ⊤
   swap
   · refine leftLim_eq_of_tendsto NeBot.ne' ?_
     refine h1.comp ?_
@@ -826,9 +865,8 @@ lemma leftLim_toENNReal_sub_eq (a b : ℝ)
     exact f.mono.tendsto_leftLim _
   specialize h h_lim
   obtain ⟨x, hx⟩ := h
-  have hfa : f a = ⊤ := eq_top_mono (f.mono hx.1.le) hx.2
   have hfa_lim : leftLim f a = ⊤ := eq_top_mono (f.mono.le_leftLim hx.1) hx.2
-  have hfb : f b = ⊤ := eq_top_mono (f.mono hab) hfa
+  have hfb : c = ⊤ := eq_top_mono hab hfa_lim
   simp only [hfb, hfa_lim, EReal.sub_top, ne_eq, bot_ne_top, not_false_eq_true,
     EReal.toENNReal_of_ne_top, EReal.toReal_bot, ofReal_zero]
   refine leftLim_eq_of_tendsto NeBot.ne' ?_
@@ -926,7 +964,8 @@ theorem measure_Icc (a b : ℝ) :
 
 @[simp]
 theorem measure_Ioo {a b : ℝ} :
-    f.measure (Ioo a b) = leftLim (fun x ↦ (f x - f a).toENNReal) b := by
+    f.measure (Ioo a b) = (leftLim f b - f a).toENNReal := by
+  rw [← leftLim_toENNReal_sub_left]
   rcases le_or_lt b a with (hab | hab)
   · simp only [not_lt, hab, Ioo_eq_empty, measure_empty]
     symm
@@ -965,23 +1004,29 @@ theorem measure_Ioo {a b : ℝ} :
       intro hax hxc
       exact ⟨hax, hxc.trans (hc_mono.monotone hij)⟩
 
-@[simp]
-theorem measure_Ico (a b : ℝ) : f.measure (Ico a b)
-    = (leftLim f b - leftLim f a).toENNReal := by
+theorem measure_Ico_of_lt {a b : ℝ} (hab : a < b) :
+    f.measure (Ico a b)
+      = leftLim (fun x ↦ (f a - f x).toENNReal) a + (leftLim f b - f a).toENNReal := by
+  have A : Disjoint {a} (Ioo a b) := by simp
+  simp only [← Icc_union_Ioo_eq_Ico le_rfl hab, Icc_self, measure_union A measurableSet_Ioo,
+    measure_singleton, measure_Ioo]
+
+lemma measure_Ico_of_lt_of_eq_top {a b : ℝ} (hab : a < b)
+    (h : f a = ⊤ → leftLim f a = ⊤ → ∃ x < a, f x = ⊤) :
+    f.measure (Ico a b) = (leftLim f b - leftLim f a).toENNReal := by
+  rw [measure_Ico_of_lt _ hab, leftLim_toENNReal_sub_right f _ _ h, add_comm,
+    ← EReal.toENNReal_sub_eq_add (f.mono.leftLim_le le_rfl) (f.mono.le_leftLim hab)]
+
+lemma measure_Ico_of_ge {a b : ℝ} (hab : b ≤ a) : f.measure (Ico a b) = 0 := by simp [hab]
+
+lemma measure_Ico_of_eq_top {a : ℝ}
+    (h : f a = ⊤ → leftLim f a = ⊤ → ∃ x < a, f x = ⊤) (b : ℝ) :
+    f.measure (Ico a b) = (leftLim f b - leftLim f a).toENNReal := by
   rcases le_or_lt b a with (hab | hab)
-  · simp only [hab, measure_empty, Ico_eq_empty, not_lt]
-    symm
-    sorry
-    --simp [ENNReal.ofReal_eq_zero, f.mono.leftLim hab]
-  · have A : Disjoint {a} (Ioo a b) := by simp
-    simp [← Icc_union_Ioo_eq_Ico le_rfl hab, -singleton_union, hab.ne, f.mono.leftLim_le,
-      measure_union A measurableSet_Ioo, f.mono.le_leftLim hab, ← ENNReal.ofReal_add]
-    by_cases h : f a = ⊤ ∧ leftLim f a = ⊤ ∧ ∀ x < a, f x ≠ ⊤
-    · rcases h with ⟨hfa, h_lim, h_all⟩
-      sorry
-    · push_neg at h
-      rw [leftLim_toENNReal_sub_eq f _ _ h]
-      sorry
+  · symm
+    rw [measure_Ico_of_ge f hab, EReal.toENNReal_eq_zero_iff, EReal.sub_nonpos]
+    exact f.mono.leftLim hab
+  · rw [measure_Ico_of_lt_of_eq_top _ hab h]
 
 theorem measure_Iic {l : EReal} (hf : Tendsto f atBot (𝓝 l)) (x : ℝ) :
     f.measure (Iic x) = (f x - l).toENNReal := by
@@ -1000,9 +1045,14 @@ theorem measure_Iic {l : EReal} (hf : Tendsto f atBot (𝓝 l)) (x : ℝ) :
     exact h1.comp (h2.tendsto.comp hf)
 
 theorem measure_Ici {l : EReal} (hf : Tendsto f atTop (𝓝 l)) (x : ℝ) :
-    f.measure (Ici x) = (l - leftLim f x).toENNReal := by
+    f.measure (Ici x) = leftLim (fun z ↦ (f x - f z).toENNReal) x + (l - f x).toENNReal := by
   refine tendsto_nhds_unique (tendsto_measure_Ico_atTop _ _) ?_
-  simp_rw [measure_Ico]
+  have h_Ico : ∀ᶠ y in atTop, f.measure (Ico x y)
+      = leftLim (fun z ↦ (f x - f z).toENNReal) x + (leftLim f y - f x).toENNReal := by
+    filter_upwards [eventually_gt_atTop x] with y hy
+    rw [measure_Ico_of_lt _ hy]
+  rw [tendsto_congr' h_Ico]
+  refine Tendsto.add tendsto_const_nhds ?_
   by_cases h_bot : l = ⊥
   · have : f = ERealStieltjes.const ⊥ := by
       ext x
@@ -1010,11 +1060,26 @@ theorem measure_Ici {l : EReal} (hf : Tendsto f atTop (𝓝 l)) (x : ℝ) :
       have h := f.mono.ge_of_tendsto hf
       simp only [h_bot, le_bot_iff] at h
       exact h x
-    have h_lim : ∀ x, leftLim (ERealStieltjes.const ⊥) x = ⊥ := sorry
+    have h_lim x : leftLim (ERealStieltjes.const ⊥) x = ⊥ := by
+      refine eq_bot_mono ?_ (rfl : ERealStieltjes.const ⊥ x = ⊥)
+      exact (ERealStieltjes.const ⊥).mono.leftLim_le le_rfl
     simp [this, h_bot, h_lim]
-  · have h1 := EReal.continuous_toENNReal.tendsto (f x - l)
-    have h2 := EReal.continuousAt_sub_const (c := l) (x := f x) (Or.inr h_bot)
-    exact h1.comp (h2.tendsto.comp hf)
+  · have h1 := EReal.continuous_toENNReal.tendsto (l - f x)
+    refine h1.comp ?_
+    have h2 := EReal.continuousAt_sub_const (c := f x) (x := l) (Or.inl h_bot)
+    refine h2.tendsto.comp ?_
+    refine tendsto_of_tendsto_of_tendsto_of_le_of_le (g := fun x ↦ f (x - 1)) ?_ hf ?_ ?_
+    · refine hf.comp ?_
+      exact tendsto_atTop_add_const_right atTop (-1) fun _ a ↦ a
+    · refine fun x ↦ f.mono.le_leftLim ?_
+      linarith
+    · exact fun x ↦ f.mono.leftLim_le le_rfl
+
+lemma measure_Ici_of_eq_top {l : EReal} (hf : Tendsto f atTop (𝓝 l)) {x : ℝ}
+    (h : f x = ⊤ → leftLim f x = ⊤ → ∃ y < x, f y = ⊤) :
+    f.measure (Ici x) = (l - leftLim f x).toENNReal := by
+  rw [measure_Ici f hf, leftLim_toENNReal_sub_right f _ _ h, add_comm,
+    ← EReal.toENNReal_sub_eq_add (f.mono.leftLim_le le_rfl) (f.mono.ge_of_tendsto hf x)]
 
 theorem measure_univ {l u : EReal} (hfl : Tendsto f atBot (𝓝 l)) (hfu : Tendsto f atTop (𝓝 u)) :
     f.measure univ = (u - l).toENNReal := by
