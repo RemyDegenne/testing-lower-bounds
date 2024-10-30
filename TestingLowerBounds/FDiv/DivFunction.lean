@@ -74,6 +74,8 @@ lemma convexOn : ConvexOn ℝ≥0 univ f := f.convexOn'
 
 lemma continuous : Continuous f := f.continuous'
 
+lemma measurable : Measurable f := f.continuous.measurable
+
 lemma monotoneOn : MonotoneOn f (Ici 1) := sorry
 
 lemma antitoneOn : AntitoneOn f (Iic 1) := sorry
@@ -247,6 +249,12 @@ lemma realFun_of_xmax_lt {x : ℝ} (hx : f.xmax < ENNReal.ofReal x) : f.realFun 
 lemma realFun_toReal {x : ℝ≥0∞} (hx : x ≠ ⊤) :
     f.realFun x.toReal = (f x).toReal := by rw [realFun, ENNReal.ofReal_toReal hx]
 
+lemma measurable_realFun : Measurable f.realFun :=
+  f.measurable.ennreal_toReal.comp ENNReal.measurable_ofReal
+
+lemma stronglyMeasurable_realFun : StronglyMeasurable f.realFun :=
+  f.measurable_realFun.stronglyMeasurable
+
 lemma continuousOn_realFun_Ioo : ContinuousOn f.realFun (Ioo f.xmin.toReal f.xmax.toReal) := by
   by_cases h : f.xmax = ∞
   · simp [h]
@@ -389,5 +397,52 @@ lemma lintegral_comp_rnDeriv_ne_top (μ ν : Measure α) [IsFiniteMeasure μ]
 end DerivAtTop
 
 end DivFunction
+
+variable {f : DivFunction}
+
+lemma measurable_divFunction_rnDeriv {f : DivFunction} {μ ν : Measure α} :
+    Measurable (fun x ↦ f (μ.rnDeriv ν x)) :=
+  f.continuous.measurable.comp (Measure.measurable_rnDeriv _ _)
+
+lemma integral_realFun {g : α → ℝ≥0∞} (hg : Measurable g) (hg_lt : ∀ᵐ x ∂ν, g x < ∞)
+    (h_int : ∫⁻ x, f (g x) ∂ν ≠ ∞) :
+    ∫ x, f.realFun (g x).toReal ∂ν = (∫⁻ x, f (g x) ∂ν).toReal := by
+  have h := ae_lt_top (f.continuous.measurable.comp hg) h_int
+  simp_rw [DivFunction.realFun]
+  rw [integral_toReal]
+  · congr 1
+    refine lintegral_congr_ae ?_
+    filter_upwards [hg_lt] with x hx
+    rw [ENNReal.ofReal_toReal hx.ne]
+  · refine (f.continuous.measurable.comp ?_).aemeasurable
+    exact hg.ennreal_toReal.ennreal_ofReal
+  · filter_upwards [h, hg_lt] with x hx hx'
+    rwa [ENNReal.ofReal_toReal hx'.ne]
+
+lemma ofReal_integral_realFun {g : α → ℝ≥0∞} (hg : Measurable g) (hg_lt : ∀ᵐ x ∂ν, g x < ∞)
+    (h_int : ∫⁻ x, f (g x) ∂ν ≠ ∞) :
+    ENNReal.ofReal (∫ x, f.realFun (g x).toReal ∂ν) = ∫⁻ x, f (g x) ∂ν := by
+  rw [integral_realFun hg hg_lt h_int, ENNReal.ofReal_toReal h_int]
+
+lemma integral_realFun_rnDeriv [SigmaFinite μ] (h_int : ∫⁻ x, f (μ.rnDeriv ν x) ∂ν ≠ ∞) :
+    ∫ x, f.realFun (μ.rnDeriv ν x).toReal ∂ν = (∫⁻ x, f (μ.rnDeriv ν x) ∂ν).toReal :=
+  integral_realFun (μ.measurable_rnDeriv ν) (μ.rnDeriv_lt_top ν) h_int
+
+lemma ofReal_integral_realFun_rnDeriv [SigmaFinite μ] (h_int : ∫⁻ x, f (μ.rnDeriv ν x) ∂ν ≠ ∞) :
+    ENNReal.ofReal (∫ x, f.realFun (μ.rnDeriv ν x).toReal ∂ν)
+      = ∫⁻ x, f (μ.rnDeriv ν x) ∂ν :=
+  ofReal_integral_realFun (μ.measurable_rnDeriv ν) (μ.rnDeriv_lt_top ν) h_int
+
+lemma integrable_realFun_rnDeriv [SigmaFinite μ] (h_int : ∫⁻ x, f (μ.rnDeriv ν x) ∂ν ≠ ∞) :
+    Integrable (fun x ↦ f.realFun (μ.rnDeriv ν x).toReal) ν := by
+  simp_rw [DivFunction.realFun]
+  refine integrable_toReal_of_lintegral_ne_top ?_ ?_
+  · refine (f.continuous.measurable.comp ?_).aemeasurable
+    exact (Measure.measurable_rnDeriv _ _).ennreal_toReal.ennreal_ofReal
+  · suffices ∫⁻ x, f (ENNReal.ofReal (μ.rnDeriv ν x).toReal) ∂ν = ∫⁻ x, f (μ.rnDeriv ν x) ∂ν by
+      rwa [this]
+    refine lintegral_congr_ae ?_
+    filter_upwards [μ.rnDeriv_lt_top ν] with x hx
+    rw [ENNReal.ofReal_toReal hx.ne]
 
 end ProbabilityTheory

@@ -54,10 +54,6 @@ namespace ProbabilityTheory
 variable {α β : Type*} {m mα : MeasurableSpace α} {mβ : MeasurableSpace β}
   {μ ν : Measure α} {f g : DivFunction}
 
-lemma measurable_divFunction_rnDeriv {f : DivFunction} {μ ν : Measure α} :
-    Measurable (fun x ↦ f (μ.rnDeriv ν x)) :=
-  f.continuous.measurable.comp (Measure.measurable_rnDeriv _ _)
-
 open Classical in
 /-- f-Divergence of two measures. -/
 noncomputable
@@ -630,33 +626,6 @@ lemma lintegral_ne_top_of_fDiv_ne_top (h : fDiv f μ ν ≠ ⊤) :
 --       EReal.coe_ennreal_eq_top_iff, measure_ne_top, or_false, false_or, not_and, not_lt]
 --     exact fun _ ↦ EReal.coe_ennreal_nonneg _
 --   rfl
-
-lemma integral_realFun_rnDeriv [SigmaFinite μ] (h_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞) :
-    ∫ x, f.realFun ((∂μ/∂ν) x).toReal ∂ν = (∫⁻ x, f ((∂μ/∂ν) x) ∂ν).toReal := by
-  have h := ae_lt_top measurable_divFunction_rnDeriv h_int
-  have h' := μ.rnDeriv_lt_top ν
-  simp_rw [DivFunction.realFun]
-  rw [integral_toReal]
-  · congr 1
-    refine lintegral_congr_ae ?_
-    filter_upwards [h'] with x hx
-    rw [ENNReal.ofReal_toReal hx.ne]
-  · refine (f.continuous.measurable.comp ?_).aemeasurable
-    exact (Measure.measurable_rnDeriv _ _).ennreal_toReal.ennreal_ofReal
-  · filter_upwards [h, h'] with x hx hx'
-    rwa [ENNReal.ofReal_toReal hx'.ne]
-
-lemma integrable_realFun_rnDeriv [SigmaFinite μ] (h_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞) :
-    Integrable (fun x ↦ f.realFun ((∂μ/∂ν) x).toReal) ν := by
-  simp_rw [DivFunction.realFun]
-  refine integrable_toReal_of_lintegral_ne_top ?_ ?_
-  · refine (f.continuous.measurable.comp ?_).aemeasurable
-    exact (Measure.measurable_rnDeriv _ _).ennreal_toReal.ennreal_ofReal
-  · suffices ∫⁻ x, f (ENNReal.ofReal ((∂μ/∂ν) x).toReal) ∂ν = ∫⁻ x, f ((∂μ/∂ν) x) ∂ν by
-      rwa [this]
-    refine lintegral_congr_ae ?_
-    filter_upwards [μ.rnDeriv_lt_top ν] with x hx
-    rw [ENNReal.ofReal_toReal hx.ne]
 
 -- todo: remove `hf`
 lemma le_fDiv_of_ac [IsFiniteMeasure μ] [IsProbabilityMeasure ν] (hμν : μ ≪ ν)
