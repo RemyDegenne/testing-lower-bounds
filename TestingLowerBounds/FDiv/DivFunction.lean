@@ -348,9 +348,22 @@ lemma derivAtTop_add : (f + g).derivAtTop = f.derivAtTop + g.derivAtTop := by
 @[simp]
 lemma derivAtTop_smul {c : ℝ≥0} : (c • f).derivAtTop = c * f.derivAtTop := sorry
 
+lemma le_add_derivAtTop {x y : ℝ≥0∞} (hyx : y ≤ x) :
+    f x ≤ f y + f.derivAtTop * (x - y) := by
+  sorry
+
 lemma le_add_derivAtTop'' (x y : ℝ≥0∞) :
     f (x + y) ≤ f x + f.derivAtTop * y := by
   sorry
+
+lemma le_add_derivAtTop' (x : ℝ≥0∞) {u : ℝ≥0∞} (hu' : u ≤ 1) :
+    f x ≤ f (x * u) + f.derivAtTop * x * (1 - u) := by
+  have : x = x * u + x * (1 - u) := by
+    rw [← mul_add]
+    rw [add_tsub_cancel_of_le hu', mul_one]
+  conv_lhs => rw [this]
+  refine (le_add_derivAtTop'' (x * u) (x * (1 - u))).trans ?_
+  rw [mul_assoc]
 
 lemma lintegral_comp_rnDeriv_ne_top (μ ν : Measure α) [IsFiniteMeasure μ]
     [IsFiniteMeasure ν] (hf_deriv : f.derivAtTop ≠ ∞) :

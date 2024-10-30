@@ -54,6 +54,10 @@ namespace ProbabilityTheory
 variable {α β : Type*} {m mα : MeasurableSpace α} {mβ : MeasurableSpace β}
   {μ ν : Measure α} {f g : DivFunction}
 
+lemma measurable_divFunction_rnDeriv {f : DivFunction} {μ ν : Measure α} :
+    Measurable (fun x ↦ f (μ.rnDeriv ν x)) :=
+  f.continuous.measurable.comp (Measure.measurable_rnDeriv _ _)
+
 open Classical in
 /-- f-Divergence of two measures. -/
 noncomputable
@@ -201,9 +205,7 @@ section MulAdd
 lemma fDiv_smul (c : ℝ≥0) (μ ν : Measure α) : fDiv (c • f) μ ν = c * fDiv f μ ν := by
   rw [fDiv]
   simp only [DivFunction.smul_apply, DivFunction.derivAtTop_smul]
-  rw [lintegral_const_mul]
-  swap; · exact f.continuous.measurable.comp (Measure.measurable_rnDeriv _ _)
-  rw [fDiv, mul_add, ← mul_assoc]
+  rw [lintegral_const_mul _ measurable_divFunction_rnDeriv, fDiv, mul_add, ← mul_assoc]
 
 -- lemma fDiv_mul_of_ne_top (c : ℝ) (hf_cvx : ConvexOn ℝ (Ici 0) f) (h_top : derivAtTop f ≠ ⊤)
 --     (μ ν : Measure α) [IsFiniteMeasure μ] (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) :
@@ -225,8 +227,7 @@ lemma fDiv_smul (c : ℝ≥0) (μ ν : Measure α) : fDiv (c • f) μ ν = c * 
 -- additional hypothesis it's true.
 lemma fDiv_add : fDiv (f + g) μ ν = fDiv f μ ν + fDiv g μ ν := by
   simp only [fDiv, DivFunction.add_apply, DivFunction.derivAtTop_add]
-  rw [lintegral_add_left]
-  swap; · exact f.continuous.measurable.comp (Measure.measurable_rnDeriv _ _)
+  rw [lintegral_add_left measurable_divFunction_rnDeriv]
   ring
 
 -- lemma fDiv_add_const (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
@@ -433,9 +434,8 @@ lemma fDiv_add_measure_le_of_ac {μ₁ μ₂ ν : Measure α} [SigmaFinite μ₁
   calc ∫⁻ x, f ((∂μ₁ + μ₂/∂ν) x) ∂ν
     ≤ ∫⁻ x, f ((∂μ₁/∂ν) x) + f.derivAtTop * (∂μ₂/∂ν) x ∂ν := lintegral_mono_ae h_le
   _ ≤ ∫⁻ x, f ((∂μ₁/∂ν) x) ∂ν + f.derivAtTop * μ₂ .univ := by
-        rw [lintegral_add_left, lintegral_const_mul _ (Measure.measurable_rnDeriv _ _),
-          Measure.lintegral_rnDeriv h₂]
-        exact f.continuous.measurable.comp (Measure.measurable_rnDeriv _ _)
+        rw [lintegral_add_left measurable_divFunction_rnDeriv,
+          lintegral_const_mul _ (Measure.measurable_rnDeriv _ _), Measure.lintegral_rnDeriv h₂]
 
 lemma fDiv_add_measure_le (μ₁ μ₂ ν : Measure α) [SigmaFinite μ₁] [SigmaFinite μ₂]
     [SigmaFinite ν] :
@@ -633,8 +633,7 @@ lemma lintegral_ne_top_of_fDiv_ne_top (h : fDiv f μ ν ≠ ⊤) :
 
 lemma integral_realFun_rnDeriv [SigmaFinite μ] (h_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞) :
     ∫ x, f.realFun ((∂μ/∂ν) x).toReal ∂ν = (∫⁻ x, f ((∂μ/∂ν) x) ∂ν).toReal := by
-  have h := ae_lt_top ?_ h_int
-  swap; · exact f.continuous.measurable.comp (Measure.measurable_rnDeriv _ _)
+  have h := ae_lt_top measurable_divFunction_rnDeriv h_int
   have h' := μ.rnDeriv_lt_top ν
   simp_rw [DivFunction.realFun]
   rw [integral_toReal]
@@ -739,8 +738,7 @@ lemma fDiv_eq_zero_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν]
   classical
   rw [fDiv_of_derivAtTop_eq_top hf_deriv] at h
   simp only [hμν, ↓reduceIte] at h
-  rw [lintegral_eq_zero_iff] at h
-  swap; · exact f.continuous.measurable.comp (Measure.measurable_rnDeriv _ _)
+  rw [lintegral_eq_zero_iff measurable_divFunction_rnDeriv] at h
   have h_eq_zero_iff x : f x = 0 ↔ x = 1 := by
     rw [f.eq_zero_iff zero_lt_one one_lt_two]
     exact hf_cvx.subset (fun x hx ↦ hx.1.le) (convex_Ioo _ _)
@@ -786,8 +784,7 @@ lemma fDiv_restrict (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν]
   rw [fDiv, μ.singularPart_restrict ν hs, Measure.restrict_apply_univ]
   congr 1
   rw [lintegral_congr_ae h]
-  rw [lintegral_piecewise _ hs, lintegral_const]
-  · simp only [MeasurableSet.univ, Measure.restrict_apply, univ_inter]
-  · exact (f.continuous.measurable.comp (Measure.measurable_rnDeriv _ _)).aemeasurable
+  rw [lintegral_piecewise measurable_divFunction_rnDeriv.aemeasurable hs, lintegral_const]
+  simp only [MeasurableSet.univ, Measure.restrict_apply, univ_inter]
 
 end ProbabilityTheory
