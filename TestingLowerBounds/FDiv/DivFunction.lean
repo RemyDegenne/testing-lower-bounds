@@ -8,6 +8,7 @@ import Mathlib.MeasureTheory.Decomposition.RadonNikodym
 import TestingLowerBounds.ForMathlib.LeftRightDeriv
 import TestingLowerBounds.Convex
 import TestingLowerBounds.DerivAtTop
+import TestingLowerBounds.FDiv.ERealStieltjes
 import TestingLowerBounds.ForMathlib.Integrable
 import TestingLowerBounds.ForMathlib.RnDeriv
 
@@ -20,6 +21,27 @@ import TestingLowerBounds.ForMathlib.RnDeriv
 open Real MeasureTheory Filter Set MeasurableSpace
 
 open scoped ENNReal NNReal Topology
+
+lemma ENNReal.tendsto_of_monotone {ι : Type*} [Preorder ι] {f : ι → ℝ≥0∞} (hf : Monotone f) :
+    ∃ y, Tendsto f atTop (𝓝 y) :=
+  ⟨_, tendsto_atTop_ciSup hf (OrderTop.bddAbove _)⟩
+
+lemma ENNReal.tendsto_of_monotoneOn {ι : Type*} [SemilatticeSup ι] [Nonempty ι] {x : ι}
+    {f : ι → ℝ≥0∞} (hf : MonotoneOn f (Ici x)) :
+    ∃ y, Tendsto f atTop (𝓝 y) := by
+  classical
+  suffices ∃ y, Tendsto (fun z ↦ if x ≤ z then f z else f x) atTop (𝓝 y) by
+    obtain ⟨y, hy⟩ := this
+    refine ⟨y, ?_⟩
+    refine (tendsto_congr' ?_).mp hy
+    rw [EventuallyEq, eventually_atTop]
+    exact ⟨x, fun z hz ↦ if_pos hz⟩
+  refine ENNReal.tendsto_of_monotone (fun y z hyz ↦ ?_)
+  split_ifs with hxy hxz hxz
+  · exact hf hxy hxz hyz
+  · exact absurd (hxy.trans hyz) hxz
+  · exact hf le_rfl hxz hxz
+  · exact le_rfl
 
 namespace ProbabilityTheory
 
@@ -236,36 +258,17 @@ end RealFun
 
 section RightDeriv
 
-protected noncomputable def rightDeriv (f : DivFunction) (x : ℝ≥0∞) : EReal :=
-  if x < f.xmin then ⊥
-  else if x ≥ f.xmax then ⊤
-  else rightDeriv f.realFun x.toReal
+protected noncomputable def rightDeriv (f : DivFunction) : ERealStieltjes where
+  toFun := fun x ↦
+    if x < f.xmin.toReal then ⊥
+    else if f.xmax ≤ ENNReal.ofReal x then ⊤
+    else rightDeriv f.realFun x
+  mono' := sorry
+  right_continuous' := sorry
 
 end RightDeriv
 
 section DerivAtTop
-
-
-lemma ENNReal.tendsto_of_monotone {ι : Type*} [Preorder ι] {f : ι → ℝ≥0∞} (hf : Monotone f) :
-    ∃ y, Tendsto f atTop (𝓝 y) :=
-  ⟨_, tendsto_atTop_ciSup hf (OrderTop.bddAbove _)⟩
-
-lemma ENNReal.tendsto_of_monotoneOn {ι : Type*} [SemilatticeSup ι] [Nonempty ι] {x : ι}
-    {f : ι → ℝ≥0∞} (hf : MonotoneOn f (Ici x)) :
-    ∃ y, Tendsto f atTop (𝓝 y) := by
-  classical
-  suffices ∃ y, Tendsto (fun z ↦ if x ≤ z then f z else f x) atTop (𝓝 y) by
-    obtain ⟨y, hy⟩ := this
-    refine ⟨y, ?_⟩
-    refine (tendsto_congr' ?_).mp hy
-    rw [EventuallyEq, eventually_atTop]
-    exact ⟨x, fun z hz ↦ if_pos hz⟩
-  refine ENNReal.tendsto_of_monotone (fun y z hyz ↦ ?_)
-  split_ifs with hxy hxz hxz
-  · exact hf hxy hxz hyz
-  · exact absurd (hxy.trans hyz) hxz
-  · exact hf le_rfl hxz hxz
-  · exact le_rfl
 
 noncomputable
 def derivAtTop (f : DivFunction) : ℝ≥0∞ := limsup (fun x ↦ f x / x) atTop
