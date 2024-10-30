@@ -58,10 +58,10 @@ open Classical in
 /-- f-Divergence of two measures. -/
 noncomputable
 def fDiv (f : DivFunction) (μ ν : Measure α) : ℝ≥0∞ :=
-  ∫⁻ x, f ((∂μ/∂ν) x).toReal ∂ν + f.derivAtTop * μ.singularPart ν .univ
+  ∫⁻ x, f ((∂μ/∂ν) x) ∂ν + f.derivAtTop * μ.singularPart ν .univ
 
 -- todo: useless lemma?
-lemma fDiv_of_lintegral_eq_top (hf : ∫⁻ x, f ((∂μ/∂ν) x).toReal ∂ν = ∞) :
+lemma fDiv_of_lintegral_eq_top (hf : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν = ∞) :
      fDiv f μ ν = ∞ := by simp [fDiv, hf]
 
 -- lemma fDiv_of_integrable (hf : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) :
@@ -92,8 +92,8 @@ section SimpleValues
 @[simp] lemma fDiv_zero (μ ν : Measure α) : fDiv 0 μ ν = 0 := by simp [fDiv]
 
 @[simp]
-lemma fDiv_zero_measure_left (ν : Measure α) [IsFiniteMeasure ν] : fDiv f 0 ν = f 0 * ν .univ := by
-  have : (fun x ↦ f ((∂0/∂ν) x).toReal) =ᵐ[ν] fun _ ↦ f 0 := by
+lemma fDiv_zero_measure_left (ν : Measure α) : fDiv f 0 ν = f 0 * ν .univ := by
+  have : (fun x ↦ f ((∂0/∂ν) x)) =ᵐ[ν] fun _ ↦ f 0 := by
     filter_upwards [ν.rnDeriv_zero] with x hx
     rw [hx]
     simp
@@ -132,9 +132,9 @@ lemma fDiv_zero_measure_right (μ : Measure α) : fDiv f μ 0 = f.derivAtTop * �
 --       simp [hc0, this]
 
 lemma fDiv_self (μ : Measure α) [SigmaFinite μ] : fDiv f μ μ = 0 := by
-  have h : (fun x ↦ f (μ.rnDeriv μ x).toReal) =ᵐ[μ] 0 := by
+  have h : (fun x ↦ f (μ.rnDeriv μ x)) =ᵐ[μ] 0 := by
     filter_upwards [μ.rnDeriv_self] with x hx
-    rw [hx, ENNReal.one_toReal, f.one]
+    rw [hx, f.one]
     rfl
   simp [fDiv, lintegral_congr_ae h]
 
@@ -170,29 +170,29 @@ end SimpleValues
 
 section Congr
 
-lemma fDiv_congr' (μ ν : Measure α) (hfg : ∀ᵐ x ∂ν.map (fun x ↦ ((∂μ/∂ν) x).toReal), f x = g x)
+lemma fDiv_congr' (μ ν : Measure α) (hfg : ∀ᵐ x ∂ν.map (fun x ↦ ((∂μ/∂ν) x)), f x = g x)
     (hfg' : f =ᶠ[atTop] g) :
     fDiv f μ ν = fDiv g μ ν := by
-  have h : (fun a ↦ f ((∂μ/∂ν) a).toReal) =ᶠ[ae ν] fun a ↦ g ((∂μ/∂ν) a).toReal :=
-    ae_of_ae_map (μ.measurable_rnDeriv ν).ennreal_toReal.aemeasurable hfg
+  have h : (fun a ↦ f ((∂μ/∂ν) a)) =ᶠ[ae ν] fun a ↦ g ((∂μ/∂ν) a) :=
+    ae_of_ae_map (μ.measurable_rnDeriv ν).aemeasurable hfg
   rw [fDiv, DivFunction.derivAtTop_congr hfg', lintegral_congr_ae h]
   rfl
 
-lemma fDiv_congr (μ ν : Measure α) (h : ∀ x ≥ 0, f x = g x) :
-    fDiv f μ ν = fDiv g μ ν := by
-  have (x : α) : f ((∂μ/∂ν) x).toReal = g ((∂μ/∂ν) x).toReal := h _ ENNReal.toReal_nonneg
-  simp_rw [fDiv, this, DivFunction.derivAtTop_congr_nonneg h]
+-- lemma fDiv_congr (μ ν : Measure α) (h : ∀ x ≥ 0, f x = g x) :
+--     fDiv f μ ν = fDiv g μ ν := by
+--   have (x : α) : f ((∂μ/∂ν) x) = g ((∂μ/∂ν) x) := h _ ENNReal.toReal_nonneg
+--   simp_rw [fDiv, this, DivFunction.derivAtTop_congr_nonneg h]
 
 lemma fDiv_congr_measure {μ ν : Measure α} {μ' ν' : Measure β}
-    (h_eq : ∫⁻ x, f ((∂μ/∂ν) x).toReal ∂ν = ∫⁻ x, f ((∂μ'/∂ν') x).toReal ∂ν')
+    (h_eq : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν = ∫⁻ x, f ((∂μ'/∂ν') x) ∂ν')
     (h_sing : μ.singularPart ν univ = μ'.singularPart ν' univ) :
     fDiv f μ ν = fDiv f μ' ν' := by
   rw [fDiv, fDiv, h_sing, h_eq]
 
-lemma fDiv_eq_zero_of_forall_nonneg (μ ν : Measure α) (hf : ∀ x ≥ 0, f x = 0) :
-    fDiv f μ ν = 0 := by
-  rw [← fDiv_zero (μ := μ) (ν := ν)]
-  exact fDiv_congr μ ν hf
+-- lemma fDiv_eq_zero_of_forall_nonneg (μ ν : Measure α) (hf : ∀ x ≥ 0, f x = 0) :
+--     fDiv f μ ν = 0 := by
+--   rw [← fDiv_zero (μ := μ) (ν := ν)]
+--   exact fDiv_congr μ ν hf
 
 end Congr
 
@@ -202,7 +202,7 @@ lemma fDiv_smul (c : ℝ≥0) (μ ν : Measure α) : fDiv (c • f) μ ν = c * 
   rw [fDiv]
   simp only [DivFunction.smul_apply, DivFunction.derivAtTop_smul]
   rw [lintegral_const_mul]
-  swap; · sorry
+  swap; · exact f.continuous.measurable.comp (Measure.measurable_rnDeriv _ _)
   rw [fDiv, mul_add, ← mul_assoc]
 
 -- lemma fDiv_mul_of_ne_top (c : ℝ) (hf_cvx : ConvexOn ℝ (Ici 0) f) (h_top : derivAtTop f ≠ ⊤)
@@ -223,10 +223,10 @@ lemma fDiv_smul (c : ℝ≥0) (μ ν : Measure α) : fDiv (c • f) μ ν = c * 
 -- In general it's not true that if the sum is integrable then both are, even if the functions are
 -- convex, take for example f(x) = -x and g(x) = x with the Lebesgue measure. But maybe with some
 -- additional hypothesis it's true.
-lemma fDiv_add [IsFiniteMeasure μ] : fDiv (f + g) μ ν = fDiv f μ ν + fDiv g μ ν := by
+lemma fDiv_add : fDiv (f + g) μ ν = fDiv f μ ν + fDiv g μ ν := by
   simp only [fDiv, DivFunction.add_apply, DivFunction.derivAtTop_add]
   rw [lintegral_add_left]
-  swap; · sorry
+  swap; · exact f.continuous.measurable.comp (Measure.measurable_rnDeriv _ _)
   ring
 
 -- lemma fDiv_add_const (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
@@ -323,12 +323,12 @@ section AbsolutelyContinuousMutuallySingular
 lemma fDiv_of_mutuallySingular [SigmaFinite μ] [SigmaFinite ν] (h : μ ⟂ₘ ν) :
     fDiv f μ ν = f 0 * ν .univ + f.derivAtTop * μ .univ := by
   have : μ.singularPart ν = μ := (μ.singularPart_eq_self).mpr h
-  have hf_rnDeriv : (fun x ↦ f ((∂μ/∂ν) x).toReal) =ᵐ[ν] fun _ ↦ f 0 := by
+  have hf_rnDeriv : (fun x ↦ f ((∂μ/∂ν) x)) =ᵐ[ν] fun _ ↦ f 0 := by
     filter_upwards [Measure.rnDeriv_eq_zero_of_mutuallySingular h Measure.AbsolutelyContinuous.rfl]
       with x hx using by simp [hx]
   simp [fDiv, lintegral_congr_ae hf_rnDeriv, this]
 
-lemma fDiv_of_absolutelyContinuous (h : μ ≪ ν) : fDiv f μ ν = ∫⁻ x, f ((∂μ/∂ν) x).toReal ∂ν := by
+lemma fDiv_of_absolutelyContinuous (h : μ ≪ ν) : fDiv f μ ν = ∫⁻ x, f ((∂μ/∂ν) x) ∂ν := by
   simp [fDiv, Measure.singularPart_eq_zero_of_ac h]
 
 lemma fDiv_absolutelyContinuous_add_mutuallySingular {μ₁ μ₂ ν : Measure α}
@@ -337,7 +337,7 @@ lemma fDiv_absolutelyContinuous_add_mutuallySingular {μ₁ μ₂ ν : Measure �
   have h1 : μ₁.singularPart ν = 0 := (Measure.singularPart_eq_zero _ _).mpr h₁
   have h2 : (μ₁ + μ₂).singularPart ν = μ₂ := by
     rw [Measure.singularPart_add, h1, zero_add, Measure.singularPart_eq_self.mpr h₂]
-  have h_ae : (fun x ↦ f ((∂μ₁ + μ₂/∂ν) x).toReal) =ᵐ[ν] (fun x ↦ f ((∂μ₁/∂ν) x).toReal) := by
+  have h_ae : (fun x ↦ f ((∂μ₁ + μ₂/∂ν) x)) =ᵐ[ν] (fun x ↦ f ((∂μ₁/∂ν) x)) := by
     have h_zero : (∂μ₂/∂ν) =ᵐ[ν] 0 := (Measure.rnDeriv_eq_zero _ _).mpr h₂
     filter_upwards [h_zero, Measure.rnDeriv_add' μ₁ μ₂ ν] with x hx_zero hx_add
     rw [hx_add, Pi.add_apply, hx_zero]
@@ -423,21 +423,19 @@ section AddMeasure
 lemma fDiv_add_measure_le_of_ac {μ₁ μ₂ ν : Measure α} [SigmaFinite μ₁] [SigmaFinite μ₂]
     [SigmaFinite ν] (h₁ : μ₁ ≪ ν) (h₂ : μ₂ ≪ ν) :
     fDiv f (μ₁ + μ₂) ν ≤ fDiv f μ₁ ν + f.derivAtTop * μ₂ univ := by
-  have h_le : ∀ᵐ x ∂ν, f ((∂μ₁ + μ₂/∂ν) x).toReal
-      ≤ f ((∂μ₁/∂ν) x).toReal + f.derivAtTop * ((∂μ₂/∂ν) x) := by
-    filter_upwards [μ₁.rnDeriv_add' μ₂ ν, μ₁.rnDeriv_lt_top ν, μ₂.rnDeriv_lt_top ν]
-      with x hx hx₁ hx₂
-    rw [hx, Pi.add_apply, ENNReal.toReal_add hx₁.ne hx₂.ne]
-    sorry
-    --exact le_add_derivAtTop'' hf_cvx h_top ENNReal.toReal_nonneg ENNReal.toReal_nonneg
+  have h_le : ∀ᵐ x ∂ν, f ((∂μ₁ + μ₂/∂ν) x)
+      ≤ f ((∂μ₁/∂ν) x) + f.derivAtTop * ((∂μ₂/∂ν) x) := by
+    filter_upwards [μ₁.rnDeriv_add' μ₂ ν] with x hx
+    rw [hx, Pi.add_apply]
+    exact f.le_add_derivAtTop'' _ _
   rw [fDiv_of_absolutelyContinuous (Measure.AbsolutelyContinuous.add_left_iff.mpr ⟨h₁, h₂⟩),
     fDiv_of_absolutelyContinuous h₁]
-  calc ∫⁻ x, f ((∂μ₁ + μ₂/∂ν) x).toReal ∂ν
-    ≤ ∫⁻ x, f ((∂μ₁/∂ν) x).toReal + f.derivAtTop * (∂μ₂/∂ν) x ∂ν := lintegral_mono_ae h_le
-  _ ≤ ∫⁻ x, f ((∂μ₁/∂ν) x).toReal ∂ν + f.derivAtTop * μ₂ .univ := by
+  calc ∫⁻ x, f ((∂μ₁ + μ₂/∂ν) x) ∂ν
+    ≤ ∫⁻ x, f ((∂μ₁/∂ν) x) + f.derivAtTop * (∂μ₂/∂ν) x ∂ν := lintegral_mono_ae h_le
+  _ ≤ ∫⁻ x, f ((∂μ₁/∂ν) x) ∂ν + f.derivAtTop * μ₂ .univ := by
         rw [lintegral_add_left, lintegral_const_mul _ (Measure.measurable_rnDeriv _ _),
           Measure.lintegral_rnDeriv h₂]
-        sorry
+        exact f.continuous.measurable.comp (Measure.measurable_rnDeriv _ _)
 
 lemma fDiv_add_measure_le (μ₁ μ₂ ν : Measure α) [SigmaFinite μ₁] [SigmaFinite μ₂]
     [SigmaFinite ν] :
@@ -472,7 +470,9 @@ end AddMeasure
 lemma fDiv_le_zero_add_top_of_ac [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν) :
     fDiv f μ ν ≤ f 0 * ν .univ + f.derivAtTop * μ .univ := by
   rw [fDiv_of_absolutelyContinuous hμν]
-  have h x : f (((∂μ/∂ν) x).toReal) ≤ f 0 + f.derivAtTop * (∂μ/∂ν) x := sorry
+  have h x : f ((∂μ/∂ν) x) ≤ f 0 + f.derivAtTop * (∂μ/∂ν) x := by
+    conv_lhs => rw [← zero_add ((∂μ/∂ν) x)]
+    exact f.le_add_derivAtTop'' _ _
   refine (lintegral_mono h).trans_eq ?_
   rw [lintegral_add_left measurable_const, lintegral_const,
     lintegral_const_mul _ (Measure.measurable_rnDeriv _ _), Measure.lintegral_rnDeriv hμν]
@@ -490,7 +490,7 @@ lemma fDiv_le_zero_add_top [SigmaFinite μ] [SigmaFinite ν] :
       conv_rhs => rw [μ.haveLebesgueDecomposition_add ν, add_comm (μ.singularPart ν)]
       rfl
 
-lemma fDiv_lt_top_of_ac (h : μ ≪ ν) (h_int : ∫⁻ x, f ((∂μ/∂ν) x).toReal ∂ν ≠ ∞) :
+lemma fDiv_lt_top_of_ac (h : μ ≪ ν) (h_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞) :
     fDiv f μ ν < ∞ := by
   rw [fDiv_of_absolutelyContinuous h]
   exact h_int.lt_top
@@ -508,25 +508,25 @@ lemma fDiv_of_not_ac [SigmaFinite μ] [SigmaFinite ν] (hf : f.derivAtTop = ∞)
   exact hμν
 
 lemma fDiv_lt_top_iff_ac [SigmaFinite μ] [SigmaFinite ν] (hf : f.derivAtTop = ∞)
-    (h_int : ∫⁻ x, f ((∂μ/∂ν) x).toReal ∂ν ≠ ∞) :
+    (h_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞) :
     fDiv f μ ν < ∞ ↔ μ ≪ ν := by
   refine ⟨fun h ↦ ?_, fun h ↦ fDiv_lt_top_of_ac h h_int⟩
   by_contra h_not_ac
   refine h.ne (fDiv_of_not_ac hf h_not_ac)
 
 lemma fDiv_ne_top_iff_ac [SigmaFinite μ] [SigmaFinite ν] (hf : f.derivAtTop = ∞)
-    (h_int : ∫⁻ x, f ((∂μ/∂ν) x).toReal ∂ν ≠ ∞) :
+    (h_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞) :
     fDiv f μ ν ≠ ∞ ↔ μ ≪ ν := by
   rw [← fDiv_lt_top_iff_ac hf h_int, lt_top_iff_ne_top]
 
 lemma fDiv_eq_top_iff_not_ac [SigmaFinite μ] [SigmaFinite ν] (hf : f.derivAtTop = ∞)
-    (h_int : ∫⁻ x, f ((∂μ/∂ν) x).toReal ∂ν ≠ ∞) :
+    (h_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞) :
     fDiv f μ ν = ∞ ↔ ¬ μ ≪ ν := by
   rw [← fDiv_ne_top_iff_ac hf h_int, not_not]
 
 lemma fDiv_of_derivAtTop_eq_top [SigmaFinite μ] [SigmaFinite ν] (hf : f.derivAtTop = ∞)
     [Decidable (μ ≪ ν)] :
-    fDiv f μ ν = if μ ≪ ν then ∫⁻ x, f ((∂μ/∂ν) x).toReal ∂ν else ∞ := by
+    fDiv f μ ν = if μ ≪ ν then ∫⁻ x, f ((∂μ/∂ν) x) ∂ν else ∞ := by
   split_ifs with h
   · rw [fDiv_of_absolutelyContinuous h]
   · rw [fDiv_of_not_ac _ h]
@@ -535,7 +535,7 @@ lemma fDiv_of_derivAtTop_eq_top [SigmaFinite μ] [SigmaFinite ν] (hf : f.derivA
 end derivAtTopTop
 
 lemma fDiv_lt_top_of_derivAtTop_ne_top [IsFiniteMeasure μ] (hf : f.derivAtTop ≠ ∞)
-    (h_int : ∫⁻ x, f ((∂μ/∂ν) x).toReal ∂ν ≠ ∞) :
+    (h_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞) :
     fDiv f μ ν < ∞ := by
   rw [fDiv, ENNReal.add_lt_top, ENNReal.mul_lt_top_iff]
   refine ⟨h_int.lt_top, ?_⟩
@@ -544,11 +544,11 @@ lemma fDiv_lt_top_of_derivAtTop_ne_top [IsFiniteMeasure μ] (hf : f.derivAtTop �
 lemma fDiv_lt_top_of_derivAtTop_ne_top' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (h_top : f.derivAtTop ≠ ∞) :
     fDiv f μ ν < ∞ := by
-  have h_int : ∫⁻ x, f ((∂μ/∂ν) x).toReal ∂ν ≠ ∞ := f.lintegral_comp_rnDeriv_ne_top μ ν h_top
+  have h_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞ := f.lintegral_comp_rnDeriv_ne_top μ ν h_top
   exact fDiv_lt_top_of_derivAtTop_ne_top h_top h_int
 
 lemma fDiv_lt_top_iff_of_derivAtTop_ne_top [IsFiniteMeasure μ] (hf : f.derivAtTop ≠ ∞) :
-    fDiv f μ ν < ∞ ↔ ∫⁻ x, f ((∂μ/∂ν) x).toReal ∂ν ≠ ∞ := by
+    fDiv f μ ν < ∞ ↔ ∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞ := by
   refine ⟨fun h ↦ ?_, fDiv_lt_top_of_derivAtTop_ne_top hf⟩
   rw [fDiv, ENNReal.add_lt_top] at h
   exact h.1.ne
@@ -560,19 +560,19 @@ lemma fDiv_ne_top_of_derivAtTop_ne_top [IsFiniteMeasure μ] [IsFiniteMeasure ν]
   exact fDiv_lt_top_of_derivAtTop_ne_top' h_top
 
 lemma fDiv_ne_top_iff_of_derivAtTop_ne_top [IsFiniteMeasure μ] (hf : f.derivAtTop ≠ ∞) :
-    fDiv f μ ν ≠ ∞ ↔ ∫⁻ x, f ((∂μ/∂ν) x).toReal ∂ν ≠ ∞ := by
+    fDiv f μ ν ≠ ∞ ↔ ∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞ := by
   rw [← fDiv_lt_top_iff_of_derivAtTop_ne_top hf, lt_top_iff_ne_top]
 
 lemma fDiv_eq_top_iff_of_derivAtTop_ne_top [IsFiniteMeasure μ] (hf : f.derivAtTop ≠ ∞) :
-    fDiv f μ ν = ∞ ↔ ∫⁻ x, f ((∂μ/∂ν) x).toReal ∂ν = ∞ := by
+    fDiv f μ ν = ∞ ↔ ∫⁻ x, f ((∂μ/∂ν) x) ∂ν = ∞ := by
   rw [← not_not (a := fDiv f μ ν = ∞), ← ne_eq, fDiv_ne_top_iff_of_derivAtTop_ne_top hf, not_not]
 
 lemma fDiv_eq_top_iff [IsFiniteMeasure μ] [SigmaFinite ν] :
     fDiv f μ ν = ∞
-      ↔ (∫⁻ x, f ((∂μ/∂ν) x).toReal ∂ν = ∞) ∨ (f.derivAtTop = ∞ ∧ ¬ μ ≪ ν) := by
+      ↔ (∫⁻ x, f ((∂μ/∂ν) x) ∂ν = ∞) ∨ (f.derivAtTop = ∞ ∧ ¬ μ ≪ ν) := by
   by_cases h : f.derivAtTop = ∞
   · simp only [h, true_and]
-    by_cases hf : ∫⁻ x, f ((∂μ/∂ν) x).toReal ∂ν = ∞
+    by_cases hf : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν = ∞
     · simp [fDiv, hf]
     · simp only [hf, not_true_eq_false, false_or]
       exact fDiv_eq_top_iff_not_ac h hf
@@ -581,7 +581,7 @@ lemma fDiv_eq_top_iff [IsFiniteMeasure μ] [SigmaFinite ν] :
 
 lemma fDiv_eq_top_iff' [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     fDiv f μ ν = ∞
-      ↔ f.derivAtTop = ∞ ∧ (∫⁻ x, f ((∂μ/∂ν) x).toReal ∂ν = ∞ ∨ ¬ μ ≪ ν) := by
+      ↔ f.derivAtTop = ∞ ∧ (∫⁻ x, f ((∂μ/∂ν) x) ∂ν = ∞ ∨ ¬ μ ≪ ν) := by
   by_cases h_top : f.derivAtTop = ∞
   · rw [fDiv_eq_top_iff]
     simp only [h_top, true_and]
@@ -590,19 +590,19 @@ lemma fDiv_eq_top_iff' [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
 
 lemma fDiv_ne_top_iff [IsFiniteMeasure μ] [SigmaFinite ν] :
     fDiv f μ ν ≠ ∞
-      ↔ (∫⁻ x, f ((∂μ/∂ν) x).toReal ∂ν ≠ ∞) ∧ (f.derivAtTop = ∞ → μ ≪ ν) := by
+      ↔ (∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞) ∧ (f.derivAtTop = ∞ → μ ≪ ν) := by
   rw [ne_eq, fDiv_eq_top_iff]
   push_neg
   rfl
 
 lemma fDiv_ne_top_iff' [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
-    fDiv f μ ν ≠ ∞ ↔ f.derivAtTop = ∞ → (∫⁻ x, f ((∂μ/∂ν) x).toReal ∂ν ≠ ∞ ∧ μ ≪ ν) := by
+    fDiv f μ ν ≠ ∞ ↔ f.derivAtTop = ∞ → (∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞ ∧ μ ≪ ν) := by
   rw [ne_eq, fDiv_eq_top_iff']
   push_neg
   rfl
 
 lemma lintegral_ne_top_of_fDiv_ne_top (h : fDiv f μ ν ≠ ⊤) :
-    ∫⁻ x, f ((∂μ/∂ν) x).toReal ∂ν ≠ ∞ := by
+    ∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞ := by
   by_contra h_not
   simp [fDiv, h_not] at h
 
@@ -631,35 +631,79 @@ lemma lintegral_ne_top_of_fDiv_ne_top (h : fDiv f μ ν ≠ ⊤) :
 --     exact fun _ ↦ EReal.coe_ennreal_nonneg _
 --   rfl
 
-lemma le_fDiv_of_ac [IsFiniteMeasure μ] [IsProbabilityMeasure ν] (hμν : μ ≪ ν) :
-    f (μ .univ).toReal ≤ fDiv f μ ν := by
-  by_cases hf_int : ∫⁻ x, f ((∂μ/∂ν) x).toReal ∂ν = ∞
+lemma integral_realFun_rnDeriv [SigmaFinite μ] (h_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞) :
+    ∫ x, f.realFun ((∂μ/∂ν) x).toReal ∂ν = (∫⁻ x, f ((∂μ/∂ν) x) ∂ν).toReal := by
+  have h := ae_lt_top ?_ h_int
+  swap; · exact f.continuous.measurable.comp (Measure.measurable_rnDeriv _ _)
+  have h' := μ.rnDeriv_lt_top ν
+  simp_rw [DivFunction.realFun]
+  rw [integral_toReal]
+  · congr 1
+    refine lintegral_congr_ae ?_
+    filter_upwards [h'] with x hx
+    rw [ENNReal.ofReal_toReal hx.ne]
+  · refine (f.continuous.measurable.comp ?_).aemeasurable
+    exact (Measure.measurable_rnDeriv _ _).ennreal_toReal.ennreal_ofReal
+  · filter_upwards [h, h'] with x hx hx'
+    rwa [ENNReal.ofReal_toReal hx'.ne]
+
+lemma integrable_realFun_rnDeriv [SigmaFinite μ] (h_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞) :
+    Integrable (fun x ↦ f.realFun ((∂μ/∂ν) x).toReal) ν := by
+  simp_rw [DivFunction.realFun]
+  refine integrable_toReal_of_lintegral_ne_top ?_ ?_
+  · refine (f.continuous.measurable.comp ?_).aemeasurable
+    exact (Measure.measurable_rnDeriv _ _).ennreal_toReal.ennreal_ofReal
+  · suffices ∫⁻ x, f (ENNReal.ofReal ((∂μ/∂ν) x).toReal) ∂ν = ∫⁻ x, f ((∂μ/∂ν) x) ∂ν by
+      rwa [this]
+    refine lintegral_congr_ae ?_
+    filter_upwards [μ.rnDeriv_lt_top ν] with x hx
+    rw [ENNReal.ofReal_toReal hx.ne]
+
+-- todo: remove `hf`
+lemma le_fDiv_of_ac [IsFiniteMeasure μ] [IsProbabilityMeasure ν] (hμν : μ ≪ ν)
+    (hf : ∀ x, f x ≠ ∞) :
+    f (μ .univ) ≤ fDiv f μ ν := by
+  by_cases hf_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν = ∞
   · simp [fDiv, hf_int]
   rw [fDiv, Measure.singularPart_eq_zero_of_ac hμν]
   simp only [Measure.coe_zero, Pi.zero_apply,
     EReal.coe_ennreal_zero, mul_zero, add_zero, EReal.coe_le_coe_iff]
-  calc f (μ .univ).toReal
-    = f (∫ x, (μ.rnDeriv ν x).toReal ∂ν) := by rw [Measure.integral_toReal_rnDeriv hμν]
-  _ ≤ ∫ x, f (μ.rnDeriv ν x).toReal ∂ν := by
+  have h_eq : μ univ = ENNReal.ofReal (∫ x, (μ.rnDeriv ν x).toReal ∂ν) := by
+    rw [Measure.integral_toReal_rnDeriv hμν, ENNReal.ofReal_toReal]
+    simp
+  calc f (μ .univ)
+  _ = f (ENNReal.ofReal (∫ x, (μ.rnDeriv ν x).toReal ∂ν)) := by rw [h_eq]
+  _ = ENNReal.ofReal (f.realFun (∫ x, (μ.rnDeriv ν x).toReal ∂ν)) := by
+      rw [DivFunction.realFun, ENNReal.ofReal_toReal]
+      rw [← h_eq]
+      exact hf _
+  _ ≤ ENNReal.ofReal (∫ x, f.realFun (μ.rnDeriv ν x).toReal ∂ν) := by
     rw [← average_eq_integral, ← average_eq_integral]
-    exact ConvexOn.map_average_le hf_cvx hf_cont isClosed_Ici (by simp)
-      Measure.integrable_toReal_rnDeriv hf_int
+    gcongr
+    refine ConvexOn.map_average_le ?_ ?_ (isClosed_Ici (a := 0)) ?_
+      Measure.integrable_toReal_rnDeriv (integrable_realFun_rnDeriv hf_int)
+    · exact f.convexOn_Ici_realFun hf
+    · exact f.continuousOn_realFun_Ici hf
+    · exact ae_of_all _ fun _ ↦ ENNReal.toReal_nonneg
+  _ = ∫⁻ x, f ((∂μ/∂ν) x) ∂ν := by
+    rw [integral_realFun_rnDeriv hf_int, ENNReal.ofReal_toReal hf_int]
 
 lemma f_measure_univ_le_add (μ ν : Measure α) [IsFiniteMeasure μ] [IsProbabilityMeasure ν] :
-    f (μ .univ).toReal
-      ≤ f (ν.withDensity (∂μ/∂ν) .univ).toReal + f.derivAtTop * μ.singularPart ν .univ := by
+    f (μ .univ)
+      ≤ f (ν.withDensity (∂μ/∂ν) .univ) + f.derivAtTop * μ.singularPart ν .univ := by
   have : μ .univ = ν.withDensity (∂μ/∂ν) .univ + μ.singularPart ν .univ := by
     conv_lhs => rw [μ.haveLebesgueDecomposition_add ν, add_comm]
     simp
   rw [this]
-  exact toReal_le_add_derivAtTop hf_cvx (measure_ne_top _ _) (measure_ne_top _ _)
+  exact f.le_add_derivAtTop'' _ _
 
-lemma le_fDiv [IsFiniteMeasure μ] [IsProbabilityMeasure ν] :
-    f (μ .univ).toReal ≤ fDiv f μ ν := by
+-- todo: remove `hf`
+lemma le_fDiv [IsFiniteMeasure μ] [IsProbabilityMeasure ν] (hf : ∀ x, f x ≠ ∞) :
+    f (μ .univ) ≤ fDiv f μ ν := by
   refine (f_measure_univ_le_add μ ν).trans ?_
   rw [fDiv_eq_add_withDensity_derivAtTop]
   gcongr
-  exact le_fDiv_of_ac (withDensity_absolutelyContinuous _ _)
+  exact le_fDiv_of_ac (withDensity_absolutelyContinuous _ _) hf
 
 -- lemma fDiv_nonneg [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
 --     0 ≤ fDiv f μ ν := by
@@ -668,13 +712,13 @@ lemma le_fDiv [IsFiniteMeasure μ] [IsProbabilityMeasure ν] :
 
 /- The hypothesis `hfg'` can maybe become something like `f ≤ᵐ[atTop] g`, but then we would need
 some lemma like `derivAtTop_mono`. -/
-lemma fDiv_mono'' (hfg : f ≤ᵐ[ν.map (fun x ↦ ((∂μ/∂ν) x).toReal)] g)
+lemma fDiv_mono'' (hfg : f ≤ᵐ[ν.map (∂μ/∂ν)] g)
     (hfg' : f.derivAtTop ≤ g.derivAtTop) :
     fDiv f μ ν ≤ fDiv g μ ν := by
   rw [fDiv, fDiv]
   refine add_le_add ?_ ?_
   · refine lintegral_mono_ae ?_
-    exact ae_of_ae_map (μ.measurable_rnDeriv ν).ennreal_toReal.aemeasurable hfg
+    exact ae_of_ae_map (μ.measurable_rnDeriv ν).aemeasurable hfg
   · gcongr
 
 /- The hypothesis `hfg'` can probably be removed if we ask for the functions to be convex,
@@ -686,44 +730,29 @@ lemma fDiv_mono' (hfg : ∀ x, f x ≤ g x) (hfg' : f.derivAtTop ≤ g.derivAtTo
 -- lemma fDiv_nonneg_of_nonneg (hf : ∀ x, 0 ≤ f x) : 0 ≤ fDiv f μ ν :=
 --   fDiv_zero μ ν ▸ fDiv_mono' hf (DivFunction.derivAtTop_zero ▸ zero_le')
 
-lemma fDiv_eq_zero_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h_mass : μ .univ = ν .univ)
-    (hf_deriv : f.derivAtTop = ∞) (hf_cvx : StrictConvexOn ℝ (Ici 0) (fun x ↦ (f x).toReal))
-    (hf_ne_top : ∀ x, 0 ≤ x → f x ≠ ∞) :
+lemma fDiv_eq_zero_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (hf_deriv : f.derivAtTop = ∞) (hf_cvx : StrictConvexOn ℝ (Ici 0) f.realFun) :
     fDiv f μ ν = 0 ↔ μ = ν := by
   refine ⟨fun h ↦ ?_, fun h ↦ h ▸ fDiv_self _⟩
   by_cases hμν : μ ≪ ν
   swap; · rw [fDiv_of_not_ac hf_deriv hμν] at h; exact (ENNReal.top_ne_zero h).elim
-  have h_top : ∫⁻ x, f ((∂μ/∂ν) x).toReal ∂ν ≠ ∞ := by
-    by_contra! h_top
-    simp [fDiv_of_lintegral_eq_top h_top] at h
-  have h_int : Integrable (fun x ↦ (f ((∂μ/∂ν) x).toReal).toReal) ν := by
-    refine integrable_toReal_of_lintegral_ne_top ?_ h_top
-    sorry
-  by_cases hμ_zero : μ = 0
-  · rw [hμ_zero] at h_mass ⊢
-    rw [Measure.measure_univ_eq_zero.mp h_mass.symm]
   classical
   rw [fDiv_of_derivAtTop_eq_top hf_deriv] at h
   simp only [hμν, ↓reduceIte] at h
-  have h_eq := StrictConvexOn.ae_eq_const_or_map_average_lt hf_cvx (f.continuousOn_toReal hf_ne_top)
-    isClosed_Ici (by simp) Measure.integrable_toReal_rnDeriv h_int
-  simp only [average, ← h_mass, integral_smul_measure, smul_eq_mul] at h_eq
-  rw [Measure.integral_toReal_rnDeriv hμν, ← ENNReal.toReal_mul,
-    ENNReal.inv_mul_cancel (Measure.measure_univ_ne_zero.mpr hμ_zero) (measure_ne_top μ _)] at h_eq
-  rw [integral_toReal, h] at h_eq
-  rotate_left
-  · sorry
-  · exact ae_of_all _ fun x ↦ (hf_ne_top _ ENNReal.toReal_nonneg).lt_top
-  simp only [ENNReal.one_toReal, Function.const_one, log_one, mul_zero, lt_self_iff_false,
-    or_false, f.one, ENNReal.zero_toReal, ENNReal.toReal_inv] at h_eq
-  exact (Measure.rnDeriv_eq_one_iff_eq hμν).mp <| ENNReal.eventuallyEq_of_toReal_eventuallyEq
-    (μ.rnDeriv_ne_top _) (.of_forall fun _ ↦ ENNReal.one_ne_top) h_eq
+  rw [lintegral_eq_zero_iff] at h
+  swap; · exact f.continuous.measurable.comp (Measure.measurable_rnDeriv _ _)
+  have h_eq_zero_iff x : f x = 0 ↔ x = 1 := by
+    rw [f.eq_zero_iff zero_lt_one one_lt_two]
+    exact hf_cvx.subset (fun x hx ↦ hx.1.le) (convex_Ioo _ _)
+  refine (Measure.rnDeriv_eq_one_iff_eq hμν).mp ?_
+  filter_upwards [h] with x hx
+  simp only [Pi.zero_apply, h_eq_zero_iff] at hx
+  exact hx
 
-lemma fDiv_eq_zero_iff' [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
-    (hf_deriv : f.derivAtTop = ∞) (hf_cvx : StrictConvexOn ℝ (Ici 0) (fun x ↦ (f x).toReal))
-    (hf_ne_top : ∀ x, 0 ≤ x → f x ≠ ∞) :
-    fDiv f μ ν = 0 ↔ μ = ν :=
-  fDiv_eq_zero_iff (by simp) hf_deriv hf_cvx hf_ne_top
+-- lemma fDiv_eq_zero_iff' [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
+--     (hf_deriv : f.derivAtTop = ∞) (hf_cvx : StrictConvexOn ℝ (Ici 0) f.realFun) :
+--     fDiv f μ ν = 0 ↔ μ = ν :=
+--   fDiv_eq_zero_iff hf_deriv hf_cvx
 
 lemma fDiv_map_measurableEmbedding [SigmaFinite μ] [SigmaFinite ν]
     {g : α → β} (hg : MeasurableEmbedding g) :
@@ -746,11 +775,11 @@ theorem lintegral_piecewise {s : Set α} {f g : α → ℝ≥0∞} [DecidablePre
 
 lemma fDiv_restrict (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν]
     {s : Set α} (hs : MeasurableSet s) :
-    fDiv f (μ.restrict s) ν = ∫⁻ x in s, f ((∂μ/∂ν) x).toReal ∂ν
+    fDiv f (μ.restrict s) ν = ∫⁻ x in s, f ((∂μ/∂ν) x) ∂ν
         + f 0 * ν sᶜ + f.derivAtTop * (μ.singularPart ν s) := by
   classical
-  have h : (fun x ↦ f ((∂μ.restrict s/∂ν) x).toReal)
-      =ᵐ[ν] s.piecewise (fun x ↦ f ((∂μ/∂ν) x).toReal) (fun _ ↦ f 0) := by
+  have h : (fun x ↦ f ((∂μ.restrict s/∂ν) x))
+      =ᵐ[ν] s.piecewise (fun x ↦ f ((∂μ/∂ν) x)) (fun _ ↦ f 0) := by
     filter_upwards [μ.rnDeriv_restrict ν hs] with a ha
     rw [ha]
     by_cases has : a ∈ s <;> simp [has]
@@ -759,6 +788,6 @@ lemma fDiv_restrict (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν]
   rw [lintegral_congr_ae h]
   rw [lintegral_piecewise _ hs, lintegral_const]
   · simp only [MeasurableSet.univ, Measure.restrict_apply, univ_inter]
-  · sorry
+  · exact (f.continuous.measurable.comp (Measure.measurable_rnDeriv _ _)).aemeasurable
 
 end ProbabilityTheory

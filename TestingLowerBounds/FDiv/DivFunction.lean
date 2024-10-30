@@ -87,7 +87,13 @@ noncomputable def xmax (f : DivFunction) : ℝ≥0∞ := sSup {x | f x ≠ ∞}
 
 lemma xmin_lt_one : f.xmin < 1 := by
   rw [xmin, sInf_lt_iff]
-  sorry
+  suffices ∀ᶠ a in 𝓝 1, f a ≠ ⊤ by
+    obtain ⟨a, ha_lt, ha⟩ := this.exists_lt
+    exact ⟨a, ha, ha_lt⟩
+  suffices ∀ᶠ a in 𝓝 1, f a < 1 by
+    filter_upwards [this] with x hx using ne_top_of_lt hx
+  refine eventually_lt_of_tendsto_lt ?_ (f.continuous.tendsto 1)
+  simp
 
 lemma xmin_lt_top : f.xmin < ∞ := lt_top_of_lt xmin_lt_one
 
@@ -95,7 +101,13 @@ lemma xmin_ne_top : f.xmin ≠ ∞ := xmin_lt_top.ne
 
 lemma one_lt_xmax : 1 < f.xmax := by
   rw [xmax, lt_sSup_iff]
-  sorry
+  suffices ∀ᶠ a in 𝓝 1, f a ≠ ⊤ by
+    obtain ⟨a, ha_gt, ha⟩ := this.exists_gt
+    exact ⟨a, ha, ha_gt⟩
+  suffices ∀ᶠ a in 𝓝 1, f a < 1 by
+    filter_upwards [this] with x hx using ne_top_of_lt hx
+  refine eventually_lt_of_tendsto_lt ?_ (f.continuous.tendsto 1)
+  simp
 
 lemma xmax_pos : 0 < f.xmax := zero_lt_one.trans one_lt_xmax
 
@@ -218,6 +230,11 @@ def realFun : ℝ → ℝ := (fun x : ℝ ↦ (f (ENNReal.ofReal x)).toReal)
   f.rightDerivOne
 
 @[simp]
+lemma realFun_one : f.realFun 1 = 0 := by simp [realFun]
+
+lemma realFun_nonneg {x : ℝ} : 0 ≤ f.realFun x := ENNReal.toReal_nonneg
+
+@[simp]
 lemma realFun_of_nonpos {x : ℝ} (hx : x ≤ 0) : f.realFun x = f.realFun 0 := by
   simp [realFun, ENNReal.ofReal_of_nonpos hx]
 
@@ -226,6 +243,9 @@ lemma realFun_of_lt_xmin {x : ℝ} (hx : ENNReal.ofReal x < f.xmin) : f.realFun 
 
 lemma realFun_of_xmax_lt {x : ℝ} (hx : f.xmax < ENNReal.ofReal x) : f.realFun x = 0 := by
   simp [realFun, eq_top_of_xmax_lt hx]
+
+lemma realFun_toReal {x : ℝ≥0∞} (hx : x ≠ ⊤) :
+    f.realFun x.toReal = (f x).toReal := by rw [realFun, ENNReal.ofReal_toReal hx]
 
 lemma continuousOn_realFun_Ioo : ContinuousOn f.realFun (Ioo f.xmin.toReal f.xmax.toReal) := by
   by_cases h : f.xmax = ∞
@@ -254,11 +274,37 @@ lemma convexOn_Ioo_realFun : ConvexOn ℝ (Ioo f.xmin.toReal f.xmax.toReal) f.re
 
 lemma convexOn_Ici_realFun (h : ∀ x, f x ≠ ∞) : ConvexOn ℝ (Ici 0) f.realFun := sorry
 
+lemma eq_zero_iff {a b : ℝ} (ha : a < 1) (hb : 1 < b)
+    (hf_cvx : StrictConvexOn ℝ (Ioo a b) f.realFun) {x : ℝ≥0∞} :
+    f x = 0 ↔ x = 1 := by
+  have h_iff : (f x = 0 ∧ x ∈ Ioo (ENNReal.ofReal a) (ENNReal.ofReal b)) ↔ x = 1 := by
+    refine ⟨fun h ↦ ?_, fun h ↦ ⟨by simp [h], ?_⟩⟩
+    · have hx_ne_top : x ≠ ∞ := ne_top_of_lt h.2.2
+      suffices x.toReal = 1 by
+        rw [← ENNReal.ofReal_toReal hx_ne_top, this, ENNReal.ofReal_one]
+      refine StrictConvexOn.eq_of_isMinOn hf_cvx ?_ ?_ ?_ ?_
+      · rw [isMinOn_iff]
+        intro y hy
+        rw [realFun_toReal f hx_ne_top, h.1]
+        simp [realFun_nonneg]
+      · rw [isMinOn_iff]
+        intro y hy
+        simp [realFun_nonneg]
+      · sorry
+      · sorry
+    · simp [h, ha, hb]
+  refine ⟨fun h ↦ ?_, fun h ↦ by simp [h]⟩
+  by_cases hxb : ENNReal.ofReal b ≤ x
+  · sorry
+  by_cases hxa : x ≤ ENNReal.ofReal a
+  · sorry
+  exact h_iff.mp ⟨h, ⟨not_le.mp hxa, not_le.mp hxb⟩⟩
+
 end RealFun
 
 section RightDeriv
 
-protected noncomputable def rightDeriv (f : DivFunction) : ERealStieltjes where
+protected noncomputable def rightDerivStieltjes (f : DivFunction) : ERealStieltjes where
   toFun := fun x ↦
     if x < f.xmin.toReal then ⊥
     else if x = f.xmin.toReal then Function.rightLim (fun y ↦ (rightDeriv f.realFun y : EReal)) x
@@ -272,17 +318,19 @@ end RightDeriv
 section DerivAtTop
 
 noncomputable
-def derivAtTop (f : DivFunction) : ℝ≥0∞ := limsup (fun x ↦ f x / x) atTop
+def derivAtTop (f : DivFunction) : ℝ≥0∞ :=
+  (limsup (fun x ↦ f.rightDerivStieltjes x) atTop).toENNReal
 
 -- lemma derivAtTop_eq_rightDeriv :
 
 @[simp]
-lemma derivAtTop_zero : derivAtTop (0 : DivFunction) = 0 := by simp [derivAtTop]
+lemma derivAtTop_zero : derivAtTop (0 : DivFunction) = 0 := sorry
 
 lemma derivAtTop_congr (h : f =ᶠ[atTop] g) : f.derivAtTop = g.derivAtTop := by
-  refine limsup_congr ?_
-  filter_upwards [h] with x hx
-  rw [hx]
+  sorry
+  --refine limsup_congr ?_
+  --filter_upwards [h] with x hx
+  --rw [hx]
 
 lemma derivAtTop_congr_nonneg (h : ∀ x, f x = g x) : f.derivAtTop = g.derivAtTop :=
   derivAtTop_congr (.of_forall h)
@@ -300,12 +348,16 @@ lemma derivAtTop_add : (f + g).derivAtTop = f.derivAtTop + g.derivAtTop := by
 @[simp]
 lemma derivAtTop_smul {c : ℝ≥0} : (c • f).derivAtTop = c * f.derivAtTop := sorry
 
--- lemma lintegral_comp_rnDeriv_ne_top (μ ν : Measure α) [IsFiniteMeasure μ]
---     [IsFiniteMeasure ν] (hf_deriv : f.derivAtTop ≠ ∞) :
---     ∫⁻ x, f (μ.rnDeriv ν x).toReal ∂ν ≠ ∞ := by
---   obtain ⟨c, c', h⟩ : ∃ c c', ∀ x, _ → c * x + c' ≤ (f x).toReal :=
---     f.convexOn_toReal.exists_affine_le (convex_Ici 0)
---   sorry
+lemma le_add_derivAtTop'' (x y : ℝ≥0∞) :
+    f (x + y) ≤ f x + f.derivAtTop * y := by
+  sorry
+
+lemma lintegral_comp_rnDeriv_ne_top (μ ν : Measure α) [IsFiniteMeasure μ]
+    [IsFiniteMeasure ν] (hf_deriv : f.derivAtTop ≠ ∞) :
+    ∫⁻ x, f (μ.rnDeriv ν x) ∂ν ≠ ∞ := by
+  sorry
+  -- obtain ⟨c, c', h⟩ : ∃ c c', ∀ x, _ → c * x + c' ≤ (f x).toReal :=
+  --   f.convexOn_toReal.exists_affine_le (convex_Ici 0)
   -- refine integrable_of_le_of_le (f := fun x ↦ f (μ.rnDeriv ν x).toReal)
   --   (g₁ := fun x ↦ c * (μ.rnDeriv ν x).toReal + c')
   --   (g₂ := fun x ↦ (derivAtTop f).toReal * (μ.rnDeriv ν x).toReal + f 0)
