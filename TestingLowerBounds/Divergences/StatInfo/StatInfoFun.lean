@@ -15,7 +15,10 @@ namespace ProbabilityTheory
 
 variable {𝒳 : Type*} {m𝒳 : MeasurableSpace 𝒳} {μ ν : Measure 𝒳} {f : ℝ → ℝ} {β γ x t : ℝ}
 
--- To play with this function go to https://www.geogebra.org/calculator/jaymzqtm, there the notation is: b for β, c for γ, X for x. h is statInfoFun seen as a function of x, f is statInfoFun seen as a function of γ.
+/- To play with this function go to https://www.geogebra.org/calculator/jaymzqtm,
+there the notation is: b for β, c for γ, X for x.
+h is statInfoFun seen as a function of x, f is statInfoFun seen as a function of γ.
+-/
 /-- The hockey-stick function, it is related to the statistical information divergence. -/
 noncomputable
 def statInfoFun (β γ x : ℝ) : ℝ := if γ ≤ β then max 0 (γ - β * x) else max 0 (β * x - γ)

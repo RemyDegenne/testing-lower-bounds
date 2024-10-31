@@ -46,7 +46,6 @@ import TestingLowerBounds.Kernel.ParallelComp
 import TestingLowerBounds.MeasureCompProd
 import TestingLowerBounds.Sorry.ByParts
 import TestingLowerBounds.Sorry.Jensen
-import TestingLowerBounds.SqHellinger
 import TestingLowerBounds.Testing.Binary
 import TestingLowerBounds.Testing.BoolMeasure
 import TestingLowerBounds.Testing.ChangeMeasure

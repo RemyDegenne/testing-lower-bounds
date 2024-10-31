@@ -139,7 +139,7 @@ protected def add (f g : ERealStieltjes) : ERealStieltjes where
 instance : Add ERealStieltjes where
   add := ERealStieltjes.add
 
-@[simp] lemma add_apply (f g : ERealStieltjes) (x : ℝ) : (f + g) x = - (-f x - g x) := rfl
+lemma add_apply (f g : ERealStieltjes) (x : ℝ) : (f + g) x = - (-f x - g x) := rfl
 
 lemma add_apply_of_ne_top {f g : ERealStieltjes} {x : ℝ} (hfx : f x ≠ ⊤) (hgx : g x ≠ ⊤) :
     (f + g) x = f x + g x := by
@@ -155,8 +155,8 @@ lemma add_apply_of_eq_top_right {f g : ERealStieltjes} {x : ℝ}  (hgx : g x = �
   simp [add_apply, hgx]
 
 instance : AddZeroClass ERealStieltjes where
-  zero_add _ := by ext; simp
-  add_zero _ := by ext; simp
+  zero_add _ := by ext; simp [add_apply]
+  add_zero _ := by ext; simp [add_apply]
 
 instance : AddCommMonoid ERealStieltjes where
   nsmul n f := nsmulRec n f
@@ -216,7 +216,7 @@ instance : Module ℝ≥0 ERealStieltjes where
     rw [mul_comm _ (g x), ← EReal.neg_mul, mul_comm]
   add_smul a b f := ext fun x ↦ by
     by_cases ha0 : a = 0
-    · simp [ha0]
+    · simp [ha0, add_apply]
     by_cases hfx : f x = ⊤
     · rw [smul_apply, hfx, add_apply_of_eq_top_left]
       · have : ((a + b : ℝ≥0) : EReal) = ((a + b : ℝ) : EReal) := rfl
@@ -913,6 +913,34 @@ lemma measure_Ici_of_eq_top {l : EReal} (hf : Tendsto f atTop (𝓝 l)) {x : ℝ
   rw [measure_Ici f hf, leftLim_toENNReal_sub_right f _ _ h, add_comm,
     EReal.toENNReal_sub_add_cancel (f.mono.leftLim_le le_rfl) (f.mono.ge_of_tendsto hf x)]
 
+lemma measure_Iio {l : EReal} (hf : Tendsto f atBot (𝓝 l)) (x : ℝ) :
+    f.measure (Iio x) = leftLim (fun y ↦ (f y - l).toENNReal) x := by
+  obtain ⟨c, hc_mono, hc_mem, hc_tendsto⟩ := exists_seq_strictMono_tendsto x
+  have h_iUnion : Iio x = ⋃ i, Iic (c i) := by
+    ext x
+    simp only [mem_Iio, mem_iUnion, mem_Iic]
+    refine ⟨fun h ↦ ?_, fun h ↦ ?_⟩
+    · exact (eventually_ge_of_tendsto_gt h hc_tendsto).exists
+    · obtain ⟨n, hn⟩ := h
+      exact hn.trans_lt (hc_mem _)
+  have h_mono : Monotone fun x ↦ (f x - l).toENNReal :=
+    fun _ _ hxy ↦ EReal.toENNReal_le_toENNReal (EReal.sub_le_sub (f.mono hxy) le_rfl)
+  rw [h_iUnion, Monotone.measure_iUnion]
+  swap; · exact monotone_Iic.comp hc_mono.monotone
+  simp only [measure_Iic f hf]
+  rw [Monotone.leftLim_eq_sSup h_mono NeBot.ne']
+  apply le_antisymm
+  · refine iSup_le fun n ↦ ?_
+    refine le_sSup ?_
+    simp only [mem_image, mem_Iio]
+    exact ⟨c n, hc_mem _, rfl⟩
+  · refine sSup_le fun y hy ↦ ?_
+    simp only [mem_image, mem_Iio] at hy
+    obtain ⟨x, hx_lt, rfl⟩ := hy
+    have : ∀ᶠ i in atTop, x < c i := eventually_gt_of_tendsto_gt hx_lt hc_tendsto
+    obtain ⟨n, hn⟩ := this.exists
+    exact le_iSup_of_le n (h_mono hn.le)
+
 theorem measure_univ {l u : EReal} (hfl : Tendsto f atBot (𝓝 l)) (hfu : Tendsto f atTop (𝓝 u)) :
     f.measure univ = (u - l).toENNReal := by
   refine tendsto_nhds_unique (tendsto_measure_Iic_atTop _) ?_
@@ -944,6 +972,88 @@ lemma measure_const (c : EReal) : (ERealStieltjes.const c).measure = 0 := by
   · exact tendsto_const_nhds
   · exact tendsto_const_nhds
 
+lemma measure_Ioi {l : EReal} (hf : Tendsto f atTop (𝓝 l)) (x : ℝ) :
+    f.measure (Ioi x) = (l - f x).toENNReal := by
+  by_cases h_bot : l = ⊥
+  · have : f = ERealStieltjes.const ⊥ := by
+      ext x
+      simp only [const_apply]
+      have h := f.mono.ge_of_tendsto hf
+      simp only [h_bot, le_bot_iff] at h
+      exact h x
+    simp [this, h_bot]
+  obtain ⟨c, hc_mono, hc_tendsto⟩ := exists_seq_monotone_tendsto_atTop_atTop ℝ
+  have h_iUnion : Ioi x = ⋃ i, Ioo x (c i) := by
+    ext y
+    simp only [mem_Ioi, mem_iUnion, mem_Ioo, exists_and_left, iff_self_and]
+    refine fun h ↦ ?_
+    rw [tendsto_atTop_atTop] at hc_tendsto
+    obtain ⟨n, hn⟩ := hc_tendsto (y+1)
+    exact ⟨n, (lt_add_one y).trans_le (hn n le_rfl)⟩
+  rw [h_iUnion, Monotone.measure_iUnion]
+  swap
+  · intro i j hij y
+    simp only [mem_Ioo, and_imp]
+    exact fun hxy hxi ↦ ⟨hxy, hxi.trans_le (hc_mono hij)⟩
+  simp only [measure_Ioo f]
+  have h_tendsto : Tendsto (fun y ↦ (leftLim f y - f x).toENNReal) atTop
+      (𝓝 (l - f x).toENNReal) := by
+    have h1 := EReal.continuous_toENNReal.tendsto (l - f x)
+    refine h1.comp ?_
+    have h2 := EReal.continuousAt_sub_const (c := f x) (x := l) (Or.inl h_bot)
+    refine h2.tendsto.comp ?_
+    refine tendsto_of_tendsto_of_tendsto_of_le_of_le (g := fun x ↦ f (x - 1)) ?_ hf ?_ ?_
+    · refine hf.comp ?_
+      exact tendsto_atTop_add_const_right atTop (-1) fun _ a ↦ a
+    · refine fun x ↦ f.mono.le_leftLim ?_
+      linarith
+    · exact fun x ↦ f.mono.leftLim_le le_rfl
+  rw [iSup_eq_of_tendsto]
+  · exact fun _ _ hxy ↦ EReal.toENNReal_le_toENNReal
+      (EReal.sub_le_sub (f.mono.leftLim (hc_mono hxy)) le_rfl)
+  · exact h_tendsto.comp hc_tendsto
+
+lemma measure_Ioi_of_tendsto_atTop_atTop (hf : Tendsto f atTop atTop) (x : ℝ) :
+    f.measure (Ioi x) = (⊤ - f x).toENNReal := by
+  have hf' : Tendsto f atTop (𝓝 ⊤) := by
+    simp_rw [EReal.tendsto_nhds_top_iff_real, eventually_atTop]
+    rw [tendsto_atTop_atTop] at hf
+    intro x
+    obtain ⟨y, hy⟩ := hf (x + 1)
+    refine ⟨y, fun z hz ↦ lt_of_lt_of_le ?_ (hy z hz)⟩
+    exact mod_cast (lt_add_one x)
+  rw [measure_Ioi f hf']
+
+-- lemma measure_Ici_of_tendsto_atTop_atTop (hf : Tendsto f atTop atTop) (x : ℝ) :
+--     f.measure (Ici x) = ∞ := by
+--   rw [← top_le_iff, ← f.measure_Ioi_of_tendsto_atTop_atTop hf x]
+--   exact measure_mono Ioi_subset_Ici_self
+
+-- lemma measure_Iic_of_tendsto_atBot_atBot (hf : Tendsto f atBot atBot) (x : ℝ) :
+--     f.measure (Iic x) = ∞ := by
+--   refine ENNReal.eq_top_of_forall_nnreal_le fun r ↦ ?_
+--   obtain ⟨N, hN⟩ := eventually_atBot.mp (tendsto_atBot.mp hf (f x - r))
+--   exact (f.measure_Ioc (min x N) x ▸ ENNReal.coe_nnreal_eq r ▸ (ENNReal.ofReal_le_ofReal <|
+--     le_sub_comm.mp <| hN _ (min_le_right x N))).trans (measure_mono Ioc_subset_Iic_self)
+
+-- lemma measure_Iio_of_tendsto_atBot_atBot (hf : Tendsto f atBot atBot) (x : ℝ) :
+--     f.measure (Iio x) = ∞ := by
+--   rw [← top_le_iff, ← f.measure_Iic_of_tendsto_atBot_atBot hf (x - 1)]
+--   exact measure_mono <| Set.Iic_subset_Iio.mpr <| sub_one_lt x
+
+-- lemma measure_univ_of_tendsto_atTop_atTop (hf : Tendsto f atTop atTop) :
+--     f.measure univ = ∞ := by
+--   rw [← top_le_iff, ← f.measure_Ioi_of_tendsto_atTop_atTop hf 0]
+--   exact measure_mono fun _ _ ↦ trivial
+
+-- lemma measure_univ_of_tendsto_atBot_atBot (hf : Tendsto f atBot atBot) :
+--     f.measure univ = ∞ := by
+--   rw [← top_le_iff, ← f.measure_Iio_of_tendsto_atBot_atBot hf 0]
+--   exact measure_mono fun _ _ ↦ trivial
+
+@[simp]
+lemma measure_zero : (0 : ERealStieltjes).measure = 0 := measure_const 0
+
 lemma isFiniteMeasure {l u : ℝ} (hfl : Tendsto f atBot (𝓝 l)) (hfu : Tendsto f atTop (𝓝 u)) :
     IsFiniteMeasure f.measure := by
   constructor
@@ -954,8 +1064,15 @@ lemma isFiniteMeasure {l u : ℝ} (hfl : Tendsto f atBot (𝓝 l)) (hfu : Tendst
 lemma isProbabilityMeasure (hf_bot : Tendsto f atBot (𝓝 0)) (hf_top : Tendsto f atTop (𝓝 1)) :
     IsProbabilityMeasure f.measure := ⟨by simp [f.measure_univ hf_bot hf_top]⟩
 
--- instance instIsLocallyFiniteMeasure : IsLocallyFiniteMeasure f.measure :=
---   ⟨fun x => ⟨Ioo (x - 1) (x + 1), Ioo_mem_nhds (by linarith) (by linarith), by simp⟩⟩
+lemma isLocallyFiniteMeasure (hf : ∀ x, f x ≠ ⊥ ∧ f x ≠ ⊤) :
+    IsLocallyFiniteMeasure f.measure := by
+  refine ⟨fun x ↦ ⟨Ioo (x - 1) (x + 1), Ioo_mem_nhds (by linarith) (lt_add_one x), ?_⟩⟩
+  rw [measure_Ioo, lt_top_iff_ne_top, EReal.toENNReal_ne_top_iff]
+  simp only [sub_eq_add_neg, ne_eq, EReal.add_eq_top_iff, EReal.neg_eq_bot_iff,
+    EReal.neg_eq_top_iff, not_or, not_and, Decidable.not_not]
+  constructor
+  · exact fun h ↦ absurd h <| ne_top_of_le_ne_top (hf _).2 (f.mono.leftLim_le le_rfl)
+  · exact fun _ ↦ (hf _).1
 
 -- lemma eq_of_measure_of_tendsto_atBot (g : ERealStieltjes) {l : ℝ}
 --     (hfg : f.measure = g.measure) (hfl : Tendsto f atBot (𝓝 l)) (hgl : Tendsto g atBot (𝓝 l)) :
@@ -969,12 +1086,32 @@ lemma isProbabilityMeasure (hf_bot : Tendsto f atBot (𝓝 0)) (hf_top : Tendsto
 --   · rw [EReal.sub_nonneg (EReal.coe_ne_top _) (EReal.coe_ne_bot _)]
 --     exact Monotone.le_of_tendsto f.mono hfl x
 
--- @[simp]
--- lemma measure_add (f g : ERealStieltjes) : (f + g).measure = f.measure + g.measure := by
---   refine Measure.ext_of_Ioc _ _ (fun a b h ↦ ?_)
---   simp only [measure_Ioc, add_apply, Measure.coe_add, Pi.add_apply]
---   rw [← ENNReal.ofReal_add (sub_nonneg_of_le (f.mono h.le)) (sub_nonneg_of_le (g.mono h.le))]
---   ring_nf
+lemma EReal.toENNReal_toEReal (x : ℝ) : EReal.toENNReal x = ENNReal.ofReal x := rfl
+
+lemma measure_add (f g : ERealStieltjes) (hf : ∀ x, f x ≠ ⊥ ∧ f x ≠ ⊤)
+    (hg : ∀ x, g x ≠ ⊥ ∧ g x ≠ ⊤) :
+    (f + g).measure = f.measure + g.measure := by
+  have hfg x : (f + g) x ≠ ⊥ ∧ (f + g) x ≠ ⊤ := by
+    rw [add_apply_of_ne_top (hf x).2 (hg x).2]
+    simp [EReal.add_eq_top_iff, hf x, hg x]
+  have := ERealStieltjes.isLocallyFiniteMeasure _ hfg
+  refine Measure.ext_of_Ioc _ _ (fun a b h ↦ ?_)
+  simp only [measure_Ioc, Pi.add_apply, Measure.coe_add]
+  rw [add_apply_of_ne_top (hf b).2 (hg b).2, add_apply_of_ne_top (hf a).2 (hg a).2]
+  have hfab : f a ≤ f b := f.mono h.le
+  have hgab : g a ≤ g b := g.mono h.le
+  lift (f a) to ℝ using (hf a).symm with fa
+  lift (f b) to ℝ using (hf b).symm with fb
+  lift (g a) to ℝ using (hg a).symm with ga
+  lift (g b) to ℝ using (hg b).symm with gb
+  norm_cast
+  simp_rw [EReal.toENNReal_toEReal]
+  rw [← ENNReal.ofReal_add (sub_nonneg_of_le ?_) (sub_nonneg_of_le ?_)]
+  rotate_left
+  · exact mod_cast hfab
+  · exact mod_cast hgab
+  congr 1
+  ring
 
 -- @[simp]
 -- lemma measure_smul (c : ℝ≥0) (f : ERealStieltjes) : (c • f).measure = c • f.measure := by

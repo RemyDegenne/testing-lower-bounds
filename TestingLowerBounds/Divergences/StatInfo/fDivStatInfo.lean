@@ -22,33 +22,48 @@ open scoped ENNReal NNReal
 namespace ProbabilityTheory
 
 variable {𝒳 𝒳' : Type*} {m𝒳 : MeasurableSpace 𝒳} {m𝒳' : MeasurableSpace 𝒳'}
-  {μ ν : Measure 𝒳} {p : ℝ≥0∞} {π : Measure Bool} {f : ℝ → ℝ} {β γ x t : ℝ}
+  {μ ν : Measure 𝒳} {p : ℝ≥0∞} {π : Measure Bool} {f : DivFunction} {β γ x t : ℝ}
+
+section StatInfoDivFun
+
+noncomputable
+def statInfoDivFun (β γ : ℝ) : DivFunction where
+  toFun := fun x ↦ ENNReal.ofReal (statInfoFun β γ x.toReal)
+  one := sorry
+  rightDerivOne := sorry
+  convexOn' := sorry
+  continuous' := sorry
+
+end StatInfoDivFun
 
 section StatInfoFun
 
 open Set Filter ConvexOn
 
-lemma nnreal_mul_fDiv_statInfoFun {a : NNReal} :
-    a * fDiv (statInfoFun β γ) μ ν = fDiv (fun x ↦ statInfoFun (a * β) (a * γ) x) μ ν := by
-  change (a.1 : EReal) * _ = _
-  rw [← fDiv_mul a.2 ((convexOn_statInfoFun β γ).subset (fun _ _ ↦ trivial) (convex_Ici 0)) μ ν]
-  simp_rw [const_mul_statInfoFun a.2]
-  rfl
+-- lemma nnreal_mul_fDiv_statInfoFun {a : NNReal} :
+--     a * fDiv (statInfoDivFun β γ) μ ν = fDiv (fun x ↦ statInfoFun (a * β) (a * γ) x) μ ν := by
+--   change (a.1 : EReal) * _ = _
+--   rw [← fDiv_mul a.2 ((convexOn_statInfoFun β γ).subset (fun _ _ ↦ trivial) (convex_Ici 0)) μ ν]
+--   simp_rw [const_mul_statInfoFun a.2]
+--   rfl
 
-lemma fDiv_statInfoFun_nonneg : 0 ≤ fDiv (statInfoFun β γ) μ ν :=
-  fDiv_nonneg_of_nonneg (fun x ↦ statInfoFun_nonneg β γ x) (derivAtTop_statInfoFun_nonneg β γ)
+-- lemma fDiv_statInfoFun_nonneg : 0 ≤ fDiv (statInfoDivFun β γ) μ ν :=
+--   fDiv_nonneg_of_nonneg (fun x ↦ statInfoFun_nonneg β γ x) (derivAtTop_statInfoFun_nonneg β γ)
 
 lemma stronglyMeasurable_fDiv_statInfoFun (μ ν : Measure 𝒳) [SFinite ν] :
-    StronglyMeasurable (Function.uncurry fun β γ ↦ fDiv (statInfoFun β γ) μ ν) := by
+    StronglyMeasurable (Function.uncurry fun β γ ↦ fDiv (statInfoDivFun β γ) μ ν) := by
   simp_rw [fDiv]
   have h_meas := stronglyMeasurable_statInfoFun.measurable.comp
     (f := fun ((a, b), x) ↦ ((a, b), ((∂μ/∂ν) x).toReal)) (measurable_fst.prod_mk (by fun_prop))
     |>.stronglyMeasurable
-  refine Measurable.ite ?_ measurable_const ?_ |>.stronglyMeasurable
-  · rw [← Set.compl_setOf, MeasurableSet.compl_iff]
-    exact measurableSet_integrable h_meas
-  · refine StronglyMeasurable.integral_prod_right (by exact h_meas)
-      |>.measurable.coe_real_ereal.add ?_
+  -- refine Measurable.ite ?_ measurable_const ?_ |>.stronglyMeasurable
+  -- · rw [← Set.compl_setOf, MeasurableSet.compl_iff]
+  --   exact measurableSet_integrable h_meas
+  · refine StronglyMeasurable.add (Measurable.stronglyMeasurable ?_) ?_
+    · refine Measurable.lintegral_prod_right (StronglyMeasurable.measurable ?_)
+      simp [statInfoDivFun]
+      -- todo: roughly h_meas?
+      sorry
     simp_rw [derivAtTop_statInfoFun_eq]
     refine (Measurable.coe_real_ereal ?_).mul_const _
     apply Measurable.ite (measurableSet_le measurable_const measurable_fst)
