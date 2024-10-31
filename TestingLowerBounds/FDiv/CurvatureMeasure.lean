@@ -11,7 +11,7 @@ import TestingLowerBounds.ForMathlib.OrderIso
 import TestingLowerBounds.FDiv.DivFunction
 
 
-open MeasureTheory Set StieltjesFunction
+open MeasureTheory Set StieltjesFunction Function Filter
 
 open scoped ENNReal Topology
 
@@ -20,13 +20,6 @@ namespace ProbabilityTheory
 namespace DivFunction
 
 variable {𝒳 : Type*} {m𝒳 : MeasurableSpace 𝒳} {μ ν : Measure 𝒳} {f g : DivFunction} {β γ x t : ℝ}
-
-#check Real.expOrderIso
-
-#check ENNReal.orderIsoUnitIntervalBirational
-
-def minmax_Ioo : Set (Icc (0 : ℝ) 1) :=
-  ENNReal.orderIsoUnitIntervalBirational '' (Ioo f.xmin f.xmax)
 
 noncomputable
 def xmin_01 (f : DivFunction) : Icc (0 : ℝ) 1 := ENNReal.orderIsoUnitIntervalBirational f.xmin
@@ -96,8 +89,35 @@ lemma realToENNRealIoo_ne_top (f : DivFunction) (x : ℝ) :
     f.realToENNRealIoo x ≠ ∞ := ne_top_of_lt (f.realToENNRealIoo_lt_xmax x)
 
 noncomputable
+def minmaxToRealOrderIso (f : DivFunction) : Ioo f.xmin f.xmax ≃o ℝ where
+  toFun x := f.minmaxOrderIso ⟨ENNReal.orderIsoUnitIntervalBirational x, by
+    constructor
+    · norm_cast
+      rw [xmin_01, ENNReal.orderIsoUnitIntervalBirational.lt_iff_lt]
+      exact x.2.1
+    · norm_cast
+      rw [xmax_01, ENNReal.orderIsoUnitIntervalBirational.lt_iff_lt]
+      exact x.2.2⟩
+  invFun x := ⟨f.realToENNRealIoo x, f.realToENNRealIoo_mem_Ioo x⟩
+  left_inv x := by
+    ext
+    simp only
+    rw [realToENNRealIoo]
+    simp only [OrderIso.symm_apply_apply]
+    rw [OrderIso.symm_apply_apply]
+  right_inv x := by simp [realToENNRealIoo]
+  map_rel_iff' {x y} := by
+    simp only [realToENNRealIoo, Equiv.coe_fn_mk, OrderIsoClass.map_le_map_iff, Subtype.mk_le_mk]
+    norm_cast
+    rw [ENNReal.orderIsoUnitIntervalBirational.le_iff_le]
+    norm_cast
+
+lemma minmaxToRealOrderIso_symm_ne_top (f : DivFunction) (x : ℝ) :
+    (f.minmaxToRealOrderIso.symm x : ℝ≥0∞) ≠ ∞ := ne_top_of_lt (f.realToENNRealIoo_lt_xmax x)
+
+noncomputable
 def rightDerivEnlarged (f : DivFunction) (x : ℝ) : ℝ :=
-  rightDeriv f.realFun (f.realToENNRealIoo x).toReal
+  rightDeriv f.realFun ((f.minmaxToRealOrderIso.symm x : ℝ≥0∞)).toReal
 
 noncomputable
 def rightDerivEnlargedStieltjes (f : DivFunction) : StieltjesFunction where
@@ -105,11 +125,12 @@ def rightDerivEnlargedStieltjes (f : DivFunction) : StieltjesFunction where
   mono' x y hxy := by
     simp only [rightDerivEnlarged]
     refine f.rightDeriv_mono ?_ ?_ ?_
-    · rw [ENNReal.toReal_le_toReal (f.realToENNRealIoo_ne_top _) (f.realToENNRealIoo_ne_top _)]
+    · rw [ENNReal.toReal_le_toReal (f.minmaxToRealOrderIso_symm_ne_top _)
+        (f.minmaxToRealOrderIso_symm_ne_top _)]
       exact f.realToENNRealIoo_mono hxy
-    · rw [ENNReal.ofReal_toReal (f.realToENNRealIoo_ne_top _)]
+    · rw [ENNReal.ofReal_toReal (f.minmaxToRealOrderIso_symm_ne_top _)]
       exact f.xmin_lt_realToENNRealIoo x
-    · rw [ENNReal.ofReal_toReal (f.realToENNRealIoo_ne_top _)]
+    · rw [ENNReal.ofReal_toReal (f.minmaxToRealOrderIso_symm_ne_top _)]
       exact f.realToENNRealIoo_lt_xmax y
   right_continuous' x := by
     have h := f.continuousWithinAt_rightDeriv (x := (f.realToENNRealIoo x).toReal) ?_ ?_
@@ -128,12 +149,24 @@ def rightDerivEnlargedStieltjes (f : DivFunction) : StieltjesFunction where
       exact f.continuous_realToENNRealIoo.tendsto _
     · refine eventually_nhdsWithin_of_forall fun y hy ↦ ?_
       simp only [mem_Ici]
-      rw [ENNReal.toReal_le_toReal (f.realToENNRealIoo_ne_top _) (f.realToENNRealIoo_ne_top _)]
+      rw [ENNReal.toReal_le_toReal (f.realToENNRealIoo_ne_top _)
+        (f.minmaxToRealOrderIso_symm_ne_top _)]
       exact f.realToENNRealIoo_mono hy
 
 noncomputable
 def enlargedCurvatureMeasure (f : DivFunction) : Measure ℝ :=
   f.rightDerivEnlargedStieltjes.measure
+
+noncomputable
+def curvatureMeasure_Ioo (f : DivFunction) : Measure (Ioo f.xmin f.xmax) :=
+  f.enlargedCurvatureMeasure.map f.minmaxToRealOrderIso.symm.toHomeomorph.toMeasurableEquiv
+
+open Classical in
+noncomputable
+def curvatureMeasure' (f : DivFunction) : Measure ℝ≥0∞ :=
+  (if Tendsto f.rightDerivEnlarged atBot atBot then 0 else ∞) • Measure.dirac f.xmin
+  + f.curvatureMeasure_Ioo.map (Subtype.val : Ioo f.xmin f.xmax → ℝ≥0∞)
+  + (if Tendsto f.rightDerivEnlarged atTop atTop then 0 else ∞) • Measure.dirac f.xmax
 
 /-- The curvature measure induced by a convex function. It is defined as the only measure that has
 the right derivative of the function as a CDF. -/
