@@ -27,12 +27,8 @@ variable {𝒳 𝒳' : Type*} {m𝒳 : MeasurableSpace 𝒳} {m𝒳' : Measurabl
 section StatInfoDivFun
 
 noncomputable
-def statInfoDivFun (β γ : ℝ) : DivFunction where
-  toFun := fun x ↦ ENNReal.ofReal (statInfoFun β γ x.toReal)
-  one := sorry
-  rightDerivOne := sorry
-  convexOn' := sorry
-  continuous' := sorry
+def statInfoDivFun (β γ : ℝ) : DivFunction := DivFunction.ofConvexOn
+  (statInfoFun β γ) ((convexOn_statInfoFun β γ).subset (subset_univ _) (convex_Ioi 0))
 
 end StatInfoDivFun
 
@@ -71,13 +67,14 @@ lemma stronglyMeasurable_fDiv_statInfoFun (μ ν : Measure 𝒳) [SFinite ν] :
 
 lemma fDiv_statInfoFun_eq_integral_max_of_nonneg_of_le [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (hβ : 0 ≤ β) (hγ : γ ≤ β) :
-    fDiv (statInfoFun β γ) μ ν = ∫ x, max 0 (γ - β * ((∂μ/∂ν) x).toReal) ∂ν := by
-  simp_rw [fDiv_of_integrable (integrable_statInfoFun_rnDeriv _ _ _ _),
+    fDiv (statInfoDivFun β γ) μ ν
+      = ∫⁻ x, max 0 ((ENNReal.ofReal γ) - (ENNReal.ofReal β) * ((∂μ/∂ν) x)) ∂ν := by
+  simp_rw [fDiv,
     derivAtTop_statInfoFun_of_nonneg_of_le hβ hγ, zero_mul, add_zero, statInfoFun_of_le hγ]
 
 lemma fDiv_statInfoFun_eq_integral_max_of_nonneg_of_gt [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (hβ : 0 ≤ β) (hγ : β < γ) :
-    fDiv (statInfoFun β γ) μ ν
+    fDiv (statInfoDivFun β γ) μ ν
       = ∫ x, max 0 (β * ((∂μ/∂ν) x).toReal - γ) ∂ν + β * (μ.singularPart ν) univ := by
   simp_rw [fDiv_of_integrable (integrable_statInfoFun_rnDeriv _ _ _ _),
     derivAtTop_statInfoFun_of_nonneg_of_gt hβ hγ, statInfoFun_of_gt hγ]
