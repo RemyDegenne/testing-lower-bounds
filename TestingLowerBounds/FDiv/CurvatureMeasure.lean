@@ -144,53 +144,53 @@ open Classical in
 /-- The curvature measure induced by a convex function. It is defined as the only measure that has
 the right derivative of the function as a CDF. -/
 noncomputable
-def curvatureMeasure' (f : DivFunction) : Measure ℝ≥0∞ :=
+def curvatureMeasure (f : DivFunction) : Measure ℝ≥0∞ :=
   (if Tendsto f.rightDerivEnlarged atBot atBot then 0 else ∞) • Measure.dirac f.xmin
   + f.curvatureMeasure_Ioo.map (Subtype.val : Ioo f.xmin f.xmax → ℝ≥0∞)
   + (if Tendsto f.rightDerivEnlarged atTop atTop then 0 else ∞) • Measure.dirac f.xmax
 
-lemma curvatureMeasure'_add (f g : DivFunction) :
-    (f + g).curvatureMeasure' = f.curvatureMeasure' + g.curvatureMeasure' := by
+lemma curvatureMeasure_add (f g : DivFunction) :
+    (f + g).curvatureMeasure = f.curvatureMeasure + g.curvatureMeasure := by
   sorry
 
 theorem convex_taylor_one_right {b : ℝ≥0∞} (hb : 1 ≤ b) :
-    f b = ∫⁻ x in Icc 1 b, b - x ∂f.curvatureMeasure' := by
+    f b = ∫⁻ x in Icc 1 b, b - x ∂f.curvatureMeasure := by
   sorry
 
 theorem convex_taylor_one_left {b : ℝ≥0∞} (hb : b ≤ 1) :
-    f b = ∫⁻ x in Icc b 1, x - b ∂f.curvatureMeasure' := by
+    f b = ∫⁻ x in Icc b 1, x - b ∂f.curvatureMeasure := by
   sorry
 
-/-- The curvature measure induced by a convex function. It is defined as the only measure that has
-the right derivative of the function as a CDF. -/
-noncomputable
-irreducible_def curvatureMeasure (f : DivFunction) : Measure ℝ≥0∞ :=
-  f.rightDerivStieltjes.measure.map ENNReal.ofReal
+-- /-- The curvature measure induced by a convex function. It is defined as the only measure that has
+-- the right derivative of the function as a CDF. -/
+-- noncomputable
+-- irreducible_def curvatureMeasure (f : DivFunction) : Measure ℝ≥0∞ :=
+--   f.rightDerivStieltjes.measure.map ENNReal.ofReal
 
-lemma curvatureMeasure_Ioi (a : ℝ≥0∞) (ha : a ≠ ∞) :
-    f.curvatureMeasure (Ioi a) = f.rightDerivStieltjes.measure (Ioi a.toReal) := by
-  rw [curvatureMeasure, Measure.map_apply]
-  · congr
-    ext x
-    simp only [mem_preimage, mem_Ioi]
-    rw [ENNReal.lt_ofReal_iff_toReal_lt ha]
-  · fun_prop
-  · simp
+-- lemma curvatureMeasure_Ioi (a : ℝ≥0∞) (ha : a ≠ ∞) :
+--     f.curvatureMeasure (Ioi a) = f.rightDerivStieltjes.measure (Ioi a.toReal) := by
+--   rw [curvatureMeasure, Measure.map_apply]
+--   · congr
+--     ext x
+--     simp only [mem_preimage, mem_Ioi]
+--     rw [ENNReal.lt_ofReal_iff_toReal_lt ha]
+--   · fun_prop
+--   · simp
 
-lemma curvatureMeasure_singleton_top : f.curvatureMeasure {∞} = 0 := by
-  rw [curvatureMeasure, Measure.map_apply]
-  · have : ENNReal.ofReal ⁻¹' {⊤} = ∅ := by ext; simp
-    simp [this]
-  · exact ENNReal.measurable_ofReal
-  · simp
+-- lemma curvatureMeasure_singleton_top : f.curvatureMeasure {∞} = 0 := by
+--   rw [curvatureMeasure, Measure.map_apply]
+--   · have : ENNReal.ofReal ⁻¹' {⊤} = ∅ := by ext; simp
+--     simp [this]
+--   · exact ENNReal.measurable_ofReal
+--   · simp
 
-lemma curvatureMeasure_add (hf : ∀ x, 0 < x → f x ≠ ∞) (hg : ∀ x, 0 < x → g x ≠ ∞) :
-    curvatureMeasure (f + g) = curvatureMeasure f + curvatureMeasure g := by
-  simp_rw [curvatureMeasure, ← Measure.map_add _ _ ENNReal.measurable_ofReal]
-  -- that proof does not work for now. Need to generalize `ERealStieltjes.measure_add`
-  rw [← ERealStieltjes.measure_add, rightDerivStieltjes_add]
-  · exact fun x ↦ ⟨sorry, rightDerivStieltjes_ne_top hf x⟩
-  · exact fun x ↦ ⟨sorry, rightDerivStieltjes_ne_top hg x⟩
+-- lemma curvatureMeasure_add (hf : ∀ x, 0 < x → f x ≠ ∞) (hg : ∀ x, 0 < x → g x ≠ ∞) :
+--     curvatureMeasure (f + g) = curvatureMeasure f + curvatureMeasure g := by
+--   simp_rw [curvatureMeasure, ← Measure.map_add _ _ ENNReal.measurable_ofReal]
+--   -- that proof does not work for now. Need to generalize `ERealStieltjes.measure_add`
+--   rw [← ERealStieltjes.measure_add, rightDerivStieltjes_add]
+--   · exact fun x ↦ ⟨sorry, rightDerivStieltjes_ne_top hf x⟩
+--   · exact fun x ↦ ⟨sorry, rightDerivStieltjes_ne_top hg x⟩
 
 -- /-- A Taylor formula for convex functions in terms of the right derivative
 -- and the curvature measure. -/
