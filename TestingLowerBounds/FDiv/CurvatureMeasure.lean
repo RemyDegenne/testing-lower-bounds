@@ -54,21 +54,6 @@ def realToENNRealIoo (f : DivFunction) (x : ℝ) : ℝ≥0∞ :=
   ENNReal.orderIsoUnitIntervalBirational.symm
     (⟨f.minmaxOrderIso.symm x, f.minmaxOrderIso_symm_mem_Icc x⟩ : Icc (0 : ℝ) 1)
 
-lemma realToENNRealIoo_mono (f : DivFunction) {x y : ℝ} (hxy : x ≤ y) :
-    f.realToENNRealIoo x ≤ f.realToENNRealIoo y := by
-  rw [realToENNRealIoo, realToENNRealIoo]
-  refine ENNReal.orderIsoUnitIntervalBirational.symm.monotone ?_
-  suffices f.minmaxOrderIso.symm x ≤ f.minmaxOrderIso.symm y from mod_cast this
-  exact f.minmaxOrderIso.symm.monotone hxy
-
-@[continuity, fun_prop]
-lemma continuous_realToENNRealIoo (f : DivFunction) : Continuous f.realToENNRealIoo := by
-  unfold realToENNRealIoo
-  refine ENNReal.orderIsoUnitIntervalBirational.symm.continuous.comp ?_
-  refine Continuous.subtype_mk ?_ f.minmaxOrderIso_symm_mem_Icc
-  refine Continuous.subtype_val ?_
-  exact f.minmaxOrderIso.symm.continuous
-
 lemma xmin_lt_realToENNRealIoo (f : DivFunction) (x : ℝ) :
     f.xmin < f.realToENNRealIoo x := by
   rw [realToENNRealIoo, ← orderIsoUnitIntervalBirational_xmin_01, OrderIso.lt_iff_lt]
@@ -81,16 +66,9 @@ lemma realToENNRealIoo_lt_xmax (f : DivFunction) (x : ℝ) :
   suffices f.minmaxOrderIso.symm x < (f.xmax_01 : ℝ) from mod_cast this
   exact (f.minmaxOrderIso.symm x).2.2
 
-lemma realToENNRealIoo_mem_Ioo (f : DivFunction) (x : ℝ) :
-    f.realToENNRealIoo x ∈ Ioo f.xmin f.xmax :=
-  ⟨f.xmin_lt_realToENNRealIoo x, f.realToENNRealIoo_lt_xmax x⟩
-
-lemma realToENNRealIoo_ne_top (f : DivFunction) (x : ℝ) :
-    f.realToENNRealIoo x ≠ ∞ := ne_top_of_lt (f.realToENNRealIoo_lt_xmax x)
-
 noncomputable
-def minmaxToRealOrderIso (f : DivFunction) : Ioo f.xmin f.xmax ≃o ℝ where
-  toFun x := f.minmaxOrderIso ⟨ENNReal.orderIsoUnitIntervalBirational x, by
+def realToMinmaxOrderIso (f : DivFunction) : ℝ ≃o Ioo f.xmin f.xmax where
+  invFun x := f.minmaxOrderIso ⟨ENNReal.orderIsoUnitIntervalBirational x, by
     constructor
     · norm_cast
       rw [xmin_01, ENNReal.orderIsoUnitIntervalBirational.lt_iff_lt]
@@ -98,26 +76,29 @@ def minmaxToRealOrderIso (f : DivFunction) : Ioo f.xmin f.xmax ≃o ℝ where
     · norm_cast
       rw [xmax_01, ENNReal.orderIsoUnitIntervalBirational.lt_iff_lt]
       exact x.2.2⟩
-  invFun x := ⟨f.realToENNRealIoo x, f.realToENNRealIoo_mem_Ioo x⟩
-  left_inv x := by
+  toFun x := ⟨f.realToENNRealIoo x, ⟨f.xmin_lt_realToENNRealIoo x, f.realToENNRealIoo_lt_xmax x⟩⟩
+  right_inv x := by
     ext
     simp only
     rw [realToENNRealIoo]
     simp only [OrderIso.symm_apply_apply]
     rw [OrderIso.symm_apply_apply]
-  right_inv x := by simp [realToENNRealIoo]
+  left_inv x := by simp [realToENNRealIoo]
   map_rel_iff' {x y} := by
     simp only [realToENNRealIoo, Equiv.coe_fn_mk, OrderIsoClass.map_le_map_iff, Subtype.mk_le_mk]
     norm_cast
-    rw [ENNReal.orderIsoUnitIntervalBirational.le_iff_le]
-    norm_cast
+    rw [f.minmaxOrderIso.symm.le_iff_le]
 
-lemma minmaxToRealOrderIso_symm_ne_top (f : DivFunction) (x : ℝ) :
-    (f.minmaxToRealOrderIso.symm x : ℝ≥0∞) ≠ ∞ := ne_top_of_lt (f.realToENNRealIoo_lt_xmax x)
+lemma realToMinmaxOrderIso_ne_top (f : DivFunction) {x : ℝ} :
+    (f.realToMinmaxOrderIso x : ℝ≥0∞) ≠ ∞ := ne_top_of_lt (f.realToENNRealIoo_lt_xmax x)
 
+/-- Map `ℝ` to the interior of the effective domain of `f`, `Ioo f.xmin f.xmax`, then take the
+right derivative.
+This transformation of the domain from an interval to `ℝ` allows us to get a function from `ℝ`
+to `ℝ`, which is needed to define a Stieltjes function and get a measure from it. -/
 noncomputable
 def rightDerivEnlarged (f : DivFunction) (x : ℝ) : ℝ :=
-  rightDeriv f.realFun ((f.minmaxToRealOrderIso.symm x : ℝ≥0∞)).toReal
+  rightDeriv f.realFun ((f.realToMinmaxOrderIso x : ℝ≥0∞)).toReal
 
 noncomputable
 def rightDerivEnlargedStieltjes (f : DivFunction) : StieltjesFunction where
@@ -125,33 +106,31 @@ def rightDerivEnlargedStieltjes (f : DivFunction) : StieltjesFunction where
   mono' x y hxy := by
     simp only [rightDerivEnlarged]
     refine f.rightDeriv_mono ?_ ?_ ?_
-    · rw [ENNReal.toReal_le_toReal (f.minmaxToRealOrderIso_symm_ne_top _)
-        (f.minmaxToRealOrderIso_symm_ne_top _)]
-      exact f.realToENNRealIoo_mono hxy
-    · rw [ENNReal.ofReal_toReal (f.minmaxToRealOrderIso_symm_ne_top _)]
-      exact f.xmin_lt_realToENNRealIoo x
-    · rw [ENNReal.ofReal_toReal (f.minmaxToRealOrderIso_symm_ne_top _)]
-      exact f.realToENNRealIoo_lt_xmax y
+    · rw [ENNReal.toReal_le_toReal f.realToMinmaxOrderIso_ne_top f.realToMinmaxOrderIso_ne_top]
+      simp [hxy]
+    · rw [ENNReal.ofReal_toReal f.realToMinmaxOrderIso_ne_top]
+      exact (f.realToMinmaxOrderIso x).2.1
+    · rw [ENNReal.ofReal_toReal f.realToMinmaxOrderIso_ne_top]
+      exact (f.realToMinmaxOrderIso y).2.2
   right_continuous' x := by
-    have h := f.continuousWithinAt_rightDeriv (x := (f.realToENNRealIoo x).toReal) ?_ ?_
-    rotate_left
-    · rw [ENNReal.ofReal_toReal (f.realToENNRealIoo_ne_top _)]
-      exact f.xmin_lt_realToENNRealIoo x
-    · rw [ENNReal.ofReal_toReal (f.realToENNRealIoo_ne_top _)]
-      exact f.realToENNRealIoo_lt_xmax x
     unfold rightDerivEnlarged
+    have h := f.continuousWithinAt_rightDeriv (x := (f.realToMinmaxOrderIso x : ℝ≥0∞).toReal) ?_ ?_
+    rotate_left
+    · rw [ENNReal.ofReal_toReal f.realToMinmaxOrderIso_ne_top]
+      exact (f.realToMinmaxOrderIso x).2.1
+    · rw [ENNReal.ofReal_toReal f.realToMinmaxOrderIso_ne_top]
+      exact (f.realToMinmaxOrderIso x).2.2
     rw [ContinuousWithinAt] at h ⊢
     refine h.comp ?_
     rw [tendsto_nhdsWithin_iff]
     constructor
     · refine tendsto_nhdsWithin_of_tendsto_nhds ?_
-      refine (ENNReal.tendsto_toReal (f.realToENNRealIoo_ne_top _)).comp ?_
-      exact f.continuous_realToENNRealIoo.tendsto _
+      refine (ENNReal.tendsto_toReal f.realToMinmaxOrderIso_ne_top).comp ?_
+      exact f.realToMinmaxOrderIso.continuous.subtype_val.tendsto x
     · refine eventually_nhdsWithin_of_forall fun y hy ↦ ?_
-      simp only [mem_Ici]
-      rw [ENNReal.toReal_le_toReal (f.realToENNRealIoo_ne_top _)
-        (f.minmaxToRealOrderIso_symm_ne_top _)]
-      exact f.realToENNRealIoo_mono hy
+      rw [mem_Ici, ENNReal.toReal_le_toReal f.realToMinmaxOrderIso_ne_top
+        f.realToMinmaxOrderIso_ne_top]
+      simp [mem_Ici.mp hy]
 
 noncomputable
 def enlargedCurvatureMeasure (f : DivFunction) : Measure ℝ :=
@@ -159,14 +138,28 @@ def enlargedCurvatureMeasure (f : DivFunction) : Measure ℝ :=
 
 noncomputable
 def curvatureMeasure_Ioo (f : DivFunction) : Measure (Ioo f.xmin f.xmax) :=
-  f.enlargedCurvatureMeasure.map f.minmaxToRealOrderIso.symm.toHomeomorph.toMeasurableEquiv
+  f.enlargedCurvatureMeasure.map f.realToMinmaxOrderIso.toHomeomorph.toMeasurableEquiv
 
 open Classical in
+/-- The curvature measure induced by a convex function. It is defined as the only measure that has
+the right derivative of the function as a CDF. -/
 noncomputable
 def curvatureMeasure' (f : DivFunction) : Measure ℝ≥0∞ :=
   (if Tendsto f.rightDerivEnlarged atBot atBot then 0 else ∞) • Measure.dirac f.xmin
   + f.curvatureMeasure_Ioo.map (Subtype.val : Ioo f.xmin f.xmax → ℝ≥0∞)
   + (if Tendsto f.rightDerivEnlarged atTop atTop then 0 else ∞) • Measure.dirac f.xmax
+
+lemma curvatureMeasure'_add (f g : DivFunction) :
+    (f + g).curvatureMeasure' = f.curvatureMeasure' + g.curvatureMeasure' := by
+  sorry
+
+theorem convex_taylor_one_right {b : ℝ≥0∞} (hb : 1 ≤ b) :
+    f b = ∫⁻ x in Icc 1 b, b - x ∂f.curvatureMeasure' := by
+  sorry
+
+theorem convex_taylor_one_left {b : ℝ≥0∞} (hb : b ≤ 1) :
+    f b = ∫⁻ x in Icc b 1, x - b ∂f.curvatureMeasure' := by
+  sorry
 
 /-- The curvature measure induced by a convex function. It is defined as the only measure that has
 the right derivative of the function as a CDF. -/
@@ -215,25 +208,6 @@ lemma curvatureMeasure_add (hf : ∀ x, 0 < x → f x ≠ ∞) (hg : ∀ x, 0 < 
 --   simp only [Real.volume_eq_stieltjes_id, add_apply, id_apply, id_eq, const_apply, add_neg_cancel,
 --     zero_mul, zero_sub, measure_add, measure_const, add_zero, neg_sub, sub_neg_eq_add, g]
 --   rfl
-
-/-- A Taylor formula for convex functions in terms of the right derivative
-and the curvature measure. -/
-theorem convex_taylor_one {b : ℝ≥0∞} (hb : 1 ≤ b) :
-    f b = ∫⁻ x in (Icc 1 b), b - x ∂f.curvatureMeasure := by
-  rw [curvatureMeasure, setLIntegral_map]
-  have h_int : IntervalIntegrable f.rightDerivStieltjes volume 1 b :=
-      f.rightDerivStieltjes.mono.intervalIntegrable
-  rw [← intervalIntegral.integral_eq_sub_of_hasDeriv_right hf_cont.continuousOn
-    (fun x _ ↦ hf.hadDerivWithinAt_rightDeriv x) h_int]
-  simp_rw [← neg_sub _ b, intervalIntegral.integral_neg, curvatureMeasure_of_convexOn hf,
-    mul_neg, sub_neg_eq_add, mul_comm _ (a - b)]
-  let g := StieltjesFunction.id + StieltjesFunction.const (-b)
-  have hg : g = fun x ↦ x - b := rfl
-  rw [← hg, integral_stieltjes_meas_by_parts g hf.rightDerivStieltjes]
-  swap; · rw [hg]; fun_prop
-  simp only [Real.volume_eq_stieltjes_id, add_apply, id_apply, id_eq, const_apply, add_neg_cancel,
-    zero_mul, zero_sub, measure_add, measure_const, add_zero, neg_sub, sub_neg_eq_add, g]
-  rfl
 
 end DivFunction
 

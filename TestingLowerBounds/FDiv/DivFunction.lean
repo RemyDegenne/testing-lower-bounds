@@ -22,6 +22,21 @@ open Real MeasureTheory Filter Set MeasurableSpace
 
 open scoped ENNReal NNReal Topology
 
+instance : OrderedSMul ℝ≥0 ℝ≥0∞ := by
+  constructor
+  intro a b u hab hu
+  simp_rw [ENNReal.smul_def, smul_eq_mul]
+  · rw [ENNReal.mul_lt_mul_left]
+    · exact hab
+    · simp [hu.ne']
+    · exact ENNReal.coe_ne_top
+  · intro a b u h_lt h_pos
+    simp_rw [ENNReal.smul_def, smul_eq_mul] at h_lt
+    rw [ENNReal.mul_lt_mul_left] at h_lt
+    · exact h_lt
+    · simp [h_pos.ne']
+    · exact ENNReal.coe_ne_top
+
 lemma ENNReal.tendsto_of_monotone {ι : Type*} [Preorder ι] {f : ι → ℝ≥0∞} (hf : Monotone f) :
     ∃ y, Tendsto f atTop (𝓝 y) :=
   ⟨_, tendsto_atTop_ciSup hf (OrderTop.bddAbove _)⟩
@@ -84,7 +99,9 @@ end Def
 
 variable {f g : DivFunction}
 
+/-- Lower bound of the effective domain of `f`. -/
 noncomputable def xmin (f : DivFunction) : ℝ≥0∞ := sInf {x | f x ≠ ∞}
+/-- Upper bound of the effective domain of `f`. -/
 noncomputable def xmax (f : DivFunction) : ℝ≥0∞ := sSup {x | f x ≠ ∞}
 
 lemma xmin_lt_one : f.xmin < 1 := by
@@ -125,21 +142,6 @@ lemma eq_top_of_xmax_lt {x : ℝ≥0∞} (hx_gt : f.xmax < x) : f x = ∞ := by
   by_contra h_eq
   exact not_le_of_lt hx_gt (le_sSup h_eq)
 
-instance : OrderedSMul ℝ≥0 ℝ≥0∞ := by
-  constructor
-  intro a b u hab hu
-  simp_rw [ENNReal.smul_def, smul_eq_mul]
-  · rw [ENNReal.mul_lt_mul_left]
-    · exact hab
-    · simp [hu.ne']
-    · exact ENNReal.coe_ne_top
-  · intro a b u h_lt h_pos
-    simp_rw [ENNReal.smul_def, smul_eq_mul] at h_lt
-    rw [ENNReal.mul_lt_mul_left] at h_lt
-    · exact h_lt
-    · simp [h_pos.ne']
-    · exact ENNReal.coe_ne_top
-
 lemma lt_top_of_mem_Ioo {x : ℝ≥0∞} (hx : x ∈ Ioo f.xmin f.xmax) : f x < ∞ := by
   rw [mem_Ioo, xmin, sInf_lt_iff, xmax, lt_sSup_iff] at hx
   obtain ⟨a, ha, hax⟩ := hx.1
@@ -161,17 +163,19 @@ lemma apply_xmin_eq_top (h : 0 < f.xmin) : f f.xmin = ∞ := by
   suffices Tendsto f (𝓝[<] f.xmin) (𝓝 ∞) by
     have h_ne_bot : (𝓝[<] f.xmin).NeBot := sorry
     refine tendsto_nhds_unique ?_ this
-    sorry
+    refine tendsto_nhdsWithin_of_tendsto_nhds ?_
+    exact f.continuous.tendsto _
   refine (tendsto_congr' ?_).mp tendsto_const_nhds
-  sorry
+  exact eventually_nhdsWithin_of_forall fun x hx ↦ (eq_top_of_lt_xmin hx).symm
 
 lemma apply_xmax_eq_top (h : f.xmax ≠ ∞) : f f.xmax = ∞ := by
-  suffices Tendsto f (𝓝[>] f.xmin) (𝓝 ∞) by
-    have h_ne_bot : (𝓝[>] f.xmin).NeBot := sorry
+  suffices Tendsto f (𝓝[>] f.xmax) (𝓝 ∞) by
+    have h_ne_bot : (𝓝[>] f.xmax).NeBot := sorry
     refine tendsto_nhds_unique ?_ this
-    sorry
+    refine tendsto_nhdsWithin_of_tendsto_nhds ?_
+    exact f.continuous.tendsto _
   refine (tendsto_congr' ?_).mp tendsto_const_nhds
-  sorry
+  exact eventually_nhdsWithin_of_forall fun x hx ↦ (eq_top_of_xmax_lt hx).symm
 
 protected def zero : DivFunction where
   toFun := 0
@@ -185,6 +189,10 @@ protected noncomputable def add (f g : DivFunction) : DivFunction where
   one := by simp
   rightDerivOne := by
     simp only [Pi.add_apply]
+    have h_eq : (fun x ↦ (f (ENNReal.ofReal x) + g (ENNReal.ofReal x)).toReal)
+        =ᶠ[𝓝 1] fun x ↦ (f (ENNReal.ofReal x)).toReal + (g (ENNReal.ofReal x)).toReal := by
+      sorry
+    --rw [rightDeriv_congr]
     sorry
   convexOn' := sorry
   continuous' := f.continuous.add g.continuous
