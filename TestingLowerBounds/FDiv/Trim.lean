@@ -66,20 +66,20 @@ lemma f_rnDeriv_map_le' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
 
 -- todo: remove `hf`
 lemma f_rnDeriv_map [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (hμν : μ ≪ ν) {g : α → β} (hg : Measurable g) (hf : ∀ x, f x ≠ ∞) :
+    (hμν : μ ≪ ν) {g : α → β} (hg : Measurable g) (hf : ∀ x ≠ ∞, f x ≠ ∞) :
     (fun a ↦ f ((∂μ.map g/∂ν.map g) (g a)))
       =ᶠ[ae ν] fun a ↦ f (ENNReal.ofReal ((ν[fun x ↦ ((∂μ/∂ν) x).toReal|mβ.comap g]) a)) := by
   have h_lt := ae_of_ae_map hg.aemeasurable ((μ.map g).rnDeriv_lt_top (ν.map g))
   filter_upwards [Measure.toReal_rnDeriv_map hμν hg, h_lt] with a ha h_lt
   rw [← ENNReal.toReal_eq_toReal]
   · rw [← f.realFun_toReal h_lt.ne, ha, DivFunction.realFun]
-  · exact hf _
-  · exact hf _
+  · exact hf _ h_lt.ne
+  · exact hf _ ENNReal.ofReal_ne_top
 
 -- todo: remove `hf`
 lemma integrable_f_rnDeriv_map [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (hμν : μ ≪ ν) {g : α → β} (hg : Measurable g)
-    (h_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞) (hf : ∀ x, f x ≠ ∞) :
+    (h_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞) (hf : ∀ x ≠ ∞, f x ≠ ∞) :
     Integrable (fun x ↦ f.realFun ((∂μ.map g/∂ν.map g) x).toReal) (ν.map g) := by
   have hf_cvx : ConvexOn ℝ (Ici 0) f.realFun := f.convexOn_Ici_realFun hf
   obtain ⟨c, c', h⟩ : ∃ c c', ∀ x, 0 ≤ x → c * x + c' ≤ f.realFun x :=
@@ -103,20 +103,21 @@ lemma integrable_f_rnDeriv_map [IsFiniteMeasure μ] [IsFiniteMeasure ν]
 
 lemma lintegrable_f_rnDeriv_map_ne_top [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (hμν : μ ≪ ν) {g : α → β} (hg : Measurable g)
-    (h_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞) (hf : ∀ x, f x ≠ ∞) :
+    (h_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞) (hf : ∀ x ≠ ∞, f x ≠ ∞) :
     ∫⁻ x, f ((∂μ.map g/∂ν.map g) x) ∂(ν.map g) ≠ ∞ := by
   have h_lt := (μ.map g).rnDeriv_lt_top (ν.map g)
   rw [← integrable_toReal_iff]
   rotate_left
   · exact measurable_divFunction_rnDeriv.aemeasurable
-  · exact ae_of_all _ fun _ ↦ hf _
+  · filter_upwards [h_lt] with x hx
+    exact hf _ hx.ne
   refine (integrable_congr ?_).mpr (integrable_f_rnDeriv_map hμν hg h_int hf)
   filter_upwards [h_lt] with x hx
   rw [f.realFun_toReal hx.ne]
 
 -- todo: remove `hf`
 lemma fDiv_map_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (hμν : μ ≪ ν) {g : α → β} (hg : Measurable g) (hf : ∀ x, f x ≠ ∞) :
+    (hμν : μ ≪ ν) {g : α → β} (hg : Measurable g) (hf : ∀ x ≠ ∞, f x ≠ ∞) :
     fDiv f (μ.map g) (ν.map g)
       = ∫⁻ x, f (ENNReal.ofReal ((ν[fun x ↦ ((∂μ/∂ν) x).toReal | mβ.comap g]) x)) ∂ν := by
   rw [fDiv_of_absolutelyContinuous (hμν.map hg), lintegral_map measurable_divFunction_rnDeriv hg,
@@ -124,7 +125,7 @@ lemma fDiv_map_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν]
 
 -- todo: remove `hf`
 lemma fDiv_trim_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ mα) (hμν : μ ≪ ν)
-    (hf : ∀ x, f x ≠ ∞) :
+    (hf : ∀ x ≠ ∞, f x ≠ ∞) :
     fDiv f (μ.trim hm) (ν.trim hm)
       = ∫⁻ x, f (ENNReal.ofReal ((ν[fun x ↦ ((∂μ/∂ν) x).toReal | m]) x)) ∂ν := by
   simp_rw [Measure.trim_eq_map]
@@ -144,7 +145,7 @@ lemma f_rnDeriv_trim_le [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ m�
     _ ≤ (ν[fun x ↦ f.realFun ((∂μ/∂ν) x).toReal | m]) a := ha2
 
 lemma integrable_f_rnDeriv_trim [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ mα) (hμν : μ ≪ ν)
-    (h_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞) (hf : ∀ x, f x ≠ ∞) :
+    (h_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞) (hf : ∀ x ≠ ∞, f x ≠ ∞) :
     Integrable (fun x ↦ f.realFun ((∂μ.trim hm/∂ν.trim hm) x).toReal) (ν.trim hm) := by
   have hf_cvx : ConvexOn ℝ (Ici 0) f.realFun := f.convexOn_Ici_realFun hf
   obtain ⟨c, c', h⟩ : ∃ c c', ∀ x, 0 ≤ x → c * x + c' ≤ f.realFun x :=
@@ -163,7 +164,7 @@ lemma integrable_f_rnDeriv_trim [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : 
 
 lemma integrable_f_condexp_rnDeriv [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (hm : m ≤ mα) (hμν : μ ≪ ν)
-    (h_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞) (hf : ∀ x, f x ≠ ∞) :
+    (h_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞) (hf : ∀ x ≠ ∞, f x ≠ ∞) :
     Integrable (fun x ↦ f.realFun ((ν[fun x ↦ ((∂μ/∂ν) x).toReal | m]) x)) ν := by
   have h := integrable_f_rnDeriv_trim hm hμν h_int hf
   refine integrable_of_integrable_trim hm ((integrable_congr ?_).mp h)
@@ -172,7 +173,7 @@ lemma integrable_f_condexp_rnDeriv [IsFiniteMeasure μ] [IsFiniteMeasure ν]
 
 /-- **Data processing inequality** for f-divergences and measurable functions. -/
 theorem fDiv_map_le [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    {g : α → β} (hg : Measurable g) (hf : ∀ x, f x ≠ ∞) :
+    {g : α → β} (hg : Measurable g) (hf : ∀ x ≠ ∞, f x ≠ ∞) :
     fDiv f (μ.map g) (ν.map g) ≤ fDiv f μ ν := by
   refine fDiv_map_le_of_map_le_of_ac hg (fun μ _ hμν ↦ ?_) _
   by_cases h_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν = ∞
@@ -203,7 +204,7 @@ theorem fDiv_map_le [IsFiniteMeasure μ] [IsFiniteMeasure ν]
   · exact ae_of_ae_trim _ <| f.condexp_rnDeriv_le hg.comap_le h_int
 
 /-- **Data processing inequality** for f-divergences and sub-sigma-algebras. -/
-theorem fDiv_trim_le [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ mα) (hf : ∀ x, f x ≠ ∞) :
+theorem fDiv_trim_le [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ mα) (hf : ∀ x ≠ ∞, f x ≠ ∞) :
     fDiv f (μ.trim hm) (ν.trim hm) ≤ fDiv f μ ν := by
   simp_rw [Measure.trim_eq_map]
   exact fDiv_map_le (measurable_id'' hm) hf

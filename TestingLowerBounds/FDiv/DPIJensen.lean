@@ -25,7 +25,7 @@ variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
 
 -- todo: remove `hf`
 lemma fDiv_comp_le_compProd_right (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (κ : Kernel α β) [IsFiniteKernel κ] (hf : ∀ x, f x ≠ ∞) :
+    (κ : Kernel α β) [IsFiniteKernel κ] (hf : ∀ x ≠ ∞, f x ≠ ∞) :
     fDiv f (κ ∘ₘ μ) (κ ∘ₘ ν) ≤ fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ κ) := by
   simp_rw [Measure.comp_eq_snd_compProd]
   exact fDiv_map_le measurable_snd hf
@@ -33,7 +33,7 @@ lemma fDiv_comp_le_compProd_right (μ ν : Measure α) [IsFiniteMeasure μ] [IsF
 -- todo: remove `hf`
 /--The **Data Processing Inequality** for the f-divergence. -/
 theorem fDiv_comp_right_le'' (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (κ : Kernel α β) [IsMarkovKernel κ] (hf : ∀ x, f x ≠ ∞) :
+    (κ : Kernel α β) [IsMarkovKernel κ] (hf : ∀ x ≠ ∞, f x ≠ ∞) :
     fDiv f (κ ∘ₘ μ) (κ ∘ₘ ν) ≤ fDiv f μ ν :=
   (fDiv_comp_le_compProd_right μ ν κ hf).trans_eq (fDiv_compProd_right μ ν κ)
 
