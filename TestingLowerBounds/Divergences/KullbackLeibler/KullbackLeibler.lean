@@ -103,6 +103,9 @@ lemma klDivFun_apply {x : ℝ≥0∞} (hx : x ≠ ∞) :
     rw [sub_sub_eq_add_sub]
 
 @[simp]
+lemma klDivFun_zero : klDivFun 0 = 1 := by simp [klDivFun_apply ENNReal.zero_ne_top]
+
+@[simp]
 lemma klDivFun_realFun_apply {x : ℝ} (hx : 0 ≤ x) : klDivFun.realFun x = x * log x + 1 - x := by
   rw [DivFunction.realFun, klDivFun_apply ENNReal.ofReal_ne_top, ENNReal.toReal_ofReal hx,
     ENNReal.toReal_ofReal]
