@@ -627,15 +627,76 @@ lemma lintegral_ne_top_of_fDiv_ne_top (h : fDiv f μ ν ≠ ⊤) :
 --     exact fun _ ↦ EReal.coe_ennreal_nonneg _
 --   rfl
 
--- todo: remove `hf`
-lemma le_fDiv_of_ac [IsFiniteMeasure μ] [IsProbabilityMeasure ν] (hμν : μ ≪ ν)
+lemma _root_.MeasureTheory.laverage_eq_average [IsFiniteMeasure μ] {f : α → ℝ≥0∞}
+    (hf : AEMeasurable f μ) (hf_top : ∫⁻ a, f a ∂μ ≠ ⊤) :
+    ⨍⁻ x, f x ∂μ = ENNReal.ofReal (⨍ x, (f x).toReal ∂μ) := by
+  rw [laverage_eq, average_eq]
+  by_cases hμ0 : μ = 0
+  · simp [hμ0]
+  simp only [smul_eq_mul]
+  rw [ENNReal.ofReal_mul (by simp),
+    ENNReal.ofReal_inv_of_pos (by simp [ENNReal.toReal_pos_iff, hμ0]),
+    ENNReal.ofReal_toReal (by simp), integral_toReal hf (ae_lt_top' hf hf_top),
+    ENNReal.ofReal_toReal hf_top, div_eq_mul_inv, mul_comm]
+
+lemma _root_.ConvexOn.map_laverage_le [IsFiniteMeasure μ] [NeZero μ]
+    {f : α → ℝ≥0∞} {g : ℝ≥0∞ → ℝ≥0∞} {s : Set ℝ≥0∞}
+    (hf : AEMeasurable f μ)
+    (hg : ConvexOn ℝ≥0 s g) (hgc : ContinuousOn g s) (hsc : IsClosed s)
+    (hfs : ∀ᵐ x ∂μ, f x ∈ s) (hfi : ∫⁻ x, f x ∂μ ≠ ∞) :
+    g (⨍⁻ x, f x ∂μ) ≤ ⨍⁻ x, g (f x) ∂μ := by
+  by_cases hgi : ∫⁻ x, g (f x) ∂μ = ∞
+  · conv_rhs => rw [laverage_eq, hgi]
+    rw [ENNReal.top_div_of_ne_top (measure_ne_top _ _)]
+    simp
+  have hf_lt_top : ∀ᵐ x ∂μ, f x < ∞ := ae_lt_top' hf hfi
+  have hg_lt_top : ∀ᵐ x ∂μ, g (f x) < ∞ := ae_lt_top' ?_ hgi
+  swap; · sorry
+  have hf_ofReal_toReal : ∀ᵐ x ∂μ, ENNReal.ofReal (f x).toReal = f x := by
+    filter_upwards [hf_lt_top] with x hx
+    rw [ENNReal.ofReal_toReal hx.ne]
+  rw [laverage_eq_average hf hfi]
+  rw [← ENNReal.toReal_le_toReal]
+  rotate_left
+  · sorry
+  · sorry
+  have hf_int : Integrable (fun x ↦ (f x).toReal) μ := integrable_toReal_of_lintegral_ne_top hf hfi
+  have hg_int : Integrable ((fun x ↦ (g (ENNReal.ofReal x)).toReal)
+      ∘ (fun x ↦ (f x).toReal)) μ := by
+    have : ((fun x ↦ (g (ENNReal.ofReal x)).toReal) ∘ fun x ↦ (f x).toReal)
+        =ᵐ[μ] fun x ↦ (g (f x)).toReal := by
+      filter_upwards [hf_ofReal_toReal] with x hx
+      simp [hx]
+    rw [integrable_congr this]
+    refine integrable_toReal_of_lintegral_ne_top ?_ hgi
+    sorry
+  refine (ConvexOn.map_average_le ?_ ?_ ?_ ?_ hf_int hg_int (s := ENNReal.toReal '' s)).trans ?_
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+
+lemma le_fDiv_of_ac' [IsFiniteMeasure μ] [IsProbabilityMeasure ν] (hμν : μ ≪ ν)
     (hf : ∀ x, f x ≠ ∞) :
     f (μ .univ) ≤ fDiv f μ ν := by
+  rw [fDiv_of_absolutelyContinuous hμν]
   by_cases hf_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν = ∞
-  · simp [fDiv, hf_int]
-  rw [fDiv, Measure.singularPart_eq_zero_of_ac hμν]
-  simp only [Measure.coe_zero, Pi.zero_apply,
-    EReal.coe_ennreal_zero, mul_zero, add_zero, EReal.coe_le_coe_iff]
+  · simp [hf_int]
+  have h_eq : μ univ = ∫⁻ x, μ.rnDeriv ν x ∂ν := by rw [Measure.lintegral_rnDeriv hμν]
+  calc f (μ .univ)
+  _ = f (∫⁻ x, μ.rnDeriv ν x ∂ν) := by rw [Measure.lintegral_rnDeriv hμν]
+  _ = f (⨍⁻ x, μ.rnDeriv ν x ∂ν) := by rw [laverage_eq_lintegral]
+  _ ≤ ⨍⁻ x, f (μ.rnDeriv ν x) ∂ν := by sorry
+  _ = ∫⁻ x, f (μ.rnDeriv ν x) ∂ν := by rw [laverage_eq_lintegral]
+
+-- todo: remove `hf`
+lemma le_fDiv_of_ac [IsFiniteMeasure μ] [IsProbabilityMeasure ν] (hμν : μ ≪ ν)
+    (hf : ∀ x ≠ ∞, f x ≠ ∞) :
+    f (μ .univ) ≤ fDiv f μ ν := by
+  rw [fDiv_of_absolutelyContinuous hμν]
+  by_cases hf_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν = ∞
+  · simp [hf_int]
   have h_eq : μ univ = ENNReal.ofReal (∫ x, (μ.rnDeriv ν x).toReal ∂ν) := by
     rw [Measure.integral_toReal_rnDeriv hμν, ENNReal.ofReal_toReal]
     simp
@@ -644,7 +705,7 @@ lemma le_fDiv_of_ac [IsFiniteMeasure μ] [IsProbabilityMeasure ν] (hμν : μ �
   _ = ENNReal.ofReal (f.realFun (∫ x, (μ.rnDeriv ν x).toReal ∂ν)) := by
       rw [DivFunction.realFun, ENNReal.ofReal_toReal]
       rw [← h_eq]
-      exact hf _
+      exact hf _ (measure_ne_top _ _)
   _ ≤ ENNReal.ofReal (∫ x, f.realFun (μ.rnDeriv ν x).toReal ∂ν) := by
     rw [← average_eq_integral, ← average_eq_integral]
     gcongr
@@ -666,7 +727,7 @@ lemma f_measure_univ_le_add (μ ν : Measure α) [IsFiniteMeasure μ] [IsProbabi
   exact f.le_add_derivAtTop'' _ _
 
 -- todo: remove `hf`
-lemma le_fDiv [IsFiniteMeasure μ] [IsProbabilityMeasure ν] (hf : ∀ x, f x ≠ ∞) :
+lemma le_fDiv [IsFiniteMeasure μ] [IsProbabilityMeasure ν] (hf : ∀ x ≠ ∞, f x ≠ ∞) :
     f (μ .univ) ≤ fDiv f μ ν := by
   refine (f_measure_univ_le_add μ ν).trans ?_
   rw [fDiv_eq_add_withDensity_derivAtTop]
@@ -699,7 +760,7 @@ lemma fDiv_mono' (hfg : ∀ x, f x ≤ g x) (hfg' : f.derivAtTop ≤ g.derivAtTo
 --   fDiv_zero μ ν ▸ fDiv_mono' hf (DivFunction.derivAtTop_zero ▸ zero_le')
 
 lemma fDiv_eq_zero_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (hf_deriv : f.derivAtTop = ∞) (hf_cvx : StrictConvexOn ℝ (Ici 0) f.realFun) :
+    (hf_deriv : f.derivAtTop = ∞) (hf_cvx : StrictConvexOn ℝ (Ioi 0) f.realFun) :
     fDiv f μ ν = 0 ↔ μ = ν := by
   refine ⟨fun h ↦ ?_, fun h ↦ h ▸ fDiv_self _⟩
   by_cases hμν : μ ≪ ν
@@ -710,7 +771,7 @@ lemma fDiv_eq_zero_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν]
   rw [lintegral_eq_zero_iff measurable_divFunction_rnDeriv] at h
   have h_eq_zero_iff x : f x = 0 ↔ x = 1 := by
     rw [f.eq_zero_iff zero_lt_one one_lt_two]
-    exact hf_cvx.subset (fun x hx ↦ hx.1.le) (convex_Ioo _ _)
+    exact hf_cvx.subset (fun x hx ↦ hx.1) (convex_Ioo _ _)
   refine (Measure.rnDeriv_eq_one_iff_eq hμν).mp ?_
   filter_upwards [h] with x hx
   simp only [Pi.zero_apply, h_eq_zero_iff] at hx

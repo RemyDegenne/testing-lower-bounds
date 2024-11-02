@@ -226,7 +226,7 @@ lemma stronglyMeasurable_realFun : StronglyMeasurable f.realFun :=
 lemma convexOn_Ioo_realFun : ConvexOn ℝ (ENNReal.toReal '' (Ioo f.xmin f.xmax)) f.realFun := by
   sorry
 
-lemma convexOn_Ici_realFun (h : ∀ x, f x ≠ ∞) : ConvexOn ℝ (Ici 0) f.realFun := sorry
+lemma convexOn_Ici_realFun (h : ∀ x ≠ ∞, f x ≠ ∞) : ConvexOn ℝ (Ici 0) f.realFun := sorry
 
 lemma differentiableWithinAt {x : ℝ} (hx_nonneg : 0 ≤ x)
     (hx : ENNReal.ofReal x ∈ Ioo f.xmin f.xmax) :
@@ -259,9 +259,10 @@ lemma continuousOn_realFun_Ioi (h : f.xmax = ∞) : ContinuousOn f.realFun (Ioi 
   rw [ENNReal.lt_ofReal_iff_toReal_lt xmin_ne_top]
   exact hx
 
-lemma continuousOn_realFun_Ici (h : ∀ x, f x ≠ ∞) : ContinuousOn f.realFun (Ici 0) :=
-  ENNReal.continuousOn_toReal.comp
-    (f.continuous.comp_continuousOn ENNReal.continuous_ofReal.continuousOn) fun _ _ ↦ h _
+lemma continuousOn_realFun_Ici (h : ∀ x ≠ ∞, f x ≠ ∞) : ContinuousOn f.realFun (Ici 0) := by
+  -- refine ENNReal.continuousOn_toReal.comp ?_
+  --  (f.continuous.comp_continuousOn ENNReal.continuous_ofReal.continuousOn) fun _ _ ↦ h _
+  sorry
 
 lemma eq_zero_iff {a b : ℝ} (ha : a < 1) (hb : 1 < b)
     (hf_cvx : StrictConvexOn ℝ (Ioo a b) f.realFun) {x : ℝ≥0∞} :
@@ -392,6 +393,15 @@ lemma ofConvexOn_apply_zero (hf : ConvexOn ℝ (Ioi 0) f) :
     ofConvexOn f hf 0
       = Function.rightLim (fun x ↦ ENNReal.ofReal (f x - f 1 - rightDeriv f 1 * (x - 1))) 0 := by
   simp [ofConvexOn]
+
+lemma ofConvexOn_apply_zero_of_continuousWithinAt {hf : ConvexOn ℝ (Ioi 0) f}
+    (hf_cont : ContinuousWithinAt f (Ioi 0) 0) :
+    ofConvexOn f hf 0 = ENNReal.ofReal (f 0 - f 1 + rightDeriv f 1) := by
+  rw [ofConvexOn, ofReal_apply_zero_of_continuousWithinAt]
+  · simp
+  · simp_rw [← sub_add_eq_sub_sub]
+    refine hf_cont.sub ?_
+    sorry
 
 @[simp]
 lemma ofConvexOn_apply_top (hf : ConvexOn ℝ (Ioi 0) f) :
