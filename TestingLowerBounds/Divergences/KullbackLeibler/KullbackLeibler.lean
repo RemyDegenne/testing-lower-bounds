@@ -59,19 +59,29 @@ lemma integrable_rnDeriv_mul_log_iff [SigmaFinite μ] [SigmaFinite ν] (hμν : 
       ↔ Integrable (llr μ ν) μ :=
   integrable_rnDeriv_smul_iff hμν
 
+@[simp]
+lemma rightDeriv_neg {y : ℝ} : rightDeriv (fun x ↦ - x) y = - 1 :=
+  sorry
+
+lemma _root_.convexOn_mul_log_add_one_sub :
+    ConvexOn ℝ (Ici 0) fun x ↦ x * log x + 1 - x :=
+  (convexOn_mul_log.add (convexOn_const _ (convex_Ici _))).sub (concaveOn_id (convex_Ici _))
+
+lemma hasDerivAt_mul_log_add_one_sub {x : ℝ} (hx : x ≠ 0) :
+    HasDerivAt (fun x ↦ x * log x + 1 - x) (log x) x := by
+  convert ((hasDerivAt_mul_log hx).add (hasDerivAt_const x 1)).sub (hasDerivAt_id x) using 1
+  ring
+
+@[simp]
+lemma rightDeriv_mul_log_add_one_sub {x : ℝ} (hx : x ≠ 0) :
+    rightDeriv (fun x ↦ x * log x + 1 - x) x = log x :=
+  rightDeriv_of_hasDerivAt (hasDerivAt_mul_log_add_one_sub hx)
+
 lemma mul_log_add_one_sub_nonneg {x : ℝ} (hx : 0 ≤ x) : 0 ≤ x * log x + 1 - x := by
   refine ConvexOn.nonneg_of_todo (f := fun x ↦ x * log x + 1 - x) ?_ ?_ ?_ hx
-  · have h := (convexOn_mul_log.subset (Ioi_subset_Ici le_rfl) (convex_Ioi _)).sub_one
-    simp only [log_one, mul_zero, sub_zero, ne_eq, one_ne_zero, not_false_eq_true,
-      rightDeriv_mul_log, zero_add, one_mul, sub_sub_eq_add_sub] at h
-    exact h
+  · exact convexOn_mul_log_add_one_sub.subset (Ioi_subset_Ici le_rfl) (convex_Ioi _)
   · simp
-  · simp_rw [sub_eq_add_neg]
-    rw [rightDeriv_add_apply', rightDeriv_add_const_apply]
-    · sorry
-    · sorry
-    · sorry
-    · sorry
+  · simp
 
 lemma mul_log_add_one_sub_eq_zero_iff {x : ℝ} (hx : 0 ≤ x) : x * log x + 1 - x = 0 ↔ x = 1 := by
   sorry
