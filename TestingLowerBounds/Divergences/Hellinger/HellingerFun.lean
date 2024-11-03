@@ -346,7 +346,8 @@ lemma integrable_hellingerFun_one_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν] 
   simp only [hellingerFun_one]
   rw [integrable_mul_log_add_one_sub_iff hμν]
 
-lemma integrable_hellingerFun_iff_integrable_rpow (ha_one : a ≠ 1) [IsFiniteMeasure ν] :
+lemma integrable_hellingerFun_iff_integrable_rpow (ha_one : a ≠ 1)
+    [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     Integrable (fun x ↦ hellingerFun a ((∂μ/∂ν) x).toReal) ν
       ↔ Integrable (fun x ↦ ((∂μ/∂ν) x).toReal ^ a) ν := by
   by_cases ha_zero : a = 0
@@ -358,10 +359,12 @@ lemma integrable_hellingerFun_iff_integrable_rpow (ha_one : a ≠ 1) [IsFiniteMe
     · exact integrableOn_const.mpr (Or.inr (measure_lt_top ν _))
   rw [hellingerFun_of_ne_zero_of_ne_one ha_zero ha_one, integrable_const_mul_iff]
   swap; · simp [sub_eq_zero, ha_one]
-  sorry
-  --simp_rw [sub_eq_add_neg, integrable_add_const_iff]
+  simp_rw [sub_eq_add_neg, add_assoc, ← sub_eq_add_neg]
+  rw [integrable_add_iff_integrable_left']
+  refine (integrable_const _).add (((Integrable.sub ?_ (integrable_const _)).const_mul _).neg)
+  exact Measure.integrable_toReal_rnDeriv
 
-lemma integrable_hellingerFun_zero [IsFiniteMeasure ν] :
+lemma integrable_hellingerFun_zero [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     Integrable (fun x ↦ hellingerFun 0 ((∂μ/∂ν) x).toReal) ν := by
   simp_rw [integrable_hellingerFun_iff_integrable_rpow zero_ne_one, rpow_zero]
   exact integrable_const _

@@ -201,7 +201,7 @@ lemma hellingerDiv_ne_top_of_lt_one (ha : a < 1) (μ ν : Measure α)
 --   hellingerDiv_eq_integral_of_integrable_of_ac
 --     (integrable_hellingerFun_rnDeriv_of_lt_one ha_nonneg ha) ha.not_le.elim
 
-lemma lintegral_hellingerDivFun_eq_top_of_not_integrable [SigmaFinite μ] [IsFiniteMeasure ν]
+lemma lintegral_hellingerDivFun_eq_top_of_not_integrable [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (ha_pos : 0 < a) (ha_one : a ≠ 1)
     (h : ¬ Integrable (fun x ↦ ((∂μ/∂ν) x).toReal ^ a) ν) :
     ∫⁻ x, hellingerDivFun a ((∂μ/∂ν) x) ∂ν = ∞ := by
@@ -217,7 +217,17 @@ lemma hellingerDiv_of_not_integrable [IsFiniteMeasure μ] [IsFiniteMeasure ν]
   · simp only [ha_zero, le_refl, hellingerDiv_of_nonpos, ENNReal.zero_ne_top]
     refine h ?_
     simp only [ha_zero, hellingerFun_zero]
-    sorry
+    refine integrable_of_le_of_le (g₁ := fun _ ↦ 0) (g₂ := fun _ ↦ 1) ?_ ?_ ?_
+      (integrable_const _) (integrable_const _)
+    · refine Measurable.aestronglyMeasurable ?_
+      refine Measurable.ite ?_ measurable_const measurable_const
+      exact (μ.measurable_rnDeriv ν).ennreal_toReal (measurableSet_singleton 0)
+    · refine ae_of_all _ fun x ↦ ?_
+      simp only
+      split_ifs <;> simp
+    · refine ae_of_all _ fun x ↦ ?_
+      simp only
+      split_ifs <;> simp
   have ha_pos : 0 < a := ha.lt_of_ne (Ne.symm ha_zero)
   by_cases ha_one : a = 1
   · simp only [ha_one, hellingerDiv_one]
@@ -372,13 +382,27 @@ lemma hellingerDiv_eq_add_measure_univ_iff_of_lt_one (ha_pos : 0 < a) (ha : a < 
   swap; · exact integrable_rpow_rnDeriv_of_lt_one ha_pos.le ha
   have h_eq : ν Set.univ + ENNReal.ofReal (a * (1 - a)⁻¹) * μ Set.univ
       = ENNReal.ofReal ((ν .univ).toReal + a * (1 - a)⁻¹ * (μ .univ).toReal) := by
-    sorry
+    have hν_eq : ν .univ = ENNReal.ofReal (ν .univ).toReal := by
+      rw [ENNReal.ofReal_toReal (measure_ne_top _ _)]
+    have hμ_eq : μ .univ = ENNReal.ofReal (μ .univ).toReal := by
+      rw [ENNReal.ofReal_toReal (measure_ne_top _ _)]
+    conv_lhs => rw [hν_eq, hμ_eq]
+    rw [← ENNReal.ofReal_mul, ← ENNReal.ofReal_add]
+    · positivity
+    · refine mul_nonneg (mul_nonneg ha_pos.le ?_) ENNReal.toReal_nonneg
+      simp [ha.le]
+    · refine mul_nonneg ha_pos.le ?_
+      simp [ha.le]
   rw [h_eq, ENNReal.ofReal_eq_ofReal_iff, add_assoc, mul_comm a, add_left_eq_self, mul_eq_zero,
     inv_eq_zero, sub_eq_zero] at h
   · simpa [ha.ne] using h
   · refine (integral_hellingerFun_rnDeriv_nonneg ha_pos ha (μ := μ) (ν := ν)).trans ?_
     refine add_le_add le_rfl ?_
-    sorry
+    gcongr
+    · refine mul_nonneg ?_ ha_pos.le
+      simp [ha.le]
+    · rw [Measure.integral_toReal_rnDeriv']
+      exact sub_le_self _ ENNReal.toReal_nonneg
   · refine add_nonneg (by positivity) (mul_nonneg (mul_nonneg ha_pos.le ?_) (by positivity))
     simp [ha.le]
 
