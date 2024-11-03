@@ -858,4 +858,23 @@ lemma DivFunction.lintegral_ofReal_eq_integral_of_continuous [SigmaFinite μ] [S
   suffices ∀ x, 0 ≤ x → 0 ≤ f x from this _ ENNReal.toReal_nonneg
   exact fun _ ↦ hf.nonneg_of_todo hf_one hf_deriv
 
+section Conj
+
+namespace DivFunction
+
+-- todo: `HasDerivAt f.realFun 1 0` is necessary because we enforce that the rightDeriv at 1 is 0.
+noncomputable
+def conj (f : DivFunction) (hf : HasDerivAt f.realFun 1 0) : DivFunction where
+  toFun x := x * f x⁻¹
+  one := by simp
+  rightDerivOne := by
+    simp only [ENNReal.toReal_mul]
+    sorry
+  convexOn' := sorry
+  continuous' := sorry
+
+end DivFunction
+
+end Conj
+
 end ProbabilityTheory

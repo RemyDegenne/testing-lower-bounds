@@ -196,6 +196,7 @@ lemma hellingerFun_apply_one_eq_zero : hellingerFun a 1 = 0 := by
   · simp [ha_zero, hellingerFun_zero]
   simp [hellingerFun, ha_one, ha_zero]
 
+@[simp]
 lemma hellingerFun_apply_zero : hellingerFun a 0 = 1 := by
   by_cases ha_zero : a = 0
   · simp [ha_zero, hellingerFun_zero]
@@ -257,6 +258,11 @@ lemma rightDeriv_hellingerFun (a : ℝ) {x : ℝ} (hx : x ≠ 0) :
       else if a = 1 then log x
       else (a - 1)⁻¹ * a * (x ^ (a - 1) - 1) :=
   rightDeriv_of_hasDerivAt (hasDerivAt_hellingerFun a hx)
+
+@[simp]
+lemma rightDeriv_hellingerFun_one {a : ℝ} :
+    rightDeriv (hellingerFun a) 1 = 0 := by
+  simp [rightDeriv_hellingerFun]
 
 lemma tendsto_rightDeriv_hellingerFun_atTop_of_one_lt (ha : 1 < a) :
     Tendsto (rightDeriv (hellingerFun a)) atTop atTop := by
