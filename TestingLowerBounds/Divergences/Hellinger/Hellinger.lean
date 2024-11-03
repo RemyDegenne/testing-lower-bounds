@@ -99,6 +99,9 @@ noncomputable def hellingerDiv (a : ℝ) (μ ν : Measure α) : ℝ≥0∞ := fD
     hellingerDiv a μ ν = 0 := by
   rw [hellingerDiv, hellingerDivFun_of_nonpos ha, fDiv_zero]
 
+lemma hellingerDiv_zero [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
+    hellingerDiv 0 μ ν = 0 := by simp
+
 @[simp] lemma hellingerDiv_one (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     hellingerDiv 1 μ ν = kl μ ν := by
   rw [hellingerDiv, hellingerDivFun_one, kl_eq_fDiv]
@@ -358,6 +361,26 @@ lemma hellingerDiv_le_of_lt_one (ha : a < 1) (μ ν : Measure α)
   · simp [h_zero]
   refine fDiv_le_zero_add_top.trans_eq ?_
   simp [h_zero, ha]
+
+lemma hellingerDiv_eq_add_measure_univ_iff_of_lt_one (ha_pos : 0 < a) (ha : a < 1) (μ ν : Measure α)
+    [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
+    hellingerDiv a μ ν = ν Set.univ + ENNReal.ofReal (a * (1 - a)⁻¹) * μ Set.univ
+      ↔ μ ⟂ₘ ν := by
+  refine ⟨fun h ↦ ?_, hellingerDiv_of_mutuallySingular_of_lt_one ha_pos ha⟩
+  rw [hellingerDiv_eq_integral_of_lt_one ha_pos ha] at h
+  rw [← integral_rpow_rnDeriv_eq_zero_iff_mutuallySingular (a := a) ha_pos.ne']
+  swap; · exact integrable_rpow_rnDeriv_of_lt_one ha_pos.le ha
+  have h_eq : ν Set.univ + ENNReal.ofReal (a * (1 - a)⁻¹) * μ Set.univ
+      = ENNReal.ofReal ((ν .univ).toReal + a * (1 - a)⁻¹ * (μ .univ).toReal) := by
+    sorry
+  rw [h_eq, ENNReal.ofReal_eq_ofReal_iff, add_assoc, mul_comm a, add_left_eq_self, mul_eq_zero,
+    inv_eq_zero, sub_eq_zero] at h
+  · simpa [ha.ne] using h
+  · refine (integral_hellingerFun_rnDeriv_nonneg ha_pos ha (μ := μ) (ν := ν)).trans ?_
+    refine add_le_add le_rfl ?_
+    sorry
+  · refine add_nonneg (by positivity) (mul_nonneg (mul_nonneg ha_pos.le ?_) (by positivity))
+    simp [ha.le]
 
 lemma hellingerDiv_symm' (ha_pos : 0 < a) (ha : a < 1) (h_eq : μ .univ = ν .univ)
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] :

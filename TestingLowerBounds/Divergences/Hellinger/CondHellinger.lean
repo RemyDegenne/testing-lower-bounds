@@ -36,26 +36,26 @@ variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
   {a : ℝ}
 
 lemma hellingerDiv_ae_ne_top_iff' (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
-    (∀ᵐ x ∂μ, hellingerDiv a (κ x) (η x) ≠ ⊤)
+    (∀ᵐ x ∂μ, hellingerDiv a (κ x) (η x) ≠ ∞)
       ↔ (∀ᵐ x ∂μ, Integrable (fun b ↦ hellingerFun a ((∂κ x/∂η x) b).toReal) (η x))
         ∧ (1 ≤ a → ∀ᵐ x ∂μ, (κ x) ≪ (η x)) := by
   simp_rw [hellingerDiv_ne_top_iff, eventually_and, eventually_all]
 
 lemma hellingerDiv_ae_ne_top_iff (ha_ne_one : a ≠ 1)
     (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
-    (∀ᵐ x ∂μ, hellingerDiv a (κ x) (η x) ≠ ⊤)
+    (∀ᵐ x ∂μ, hellingerDiv a (κ x) (η x) ≠ ∞)
       ↔ (∀ᵐ x ∂μ, Integrable (fun b ↦ ((∂κ x/∂η x) b).toReal ^ a) (η x))
         ∧ (1 ≤ a → ∀ᵐ x ∂μ, (κ x) ≪ (η x)) := by
   convert hellingerDiv_ae_ne_top_iff' κ η using 4 with x
   exact (integrable_hellingerFun_iff_integrable_rpow ha_ne_one).symm
 
 lemma hellingerDiv_ae_ne_top_iff_of_lt_one' (ha : a < 1) (κ η : Kernel α β) :
-    (∀ᵐ x ∂μ, hellingerDiv a (κ x) (η x) ≠ ⊤)
+    (∀ᵐ x ∂μ, hellingerDiv a (κ x) (η x) ≠ ∞)
       ↔ (∀ᵐ x ∂μ, Integrable (fun b ↦ hellingerFun a ((∂κ x/∂η x) b).toReal) (η x)) := by
   simp_rw [hellingerDiv_ne_top_iff_of_lt_one ha]
 
 lemma hellingerDiv_ae_ne_top_iff_of_lt_one (ha : a < 1) (κ η : Kernel α β) [IsFiniteKernel η] :
-    (∀ᵐ x ∂μ, hellingerDiv a (κ x) (η x) ≠ ⊤)
+    (∀ᵐ x ∂μ, hellingerDiv a (κ x) (η x) ≠ ∞)
       ↔ (∀ᵐ x ∂μ, Integrable (fun b ↦ ((∂κ x/∂η x) b).toReal ^ a) (η x)) := by
   convert hellingerDiv_ae_ne_top_iff_of_lt_one' ha κ η using 3 with x
   exact (integrable_hellingerFun_iff_integrable_rpow ha.ne).symm
@@ -84,7 +84,7 @@ lemma integrable_hellingerDiv_iff' (ha_pos : 0 < a) (ha_ne_one : a ≠ 1)
     (h_ac : 1 ≤ a → ∀ᵐ x ∂μ, κ x ≪ η x) :
     Integrable (fun x ↦ (hellingerDiv a (κ x) (η x)).toReal) μ
       ↔ Integrable (fun x ↦ ∫ b, ((∂κ x/∂η x) b).toReal ^ a ∂η x) μ := by
-  have h_fin : ∀ᵐ x ∂μ, hellingerDiv a (κ x) (η x) ≠ ⊤ := by
+  have h_fin : ∀ᵐ x ∂μ, hellingerDiv a (κ x) (η x) ≠ ∞ := by
     filter_upwards [h_int, eventually_all.mpr h_ac] with x hx_int hx_ac
     rcases lt_or_gt_of_ne ha_ne_one with ha_lt | ha_gt
     · exact hellingerDiv_ne_top_of_lt_one ha_pos.le ha_lt _ _
@@ -149,15 +149,15 @@ lemma integrable_hellingerDiv_iff'_of_lt_one (ha_pos : 0 < a) (ha : a < 1)
     (fun _ ↦ integrable_rpow_rnDeriv_of_lt_one ha_pos.le ha)) (not_le_of_gt ha).elim
 
 /-- Conditional Hellinger divergence of order `a`. -/
-noncomputable def condHellingerDiv (a : ℝ) (κ η : Kernel α β) (μ : Measure α) : EReal :=
-  condFDiv (hellingerFun a) κ η μ
+noncomputable def condHellingerDiv (a : ℝ) (κ η : Kernel α β) (μ : Measure α) : ℝ≥0∞ :=
+  condFDiv (hellingerDivFun a) κ η μ
 
 /-! There are multiple combinations of hypotheses that give rise to slightly different versions of
 the following lemmas. The ones we will consider as a normal form are when we assume that `μ`, `κ`
 and `η` are all finite and `a ∈ (0, 1) ∪ (1, +∞)`.
 
 Consider the following conditions:
-1. `condHellingerDiv a κ η μ ≠ ⊤`
+1. `condHellingerDiv a κ η μ ≠ ∞`
 2. `condHellingerDiv a κ η μ = ∫ x, (hellingerDiv a (κ x) (η x)).toReal ∂μ`
 3.a `∀ᵐ x ∂μ, Integrable (fun b ↦ ((∂κ x/∂η x) b).toReal ^ a) (η x)` (`h_int`)
 3.b `∀ᵐ x ∂μ, (κ x) ≪ (η x)` (`h_ac`)
@@ -182,46 +182,48 @@ section CondHellingerEq
 
 lemma condHellingerDiv_one [IsFiniteKernel κ] [IsFiniteKernel η] :
     condHellingerDiv 1 κ η μ = condKL κ η μ := by
-  rw [condHellingerDiv, hellingerFun_one, condKL_eq_condFDiv]
+  rw [condHellingerDiv, hellingerDivFun_one, condKL_eq_condFDiv]
 
-lemma condHellingerDiv_of_not_ae_finite (h_ae : ¬ ∀ᵐ x ∂μ, hellingerDiv a (κ x) (η x) ≠ ⊤) :
-    condHellingerDiv a κ η μ = ⊤ := by
+lemma condHellingerDiv_of_not_ae_finite [CountableOrCountablyGenerated α β]
+    [IsFiniteKernel κ] [IsFiniteKernel η]
+    (h_ae : ¬ ∀ᵐ x ∂μ, hellingerDiv a (κ x) (η x) ≠ ∞) :
+    condHellingerDiv a κ η μ = ∞ := by
   rw [condHellingerDiv]
   exact condFDiv_of_not_ae_finite h_ae
 
 lemma condHellingerDiv_of_not_ae_integrable' [IsFiniteKernel κ] [IsFiniteKernel η]
     (h_int : ¬ ∀ᵐ x ∂μ, Integrable (fun b ↦ hellingerFun a ((∂κ x/∂η x) b).toReal) (η x)) :
-    condHellingerDiv a κ η μ = ⊤ := condFDiv_of_not_ae_integrable h_int
+    condHellingerDiv a κ η μ = ∞ := condFDiv_of_not_ae_integrable h_int
 
 lemma condHellingerDiv_of_not_ae_integrable (ha_ne_one : a ≠ 1)
     [IsFiniteKernel κ] [IsFiniteKernel η]
     (h_int : ¬ ∀ᵐ x ∂μ, Integrable (fun b ↦ ((∂κ x/∂η x) b).toReal ^ a) (η x)) :
-    condHellingerDiv a κ η μ = ⊤ := by
+    condHellingerDiv a κ η μ = ∞ := by
   simp_rw [← integrable_hellingerFun_iff_integrable_rpow ha_ne_one] at h_int
   exact condFDiv_of_not_ae_integrable h_int
 
 lemma condHellingerDiv_of_not_ae_integrable_of_lt_one (ha : a < 1)
     (h_int : ¬ ∀ᵐ x ∂μ, Integrable (fun b ↦ hellingerFun a ((∂κ x/∂η x) b).toReal) (η x)) :
-    condHellingerDiv a κ η μ = ⊤ := by
+    condHellingerDiv a κ η μ = ∞ := by
   apply condHellingerDiv_of_not_ae_finite
   rw [hellingerDiv_ae_ne_top_iff_of_lt_one' ha]
   exact h_int
 
 lemma condHellingerDiv_of_not_ae_ac_of_one_le (ha : 1 ≤ a) [IsFiniteKernel κ] [IsFiniteKernel η]
-    (h_ac : ¬ ∀ᵐ x ∂μ, (κ x) ≪ (η x)) :
-    condHellingerDiv a κ η μ = ⊤ := by
+    (h_ac : ¬ ∀ᵐ x ∂μ, κ x ≪ η x) :
+    condHellingerDiv a κ η μ = ∞ := by
   apply condHellingerDiv_of_not_ae_finite
   rw [hellingerDiv_ae_ne_top_iff']
   tauto
 
 lemma condHellingerDiv_of_not_integrable
     (h_int : ¬ Integrable (fun x ↦ (hellingerDiv a (κ x) (η x)).toReal) μ) :
-    condHellingerDiv a κ η μ = ⊤ := condFDiv_of_not_integrable h_int
+    condHellingerDiv a κ η μ = ∞ := condFDiv_of_not_integrable h_int
 
 lemma condHellingerDiv_of_not_integrable' (ha_nonneg : 0 ≤ a) (ha_ne_one : a ≠ 1)
     [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η]
     (h_int' : ¬ Integrable (fun x ↦ ∫ b, ((∂κ x/∂η x) b).toReal ^ a ∂η x) μ) :
-    condHellingerDiv a κ η μ = ⊤ := by
+    condHellingerDiv a κ η μ = ∞ := by
   by_cases ha_zero : a = 0
   · simp [ha_zero, Integrable.Kernel] at h_int'
   have ha_pos := ha_nonneg.lt_of_ne fun h ↦ ha_zero h.symm
@@ -234,7 +236,7 @@ lemma condHellingerDiv_of_not_integrable' (ha_nonneg : 0 ≤ a) (ha_ne_one : a �
   apply condHellingerDiv_of_not_integrable
   rwa [integrable_hellingerDiv_iff' ha_pos ha_ne_one h_int2 h_ac]
 
-lemma condHellingerDiv_of_ae_finite_of_integrable (h_ae : ∀ᵐ x ∂μ, hellingerDiv a (κ x) (η x) ≠ ⊤)
+lemma condHellingerDiv_of_ae_finite_of_integrable (h_ae : ∀ᵐ x ∂μ, hellingerDiv a (κ x) (η x) ≠ ∞)
     (h_int2 : Integrable (fun x ↦ (hellingerDiv a (κ x) (η x)).toReal) μ) :
     condHellingerDiv a κ η μ = ∫ x, (hellingerDiv a (κ x) (η x)).toReal ∂μ :=
   condFDiv_eq' h_ae h_int2
@@ -290,7 +292,7 @@ lemma condHellingerDiv_of_integrable'_of_lt_one (ha_pos : 0 < a) (ha : a < 1)
     (integrable_hellingerDiv_iff'_of_lt_one ha_pos ha |>.mpr h_int')
 
 lemma condHellingerDiv_eq_top_iff [IsFiniteKernel κ] [IsFiniteKernel η] :
-    condHellingerDiv a κ η μ = ⊤
+    condHellingerDiv a κ η μ = ∞
       ↔ ¬ (∀ᵐ x ∂μ, Integrable (fun b ↦ hellingerFun a ((∂κ x/∂η x) b).toReal) (η x))
         ∨ (1 ≤ a ∧ ¬ ∀ᵐ x ∂μ, (κ x) ≪ (η x))
         ∨ ¬ Integrable (fun x ↦ (hellingerDiv a (κ x) (η x)).toReal) μ := by
@@ -305,7 +307,7 @@ lemma condHellingerDiv_eq_top_iff [IsFiniteKernel κ] [IsFiniteKernel η] :
     · exact condHellingerDiv_of_not_integrable h_int2
 
 lemma condHellingerDiv_ne_top_iff [IsFiniteKernel κ] [IsFiniteKernel η] :
-    condHellingerDiv a κ η μ ≠ ⊤
+    condHellingerDiv a κ η μ ≠ ∞
       ↔ (∀ᵐ x ∂μ, Integrable (fun b ↦ hellingerFun a ((∂κ x/∂η x) b).toReal) (η x))
         ∧ (1 ≤ a → ∀ᵐ x ∂μ, (κ x) ≪ (η x))
         ∧ Integrable (fun x ↦ (hellingerDiv a (κ x) (η x)).toReal) μ := by
@@ -315,7 +317,7 @@ lemma condHellingerDiv_ne_top_iff [IsFiniteKernel κ] [IsFiniteKernel η] :
 
 lemma condHellingerDiv_ne_top_iff' (ha_pos : 0 < a) (ha_ne_one : a ≠ 1)
     [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η] :
-    condHellingerDiv a κ η μ ≠ ⊤
+    condHellingerDiv a κ η μ ≠ ∞
       ↔ (∀ᵐ x ∂μ, Integrable (fun b ↦ ((∂κ x/∂η x) b).toReal ^ a) (η x))
         ∧ (1 ≤ a → ∀ᵐ x ∂μ, (κ x) ≪ (η x))
         ∧ Integrable (fun x ↦ ∫ b, ((∂κ x/∂η x) b).toReal ^ a ∂η x) μ := by
@@ -325,16 +327,16 @@ lemma condHellingerDiv_ne_top_iff' (ha_pos : 0 < a) (ha_ne_one : a ≠ 1)
 
 lemma condHellingerDiv_eq_top_iff' (ha_pos : 0 < a) (ha_ne_one : a ≠ 1)
     [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η] :
-    condHellingerDiv a κ η μ = ⊤
+    condHellingerDiv a κ η μ = ∞
       ↔ ¬ (∀ᵐ x ∂μ, Integrable (fun b ↦ ((∂κ x/∂η x) b).toReal ^ a) (η x))
         ∨ (1 ≤ a ∧ ¬ ∀ᵐ x ∂μ, (κ x) ≪ (η x))
         ∨ ¬ Integrable (fun x ↦ ∫ b, ((∂κ x/∂η x) b).toReal ^ a ∂η x) μ := by
-  rw [← not_not (a := _ = ⊤), ← ne_eq, condHellingerDiv_ne_top_iff' ha_pos ha_ne_one]
+  rw [← not_not (a := _ = ∞), ← ne_eq, condHellingerDiv_ne_top_iff' ha_pos ha_ne_one]
   tauto
 
 lemma condHellingerDiv_ne_top_iff_of_one_lt (ha : 1 < a)
     [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η] :
-    condHellingerDiv a κ η μ ≠ ⊤
+    condHellingerDiv a κ η μ ≠ ∞
       ↔ (∀ᵐ x ∂μ, Integrable (fun b ↦ ((∂κ x/∂η x) b).toReal ^ a) (η x))
         ∧ (∀ᵐ x ∂μ, (κ x) ≪ (η x))
         ∧ Integrable (fun x ↦ ∫ b, ((∂κ x/∂η x) b).toReal ^ a ∂η x) μ := by
@@ -342,29 +344,29 @@ lemma condHellingerDiv_ne_top_iff_of_one_lt (ha : 1 < a)
 
 lemma condHellingerDiv_eq_top_iff_of_one_lt (ha : 1 < a)
     [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η] :
-    condHellingerDiv a κ η μ = ⊤
+    condHellingerDiv a κ η μ = ∞
       ↔ ¬ (∀ᵐ x ∂μ, Integrable (fun b ↦ ((∂κ x/∂η x) b).toReal ^ a) (η x))
         ∨ (1 ≤ a ∧ ¬ ∀ᵐ x ∂μ, (κ x) ≪ (η x))
         ∨ ¬ Integrable (fun x ↦ ∫ b, ((∂κ x/∂η x) b).toReal ^ a ∂η x) μ := by
-  rw [← not_not (a := _ = ⊤), ← ne_eq, condHellingerDiv_ne_top_iff_of_one_lt ha]
+  rw [← not_not (a := _ = ∞), ← ne_eq, condHellingerDiv_ne_top_iff_of_one_lt ha]
   have ha' : 1 ≤ a := ha.le
   tauto
 
 lemma condHellingerDiv_eq_top_iff_of_lt_one (ha : a < 1) [IsFiniteKernel κ] [IsFiniteKernel η] :
-    condHellingerDiv a κ η μ = ⊤
+    condHellingerDiv a κ η μ = ∞
       ↔ ¬ (∀ᵐ x ∂μ, Integrable (fun b ↦ hellingerFun a ((∂κ x/∂η x) b).toReal) (η x))
         ∨ ¬ Integrable (fun x ↦ (hellingerDiv a (κ x) (η x)).toReal) μ := by
   simp only [condHellingerDiv_eq_top_iff, not_eventually, ha.not_le, false_and, false_or]
 
 lemma condHellingerDiv_ne_top_iff_of_lt_one (ha : a < 1) [IsFiniteKernel κ] [IsFiniteKernel η] :
-    condHellingerDiv a κ η μ ≠ ⊤
+    condHellingerDiv a κ η μ ≠ ∞
       ↔ (∀ᵐ x ∂μ, Integrable (fun b ↦ hellingerFun a ((∂κ x/∂η x) b).toReal) (η x))
         ∧ Integrable (fun x ↦ (hellingerDiv a (κ x) (η x)).toReal) μ := by
   simp only [condHellingerDiv_ne_top_iff, ha.not_le, false_implies, true_and]
 
 lemma condHellingerDiv_eq_top_iff_of_lt_one' (ha_pos : 0 < a) (ha : a < 1)
     [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η] :
-    condHellingerDiv a κ η μ = ⊤
+    condHellingerDiv a κ η μ = ∞
       ↔ ¬ Integrable (fun x ↦ ∫ b, ((∂κ x/∂η x) b).toReal ^ a ∂η x) μ := by
   simp_rw [condHellingerDiv_eq_top_iff_of_lt_one ha,
     (Eventually.of_forall <| fun _ ↦ integrable_hellingerFun_rnDeriv_of_lt_one ha_pos.le ha),
@@ -372,12 +374,12 @@ lemma condHellingerDiv_eq_top_iff_of_lt_one' (ha_pos : 0 < a) (ha : a < 1)
 
 lemma condHellingerDiv_ne_top_iff_of_lt_one' (ha_pos : 0 < a) (ha : a < 1)
     [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η] :
-    condHellingerDiv a κ η μ ≠ ⊤ ↔ Integrable (fun x ↦ ∫ b, ((∂κ x/∂η x) b).toReal ^ a ∂η x) μ := by
+    condHellingerDiv a κ η μ ≠ ∞ ↔ Integrable (fun x ↦ ∫ b, ((∂κ x/∂η x) b).toReal ^ a ∂η x) μ := by
   rw [ne_eq, condHellingerDiv_eq_top_iff_of_lt_one' ha_pos ha, not_not]
 
 lemma condHellingerDiv_eq_integral_iff_ne_top (ha_pos : 0 < a) (ha_ne_one : a ≠ 1)
     [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η] :
-    condHellingerDiv a κ η μ ≠ ⊤
+    condHellingerDiv a κ η μ ≠ ∞
       ↔ condHellingerDiv a κ η μ = ∫ x, (hellingerDiv a (κ x) (η x)).toReal ∂μ := by
   refine ⟨fun h ↦ ?_, fun h ↦ h ▸ EReal.coe_ne_top _⟩
   rw [condHellingerDiv_ne_top_iff' ha_pos ha_ne_one] at h
@@ -506,18 +508,16 @@ lemma condHellingerDiv_eq_integral'_of_lt_one'' (ha_pos : 0 < a) (ha : a < 1)
 
 end CondHellingerEq
 
-lemma hellingerDiv_compProd_left [CountableOrCountablyGenerated α β] (ha_nonneg : 0 ≤ a)
+lemma hellingerDiv_compProd_left [CountableOrCountablyGenerated α β]
     (μ : Measure α) [IsFiniteMeasure μ]
     (κ η : Kernel α β) [IsFiniteKernel κ] [∀ x, NeZero (κ x)] [IsFiniteKernel η] :
     hellingerDiv a (μ ⊗ₘ κ) (μ ⊗ₘ η) = condHellingerDiv a κ η μ := by
-  rw [hellingerDiv, condHellingerDiv, fDiv_compProd_left _ _ _
-    (stronglyMeasurable_hellingerFun ha_nonneg) (convexOn_hellingerFun ha_nonneg)]
+  rw [hellingerDiv, condHellingerDiv, fDiv_compProd_left _ _ _]
 
 lemma hellingerDiv_comp_left_le [Nonempty α] [StandardBorelSpace α]
-    [CountableOrCountablyGenerated α β] (ha_pos : 0 < a) (μ : Measure α) [IsFiniteMeasure μ]
+    [CountableOrCountablyGenerated α β] (μ : Measure α) [IsFiniteMeasure μ]
     (κ η : Kernel α β) [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] :
     hellingerDiv a (κ ∘ₘ μ) (η ∘ₘ μ) ≤ condHellingerDiv a κ η μ :=
-  fDiv_comp_left_le μ κ η (stronglyMeasurable_hellingerFun ha_pos.le)
-    (convexOn_hellingerFun ha_pos.le) (continuous_hellingerFun ha_pos).continuousOn
+  fDiv_comp_left_le μ κ η
 
 end ProbabilityTheory

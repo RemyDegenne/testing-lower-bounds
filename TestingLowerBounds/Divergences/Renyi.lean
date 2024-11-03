@@ -62,29 +62,31 @@ We use ENNReal.log instead of Real.log, because it is monotone on `ℝ≥0∞`, 
 monotone only on `(0, ∞)` (`Real.log 0 = 0`). This allows us to transfer inequalities from the
 Hellinger divergence to the Rényi divergence. -/
 noncomputable def renyiDiv (a : ℝ) (μ ν : Measure α) : EReal :=
-  if a = 1 then kl μ ν
-  else (a - 1)⁻¹ * ENNReal.log ((↑(ν .univ) + (a - 1) * (hellingerDiv a μ ν)).toENNReal)
+  if a = 0 then - ENNReal.log (ν {x | 0 < (∂μ/∂ν) x})
+  else if a = 1 then kl μ ν
+  else (a - 1)⁻¹ * ENNReal.log (((1 - a) * (ν .univ : EReal) + a * (μ .univ)
+                                 + (a - 1) * (hellingerDiv a μ ν)).toENNReal)
 
 @[simp]
 lemma renyiDiv_zero (μ ν : Measure α) [SigmaFinite μ] [IsFiniteMeasure ν] :
-    renyiDiv 0 μ ν = - ENNReal.log (ν {x | 0 < (∂μ/∂ν) x}) := by
-  rw [renyiDiv, if_neg zero_ne_one]
-  simp only [zero_sub, ← neg_inv, inv_one, EReal.coe_neg, EReal.coe_one, EReal.coe_zero, neg_mul,
-    one_mul, ← sub_eq_add_neg, neg_inj]
-  congr
-  rw [hellingerDiv_zero'', sub_eq_add_neg, EReal.neg_sub, ← add_assoc, ← sub_eq_add_neg,
-    EReal.sub_self, zero_add, EReal.toENNReal_coe]
-    <;> simp only [ne_eq, EReal.coe_ennreal_eq_top_iff, EReal.coe_ennreal_ne_bot,measure_ne_top,
-      not_false_eq_true, or_self]
+    renyiDiv 0 μ ν = - ENNReal.log (ν {x | 0 < (∂μ/∂ν) x}) := if_pos rfl
+  -- rw [renyiDiv, if_neg zero_ne_one]
+  -- simp only [zero_sub, ← neg_inv, inv_one, EReal.coe_neg, EReal.coe_one, EReal.coe_zero, neg_mul,
+  --   one_mul, ← sub_eq_add_neg, neg_inj]
+  -- congr
+  -- rw [hellingerDiv_zero'', sub_eq_add_neg, EReal.neg_sub, ← add_assoc, ← sub_eq_add_neg,
+  --   EReal.sub_self, zero_add, EReal.toENNReal_coe]
+  --   <;> simp only [ne_eq, EReal.coe_ennreal_eq_top_iff, EReal.coe_ennreal_ne_bot,measure_ne_top,
+  --     not_false_eq_true, or_self]
 
 @[simp]
 lemma renyiDiv_one (μ ν : Measure α) : renyiDiv 1 μ ν = kl μ ν := by
-  rw [renyiDiv, if_pos rfl]
+  rw [renyiDiv, if_neg one_ne_zero, if_pos rfl]
 
-lemma renyiDiv_of_ne_one (ha_ne_one : a ≠ 1) (μ ν : Measure α) :
-    renyiDiv a μ ν
-      = (a - 1)⁻¹ * ENNReal.log ((↑(ν .univ) + (a - 1) * (hellingerDiv a μ ν)).toENNReal) := by
-  rw [renyiDiv, if_neg ha_ne_one]
+lemma renyiDiv_of_ne_one (ha_zero : a ≠ 0) (ha_ne_one : a ≠ 1) (μ ν : Measure α) :
+    renyiDiv a μ ν = (a - 1)⁻¹
+      * ENNReal.log (((ν .univ : EReal) + (a - 1) * (hellingerDiv a μ ν)).toENNReal) := by
+  rw [renyiDiv, if_neg ha_zero, if_neg ha_ne_one]
 
 @[simp]
 lemma renyiDiv_zero_measure_left (ν : Measure α) [IsFiniteMeasure ν] :
