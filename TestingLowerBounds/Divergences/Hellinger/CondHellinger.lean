@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import TestingLowerBounds.Divergences.KullbackLeibler.CondKL
-import TestingLowerBounds.Divergences.Hellinger
+import TestingLowerBounds.Divergences.Hellinger.Hellinger
 
 /-!
 # Conditional Hellinger divergence

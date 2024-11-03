@@ -11,6 +11,7 @@ import Mathlib.Probability.Notation
 import TestingLowerBounds.ForMathlib.LeftRightDeriv
 import TestingLowerBounds.ForMathlib.RnDeriv
 import TestingLowerBounds.Divergences.KullbackLeibler.KullbackLeibler
+import TestingLowerBounds.IntegrableFRNDeriv
 
 /-!
 # Hellinger divergence
@@ -28,6 +29,16 @@ import TestingLowerBounds.Divergences.KullbackLeibler.KullbackLeibler
 
 
 ## Implementation details
+
+How to define a `DivFunction` from a real function `f`:
+- prove that the function is convex, that `f 1 = 0` and `rightDeriv f 1 = 0`.
+  For the right derivative, consider proving that the derivative is 0, if it exists.
+- if applicable, prove that `f` is continuous at zero
+- find the limit of `f` at +∞
+- useful lemma: `f` is nonnegative
+- useful lemma: `0 ≤ ∫ x, f (μ.rnDeriv ν x) ∂ν`. Simplify the integral to get other inequalities.
+
+Then use `DivFunction.ofReal`.
 
 -/
 
@@ -145,6 +156,7 @@ def hellingerFun (a : ℝ) : ℝ → ℝ :=
   else if a = 1 then fun x ↦ x * log x + 1 - x
   else fun x ↦ (a - 1)⁻¹ * (x ^ a - 1 - a * (x - 1))
 
+@[simp]
 lemma hellingerFun_zero : hellingerFun 0 = fun x ↦ if x = 0 then 1 else 0 := by
   ext x
   simp [hellingerFun]
@@ -260,9 +272,13 @@ lemma rightDeriv_hellingerFun (a : ℝ) {x : ℝ} (hx : x ≠ 0) :
   rightDeriv_of_hasDerivAt (hasDerivAt_hellingerFun a hx)
 
 @[simp]
-lemma rightDeriv_hellingerFun_one {a : ℝ} :
+lemma rightDeriv_hellingerFun_one :
     rightDeriv (hellingerFun a) 1 = 0 := by
   simp [rightDeriv_hellingerFun]
+
+lemma hellingerFun_nonneg (ha : 0 ≤ a) {x : ℝ} (hx : 0 ≤ x) : 0 ≤ hellingerFun a x := by
+  refine ConvexOn.nonneg_of_todo ?_ hellingerFun_apply_one_eq_zero rightDeriv_hellingerFun_one hx
+  exact (convexOn_hellingerFun ha).subset (Set.Ioi_subset_Ici le_rfl) (convex_Ioi _)
 
 lemma tendsto_rightDeriv_hellingerFun_atTop_of_one_lt (ha : 1 < a) :
     Tendsto (rightDeriv (hellingerFun a)) atTop atTop := by
@@ -285,7 +301,8 @@ lemma tendsto_rightDeriv_hellingerFun_atTop_of_lt_one (ha : a < 1) :
   · simp only [ha_zero, sub_zero, inv_one, mul_one]
     have : rightDeriv (hellingerFun 0) =ᶠ[atTop] fun _ ↦ 0 := by
       filter_upwards [eventually_ne_atTop 0] with x hx
-      simp [rightDeriv_hellingerFun _ hx]
+      rw [rightDeriv_hellingerFun _ hx]
+      simp
     rw [tendsto_congr' this]
     exact tendsto_const_nhds
   · have : rightDeriv (hellingerFun a) =ᶠ[atTop] fun x ↦ (a - 1)⁻¹ * a * (x ^ (a - 1) - 1) := by
@@ -296,6 +313,8 @@ lemma tendsto_rightDeriv_hellingerFun_atTop_of_lt_one (ha : a < 1) :
     have h_eq : (fun x ↦ (a - 1)⁻¹ * a * (x ^ (a - 1) - 1))
         = (fun x ↦ a * (1 - x ^ (a - 1)) * (1 - a)⁻¹) := by
       ext x
+      rw [mul_assoc, mul_comm, mul_assoc, mul_assoc]
+      congr 1
       sorry
     rw [h_eq]
     refine Tendsto.mul_const _ ?_
@@ -308,8 +327,8 @@ lemma tendsto_rightDeriv_hellingerFun_atTop_of_lt_one (ha : a < 1) :
     rw [this]
     exact tendsto_rpow_neg_atTop (by linarith)
 
--- lemma derivAtTop_hellingerFun_of_one_lt (ha : 1 < a) : derivAtTop (hellingerFun a) = ⊤ :=
---   derivAtTop_of_tendsto_atTop <| tendsto_rightDeriv_hellingerFun_atTop_of_one_lt ha
+lemma derivAtTop_hellingerFun_of_one_lt (ha : 1 < a) : derivAtTop (hellingerFun a) = ⊤ :=
+   derivAtTop_of_tendsto_atTop <| tendsto_rightDeriv_hellingerFun_atTop_of_one_lt ha
 
 -- lemma derivAtTop_hellingerFun_of_one_le (ha : 1 ≤ a) :
 --     derivAtTop (hellingerFun a) = ⊤ := by
@@ -317,9 +336,15 @@ lemma tendsto_rightDeriv_hellingerFun_atTop_of_lt_one (ha : a < 1) :
 --   · simp only [hellingerFun, ha, ha_eq, one_ne_zero, ↓reduceIte, derivAtTop_mul_log]
 --   · exact derivAtTop_hellingerFun_of_one_lt <| lt_of_le_of_ne ha fun h ↦ ha_eq h.symm
 
--- lemma derivAtTop_hellingerFun_of_lt_one (ha : a < 1) :
---     derivAtTop (hellingerFun a) = 0 :=
---   derivAtTop_of_tendsto_nhds <| tendsto_rightDeriv_hellingerFun_atTop_of_lt_one ha
+lemma derivAtTop_hellingerFun_of_lt_one (ha : a < 1) :
+    derivAtTop (hellingerFun a) = (a * (1 - a)⁻¹) :=
+  derivAtTop_of_tendsto_nhds <| tendsto_rightDeriv_hellingerFun_atTop_of_lt_one ha
+
+lemma integrable_hellingerFun_one_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hμν : μ ≪ ν) :
+    Integrable (fun x ↦ hellingerFun 1 ((∂μ/∂ν) x).toReal) ν
+      ↔ Integrable (llr μ ν) μ := by
+  simp only [hellingerFun_one]
+  rw [integrable_mul_log_add_one_sub_iff hμν]
 
 lemma integrable_hellingerFun_iff_integrable_rpow (ha_one : a ≠ 1) [IsFiniteMeasure ν] :
     Integrable (fun x ↦ hellingerFun a ((∂μ/∂ν) x).toReal) ν
@@ -344,18 +369,88 @@ lemma integrable_hellingerFun_zero [IsFiniteMeasure ν] :
 lemma integrable_hellingerFun_rnDeriv_of_lt_one (ha_nonneg : 0 ≤ a) (ha : a < 1)
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     Integrable (fun x ↦ hellingerFun a ((∂μ/∂ν) x).toReal) ν := by
-  sorry
-  -- refine integrable_f_rnDeriv_of_derivAtTop_ne_top μ ν ?_ ?_ ?_
-  -- · exact stronglyMeasurable_hellingerFun ha_nonneg
-  -- · exact convexOn_hellingerFun ha_nonneg
-  -- · rw [derivAtTop_hellingerFun_of_lt_one ha]
-  --   exact EReal.zero_ne_top
+  refine integrable_f_rnDeriv_of_derivAtTop_ne_top μ ν ?_ ?_ ?_
+  · exact stronglyMeasurable_hellingerFun ha_nonneg
+  · exact convexOn_hellingerFun ha_nonneg
+  · rw [derivAtTop_hellingerFun_of_lt_one ha, ne_eq, EReal.mul_eq_top]
+    simp
 
 lemma integrable_rpow_rnDeriv_of_lt_one (ha_nonneg : 0 ≤ a) (ha : a < 1) [IsFiniteMeasure μ]
     [IsFiniteMeasure ν] :
     Integrable (fun x ↦ ((∂μ/∂ν) x).toReal ^ a) ν := by
   rw [← integrable_hellingerFun_iff_integrable_rpow ha.ne]
   exact integrable_hellingerFun_rnDeriv_of_lt_one ha_nonneg ha
+
+lemma integral_hellingerFun_of_pos_of_ne_one_of_integrable [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (ha_pos : 0 < a) (ha_ne : a ≠ 1) (h_int : Integrable (fun x ↦ (μ.rnDeriv ν x).toReal ^ a) ν) :
+    ∫ x, hellingerFun a (μ.rnDeriv ν x).toReal ∂ν
+     = (a - 1)⁻¹ * ∫ x, (μ.rnDeriv ν x).toReal ^ a ∂ν
+        + (ν .univ).toReal + (1 - a)⁻¹ * a * ∫ x, (μ.rnDeriv ν x).toReal ∂ν := by
+  calc ∫ x, hellingerFun a (μ.rnDeriv ν x).toReal ∂ν
+  _ = (a - 1)⁻¹ * ∫ x, ((μ.rnDeriv ν x).toReal ^ a - 1 - a * ((μ.rnDeriv ν x).toReal - 1)) ∂ν := by
+    rw [← integral_mul_left]
+    simp_rw [hellingerFun_of_ne_zero_of_ne_one ha_pos.ne' ha_ne]
+  _ = (a - 1)⁻¹ * ∫ x, ((μ.rnDeriv ν x).toReal ^ a + (a - 1) - a * (μ.rnDeriv ν x).toReal) ∂ν := by
+    congr with x
+    ring
+  _ = (a - 1)⁻¹ * ∫ x, (μ.rnDeriv ν x).toReal ^ a ∂ν
+      + (ν .univ).toReal + (1 - a)⁻¹ * a * ∫ x, (μ.rnDeriv ν x).toReal ∂ν := by
+    rw [integral_sub, integral_add, integral_const, smul_eq_mul, mul_comm _ (a - 1),
+      integral_mul_left, mul_sub, mul_add, ← mul_assoc, ← mul_assoc, inv_mul_cancel₀, one_mul,
+      sub_eq_add_neg]
+    · congr
+      rw [mul_assoc, ← neg_mul, neg_inv, neg_sub, ← mul_assoc]
+    · rwa [sub_ne_zero]
+    · exact h_int
+    · exact integrable_const _
+    · exact h_int.add (integrable_const _)
+    · exact Measure.integrable_toReal_rnDeriv.const_mul _
+
+lemma integral_hellingerFun_of_pos_of_ne_one_of_integrable_of_ac
+    [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (ha_pos : 0 < a) (ha_ne : a ≠ 1) (h_int : Integrable (fun x ↦ (μ.rnDeriv ν x).toReal ^ a) ν)
+    (hμν : μ ≪ ν) :
+    ∫ x, hellingerFun a (μ.rnDeriv ν x).toReal ∂ν
+     = (a - 1)⁻¹ * ∫ x, (μ.rnDeriv ν x).toReal ^ a ∂ν
+        + (ν .univ).toReal + (1 - a)⁻¹ * a * (μ .univ).toReal := by
+  rw [integral_hellingerFun_of_pos_of_ne_one_of_integrable ha_pos ha_ne h_int,
+    Measure.integral_toReal_rnDeriv hμν]
+
+lemma integral_hellingerFun_of_pos_of_lt_one [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (ha_pos : 0 < a) (ha_lt : a < 1) :
+    ∫ x, hellingerFun a (μ.rnDeriv ν x).toReal ∂ν
+     = (a - 1)⁻¹ * ∫ x, (μ.rnDeriv ν x).toReal ^ a ∂ν
+        + (ν .univ).toReal + (1 - a)⁻¹ * a * ∫ x, (μ.rnDeriv ν x).toReal ∂ν :=
+  integral_hellingerFun_of_pos_of_ne_one_of_integrable ha_pos ha_lt.ne
+    (integrable_rpow_rnDeriv_of_lt_one ha_pos.le ha_lt)
+
+lemma integral_hellingerFun_of_pos_of_lt_one_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (ha_pos : 0 < a) (ha_lt : a < 1) (hμν : μ ≪ ν) :
+    ∫ x, hellingerFun a (μ.rnDeriv ν x).toReal ∂ν
+     = (a - 1)⁻¹ * ∫ x, (μ.rnDeriv ν x).toReal ^ a ∂ν
+        + (ν .univ).toReal + (1 - a)⁻¹ * a * (μ .univ).toReal := by
+  rw [integral_hellingerFun_of_pos_of_lt_one ha_pos ha_lt, Measure.integral_toReal_rnDeriv hμν]
+
+-- todo name
+-- rewriting of `0 ≤ ∫ x, hellingerFun a (μ.rnDeriv ν x).toReal ∂ν`.
+lemma integral_hellingerFun_rnDeriv_nonneg [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (ha_pos : 0 < a) (ha_lt : a < 1) :
+    0 ≤ (a - 1)⁻¹ * ∫ x, (μ.rnDeriv ν x).toReal ^ a ∂ν
+        + (ν .univ).toReal + (1 - a)⁻¹ * a * ∫ x, (μ.rnDeriv ν x).toReal ∂ν := by
+  calc 0
+  _ ≤ ∫ x, hellingerFun a (μ.rnDeriv ν x).toReal ∂ν := by
+    refine integral_nonneg fun x ↦ hellingerFun_nonneg ha_pos.le ENNReal.toReal_nonneg
+  _ = (a - 1)⁻¹ * ∫ x, (μ.rnDeriv ν x).toReal ^ a ∂ν
+      + (ν .univ).toReal + (1 - a)⁻¹ * a * ∫ x, (μ.rnDeriv ν x).toReal ∂ν :=
+    integral_hellingerFun_of_pos_of_lt_one ha_pos ha_lt
+
+-- todo name
+lemma integral_hellingerFun_rnDeriv_nonneg_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (ha_pos : 0 < a) (ha_lt : a < 1) (hμν : μ ≪ ν) :
+    0 ≤ (a - 1)⁻¹ * ∫ x, (μ.rnDeriv ν x).toReal ^ a ∂ν
+        + (ν .univ).toReal + (1 - a)⁻¹ * a * (μ .univ).toReal := by
+  refine (integral_hellingerFun_rnDeriv_nonneg ha_pos ha_lt (μ := μ) (ν := ν)).trans_eq ?_
+  rw [Measure.integral_toReal_rnDeriv hμν]
 
 end HellingerFun
 

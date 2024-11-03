@@ -298,7 +298,9 @@ variable {f : ℝ → ℝ}
 lemma _root_.ConvexOn.nonneg_of_todo {f : ℝ → ℝ} (hf : ConvexOn ℝ (Ioi 0) f)
     (hf_one : f 1 = 0) (hf_deriv : rightDeriv f 1 = 0) {x : ℝ} (hx : 0 ≤ x) :
     0 ≤ f x := by
-  sorry
+  calc 0
+  _ = rightDeriv f 1 * x + (f 1 - rightDeriv f 1 * 1) := by simp [hf_one, hf_deriv]
+  _ ≤ f x := hf.affine_le_of_mem_interior sorry sorry
 
 /-- Build a `DivFunction` from a function `f : ℝ → ℝ` which is convex on `Ioi 0` and satisfies
 `f 1 = 0` and `rightDeriv f 1 = 0`. -/
@@ -768,6 +770,40 @@ lemma integrable_realFun_rnDeriv [SigmaFinite μ] (h_int : ∫⁻ x, f (μ.rnDer
     filter_upwards [μ.rnDeriv_lt_top ν] with x hx
     rw [ENNReal.ofReal_toReal hx.ne]
 
+lemma lintegral_eq_top_of_not_integrable_realFun [SigmaFinite μ]
+    (h_int : ¬ Integrable (fun x ↦ f.realFun (μ.rnDeriv ν x).toReal) ν) :
+    ∫⁻ x, f (μ.rnDeriv ν x) ∂ν = ∞ := by
+  by_contra h
+  exact h_int (integrable_realFun_rnDeriv h)
+
+lemma lintegral_ofReal_eq_top_of_not_integrable [SigmaFinite μ] [IsFiniteMeasure ν]
+    {f : ℝ → ℝ}  {hf : ConvexOn ℝ (Ioi 0) f} {hf_one : f 1 = 0} {hf_deriv : rightDeriv f 1 = 0}
+    (h_int : ¬ Integrable (fun x ↦ f (μ.rnDeriv ν x).toReal) ν) :
+    ∫⁻ x, DivFunction.ofReal f hf hf_one hf_deriv (μ.rnDeriv ν x) ∂ν = ∞ := by
+  refine lintegral_eq_top_of_not_integrable_realFun ?_
+  suffices ¬ IntegrableOn
+      (fun x ↦ (DivFunction.ofReal f hf hf_one hf_deriv).realFun (μ.rnDeriv ν x).toReal)
+      {x | μ.rnDeriv ν x ≠ 0} ν from
+    fun h ↦ this h.integrableOn
+  rw [← integrableOn_univ] at h_int
+  have : (univ : Set α) = {x | μ.rnDeriv ν x ≠ 0} ∪ {x | μ.rnDeriv ν x = 0} :=
+    (compl_union_self _).symm
+  rw [this, integrableOn_union] at h_int
+  have h_int_zero : IntegrableOn (fun x ↦ f (μ.rnDeriv ν x).toReal) {x | μ.rnDeriv ν x = 0} ν := by
+    refine (integrableOn_congr_fun ?_ ?_).mpr
+      ((integrableOn_const (C := f 0)).mpr (.inr (measure_lt_top _ _)))
+    · intro x hx
+      simp only [mem_setOf_eq] at hx
+      simp [hx]
+    · exact μ.measurable_rnDeriv ν (measurableSet_singleton 0)
+  simp [h_int_zero] at h_int
+  convert h_int using 1
+  refine integrableOn_congr_fun_ae ((ae_restrict_iff' ?_).mpr ?_)
+  · exact (μ.measurable_rnDeriv ν (measurableSet_singleton 0)).compl
+  filter_upwards [μ.rnDeriv_ne_top ν] with x hx_top hx_zero
+  rw [DivFunction.realFun_ofReal_apply]
+  exact ENNReal.toReal_pos hx_zero hx_top
+
 lemma DivFunction.lintegral_ofReal' [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν)
     {f : ℝ → ℝ}  {hf : ConvexOn ℝ (Ioi 0) f}
     {hf_one : f 1 = 0} {hf_deriv : rightDeriv f 1 = 0}
@@ -816,7 +852,7 @@ lemma DivFunction.lintegral_ofReal [SigmaFinite μ] [IsFiniteMeasure ν] (hμν 
   DivFunction.lintegral_ofReal' hμν (measure_ne_top _ _)
 
 lemma DivFunction.lintegral_ofReal_of_continuous [SigmaFinite μ] [SigmaFinite ν]
-    (hμν : μ ≪ ν) {f : ℝ → ℝ}  {hf : ConvexOn ℝ (Ioi 0) f}
+    {f : ℝ → ℝ}  {hf : ConvexOn ℝ (Ioi 0) f}
     {hf_one : f 1 = 0} {hf_deriv : rightDeriv f 1 = 0}
     (hf_cont : ContinuousWithinAt f (Ioi 0) 0) :
     ∫⁻ x, DivFunction.ofReal f hf hf_one hf_deriv (μ.rnDeriv ν x) ∂ν
@@ -846,13 +882,13 @@ lemma DivFunction.lintegral_ofReal_of_continuous [SigmaFinite μ] [SigmaFinite �
   rw [h1, h2, h3]
 
 lemma DivFunction.lintegral_ofReal_eq_integral_of_continuous [SigmaFinite μ] [SigmaFinite ν]
-    (hμν : μ ≪ ν) {f : ℝ → ℝ}  {hf : ConvexOn ℝ (Ioi 0) f}
+    {f : ℝ → ℝ}  {hf : ConvexOn ℝ (Ioi 0) f}
     {hf_one : f 1 = 0} {hf_deriv : rightDeriv f 1 = 0}
     (hf_cont : ContinuousWithinAt f (Ioi 0) 0)
     (h_int : Integrable (fun x ↦ f (μ.rnDeriv ν x).toReal) ν) :
     ∫⁻ x, DivFunction.ofReal f hf hf_one hf_deriv (μ.rnDeriv ν x) ∂ν
       = ENNReal.ofReal (∫ x, f (μ.rnDeriv ν x).toReal ∂ν) := by
-  rw [DivFunction.lintegral_ofReal_of_continuous hμν hf_cont,
+  rw [DivFunction.lintegral_ofReal_of_continuous hf_cont,
     ofReal_integral_eq_lintegral_ofReal h_int]
   refine ae_of_all _ fun x ↦ ?_
   suffices ∀ x, 0 ≤ x → 0 ≤ f x from this _ ENNReal.toReal_nonneg

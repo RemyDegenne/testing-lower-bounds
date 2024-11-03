@@ -86,6 +86,20 @@ lemma mul_log_add_one_sub_nonneg {x : ℝ} (hx : 0 ≤ x) : 0 ≤ x * log x + 1 
 lemma mul_log_add_one_sub_eq_zero_iff {x : ℝ} (hx : 0 ≤ x) : x * log x + 1 - x = 0 ↔ x = 1 := by
   sorry
 
+lemma integrable_mul_log_add_one_sub_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (hμν : μ ≪ ν) :
+    Integrable (fun x ↦ ((∂μ/∂ν) x).toReal * log ((∂μ/∂ν) x).toReal + 1 - ((∂μ/∂ν) x).toReal) ν
+      ↔ Integrable (llr μ ν) μ := by
+  suffices
+      Integrable (fun x ↦ ((∂μ/∂ν) x).toReal * log ((∂μ/∂ν) x).toReal + (1 - ((∂μ/∂ν) x).toReal)) ν
+      ↔ Integrable (llr μ ν) μ by
+    convert this using 3 with x
+    rw [add_sub_assoc]
+  rw [integrable_add_iff_integrable_left']
+  · rw [integrable_rnDeriv_mul_log_iff hμν]
+  · refine (integrable_const _).sub ?_
+    exact Measure.integrable_toReal_rnDeriv
+
 end MulLog
 
 section KLDivFun
