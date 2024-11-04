@@ -13,6 +13,7 @@ We will be interested in two performance metrics:
 \end{itemize}
 The idea is that a good estimator stops quickly with low risk.
 
+
 \begin{lemma}
   \label{lem:llr_filtration_nat}
   %\lean{}
@@ -26,6 +27,7 @@ The idea is that a good estimator stops quickly with low risk.
 \uses{lem:rnDeriv_map_eq_rnDeriv_trim}
 By Lemma~\ref{lem:rnDeriv_map_eq_rnDeriv_trim}, $\frac{d \mu^{\otimes \mathbb{N}}_{| \mathcal F_n}}{d \nu^{\otimes \mathbb{N}}_{| \mathcal F_n}}(x) = \frac{d \pi_{[n]*}\mu^{\otimes \mathbb{N}}}{d \pi_{[n]*}\nu^{\otimes \mathbb{N}}}(\pi_{[n]}(x))$ a.s. . The pushforwards simplify: $\pi_{[n]*}\nu^{\otimes \mathbb{N}} = \nu^{\otimes n}$.
 \end{proof}
+
 
 \begin{lemma}
   \label{lem:llr_stopping_time}
@@ -50,18 +52,35 @@ TODO
 
 \end{proof}
 
+
+\begin{lemma}
+  \label{lem:wald_equation}
+  %\lean{}
+  \notready
+  \uses{}
+  Let $\mu \in \mathcal P(\mathcal X)$ and let $(X_n)_{n \in \mathbb{N}}$ be $\mu$-integrable real random variables. Let $\tau$ be a random variable with value in $\mathbb{N}$.
+  Suppose that $\mu[X_n \mathbb{I}\{\tau \ge n\}] = \mu[X_n]\mu\{\tau \ge n\}$ for all $n \in \mathbb{N}$ and that $\sum_{n=1}^\infty \mu[|X_n| \mathbb{I}\{\tau \ge n\}] < \infty$. Then the sums $S_\tau = \sum_{n=1}^\tau X_n$ and $T_\tau = \sum_{n=1}^\tau \mu[X_n]$ are integrable and $\mu[S_\tau] = \mu[T_\tau]$. 
+\end{lemma}
+
+\begin{proof}%\leanok
+\uses{}
+
+\end{proof}
+
+
 \begin{theorem}
   \label{thm:kl_stopping_time}
   %\lean{}
   %\leanok
   \uses{def:KL}
-  For $\mu, \nu \in \mathcal P(\mathcal X)$, $\KL(\mu_\tau, \nu_\tau) = \mu[\tau] \KL(\mu, \nu)$.
+  For $\mu, \nu \in \mathcal P(\mathcal X)$, if $\tau$ has finite expectation then $\KL(\mu_\tau, \nu_\tau) = \mu[\tau] \KL(\mu, \nu)$.
 \end{theorem}
 
 \begin{proof}
-\uses{lem:llr_stopping_time}
+\uses{lem:llr_stopping_time,lem:wald_equation}
 TODO: need Wald's first identity.
 \end{proof}
+
 
 \begin{lemma}
   \label{lem:renyiMeasure_stopping_time}
@@ -74,6 +93,7 @@ TODO: need Wald's first identity.
 \begin{proof}
 This is a guess, I did not check it. TODO
 \end{proof}
+
 
 \begin{theorem}
   \label{thm:renyi_stopping_time}
