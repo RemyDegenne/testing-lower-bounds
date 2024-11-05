@@ -420,83 +420,83 @@ lemma continuousWithinAt_rightDeriv (f : DivFunction) {x : ℝ}
     ContinuousWithinAt (rightDeriv f.realFun) (Ici x) x := by
   sorry
 
--- -- the `rightLim` matters only at `f.xmin`: `rightDeriv` could be 0 because it has no limit in `ℝ`,
--- -- but in that case it should be `⊥`.
--- protected noncomputable def rightDerivStieltjes (f : DivFunction) : ERealStieltjes where
---   toFun := fun x ↦
---     if x < f.xmin.toReal then ⊥
---     else if f.xmax ≤ ENNReal.ofReal x then ⊤
---     else Function.rightLim (fun y ↦ (rightDeriv f.realFun y : EReal)) x
---   mono' x y hxy := sorry
---   right_continuous' x := sorry
+-- the `rightLim` matters only at `f.xmin`: `rightDeriv` could be 0 because it has no limit in `ℝ`,
+-- but in that case it should be `⊥`.
+protected noncomputable def rightDerivStieltjes (f : DivFunction) : ERealStieltjes where
+  toFun := fun x ↦
+    if x < f.xmin.toReal then ⊥
+    else if f.xmax ≤ ENNReal.ofReal x then ⊤
+    else Function.rightLim (fun y ↦ (rightDeriv f.realFun y : EReal)) x
+  mono' x y hxy := sorry
+  right_continuous' x := sorry
 
--- lemma rightDerivStieltjes_of_lt_xmin {x : ℝ} (hx : x < f.xmin.toReal) :
---     f.rightDerivStieltjes x = ⊥ := if_pos hx
+lemma rightDerivStieltjes_of_lt_xmin {x : ℝ} (hx : x < f.xmin.toReal) :
+    f.rightDerivStieltjes x = ⊥ := if_pos hx
 
--- lemma rightDerivStieltjes_of_ge_xmax {x : ℝ} (hx : f.xmax ≤ ENNReal.ofReal x) :
---     f.rightDerivStieltjes x = ⊤ := by
---   simp only [DivFunction.rightDerivStieltjes]
---   rw [if_neg, if_pos hx]
---   rw [not_lt]
---   refine ENNReal.toReal_le_of_le_ofReal ?_ (xmin_lt_xmax.le.trans hx)
---   have hx' : 0 < ENNReal.ofReal x := xmax_pos.trans_le hx
---   simp only [ENNReal.ofReal_pos] at hx'
---   exact hx'.le
+lemma rightDerivStieltjes_of_ge_xmax {x : ℝ} (hx : f.xmax ≤ ENNReal.ofReal x) :
+    f.rightDerivStieltjes x = ⊤ := by
+  simp only [DivFunction.rightDerivStieltjes]
+  rw [if_neg, if_pos hx]
+  rw [not_lt]
+  refine ENNReal.toReal_le_of_le_ofReal ?_ (xmin_lt_xmax.le.trans hx)
+  have hx' : 0 < ENNReal.ofReal x := xmax_pos.trans_le hx
+  simp only [ENNReal.ofReal_pos] at hx'
+  exact hx'.le
 
--- lemma rightDerivStieltjes_of_neg {x : ℝ} (hx : x < 0) :
---     f.rightDerivStieltjes x = ⊥ :=
---   rightDerivStieltjes_of_lt_xmin (hx.trans_le ENNReal.toReal_nonneg)
+lemma rightDerivStieltjes_of_neg {x : ℝ} (hx : x < 0) :
+    f.rightDerivStieltjes x = ⊥ :=
+  rightDerivStieltjes_of_lt_xmin (hx.trans_le ENNReal.toReal_nonneg)
 
--- lemma rightDerivStieltjes_eq_bot_iff {x : ℝ} :
---     f.rightDerivStieltjes x = ⊥ ↔ x < f.xmin.toReal := by
---   refine ⟨fun h ↦ ?_, fun h ↦ rightDerivStieltjes_of_lt_xmin h⟩
---   sorry
+lemma rightDerivStieltjes_eq_bot_iff {x : ℝ} :
+    f.rightDerivStieltjes x = ⊥ ↔ x < f.xmin.toReal := by
+  refine ⟨fun h ↦ ?_, fun h ↦ rightDerivStieltjes_of_lt_xmin h⟩
+  sorry
 
--- lemma rightDerivStieltjes_eq_top_iff {x : ℝ} :
---     f.rightDerivStieltjes x = ⊤ ↔ f.xmax ≤ ENNReal.ofReal x := by
---   refine ⟨fun h ↦ ?_, fun h ↦ rightDerivStieltjes_of_ge_xmax h⟩
---   sorry
+lemma rightDerivStieltjes_eq_top_iff {x : ℝ} :
+    f.rightDerivStieltjes x = ⊤ ↔ f.xmax ≤ ENNReal.ofReal x := by
+  refine ⟨fun h ↦ ?_, fun h ↦ rightDerivStieltjes_of_ge_xmax h⟩
+  sorry
 
--- lemma rightDerivStieltjes_of_ne_top (hf : ∀ x, 0 < x → f x ≠ ∞) (x : ℝ) :
---     f.rightDerivStieltjes x = Function.rightLim (fun y ↦ (rightDeriv f.realFun y : EReal)) x := by
---   sorry
+lemma rightDerivStieltjes_of_ne_top (hf : ∀ x, 0 < x → f x ≠ ∞) (x : ℝ) :
+    f.rightDerivStieltjes x = Function.rightLim (fun y ↦ (rightDeriv f.realFun y : EReal)) x := by
+  sorry
 
--- lemma rightDerivStieltjes_ne_top (hf : ∀ x, 0 < x → f x ≠ ∞) (x : ℝ) :
---     f.rightDerivStieltjes x ≠ ⊤ := by
---   sorry
+lemma rightDerivStieltjes_ne_top (hf : ∀ x, 0 < x → f x ≠ ∞) (x : ℝ) :
+    f.rightDerivStieltjes x ≠ ⊤ := by
+  sorry
 
 @[simp]
 lemma toReal_max_xmin : (max f.xmin g.xmin).toReal = max f.xmin.toReal g.xmin.toReal := by
   sorry
 
--- lemma rightDerivStieltjes_add :
---     (f + g).rightDerivStieltjes = f.rightDerivStieltjes + g.rightDerivStieltjes := by
---   ext x
---   by_cases hf_top : f.rightDerivStieltjes x = ⊤
---   · rw [ERealStieltjes.add_apply_of_eq_top_left hf_top]
---     simp only [rightDerivStieltjes_eq_top_iff, xmax_add, min_le_iff]
---     left
---     rwa [rightDerivStieltjes_eq_top_iff] at hf_top
---   by_cases hg_top : g.rightDerivStieltjes x = ⊤
---   · rw [ERealStieltjes.add_apply_of_eq_top_right hg_top]
---     simp only [rightDerivStieltjes_eq_top_iff, xmax_add, min_le_iff]
---     right
---     rwa [rightDerivStieltjes_eq_top_iff] at hg_top
---   rw [ERealStieltjes.add_apply_of_ne_top hf_top hg_top]
---   have hx_lt_f : ENNReal.ofReal x < f.xmax := by
---     rw [rightDerivStieltjes_eq_top_iff] at hf_top
---     simpa using hf_top
---   have hx_lt_g : ENNReal.ofReal x < g.xmax := by
---     rw [rightDerivStieltjes_eq_top_iff] at hg_top
---     simpa using hg_top
---   simp only [DivFunction.rightDerivStieltjes, xmin_add, toReal_max_xmin, lt_max_iff, xmax_add,
---     min_le_iff, not_le.mpr hx_lt_f, not_le.mpr hx_lt_g, or_self, ↓reduceIte]
---   by_cases hx_fmin : x < f.xmin.toReal
---   · simp [hx_fmin]
---   by_cases hx_gmin : x < g.xmin.toReal
---   · simp [hx_gmin]
---   simp only [hx_fmin, hx_gmin, or_self, ↓reduceIte]
---   sorry
+lemma rightDerivStieltjes_add :
+    (f + g).rightDerivStieltjes = f.rightDerivStieltjes + g.rightDerivStieltjes := by
+  ext x
+  by_cases hf_top : f.rightDerivStieltjes x = ⊤
+  · rw [ERealStieltjes.add_apply_of_eq_top_left hf_top]
+    simp only [rightDerivStieltjes_eq_top_iff, xmax_add, min_le_iff]
+    left
+    rwa [rightDerivStieltjes_eq_top_iff] at hf_top
+  by_cases hg_top : g.rightDerivStieltjes x = ⊤
+  · rw [ERealStieltjes.add_apply_of_eq_top_right hg_top]
+    simp only [rightDerivStieltjes_eq_top_iff, xmax_add, min_le_iff]
+    right
+    rwa [rightDerivStieltjes_eq_top_iff] at hg_top
+  rw [ERealStieltjes.add_apply_of_ne_top hf_top hg_top]
+  have hx_lt_f : ENNReal.ofReal x < f.xmax := by
+    rw [rightDerivStieltjes_eq_top_iff] at hf_top
+    simpa using hf_top
+  have hx_lt_g : ENNReal.ofReal x < g.xmax := by
+    rw [rightDerivStieltjes_eq_top_iff] at hg_top
+    simpa using hg_top
+  simp only [DivFunction.rightDerivStieltjes, xmin_add, toReal_max_xmin, lt_max_iff, xmax_add,
+    min_le_iff, not_le.mpr hx_lt_f, not_le.mpr hx_lt_g, or_self, ↓reduceIte]
+  by_cases hx_fmin : x < f.xmin.toReal
+  · simp [hx_fmin]
+  by_cases hx_gmin : x < g.xmin.toReal
+  · simp [hx_gmin]
+  simp only [hx_fmin, hx_gmin, or_self, ↓reduceIte]
+  sorry
 
 end RightDeriv
 

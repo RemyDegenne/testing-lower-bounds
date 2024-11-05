@@ -1088,6 +1088,9 @@ lemma isLocallyFiniteMeasure (hf : ∀ x, f x ≠ ⊥ ∧ f x ≠ ⊤) :
 
 lemma EReal.toENNReal_toEReal (x : ℝ) : EReal.toENNReal x = ENNReal.ofReal x := rfl
 
+-- this is not enough. We need to remove hf and hg and deal with those issues properly.
+-- The measure is then not locally finite because of the possible infinite diracs at xmin and xmax,
+-- but we can cut the measure into several pieces to isolate the difficulties.
 lemma measure_add (f g : ERealStieltjes) (hf : ∀ x, f x ≠ ⊥ ∧ f x ≠ ⊤)
     (hg : ∀ x, g x ≠ ⊥ ∧ g x ≠ ⊤) :
     (f + g).measure = f.measure + g.measure := by
