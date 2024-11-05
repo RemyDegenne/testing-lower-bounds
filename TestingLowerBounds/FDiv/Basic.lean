@@ -5,7 +5,7 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import Mathlib.Analysis.Convex.Integral
 import Mathlib.Probability.Notation
-import TestingLowerBounds.FDiv.DivFunction
+import TestingLowerBounds.FDiv.DivFunction.OfReal
 import TestingLowerBounds.ForMathlib.RadonNikodym
 
 /-!

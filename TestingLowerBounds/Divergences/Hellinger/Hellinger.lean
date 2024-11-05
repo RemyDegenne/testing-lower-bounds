@@ -207,7 +207,7 @@ lemma lintegral_hellingerDivFun_eq_top_of_not_integrable [IsFiniteMeasure μ] [I
     ∫⁻ x, hellingerDivFun a ((∂μ/∂ν) x) ∂ν = ∞ := by
   rw [← integrable_hellingerFun_iff_integrable_rpow ha_one] at h
   simp [hellingerDivFun, (not_le.mpr ha_pos), ha_one]
-  exact lintegral_ofReal_eq_top_of_not_integrable h
+  exact DivFunction.lintegral_ofReal_eq_top_of_not_integrable h
 
 lemma hellingerDiv_of_not_integrable [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (ha : 0 ≤ a)
@@ -236,7 +236,7 @@ lemma hellingerDiv_of_not_integrable [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     rwa [ha_one, integrable_hellingerFun_one_iff hμν] at h
   refine fDiv_of_lintegral_eq_top ?_
   simp [hellingerDivFun, (not_le.mpr ha_pos), ha_one]
-  exact lintegral_ofReal_eq_top_of_not_integrable h
+  exact DivFunction.lintegral_ofReal_eq_top_of_not_integrable h
 
 lemma hellingerDiv_of_one_lt_not_ac (ha : 1 ≤ a) (h_ac : ¬ μ ≪ ν)
     [SigmaFinite μ] [SigmaFinite ν] :

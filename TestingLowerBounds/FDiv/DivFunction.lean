@@ -68,6 +68,9 @@ lemma ENNReal.toReal_Ioo_top {x : ℝ≥0∞} :
     ENNReal.toReal '' (Ioo x ∞) = Ioi x.toReal := by
   sorry
 
+lemma leftDeriv_congr {f g : ℝ → ℝ} {x : ℝ} (h : f =ᶠ[𝓝[<] x] g) (hx : f x = g x) :
+    leftDeriv f x = leftDeriv g x := h.derivWithin_eq hx
+
 lemma rightDeriv_congr {f g : ℝ → ℝ} {x : ℝ} (h : f =ᶠ[𝓝[>] x] g) (hx : f x = g x) :
     rightDeriv f x = rightDeriv g x := h.derivWithin_eq hx
 
@@ -78,7 +81,8 @@ variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {
 structure DivFunction where
   toFun : ℝ≥0∞ → ℝ≥0∞
   one : toFun 1 = 0
-  rightDerivOne : rightDeriv (fun x : ℝ ↦ (toFun (ENNReal.ofReal x)).toReal) 1 = 0
+  leftDerivOne : leftDeriv (fun x : ℝ ↦ (toFun (ENNReal.ofReal x)).toReal) 1 ≤ 0
+  rightDerivOne : 0 ≤ rightDeriv (fun x : ℝ ↦ (toFun (ENNReal.ofReal x)).toReal) 1
   convexOn' : ConvexOn ℝ≥0 univ toFun
   -- the continuity everywhere but 0 and ∞ is implied by the convexity
   continuous' : Continuous toFun
@@ -108,7 +112,9 @@ lemma measurable : Measurable f := f.continuous.measurable
 noncomputable
 def realFun (f : DivFunction) : ℝ → ℝ := (fun x : ℝ ↦ (f (ENNReal.ofReal x)).toReal)
 
-@[simp] lemma rightDeriv_one : rightDeriv f.realFun 1 = 0 := f.rightDerivOne
+@[simp] lemma leftDeriv_one_nonpos : leftDeriv f.realFun 1 ≤ 0 := f.leftDerivOne
+
+@[simp] lemma rightDeriv_one_nonneg : 0 ≤ rightDeriv f.realFun 1 := f.rightDerivOne
 
 end Def
 
@@ -298,132 +304,6 @@ lemma eq_zero_iff {a b : ℝ} (ha : a < 1) (hb : 1 < b)
 
 end RealFun
 
-section OfConvexOn
-variable {f : ℝ → ℝ}
-
-lemma _root_.ConvexOn.nonneg_of_todo {f : ℝ → ℝ} (hf : ConvexOn ℝ (Ioi 0) f)
-    (hf_one : f 1 = 0) (hf_deriv : rightDeriv f 1 = 0) {x : ℝ} (hx : 0 ≤ x) :
-    0 ≤ f x := by
-  calc 0
-  _ = rightDeriv f 1 * x + (f 1 - rightDeriv f 1 * 1) := by simp [hf_one, hf_deriv]
-  _ ≤ f x := hf.affine_le_of_mem_interior sorry sorry
-
-/-- Build a `DivFunction` from a function `f : ℝ → ℝ` which is convex on `Ioi 0` and satisfies
-`f 1 = 0` and `rightDeriv f 1 = 0`. -/
-noncomputable
-def ofReal (f : ℝ → ℝ) (hf : ConvexOn ℝ (Ioi 0) f)
-    (hf_one : f 1 = 0) (hf_deriv : rightDeriv f 1 = 0) : DivFunction where
-  toFun x :=
-    -- give values at 0 and ∞ to ensure continuity
-    if x = 0 then Function.rightLim (fun x ↦ ENNReal.ofReal (f x)) 0
-    else if x = ∞ then limsup (fun x ↦ ENNReal.ofReal (f x)) atTop
-    else ENNReal.ofReal (f x.toReal)
-  one := by simp [hf_one]
-  rightDerivOne := by
-    simp only [ENNReal.ofReal_eq_zero, ENNReal.ofReal_ne_top, ↓reduceIte]
-    have : rightDeriv (fun x ↦
-          (if x ≤ 0 then Function.rightLim (fun x ↦ ENNReal.ofReal (f x)) 0
-            else ENNReal.ofReal (f (ENNReal.ofReal x).toReal)).toReal) 1
-        = rightDeriv f 1 := by
-      refine rightDeriv_congr ?_ ?_
-      · sorry
-      · simp [not_le.mpr zero_lt_one, hf_one]
-    rwa [this]
-  convexOn' := sorry
-  continuous' := sorry
-
-@[simp]
-lemma ofReal_apply_zero {hf : ConvexOn ℝ (Ioi 0) f}
-    {hf_one : f 1 = 0} {hf_deriv : rightDeriv f 1 = 0} :
-    ofReal f hf hf_one hf_deriv 0 = Function.rightLim (fun x ↦ ENNReal.ofReal (f x)) 0 := by
-  simp [ofReal]
-
-lemma ofReal_apply_zero_of_continuousWithinAt {hf : ConvexOn ℝ (Ioi 0) f}
-    {hf_one : f 1 = 0} {hf_deriv : rightDeriv f 1 = 0}
-    (hf_cont : ContinuousWithinAt f (Ioi 0) 0) :
-    ofReal f hf hf_one hf_deriv 0 = ENNReal.ofReal (f 0) := by
-  simp only [ofReal_apply_zero]
-  refine rightLim_eq_of_tendsto NeBot.ne' ?_
-  refine ContinuousWithinAt.tendsto ?_
-  exact (ENNReal.continuous_ofReal.tendsto _).comp hf_cont.tendsto
-
-@[simp]
-lemma ofReal_apply_top {hf : ConvexOn ℝ (Ioi 0) f}
-    {hf_one : f 1 = 0} {hf_deriv : rightDeriv f 1 = 0} :
-    ofReal f hf hf_one hf_deriv ∞ = limsup (fun x ↦ ENNReal.ofReal (f x)) atTop := by
-  simp [ofReal]
-
-lemma ofReal_apply {hf : ConvexOn ℝ (Ioi 0) f}
-    {hf_one : f 1 = 0} {hf_deriv : rightDeriv f 1 = 0}
-    {x : ℝ≥0∞} (hx_zero : x ≠ 0) (hx_top : x ≠ ∞) :
-    ofReal f hf hf_one hf_deriv x = ENNReal.ofReal (f x.toReal) := by
-  simp [ofReal, hx_zero, hx_top]
-
-lemma realFun_ofReal_apply {hf : ConvexOn ℝ (Ioi 0) f}
-    {hf_one : f 1 = 0} {hf_deriv : rightDeriv f 1 = 0}
-    {x : ℝ} (hx : 0 < x) :
-    (ofReal f hf hf_one hf_deriv).realFun x = f x := by
-  rw [realFun, ofReal_apply, ENNReal.toReal_ofReal, ENNReal.toReal_ofReal hx.le]
-  · exact hf.nonneg_of_todo hf_one hf_deriv ENNReal.toReal_nonneg
-  · simp [hx]
-  · simp
-
-lemma _root_.ConvexOn.sub_one (hf : ConvexOn ℝ (Ioi 0) f) :
-    ConvexOn ℝ (Ioi 0) fun x ↦ f x - f 1 - rightDeriv f 1 * (x - 1) := by
-  have h_eq x : f x - f 1 - rightDeriv f 1 * (x - 1)
-      = f x + (- rightDeriv f 1) * x + (- f 1 + rightDeriv f 1) := by ring
-  simp_rw [h_eq, add_assoc]
-  refine hf.add ?_
-  refine ConvexOn.add ?_ (convexOn_const _ (convex_Ioi _))
-  exact (ConvexOn.const_mul_id _).subset (subset_univ _) (convex_Ioi _)
-
-lemma rightDeriv_sub_one (hf : DifferentiableWithinAt ℝ f (Ioi 1) 1) :
-    rightDeriv (fun x ↦ f x - f 1 - rightDeriv f 1 * (x - 1)) 1 = 0 := by
-  have h_eq x : f x - f 1 - rightDeriv f 1 * (x - 1)
-      = f x + (- rightDeriv f 1) * x + (- f 1 + rightDeriv f 1) := by ring
-  simp_rw [h_eq]
-  rw [rightDeriv_add_const_apply, rightDeriv_add_linear_apply hf]
-  · ring
-  · exact hf.add ((differentiableWithinAt_const _).mul differentiableWithinAt_id)
-
-lemma _root_.ConvexOn.rightDeriv_sub_one (hf : ConvexOn ℝ (Ioi 0) f) :
-    rightDeriv (fun x ↦ f x - f 1 - rightDeriv f 1 * (x - 1)) 1 = 0 :=
-  DivFunction.rightDeriv_sub_one (hf.differentiableWithinAt_Ioi_of_mem_interior (by simp))
-
--- todo: give a default value 0 when f is not convex?
-/-- Build a `DivFunction` from a function `f : ℝ → ℝ` which is convex on `Ioi 0`. -/
-noncomputable
-def ofConvexOn (f : ℝ → ℝ) (hf : ConvexOn ℝ (Ioi 0) f) : DivFunction :=
-  ofReal (fun x ↦ f x - f 1 - rightDeriv f 1 * (x - 1)) hf.sub_one (by simp) hf.rightDeriv_sub_one
-
-@[simp]
-lemma ofConvexOn_apply_zero (hf : ConvexOn ℝ (Ioi 0) f) :
-    ofConvexOn f hf 0
-      = Function.rightLim (fun x ↦ ENNReal.ofReal (f x - f 1 - rightDeriv f 1 * (x - 1))) 0 := by
-  simp [ofConvexOn]
-
-lemma ofConvexOn_apply_zero_of_continuousWithinAt {hf : ConvexOn ℝ (Ioi 0) f}
-    (hf_cont : ContinuousWithinAt f (Ioi 0) 0) :
-    ofConvexOn f hf 0 = ENNReal.ofReal (f 0 - f 1 + rightDeriv f 1) := by
-  rw [ofConvexOn, ofReal_apply_zero_of_continuousWithinAt]
-  · simp
-  · simp_rw [← sub_add_eq_sub_sub]
-    refine hf_cont.sub ?_
-    sorry
-
-@[simp]
-lemma ofConvexOn_apply_top (hf : ConvexOn ℝ (Ioi 0) f) :
-    ofConvexOn f hf ∞
-      = limsup (fun x ↦ ENNReal.ofReal (f x - f 1 - rightDeriv f 1 * (x - 1))) atTop := by
-  simp [ofConvexOn]
-
-lemma ofConvexOn_apply (hf : ConvexOn ℝ (Ioi 0) f) {x : ℝ≥0∞} (hx_zero : x ≠ 0)
-    (hx_top : x ≠ ∞) :
-    ofConvexOn f hf x = ENNReal.ofReal (f x.toReal - f 1 - rightDeriv f 1 * (x.toReal - 1)) := by
-  simp [ofConvexOn, ofReal_apply, hx_zero, hx_top]
-
-end OfConvexOn
-
 lemma monotoneOn (f : DivFunction) : MonotoneOn f (Ici 1) := sorry
 
 lemma antitoneOn (f : DivFunction) : AntitoneOn f (Iic 1) := sorry
@@ -435,6 +315,7 @@ section Module
 protected def zero : DivFunction where
   toFun := 0
   one := rfl
+  leftDerivOne := by simp
   rightDerivOne := by simp
   convexOn' := convexOn_const _ convex_univ
   continuous' := continuous_const
@@ -442,6 +323,8 @@ protected def zero : DivFunction where
 protected noncomputable def add (f g : DivFunction) : DivFunction where
   toFun := fun x ↦ f x + g x
   one := by simp
+  leftDerivOne := by
+    sorry
   rightDerivOne := by
     simp only [Pi.add_apply]
     have h_eq : (fun x ↦ (f (ENNReal.ofReal x) + g (ENNReal.ofReal x)).toReal)
@@ -470,8 +353,8 @@ protected noncomputable def add (f g : DivFunction) : DivFunction where
       rw [ENNReal.toReal_add hxf hxg]
     rw [rightDeriv_congr h_eq]
     · rw [rightDeriv_add_apply']
-      · change rightDeriv f.realFun 1 + rightDeriv g.realFun 1 = 0
-        simp
+      · change 0 ≤ rightDeriv f.realFun 1 + rightDeriv g.realFun 1
+        exact add_nonneg f.rightDeriv_one_nonneg g.rightDeriv_one_nonneg
       · exact f.differentiableWithinAt_one
       · exact g.differentiableWithinAt_one
     · simp
@@ -501,10 +384,12 @@ instance : SMul ℝ≥0 DivFunction where
   smul c f := {
     toFun := fun x ↦ c * f x
     one := by simp
+    leftDerivOne := by
+      simp only [ENNReal.toReal_mul, ENNReal.coe_toReal, leftDeriv_const_mul]
+      exact mul_nonpos_of_nonneg_of_nonpos c.2 f.leftDeriv_one_nonpos
     rightDerivOne := by
-      simp only [ENNReal.toReal_mul, ENNReal.coe_toReal, rightDeriv_const_mul, mul_eq_zero,
-        NNReal.coe_eq_zero]
-      exact .inr f.rightDeriv_one
+      simp only [ENNReal.toReal_mul, ENNReal.coe_toReal, rightDeriv_const_mul]
+      exact mul_nonneg c.2 f.rightDeriv_one_nonneg
     convexOn' := f.convexOn.smul c.2
     continuous' := (ENNReal.continuous_const_mul ENNReal.coe_ne_top).comp f.continuous}
 
@@ -647,30 +532,6 @@ lemma derivAtTop_congr (h : f =ᶠ[atTop] g) : f.derivAtTop = g.derivAtTop := by
   --filter_upwards [h] with x hx
   --rw [hx]
 
-lemma derivAtTop_ofReal {f : ℝ → ℝ} {hf : ConvexOn ℝ (Ioi 0) f}
-    {hf_one : f 1 = 0} {hf_deriv : rightDeriv f 1 = 0} :
-    (ofReal f hf hf_one hf_deriv).derivAtTop
-      = limsup (fun x ↦ ENNReal.ofReal (rightDeriv f x)) atTop := by
-  sorry
-
-lemma derivAtTop_ofConvexOn {f : ℝ → ℝ} {hf : ConvexOn ℝ (Ioi 0) f} :
-    (ofConvexOn f hf).derivAtTop
-      = limsup (fun x ↦ ENNReal.ofReal (rightDeriv f x - rightDeriv f 1)) atTop := by
-  rw [ofConvexOn, derivAtTop_ofReal]
-  sorry
-
-lemma derivAtTop_ofReal_of_tendsto_atTop {f : ℝ → ℝ} {hf : ConvexOn ℝ (Ioi 0) f}
-    {hf_one : f 1 = 0} {hf_deriv : rightDeriv f 1 = 0}
-    (h : Tendsto (rightDeriv f) atTop atTop) :
-    (ofReal f hf hf_one hf_deriv).derivAtTop = ∞ := by
-  sorry
-
-lemma derivAtTop_ofConvexOn_of_tendsto_atTop {f : ℝ → ℝ} {hf : ConvexOn ℝ (Ioi 0) f}
-    (h : Tendsto (rightDeriv f) atTop atTop) :
-    (ofConvexOn f hf).derivAtTop = ∞ := by
-  rw [ofConvexOn, derivAtTop_ofReal_of_tendsto_atTop]
-  sorry
-
 lemma derivAtTop_congr_nonneg (h : ∀ x, f x = g x) : f.derivAtTop = g.derivAtTop :=
   derivAtTop_congr (.of_forall h)
 
@@ -782,133 +643,17 @@ lemma lintegral_eq_top_of_not_integrable_realFun [SigmaFinite μ]
   by_contra h
   exact h_int (integrable_realFun_rnDeriv h)
 
-lemma lintegral_ofReal_eq_top_of_not_integrable [SigmaFinite μ] [IsFiniteMeasure ν]
-    {f : ℝ → ℝ}  {hf : ConvexOn ℝ (Ioi 0) f} {hf_one : f 1 = 0} {hf_deriv : rightDeriv f 1 = 0}
-    (h_int : ¬ Integrable (fun x ↦ f (μ.rnDeriv ν x).toReal) ν) :
-    ∫⁻ x, DivFunction.ofReal f hf hf_one hf_deriv (μ.rnDeriv ν x) ∂ν = ∞ := by
-  refine lintegral_eq_top_of_not_integrable_realFun ?_
-  suffices ¬ IntegrableOn
-      (fun x ↦ (DivFunction.ofReal f hf hf_one hf_deriv).realFun (μ.rnDeriv ν x).toReal)
-      {x | μ.rnDeriv ν x ≠ 0} ν from
-    fun h ↦ this h.integrableOn
-  rw [← integrableOn_univ] at h_int
-  have : (univ : Set α) = {x | μ.rnDeriv ν x ≠ 0} ∪ {x | μ.rnDeriv ν x = 0} :=
-    (compl_union_self _).symm
-  rw [this, integrableOn_union] at h_int
-  have h_int_zero : IntegrableOn (fun x ↦ f (μ.rnDeriv ν x).toReal) {x | μ.rnDeriv ν x = 0} ν := by
-    refine (integrableOn_congr_fun ?_ ?_).mpr
-      ((integrableOn_const (C := f 0)).mpr (.inr (measure_lt_top _ _)))
-    · intro x hx
-      simp only [mem_setOf_eq] at hx
-      simp [hx]
-    · exact μ.measurable_rnDeriv ν (measurableSet_singleton 0)
-  simp [h_int_zero] at h_int
-  convert h_int using 1
-  refine integrableOn_congr_fun_ae ((ae_restrict_iff' ?_).mpr ?_)
-  · exact (μ.measurable_rnDeriv ν (measurableSet_singleton 0)).compl
-  filter_upwards [μ.rnDeriv_ne_top ν] with x hx_top hx_zero
-  rw [DivFunction.realFun_ofReal_apply]
-  exact ENNReal.toReal_pos hx_zero hx_top
-
-lemma DivFunction.lintegral_ofReal' [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν)
-    {f : ℝ → ℝ}  {hf : ConvexOn ℝ (Ioi 0) f}
-    {hf_one : f 1 = 0} {hf_deriv : rightDeriv f 1 = 0}
-    (h : ν {x | μ.rnDeriv ν x = 0} ≠ ∞) :
-    ∫⁻ x, DivFunction.ofReal f hf hf_one hf_deriv (μ.rnDeriv ν x) ∂ν
-      = ∫⁻ x, ENNReal.ofReal (f (μ.rnDeriv ν x).toReal) ∂ν
-        - ENNReal.ofReal (f 0) * ν {x | μ.rnDeriv ν x = 0}
-        + Function.rightLim (fun x ↦ ENNReal.ofReal (f x)) 0 * ν {x | μ.rnDeriv ν x = 0} := by
-  let s := {x | μ.rnDeriv ν x = 0}
-  have hs : MeasurableSet s := μ.measurable_rnDeriv ν (measurableSet_singleton 0)
-  rw [← lintegral_add_compl _ hs]
-  have hs_zero : ∀ x ∈ s, μ.rnDeriv ν x = 0 := fun _ hx ↦ hx
-  have h1 : ∫⁻ x in s, ofReal f hf hf_one hf_deriv (μ.rnDeriv ν x) ∂ν
-      = Function.rightLim (fun x ↦ ENNReal.ofReal (f x)) 0 * ν {x | μ.rnDeriv ν x = 0} := by
-    have : ∀ x ∈ s, ofReal f hf hf_one hf_deriv (μ.rnDeriv ν x)
-        = Function.rightLim (fun x ↦ ENNReal.ofReal (f x)) 0 := by
-      intro x hx
-      simp [hs_zero x hx]
-    rw [setLIntegral_congr_fun hs (ae_of_all _ this)]
-    simp
-  have h2 : ∫⁻ x in sᶜ, ofReal f hf hf_one hf_deriv (μ.rnDeriv ν x) ∂ν
-      = ∫⁻ x in sᶜ, ENNReal.ofReal (f (μ.rnDeriv ν x).toReal) ∂ν := by
-    have h_ne_top := μ.rnDeriv_ne_top ν
-    sorry
-  have h3 : ∫⁻ x in s, ENNReal.ofReal (f (μ.rnDeriv ν x).toReal) ∂ν
-      = ENNReal.ofReal (f 0) * ν {x | μ.rnDeriv ν x = 0} := by
-    have : ∀ x ∈ s, ENNReal.ofReal (f (μ.rnDeriv ν x).toReal)
-        = ENNReal.ofReal (f 0) := by
-      intro x hx
-      simp [hs_zero x hx]
-    rw [setLIntegral_congr_fun hs (ae_of_all _ this)]
-    simp
-  rw [h1, h2, ← h3]
-  conv_rhs => rw [← lintegral_add_compl _ hs (μ := ν), add_comm]
-  congr 1
-  rw [h3, ENNReal.add_sub_cancel_left]
-  exact ENNReal.mul_ne_top ENNReal.ofReal_ne_top h
-
-lemma DivFunction.lintegral_ofReal [SigmaFinite μ] [IsFiniteMeasure ν] (hμν : μ ≪ ν)
-    {f : ℝ → ℝ}  {hf : ConvexOn ℝ (Ioi 0) f}
-    {hf_one : f 1 = 0} {hf_deriv : rightDeriv f 1 = 0} :
-    ∫⁻ x, DivFunction.ofReal f hf hf_one hf_deriv (μ.rnDeriv ν x) ∂ν
-      = ∫⁻ x, ENNReal.ofReal (f (μ.rnDeriv ν x).toReal) ∂ν
-        - ENNReal.ofReal (f 0) * ν {x | μ.rnDeriv ν x = 0}
-        + Function.rightLim (fun x ↦ ENNReal.ofReal (f x)) 0 * ν {x | μ.rnDeriv ν x = 0} :=
-  DivFunction.lintegral_ofReal' hμν (measure_ne_top _ _)
-
-lemma DivFunction.lintegral_ofReal_of_continuous [SigmaFinite μ] [SigmaFinite ν]
-    {f : ℝ → ℝ}  {hf : ConvexOn ℝ (Ioi 0) f}
-    {hf_one : f 1 = 0} {hf_deriv : rightDeriv f 1 = 0}
-    (hf_cont : ContinuousWithinAt f (Ioi 0) 0) :
-    ∫⁻ x, DivFunction.ofReal f hf hf_one hf_deriv (μ.rnDeriv ν x) ∂ν
-      = ∫⁻ x, ENNReal.ofReal (f (μ.rnDeriv ν x).toReal) ∂ν := by
-  let s := {x | μ.rnDeriv ν x = 0}
-  have hs : MeasurableSet s := μ.measurable_rnDeriv ν (measurableSet_singleton 0)
-  rw [← lintegral_add_compl _ hs, ← lintegral_add_compl _ hs (μ := ν)]
-  have hs_zero : ∀ x ∈ s, μ.rnDeriv ν x = 0 := fun _ hx ↦ hx
-  have h1 : ∫⁻ x in s, ofReal f hf hf_one hf_deriv (μ.rnDeriv ν x) ∂ν
-      = ENNReal.ofReal (f 0) * ν {x | μ.rnDeriv ν x = 0} := by
-    have : ∀ x ∈ s, ofReal f hf hf_one hf_deriv (μ.rnDeriv ν x) = ENNReal.ofReal (f 0) := by
-      intro x hx
-      rw [hs_zero x hx, ofReal_apply_zero_of_continuousWithinAt hf_cont]
-    rw [setLIntegral_congr_fun hs (ae_of_all _ this)]
-    simp
-  have h2 : ∫⁻ x in sᶜ, ofReal f hf hf_one hf_deriv (μ.rnDeriv ν x) ∂ν
-      = ∫⁻ x in sᶜ, ENNReal.ofReal (f (μ.rnDeriv ν x).toReal) ∂ν := by
-    have h_ne_top := μ.rnDeriv_ne_top ν
-    sorry
-  have h3 : ∫⁻ x in s, ENNReal.ofReal (f (μ.rnDeriv ν x).toReal) ∂ν
-      = ENNReal.ofReal (f 0) * ν {x | μ.rnDeriv ν x = 0} := by
-    have : ∀ x ∈ s, ENNReal.ofReal (f (μ.rnDeriv ν x).toReal) = ENNReal.ofReal (f 0) := by
-      intro x hx
-      simp [hs_zero x hx]
-    rw [setLIntegral_congr_fun hs (ae_of_all _ this)]
-    simp
-  rw [h1, h2, h3]
-
-lemma DivFunction.lintegral_ofReal_eq_integral_of_continuous [SigmaFinite μ] [SigmaFinite ν]
-    {f : ℝ → ℝ}  {hf : ConvexOn ℝ (Ioi 0) f}
-    {hf_one : f 1 = 0} {hf_deriv : rightDeriv f 1 = 0}
-    (hf_cont : ContinuousWithinAt f (Ioi 0) 0)
-    (h_int : Integrable (fun x ↦ f (μ.rnDeriv ν x).toReal) ν) :
-    ∫⁻ x, DivFunction.ofReal f hf hf_one hf_deriv (μ.rnDeriv ν x) ∂ν
-      = ENNReal.ofReal (∫ x, f (μ.rnDeriv ν x).toReal ∂ν) := by
-  rw [DivFunction.lintegral_ofReal_of_continuous hf_cont,
-    ofReal_integral_eq_lintegral_ofReal h_int]
-  refine ae_of_all _ fun x ↦ ?_
-  suffices ∀ x, 0 ≤ x → 0 ≤ f x from this _ ENNReal.toReal_nonneg
-  exact fun _ ↦ hf.nonneg_of_todo hf_one hf_deriv
-
 section Conj
 
 namespace DivFunction
 
--- todo: `HasDerivAt f.realFun 1 0` is necessary because we enforce that the rightDeriv at 1 is 0.
 noncomputable
-def conj (f : DivFunction) (hf : HasDerivAt f.realFun 1 0) : DivFunction where
+def conj (f : DivFunction) : DivFunction where
   toFun x := x * f x⁻¹
   one := by simp
+  leftDerivOne := by
+    simp only [ENNReal.toReal_mul]
+    sorry
   rightDerivOne := by
     simp only [ENNReal.toReal_mul]
     sorry

@@ -264,12 +264,24 @@ lemma hasDerivAt_hellingerFun (a : ℝ) {x : ℝ} (hx : x ≠ 0) :
     · exact (Real.hasDerivAt_rpow_const (Or.inl hx)).sub_const _
     · exact ((hasDerivAt_id x).sub_const _).const_mul _
 
+lemma leftDeriv_hellingerFun (a : ℝ) {x : ℝ} (hx : x ≠ 0) :
+    leftDeriv (hellingerFun a) x =
+      if a = 0 then 0
+      else if a = 1 then log x
+      else (a - 1)⁻¹ * a * (x ^ (a - 1) - 1) :=
+  leftDeriv_of_hasDerivAt (hasDerivAt_hellingerFun a hx)
+
 lemma rightDeriv_hellingerFun (a : ℝ) {x : ℝ} (hx : x ≠ 0) :
     rightDeriv (hellingerFun a) x =
       if a = 0 then 0
       else if a = 1 then log x
       else (a - 1)⁻¹ * a * (x ^ (a - 1) - 1) :=
   rightDeriv_of_hasDerivAt (hasDerivAt_hellingerFun a hx)
+
+@[simp]
+lemma leftDeriv_hellingerFun_one :
+    leftDeriv (hellingerFun a) 1 = 0 := by
+  simp [leftDeriv_hellingerFun]
 
 @[simp]
 lemma rightDeriv_hellingerFun_one :

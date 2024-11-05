@@ -34,6 +34,9 @@ lemma statInfoFun_one : statInfoFun 1 γ x = if γ ≤ 1 then max 0 (γ - x) els
 @[simp]
 lemma statInfoFun_zero : statInfoFun 0 γ x = 0 := by simp_all [statInfoFun, le_of_lt]
 
+@[simp]
+lemma statInfoFun_zero' : statInfoFun 0 γ = 0 := by ext; simp_all [statInfoFun, le_of_lt]
+
 lemma const_mul_statInfoFun {a : ℝ} (ha : 0 ≤ a) :
     a * statInfoFun β γ x = statInfoFun (a * β) (a * γ) x := by
   simp_rw [statInfoFun, mul_ite, mul_max_of_nonneg _ _ ha, mul_sub, mul_zero, mul_assoc]
@@ -158,6 +161,53 @@ lemma convexOn_statInfoFun (β γ : ℝ) : ConvexOn ℝ univ (statInfoFun β γ)
     ring_nf
     simp only [← mul_add, hab, mul_one, show (-(a * γ) - b * γ) = -(a + b) * γ from by ring,
       add_assoc, sub_eq_add_neg, neg_mul, one_mul]
+
+lemma continuousAt_statInfoFun (hx : x ≠ γ / β) :
+    ContinuousAt (statInfoFun β γ) x := by
+  rcases le_or_lt γ β with hγ | hγ
+  · rw [statInfoFun_of_le' hγ]
+    sorry
+  · rw [statInfoFun_of_gt' hγ]
+    sorry
+
+lemma continuousAt_statInfoFun_zero (hγ : γ ≠ 0) :
+    ContinuousAt (statInfoFun β γ) 0 := by
+  by_cases hβ : β = 0
+  · simp only [hβ, statInfoFun_zero']
+    fun_prop
+  refine continuousAt_statInfoFun ?_
+  symm
+  rw [ne_eq, div_eq_zero_iff]
+  simp [hβ, hγ]
+
+lemma continuousWithinAt_statInfoFun_zero :
+    ContinuousWithinAt (statInfoFun β γ) (Ioi 0) 0 := by
+  by_cases hγ : γ = 0
+  · rcases lt_trichotomy β 0 with hβ | rfl | hβ
+    · simp only [hγ, statInfoFun_of_gt' hβ, sub_zero]
+      have : (fun x ↦ max 0 (β * x)) =ᶠ[𝓝[>] 0] fun _ ↦ 0 := by
+        suffices ∀ᶠ x in 𝓝[>] 0, β * x ≤ 0 by
+          filter_upwards [this] with x hx
+          rw [max_eq_left hx]
+        exact eventually_nhdsWithin_of_forall
+          fun x hx ↦ (mul_nonpos_of_nonpos_of_nonneg hβ.le hx.le)
+      refine ContinuousWithinAt.congr_of_eventuallyEq ?_ this (by simp)
+      refine Continuous.continuousWithinAt ?_
+      fun_prop
+    · simp only [statInfoFun_zero']
+      refine ContinuousAt.continuousWithinAt ?_
+      fun_prop
+    · simp only [hγ, statInfoFun_of_le' hβ.le, zero_sub]
+      have : (fun x ↦ max 0 (-(β * x))) =ᶠ[𝓝[>] 0] fun _ ↦ 0 := by
+        suffices ∀ᶠ x in 𝓝[>] 0, -(β * x) ≤ 0 by
+          filter_upwards [this] with x hx
+          rw [max_eq_left hx]
+        simp only [Left.neg_nonpos_iff]
+        exact eventually_nhdsWithin_of_forall fun x hx ↦ (mul_nonneg hβ.le hx.le)
+      refine ContinuousWithinAt.congr_of_eventuallyEq ?_ this (by simp)
+      refine Continuous.continuousWithinAt ?_
+      fun_prop
+  · exact ContinuousAt.continuousWithinAt (continuousAt_statInfoFun_zero hγ)
 
 section rightDeriv
 

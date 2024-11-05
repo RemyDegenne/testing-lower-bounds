@@ -121,7 +121,7 @@ lemma klDivFun_apply {x : ℝ≥0∞} (hx : x ≠ ∞) :
     simp only [log_zero, mul_zero, log_one, sub_self, ne_eq, one_ne_zero, not_false_eq_true,
       rightDeriv_mul_log, zero_add, ENNReal.ofReal_one, ENNReal.zero_toReal, sub_zero]
     exact continuous_mul_log.continuousWithinAt
-  · rw [klDivFun, DivFunction.ofConvexOn_apply _ hx0 hx]
+  · rw [klDivFun, DivFunction.ofConvexOn_apply hx0 hx]
     simp only [log_one, mul_zero, sub_zero, ne_eq, one_ne_zero, not_false_eq_true,
       rightDeriv_mul_log, zero_add, one_mul]
     rw [sub_sub_eq_add_sub]
