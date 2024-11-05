@@ -8,10 +8,13 @@ import TestingLowerBounds.Divergences.DeGroot
 import TestingLowerBounds.Divergences.EGamma
 import TestingLowerBounds.Divergences.Hellinger.CondHellinger
 import TestingLowerBounds.Divergences.Hellinger.Hellinger
+import TestingLowerBounds.Divergences.Hellinger.HellingerDivFun
+import TestingLowerBounds.Divergences.Hellinger.HellingerFun
 import TestingLowerBounds.Divergences.KullbackLeibler.CondKL
 import TestingLowerBounds.Divergences.KullbackLeibler.KullbackLeibler
 import TestingLowerBounds.Divergences.Renyi
 import TestingLowerBounds.Divergences.StatInfo.DPI
+import TestingLowerBounds.Divergences.StatInfo.DivFunction
 import TestingLowerBounds.Divergences.StatInfo.StatInfo
 import TestingLowerBounds.Divergences.StatInfo.StatInfoFun
 import TestingLowerBounds.Divergences.StatInfo.fDivStatInfo
@@ -23,6 +26,11 @@ import TestingLowerBounds.FDiv.CompProd.EqTopIff
 import TestingLowerBounds.FDiv.CondFDiv
 import TestingLowerBounds.FDiv.CondFDivCompProdMeasure
 import TestingLowerBounds.FDiv.DPIJensen
+import TestingLowerBounds.FDiv.DivFunction
+import TestingLowerBounds.FDiv.DivFunction.CurvatureMeasure
+import TestingLowerBounds.FDiv.DivFunction.OfReal
+import TestingLowerBounds.FDiv.ERealStieltjes
+import TestingLowerBounds.FDiv.FDivEqIntegral
 import TestingLowerBounds.FDiv.IntegralRnDerivSingularPart
 import TestingLowerBounds.FDiv.Measurable
 import TestingLowerBounds.FDiv.Trim
@@ -35,6 +43,7 @@ import TestingLowerBounds.ForMathlib.KernelFstSnd
 import TestingLowerBounds.ForMathlib.LeftRightDeriv
 import TestingLowerBounds.ForMathlib.LogLikelihoodRatioCompProd
 import TestingLowerBounds.ForMathlib.MaxMinEqAbs
+import TestingLowerBounds.ForMathlib.OrderIso
 import TestingLowerBounds.ForMathlib.RNDerivEqCondexp
 import TestingLowerBounds.ForMathlib.RadonNikodym
 import TestingLowerBounds.ForMathlib.RnDeriv

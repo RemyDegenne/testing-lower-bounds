@@ -364,17 +364,39 @@ lemma todo2 (a b : ℝ) :
   rw [this, todo1 a b]
   ring
 
-lemma todo3 (a b : ℝ) :
-    ∫ x in a..b, b - x ∂f.enlargedCurvatureMeasure
-      = (a - b) * f.rightDerivEnlargedStieltjes a
-        + ∫ x in a..b, rightDeriv f.realFun x
-            ∂(volume.map (fun x ↦ (f.realToMinmaxOrderIso x : ℝ≥0∞).toReal)) := by
-  rw [todo2 a b]
-  congr 1
-  simp_rw [intervalIntegral]
-  rw [(measurableEmbedding_toReal_realToMinMaxOrderIso (f := f)).setIntegral_map,
-    (measurableEmbedding_toReal_realToMinMaxOrderIso (f := f)).setIntegral_map]
-  sorry -- false due to the bounds of the interval
+-- lemma preimage_toReal_realToMinMaxOrderIso_Ioc {a b : ℝ}
+--     (ha : ENNReal.ofReal a ∈ Ioo f.xmin f.xmax) (hb : ENNReal.ofReal b ∈ Ioo f.xmin f.xmax) :
+--     (fun x ↦ (f.realToMinmaxOrderIso x : ℝ≥0∞).toReal) ⁻¹' Ioc a b
+--       = Ioc (f.realToMinmaxOrderIso.symm ⟨ENNReal.ofReal a, ha⟩)
+--         (f.realToMinmaxOrderIso.symm ⟨ENNReal.ofReal b, hb⟩) := by
+--   sorry
+
+-- lemma image_toReal_realToMinMaxOrderIso_Ioc (a b : ℝ) :
+--     (fun x ↦ (f.realToMinmaxOrderIso x : ℝ≥0∞).toReal) '' Ioc a b
+--       = Ioc (f.realToMinmaxOrderIso a : ℝ≥0∞).toReal
+--         (f.realToMinmaxOrderIso b : ℝ≥0∞).toReal := by
+--   sorry
+
+-- -- not what we need
+-- lemma todo3 {a b : ℝ}
+--     (ha : ENNReal.ofReal a ∈ Ioo f.xmin f.xmax) (hb : ENNReal.ofReal b ∈ Ioo f.xmin f.xmax) :
+--     ∫ x in a..b, f.rightDerivEnlargedStieltjes x
+--       = ∫ x in ((f.realToMinmaxOrderIso a : ℝ≥0∞).toReal)..((f.realToMinmaxOrderIso b : ℝ≥0∞).toReal),
+--         rightDeriv f.realFun x ∂(volume.map (fun x ↦ (f.realToMinmaxOrderIso x : ℝ≥0∞).toReal)) := by
+--   simp_rw [intervalIntegral]
+--   have h1 := (measurableEmbedding_toReal_realToMinMaxOrderIso (f := f)).setIntegral_map
+--     (g := rightDeriv f.realFun) (μ := volume)
+--     (s := (fun x ↦ (f.realToMinmaxOrderIso x : ℝ≥0∞).toReal) '' Ioc a b)
+--   have h2 := (measurableEmbedding_toReal_realToMinMaxOrderIso (f := f)).setIntegral_map
+--     (g := rightDeriv f.realFun) (μ := volume)
+--     (s := (fun x ↦ (f.realToMinmaxOrderIso x : ℝ≥0∞).toReal) '' Ioc b a)
+--   rw [preimage_image_eq] at h1 h2
+--   unfold rightDerivEnlargedStieltjes rightDerivEnlarged
+--   simp only
+--   rotate_left
+--   · sorry
+--   · sorry
+--   rw [← h1, ← h2, image_toReal_realToMinMaxOrderIso_Ioc, image_toReal_realToMinMaxOrderIso_Ioc]
 
 theorem convex_taylor_one_right (hf : rightDeriv f.realFun 1 = 0) {b : ℝ≥0∞} (hb : 1 ≤ b) :
     f b = ∫⁻ x in Ioc 1 b, b - x ∂f.curvatureMeasure := by

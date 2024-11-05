@@ -15,33 +15,6 @@ open Real MeasureTheory Filter Set MeasurableSpace
 
 open scoped ENNReal NNReal Topology
 
-namespace ConvexOn
-
-lemma nonneg_of_todo {f : ℝ → ℝ} (hf : ConvexOn ℝ (Ioi 0) f)
-    (hf_one : f 1 = 0) (hf_deriv : rightDeriv f 1 = 0) {x : ℝ} (hx : 0 ≤ x) :
-    0 ≤ f x := by
-  calc 0
-  _ = rightDeriv f 1 * x + (f 1 - rightDeriv f 1 * 1) := by simp [hf_one, hf_deriv]
-  _ ≤ f x := hf.affine_le_of_mem_interior sorry sorry
-
-lemma nonneg_of_todo' {f : ℝ → ℝ} (hf : ConvexOn ℝ (Ioi 0) f)
-    (hf_one : f 1 = 0) (hf_ld : leftDeriv f 1 ≤ 0) (hf_rd : 0 ≤ rightDeriv f 1)
-    {x : ℝ} (hx : 0 ≤ x) :
-    0 ≤ f x := by
-  sorry
-
-lemma leftDeriv_nonpos_of_isMinOn {f : ℝ → ℝ} {s : Set ℝ} (hf : ConvexOn ℝ s f) {x₀ : ℝ}
-    (hf_one : IsMinOn f s x₀) (h_mem : x₀ ∈ interior s) :
-    leftDeriv f x₀ ≤ 0 := by
-  sorry
-
-lemma rightDeriv_nonneg_of_isMinOn {f : ℝ → ℝ} {s : Set ℝ} (hf : ConvexOn ℝ s f) {x₀ : ℝ}
-    (hf_one : IsMinOn f s x₀) (h_mem : x₀ ∈ interior s) :
-    0 ≤ rightDeriv f x₀ := by
-  sorry
-
-end ConvexOn
-
 namespace ProbabilityTheory
 
 variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {μ ν : Measure α}
@@ -51,6 +24,7 @@ namespace DivFunction
 
 section OfReal
 
+-- todo: the derivative conditions are useful for lemmas but not in the def
 /-- Build a `DivFunction` from a function `f : ℝ → ℝ` which is convex on `Ioi 0` and satisfies
 `f 1 = 0` and `leftDeriv f 1 ≤ 0`, `0 ≤ rightDeriv f 1`. -/
 noncomputable
@@ -62,38 +36,15 @@ def ofReal (f : ℝ → ℝ) (hf : ConvexOn ℝ (Ioi 0) f)
     else if x = ∞ then limsup (fun x ↦ ENNReal.ofReal (f x)) atTop
     else ENNReal.ofReal (f x.toReal)
   one := by simp [hf_one]
-  leftDerivOne := by
-    simp only [ENNReal.ofReal_eq_zero, ENNReal.ofReal_ne_top, ↓reduceIte]
-    have : leftDeriv (fun x ↦
-          (if x ≤ 0 then Function.rightLim (fun x ↦ ENNReal.ofReal (f x)) 0
-            else ENNReal.ofReal (f (ENNReal.ofReal x).toReal)).toReal) 1
-        = leftDeriv f 1 := by
-      refine leftDeriv_congr ?_ ?_
-      · have h_forall : ∀ᶠ x in 𝓝[<] (1 : ℝ), 0 < x :=
-          eventually_nhdsWithin_of_eventually_nhds (eventually_gt_nhds zero_lt_one)
-        filter_upwards [h_forall] with x hx
-        rw [if_neg (not_le.mpr hx), ENNReal.toReal_ofReal hx.le, ENNReal.toReal_ofReal]
-        exact hf.nonneg_of_todo' hf_one hf_ld hf_rd hx.le
-      · simp [not_le.mpr zero_lt_one, hf_one]
-    rw [this]
-    exact hf_ld
-  rightDerivOne := by
-    simp only [ENNReal.ofReal_eq_zero, ENNReal.ofReal_ne_top, ↓reduceIte]
-    have : rightDeriv (fun x ↦
-          (if x ≤ 0 then Function.rightLim (fun x ↦ ENNReal.ofReal (f x)) 0
-            else ENNReal.ofReal (f (ENNReal.ofReal x).toReal)).toReal) 1
-        = rightDeriv f 1 := by
-      refine rightDeriv_congr ?_ ?_
-      · have h_forall : ∀ᶠ x in 𝓝[>] (1 : ℝ), 0 < x :=
-          eventually_nhdsWithin_of_eventually_nhds (eventually_gt_nhds zero_lt_one)
-        filter_upwards [h_forall] with x hx
-        rw [if_neg (not_le.mpr hx), ENNReal.toReal_ofReal hx.le, ENNReal.toReal_ofReal]
-        exact hf.nonneg_of_todo' hf_one hf_ld hf_rd hx.le
-      · simp [not_le.mpr zero_lt_one, hf_one]
-    rw [this]
-    exact hf_rd
   convexOn' := sorry
   continuous' := sorry
+
+noncomputable
+abbrev ofRealOfNonneg (f : ℝ → ℝ) (hf : ConvexOn ℝ (Ioi 0) f)
+    (hf_one : f 1 = 0) (hf_nonneg : ∀ x, 0 < x → 0 ≤ f x) : DivFunction :=
+  ofReal f hf hf_one
+    (hf.leftDeriv_nonpos_of_isMinOn (fun x hx ↦ by simp [hf_one, hf_nonneg x hx]) (by simp))
+    (hf.rightDeriv_nonneg_of_isMinOn (fun x hx ↦ by simp [hf_one, hf_nonneg x hx]) (by simp))
 
 variable {hf : ConvexOn ℝ (Ioi 0) f} {hf_one : f 1 = 0}
   {hf_ld : leftDeriv f 1 ≤ 0} {hf_rd : 0 ≤ rightDeriv f 1}
@@ -264,13 +215,6 @@ lemma lintegral_ofReal_eq_integral_of_continuous [SigmaFinite μ] [SigmaFinite �
 end Integral
 
 end OfReal
-
-noncomputable
-abbrev ofRealOfNonneg (f : ℝ → ℝ) (hf : ConvexOn ℝ (Ioi 0) f)
-    (hf_one : f 1 = 0) (hf_nonneg : ∀ x, 0 < x → 0 ≤ f x) : DivFunction :=
-  ofReal f hf hf_one
-    (hf.leftDeriv_nonpos_of_isMinOn (fun x hx ↦ by simp [hf_one, hf_nonneg x hx]) (by simp))
-    (hf.rightDeriv_nonneg_of_isMinOn (fun x hx ↦ by simp [hf_one, hf_nonneg x hx]) (by simp))
 
 section OfConvexOn
 

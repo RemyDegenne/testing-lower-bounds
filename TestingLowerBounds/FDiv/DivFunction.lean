@@ -74,6 +74,33 @@ lemma leftDeriv_congr {f g : ℝ → ℝ} {x : ℝ} (h : f =ᶠ[𝓝[<] x] g) (h
 lemma rightDeriv_congr {f g : ℝ → ℝ} {x : ℝ} (h : f =ᶠ[𝓝[>] x] g) (hx : f x = g x) :
     rightDeriv f x = rightDeriv g x := h.derivWithin_eq hx
 
+namespace ConvexOn
+
+lemma nonneg_of_todo {f : ℝ → ℝ} (hf : ConvexOn ℝ (Ioi 0) f)
+    (hf_one : f 1 = 0) (hf_deriv : rightDeriv f 1 = 0) {x : ℝ} (hx : 0 ≤ x) :
+    0 ≤ f x := by
+  calc 0
+  _ = rightDeriv f 1 * x + (f 1 - rightDeriv f 1 * 1) := by simp [hf_one, hf_deriv]
+  _ ≤ f x := hf.affine_le_of_mem_interior sorry sorry
+
+lemma nonneg_of_todo' {f : ℝ → ℝ} (hf : ConvexOn ℝ (Ioi 0) f)
+    (hf_one : f 1 = 0) (hf_ld : leftDeriv f 1 ≤ 0) (hf_rd : 0 ≤ rightDeriv f 1)
+    {x : ℝ} (hx : 0 ≤ x) :
+    0 ≤ f x := by
+  sorry
+
+lemma leftDeriv_nonpos_of_isMinOn {f : ℝ → ℝ} {s : Set ℝ} (hf : ConvexOn ℝ s f) {x₀ : ℝ}
+    (hf_one : IsMinOn f s x₀) (h_mem : x₀ ∈ interior s) :
+    leftDeriv f x₀ ≤ 0 := by
+  sorry
+
+lemma rightDeriv_nonneg_of_isMinOn {f : ℝ → ℝ} {s : Set ℝ} (hf : ConvexOn ℝ s f) {x₀ : ℝ}
+    (hf_one : IsMinOn f s x₀) (h_mem : x₀ ∈ interior s) :
+    0 ≤ rightDeriv f x₀ := by
+  sorry
+
+end ConvexOn
+
 namespace ProbabilityTheory
 
 variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {μ ν : Measure α}
@@ -81,8 +108,6 @@ variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {
 structure DivFunction where
   toFun : ℝ≥0∞ → ℝ≥0∞
   one : toFun 1 = 0
-  leftDerivOne : leftDeriv (fun x : ℝ ↦ (toFun (ENNReal.ofReal x)).toReal) 1 ≤ 0
-  rightDerivOne : 0 ≤ rightDeriv (fun x : ℝ ↦ (toFun (ENNReal.ofReal x)).toReal) 1
   convexOn' : ConvexOn ℝ≥0 univ toFun
   -- the continuity everywhere but 0 and ∞ is implied by the convexity
   continuous' : Continuous toFun
@@ -111,10 +136,6 @@ lemma measurable : Measurable f := f.continuous.measurable
 
 noncomputable
 def realFun (f : DivFunction) : ℝ → ℝ := (fun x : ℝ ↦ (f (ENNReal.ofReal x)).toReal)
-
-@[simp] lemma leftDeriv_one_nonpos : leftDeriv f.realFun 1 ≤ 0 := f.leftDerivOne
-
-@[simp] lemma rightDeriv_one_nonneg : 0 ≤ rightDeriv f.realFun 1 := f.rightDerivOne
 
 end Def
 
@@ -256,6 +277,12 @@ lemma differentiableWithinAt {x : ℝ} (hx_nonneg : 0 ≤ x)
 lemma differentiableWithinAt_one : DifferentiableWithinAt ℝ f.realFun (Ioi 1) 1 :=
   f.differentiableWithinAt zero_le_one <| by simp [xmin_lt_one, one_lt_xmax]
 
+@[simp] lemma leftDeriv_one_nonpos : leftDeriv f.realFun 1 ≤ 0 := by
+  sorry
+
+@[simp] lemma rightDeriv_one_nonneg : 0 ≤ rightDeriv f.realFun 1 := by
+  sorry
+
 lemma continuousOn_realFun_Ioo :
     ContinuousOn f.realFun (ENNReal.toReal '' (Ioo f.xmin f.xmax)) := by
   refine ConvexOn.continuousOn ?_ f.convexOn_Ioo_realFun
@@ -315,49 +342,12 @@ section Module
 protected def zero : DivFunction where
   toFun := 0
   one := rfl
-  leftDerivOne := by simp
-  rightDerivOne := by simp
   convexOn' := convexOn_const _ convex_univ
   continuous' := continuous_const
 
 protected noncomputable def add (f g : DivFunction) : DivFunction where
   toFun := fun x ↦ f x + g x
   one := by simp
-  leftDerivOne := by
-    sorry
-  rightDerivOne := by
-    simp only [Pi.add_apply]
-    have h_eq : (fun x ↦ (f (ENNReal.ofReal x) + g (ENNReal.ofReal x)).toReal)
-        =ᶠ[𝓝[>] 1] fun x ↦ (f (ENNReal.ofReal x)).toReal + (g (ENNReal.ofReal x)).toReal := by
-      refine eventually_nhdsWithin_of_eventually_nhds ?_
-      have : (𝓝 (1 : ℝ≥0∞)).map ENNReal.toReal = 𝓝 (1 : ℝ) := by
-        rw [Inducing.map_nhds_eq]
-        · have : range ENNReal.toReal = Ici 0 := sorry
-          simp only [this, ENNReal.one_toReal, nhdsWithin_eq_nhds]
-          rw [mem_nhds_iff]
-          exact ⟨Ioi 0, Ioi_subset_Ici le_rfl, isOpen_Ioi, mem_Ioi.mpr zero_lt_one⟩
-        · sorry -- is that true?
-      have hf : ∀ᶠ x in 𝓝 1, f (ENNReal.ofReal x) ≠ ∞ := by
-        have h := f.eventually_ne_top_nhds_one
-        rw [← this, eventually_map]
-        have h_ne := eventually_ne_nhds ENNReal.one_ne_top
-        filter_upwards [h, eventually_ne_nhds ENNReal.one_ne_top] with x hxf hx_ne
-        rwa [ENNReal.ofReal_toReal hx_ne]
-      have hg : ∀ᶠ x in 𝓝 1, g (ENNReal.ofReal x) ≠ ∞ := by
-        have h := g.eventually_ne_top_nhds_one
-        rw [← this, eventually_map]
-        have h_ne := eventually_ne_nhds ENNReal.one_ne_top
-        filter_upwards [h, eventually_ne_nhds ENNReal.one_ne_top] with x hxf hx_ne
-        rwa [ENNReal.ofReal_toReal hx_ne]
-      filter_upwards [hf, hg] with x hxf hxg
-      rw [ENNReal.toReal_add hxf hxg]
-    rw [rightDeriv_congr h_eq]
-    · rw [rightDeriv_add_apply']
-      · change 0 ≤ rightDeriv f.realFun 1 + rightDeriv g.realFun 1
-        exact add_nonneg f.rightDeriv_one_nonneg g.rightDeriv_one_nonneg
-      · exact f.differentiableWithinAt_one
-      · exact g.differentiableWithinAt_one
-    · simp
   convexOn' := f.convexOn.add g.convexOn
   continuous' := f.continuous.add g.continuous
 
@@ -384,12 +374,6 @@ instance : SMul ℝ≥0 DivFunction where
   smul c f := {
     toFun := fun x ↦ c * f x
     one := by simp
-    leftDerivOne := by
-      simp only [ENNReal.toReal_mul, ENNReal.coe_toReal, leftDeriv_const_mul]
-      exact mul_nonpos_of_nonneg_of_nonpos c.2 f.leftDeriv_one_nonpos
-    rightDerivOne := by
-      simp only [ENNReal.toReal_mul, ENNReal.coe_toReal, rightDeriv_const_mul]
-      exact mul_nonneg c.2 f.rightDeriv_one_nonneg
     convexOn' := f.convexOn.smul c.2
     continuous' := (ENNReal.continuous_const_mul ENNReal.coe_ne_top).comp f.continuous}
 
@@ -651,12 +635,6 @@ noncomputable
 def conj (f : DivFunction) : DivFunction where
   toFun x := x * f x⁻¹
   one := by simp
-  leftDerivOne := by
-    simp only [ENNReal.toReal_mul]
-    sorry
-  rightDerivOne := by
-    simp only [ENNReal.toReal_mul]
-    sorry
   convexOn' := sorry
   continuous' := sorry
 
