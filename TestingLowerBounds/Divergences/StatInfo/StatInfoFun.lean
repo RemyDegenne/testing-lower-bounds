@@ -278,10 +278,6 @@ lemma rightDeriv_statInfoFun_one_of_le_one_of_ge (h : γ ≤ 1) (hx : x ≥ γ) 
     rightDeriv (statInfoFun 1 γ) x = 0 :=
   sorry
 
-lemma rightDeriv_one_statInfoFun_one_of_le_one (h : γ ≤ 1) :
-    rightDeriv (statInfoFun 1 γ) 1 = 0 :=
-  rightDeriv_statInfoFun_one_of_le_one_of_ge h h
-
 lemma rightDeriv_statInfoFun_one_of_one_lt_of_lt (h : 1 < γ) (hx : x < γ) :
     rightDeriv (statInfoFun 1 γ) x = 0 :=
   sorry
@@ -290,9 +286,11 @@ lemma rightDeriv_statInfoFun_one_of_one_lt_of_ge (h : 1 < γ) (hx : x ≥ γ) :
     rightDeriv (statInfoFun 1 γ) x = 1 :=
   sorry
 
-lemma rightDeriv_one_statInfoFun_one_of_one_lt (h : 1 < γ) :
-    rightDeriv (statInfoFun 1 γ) 1 = 0 :=
-  rightDeriv_statInfoFun_one_of_one_lt_of_lt h h
+lemma rightDeriv_one_statInfoFun_one :
+    rightDeriv (statInfoFun 1 γ) 1 = 0 := by
+  rcases le_or_lt γ 1 with h | h
+  · exact rightDeriv_statInfoFun_one_of_le_one_of_ge h h
+  · exact rightDeriv_statInfoFun_one_of_one_lt_of_lt h h
 
 end rightDeriv
 

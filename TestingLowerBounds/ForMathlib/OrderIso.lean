@@ -55,6 +55,14 @@ def IooOrderIsoIoo {a b : ℝ} (hab : a < b) : Ioo a b ≃o Ioo (0 : ℝ) 1 wher
     · norm_cast
     · simp [hab]
 
+@[simp]
+lemma IooOrderIsoIoo_apply_coe {a b : ℝ} {hab : a < b} (x : Ioo a b) :
+    (IooOrderIsoIoo hab x : ℝ) = (x - a) / (b - a) := rfl
+
+@[simp]
+lemma IooOrderIsoIoo_symm_apply_coe {a b : ℝ} {hab : a < b} (x : Ioo (0 : ℝ) 1) :
+    ((IooOrderIsoIoo hab).symm x : ℝ) = a + (b - a) * x := rfl
+
 noncomputable
 def IooOrderIsoReal : (Ioo (0 : ℝ) 1) ≃o ℝ where
   toFun x := Real.log (x / (1 - x))
@@ -98,3 +106,11 @@ def IooOrderIsoReal : (Ioo (0 : ℝ) 1) ≃o ℝ where
     · norm_cast
     · simp [x.2.2]
     · simp [y.2.2]
+
+@[simp]
+lemma IooOrderIsoReal_apply (x : Ioo (0 : ℝ) 1) :
+    IooOrderIsoReal x = Real.log (x / (1 - x)) := rfl
+
+@[simp]
+lemma IooOrderIsoReal_symm_apply_coe (x : ℝ) :
+    (IooOrderIsoReal.symm x : ℝ) = Real.exp x / (1 + Real.exp x) := rfl
