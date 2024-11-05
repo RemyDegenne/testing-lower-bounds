@@ -28,11 +28,11 @@ lemma statInfoFun_nonneg (β γ x : ℝ) : 0 ≤ statInfoFun β γ x := by
   split_ifs <;> simp
 
 @[simp]
-lemma statInfoFun_of_one : statInfoFun 1 γ x = if γ ≤ 1 then max 0 (γ - x) else max 0 (x - γ) := by
+lemma statInfoFun_one : statInfoFun 1 γ x = if γ ≤ 1 then max 0 (γ - x) else max 0 (x - γ) := by
   simp_rw [statInfoFun, one_mul]
 
 @[simp]
-lemma statInfoFun_of_zero : statInfoFun 0 γ x = 0 := by simp_all [statInfoFun, le_of_lt]
+lemma statInfoFun_zero : statInfoFun 0 γ x = 0 := by simp_all [statInfoFun, le_of_lt]
 
 lemma const_mul_statInfoFun {a : ℝ} (ha : 0 ≤ a) :
     a * statInfoFun β γ x = statInfoFun (a * β) (a * γ) x := by
@@ -74,7 +74,13 @@ section statInfoFun_x
 
 lemma statInfoFun_of_le (h : γ ≤ β) : statInfoFun β γ x = max 0 (γ - β * x) := if_pos h
 
+lemma statInfoFun_of_le' (h : γ ≤ β) : statInfoFun β γ = fun x ↦ max 0 (γ - β * x) := by
+  ext; exact statInfoFun_of_le h
+
 lemma statInfoFun_of_gt (h : γ > β) : statInfoFun β γ x = max 0 (β * x - γ) := if_neg h.not_le
+
+lemma statInfoFun_of_gt' (h : γ > β) : statInfoFun β γ = fun x ↦ max 0 (β * x - γ) := by
+  ext; exact statInfoFun_of_gt h
 
 lemma statInfoFun_of_pos_of_le_of_le (hβ : 0 < β) (hγ : γ ≤ β) (hx : x ≤ γ / β) :
     statInfoFun β γ x = γ - β * x :=
@@ -109,10 +115,10 @@ lemma statInfoFun_of_neg_of_gt_of_ge (hβ : β < 0) (hγ : γ > β) (hx : x ≥ 
   statInfoFun_of_gt hγ ▸ max_eq_left_iff.mpr <| sub_nonpos.mpr <| (div_le_iff_of_neg' hβ).mp hx
 
 lemma statInfoFun_of_one_of_le_one (h : γ ≤ 1) : statInfoFun 1 γ x = max 0 (γ - x) :=
-  statInfoFun_of_one ▸ if_pos h
+  statInfoFun_one ▸ if_pos h
 
 lemma statInfoFun_of_one_of_one_lt (h : 1 < γ) : statInfoFun 1 γ x = max 0 (x - γ) :=
-  statInfoFun_of_one ▸ if_neg h.not_le
+  statInfoFun_one ▸ if_neg h.not_le
 
 lemma statInfoFun_of_one_of_le_one_of_le (h : γ ≤ 1) (hx : x ≤ γ) : statInfoFun 1 γ x = γ - x :=
   statInfoFun_of_one_of_le_one h ▸ max_eq_right_iff.mpr (sub_nonneg.mpr hx)
@@ -126,6 +132,23 @@ lemma statInfoFun_of_one_of_one_lt_of_le (h : 1 < γ) (hx : x ≤ γ) : statInfo
 lemma statInfoFun_of_one_of_one_lt_of_ge (h : 1 < γ) (hx : x ≥ γ) : statInfoFun 1 γ x = x - γ :=
   statInfoFun_of_one_of_one_lt h ▸ max_eq_right_iff.mpr (sub_nonneg.mpr hx)
 
+@[simp]
+lemma statInfoFun_apply_one : statInfoFun β γ 1 = 0 := by
+  rcases lt_trichotomy β 0 with hβ | rfl | hβ
+  · rcases le_or_lt γ β with hγ | hγ
+    · refine statInfoFun_of_neg_of_le_of_le hβ hγ ?_
+      rwa [one_le_div_of_neg hβ]
+    · refine statInfoFun_of_neg_of_gt_of_ge hβ hγ ?_
+      rw [ge_iff_le, div_le_one_of_neg hβ]
+      exact hγ.le
+  · simp
+  · rcases le_or_lt γ β with hγ | hγ
+    · refine statInfoFun_of_pos_of_le_of_ge hβ hγ ?_
+      rwa [ge_iff_le, div_le_one hβ]
+    · refine statInfoFun_of_pos_of_gt_of_le hβ hγ ?_
+      rw [one_le_div hβ]
+      exact hγ.le
+
 lemma convexOn_statInfoFun (β γ : ℝ) : ConvexOn ℝ univ (statInfoFun β γ) := by
   unfold statInfoFun
   by_cases h : γ ≤ β <;>
@@ -135,6 +158,93 @@ lemma convexOn_statInfoFun (β γ : ℝ) : ConvexOn ℝ univ (statInfoFun β γ)
     ring_nf
     simp only [← mul_add, hab, mul_one, show (-(a * γ) - b * γ) = -(a + b) * γ from by ring,
       add_assoc, sub_eq_add_neg, neg_mul, one_mul]
+
+section rightDeriv
+
+lemma rightDeriv_statInfoFun_of_pos_of_le_of_lt (hβ : 0 < β) (hγ : γ ≤ β) (hx : x < γ / β) :
+    rightDeriv (statInfoFun β γ) x = - β := by
+  rw [statInfoFun_of_le' hγ]
+  sorry
+
+lemma rightDeriv_statInfoFun_of_pos_of_le_of_ge (hβ : 0 < β) (hγ : γ ≤ β) (hx : x ≥ γ / β) :
+    rightDeriv (statInfoFun β γ) x = 0 :=
+  sorry
+
+lemma rightDeriv_one_statInfoFun_of_pos_of_le_ (hβ : 0 < β) (hγ : γ ≤ β) :
+    rightDeriv (statInfoFun β γ) 1 = 0 := by
+  refine rightDeriv_statInfoFun_of_pos_of_le_of_ge hβ hγ ?_
+  rwa [ge_iff_le, div_le_one hβ]
+
+lemma rightDeriv_statInfoFun_of_pos_of_gt_of_lt (hβ : 0 < β) (hγ : γ > β) (hx : x < γ / β) :
+    rightDeriv (statInfoFun β γ) x = 0 :=
+  sorry
+
+lemma rightDeriv_statInfoFun_of_pos_of_gt_of_ge (hβ : 0 < β) (hγ : γ > β) (hx : x ≥ γ / β) :
+    rightDeriv (statInfoFun β γ) x = β :=
+  sorry
+
+lemma rightDeriv_one_statInfoFun_of_pos_of_gt (hβ : 0 < β) (hγ : γ > β) :
+    rightDeriv (statInfoFun β γ) 1 = 0 := by
+  refine rightDeriv_statInfoFun_of_pos_of_gt_of_lt hβ hγ ?_
+  rwa [one_lt_div hβ]
+
+lemma rightDeriv_statInfoFun_of_neg_of_le_of_lt (hβ : β < 0) (hγ : γ ≤ β) (hx : x < γ / β) :
+    rightDeriv (statInfoFun β γ) x = 0 :=
+  sorry
+
+lemma rightDeriv_statInfoFun_of_neg_of_le_of_ge (hβ : β < 0) (hγ : γ ≤ β) (hx : x ≥ γ / β) :
+    rightDeriv (statInfoFun β γ) x = - β :=
+  sorry
+
+lemma rightDeriv_one_statInfoFun_of_neg_of_eq (hβ : β < 0) :
+    rightDeriv (statInfoFun β β) 1 = - β := by
+  refine rightDeriv_statInfoFun_of_neg_of_le_of_ge hβ le_rfl ?_
+  simp [hβ.ne]
+
+lemma rightDeriv_one_statInfoFun_of_neg_of_lt (hβ : β < 0) (hγ : γ < β) :
+    rightDeriv (statInfoFun β γ) 1 = 0 := by
+  refine rightDeriv_statInfoFun_of_neg_of_le_of_lt hβ hγ.le ?_
+  rwa [one_lt_div_of_neg hβ]
+
+lemma rightDeriv_statInfoFun_of_neg_of_gt_of_lt (hβ : β < 0) (hγ : γ > β) (hx : x < γ / β) :
+    rightDeriv (statInfoFun β γ) x = β :=
+  sorry
+
+lemma rightDeriv_statInfoFun_of_neg_of_gt_of_ge (hβ : β < 0) (hγ : γ > β) (hx : x ≥ γ / β) :
+    rightDeriv (statInfoFun β γ) x = 0 :=
+  sorry
+
+lemma rightDeriv_one_statInfoFun_of_neg_of_gt (hβ : β < 0) (hγ : γ > β) :
+    rightDeriv (statInfoFun β γ) 1 = 0 := by
+  refine rightDeriv_statInfoFun_of_neg_of_gt_of_ge hβ hγ ?_
+  rw [ge_iff_le, div_le_one_of_neg hβ]
+  exact hγ.le
+
+lemma rightDeriv_statInfoFun_one_of_le_one_of_le (h : γ ≤ 1) (hx : x < γ) :
+    rightDeriv (statInfoFun 1 γ) x = -1 :=
+  sorry
+
+lemma rightDeriv_statInfoFun_one_of_le_one_of_ge (h : γ ≤ 1) (hx : x ≥ γ) :
+    rightDeriv (statInfoFun 1 γ) x = 0 :=
+  sorry
+
+lemma rightDeriv_one_statInfoFun_one_of_le_one (h : γ ≤ 1) :
+    rightDeriv (statInfoFun 1 γ) 1 = 0 :=
+  rightDeriv_statInfoFun_one_of_le_one_of_ge h h
+
+lemma rightDeriv_statInfoFun_one_of_one_lt_of_lt (h : 1 < γ) (hx : x < γ) :
+    rightDeriv (statInfoFun 1 γ) x = 0 :=
+  sorry
+
+lemma rightDeriv_statInfoFun_one_of_one_lt_of_ge (h : 1 < γ) (hx : x ≥ γ) :
+    rightDeriv (statInfoFun 1 γ) x = 1 :=
+  sorry
+
+lemma rightDeriv_one_statInfoFun_one_of_one_lt (h : 1 < γ) :
+    rightDeriv (statInfoFun 1 γ) 1 = 0 :=
+  rightDeriv_statInfoFun_one_of_one_lt_of_lt h h
+
+end rightDeriv
 
 section derivAtTop
 

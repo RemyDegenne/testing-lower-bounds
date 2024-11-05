@@ -178,7 +178,11 @@ lemma lt_top_of_mem_Ioo {x : ℝ≥0∞} (hx : x ∈ Ioo f.xmin f.xmax) : f x < 
 
 lemma apply_xmin_eq_top (h : 0 < f.xmin) : f f.xmin = ∞ := by
   suffices Tendsto f (𝓝[<] f.xmin) (𝓝 ∞) by
-    have h_ne_bot : (𝓝[<] f.xmin).NeBot := sorry
+    have h_ne_bot : (𝓝[<] f.xmin).NeBot := by
+      refine mem_closure_iff_nhdsWithin_neBot.mp ?_
+      rw [closure_Iio']
+      · simp
+      · exact ⟨0, h⟩
     refine tendsto_nhds_unique ?_ this
     refine tendsto_nhdsWithin_of_tendsto_nhds ?_
     exact f.continuous.tendsto _
@@ -188,8 +192,10 @@ lemma apply_xmin_eq_top (h : 0 < f.xmin) : f f.xmin = ∞ := by
 lemma apply_xmax_eq_top (h : f.xmax ≠ ∞) : f f.xmax = ∞ := by
   suffices Tendsto f (𝓝[>] f.xmax) (𝓝 ∞) by
     have h_ne_bot : (𝓝[>] f.xmax).NeBot := by
-      constructor
-      sorry
+      refine mem_closure_iff_nhdsWithin_neBot.mp ?_
+      rw [closure_Ioi']
+      · simp
+      · exact ⟨⊤, h.lt_top⟩
     refine tendsto_nhds_unique ?_ this
     refine tendsto_nhdsWithin_of_tendsto_nhds ?_
     exact f.continuous.tendsto _

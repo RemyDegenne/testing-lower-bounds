@@ -8,6 +8,7 @@ import Mathlib.MeasureTheory.Constructions.Prod.Integral
 import Mathlib.Order.CompletePartialOrder
 import TestingLowerBounds.CurvatureMeasure
 import TestingLowerBounds.Divergences.StatInfo.StatInfo
+import TestingLowerBounds.Divergences.StatInfo.DivFunction
 import TestingLowerBounds.FDiv.Measurable
 
 /-!
@@ -23,14 +24,6 @@ namespace ProbabilityTheory
 
 variable {𝒳 𝒳' : Type*} {m𝒳 : MeasurableSpace 𝒳} {m𝒳' : MeasurableSpace 𝒳'}
   {μ ν : Measure 𝒳} {p : ℝ≥0∞} {π : Measure Bool} {f : DivFunction} {β γ x t : ℝ}
-
-section StatInfoDivFun
-
-noncomputable
-def statInfoDivFun (β γ : ℝ) : DivFunction := DivFunction.ofConvexOn
-  (statInfoFun β γ) ((convexOn_statInfoFun β γ).subset (subset_univ _) (convex_Ioi 0))
-
-end StatInfoDivFun
 
 section StatInfoFun
 
