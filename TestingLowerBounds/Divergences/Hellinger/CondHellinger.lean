@@ -152,6 +152,18 @@ lemma integrable_hellingerDiv_iff'_of_lt_one (ha_pos : 0 < a) (ha : a < 1)
 noncomputable def condHellingerDiv (a : ℝ) (κ η : Kernel α β) (μ : Measure α) : ℝ≥0∞ :=
   condFDiv (hellingerDivFun a) κ η μ
 
+lemma hellingerDiv_compProd_left [CountableOrCountablyGenerated α β]
+    (μ : Measure α) [IsFiniteMeasure μ]
+    (κ η : Kernel α β) [IsFiniteKernel κ] [∀ x, NeZero (κ x)] [IsFiniteKernel η] :
+    hellingerDiv a (μ ⊗ₘ κ) (μ ⊗ₘ η) = condHellingerDiv a κ η μ := by
+  rw [hellingerDiv, condHellingerDiv, fDiv_compProd_left _ _ _]
+
+lemma hellingerDiv_comp_left_le [Nonempty α] [StandardBorelSpace α]
+    [CountableOrCountablyGenerated α β] (μ : Measure α) [IsFiniteMeasure μ]
+    (κ η : Kernel α β) [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] :
+    hellingerDiv a (κ ∘ₘ μ) (η ∘ₘ μ) ≤ condHellingerDiv a κ η μ :=
+  fDiv_comp_left_le μ κ η
+
 /-! There are multiple combinations of hypotheses that give rise to slightly different versions of
 the following lemmas. The ones we will consider as a normal form are when we assume that `μ`, `κ`
 and `η` are all finite and `a ∈ (0, 1) ∪ (1, +∞)`.
@@ -507,17 +519,5 @@ lemma condHellingerDiv_eq_integral'_of_lt_one'' (ha_pos : 0 < a) (ha : a < 1)
     ENNReal.one_toReal, EReal.coe_one, mul_one]
 
 end CondHellingerEq
-
-lemma hellingerDiv_compProd_left [CountableOrCountablyGenerated α β]
-    (μ : Measure α) [IsFiniteMeasure μ]
-    (κ η : Kernel α β) [IsFiniteKernel κ] [∀ x, NeZero (κ x)] [IsFiniteKernel η] :
-    hellingerDiv a (μ ⊗ₘ κ) (μ ⊗ₘ η) = condHellingerDiv a κ η μ := by
-  rw [hellingerDiv, condHellingerDiv, fDiv_compProd_left _ _ _]
-
-lemma hellingerDiv_comp_left_le [Nonempty α] [StandardBorelSpace α]
-    [CountableOrCountablyGenerated α β] (μ : Measure α) [IsFiniteMeasure μ]
-    (κ η : Kernel α β) [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] :
-    hellingerDiv a (κ ∘ₘ μ) (η ∘ₘ μ) ≤ condHellingerDiv a κ η μ :=
-  fDiv_comp_left_le μ κ η
 
 end ProbabilityTheory

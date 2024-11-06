@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import TestingLowerBounds.Divergences.Hellinger.CondHellinger
-import TestingLowerBounds.Divergences.Renyi
+import TestingLowerBounds.Divergences.Renyi.Renyi
 
 /-!
 # Conditional Rényi divergence

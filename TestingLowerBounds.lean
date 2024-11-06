@@ -3,7 +3,6 @@ import TestingLowerBounds.Convex
 import TestingLowerBounds.CurvatureMeasure
 import TestingLowerBounds.DerivAtTop
 import TestingLowerBounds.Divergences.Chernoff
-import TestingLowerBounds.Divergences.CondRenyi
 import TestingLowerBounds.Divergences.DeGroot
 import TestingLowerBounds.Divergences.EGamma
 import TestingLowerBounds.Divergences.Hellinger.CondHellinger
@@ -12,7 +11,8 @@ import TestingLowerBounds.Divergences.Hellinger.HellingerDivFun
 import TestingLowerBounds.Divergences.Hellinger.HellingerFun
 import TestingLowerBounds.Divergences.KullbackLeibler.CondKL
 import TestingLowerBounds.Divergences.KullbackLeibler.KullbackLeibler
-import TestingLowerBounds.Divergences.Renyi
+import TestingLowerBounds.Divergences.Renyi.CondRenyi
+import TestingLowerBounds.Divergences.Renyi.Renyi
 import TestingLowerBounds.Divergences.StatInfo.DPI
 import TestingLowerBounds.Divergences.StatInfo.DivFunction
 import TestingLowerBounds.Divergences.StatInfo.StatInfo

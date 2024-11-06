@@ -65,7 +65,17 @@ lemma toReal_fDiv_ofReal_eq_integral_add' [IsFiniteMeasure μ] [IsFiniteMeasure 
     ENNReal.toReal_ofReal]
   · exact integral_nonneg (fun _ ↦ hf_nonneg _ ENNReal.toReal_nonneg)
   · exact ENNReal.ofReal_ne_top
-  · refine ENNReal.mul_ne_top h_ne (measure_ne_top _ _)
+  · exact ENNReal.mul_ne_top h_ne (measure_ne_top _ _)
+
+lemma toReal_fDiv_ofReal_eq_integral_add_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (hf_nonneg : ∀ x, 0 ≤ x → 0 ≤ f x) (h_cont : ContinuousWithinAt f (Ioi 0) 0)
+    (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
+    (h_ac : μ ≪ ν) :
+    (fDiv (.ofReal f hf hf_one) μ ν).toReal = ∫ x, f ((∂μ/∂ν) x).toReal ∂ν := by
+  rw [fDiv_ofReal_eq_integral_add hf_nonneg h_cont h_int]
+  simp only [Measure.singularPart_eq_zero_of_ac h_ac, Measure.coe_zero, Pi.zero_apply, mul_zero,
+    add_zero, ENNReal.toReal_ofReal_eq_iff]
+  exact integral_nonneg fun x ↦ hf_nonneg _ ENNReal.toReal_nonneg
 
 lemma toReal_fDiv_ofReal_eq_integral_add [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (hf_nonneg : ∀ x, 0 ≤ x → 0 ≤ f x) (h_cont : ContinuousWithinAt f (Ioi 0) 0)

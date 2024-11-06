@@ -52,6 +52,10 @@ lemma exp_mul_llr' [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν) :
   have h_pos : 0 < ((∂μ/∂ν) x).toReal :=  ENNReal.toReal_pos hx_pos.ne' hx_lt_top.ne
   rw [← log_rpow h_pos, exp_log (rpow_pos_of_pos h_pos _)]
 
+noncomputable
+abbrev avgMass (a : ℝ) (μ ν : Measure α) : ℝ≥0∞ :=
+  ENNReal.ofReal (1 - a) * ν .univ + ENNReal.ofReal a * μ .univ
+
 /-- Rényi divergence of order `a`. If `a = 1`, it is defined as `kl μ ν`, otherwise as
 `(a - 1)⁻¹ * log (ν(α) + (a - 1) * Hₐ(μ, ν))`.
 If `ν` is a probability measure then this becomes the more usual definition
