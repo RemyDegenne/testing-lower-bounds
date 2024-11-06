@@ -40,17 +40,20 @@ open Set Filter ConvexOn
 -- lemma fDiv_statInfoFun_nonneg : 0 ≤ fDiv (statInfoDivFun β γ) μ ν :=
 --   fDiv_nonneg_of_nonneg (fun x ↦ statInfoFun_nonneg β γ x) (derivAtTop_statInfoFun_nonneg β γ)
 
-lemma stronglyMeasurable_fDiv_statInfoFun (μ ν : Measure 𝒳) [SFinite ν] :
-    StronglyMeasurable (Function.uncurry fun β γ ↦ fDiv (statInfoDivFun β γ) μ ν) := by
+lemma measurable_fDiv_statInfoFun (μ ν : Measure 𝒳) [SFinite ν] :
+    Measurable (Function.uncurry fun β γ ↦ fDiv (statInfoDivFun β γ) μ ν) := by
   simp_rw [fDiv]
-  · refine Measurable.stronglyMeasurable ?_
-    refine Measurable.add ?_ ?_
+  · refine Measurable.add ?_ ?_
     · refine Measurable.lintegral_prod_right ?_
       exact measurable_statInfoDivFun
     simp_rw [derivAtTop_statInfoDivFun_eq]
     refine Measurable.mul_const ?_ _
     apply Measurable.ite (measurableSet_le measurable_const measurable_fst)
       <;> refine Measurable.ite (measurableSet_le measurable_snd measurable_fst) ?_ ?_ <;> fun_prop
+
+lemma stronglyMeasurable_fDiv_statInfoFun (μ ν : Measure 𝒳) [SFinite ν] :
+    StronglyMeasurable (Function.uncurry fun β γ ↦ fDiv (statInfoDivFun β γ) μ ν) :=
+  (measurable_fDiv_statInfoFun μ ν).stronglyMeasurable
 
 section FDivStatInfo
 
@@ -63,6 +66,19 @@ lemma fDiv_statInfoFun_eq_integral_add [IsFiniteMeasure μ] [IsFiniteMeasure ν]
   rw [DivFunction.lintegral_ofReal_eq_integral_of_continuous]
   · exact continuousWithinAt_statInfoFun_zero
   · exact integrable_statInfoFun_rnDeriv _ _ _ _
+
+lemma fDiv_statInfoFun_eq_integral_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hμν : μ ≪ ν) :
+    fDiv (statInfoDivFun β γ) μ ν
+      = ENNReal.ofReal (∫ x, statInfoFun β γ ((∂μ/∂ν) x).toReal ∂ν) := by
+  rw [fDiv_statInfoFun_eq_integral_add, Measure.singularPart_eq_zero_of_ac hμν]
+  simp
+
+lemma fDiv_statInfoFun_eq_lintegral_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hμν : μ ≪ ν) :
+    fDiv (statInfoDivFun β γ) μ ν
+      = ∫⁻ x, ENNReal.ofReal (statInfoFun β γ ((∂μ/∂ν) x).toReal) ∂ν := by
+  rw [fDiv_statInfoFun_eq_integral_of_ac hμν, ofReal_integral_eq_lintegral_ofReal]
+  · exact integrable_statInfoFun_rnDeriv _ _ _ _
+  · exact ae_of_all _ <| fun _ ↦ statInfoFun_nonneg _ _ _
 
 lemma toReal_fDiv_statInfoFun_eq_integral_add [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     (fDiv (statInfoDivFun β γ) μ ν).toReal

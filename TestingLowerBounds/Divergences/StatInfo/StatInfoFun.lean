@@ -3,7 +3,7 @@ Copyright (c) 2024 Lorenzo Luccioli. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import Mathlib.MeasureTheory.Function.L1Space
+import Mathlib.MeasureTheory.Integral.IntegrableOn
 import Mathlib.MeasureTheory.Measure.Regular
 import TestingLowerBounds.DerivAtTop
 
@@ -53,6 +53,14 @@ lemma statInfoFun_neg_neg (h : β ≠ γ) : statInfoFun (-β) (-γ) = statInfoFu
 
 section Measurability
 
+lemma measurable_statInfoFun : Measurable statInfoFun.uncurry.uncurry := by
+  change Measurable (fun (p : (ℝ × ℝ) × ℝ) ↦ if p.1.2 ≤ p.1.1 then max 0 (p.1.2 - p.1.1 * p.2)
+    else max 0 (p.1.1 * p.2 - p.1.2))
+  apply Measurable.ite
+  · exact measurableSet_le (by fun_prop) (by fun_prop)
+  · fun_prop
+  · fun_prop
+
 lemma stronglyMeasurable_statInfoFun : StronglyMeasurable statInfoFun.uncurry.uncurry := by
   apply Measurable.stronglyMeasurable
   change Measurable (fun (p : (ℝ × ℝ) × ℝ) ↦ if p.1.2 ≤ p.1.1 then max 0 (p.1.2 - p.1.1 * p.2)
@@ -64,11 +72,11 @@ lemma stronglyMeasurable_statInfoFun : StronglyMeasurable statInfoFun.uncurry.un
 
 lemma measurable_statInfoFun2 : Measurable fun γ ↦ statInfoFun β γ x := by
   change Measurable (statInfoFun.uncurry.uncurry ∘ (fun (γ : ℝ) ↦ ((β, γ), x)))
-  exact stronglyMeasurable_statInfoFun.measurable.comp (by fun_prop)
+  exact measurable_statInfoFun.comp (by fun_prop)
 
 lemma stronglyMeasurable_statInfoFun3 : StronglyMeasurable (statInfoFun β γ) := by
   change StronglyMeasurable (statInfoFun.uncurry.uncurry ∘ (fun (x : ℝ) ↦ ((β, γ), x)))
-  refine stronglyMeasurable_statInfoFun.measurable.comp (by fun_prop) |>.stronglyMeasurable
+  refine measurable_statInfoFun.comp (by fun_prop) |>.stronglyMeasurable
 
 end Measurability
 
@@ -431,6 +439,11 @@ lemma statInfoFun_of_one_of_right_le_one (h : x ≤ 1) :
     statInfoFun 1 γ x = (Ioc x 1).indicator (fun y ↦ y - x) γ := by
   convert statInfoFun_of_nonneg_of_right_le_one _ h <;> simp
 
+lemma statInfoFun_one_zero_right : statInfoFun 1 γ 0 = (Ioc 0 1).indicator id γ := by
+  rw [statInfoFun_of_one_of_right_le_one zero_le_one]
+  simp only [sub_zero]
+  rfl
+
 lemma statInfoFun_le_of_nonneg_of_right_le_one (hβ : 0 ≤ β) (hx : x ≤ 1) :
     statInfoFun β γ x ≤ (Ioc (β * x) β).indicator (fun _ ↦ β - β * x) γ := by
   rw [statInfoFun_of_nonneg_of_right_le_one hβ hx]
@@ -507,6 +520,34 @@ lemma integrable_statInfoFun {μ : Measure ℝ} [IsLocallyFiniteMeasure μ] (β 
   refine ((lintegral_nnnorm_statInfoFun_le _ _).trans_lt ?_)
   refine ENNReal.mul_lt_top ?_ ENNReal.ofReal_lt_top
   exact (measure_mono uIoc_subset_uIcc).trans_lt isCompact_uIcc.measure_lt_top
+
+lemma integrable_statInfoFun_one_iff_of_ge {μ : Measure ℝ} {x : ℝ} (hx : 1 ≤ x) :
+    Integrable (fun γ ↦ statInfoFun 1 γ x) μ ↔ IntegrableOn (fun y ↦ x - y) (Ioc 1 x) μ := by
+  simp_rw [statInfoFun_of_one_of_one_le_right hx]
+  rw [integrable_indicator_iff]
+  exact measurableSet_Ioc
+
+lemma integrable_statInfoFun_one_iff_of_le {μ : Measure ℝ} {x : ℝ} (hx : x ≤ 1) :
+    Integrable (fun γ ↦ statInfoFun 1 γ x) μ ↔ IntegrableOn (fun y ↦ y - x) (Ioc x 1) μ := by
+  simp_rw [statInfoFun_of_one_of_right_le_one hx]
+  rw [integrable_indicator_iff]
+  exact measurableSet_Ioc
+
+lemma integrable_statInfoFun_one_iff {μ : Measure ℝ} (x : ℝ) :
+    Integrable (fun γ ↦ statInfoFun 1 γ x) μ ↔ IntegrableOn (fun y ↦ y - x) (uIoc 1 x) μ := by
+  rcases le_total 1 x with hx | hx
+  · simp only [hx, uIoc_of_le]
+    have : (-fun y ↦ x - y) = (fun y ↦ y - x) := by ext; simp
+    rw [integrable_statInfoFun_one_iff_of_ge hx, IntegrableOn, IntegrableOn, ← this,
+      integrable_neg_iff]
+  · rw [integrable_statInfoFun_one_iff_of_le hx]
+    simp [hx]
+
+lemma integrable_statInfoFun_one_iff' {μ : Measure ℝ} (x : ℝ) :
+    Integrable (fun γ ↦ statInfoFun 1 γ x) μ ↔ IntegrableOn (fun y ↦ x - y) (uIoc 1 x) μ := by
+  have : (-fun y ↦ x - y) = (fun y ↦ y - x) := by ext; simp
+  rw [integrable_statInfoFun_one_iff, IntegrableOn, IntegrableOn, ← this,
+      integrable_neg_iff]
 
 end statInfoFun_γ
 

@@ -1054,6 +1054,9 @@ lemma measure_Ioi_of_tendsto_atTop_atTop (hf : Tendsto f atTop atTop) (x : ℝ) 
 @[simp]
 lemma measure_zero : (0 : ERealStieltjes).measure = 0 := measure_const 0
 
+instance : SFinite f.measure := by
+  sorry
+
 lemma isFiniteMeasure {l u : ℝ} (hfl : Tendsto f atBot (𝓝 l)) (hfu : Tendsto f atTop (𝓝 u)) :
     IsFiniteMeasure f.measure := by
   constructor

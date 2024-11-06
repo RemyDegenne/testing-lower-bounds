@@ -18,6 +18,20 @@ open scoped ENNReal Topology
 
 namespace ProbabilityTheory
 
+lemma ENNReal.preimage_toReal_Ioc {a b : ℝ} (h : 0 ≤ a) :
+    ENNReal.toReal ⁻¹' Ioc a b = Ioc (ENNReal.ofReal a) (ENNReal.ofReal b) := by
+  ext x
+  rcases lt_or_le b a with hb | hb
+  · rw [Ioc_eq_empty (not_lt.mpr hb.le), Ioc_eq_empty]
+    · simp
+    · rw [not_lt, ENNReal.ofReal_le_ofReal_iff h]
+      exact hb.le
+  simp only [mem_preimage, mem_Ioc]
+  by_cases hx_top : x = ∞
+  · simp [hx_top, not_lt.mpr h]
+  rw [ENNReal.le_ofReal_iff_toReal_le hx_top (h.trans hb),
+    ENNReal.ofReal_lt_iff_lt_toReal h hx_top]
+
 namespace DivFunction
 
 variable {𝒳 : Type*} {m𝒳 : MeasurableSpace 𝒳} {μ ν : Measure 𝒳} {f g : DivFunction} {β γ x t : ℝ}
@@ -298,71 +312,54 @@ def rightDerivEnlargedStieltjes (f : DivFunction) : StieltjesFunction where
         f.realToMinmaxOrderIso_ne_top]
       simp [mem_Ici.mp hy]
 
-noncomputable
-def enlargedCurvatureMeasure (f : DivFunction) : Measure ℝ :=
-  f.rightDerivEnlargedStieltjes.measure
+-- noncomputable
+-- def enlargedCurvatureMeasure (f : DivFunction) : Measure ℝ :=
+--   f.rightDerivEnlargedStieltjes.measure
 
-noncomputable
-def curvatureMeasure_Ioo (f : DivFunction) : Measure (Ioo f.xmin f.xmax) :=
-  f.enlargedCurvatureMeasure.map f.realToMinmaxOrderIso.toHomeomorph.toMeasurableEquiv
+-- noncomputable
+-- def curvatureMeasure_Ioo (f : DivFunction) : Measure (Ioo f.xmin f.xmax) :=
+--   f.enlargedCurvatureMeasure.map f.realToMinmaxOrderIso.toHomeomorph.toMeasurableEquiv
 
-open Classical in
-/-- The curvature measure induced by a convex function. It is defined as the only measure that has
-the right derivative of the function as a CDF. -/
-noncomputable
-def curvatureMeasure (f : DivFunction) : Measure ℝ≥0∞ :=
-  (if Tendsto f.rightDerivEnlarged atBot atBot then 0 else ∞) • Measure.dirac f.xmin
-  + f.curvatureMeasure_Ioo.map (Subtype.val : Ioo f.xmin f.xmax → ℝ≥0∞)
-  + (if Tendsto f.rightDerivEnlarged atTop atTop then 0 else ∞) • Measure.dirac f.xmax
+-- open Classical in
+-- /-- The curvature measure induced by a convex function. It is defined as the only measure that has
+-- the right derivative of the function as a CDF. -/
+-- noncomputable
+-- def curvatureMeasure (f : DivFunction) : Measure ℝ≥0∞ :=
+--   (if Tendsto f.rightDerivEnlarged atBot atBot then 0 else ∞) • Measure.dirac f.xmin
+--   + f.curvatureMeasure_Ioo.map (Subtype.val : Ioo f.xmin f.xmax → ℝ≥0∞)
+--   + (if Tendsto f.rightDerivEnlarged atTop atTop then 0 else ∞) • Measure.dirac f.xmax
 
-lemma curvatureMeasure_add (f g : DivFunction) :
-    (f + g).curvatureMeasure = f.curvatureMeasure + g.curvatureMeasure := by
-  sorry
+-- lemma curvatureMeasure_add (f g : DivFunction) :
+--     (f + g).curvatureMeasure = f.curvatureMeasure + g.curvatureMeasure := by
+--   sorry
 
--- /-- A Taylor formula for convex functions in terms of the right derivative
--- and the curvature measure. -/
--- theorem convex_taylor (hf : ConvexOn ℝ univ f) (hf_cont : Continuous f) {a b : ℝ} :
---     f b - f a - (rightDeriv f a) * (b - a)  = ∫ x in a..b, b - x ∂(curvatureMeasure f) := by
---   have h_int : IntervalIntegrable (rightDeriv f) volume a b := hf.rightDeriv_mono.intervalIntegrable
---   rw [← intervalIntegral.integral_eq_sub_of_hasDeriv_right hf_cont.continuousOn
---     (fun x _ ↦ hf.hadDerivWithinAt_rightDeriv x) h_int]
---   simp_rw [← neg_sub _ b, intervalIntegral.integral_neg, curvatureMeasure_of_convexOn hf,
---     mul_neg, sub_neg_eq_add, mul_comm _ (a - b)]
+-- lemma todo1 (a b : ℝ) :
+--     ∫ x in a..b, x - b ∂f.enlargedCurvatureMeasure
+--       = - (a - b) * f.rightDerivEnlargedStieltjes a
+--         - ∫ x in a..b, f.rightDerivEnlargedStieltjes x := by
 --   let g := StieltjesFunction.id + StieltjesFunction.const (-b)
---   have hg : g = fun x ↦ x - b := rfl
---   rw [← hg, integral_stieltjes_meas_by_parts g hf.rightDerivStieltjes]
---   swap; · rw [hg]; fun_prop
---   simp only [Real.volume_eq_stieltjes_id, add_apply, id_apply, id_eq, const_apply, add_neg_cancel,
---     zero_mul, zero_sub, measure_add, measure_const, add_zero, neg_sub, sub_neg_eq_add, g]
---   rfl
+--   have hg_eq : g = fun x ↦ x - b := rfl
+--   have hg_cont : ContinuousOn g (Icc a b) := by rw [hg_eq]; fun_prop
+--   change ∫ x in a..b, g x ∂f.enlargedCurvatureMeasure = _
+--   unfold enlargedCurvatureMeasure
+--   rw [integral_stieltjes_meas_by_parts g f.rightDerivEnlargedStieltjes a b hg_cont]
+--   simp only [hg_eq, sub_self, zero_mul, zero_sub, neg_sub]
+--   rw [← neg_mul, neg_sub]
+--   congr
+--   unfold g
+--   simp only [measure_add, measure_const, add_zero, Real.volume_eq_stieltjes_id]
 
-lemma todo1 (a b : ℝ) :
-    ∫ x in a..b, x - b ∂f.enlargedCurvatureMeasure
-      = - (a - b) * f.rightDerivEnlargedStieltjes a
-        - ∫ x in a..b, f.rightDerivEnlargedStieltjes x := by
-  let g := StieltjesFunction.id + StieltjesFunction.const (-b)
-  have hg_eq : g = fun x ↦ x - b := rfl
-  have hg_cont : ContinuousOn g (Icc a b) := by rw [hg_eq]; fun_prop
-  change ∫ x in a..b, g x ∂f.enlargedCurvatureMeasure = _
-  unfold enlargedCurvatureMeasure
-  rw [integral_stieltjes_meas_by_parts g f.rightDerivEnlargedStieltjes a b hg_cont]
-  simp only [hg_eq, sub_self, zero_mul, zero_sub, neg_sub]
-  rw [← neg_mul, neg_sub]
-  congr
-  unfold g
-  simp only [measure_add, measure_const, add_zero, Real.volume_eq_stieltjes_id]
-
-lemma todo2 (a b : ℝ) :
-    ∫ x in a..b, b - x ∂f.enlargedCurvatureMeasure
-      = (a - b) * f.rightDerivEnlargedStieltjes a
-        + ∫ x in a..b, f.rightDerivEnlargedStieltjes x := by
-  have : ∫ x in a..b, b - x ∂f.enlargedCurvatureMeasure
-      = - ∫ x in a..b, x - b ∂f.enlargedCurvatureMeasure := by
-    unfold intervalIntegral
-    conv_rhs => rw [sub_eq_add_neg, neg_add, ← integral_neg, ← integral_neg]
-    simp_rw [neg_sub, ← sub_eq_add_neg]
-  rw [this, todo1 a b]
-  ring
+-- lemma todo2 (a b : ℝ) :
+--     ∫ x in a..b, b - x ∂f.enlargedCurvatureMeasure
+--       = (a - b) * f.rightDerivEnlargedStieltjes a
+--         + ∫ x in a..b, f.rightDerivEnlargedStieltjes x := by
+--   have : ∫ x in a..b, b - x ∂f.enlargedCurvatureMeasure
+--       = - ∫ x in a..b, x - b ∂f.enlargedCurvatureMeasure := by
+--     unfold intervalIntegral
+--     conv_rhs => rw [sub_eq_add_neg, neg_add, ← integral_neg, ← integral_neg]
+--     simp_rw [neg_sub, ← sub_eq_add_neg]
+--   rw [this, todo1 a b]
+--   ring
 
 -- lemma preimage_toReal_realToMinMaxOrderIso_Ioc {a b : ℝ}
 --     (ha : ENNReal.ofReal a ∈ Ioo f.xmin f.xmax) (hb : ENNReal.ofReal b ∈ Ioo f.xmin f.xmax) :
@@ -398,6 +395,70 @@ lemma todo2 (a b : ℝ) :
 --   · sorry
 --   rw [← h1, ← h2, image_toReal_realToMinMaxOrderIso_Ioc, image_toReal_realToMinMaxOrderIso_Ioc]
 
+
+/-- The curvature measure induced by a convex function. It is defined as the only measure that has
+the right derivative of the function as a CDF. -/
+noncomputable
+irreducible_def curvatureMeasure (f : DivFunction) : Measure ℝ≥0∞ :=
+  f.rightDerivStieltjes.measure.map ENNReal.ofReal
+
+lemma curvatureMeasure_Ioi (a : ℝ≥0∞) (ha : a ≠ ∞) :
+    f.curvatureMeasure (Ioi a) = f.rightDerivStieltjes.measure (Ioi a.toReal) := by
+  rw [curvatureMeasure, Measure.map_apply]
+  · congr
+    ext x
+    simp only [mem_preimage, mem_Ioi]
+    rw [ENNReal.lt_ofReal_iff_toReal_lt ha]
+  · fun_prop
+  · simp
+
+lemma curvatureMeasure_singleton_top : f.curvatureMeasure {∞} = 0 := by
+  rw [curvatureMeasure, Measure.map_apply]
+  · have : ENNReal.ofReal ⁻¹' {⊤} = ∅ := by ext; simp
+    simp [this]
+  · exact ENNReal.measurable_ofReal
+  · simp
+
+@[simp]
+lemma curvatureMeasure_Ioo_top_eq_curvatureMeasure_Ioi {a : ℝ≥0∞} (ha : a ≠ ∞) :
+    f.curvatureMeasure (Ioo a ∞) = f.curvatureMeasure (Ioi a) := by
+  have : Ioi a = Ioo a ∞ ∪ {∞} := by
+    ext x
+    simp only [mem_Ioi, union_singleton, mem_insert_iff, mem_Ioo]
+    by_cases hx : x = ∞
+    · simp [hx, ha.lt_top]
+    · simp [Ne.lt_top hx, hx]
+  rw [this, measure_union _ (measurableSet_singleton _), curvatureMeasure_singleton_top, add_zero]
+  simp
+
+lemma curvatureMeasure_add (hf : ∀ x, 0 < x → f x ≠ ∞) (hg : ∀ x, 0 < x → g x ≠ ∞) :
+    curvatureMeasure (f + g) = curvatureMeasure f + curvatureMeasure g := by
+  simp_rw [curvatureMeasure, ← Measure.map_add _ _ ENNReal.measurable_ofReal]
+  -- that proof does not work for now. Need to generalize `ERealStieltjes.measure_add`
+  rw [← ERealStieltjes.measure_add, rightDerivStieltjes_add]
+  · exact fun x ↦ ⟨sorry, rightDerivStieltjes_ne_top hf x⟩
+  · exact fun x ↦ ⟨sorry, rightDerivStieltjes_ne_top hg x⟩
+
+section ConvexTaylor
+
+-- /-- A Taylor formula for convex functions in terms of the right derivative
+-- and the curvature measure. -/
+-- theorem convex_taylor (hf : ConvexOn ℝ univ f) (hf_cont : Continuous f) {a b : ℝ} :
+--     f b - f a - (rightDeriv f a) * (b - a)  = ∫ x in a..b, b - x ∂(curvatureMeasure f) := by
+--   have h_int : IntervalIntegrable (rightDeriv f) volume a b := hf.rightDeriv_mono.intervalIntegrable
+--   rw [← intervalIntegral.integral_eq_sub_of_hasDeriv_right hf_cont.continuousOn
+--     (fun x _ ↦ hf.hadDerivWithinAt_rightDeriv x) h_int]
+--   simp_rw [← neg_sub _ b, intervalIntegral.integral_neg, curvatureMeasure_of_convexOn hf,
+--     mul_neg, sub_neg_eq_add, mul_comm _ (a - b)]
+--   let g := StieltjesFunction.id + StieltjesFunction.const (-b)
+--   have hg : g = fun x ↦ x - b := rfl
+--   rw [← hg, integral_stieltjes_meas_by_parts g hf.rightDerivStieltjes]
+--   swap; · rw [hg]; fun_prop
+--   simp only [Real.volume_eq_stieltjes_id, add_apply, id_apply, id_eq, const_apply, add_neg_cancel,
+--     zero_mul, zero_sub, measure_add, measure_const, add_zero, neg_sub, sub_neg_eq_add, g]
+--   rfl
+
+
 theorem convex_taylor_one_right (hf : rightDeriv f.realFun 1 = 0) {b : ℝ≥0∞} (hb : 1 ≤ b) :
     f b = ∫⁻ x in Ioc 1 b, b - x ∂f.curvatureMeasure := by
   sorry
@@ -409,12 +470,31 @@ theorem convex_taylor_one_left (hf : rightDeriv f.realFun 1 = 0) {b : ℝ≥0∞
 noncomputable
 def curvatureMeasureReal (f : DivFunction) : Measure ℝ := f.curvatureMeasure.map ENNReal.toReal
 
+lemma curvatureMeasureReal_apply (f : DivFunction) {s : Set ℝ} (hs : MeasurableSet s) :
+    f.curvatureMeasureReal s = f.curvatureMeasure (ENNReal.toReal ⁻¹' s) := by
+  rw [curvatureMeasureReal, Measure.map_apply (by fun_prop) hs]
+
+instance : SFinite f.curvatureMeasureReal := by
+  sorry
+
+lemma lintegral_curvatureMeasureReal (f : DivFunction) {g : ℝ → ℝ≥0∞} (hg : Measurable g) :
+    ∫⁻ x, g x ∂f.curvatureMeasureReal = ∫⁻ x, g x.toReal ∂f.curvatureMeasure := by
+  unfold curvatureMeasureReal
+  rw [lintegral_map hg (by fun_prop)]
+
 lemma integral_curvatureMeasureReal {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
     (f : DivFunction) {g : ℝ → E} (hg : StronglyMeasurable g) :
     ∫ x, g x ∂f.curvatureMeasureReal = ∫ x, g x.toReal ∂f.curvatureMeasure := by
   unfold curvatureMeasureReal
   rw [integral_map _ hg.aestronglyMeasurable]
   exact Measurable.aemeasurable (by fun_prop)
+
+lemma setLIntegral_curvatureMeasureReal (f : DivFunction) {g : ℝ → ℝ≥0∞} (hg : Measurable g)
+    {s : Set ℝ} (hs : MeasurableSet s) :
+    ∫⁻ x in s, g x ∂f.curvatureMeasureReal
+      = ∫⁻ x in ENNReal.toReal ⁻¹' s, g x.toReal ∂f.curvatureMeasure := by
+  unfold curvatureMeasureReal
+  rw [setLIntegral_map hs hg (by fun_prop)]
 
 lemma setIntegral_curvatureMeasureReal {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
     (f : DivFunction) {g : ℝ → E} (hg : StronglyMeasurable g) {s : Set ℝ} (hs : MeasurableSet s) :
@@ -424,23 +504,72 @@ lemma setIntegral_curvatureMeasureReal {E : Type*} [NormedAddCommGroup E] [Norme
   rw [setIntegral_map hs hg.aestronglyMeasurable]
   exact Measurable.aemeasurable (by fun_prop)
 
+lemma setLIntegral_Ioc_curvatureMeasureReal (f : DivFunction) {g : ℝ → ℝ≥0∞} (hg : Measurable g)
+    {a b : ℝ} (h : 0 ≤ a) :
+    ∫⁻ x in Ioc a b, g x ∂f.curvatureMeasureReal
+      = ∫⁻ x in Ioc (ENNReal.ofReal a) (ENNReal.ofReal b), g x.toReal ∂f.curvatureMeasure := by
+  rw [setLIntegral_curvatureMeasureReal f hg measurableSet_Ioc, ENNReal.preimage_toReal_Ioc h]
+
 lemma setIntegral_Ioc_curvatureMeasureReal {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
     (f : DivFunction) {g : ℝ → E} (hg : StronglyMeasurable g) {a b : ℝ}
     (h : 0 ≤ a) :
     ∫ x in Ioc a b, g x ∂f.curvatureMeasureReal
       = ∫ x in Ioc (ENNReal.ofReal a) (ENNReal.ofReal b), g x.toReal ∂f.curvatureMeasure := by
-  rw [setIntegral_curvatureMeasureReal f hg measurableSet_Ioc]
-  congr with x
-  rcases lt_or_le b a with hb | hb
-  · rw [Ioc_eq_empty (not_lt.mpr hb.le), Ioc_eq_empty]
-    · simp
-    · rw [not_lt, ENNReal.ofReal_le_ofReal_iff h]
-      exact hb.le
-  simp only [mem_preimage, mem_Ioc]
-  by_cases hx_top : x = ∞
-  · simp [hx_top, not_lt.mpr h]
-  rw [ENNReal.le_ofReal_iff_toReal_le hx_top (h.trans hb),
-    ENNReal.ofReal_lt_iff_lt_toReal h hx_top]
+  rw [setIntegral_curvatureMeasureReal f hg measurableSet_Ioc, ENNReal.preimage_toReal_Ioc h]
+
+lemma integrable_curvatureMeasureReal_sub_iff_ne_top_of_ge (hf : rightDeriv f.realFun 1 = 0)
+    {b : ℝ} (hb : 1 ≤ b) :
+    IntegrableOn (fun x ↦ b - x) (Ioc 1 b) f.curvatureMeasureReal ↔ f (ENNReal.ofReal b) ≠ ∞ := by
+  have : EqOn (fun x ↦ b - x) (fun x ↦ (ENNReal.ofReal b - ENNReal.ofReal x).toReal)
+      (Ioc 1 b) := by
+    intro x hx
+    simp only
+    rw [ENNReal.toReal_sub_of_le _ ENNReal.ofReal_ne_top, ENNReal.toReal_ofReal,
+      ENNReal.toReal_ofReal]
+    · exact zero_le_one.trans hx.1.le
+    · positivity
+    · exact ENNReal.ofReal_le_ofReal hx.2
+  rw [integrableOn_congr_fun this measurableSet_Ioc, IntegrableOn, integrable_toReal_iff]
+  rotate_left
+  · exact Measurable.aemeasurable (by fun_prop)
+  · refine ae_of_all _ fun x ↦ (tsub_le_self.trans_lt ENNReal.ofReal_lt_top).ne
+  rw [setLIntegral_Ioc_curvatureMeasureReal f (by fun_prop) zero_le_one, ENNReal.ofReal_one]
+  have : ∫⁻ x in Ioc 1 (ENNReal.ofReal b),
+        ENNReal.ofReal b - ENNReal.ofReal x.toReal ∂f.curvatureMeasure
+      = ∫⁻ x in Ioc 1 (ENNReal.ofReal b), ENNReal.ofReal b - x ∂f.curvatureMeasure := by
+    refine setLIntegral_congr_fun measurableSet_Ioc <| ae_of_all _ fun x hx ↦ ?_
+    rw [ENNReal.ofReal_toReal]
+    refine (hx.2.trans_lt ?_).ne
+    exact ENNReal.ofReal_lt_top
+  rw [this, convex_taylor_one_right hf]
+  simp [hb]
+
+lemma integrable_curvatureMeasureReal_sub_iff_ne_top_of_le (hf : rightDeriv f.realFun 1 = 0)
+    {b : ℝ} (hb_nonneg : 0 ≤ b) (hb : b ≤ 1) :
+    IntegrableOn (fun x ↦ x - b) (Ioc b 1) f.curvatureMeasureReal ↔ f (ENNReal.ofReal b) ≠ ∞ := by
+  have : EqOn (fun x ↦ x - b) (fun x ↦ (ENNReal.ofReal x - ENNReal.ofReal b).toReal)
+      (Ioc b 1) := by
+    intro x hx
+    simp only
+    rw [ENNReal.toReal_sub_of_le _ ENNReal.ofReal_ne_top, ENNReal.toReal_ofReal,
+      ENNReal.toReal_ofReal]
+    · positivity
+    · exact hb_nonneg.trans hx.1.le
+    · exact ENNReal.ofReal_le_ofReal hx.1.le
+  rw [integrableOn_congr_fun this measurableSet_Ioc, IntegrableOn, integrable_toReal_iff]
+  rotate_left
+  · exact Measurable.aemeasurable (by fun_prop)
+  · refine ae_of_all _ fun x ↦ (tsub_le_self.trans_lt ENNReal.ofReal_lt_top).ne
+  rw [setLIntegral_Ioc_curvatureMeasureReal f (by fun_prop) hb_nonneg, ENNReal.ofReal_one]
+  have : ∫⁻ x in Ioc (ENNReal.ofReal b) 1,
+        ENNReal.ofReal x.toReal - ENNReal.ofReal b ∂f.curvatureMeasure
+      = ∫⁻ x in Ioc (ENNReal.ofReal b) 1, x - ENNReal.ofReal b ∂f.curvatureMeasure := by
+    refine setLIntegral_congr_fun measurableSet_Ioc <| ae_of_all _ fun x hx ↦ ?_
+    rw [ENNReal.ofReal_toReal]
+    refine (hx.2.trans_lt ?_).ne
+    exact ENNReal.one_lt_top
+  rw [this, convex_taylor_one_left hf]
+  simp [hb]
 
 theorem convex_taylor_one_right' (hf : rightDeriv f.realFun 1 = 0) {b : ℝ} (hb : 1 ≤ b) :
     f.realFun b = ∫ x in Ioc 1 b, b - x ∂f.curvatureMeasureReal := by
@@ -495,36 +624,7 @@ theorem convex_taylor_one (hf : rightDeriv f.realFun 1 = 0) {b : ℝ} (hb_zero :
     simp only [← integral_neg, neg_sub]
     exact convex_taylor_one_left' hf hb_zero hb.le
 
--- /-- The curvature measure induced by a convex function. It is defined as the only measure that has
--- the right derivative of the function as a CDF. -/
--- noncomputable
--- irreducible_def curvatureMeasure (f : DivFunction) : Measure ℝ≥0∞ :=
---   f.rightDerivStieltjes.measure.map ENNReal.ofReal
-
--- lemma curvatureMeasure_Ioi (a : ℝ≥0∞) (ha : a ≠ ∞) :
---     f.curvatureMeasure (Ioi a) = f.rightDerivStieltjes.measure (Ioi a.toReal) := by
---   rw [curvatureMeasure, Measure.map_apply]
---   · congr
---     ext x
---     simp only [mem_preimage, mem_Ioi]
---     rw [ENNReal.lt_ofReal_iff_toReal_lt ha]
---   · fun_prop
---   · simp
-
--- lemma curvatureMeasure_singleton_top : f.curvatureMeasure {∞} = 0 := by
---   rw [curvatureMeasure, Measure.map_apply]
---   · have : ENNReal.ofReal ⁻¹' {⊤} = ∅ := by ext; simp
---     simp [this]
---   · exact ENNReal.measurable_ofReal
---   · simp
-
--- lemma curvatureMeasure_add (hf : ∀ x, 0 < x → f x ≠ ∞) (hg : ∀ x, 0 < x → g x ≠ ∞) :
---     curvatureMeasure (f + g) = curvatureMeasure f + curvatureMeasure g := by
---   simp_rw [curvatureMeasure, ← Measure.map_add _ _ ENNReal.measurable_ofReal]
---   -- that proof does not work for now. Need to generalize `ERealStieltjes.measure_add`
---   rw [← ERealStieltjes.measure_add, rightDerivStieltjes_add]
---   · exact fun x ↦ ⟨sorry, rightDerivStieltjes_ne_top hf x⟩
---   · exact fun x ↦ ⟨sorry, rightDerivStieltjes_ne_top hg x⟩
+end ConvexTaylor
 
 end DivFunction
 

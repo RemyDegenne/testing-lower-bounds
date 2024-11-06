@@ -466,6 +466,10 @@ lemma rightDerivStieltjes_ne_top (hf : ∀ x, 0 < x → f x ≠ ∞) (x : ℝ) :
   sorry
 
 @[simp]
+lemma rightDerivStieltjes_one : f.rightDerivStieltjes 1 = rightDeriv f.realFun 1 := by
+  sorry
+
+@[simp]
 lemma toReal_max_xmin : (max f.xmin g.xmin).toReal = max f.xmin.toReal g.xmin.toReal := by
   sorry
 
@@ -506,6 +510,10 @@ noncomputable
 def derivAtTop (f : DivFunction) : ℝ≥0∞ :=
   if f.xmax ≠ ∞ then ∞
   else limsup (fun x ↦ ENNReal.ofReal (rightDeriv f.realFun x)) atTop
+
+lemma tendsto_rightDerivStieltjes_atTop :
+    Tendsto f.rightDerivStieltjes atTop (𝓝 f.derivAtTop) := by
+  sorry
 
 @[simp]
 lemma derivAtTop_zero : derivAtTop (0 : DivFunction) = 0 := sorry
