@@ -507,13 +507,13 @@ end RightDeriv
 section DerivAtTop
 
 noncomputable
-def derivAtTop (f : DivFunction) : ℝ≥0∞ :=
-  if f.xmax ≠ ∞ then ∞
-  else limsup (fun x ↦ ENNReal.ofReal (rightDeriv f.realFun x)) atTop
+def derivAtTop (f : DivFunction) : ℝ≥0∞ := (limsup f.rightDerivStieltjes atTop).toENNReal
 
 lemma tendsto_rightDerivStieltjes_atTop :
     Tendsto f.rightDerivStieltjes atTop (𝓝 f.derivAtTop) := by
-  sorry
+  rw [derivAtTop, EReal.coe_toENNReal]
+  · sorry
+  · sorry
 
 @[simp]
 lemma derivAtTop_zero : derivAtTop (0 : DivFunction) = 0 := sorry
@@ -558,7 +558,7 @@ lemma le_add_derivAtTop' (x : ℝ≥0∞) {u : ℝ≥0∞} (hu' : u ≤ 1) :
   rw [mul_assoc]
 
 lemma lintegral_comp_rnDeriv_ne_top (μ ν : Measure α) [IsFiniteMeasure μ]
-    [IsFiniteMeasure ν] (hf_deriv : f.derivAtTop ≠ ∞) :
+    [IsFiniteMeasure ν] (hf_zero : f 0 ≠ ∞) (hf_deriv : f.derivAtTop ≠ ∞) :
     ∫⁻ x, f (μ.rnDeriv ν x) ∂ν ≠ ∞ := by
   sorry
   -- obtain ⟨c, c', h⟩ : ∃ c c', ∀ x, _ → c * x + c' ≤ (f x).toReal :=

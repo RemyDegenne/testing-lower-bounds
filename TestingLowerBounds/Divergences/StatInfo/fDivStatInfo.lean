@@ -11,6 +11,7 @@ import TestingLowerBounds.Divergences.StatInfo.StatInfo
 import TestingLowerBounds.Divergences.StatInfo.DivFunction
 import TestingLowerBounds.FDiv.Measurable
 import TestingLowerBounds.FDiv.DivFunction.CurvatureMeasure
+import TestingLowerBounds.FDiv.FDivOfReal
 
 /-!
 # fDiv and StatInfo
@@ -61,9 +62,8 @@ lemma fDiv_statInfoFun_eq_integral_add [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     fDiv (statInfoDivFun β γ) μ ν
       = ENNReal.ofReal (∫ x, statInfoFun β γ ((∂μ/∂ν) x).toReal ∂ν)
         + (statInfoDivFun β γ).derivAtTop * μ.singularPart ν univ := by
-  rw [fDiv]
   unfold statInfoDivFun
-  rw [DivFunction.lintegral_ofReal_eq_integral_of_continuous]
+  rw [fDiv_ofReal_eq_integral_add]
   · exact continuousWithinAt_statInfoFun_zero
   · exact integrable_statInfoFun_rnDeriv _ _ _ _
 
@@ -76,19 +76,20 @@ lemma fDiv_statInfoFun_eq_integral_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure �
 lemma fDiv_statInfoFun_eq_lintegral_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hμν : μ ≪ ν) :
     fDiv (statInfoDivFun β γ) μ ν
       = ∫⁻ x, ENNReal.ofReal (statInfoFun β γ ((∂μ/∂ν) x).toReal) ∂ν := by
-  rw [fDiv_statInfoFun_eq_integral_of_ac hμν, ofReal_integral_eq_lintegral_ofReal]
+  unfold statInfoDivFun
+  rw [fDiv_ofReal_eq_lintegral_of_ac _ _ hμν]
+  · exact continuousWithinAt_statInfoFun_zero
   · exact integrable_statInfoFun_rnDeriv _ _ _ _
-  · exact ae_of_all _ <| fun _ ↦ statInfoFun_nonneg _ _ _
 
 lemma toReal_fDiv_statInfoFun_eq_integral_add [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     (fDiv (statInfoDivFun β γ) μ ν).toReal
       = ∫ x, statInfoFun β γ ((∂μ/∂ν) x).toReal ∂ν
         + (statInfoDivFun β γ).derivAtTop.toReal * (μ.singularPart ν univ).toReal := by
-  rw [fDiv_statInfoFun_eq_integral_add, ENNReal.toReal_add, ENNReal.toReal_mul,
-    ENNReal.toReal_ofReal]
-  · exact integral_nonneg (fun _ ↦ statInfoFun_nonneg _ _ _)
-  · exact ENNReal.ofReal_ne_top
-  · exact ENNReal.mul_ne_top (derivAtTop_statInfoDivFun_ne_top _ _) (measure_ne_top _ _)
+  unfold statInfoDivFun
+  rw [toReal_fDiv_ofReal_eq_integral_add']
+  · exact continuousWithinAt_statInfoFun_zero
+  · exact integrable_statInfoFun_rnDeriv _ _ _ _
+  · exact derivAtTop_statInfoDivFun_ne_top _ _
 
 lemma fDiv_statInfoDivFun_ne_top [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     fDiv (statInfoDivFun β γ) μ ν ≠ ∞ :=

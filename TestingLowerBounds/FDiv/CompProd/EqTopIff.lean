@@ -53,22 +53,50 @@ lemma fDiv_compProd_right (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMea
     · exact measurable_divFunction_rnDeriv.comp measurable_fst
   · rw [singularPart_compProd_left, Measure.compProd_apply_univ]
 
-lemma fDiv_compProd_ne_top_iff'' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+lemma fDiv_compProd_ne_top_iff''' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] :
-    fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ η) ≠ ∞ ↔
-      f.derivAtTop = ∞ →
-      (∫⁻ a, ∫⁻ b, f ((∂(μ ⊗ₘ κ)/∂(ν ⊗ₘ η)) (a, b)) ∂η a ∂ν ≠ ∞ ∧ μ ⊗ₘ κ ≪ ν ⊗ₘ η) := by
+    fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ η) ≠ ∞
+      ↔ (f.derivAtTop = ∞ → μ ⊗ₘ κ ≪ ν ⊗ₘ η)
+        ∧ (f 0 = ∞ ∨ f.derivAtTop = ∞ → ∫⁻ a, ∫⁻ b, f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) (a, b)) ∂η a ∂ν ≠ ∞) := by
   rw [fDiv_ne_top_iff', Measure.lintegral_compProd measurable_divFunction_rnDeriv]
 
+lemma fDiv_compProd_ne_top_iff'' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] (h_zero : f 0 ≠ ∞) :
+    fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ η) ≠ ∞
+      ↔ f.derivAtTop = ∞
+        → (∫⁻ a, ∫⁻ b, f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) (a, b)) ∂η a ∂ν ≠ ∞ ∧ μ ⊗ₘ κ ≪ ν ⊗ₘ η) := by
+  rw [fDiv_compProd_ne_top_iff''']
+  simp only [h_zero, false_or, ne_eq]
+  tauto
+
+lemma fDiv_compProd_ne_top_iff'_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] (h_ac : μ ⊗ₘ κ ≪ μ ⊗ₘ η) :
+    fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ η) ≠ ∞
+      ↔ (f.derivAtTop = ∞ → μ ⊗ₘ κ ≪ ν ⊗ₘ η)
+        ∧ (f 0 = ∞ ∨ f.derivAtTop = ∞
+          → ∫⁻ a, ∫⁻ b, f ((∂μ/∂ν) a * (∂(μ ⊗ₘ κ)/∂(μ ⊗ₘ η)) (a, b)) ∂(η a) ∂ν ≠ ∞) := by
+  rw [fDiv_compProd_ne_top_iff''']
+  suffices ∫⁻ a, ∫⁻ b, f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) (a, b)) ∂η a ∂ν
+      = ∫⁻ a, ∫⁻ b, f ((∂μ/∂ν) a * (∂(μ ⊗ₘ κ)/∂(μ ⊗ₘ η)) (a, b)) ∂η a ∂ν by
+    rw [this]
+  have h_eq := Kernel.rnDeriv_compProd' h_ac ν
+  refine lintegral_congr_ae ?_
+  filter_upwards [h_eq] with a ha
+  refine lintegral_congr_ae ?_
+  filter_upwards [ha] with b hb
+  rw [hb]
+
+-- todo : h_zero
 lemma fDiv_compProd_ne_top_iff' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] :
+    [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] (h_zero : f 0 ≠ ∞) :
     fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ η) ≠ ∞ ↔
       f.derivAtTop = ∞ →
       (∫⁻ a, ∫⁻ b, f ((∂μ/∂ν) a * (∂(μ ⊗ₘ κ)/∂(μ ⊗ₘ η)) (a, b)) ∂(η a) ∂ν ≠ ∞
         ∧ μ ⊗ₘ κ ≪ ν ⊗ₘ η) := by
-  rw [fDiv_compProd_ne_top_iff'']
-  congr! 1
-  simp only [and_congr_left_iff]
+  rw [fDiv_compProd_ne_top_iff'' h_zero]
+  by_cases h_top : f.derivAtTop = ∞
+  swap; · simp [h_top]
+  simp only [h_top, true_implies, and_congr_left_iff]
   intro h_ac'
   have h_ac : μ ⊗ₘ κ ≪ μ ⊗ₘ η := Measure.absolutelyContinuous_compProd_of_compProd' h_ac'
   suffices ∫⁻ a, ∫⁻ b, f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) (a, b)) ∂η a ∂ν
@@ -82,56 +110,42 @@ lemma fDiv_compProd_ne_top_iff' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
   rw [hb]
 
 lemma fDiv_compProd_eq_top_iff'' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] :
+    [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] (h_zero : f 0 ≠ ∞) :
     fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ η) = ∞ ↔
       f.derivAtTop = ∞
       ∧ (∫⁻ a, ∫⁻ b, f ((∂(μ ⊗ₘ κ)/∂(ν ⊗ₘ η)) (a, b)) ∂η a ∂ν ≠ ∞ → μ ≪ ν →
           ¬ μ ⊗ₘ κ ≪ μ ⊗ₘ η) := by
-  rw [← not_iff_not, ← ne_eq, fDiv_compProd_ne_top_iff'',
+  rw [← not_iff_not, ← ne_eq, fDiv_compProd_ne_top_iff'' h_zero,
     Measure.absolutelyContinuous_compProd_iff']
   push_neg
   rfl
 
 lemma fDiv_compProd_eq_top_iff' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] :
+    [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] (h_zero : f 0 ≠ ∞) :
     fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ η) = ∞ ↔
       f.derivAtTop = ∞
       ∧ (∫⁻ a, ∫⁻ b, f ((∂μ/∂ν) a * (∂(μ ⊗ₘ κ)/∂(μ ⊗ₘ η)) (a, b)) ∂η a ∂ν ≠ ∞ → μ ≪ ν →
           ¬ μ ⊗ₘ κ ≪ μ ⊗ₘ η) := by
-  rw [← not_iff_not, ← ne_eq, fDiv_compProd_ne_top_iff',
+  rw [← not_iff_not, ← ne_eq, fDiv_compProd_ne_top_iff' h_zero,
     Measure.absolutelyContinuous_compProd_iff']
   push_neg
   rfl
 
 lemma fDiv_compProd_right_ne_top_iff' [IsFiniteMeasure μ]
-    [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] :
+    [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] (h_zero : f 0 ≠ ∞) :
     fDiv f (μ ⊗ₘ κ) (μ ⊗ₘ η) ≠ ∞ ↔
       f.derivAtTop = ∞ →
       (∫⁻ a, ∫⁻ b, f ((∂(μ ⊗ₘ κ)/∂(μ ⊗ₘ η)) (a, b)) ∂(η a) ∂μ ≠ ∞ ∧ μ ⊗ₘ κ ≪ μ ⊗ₘ η) := by
-  rw [fDiv_compProd_ne_top_iff'']
+  rw [fDiv_compProd_ne_top_iff'' h_zero]
 
 lemma fDiv_compProd_right_eq_top_iff' [IsFiniteMeasure μ]
-    [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] :
+    [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] (h_zero : f 0 ≠ ∞) :
     fDiv f (μ ⊗ₘ κ) (μ ⊗ₘ η) = ∞ ↔
       f.derivAtTop = ∞
       ∧ (∫⁻ a, ∫⁻ b, f ((∂(μ ⊗ₘ κ)/∂(μ ⊗ₘ η)) (a, b)) ∂η a ∂μ ≠ ∞ → ¬ μ ⊗ₘ κ ≪ μ ⊗ₘ η) := by
-  rw [← not_iff_not, ← ne_eq, fDiv_compProd_right_ne_top_iff']
+  rw [← not_iff_not, ← ne_eq, fDiv_compProd_right_ne_top_iff' h_zero]
   push_neg
   rfl
-
--- todo: not useful, since `fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ κ) = fDiv f μ ν`
-lemma fDiv_compProd_left_ne_top_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    [IsMarkovKernel κ] :
-    fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ κ) ≠ ∞ ↔
-      f.derivAtTop = ∞ → ∫⁻ a, f ((∂μ/∂ν) a) ∂ν ≠ ∞ ∧ μ ≪ ν := by
-  rw [fDiv_compProd_right _ _ _, fDiv_ne_top_iff']
-
--- todo: not useful, since `fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ κ) = fDiv f μ ν`
-lemma fDiv_compProd_left_eq_top_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    [IsMarkovKernel κ] :
-    fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ κ) = ∞ ↔
-      f.derivAtTop = ∞ ∧ (∫⁻ a, f ((∂μ/∂ν) a) ∂ν ≠ ∞ → ¬ μ ≪ ν) := by
-  rw [fDiv_compProd_right _ _ _, fDiv_eq_top_iff', imp_iff_not_or, ne_eq, not_not]
 
 variable [CountableOrCountablyGenerated α β]
 

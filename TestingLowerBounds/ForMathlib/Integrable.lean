@@ -18,6 +18,26 @@ namespace MeasureTheory
 
 variable {α β : Type*} {mα : MeasurableSpace α} {μ ν : Measure α}
 
+lemma lintegral_ofReal_eq_top_of_not_integrable_of_nonneg {f : α → ℝ}
+    (hfm : AEStronglyMeasurable f μ) (h_int : ¬ Integrable f μ) (hf : 0 ≤ᵐ[μ] f) :
+    ∫⁻ a, ENNReal.ofReal (f a) ∂μ = ∞ := by
+  simp_rw [Integrable, hfm, hasFiniteIntegral_iff_norm, lt_top_iff_ne_top, Ne, true_and,
+      Classical.not_not] at h_int
+  have : ∫⁻ a : α, ENNReal.ofReal (f a) ∂μ = ∫⁻ a, ENNReal.ofReal ‖f a‖ ∂μ := by
+    refine lintegral_congr_ae (hf.mono fun a h => ?_)
+    dsimp only
+    rw [Real.norm_eq_abs, abs_of_nonneg h]
+  rw [this, h_int]
+
+lemma lintegral_ofReal_ne_top_iff_integrable_of_nonneg {f : α → ℝ}
+    (hfm : AEStronglyMeasurable f μ) (hf : 0 ≤ᵐ[μ] f) :
+    ∫⁻ a, ENNReal.ofReal (f a) ∂μ ≠ ∞ ↔ Integrable f μ := by
+  refine ⟨fun h ↦ ?_, fun h ↦ ?_⟩
+  · by_contra h_int
+    exact h (lintegral_ofReal_eq_top_of_not_integrable_of_nonneg hfm h_int hf)
+  · rw [← ofReal_integral_eq_lintegral_ofReal h hf]
+    exact ENNReal.ofReal_ne_top
+
 lemma integrable_toReal_iff {f : α → ℝ≥0∞} (hf : AEMeasurable f μ) (hf_ne_top : ∀ᵐ x ∂μ, f x ≠ ∞) :
     Integrable (fun x ↦ (f x).toReal) μ ↔ ∫⁻ x, f x ∂μ ≠ ∞ := by
   refine ⟨fun h ↦ ?_, fun h ↦ integrable_toReal_of_lintegral_ne_top hf h⟩

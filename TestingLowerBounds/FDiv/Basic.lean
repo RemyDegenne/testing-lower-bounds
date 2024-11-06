@@ -538,9 +538,9 @@ lemma fDiv_lt_top_of_derivAtTop_ne_top [IsFiniteMeasure μ] (hf : f.derivAtTop �
   simp [hf.lt_top]
 
 lemma fDiv_lt_top_of_derivAtTop_ne_top' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (h_top : f.derivAtTop ≠ ∞) :
+    (h_zero : f 0 ≠ ∞) (h_top : f.derivAtTop ≠ ∞) :
     fDiv f μ ν < ∞ := by
-  have h_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞ := f.lintegral_comp_rnDeriv_ne_top μ ν h_top
+  have h_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞ := f.lintegral_comp_rnDeriv_ne_top μ ν h_zero h_top
   exact fDiv_lt_top_of_derivAtTop_ne_top h_top h_int
 
 lemma fDiv_lt_top_iff_of_derivAtTop_ne_top [IsFiniteMeasure μ] (hf : f.derivAtTop ≠ ∞) :
@@ -550,10 +550,10 @@ lemma fDiv_lt_top_iff_of_derivAtTop_ne_top [IsFiniteMeasure μ] (hf : f.derivAtT
   exact h.1.ne
 
 lemma fDiv_ne_top_of_derivAtTop_ne_top [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (h_top : f.derivAtTop ≠ ∞) :
+    (h_zero : f 0 ≠ ∞) (h_top : f.derivAtTop ≠ ∞) :
     fDiv f μ ν ≠ ∞ := by
   rw [← lt_top_iff_ne_top]
-  exact fDiv_lt_top_of_derivAtTop_ne_top' h_top
+  exact fDiv_lt_top_of_derivAtTop_ne_top' h_zero h_top
 
 lemma fDiv_ne_top_iff_of_derivAtTop_ne_top [IsFiniteMeasure μ] (hf : f.derivAtTop ≠ ∞) :
     fDiv f μ ν ≠ ∞ ↔ ∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞ := by
@@ -577,12 +577,17 @@ lemma fDiv_eq_top_iff [IsFiniteMeasure μ] [SigmaFinite ν] :
 
 lemma fDiv_eq_top_iff' [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     fDiv f μ ν = ∞
-      ↔ f.derivAtTop = ∞ ∧ (∫⁻ x, f ((∂μ/∂ν) x) ∂ν = ∞ ∨ ¬ μ ≪ ν) := by
+      ↔ (f.derivAtTop = ∞ ∧ ¬ μ ≪ ν)
+        ∨ ((f 0 = ∞ ∨ f.derivAtTop = ∞) ∧ ∫⁻ x, f ((∂μ/∂ν) x) ∂ν = ∞) := by
   by_cases h_top : f.derivAtTop = ∞
   · rw [fDiv_eq_top_iff]
-    simp only [h_top, true_and]
-  · simp only [h_top, false_and, iff_false]
-    exact fDiv_ne_top_of_derivAtTop_ne_top h_top
+    simp only [h_top, true_and, iff_or_self, and_imp]
+    tauto
+  by_cases h_zero : f 0 = ∞
+  · rw [fDiv_eq_top_iff]
+    simp [h_top, h_zero]
+  simp only [h_top, false_and, or_false, h_zero, or_self, iff_false]
+  exact fDiv_ne_top_of_derivAtTop_ne_top h_zero h_top
 
 lemma fDiv_ne_top_iff [IsFiniteMeasure μ] [SigmaFinite ν] :
     fDiv f μ ν ≠ ∞
@@ -592,7 +597,9 @@ lemma fDiv_ne_top_iff [IsFiniteMeasure μ] [SigmaFinite ν] :
   rfl
 
 lemma fDiv_ne_top_iff' [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
-    fDiv f μ ν ≠ ∞ ↔ f.derivAtTop = ∞ → (∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞ ∧ μ ≪ ν) := by
+    fDiv f μ ν ≠ ∞
+      ↔ ((f.derivAtTop = ⊤ → μ ≪ ν)
+        ∧ ((f 0 = ∞ ∨ f.derivAtTop = ∞) → ∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞)) := by
   rw [ne_eq, fDiv_eq_top_iff']
   push_neg
   rfl
