@@ -34,6 +34,7 @@ import TestingLowerBounds.FDiv.FDivEqIntegral
 import TestingLowerBounds.FDiv.IntegralRnDerivSingularPart
 import TestingLowerBounds.FDiv.Measurable
 import TestingLowerBounds.FDiv.Trim
+import TestingLowerBounds.FDiv.fDivOfReal
 import TestingLowerBounds.FindAxioms
 import TestingLowerBounds.ForMathlib.AbsolutelyContinuous
 import TestingLowerBounds.ForMathlib.CountableOrCountablyGenerated
