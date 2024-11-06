@@ -53,9 +53,9 @@ lemma exp_mul_llr' [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν) :
   rw [← log_rpow h_pos, exp_log (rpow_pos_of_pos h_pos _)]
 
 noncomputable
-abbrev avgMass (a : ℝ) (μ ν : Measure α) : ℝ≥0∞ :=
-  ENNReal.ofReal (1 - a) * ν .univ + ENNReal.ofReal a * μ .univ
+abbrev avgMass (a : ℝ) (μ ν : Measure α) : ℝ := (1 - a) * (ν .univ).toReal + a * (μ .univ).toReal
 
+open Classical in
 /-- Rényi divergence of order `a`. If `a = 1`, it is defined as `kl μ ν`, otherwise as
 `(a - 1)⁻¹ * log (ν(α) + (a - 1) * Hₐ(μ, ν))`.
 If `ν` is a probability measure then this becomes the more usual definition
@@ -65,15 +65,21 @@ also for a general finite measure `ν`, in particular the integral form
 We use ENNReal.log instead of Real.log, because it is monotone on `ℝ≥0∞`, while the real log is
 monotone only on `(0, ∞)` (`Real.log 0 = 0`). This allows us to transfer inequalities from the
 Hellinger divergence to the Rényi divergence. -/
-noncomputable def renyiDiv (a : ℝ) (μ ν : Measure α) : EReal :=
-  if a = 0 then - ENNReal.log (ν {x | 0 < (∂μ/∂ν) x})
+noncomputable def renyiDiv (a : ℝ) (μ ν : Measure α) : ℝ≥0∞ :=
+  if a = 0 then ENNReal.ofReal (- Real.log (ν {x | 0 < (∂μ/∂ν) x}).toReal)
   else if a = 1 then kl μ ν
-  else (a - 1)⁻¹ * ENNReal.log (((1 - a) * (ν .univ : EReal) + a * (μ .univ)
-                                 + (a - 1) * (hellingerDiv a μ ν)).toENNReal)
+  else if a < 1 then
+    if μ ⟂ₘ ν then ∞
+    else ENNReal.ofReal ((a - 1)⁻¹
+      * Real.log ((∫ x, (μ.rnDeriv ν x).toReal ^ a ∂ν) / avgMass a μ ν))
+  else
+    if hellingerDiv a μ ν = ∞ then ∞
+    else ENNReal.ofReal ((a - 1)⁻¹
+      * Real.log ((∫ x, (μ.rnDeriv ν x).toReal ^ a ∂ν) / avgMass a μ ν))
 
 @[simp]
 lemma renyiDiv_zero (μ ν : Measure α) [SigmaFinite μ] [IsFiniteMeasure ν] :
-    renyiDiv 0 μ ν = - ENNReal.log (ν {x | 0 < (∂μ/∂ν) x}) := if_pos rfl
+    renyiDiv 0 μ ν = ENNReal.ofReal (- Real.log (ν {x | 0 < (∂μ/∂ν) x}).toReal) := if_pos rfl
   -- rw [renyiDiv, if_neg zero_ne_one]
   -- simp only [zero_sub, ← neg_inv, inv_one, EReal.coe_neg, EReal.coe_one, EReal.coe_zero, neg_mul,
   --   one_mul, ← sub_eq_add_neg, neg_inj]
