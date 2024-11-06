@@ -25,9 +25,10 @@ variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
   {μ ν : Measure α} {p : ℝ≥0∞} {π : Measure Bool} {f : DivFunction} {β γ x t : ℝ}
 
 noncomputable
-def statInfoDivFun (β γ : ℝ) : DivFunction := DivFunction.ofRealOfNonneg
-  (statInfoFun β γ) ((convexOn_statInfoFun β γ).subset (subset_univ _) (convex_Ioi 0))
-  statInfoFun_apply_one (fun x _ ↦ statInfoFun_nonneg _ _ x)
+def statInfoDivFun (β γ : ℝ) : DivFunction :=
+  DivFunction.ofReal
+    (statInfoFun β γ) ((convexOn_statInfoFun β γ).subset (subset_univ _) (convex_Ioi 0))
+    statInfoFun_apply_one
 
 lemma measurable_statInfoDivFun :
     Measurable (Function.uncurry fun (a : ℝ × ℝ) x ↦ statInfoDivFun a.1 a.2 ((∂μ/∂ν) x)) := by

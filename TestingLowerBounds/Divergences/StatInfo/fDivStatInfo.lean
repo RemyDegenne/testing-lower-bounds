@@ -64,6 +64,7 @@ lemma fDiv_statInfoFun_eq_integral_add [IsFiniteMeasure μ] [IsFiniteMeasure ν]
         + (statInfoDivFun β γ).derivAtTop * μ.singularPart ν univ := by
   unfold statInfoDivFun
   rw [fDiv_ofReal_eq_integral_add]
+  · exact fun _ _ ↦ statInfoFun_nonneg _ _ _
   · exact continuousWithinAt_statInfoFun_zero
   · exact integrable_statInfoFun_rnDeriv _ _ _ _
 
@@ -77,7 +78,8 @@ lemma fDiv_statInfoFun_eq_lintegral_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure 
     fDiv (statInfoDivFun β γ) μ ν
       = ∫⁻ x, ENNReal.ofReal (statInfoFun β γ ((∂μ/∂ν) x).toReal) ∂ν := by
   unfold statInfoDivFun
-  rw [fDiv_ofReal_eq_lintegral_of_ac _ _ hμν]
+  rw [fDiv_ofReal_eq_lintegral_of_ac _ _ _ hμν]
+  · exact fun _ _ ↦ statInfoFun_nonneg _ _ _
   · exact continuousWithinAt_statInfoFun_zero
   · exact integrable_statInfoFun_rnDeriv _ _ _ _
 
@@ -87,13 +89,16 @@ lemma toReal_fDiv_statInfoFun_eq_integral_add [IsFiniteMeasure μ] [IsFiniteMeas
         + (statInfoDivFun β γ).derivAtTop.toReal * (μ.singularPart ν univ).toReal := by
   unfold statInfoDivFun
   rw [toReal_fDiv_ofReal_eq_integral_add']
+  · exact fun _ _ ↦ statInfoFun_nonneg _ _ _
   · exact continuousWithinAt_statInfoFun_zero
   · exact integrable_statInfoFun_rnDeriv _ _ _ _
   · exact derivAtTop_statInfoDivFun_ne_top _ _
 
 lemma fDiv_statInfoDivFun_ne_top [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
-    fDiv (statInfoDivFun β γ) μ ν ≠ ∞ :=
-  fDiv_ne_top_of_derivAtTop_ne_top (derivAtTop_statInfoDivFun_ne_top _ _)
+    fDiv (statInfoDivFun β γ) μ ν ≠ ∞ := by
+  refine fDiv_ne_top_of_derivAtTop_ne_top ?_ (derivAtTop_statInfoDivFun_ne_top _ _)
+  unfold statInfoDivFun
+  simp [DivFunction.ofReal_apply_zero_of_continuousWithinAt continuousWithinAt_statInfoFun_zero]
 
 lemma fDiv_statInfoFun_eq_integral_max_of_nonneg_of_le [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (hβ : 0 ≤ β) (hγ : γ ≤ β) :

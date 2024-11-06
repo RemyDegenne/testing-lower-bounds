@@ -5,6 +5,7 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import TestingLowerBounds.Divergences.Hellinger.HellingerDivFun
 import TestingLowerBounds.Divergences.KullbackLeibler.KullbackLeibler
+import TestingLowerBounds.FDiv.FDivOfReal
 import Mathlib.Analysis.Convex.SpecificFunctions.Pow
 import Mathlib.Analysis.SpecialFunctions.Pow.Deriv
 
@@ -207,7 +208,8 @@ lemma lintegral_hellingerDivFun_eq_top_of_not_integrable [IsFiniteMeasure μ] [I
     ∫⁻ x, hellingerDivFun a ((∂μ/∂ν) x) ∂ν = ∞ := by
   rw [← integrable_hellingerFun_iff_integrable_rpow ha_one] at h
   simp [hellingerDivFun, (not_le.mpr ha_pos), ha_one]
-  exact DivFunction.lintegral_ofReal_eq_top_of_not_integrable h
+  exact DivFunction.lintegral_ofReal_eq_top_of_not_integrable
+    (fun _ hx ↦ hellingerFun_nonneg ha_pos.le hx) h
 
 lemma hellingerDiv_of_not_integrable [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (ha : 0 ≤ a)
@@ -234,9 +236,8 @@ lemma hellingerDiv_of_not_integrable [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     rw [kl_eq_top_iff]
     intro hμν
     rwa [ha_one, integrable_hellingerFun_one_iff hμν] at h
-  refine fDiv_of_lintegral_eq_top ?_
-  simp [hellingerDivFun, (not_le.mpr ha_pos), ha_one]
-  exact DivFunction.lintegral_ofReal_eq_top_of_not_integrable h
+  simp [hellingerDiv, hellingerDivFun, (not_le.mpr ha_pos), ha_one]
+  exact fDiv_ofReal_of_not_integrable (fun _ hx ↦ hellingerFun_nonneg ha_pos.le hx) h
 
 lemma hellingerDiv_of_one_lt_not_ac (ha : 1 ≤ a) (h_ac : ¬ μ ≪ ν)
     [SigmaFinite μ] [SigmaFinite ν] :
