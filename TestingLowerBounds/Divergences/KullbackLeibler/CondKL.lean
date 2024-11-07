@@ -39,14 +39,20 @@ lemma kl_ae_ne_top_iff : (∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ∞) ↔
 
 /--Equivalence between two possible versions of the second condition for the finiteness of the
 conditional KL divergence, the first version is the preferred one.-/
-lemma integrable_kl_iff [IsFiniteKernel κ] [IsFiniteKernel η] (h_ac : ∀ᵐ a ∂μ, κ a ≪ η a) :
+lemma integrable_kl_iff [IsMarkovKernel κ] [IsMarkovKernel η] (h_ac : ∀ᵐ a ∂μ, κ a ≪ η a) :
     Integrable (fun a ↦ (kl (κ a) (η a)).toReal) μ
       ↔ Integrable (fun a ↦ ∫ x, llr (κ a) (η a) x ∂(κ a)) μ := by
-  apply integrable_congr
-  filter_upwards [h_ac] with a ha1
-  rw [kl_toReal_of_ac ha1]
-  sorry
-  sorry
+  have : ∀ᵐ a ∂μ, (kl (κ a) (η a)).toReal
+      = ∫ b, llr (κ a) (η a) b ∂κ a + ((η a) Set.univ).toReal - ((κ a) Set.univ).toReal := by
+    filter_upwards [h_ac] with a ha1
+    rw [kl_toReal_of_ac ha1]
+    simp
+  rw [integrable_congr this]
+  simp_rw [add_sub_assoc]
+  rw [integrable_add_iff_integrable_left']
+  refine Integrable.sub ?_ ?_
+  · sorry
+  · sorry
 
 open Classical in
 /--
@@ -63,30 +69,61 @@ lemma condKL_eq_condFDiv [IsFiniteKernel κ] [IsFiniteKernel η] :
 
 section CondKLEq
 
--- lemma condKL_of_ae_ne_top_of_integrable (h1 : ∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ⊤)
---     (h2 : Integrable (fun a ↦ (kl (κ a) (η a)).toReal) μ) :
---     condKL κ η μ = (μ[fun a ↦ (kl (κ a) (η a)).toReal] : ℝ) := if_pos ⟨h1, h2⟩
+lemma condKl_eq_lintegral_of_ae_ne_top (h1 : ∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ∞) :
+    condKL κ η μ = ∫⁻ a, ENNReal.ofReal
+      (∫ b, llr (κ a) (η a) b ∂κ a + ((η a) Set.univ).toReal - ((κ a) Set.univ).toReal) ∂μ := by
+  simp_rw [condKL, kl]
+  simp_rw [kl_ae_ne_top_iff] at h1
+  refine lintegral_congr_ae ?_
+  filter_upwards [h1.1, h1.2] with hx hx1 hx2
+  simp [hx1, hx2]
 
--- lemma condKL_of_ae_ac_of_ae_integrable_of_integrable (h_ac : ∀ᵐ a ∂μ, κ a ≪ η a)
---     (h_ae_int : ∀ᵐ a ∂μ, Integrable (llr (κ a) (η a)) (κ a))
---     (h_int : Integrable (fun a ↦ (kl (κ a) (η a)).toReal) μ) :
---     condKL κ η μ = (μ[fun a ↦ (kl (κ a) (η a)).toReal] : ℝ) :=
---   condKL_of_ae_ne_top_of_integrable (kl_ae_ne_top_iff.mpr ⟨h_ac, h_ae_int⟩) h_int
+lemma condKL_of_ae_ne_top_of_integrable [IsMarkovKernel κ] [IsMarkovKernel η]
+    (h1 : ∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ∞)
+    (h2 : Integrable (fun a ↦ (kl (κ a) (η a)).toReal) μ) :
+    condKL κ η μ = ENNReal.ofReal (μ[fun a ↦ (kl (κ a) (η a)).toReal]) := by
+  rw [condKl_eq_lintegral_of_ae_ne_top h1]
+  have : ∀ᵐ a ∂μ, (kl (κ a) (η a)).toReal
+      = ∫ b, llr (κ a) (η a) b ∂κ a + ((η a) Set.univ).toReal - ((κ a) Set.univ).toReal := by
+    rw [kl_ae_ne_top_iff] at h1
+    filter_upwards [h1.1] with a ha1
+    rw [kl_toReal_of_ac ha1]
+    simp
+  rw [← ofReal_integral_eq_lintegral_ofReal]
+  · congr 1
+    refine integral_congr_ae ?_
+    filter_upwards [this] with x hx
+    rw [← hx]
+  · rwa [← integrable_congr this]
+  · filter_upwards [this] with x hx
+    rw [← hx]
+    exact ENNReal.toReal_nonneg
 
--- lemma condKL_of_ae_ac_of_ae_integrable_of_integrable' (h_ac : ∀ᵐ a ∂μ, κ a ≪ η a)
---     (h_ae_int : ∀ᵐ a ∂μ, Integrable (llr (κ a) (η a)) (κ a))
---     (h_int : Integrable (fun a ↦ (kl (κ a) (η a)).toReal) μ) :
---     condKL κ η μ = (μ[fun a ↦ ∫ x, llr (κ a) (η a) x ∂(κ a)] : ℝ) := by
---   rw [condKL_of_ae_ac_of_ae_integrable_of_integrable h_ac h_ae_int h_int]
---   congr 1
---   apply integral_congr_ae
---   filter_upwards [h_ac] with a ha1
---   rw [kl_toReal_of_ac ha1]
+lemma condKL_of_ae_ac_of_ae_integrable_of_integrable [IsMarkovKernel κ] [IsMarkovKernel η]
+    (h_ac : ∀ᵐ a ∂μ, κ a ≪ η a)
+    (h_ae_int : ∀ᵐ a ∂μ, Integrable (llr (κ a) (η a)) (κ a))
+    (h_int : Integrable (fun a ↦ (kl (κ a) (η a)).toReal) μ) :
+    condKL κ η μ = ENNReal.ofReal (μ[fun a ↦ (kl (κ a) (η a)).toReal]) :=
+  condKL_of_ae_ne_top_of_integrable (kl_ae_ne_top_iff.mpr ⟨h_ac, h_ae_int⟩) h_int
+
+lemma condKL_of_ae_ac_of_ae_integrable_of_integrable' [IsMarkovKernel κ] [IsMarkovKernel η]
+    (h_ac : ∀ᵐ a ∂μ, κ a ≪ η a)
+    (h_ae_int : ∀ᵐ a ∂μ, Integrable (llr (κ a) (η a)) (κ a))
+    (h_int : Integrable (fun a ↦ (kl (κ a) (η a)).toReal) μ) :
+    condKL κ η μ = ENNReal.ofReal
+      (μ[fun a ↦ ∫ x, llr (κ a) (η a) x ∂(κ a)
+        + ((η a) Set.univ).toReal - ((κ a) Set.univ).toReal]) := by
+  rw [condKL_of_ae_ac_of_ae_integrable_of_integrable h_ac h_ae_int h_int]
+  congr 1
+  apply integral_congr_ae
+  filter_upwards [h_ac] with a ha1
+  rw [kl_toReal_of_ac ha1]
+  simp
 
 @[simp]
 lemma condKL_of_not_ae_ne_top [CountableOrCountablyGenerated α β]
     [IsFiniteKernel κ] [IsFiniteKernel η]
-    (h : ¬ (∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ∞)) :
+    (h : ¬ ∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ∞) :
     condKL κ η μ = ∞ := by
   rw [condKL]
   by_contra h'
@@ -120,7 +157,7 @@ lemma condKL_of_not_integrable [CountableOrCountablyGenerated α β]
 
 @[simp]
 lemma condKL_of_not_integrable' [CountableOrCountablyGenerated α β]
-    [IsFiniteKernel κ] [IsFiniteKernel η]
+    [IsMarkovKernel κ] [IsMarkovKernel η]
     (h : ¬ Integrable (fun a ↦ ∫ x, llr (κ a) (η a) x ∂(κ a)) μ) :
     condKL κ η μ = ∞ := by
   by_cases h_ne_top : ∀ᵐ a ∂μ, kl (κ a) (η a) ≠ ∞
@@ -134,34 +171,38 @@ lemma condKL_toReal_of_ae_ac_of_ae_integrable [CountableOrCountablyGenerated α 
     (condKL κ η μ).toReal = μ[fun a ↦ (kl (κ a) (η a)).toReal] := by
   rw [condKL, integral_toReal]
   · exact (measurable_kl _ _).aemeasurable
-  · sorry
+  · filter_upwards [h_ac, h_ae_int] with x hx_ac hx_int
+    rw [lt_top_iff_ne_top, kl_ne_top_iff]
+    exact ⟨hx_ac, hx_int⟩
 
-lemma condKL_eq_top_iff : condKL κ η μ = ∞ ↔
-    ¬ (∀ᵐ a ∂μ, κ a ≪ η a) ∨ ¬ (∀ᵐ a ∂μ, Integrable (llr (κ a) (η a)) (κ a))
-    ∨ ¬ Integrable (fun a ↦ (kl (κ a) (η a)).toReal) μ := by
-  sorry
-  -- constructor <;> intro h
-  -- · contrapose! h
-  --   rw [condKL_of_ae_ac_of_ae_integrable_of_integrable h.1 h.2.1 h.2.2]
-  --   exact EReal.coe_ne_top _
-  -- · rcases h with (h | h | h) <;>
-  --     simp only [h, not_false_eq_true, condKL_of_not_ae_ac, condKL_of_not_ae_integrable,
-  --       condKL_of_not_integrable]
+lemma condKL_eq_top_iff [CountableOrCountablyGenerated α β] [IsMarkovKernel κ] [IsMarkovKernel η] :
+    condKL κ η μ = ∞
+      ↔ ¬ (∀ᵐ a ∂μ, κ a ≪ η a) ∨ ¬ (∀ᵐ a ∂μ, Integrable (llr (κ a) (η a)) (κ a))
+        ∨ ¬ Integrable (fun a ↦ (kl (κ a) (η a)).toReal) μ := by
+  constructor <;> intro h
+  · contrapose! h
+    rw [condKL_of_ae_ac_of_ae_integrable_of_integrable h.1 h.2.1 h.2.2]
+    exact ENNReal.ofReal_ne_top
+  · rcases h with (h | h | h) <;>
+      simp only [h, not_false_eq_true, condKL_of_not_ae_ac, condKL_of_not_ae_integrable,
+        condKL_of_not_integrable]
 
-lemma condKL_ne_top_iff : condKL κ η μ ≠ ∞ ↔
-    (∀ᵐ a ∂μ, κ a ≪ η a) ∧ (∀ᵐ a ∂μ, Integrable (llr (κ a) (η a)) (κ a))
-    ∧ Integrable (fun a ↦ (kl (κ a) (η a)).toReal) μ := by
+lemma condKL_ne_top_iff [CountableOrCountablyGenerated α β] [IsMarkovKernel κ] [IsMarkovKernel η] :
+    condKL κ η μ ≠ ∞
+    ↔ (∀ᵐ a ∂μ, κ a ≪ η a) ∧ (∀ᵐ a ∂μ, Integrable (llr (κ a) (η a)) (κ a))
+      ∧ Integrable (fun a ↦ (kl (κ a) (η a)).toReal) μ := by
   rw [ne_eq, condKL_eq_top_iff]
   push_neg
   rfl
 
-lemma condKL_ne_top_iff' : condKL κ η μ ≠ ∞
-    ↔ condKL κ η μ = ENNReal.ofReal (μ[fun a ↦ (kl (κ a) (η a)).toReal] : ℝ) := by
-  sorry
-  -- constructor
-  -- · rw [condKL_ne_top_iff]
-  --   exact fun ⟨h1, h2, h3⟩ ↦ condKL_of_ae_ac_of_ae_integrable_of_integrable h1 h2 h3
-  -- · simp_all only [ne_eq, EReal.coe_ne_top, not_false_eq_true, implies_true]
+lemma condKL_ne_top_iff' [CountableOrCountablyGenerated α β] [IsMarkovKernel κ] [IsMarkovKernel η] :
+    condKL κ η μ ≠ ∞
+      ↔ condKL κ η μ = ENNReal.ofReal (μ[fun a ↦ (kl (κ a) (η a)).toReal] : ℝ) := by
+  constructor
+  · rw [condKL_ne_top_iff]
+    exact fun ⟨h1, h2, h3⟩ ↦ condKL_of_ae_ac_of_ae_integrable_of_integrable h1 h2 h3
+  · intro h
+    simp [h]
 
 end CondKLEq
 
@@ -576,7 +617,10 @@ lemma condKL_compProd_kernel_eq_top [CountableOrCountablyGenerated (α × β) γ
   -- · filter_upwards with a using integral_nonneg (fun b ↦ EReal.toReal_nonneg (kl_nonneg _ _))
   -- · filter_upwards with a using EReal.toReal_nonneg (kl_nonneg _ _)
 
-lemma condKL_compProd_kernel [CountableOrCountablyGenerated (α × β) γ] {κ₁ η₁ : Kernel α β}
+-- todo: remove some [CountableOrCountablyGenerated _ _] hypotheses
+lemma condKL_compProd_kernel [CountableOrCountablyGenerated α β]
+    [CountableOrCountablyGenerated α (β × γ)]
+    [CountableOrCountablyGenerated (α × β) γ] {κ₁ η₁ : Kernel α β}
     {κ₂ η₂ : Kernel (α × β) γ} [IsMarkovKernel κ₁] [IsMarkovKernel η₁] [IsMarkovKernel κ₂]
     [IsMarkovKernel η₂] [SFinite μ] :
     condKL (κ₁ ⊗ₖ κ₂) (η₁ ⊗ₖ η₂) μ = condKL κ₁ η₁ μ + condKL κ₂ η₂ (μ ⊗ₘ κ₁) := by

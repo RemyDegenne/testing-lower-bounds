@@ -61,7 +61,7 @@ lemma integrable_rnDeriv_mul_log_iff [SigmaFinite μ] [SigmaFinite ν] (hμν : 
 
 @[simp]
 lemma rightDeriv_neg {y : ℝ} : rightDeriv (fun x ↦ - x) y = - 1 :=
-  sorry
+  rightDeriv_of_hasDerivAt (hasDerivAt_neg _)
 
 lemma _root_.convexOn_mul_log_add_one_sub :
     ConvexOn ℝ (Ici 0) fun x ↦ x * log x + 1 - x :=
@@ -87,7 +87,8 @@ lemma rightDeriv_mul_log_add_one_sub {x : ℝ} (hx : x ≠ 0) :
 
 lemma rightDeriv_mul_log_add_one_sub_eventually_eq :
     rightDeriv (fun x ↦ x * log x + 1 - x) =ᶠ[atTop] log := by
-  sorry
+  filter_upwards [eventually_ne_atTop 0] with x hx
+  rw [rightDeriv_mul_log_add_one_sub hx]
 
 lemma mul_log_add_one_sub_nonneg {x : ℝ} (hx : 0 ≤ x) : 0 ≤ x * log x + 1 - x := by
   refine ConvexOn.nonneg_of_todo (f := fun x ↦ x * log x + 1 - x) ?_ ?_ ?_ hx
@@ -95,6 +96,7 @@ lemma mul_log_add_one_sub_nonneg {x : ℝ} (hx : 0 ≤ x) : 0 ≤ x * log x + 1 
   · simp
   · simp
 
+-- unused?
 lemma mul_log_add_one_sub_eq_zero_iff {x : ℝ} (hx : 0 ≤ x) : x * log x + 1 - x = 0 ↔ x = 1 := by
   sorry
 
@@ -112,7 +114,12 @@ lemma integrable_mul_log_add_one_sub_iff [IsFiniteMeasure μ] [IsFiniteMeasure �
     exact Measure.integrable_toReal_rnDeriv
 
 lemma tendsto_mul_log_add_one_sub_atTop : Tendsto (fun x ↦ x * log x + 1 - x) atTop atTop := by
-  sorry
+  have : (fun x ↦ x * log x + 1 - x) = (fun x ↦ x * (log x - 1) + 1) := by ext; ring
+  rw [this]
+  refine Tendsto.atTop_add ?_ tendsto_const_nhds
+  refine Tendsto.atTop_mul_atTop ?_ ?_
+  · exact fun _ a ↦ a
+  · exact tendsto_log_atTop.atTop_add tendsto_const_nhds
 
 lemma continuous_mul_log_add_one_sub : Continuous (fun x ↦ x * log x + 1 - x) := by fun_prop
 
