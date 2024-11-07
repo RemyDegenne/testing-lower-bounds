@@ -10,6 +10,7 @@ import TestingLowerBounds.Divergences.Hellinger.Hellinger
 import TestingLowerBounds.Divergences.Hellinger.HellingerDivFun
 import TestingLowerBounds.Divergences.Hellinger.HellingerFun
 import TestingLowerBounds.Divergences.KullbackLeibler.CondKL
+import TestingLowerBounds.Divergences.KullbackLeibler.KLDivFun
 import TestingLowerBounds.Divergences.KullbackLeibler.KullbackLeibler
 import TestingLowerBounds.Divergences.Renyi.CondRenyi
 import TestingLowerBounds.Divergences.Renyi.Renyi
