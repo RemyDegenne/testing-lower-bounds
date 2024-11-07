@@ -74,13 +74,6 @@ noncomputable def renyiDiv (a : ℝ) (μ ν : Measure α) : ℝ≥0∞ :=
     (((avgMass a μ ν : EReal) + (a - 1) * (hellingerDiv a μ ν)).toENNReal)
       - (a - 1)⁻¹ * Real.log (avgMass a μ ν)).toENNReal
 
--- log (avgMass a μ ν) = log (μ univ + (1 - a) * (μ univ - ν univ))
-
--- at 1 from below, (1 - a)⁻¹ * log (avgMass a μ ν) tends to
--- ∞ if μ univ > 1
--- -∞ if μ univ < 1
--- 1 - ν univ if μ univ = 1
-
 lemma avgMass_add_mul_hellingerDiv_nonneg :
     0 ≤ (avgMass a μ ν : EReal) + (a - 1) * (hellingerDiv a μ ν) := by
   sorry
