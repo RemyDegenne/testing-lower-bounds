@@ -248,6 +248,13 @@ lemma lintegral_ofReal_ne_top_iff_integrable_of_continuous [SigmaFinite μ] [IsF
     exact measurable_comp_rnDeriv_of_convexOn_of_continuous hf h_cont
   · exact ae_of_all _ fun x ↦ hf_nonneg _ ENNReal.toReal_nonneg
 
+lemma lintegral_ofReal_eq_top_iff_not_integrable_of_continuous [SigmaFinite μ] [IsFiniteMeasure ν]
+    (hf_nonneg : ∀ x, 0 ≤ x → 0 ≤ f x)
+    (h_cont : ContinuousWithinAt f (Ioi 0) 0) :
+    ∫⁻ x, ofReal f hf hf_one (μ.rnDeriv ν x) ∂ν = ∞
+      ↔ ¬ Integrable (fun x ↦ f (μ.rnDeriv ν x).toReal) ν := by
+  rw [← lintegral_ofReal_ne_top_iff_integrable_of_continuous hf_nonneg h_cont, not_not]
+
 end Integral
 
 end OfReal

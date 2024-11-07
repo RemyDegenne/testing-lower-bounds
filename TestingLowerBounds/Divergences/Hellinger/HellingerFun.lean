@@ -143,6 +143,11 @@ lemma integrable_rpow_rnDeriv_of_lt_one (ha_nonneg : 0 ≤ a) (ha : a < 1) [IsFi
     rw [this]
     exact tendsto_rpow_neg_atTop (by linarith)
 
+lemma integral_rpow_rnDeriv_nonneg : 0 ≤ ∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν := by
+  apply integral_nonneg
+  intro x
+  simp only [Pi.zero_apply, ENNReal.toReal_nonneg, rpow_nonneg]
+
 lemma integral_fun_rnDeriv_eq_zero_iff_mutuallySingular [SigmaFinite μ] [SigmaFinite ν]
     {f : ℝ≥0∞ → ℝ} (hf_nonneg : ∀ x, 0 ≤ f x) (hf_zero : ∀ x, f x = 0 ↔ x = 0 ∨ x = ⊤)
     (h_int : Integrable (f ∘ (∂μ/∂ν)) ν) :
@@ -166,11 +171,7 @@ lemma integral_rpow_rnDeriv_pos_iff_not_mutuallySingular [SigmaFinite μ] [Sigma
     0 < ∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν ↔ ¬ μ ⟂ₘ ν := by
   rw [← integral_rpow_rnDeriv_eq_zero_iff_mutuallySingular ha_zero h_int]
   push_neg
-  have h_nonneg : 0 ≤ ∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν := by
-    apply integral_nonneg
-    intro x
-    simp only [Pi.zero_apply, ENNReal.toReal_nonneg, rpow_nonneg]
-  exact LE.le.gt_iff_ne h_nonneg
+  exact LE.le.gt_iff_ne integral_rpow_rnDeriv_nonneg
 
 lemma integral_rpow_rnDeriv_smul_left [SigmaFinite μ] [SigmaFinite ν] (c : ℝ≥0) :
     ∫ x, ((∂(c • μ)/∂ν) x).toReal ^ a ∂ν = c ^ a * ∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν := by
