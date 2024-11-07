@@ -263,6 +263,8 @@ lemma kl_compProd_right (κ : Kernel α β) [CountableOrCountablyGenerated α β
   rw [kl_eq_fDiv, kl_eq_fDiv]
   exact fDiv_compProd_right μ ν κ
 
+section ChainRule
+
 lemma klDivFun_mul {x y : ℝ≥0∞} (hx : x ≠ ∞) (hy : y ≠ ∞) :
     klDivFun (x * y) = (x * klDivFun y + y * klDivFun x) + 1 + x * y - x - y := by
   by_cases hx0 : x = 0
@@ -457,7 +459,7 @@ lemma lintegral_klDivFun_compProd [CountableOrCountablyGenerated α β]
   · simp [h_zero]
   · rw [lintegral_klDivFun_mul (h_ac h_zero) ha, add_comm]
 
-/--The chain rule for the KL divergence.-/
+/--The **chain rule** for the KL divergence.-/
 lemma kl_compProd [CountableOrCountablyGenerated α β] [IsMarkovKernel κ] [IsMarkovKernel η]
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     kl (μ ⊗ₘ κ) (ν ⊗ₘ η) = kl μ ν + condKL κ η μ := by
@@ -486,6 +488,8 @@ lemma kl_fst_add_condKL [StandardBorelSpace β] [Nonempty β] {μ ν : Measure (
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     kl μ.fst ν.fst + condKL μ.condKernel ν.condKernel μ.fst = kl μ ν := by
   rw [← kl_compProd, μ.disintegrate, ν.disintegrate]
+
+end ChainRule
 
 /-TODO: this is just a thin wrapper around Kernel.integrable_llr_compProd_iff, so that that lemma
 could be put in an outside file. But I have realised that the choice of having 2 instead of 2' as

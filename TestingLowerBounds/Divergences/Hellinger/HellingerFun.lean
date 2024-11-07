@@ -50,7 +50,10 @@ namespace ProbabilityTheory
 
 --TODO: try to add these attributes to fun_prop? how to do this?
 attribute [fun_prop] Measure.measurable_rnDeriv Measurable.ennreal_toReal
+
 variable {α : Type*} {mα : MeasurableSpace α} {μ ν : Measure α} {a : ℝ}
+
+section IntegralRPowRnDeriv
 
 -- todo: rename and move.
 lemma integral_rpow_rnDeriv (ha_pos : 0 < a) (ha : a ≠ 1) [SigmaFinite μ] [SigmaFinite ν] :
@@ -115,6 +118,31 @@ lemma integrable_rpow_rnDeriv_iff [SigmaFinite ν] [SigmaFinite μ] (hμν : μ 
     linarith
   · rw [rpow_add (ENNReal.toReal_pos h_zero hx), rpow_one]
 
+lemma rightDeriv_rpow {x : ℝ} (hx : x ≠ 0) :
+    rightDeriv (fun x ↦ x ^ a) x = a * x ^ (a - 1) := by
+  refine rightDeriv_of_hasDerivAt ?_
+  exact Real.hasDerivAt_rpow_const (Or.inl hx)
+
+lemma integrable_rpow_rnDeriv_of_lt_one (ha_nonneg : 0 ≤ a) (ha : a < 1) [IsFiniteMeasure μ]
+    [IsFiniteMeasure ν] :
+    Integrable (fun x ↦ ((∂μ/∂ν) x).toReal ^ a) ν := by
+  rw [← integrable_neg_iff]
+  refine integrable_f_rnDeriv_of_derivAtTop_ne_top (f := fun y ↦ - y ^ a) μ ν ?_ ?_ ?_
+  · exact (Measurable.stronglyMeasurable (by fun_prop)).neg
+  · exact (concaveOn_rpow ha_nonneg ha.le).neg
+  · suffices derivAtTop (fun y ↦ -y ^ a) = 0 by simp [this]
+    refine derivAtTop_of_tendsto_nhds ?_
+    rw [_root_.rightDeriv_neg, ← neg_zero]
+    refine Tendsto.neg ?_
+    have : rightDeriv (fun x ↦ x ^ a) =ᶠ[atTop] fun x ↦ a * x ^ (a - 1) := by
+      filter_upwards [eventually_ne_atTop 0] with x hx
+      rw [rightDeriv_rpow hx]
+    rw [tendsto_congr' this, ← mul_zero a]
+    refine Tendsto.const_mul _ ?_
+    have : (fun (x : ℝ) ↦ x ^ (a - 1)) = (fun x ↦ x ^ (- (1 - a))) := by ext x; simp
+    rw [this]
+    exact tendsto_rpow_neg_atTop (by linarith)
+
 lemma integral_fun_rnDeriv_eq_zero_iff_mutuallySingular [SigmaFinite μ] [SigmaFinite ν]
     {f : ℝ≥0∞ → ℝ} (hf_nonneg : ∀ x, 0 ≤ f x) (hf_zero : ∀ x, f x = 0 ↔ x = 0 ∨ x = ⊤)
     (h_int : Integrable (f ∘ (∂μ/∂ν)) ν) :
@@ -143,6 +171,41 @@ lemma integral_rpow_rnDeriv_pos_iff_not_mutuallySingular [SigmaFinite μ] [Sigma
     intro x
     simp only [Pi.zero_apply, ENNReal.toReal_nonneg, rpow_nonneg]
   exact LE.le.gt_iff_ne h_nonneg
+
+lemma integral_rpow_rnDeriv_smul_left [SigmaFinite μ] [SigmaFinite ν] (c : ℝ≥0) :
+    ∫ x, ((∂(c • μ)/∂ν) x).toReal ^ a ∂ν = c ^ a * ∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν := by
+  sorry
+
+lemma integral_rpow_rnDeriv_smul_right [SigmaFinite μ] [SigmaFinite ν] (c : ℝ≥0) :
+    ∫ x, ((∂μ/∂(c • ν)) x).toReal ^ a ∂(c • ν) = c ^ (1 - a) * ∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν := by
+  sorry
+
+lemma tendsto_mul_log_integral_rpow_rnDeriv [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
+    (h_int : Integrable (llr μ ν) μ) :
+    Tendsto (fun a ↦ (a - 1)⁻¹ * log (∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν)) (𝓝[<] 1)
+      (𝓝 (∫ x, llr μ ν x ∂μ)) := by
+  sorry
+
+lemma tendsto_mul_log_integral_rpow_rnDeriv' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (h_int : Integrable (llr μ ν) μ) :
+    Tendsto (fun a ↦ (a - 1)⁻¹ * log (∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν)
+                    - (a - 1)⁻¹ * log ((1 - a) * (ν .univ).toReal + a * (μ .univ).toReal))
+      (𝓝[<] 1)
+      (𝓝 ((μ .univ).toReal⁻¹ * ∫ x, llr μ ν x ∂μ - log ((μ .univ).toReal / (ν .univ).toReal))) := by
+  sorry
+
+lemma tendsto_mul_log_integral_rpow_rnDeriv'' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (h_int : Integrable (llr μ ν) μ) (hμν : μ ≪ ν) :
+    Tendsto (fun a ↦ (a - 1)⁻¹ * log (∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν)
+                    - (a - 1)⁻¹ * log ((1 - a) * (ν .univ).toReal + a * (μ .univ).toReal))
+      (𝓝[<] 1)
+      (𝓝 ((μ .univ).toReal⁻¹ * ((kl μ ν).toReal + (μ .univ).toReal - (ν .univ).toReal)
+            - log ((μ .univ).toReal / (ν .univ).toReal))) := by
+  rw [kl_toReal hμν h_int]
+  convert tendsto_mul_log_integral_rpow_rnDeriv' h_int
+  ring
+
+end IntegralRPowRnDeriv
 
 section HellingerFun
 
@@ -327,7 +390,7 @@ lemma tendsto_rightDeriv_hellingerFun_atTop_of_lt_one (ha : a < 1) :
       ext x
       rw [mul_assoc, mul_comm, mul_assoc, mul_assoc]
       congr 1
-      sorry
+      rw [← neg_sub 1 a, inv_neg, mul_neg, neg_sub, ← neg_mul, neg_sub]
     rw [h_eq]
     refine Tendsto.mul_const _ ?_
     simp_rw [mul_sub, mul_one]
@@ -384,17 +447,8 @@ lemma integrable_hellingerFun_zero [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
 lemma integrable_hellingerFun_rnDeriv_of_lt_one (ha_nonneg : 0 ≤ a) (ha : a < 1)
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     Integrable (fun x ↦ hellingerFun a ((∂μ/∂ν) x).toReal) ν := by
-  refine integrable_f_rnDeriv_of_derivAtTop_ne_top μ ν ?_ ?_ ?_
-  · exact stronglyMeasurable_hellingerFun ha_nonneg
-  · exact convexOn_hellingerFun ha_nonneg
-  · rw [derivAtTop_hellingerFun_of_lt_one ha, ne_eq, EReal.mul_eq_top]
-    simp
-
-lemma integrable_rpow_rnDeriv_of_lt_one (ha_nonneg : 0 ≤ a) (ha : a < 1) [IsFiniteMeasure μ]
-    [IsFiniteMeasure ν] :
-    Integrable (fun x ↦ ((∂μ/∂ν) x).toReal ^ a) ν := by
-  rw [← integrable_hellingerFun_iff_integrable_rpow ha.ne]
-  exact integrable_hellingerFun_rnDeriv_of_lt_one ha_nonneg ha
+  rw [integrable_hellingerFun_iff_integrable_rpow ha.ne]
+  exact integrable_rpow_rnDeriv_of_lt_one ha_nonneg ha
 
 lemma integral_hellingerFun_of_pos_of_ne_one_of_integrable [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (ha_pos : 0 < a) (ha_ne : a ≠ 1) (h_int : Integrable (fun x ↦ (μ.rnDeriv ν x).toReal ^ a) ν) :
