@@ -226,15 +226,16 @@ lemma measurable_comp_rnDeriv_of_convexOn_of_continuous [SigmaFinite μ] [SigmaF
   rw [this]
   have h1 : Measurable (fun x : Ici (0 : ℝ) ↦ f x) := by
     refine Continuous.measurable ?_
-    rw [continuous_iff_continuousAt]
-    have hf_cont' : ContinuousOn f (Ici 0) := sorry
-    intro x
-    have hx_cont := hf_cont'.continuousWithinAt x.2
-    rw [ContinuousWithinAt] at hx_cont
-    refine hx_cont.comp ?_
-    rw [tendsto_nhdsWithin_iff]
-    refine ⟨continuous_subtype_val.continuousAt, ?_⟩
-    simp
+    change Continuous ((Ici 0).restrict f)
+    rw [← continuousOn_iff_continuous_restrict]
+    have h_Ioi : ContinuousOn f (Ioi 0) := hf.continuousOn isOpen_Ioi
+    rw [ContinuousOn]
+    intro x hx
+    by_cases h0 : x = 0
+    · rw [h0, ← continuousWithinAt_Ioi_iff_Ici]
+      exact h_cont
+    · have h := h_Ioi.continuousWithinAt (lt_of_le_of_ne hx (Ne.symm h0))
+      sorry  -- goal is `h`, except for Ioi vs Ici mismatch
   exact h1.comp (μ.measurable_rnDeriv ν).ennreal_toReal.subtype_mk
 
 lemma lintegral_ofReal_ne_top_iff_integrable_of_continuous [SigmaFinite μ] [IsFiniteMeasure ν]

@@ -418,10 +418,9 @@ lemma lintegral_klDivFun_mul [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
   · simp only [lintegral_const, measure_univ, mul_one]
     rw [ENNReal.add_sub_cancel_right hx, ENNReal.add_sub_cancel_right ENNReal.one_ne_top]
   · exact μ.measurable_rnDeriv ν
-  · sorry
-  · refine Measurable.aemeasurable ?_
-    sorry
-  · sorry
+  · exact measurable_divFunction_rnDeriv
+  · exact measurable_const.aemeasurable
+  · exact (μ.measurable_rnDeriv ν).mul_const _
   · exact measurable_const
   · exact measurable_const.mul (μ.measurable_rnDeriv ν)
   · exact measurable_const
@@ -443,7 +442,7 @@ lemma lintegral_klDivFun_compProd [CountableOrCountablyGenerated α β]
       = ∫⁻ a, ∫⁻ b, klDivFun ((∂μ/∂ν) a * (∂κ a/∂η a) b) ∂η a ∂ν := by
     have h := Kernel.rnDeriv_measure_compProd μ ν κ η
     rw [Measure.lintegral_compProd]
-    swap; · sorry
+    swap; · exact measurable_divFunction_rnDeriv
     refine lintegral_congr_ae ?_
     filter_upwards [Measure.ae_ae_of_ae_compProd h] with a ha
     refine lintegral_congr_ae ?_
@@ -479,10 +478,10 @@ lemma kl_compProd [CountableOrCountablyGenerated α β] [IsMarkovKernel κ] [IsM
     filter_upwards [hκη] with x hx
     rw [fDiv_of_absolutelyContinuous hx]
   rw [lintegral_klDivFun_compProd hμν hκη, this, lintegral_add_left, lintegral_rnDeriv_mul hμν]
-  · sorry
-  · sorry
+  · exact (measurable_lintegral_f_rnDeriv κ η).aemeasurable
+  · exact measurable_divFunction_rnDeriv
 
-/--The chain rule for the KL divergence.-/
+/--The **chain rule** for the KL divergence.-/
 lemma kl_fst_add_condKL [StandardBorelSpace β] [Nonempty β] {μ ν : Measure (α × β)}
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     kl μ.fst ν.fst + condKL μ.condKernel ν.condKernel μ.fst = kl μ ν := by
