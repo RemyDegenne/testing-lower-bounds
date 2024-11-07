@@ -419,7 +419,8 @@ lemma lintegral_klDivFun_mul [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
     rw [ENNReal.add_sub_cancel_right hx, ENNReal.add_sub_cancel_right ENNReal.one_ne_top]
   · exact μ.measurable_rnDeriv ν
   · sorry
-  · sorry
+  · refine Measurable.aemeasurable ?_
+    sorry
   · sorry
   · exact measurable_const
   · exact measurable_const.mul (μ.measurable_rnDeriv ν)

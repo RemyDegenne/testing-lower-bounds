@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import TestingLowerBounds.Divergences.KullbackLeibler.KLDivFun
+import TestingLowerBounds.FDiv.FDivOfReal
 
 /-!
 # Kullback-Leibler divergence
@@ -144,15 +145,11 @@ lemma measurable_kl {β : Type*} [MeasurableSpace β] [CountableOrCountablyGener
 
 section kl_nonneg
 
-lemma kl_ge_mul_log' [IsFiniteMeasure μ] [IsProbabilityMeasure ν]
-    (hμν : μ ≪ ν) :
+lemma kl_ge_mul_log' [IsFiniteMeasure μ] [IsProbabilityMeasure ν] (hμν : μ ≪ ν) :
     ENNReal.ofReal ((μ univ).toReal * log (μ univ).toReal + 1 - (μ univ).toReal) ≤ kl μ ν := by
   calc
   _ = klDivFun (μ univ) := by rw [klDivFun_apply (measure_ne_top _ _)]
-  _ ≤ _ := by
-    refine (le_fDiv_of_ac hμν ?_).trans_eq kl_eq_fDiv.symm
-    intro x hx
-    simp [klDivFun_apply hx]
+  _ ≤ _ := (le_fDiv_of_ac hμν fun x hx ↦ by simp [klDivFun_apply hx]).trans_eq kl_eq_fDiv.symm
 
 lemma kl_ge_mul_log (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     ENNReal.ofReal ((μ univ).toReal * log ((μ univ).toReal / (ν univ).toReal)
