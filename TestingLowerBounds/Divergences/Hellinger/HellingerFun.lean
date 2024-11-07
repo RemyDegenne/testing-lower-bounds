@@ -187,6 +187,12 @@ lemma tendsto_mul_log_integral_rpow_rnDeriv [IsProbabilityMeasure μ] [IsProbabi
       (𝓝 (∫ x, llr μ ν x ∂μ)) := by
   sorry
 
+lemma log_integral_rpow_rnDeriv_sub_log_nonneg [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (h_int : Integrable (llr μ ν) μ) :
+    0 ≤ log (∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν)
+      - log ((1 - a) * (ν .univ).toReal + a * (μ .univ).toReal) := by
+  sorry
+
 lemma tendsto_mul_log_integral_rpow_rnDeriv' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (h_int : Integrable (llr μ ν) μ) :
     Tendsto (fun a ↦ (a - 1)⁻¹ * log (∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν)
