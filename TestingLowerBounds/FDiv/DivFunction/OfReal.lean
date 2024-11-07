@@ -60,6 +60,12 @@ lemma ofReal_apply_top :
     ofReal f hf hf_one ∞ = limsup (fun x ↦ ENNReal.ofReal (f x)) atTop := by
   simp [ofReal]
 
+lemma ofReal_apply_top_of_tendsto_atTop (h : Tendsto f atTop atTop) :
+    ofReal f hf hf_one ∞ = ∞ := by
+  rw [ofReal_apply_top]
+  refine Tendsto.limsup_eq ?_
+  rwa [ENNReal.tendsto_ofReal_nhds_top]
+
 lemma ofReal_apply {x : ℝ≥0∞} (hx_zero : x ≠ 0) (hx_top : x ≠ ∞) :
     ofReal f hf hf_one x = ENNReal.ofReal (f x.toReal) := by
   simp [ofReal, hx_zero, hx_top]

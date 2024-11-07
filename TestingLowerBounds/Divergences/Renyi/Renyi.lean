@@ -68,14 +68,9 @@ Hellinger divergence to the Rényi divergence. -/
 noncomputable def renyiDiv (a : ℝ) (μ ν : Measure α) : ℝ≥0∞ :=
   if a = 0 then ENNReal.ofReal (- Real.log (ν {x | 0 < (∂μ/∂ν) x}).toReal)
   else if a = 1 then kl μ ν
-  else if a < 1 then
-    if μ ⟂ₘ ν then ∞
-    else ENNReal.ofReal ((a - 1)⁻¹
-      * Real.log ((∫ x, (μ.rnDeriv ν x).toReal ^ a ∂ν) / avgMass a μ ν))
-  else
-    if hellingerDiv a μ ν = ∞ then ∞
-    else ENNReal.ofReal ((a - 1)⁻¹
-      * Real.log ((∫ x, (μ.rnDeriv ν x).toReal ^ a ∂ν) / avgMass a μ ν))
+  else ((a - 1)⁻¹ * ENNReal.log
+    (((1 : EReal) + (a - 1) * (hellingerDiv a μ ν) / avgMass a μ ν).toENNReal)).toENNReal
+-- todo: prove that the thing for which we to .toENNReal is nonnegative
 
 @[simp]
 lemma renyiDiv_zero (μ ν : Measure α) [SigmaFinite μ] [IsFiniteMeasure ν] :
@@ -94,13 +89,38 @@ lemma renyiDiv_one (μ ν : Measure α) : renyiDiv 1 μ ν = kl μ ν := by
   rw [renyiDiv, if_neg one_ne_zero, if_pos rfl]
 
 lemma renyiDiv_of_ne_one (ha_zero : a ≠ 0) (ha_ne_one : a ≠ 1) (μ ν : Measure α) :
-    renyiDiv a μ ν = (a - 1)⁻¹
-      * ENNReal.log (((ν .univ : EReal) + (a - 1) * (hellingerDiv a μ ν)).toENNReal) := by
+    renyiDiv a μ ν = ((a - 1)⁻¹ * ENNReal.log
+      (((1 : EReal) + (a - 1) * (hellingerDiv a μ ν) / avgMass a μ ν).toENNReal)).toENNReal := by
   rw [renyiDiv, if_neg ha_zero, if_neg ha_ne_one]
+
+lemma renyi_toENNReal_arg_nonneg (ha_zero : a ≠ 0) (ha_ne_one : a ≠ 1) :
+    0 ≤ (a - 1)⁻¹
+      * ENNReal.log (((1 : EReal) + (a - 1) * (hellingerDiv a μ ν) / avgMass a μ ν).toENNReal) := by
+  rcases lt_trichotomy a 1 with ha | rfl | ha
+  swap; · simp
+  · -- a < 1
+    sorry
+  · -- 1 < a
+    sorry
+
+open Classical in
+lemma renyiDiv_of_lt_one (ha_pos : 0 < a) (ha_lt : a < 1) :
+    renyiDiv a μ ν =
+      if μ ⟂ₘ ν then ∞
+      else ENNReal.ofReal ((a - 1)⁻¹
+        * Real.log ((∫ x, (μ.rnDeriv ν x).toReal ^ a ∂ν) / avgMass a μ ν)) := by
+  sorry
+
+lemma renyiDiv_of_one_lt (ha_lt : 1 < a) :
+    renyiDiv a μ ν =
+      if hellingerDiv a μ ν = ∞ then ∞
+      else ENNReal.ofReal ((a - 1)⁻¹
+        * Real.log ((∫ x, (μ.rnDeriv ν x).toReal ^ a ∂ν) / avgMass a μ ν)) := by
+  sorry
 
 @[simp]
 lemma renyiDiv_zero_measure_left (ν : Measure α) [IsFiniteMeasure ν] :
-    renyiDiv a 0 ν = sign (a - 1) * ⊥ := by
+    renyiDiv a 0 ν = if a < 1 then ∞ else 0 := by --sign (a - 1) * ⊥ := by
   by_cases ha : a = 1
   · simp [ha]
   rw_mod_cast [renyiDiv_of_ne_one ha, hellingerDiv_zero_measure_left, ← mul_assoc, ← neg_sub a 1,
