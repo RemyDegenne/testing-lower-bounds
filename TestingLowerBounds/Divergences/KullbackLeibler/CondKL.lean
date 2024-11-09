@@ -548,11 +548,10 @@ lemma Kernel.integrable_llr_compProd_iff' [CountableOrCountablyGenerated β γ]
       ↔ Integrable (llr (κ₁ a) (η₁ a)) (κ₁ a)
         ∧ Integrable (fun b ↦ (kl (κ₂ (a, b)) (η₂ (a, b))).toReal) (κ₁ a)
         ∧ ∀ᵐ b ∂κ₁ a, Integrable (llr (κ₂ (a, b)) (η₂ (a, b))) (κ₂ (a, b)) := by
-  sorry
-  -- convert Kernel.integrable_llr_compProd_iff a h_ac using 3
-  -- simp_rw [← Kernel.snd'_apply]
-  -- have h_ac' := Kernel.absolutelyContinuous_compProd_iff a |>.mp h_ac |>.2
-  -- exact integrable_kl_iff h_ac'
+  convert Kernel.integrable_llr_compProd_iff a h_ac using 3
+  simp_rw [← Kernel.snd'_apply]
+  have h_ac' := Kernel.absolutelyContinuous_compProd_iff a |>.mp h_ac |>.2
+  exact integrable_kl_iff h_ac'
 
 lemma kl_compProd_kernel_of_ae_ac_of_ae_integrable [CountableOrCountablyGenerated β γ]
     {κ₁ η₁ : Kernel α β} {κ₂ η₂ : Kernel (α × β) γ} [IsFiniteKernel κ₁] [IsFiniteKernel η₁]
@@ -560,63 +559,63 @@ lemma kl_compProd_kernel_of_ae_ac_of_ae_integrable [CountableOrCountablyGenerate
     (h_ae_int : ∀ᵐ a ∂μ, Integrable (llr ((κ₁ ⊗ₖ κ₂) a) ((η₁ ⊗ₖ η₂) a)) ((κ₁ ⊗ₖ κ₂) a)) :
     ∀ᵐ a ∂μ, (kl ((κ₁ ⊗ₖ κ₂) a) ((η₁ ⊗ₖ η₂) a)).toReal
       = (kl (κ₁ a) (η₁ a)).toReal + ∫ b, (kl (κ₂ (a, b)) (η₂ (a, b))).toReal ∂κ₁ a := by
-  sorry
-  -- simp only [eventually_congr (h_ac.mono (fun a h ↦ (Kernel.integrable_llr_compProd_iff' a h))),
-  --   eventually_and] at h_ae_int
-  -- simp only [Kernel.absolutelyContinuous_compProd_iff, eventually_and] at h_ac
-  -- filter_upwards [h_ac.1, h_ac.2, h_ae_int.1, h_ae_int.2.1, h_ae_int.2.2] with a ha_ac₁ ha_ac₂
-  --   ha_int₁ ha_int_kl₂ ha_int₂
-  -- have h_snd_ne_top : condKL (κ₂.snd' a) (η₂.snd' a) (κ₁ a) ≠ ∞ := by
-  --   apply condKL_ne_top_iff.mpr
-  --   simp_rw [Kernel.snd'_apply]
-  --   exact ⟨ha_ac₂, ⟨ha_int₂, ha_int_kl₂⟩⟩
-  -- simp_rw [Kernel.compProd_apply_eq_compProd_snd', kl_compProd,
-  --   EReal.toReal_add (kl_ne_top_iff.mpr ⟨ha_ac₁, ha_int₁⟩) (kl_ne_bot (κ₁ a) (η₁ a)) h_snd_ne_top
-  --   (condKL_ne_bot (κ₂.snd' a) (η₂.snd' a) (κ₁ a)),
-  --   condKL_ne_top_iff'.mp h_snd_ne_top, EReal.toReal_coe, Kernel.snd'_apply]
+  simp only [eventually_congr (h_ac.mono (fun a h ↦ (Kernel.integrable_llr_compProd_iff' a h))),
+    eventually_and] at h_ae_int
+  simp only [Kernel.absolutelyContinuous_compProd_iff, eventually_and] at h_ac
+  filter_upwards [h_ac.1, h_ac.2, h_ae_int.1, h_ae_int.2.1, h_ae_int.2.2] with a ha_ac₁ ha_ac₂
+    ha_int₁ ha_int_kl₂ ha_int₂
+  have h_snd_ne_top : condKL (κ₂.snd' a) (η₂.snd' a) (κ₁ a) ≠ ∞ := by
+    apply condKL_ne_top_iff.mpr
+    simp_rw [Kernel.snd'_apply]
+    exact ⟨ha_ac₂, ⟨ha_int₂, ha_int_kl₂⟩⟩
+  simp_rw [Kernel.compProd_apply_eq_compProd_snd', kl_compProd,
+    condKL_ne_top_iff'.mp h_snd_ne_top, Kernel.snd'_apply]
+  rw [ENNReal.toReal_add (kl_ne_top_iff.mpr ⟨ha_ac₁, ha_int₁⟩) ENNReal.ofReal_ne_top,
+    ENNReal.toReal_ofReal]
+  refine integral_nonneg fun x ↦ ENNReal.toReal_nonneg
 
-lemma condKL_compProd_kernel_eq_top [CountableOrCountablyGenerated (α × β) γ] {κ₁ η₁ : Kernel α β}
+lemma condKL_compProd_kernel_eq_top [CountableOrCountablyGenerated α β]
+    [CountableOrCountablyGenerated α (β × γ)]
+    [CountableOrCountablyGenerated (α × β) γ] {κ₁ η₁ : Kernel α β}
     {κ₂ η₂ : Kernel (α × β) γ} [IsMarkovKernel κ₁] [IsMarkovKernel η₁] [IsMarkovKernel κ₂]
     [IsMarkovKernel η₂] [SFinite μ] :
     condKL (κ₁ ⊗ₖ κ₂) (η₁ ⊗ₖ η₂) μ = ∞ ↔ condKL κ₁ η₁ μ = ∞ ∨ condKL κ₂ η₂ (μ ⊗ₘ κ₁) = ∞ := by
-  sorry
-  -- by_cases h_empty : Nonempty α
-  -- swap
-  -- · replace h_empty := not_nonempty_iff.mp h_empty
-  --   simp only [condKL_isEmpty_left]
-  --   tauto
-  -- have := countableOrCountablyGenerated_right_of_prod_left_of_nonempty (α := α) (β := β) (γ := γ)
-  -- simp_rw [condKL_eq_top_iff, Measure.ae_compProd_iff (κ₂.measurableSet_absolutelyContinuous _)]
-  -- by_cases h_ac : ∀ᵐ a ∂μ, (κ₁ ⊗ₖ κ₂) a ≪ (η₁ ⊗ₖ η₂) a
-  --   <;> have h_ac' := h_ac
-  --   <;> simp only [Kernel.absolutelyContinuous_compProd_iff, eventually_and, not_and_or] at h_ac'
-  --   <;> simp only [h_ac, h_ac', not_false_eq_true, true_or, not_true, true_iff, false_or]
-  -- swap; tauto
-  -- rw [← Measure.ae_compProd_iff (κ₂.measurableSet_absolutelyContinuous _)] at h_ac'
-  -- by_cases h_ae_int : ∀ᵐ a ∂μ, Integrable (llr ((κ₁ ⊗ₖ κ₂) a) ((η₁ ⊗ₖ η₂) a)) ((κ₁ ⊗ₖ κ₂) a)
-  --   <;> have h_ae_int' := h_ae_int
-  --   <;> simp only [eventually_congr (h_ac.mono (fun a h ↦ (Kernel.integrable_llr_compProd_iff' a h))),
-  --     eventually_and, not_and_or] at h_ae_int'
-  --   <;> simp only [h_ae_int, h_ae_int', not_false_eq_true, true_or, true_and, not_true, true_iff,
-  --     false_or, not_and_or, ae_compProd_integrable_llr_iff h_ac'.2, Measure.integrable_compProd_iff
-  --     (measurable_kl _ _).ereal_toReal.stronglyMeasurable.aestronglyMeasurable]
-  -- swap
-  -- · by_cases h_int₁ : ∀ᵐ x ∂μ, Integrable (llr (κ₁ x) (η₁ x)) (κ₁ x)
-  --   swap; tauto
-  --   by_cases h_int₂ : ∀ᵐ a ∂μ, ∀ᵐ b ∂κ₁ a, Integrable (llr (κ₂ (a, b)) (η₂ (a, b))) (κ₂ (a, b))
-  --   swap; tauto
-  --   simp only [h_int₁, h_int₂, not_true_eq_false, false_or, or_false] at h_ae_int'
-  --   right; right; left
-  --   exact h_ae_int'
-  -- simp only [norm_eq_abs, EReal.toReal_nonneg (kl_nonneg _ _), abs_of_nonneg, ← not_and_or,
-  --   not_iff_not]
-  -- rw [integrable_congr (kl_compProd_kernel_of_ae_ac_of_ae_integrable h_ac h_ae_int), and_comm]
-  -- simp_rw [add_comm (kl (κ₁ _) (η₁ _)).toReal]
-  -- apply integrable_add_iff_of_nonneg
-  -- · exact StronglyMeasurable.integral_kernel_prod_right' (κ := κ₁)
-  --     ((measurable_kl κ₂ η₂).ereal_toReal.stronglyMeasurable) |>.aestronglyMeasurable
-  -- · filter_upwards with a using integral_nonneg (fun b ↦ EReal.toReal_nonneg (kl_nonneg _ _))
-  -- · filter_upwards with a using EReal.toReal_nonneg (kl_nonneg _ _)
+  by_cases h_empty : Nonempty α
+  swap
+  · replace h_empty := not_nonempty_iff.mp h_empty
+    simp only [condKL_isEmpty_left]
+    tauto
+  have := countableOrCountablyGenerated_right_of_prod_left_of_nonempty (α := α) (β := β) (γ := γ)
+  simp_rw [condKL_eq_top_iff, Measure.ae_compProd_iff (κ₂.measurableSet_absolutelyContinuous _)]
+  by_cases h_ac : ∀ᵐ a ∂μ, (κ₁ ⊗ₖ κ₂) a ≪ (η₁ ⊗ₖ η₂) a
+    <;> have h_ac' := h_ac
+    <;> simp only [Kernel.absolutelyContinuous_compProd_iff, eventually_and, not_and_or] at h_ac'
+    <;> simp only [h_ac, h_ac', not_false_eq_true, true_or, not_true, true_iff, false_or]
+  swap; tauto
+  rw [← Measure.ae_compProd_iff (κ₂.measurableSet_absolutelyContinuous _)] at h_ac'
+  by_cases h_ae_int : ∀ᵐ a ∂μ, Integrable (llr ((κ₁ ⊗ₖ κ₂) a) ((η₁ ⊗ₖ η₂) a)) ((κ₁ ⊗ₖ κ₂) a)
+    <;> have h_ae_int' := h_ae_int
+    <;> simp only [eventually_congr (h_ac.mono (fun a h ↦ (Kernel.integrable_llr_compProd_iff' a h))),
+      eventually_and, not_and_or] at h_ae_int'
+    <;> simp only [h_ae_int, h_ae_int', not_false_eq_true, true_or, true_and, not_true, true_iff,
+      false_or, not_and_or, ae_compProd_integrable_llr_iff h_ac'.2, Measure.integrable_compProd_iff
+      (measurable_kl _ _).ennreal_toReal.stronglyMeasurable.aestronglyMeasurable]
+  swap
+  · by_cases h_int₁ : ∀ᵐ x ∂μ, Integrable (llr (κ₁ x) (η₁ x)) (κ₁ x)
+    swap; tauto
+    by_cases h_int₂ : ∀ᵐ a ∂μ, ∀ᵐ b ∂κ₁ a, Integrable (llr (κ₂ (a, b)) (η₂ (a, b))) (κ₂ (a, b))
+    swap; tauto
+    simp only [h_int₁, h_int₂, not_true_eq_false, false_or, or_false] at h_ae_int'
+    right; right; left
+    exact h_ae_int'
+  simp only [norm_eq_abs, ENNReal.abs_toReal, ← not_and_or, not_iff_not]
+  rw [integrable_congr (kl_compProd_kernel_of_ae_ac_of_ae_integrable h_ac h_ae_int), and_comm]
+  simp_rw [add_comm (kl (κ₁ _) (η₁ _)).toReal]
+  apply integrable_add_iff_of_nonneg
+  · exact StronglyMeasurable.integral_kernel_prod_right' (κ := κ₁)
+      ((measurable_kl κ₂ η₂).ennreal_toReal.stronglyMeasurable) |>.aestronglyMeasurable
+  · filter_upwards with a using integral_nonneg (fun b ↦ ENNReal.toReal_nonneg)
+  · filter_upwards with a using ENNReal.toReal_nonneg
 
 -- todo: remove some [CountableOrCountablyGenerated _ _] hypotheses
 lemma condKL_compProd_kernel [CountableOrCountablyGenerated α β]
@@ -635,13 +634,15 @@ lemma condKL_compProd_kernel [CountableOrCountablyGenerated α β]
     rw [condKL_compProd_kernel_eq_top] at hp
     rcases hp with (h | h) <;> simp [h]
   obtain ⟨h1, h2⟩ := not_or.mp <| condKL_compProd_kernel_eq_top.mpr.mt hp
-  sorry
-  -- rw [condKL_ne_top_iff'.mp hp, condKL_ne_top_iff'.mp h1, condKL_ne_top_iff'.mp h2]
-  -- rw [← ne_eq, condKL_ne_top_iff] at h1 h2 hp
-  -- rw [Measure.integral_compProd h2.2.2]
-  -- norm_cast
-  -- convert integral_add h1.2.2 (Integrable.integral_compProd' h2.2.2) using 1
-  -- exact integral_congr_ae <| kl_compProd_kernel_of_ae_ac_of_ae_integrable hp.1 hp.2.1
+  rw [condKL_ne_top_iff'.mp hp, condKL_ne_top_iff'.mp h1, condKL_ne_top_iff'.mp h2]
+  rw [← ne_eq, condKL_ne_top_iff] at h1 h2 hp
+  rw [Measure.integral_compProd h2.2.2, ← ENNReal.ofReal_add]
+  rotate_left
+  · exact integral_nonneg fun _ ↦ ENNReal.toReal_nonneg
+  · exact integral_nonneg fun _ ↦ integral_nonneg fun _ ↦ ENNReal.toReal_nonneg
+  congr 1
+  convert integral_add h1.2.2 (Integrable.integral_compProd' h2.2.2) using 1
+  exact integral_congr_ae <| kl_compProd_kernel_of_ae_ac_of_ae_integrable hp.1 hp.2.1
 
 end CompProd
 
