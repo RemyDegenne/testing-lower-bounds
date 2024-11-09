@@ -230,17 +230,6 @@ lemma condKL_isEmpty_left [IsEmpty α] : condKL κ η μ = 0 := by
     exact Set.eq_empty_of_isEmpty s ▸ measure_empty
   exact h ▸ condKL_zero_measure
 
--- lemma condKL_ne_bot (κ η : Kernel α β) (μ : Measure α) : condKL κ η μ ≠ ⊥ := by
---   rw [condKL]
---   split_ifs with h
---   · simp only [ne_eq, EReal.coe_ne_bot, not_false_eq_true]
---   · norm_num
-
--- lemma condKL_nonneg (κ η : Kernel α β) [IsMarkovKernel κ] [IsMarkovKernel η] (μ : Measure α) :
---     0 ≤ condKL κ η μ := by
---   rw [condKL_eq_condFDiv]
---   exact condFDiv_nonneg convexOn_mul_log continuous_mul_log.continuousOn (by norm_num)
-
 @[simp]
 lemma condKL_const {ξ : Measure β} [IsFiniteMeasure ξ] [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     condKL (Kernel.const β μ) (Kernel.const β ν) ξ = (kl μ ν) * ξ .univ := by

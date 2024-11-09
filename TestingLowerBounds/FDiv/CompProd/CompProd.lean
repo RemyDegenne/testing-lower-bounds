@@ -3,26 +3,10 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import Mathlib.Probability.Kernel.Disintegration.StandardBorel
-import TestingLowerBounds.FDiv.Basic
 import TestingLowerBounds.FDiv.CompProd.EqTopIff
-import TestingLowerBounds.FDiv.IntegralRnDerivSingularPart
-import TestingLowerBounds.MeasureCompProd
 /-!
 
-# f-Divergences
-
-## Main definitions
-
-* `FooBar`
-
-## Main statements
-
-* `fooBar_unique`
-
-## Notation
-
-## Implementation details
+# f-Divergences of composition-Products
 
 -/
 
@@ -70,16 +54,6 @@ lemma integrable_fDiv_iff [CountableOrCountablyGenerated α β] [IsFiniteMeasure
     rw [lintegral_singularPart _ _ _ .univ]
     simp
 
--- todo: remove this
-lemma fDiv_eq_ae {γ : Type*} [MeasurableSpace γ]
-    {ξ : Kernel α β} {κ η : Kernel (α × β) γ} [IsFiniteKernel κ] :
-    ∀ᵐ a ∂μ, ∀ᵐ b ∂ξ a, fDiv f (κ (a, b)) (η (a, b)) =
-      ∫⁻ x, f ((∂κ (a, b)/∂η (a, b)) x) ∂η (a, b)
-      + f.derivAtTop * ((κ (a, b)).singularPart (η (a, b)) .univ) := by
-  refine ae_of_all _ fun _ ↦ ?_
-  refine ae_of_all _ fun _ ↦ ?_
-  rw [fDiv]
-
 end Conditional
 
 lemma integral_f_rnDeriv_mul_le_integral [CountableOrCountablyGenerated α β]
@@ -121,7 +95,7 @@ lemma integral_f_rnDeriv_le_integral_add [CountableOrCountablyGenerated α β]
     (h_deriv : f.derivAtTop = ∞ → ∀ᵐ a ∂μ, κ a ≪ η a) :
     ∫⁻ x, f ((∂μ/∂ν) x) ∂ν
       ≤ ∫⁻ x, f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) x) ∂(ν ⊗ₘ η)
-        + f.derivAtTop * ∫⁻ a, ((∂μ/∂ν) a) * (κ.singularPart η a .univ) ∂ν := by
+        + f.derivAtTop * ∫⁻ a, (∂μ/∂ν) a * (κ.singularPart η a .univ) ∂ν := by
   suffices ∫⁻ x, f ((∂μ/∂ν) x) ∂ν
       ≤ ∫⁻ x, f ((∂μ/∂ν) x * η.withDensity (κ.rnDeriv η) x .univ) ∂ν
         + f.derivAtTop * ∫⁻ a, (∂μ/∂ν) a * κ.singularPart η a .univ ∂ν by

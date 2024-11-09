@@ -204,6 +204,44 @@ lemma fDiv_compProd_right_eq_top_iff [IsFiniteMeasure μ]
 
 end CompProd
 
+lemma f_rnDeriv_le_add [CountableOrCountablyGenerated α β]
+    (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (κ η : Kernel α β) [IsMarkovKernel κ] [IsFiniteKernel η]
+    (h_deriv : f.derivAtTop = ∞ → ∀ᵐ a ∂μ, κ a ≪ η a) :
+    ∀ᵐ a ∂ ν, f ((∂μ/∂ν) a)
+      ≤ f ((∂μ/∂ν) a * η.withDensity (κ.rnDeriv η) a .univ)
+        + f.derivAtTop * ((∂μ/∂ν) a) * (κ.singularPart η a .univ) := by
+  by_cases h_deriv_top : f.derivAtTop = ∞
+  · simp only [ENNReal.toReal_mul, h_deriv_top, EReal.toReal_top, zero_mul, add_zero]
+    have h_ae : ∀ᵐ a ∂ν, (∂μ/∂ν) a ≠ 0 → η.withDensity (κ.rnDeriv η) a = κ a := by
+      refine Measure.ae_rnDeriv_ne_zero_imp_of_ae ?_
+      filter_upwards [h_deriv h_deriv_top] with a ha_ac
+      rw [Kernel.withDensity_rnDeriv_eq ha_ac]
+    filter_upwards [h_ae] with a ha
+    by_cases h0 : (∂μ/∂ν) a = 0
+    · simp [h0]
+    · rw [ha h0]
+      simp
+  refine ae_of_all _ fun a ↦ ?_
+  let κ' := η.withDensity (κ.rnDeriv η)
+  calc f ((∂μ/∂ν) a)
+  _ ≤ f ((∂μ/∂ν) a * κ' a .univ)
+        + f.derivAtTop * (∂μ/∂ν) a * (1 - κ' a .univ) := by
+      refine f.le_add_derivAtTop' _ ?_
+      calc κ' a .univ
+      _ ≤ κ a .univ := by
+          exact κ.withDensity_rnDeriv_le η a .univ
+      _ = 1 := by simp
+  _ = f ((∂μ/∂ν) a * κ' a .univ)
+        + f.derivAtTop * (∂μ/∂ν) a * κ.singularPart η a .univ := by
+      congr
+      norm_cast
+      unfold_let κ'
+      refine ENNReal.sub_eq_of_eq_add (measure_ne_top _ _) ?_
+      rw [← measure_univ (μ := κ a)]
+      conv_lhs => rw [← κ.rnDeriv_add_singularPart η, add_comm]
+      simp only [Kernel.coe_add, Pi.add_apply, Measure.coe_add]
+
 lemma f_rnDeriv_ae_le_lintegral [CountableOrCountablyGenerated α β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : Kernel α β) [IsFiniteKernel κ] [IsMarkovKernel η]
@@ -270,44 +308,6 @@ lemma integrable_f_rnDeriv_mul_withDensity [CountableOrCountablyGenerated α β]
     filter_upwards [h_eq] with x hx
     rw [hx]
   · exact ae_of_all _ (fun _ ↦ Kernel.withDensity_absolutelyContinuous _ _)
-
-lemma f_rnDeriv_le_add [CountableOrCountablyGenerated α β]
-    (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (κ η : Kernel α β) [IsMarkovKernel κ] [IsFiniteKernel η]
-    (h_deriv : f.derivAtTop = ∞ → ∀ᵐ a ∂μ, κ a ≪ η a) :
-    ∀ᵐ a ∂ ν, f ((∂μ/∂ν) a)
-      ≤ f ((∂μ/∂ν) a * η.withDensity (κ.rnDeriv η) a .univ)
-        + f.derivAtTop * ((∂μ/∂ν) a) * (κ.singularPart η a .univ) := by
-  by_cases h_deriv_top : f.derivAtTop = ∞
-  · simp only [ENNReal.toReal_mul, h_deriv_top, EReal.toReal_top, zero_mul, add_zero]
-    have h_ae : ∀ᵐ a ∂ν, (∂μ/∂ν) a ≠ 0 → η.withDensity (κ.rnDeriv η) a = κ a := by
-      refine Measure.ae_rnDeriv_ne_zero_imp_of_ae ?_
-      filter_upwards [h_deriv h_deriv_top] with a ha_ac
-      rw [Kernel.withDensity_rnDeriv_eq ha_ac]
-    filter_upwards [h_ae] with a ha
-    by_cases h0 : (∂μ/∂ν) a = 0
-    · simp [h0]
-    · rw [ha h0]
-      simp
-  refine ae_of_all _ fun a ↦ ?_
-  let κ' := η.withDensity (κ.rnDeriv η)
-  calc f ((∂μ/∂ν) a)
-  _ ≤ f ((∂μ/∂ν) a * κ' a .univ)
-        + f.derivAtTop * (∂μ/∂ν) a * (1 - κ' a .univ) := by
-      refine f.le_add_derivAtTop' _ ?_
-      calc κ' a .univ
-      _ ≤ κ a .univ := by
-          exact κ.withDensity_rnDeriv_le η a .univ
-      _ = 1 := by simp
-  _ = f ((∂μ/∂ν) a * κ' a .univ)
-        + f.derivAtTop * (∂μ/∂ν) a * κ.singularPart η a .univ := by
-      congr
-      norm_cast
-      unfold_let κ'
-      refine ENNReal.sub_eq_of_eq_add (measure_ne_top _ _) ?_
-      rw [← measure_univ (μ := κ a)]
-      conv_lhs => rw [← κ.rnDeriv_add_singularPart η, add_comm]
-      simp only [Kernel.coe_add, Pi.add_apply, Measure.coe_add]
 
 lemma integrable_f_rnDeriv_of_integrable_compProd' [CountableOrCountablyGenerated α β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
