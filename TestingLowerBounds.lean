@@ -24,6 +24,7 @@ import TestingLowerBounds.ErealLLR
 import TestingLowerBounds.FDiv.Basic
 import TestingLowerBounds.FDiv.CompProd.CompProd
 import TestingLowerBounds.FDiv.CompProd.EqTopIff
+import TestingLowerBounds.FDiv.CompProd.OldEqTopIff
 import TestingLowerBounds.FDiv.CondFDiv
 import TestingLowerBounds.FDiv.CondFDivCompProdMeasure
 import TestingLowerBounds.FDiv.DPIJensen
