@@ -51,9 +51,7 @@ lemma integrable_kl_iff [IsMarkovKernel κ] [IsMarkovKernel η] (h_ac : ∀ᵐ a
   rw [integrable_congr this]
   simp_rw [add_sub_assoc]
   rw [integrable_add_iff_integrable_left']
-  refine Integrable.sub ?_ ?_
-  · sorry
-  · sorry
+  simp
 
 open Classical in
 /--
