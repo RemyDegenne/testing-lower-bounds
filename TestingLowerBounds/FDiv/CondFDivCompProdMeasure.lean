@@ -148,4 +148,20 @@ lemma condFDiv_compProd_meas [CountableOrCountablyGenerated (α × β) γ] [IsFi
   rw [condFDiv, Measure.lintegral_compProd (measurable_fDiv _ _)]
   rfl
 
+lemma _root_.MeasureTheory.Measure.compProd_assoc {ξ : Kernel α β} {κ : Kernel (α × β) γ} :
+    μ ⊗ₘ ξ ⊗ₘ κ = (μ ⊗ₘ (ξ ⊗ₖ κ)).map MeasurableEquiv.prodAssoc.symm := by
+  sorry
+
+lemma condFDiv_compProd_meas' [CountableOrCountablyGenerated β γ]
+    [CountableOrCountablyGenerated α (β × γ)]
+    [CountableOrCountablyGenerated (α × β) γ] [IsFiniteMeasure μ]
+    {ξ : Kernel α β} [IsMarkovKernel ξ]
+    {κ η : Kernel (α × β) γ} [IsMarkovKernel κ] [IsMarkovKernel η] :
+    condFDiv f κ η (μ ⊗ₘ ξ) = ∫⁻ x, condFDiv f (κ.snd' x) (η.snd' x) (ξ x) ∂μ := by
+  rw [← fDiv_compProd_left]
+  simp_rw [Measure.compProd_assoc]
+  rw [fDiv_map_measurableEmbedding MeasurableEquiv.prodAssoc.symm.measurableEmbedding]
+  rw [fDiv_compProd_left, condFDiv]
+  simp_rw [Kernel.compProd_apply_eq_compProd_snd', fDiv_compProd_left]
+
 end ProbabilityTheory
