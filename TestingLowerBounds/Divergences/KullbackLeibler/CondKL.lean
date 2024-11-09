@@ -5,6 +5,7 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import TestingLowerBounds.Divergences.KullbackLeibler.KullbackLeibler
 import TestingLowerBounds.FDiv.CondFDivCompProdMeasure
+import TestingLowerBounds.ForMathlib.LogLikelihoodRatioCompProd
 
 /-!
 # Kullback-Leibler divergence
