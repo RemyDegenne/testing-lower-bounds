@@ -648,7 +648,7 @@ lemma _root_.MeasureTheory.laverage_eq_average [IsFiniteMeasure μ] {f : α → 
 
 lemma _root_.ConvexOn.map_laverage_le [IsFiniteMeasure μ] [NeZero μ]
     {f : α → ℝ≥0∞} {g : ℝ≥0∞ → ℝ≥0∞} {s : Set ℝ≥0∞}
-    (hf : AEMeasurable f μ)
+    (hf : AEMeasurable f μ) (hfg : AEMeasurable (g ∘ f) μ)
     (hg : ConvexOn ℝ≥0 s g) (hgc : ContinuousOn g s) (hsc : IsClosed s)
     (hfs : ∀ᵐ x ∂μ, f x ∈ s) (hfi : ∫⁻ x, f x ∂μ ≠ ∞) :
     g (⨍⁻ x, f x ∂μ) ≤ ⨍⁻ x, g (f x) ∂μ := by
@@ -657,16 +657,22 @@ lemma _root_.ConvexOn.map_laverage_le [IsFiniteMeasure μ] [NeZero μ]
     rw [ENNReal.top_div_of_ne_top (measure_ne_top _ _)]
     simp
   have hf_lt_top : ∀ᵐ x ∂μ, f x < ∞ := ae_lt_top' hf hfi
-  have hg_lt_top : ∀ᵐ x ∂μ, g (f x) < ∞ := ae_lt_top' ?_ hgi
-  swap; · sorry
+  have hg_lt_top : ∀ᵐ x ∂μ, g (f x) < ∞ := ae_lt_top' hfg hgi
   have hf_ofReal_toReal : ∀ᵐ x ∂μ, ENNReal.ofReal (f x).toReal = f x := by
     filter_upwards [hf_lt_top] with x hx
     rw [ENNReal.ofReal_toReal hx.ne]
+  have h_avg_real : ⨍⁻ x, f x ∂μ = ENNReal.ofReal (⨍ x, (f x).toReal ∂μ) := by
+    sorry
   rw [laverage_eq_average hf hfi]
   rw [← ENNReal.toReal_le_toReal]
   rotate_left
-  · sorry
-  · sorry
+  · rw [← h_avg_real]
+    sorry
+  · simp only [laverage, lintegral_smul_measure, ne_eq, ENNReal.mul_eq_top, ENNReal.inv_eq_zero,
+      measure_ne_top, not_false_eq_true, hgi, and_false, ENNReal.inv_eq_top,
+      Measure.measure_univ_eq_zero, false_or, not_and, Decidable.not_not]
+    intro hμ
+    simp [hμ]
   have hf_int : Integrable (fun x ↦ (f x).toReal) μ := integrable_toReal_of_lintegral_ne_top hf hfi
   have hg_int : Integrable ((fun x ↦ (g (ENNReal.ofReal x)).toReal)
       ∘ (fun x ↦ (f x).toReal)) μ := by
@@ -675,26 +681,25 @@ lemma _root_.ConvexOn.map_laverage_le [IsFiniteMeasure μ] [NeZero μ]
       filter_upwards [hf_ofReal_toReal] with x hx
       simp [hx]
     rw [integrable_congr this]
-    refine integrable_toReal_of_lintegral_ne_top ?_ hgi
-    sorry
+    exact integrable_toReal_of_lintegral_ne_top hfg hgi
   refine (ConvexOn.map_average_le ?_ ?_ ?_ ?_ hf_int hg_int (s := ENNReal.toReal '' s)).trans ?_
   · sorry
   · sorry
   · sorry
-  · sorry
+  · filter_upwards [hfs] with a has using mem_image_of_mem _ has
   · sorry
 
-lemma le_fDiv_of_ac' [IsFiniteMeasure μ] [IsProbabilityMeasure ν] (hμν : μ ≪ ν)
-    (hf : ∀ x, f x ≠ ∞) :
+lemma le_fDiv_of_ac' [IsFiniteMeasure μ] [IsProbabilityMeasure ν] (hμν : μ ≪ ν) :
     f (μ .univ) ≤ fDiv f μ ν := by
   rw [fDiv_of_absolutelyContinuous hμν]
   by_cases hf_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν = ∞
   · simp [hf_int]
-  have h_eq : μ univ = ∫⁻ x, μ.rnDeriv ν x ∂ν := by rw [Measure.lintegral_rnDeriv hμν]
   calc f (μ .univ)
   _ = f (∫⁻ x, μ.rnDeriv ν x ∂ν) := by rw [Measure.lintegral_rnDeriv hμν]
   _ = f (⨍⁻ x, μ.rnDeriv ν x ∂ν) := by rw [laverage_eq_lintegral]
-  _ ≤ ⨍⁻ x, f (μ.rnDeriv ν x) ∂ν := by sorry
+  _ ≤ ⨍⁻ x, f (μ.rnDeriv ν x) ∂ν := f.convexOn.map_laverage_le (μ.measurable_rnDeriv ν).aemeasurable
+    (f.measurable.comp (μ.measurable_rnDeriv ν)).aemeasurable f.continuous.continuousOn
+    isClosed_univ (ae_of_all _ fun _ ↦ by simp) (Measure.lintegral_rnDeriv_lt_top _ _).ne
   _ = ∫⁻ x, f (μ.rnDeriv ν x) ∂ν := by rw [laverage_eq_lintegral]
 
 -- todo: remove `hf`

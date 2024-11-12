@@ -148,16 +148,43 @@ lemma condFDiv_compProd_meas [CountableOrCountablyGenerated (α × β) γ] [IsFi
   rw [condFDiv, Measure.lintegral_compProd (measurable_fDiv _ _)]
   rfl
 
-lemma _root_.MeasureTheory.Measure.compProd_assoc {ξ : Kernel α β} {κ : Kernel (α × β) γ} :
+-- can be generalized to sigma-finite
+lemma Measure.ext_prod {μ ν : Measure (α × β)} [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (h : ∀ {s : Set α} {t : Set β} (_ : MeasurableSet s) (_ : MeasurableSet t),
+      μ (s ×ˢ t) = ν (s ×ˢ t)) :
+    μ = ν := by
+  ext s hs
+  apply induction_on_inter generateFrom_prod.symm isPiSystem_prod _ _ _ _ hs
+  · simp
+  · rintro _ ⟨t₁, ht₁, t₂, ht₂, rfl⟩
+    exact h ht₁ ht₂
+  · intro t ht ht_eq
+    simp_rw [measure_compl ht (measure_ne_top _ _), ht_eq]
+    congr 1
+    specialize h .univ .univ
+    simpa only [univ_prod_univ, Measure.restrict_univ] using h
+  · intro f' hf_disj hf_meas hf_eq
+    simp_rw [measure_iUnion hf_disj hf_meas, hf_eq]
+
+lemma _root_.MeasureTheory.Measure.compProd_assoc [IsFiniteMeasure μ]
+    {ξ : Kernel α β} [IsFiniteKernel ξ] {κ : Kernel (α × β) γ} [IsFiniteKernel κ] :
     μ ⊗ₘ ξ ⊗ₘ κ = (μ ⊗ₘ (ξ ⊗ₖ κ)).map MeasurableEquiv.prodAssoc.symm := by
+  simp_rw [Measure.compProd_eq_comp]
+  rw [Measure.map_comp _ _ MeasurableEquiv.prodAssoc.symm.measurable, Measure.comp_assoc]
+  congr 1
+  ext a : 1
+  rw [Kernel.comp_apply, Kernel.map_apply _ MeasurableEquiv.prodAssoc.symm.measurable,
+    Kernel.prod_apply, Kernel.prod_apply, Kernel.id_apply]
   sorry
 
-lemma condFDiv_compProd_meas' [CountableOrCountablyGenerated β γ]
-    [CountableOrCountablyGenerated α (β × γ)]
+lemma condFDiv_compProd_meas' [CountableOrCountablyGenerated α (β × γ)]
     [CountableOrCountablyGenerated (α × β) γ] [IsFiniteMeasure μ]
     {ξ : Kernel α β} [IsMarkovKernel ξ]
     {κ η : Kernel (α × β) γ} [IsMarkovKernel κ] [IsMarkovKernel η] :
     condFDiv f κ η (μ ⊗ₘ ξ) = ∫⁻ x, condFDiv f (κ.snd' x) (η.snd' x) (ξ x) ∂μ := by
+  by_cases h_empty : Nonempty α
+  swap; · simp [not_nonempty_iff.mp h_empty]
+  have := countableOrCountablyGenerated_right_of_prod_left_of_nonempty (α := α) (β := β) (γ := γ)
   rw [← fDiv_compProd_left]
   simp_rw [Measure.compProd_assoc]
   rw [fDiv_map_measurableEmbedding MeasurableEquiv.prodAssoc.symm.measurableEmbedding]
