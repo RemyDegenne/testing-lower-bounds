@@ -59,14 +59,25 @@ lemma ENNReal.tendsto_of_monotoneOn {ι : Type*} [SemilatticeSup ι] [Nonempty �
   · exact hf le_rfl hxz hxz
   · exact le_rfl
 
-lemma ENNReal.toReal_Ioo {x y : ℝ≥0∞} (hy : y ≠ ∞) :
+lemma ENNReal.toReal_Ioo {x y : ℝ≥0∞} (hx : x ≠ ∞) (hy : y ≠ ∞) :
     ENNReal.toReal '' (Ioo x y) = Ioo x.toReal y.toReal := by
-  sorry
+  ext a
+  refine
+    ⟨fun ⟨a', ⟨hxa, hay⟩, ha⟩ ↦ ha ▸ ⟨toReal_strict_mono hay.ne_top hxa, toReal_strict_mono hy hay⟩,
+    fun ⟨hxa, hay⟩ ↦ ⟨.ofReal a, ⟨?_, ?_⟩, toReal_ofReal (toReal_nonneg.trans_lt hxa).le⟩⟩
+  · rw [← ofReal_toReal hx, ofReal_lt_ofReal_iff']
+    exact ⟨hxa, toReal_nonneg.trans_lt hxa⟩
+  · rw [← ofReal_toReal hy, ofReal_lt_ofReal_iff']
+    exact ⟨hay, (toReal_nonneg.trans_lt hxa).trans hay⟩
 
 @[simp]
-lemma ENNReal.toReal_Ioo_top {x : ℝ≥0∞} :
+lemma ENNReal.toReal_Ioo_top {x : ℝ≥0∞} (hx : x ≠ ∞) :
     ENNReal.toReal '' (Ioo x ∞) = Ioi x.toReal := by
-  sorry
+  ext a
+  refine ⟨fun ⟨a', ⟨hxa, hay⟩, ha⟩ ↦ ha ▸ toReal_strict_mono hay.ne_top hxa,
+    fun hxa ↦ ⟨.ofReal a, ⟨?_, ofReal_lt_top⟩, toReal_ofReal (toReal_nonneg.trans_lt hxa).le⟩⟩
+  rw [← ofReal_toReal hx, ofReal_lt_ofReal_iff']
+  exact ⟨hxa, toReal_nonneg.trans_lt hxa⟩
 
 lemma leftDeriv_congr {f g : ℝ → ℝ} {x : ℝ} (h : f =ᶠ[𝓝[<] x] g) (hx : f x = g x) :
     leftDeriv f x = leftDeriv g x := h.derivWithin_eq hx
@@ -264,11 +275,12 @@ lemma convexOn_Ici_realFun (h : ∀ x ≠ ∞, f x ≠ ∞) : ConvexOn ℝ (Ici 
 lemma differentiableWithinAt {x : ℝ} (hx_nonneg : 0 ≤ x)
     (hx : ENNReal.ofReal x ∈ Ioo f.xmin f.xmax) :
     DifferentiableWithinAt ℝ f.realFun (Ioi x) x := by
-  refine ConvexOn.differentiableWithinAt_Ioi_of_mem_interior f.convexOn_Ioo_realFun ?_
+  refine f.convexOn_Ioo_realFun.differentiableWithinAt_Ioi_of_mem_interior ?_
   by_cases h_top : f.xmax = ∞
-  · simp only [h_top, ENNReal.toReal_Ioo_top, interior_Ioi, mem_Ioi]
+  · simp only [h_top, ENNReal.toReal_Ioo_top xmin_ne_top, interior_Ioi, mem_Ioi]
     exact ENNReal.toReal_lt_of_lt_ofReal hx.1
-  · simp only [ne_eq, h_top, not_false_eq_true, ENNReal.toReal_Ioo, interior_Ioo, mem_Ioo]
+  · simp only [ne_eq, h_top, not_false_eq_true, ENNReal.toReal_Ioo xmin_ne_top, interior_Ioo,
+      mem_Ioo]
     constructor
     · exact ENNReal.toReal_lt_of_lt_ofReal hx.1
     · rw [← ENNReal.ofReal_lt_iff_lt_toReal hx_nonneg h_top]
@@ -287,8 +299,8 @@ lemma continuousOn_realFun_Ioo :
     ContinuousOn f.realFun (ENNReal.toReal '' (Ioo f.xmin f.xmax)) := by
   refine ConvexOn.continuousOn ?_ f.convexOn_Ioo_realFun
   by_cases h_top : f.xmax = ∞
-  · simp only [h_top, ENNReal.toReal_Ioo_top, isOpen_Ioi]
-  · simp [h_top, ENNReal.toReal_Ioo, isOpen_Ioo]
+  · simp only [h_top, ENNReal.toReal_Ioo_top xmin_ne_top, isOpen_Ioi]
+  · simp [h_top, ENNReal.toReal_Ioo xmin_ne_top, isOpen_Ioo]
 
 lemma continuousOn_realFun_Ioi (h : f.xmax = ∞) : ContinuousOn f.realFun (Ioi f.xmin.toReal) := by
   refine ENNReal.continuousOn_toReal.comp
