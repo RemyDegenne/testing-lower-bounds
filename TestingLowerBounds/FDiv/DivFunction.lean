@@ -88,17 +88,28 @@ lemma rightDeriv_congr {f g : ℝ → ℝ} {x : ℝ} (h : f =ᶠ[𝓝[>] x] g) (
 namespace ConvexOn
 
 lemma nonneg_of_todo {f : ℝ → ℝ} (hf : ConvexOn ℝ (Ioi 0) f)
-    (hf_one : f 1 = 0) (hf_deriv : rightDeriv f 1 = 0) {x : ℝ} (hx : 0 ≤ x) :
+    (hf_one : f 1 = 0) (hf_deriv : rightDeriv f 1 = 0) {x : ℝ} (hx : 0 < x) :
     0 ≤ f x := by
   calc 0
   _ = rightDeriv f 1 * x + (f 1 - rightDeriv f 1 * 1) := by simp [hf_one, hf_deriv]
-  _ ≤ f x := hf.affine_le_of_mem_interior sorry sorry
+  _ ≤ f x := hf.affine_le_of_mem_interior
+    ((interior_Ioi (a := (0 : ℝ))).symm ▸ mem_Ioi.mpr zero_lt_one) hx
 
 lemma nonneg_of_todo' {f : ℝ → ℝ} (hf : ConvexOn ℝ (Ioi 0) f)
     (hf_one : f 1 = 0) (hf_ld : leftDeriv f 1 ≤ 0) (hf_rd : 0 ≤ rightDeriv f 1)
-    {x : ℝ} (hx : 0 ≤ x) :
+    {x : ℝ} (hx : 0 < x) :
     0 ≤ f x := by
-  sorry
+  rcases le_total x 1 with hx1 | h1x
+  · calc 0
+    _ ≤ leftDeriv f 1 * x + (f 1 - leftDeriv f 1 * 1) := by
+      simp [hf_one, hf_ld, le_mul_of_le_one_right, hx1]
+    _ ≤ f x := hf.affine_le_of_mem_interior'
+      ((interior_Ioi (a := (0 : ℝ))).symm ▸ mem_Ioi.mpr zero_lt_one) hx
+  · calc 0
+    _ ≤ rightDeriv f 1 * x + (f 1 - rightDeriv f 1 * 1) := by
+      simp [hf_one, hf_rd, le_mul_of_one_le_right, h1x]
+    _ ≤ f x := hf.affine_le_of_mem_interior
+      ((interior_Ioi (a := (0 : ℝ))).symm ▸ mem_Ioi.mpr zero_lt_one) hx
 
 lemma leftDeriv_nonpos_of_isMinOn {f : ℝ → ℝ} {s : Set ℝ} (hf : ConvexOn ℝ s f) {x₀ : ℝ}
     (hf_one : IsMinOn f s x₀) (h_mem : x₀ ∈ interior s) :
