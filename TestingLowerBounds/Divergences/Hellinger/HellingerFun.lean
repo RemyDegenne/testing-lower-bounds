@@ -359,6 +359,7 @@ lemma rightDeriv_hellingerFun_one :
   simp [rightDeriv_hellingerFun]
 
 lemma hellingerFun_nonneg (ha : 0 ≤ a) {x : ℝ} (hx : 0 ≤ x) : 0 ≤ hellingerFun a x := by
+  rcases hx.eq_or_lt with rfl | hx; · simp
   refine ConvexOn.nonneg_of_todo ?_ hellingerFun_apply_one_eq_zero rightDeriv_hellingerFun_one hx
   exact (convexOn_hellingerFun ha).subset (Set.Ioi_subset_Ici le_rfl) (convex_Ioi _)
 

@@ -91,6 +91,7 @@ lemma rightDeriv_mul_log_add_one_sub_eventually_eq :
   rw [rightDeriv_mul_log_add_one_sub hx]
 
 lemma mul_log_add_one_sub_nonneg {x : ℝ} (hx : 0 ≤ x) : 0 ≤ x * log x + 1 - x := by
+  rcases hx.eq_or_lt with rfl | hx; · simp
   refine ConvexOn.nonneg_of_todo (f := fun x ↦ x * log x + 1 - x) ?_ ?_ ?_ hx
   · exact convexOn_mul_log_add_one_sub.subset (Ioi_subset_Ici le_rfl) (convex_Ioi _)
   · simp
