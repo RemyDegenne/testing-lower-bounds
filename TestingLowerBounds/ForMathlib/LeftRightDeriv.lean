@@ -372,7 +372,7 @@ lemma differentiableWithinAt_Ioi_of_mem_interior (hfc : ConvexOn ℝ s f) (hxs :
     DifferentiableWithinAt ℝ f (Ioi x) x :=
   (hfc.hasRightDerivAt_of_mem_interior hxs).differentiableWithinAt
 
-lemma hadDerivWithinAt_rightDeriv_of_mem_interior (hfc : ConvexOn ℝ s f) (hxs : x ∈ interior s) :
+lemma hasDerivWithinAt_rightDeriv_of_mem_interior (hfc : ConvexOn ℝ s f) (hxs : x ∈ interior s) :
     HasDerivWithinAt f (rightDeriv f x) (Ioi x) x :=
   (hfc.differentiableWithinAt_Ioi_of_mem_interior hxs).hasDerivWithinAt
 
@@ -425,7 +425,7 @@ lemma differentiableWithinAt_Iio_of_mem_interior (hfc : ConvexOn ℝ s f) (hxs :
     DifferentiableWithinAt ℝ f (Iio x) x :=
   (hfc.hasLeftDerivAt_of_mem_interior hxs).differentiableWithinAt
 
-lemma hadDerivWithinAt_leftDeriv_of_mem_interior (hfc : ConvexOn ℝ s f) (hxs : x ∈ interior s) :
+lemma hasDerivWithinAt_leftDeriv_of_mem_interior (hfc : ConvexOn ℝ s f) (hxs : x ∈ interior s) :
     HasDerivWithinAt f (leftDeriv f x) (Iio x) x :=
   (hfc.differentiableWithinAt_Iio_of_mem_interior hxs).hasDerivWithinAt
 
