@@ -114,12 +114,24 @@ lemma nonneg_of_todo' {f : ℝ → ℝ} (hf : ConvexOn ℝ (Ioi 0) f)
 lemma leftDeriv_nonpos_of_isMinOn {f : ℝ → ℝ} {s : Set ℝ} (hf : ConvexOn ℝ s f) {x₀ : ℝ}
     (hf_one : IsMinOn f s x₀) (h_mem : x₀ ∈ interior s) :
     leftDeriv f x₀ ≤ 0 := by
-  sorry
+  rw [leftDeriv_eq_sSup_slope_of_mem_interior hf h_mem]
+  refine csSup_le ?_ fun a ⟨x, ⟨hxs, hxx₀⟩, hax⟩ ↦ ?_
+  · obtain ⟨x, hxx₀, hxs⟩ := mem_nhdsWithin_Iic_iff_exists_Icc_subset.mp <|
+      mem_nhdsWithin_of_mem_nhds <| mem_interior_iff_mem_nhds.mp h_mem
+    exact Nonempty.image _ ⟨x, hxs <| mem_Icc.mpr ⟨le_rfl, hxx₀.le⟩, hxx₀⟩
+  · rw [← hax, slope, vsub_eq_sub, smul_eq_mul, mul_comm, ← division_def, div_nonpos_iff]
+    exact Or.inl ⟨sub_nonneg.mpr <| hf_one hxs, sub_nonpos.mpr hxx₀.le⟩
 
 lemma rightDeriv_nonneg_of_isMinOn {f : ℝ → ℝ} {s : Set ℝ} (hf : ConvexOn ℝ s f) {x₀ : ℝ}
     (hf_one : IsMinOn f s x₀) (h_mem : x₀ ∈ interior s) :
     0 ≤ rightDeriv f x₀ := by
-  sorry
+  rw [rightDeriv_eq_sInf_slope_of_mem_interior hf h_mem]
+  refine le_csInf ?_ fun a ⟨x, ⟨hxs, hxx₀⟩, hax⟩ ↦ ?_
+  · obtain ⟨x, hxx₀, hxs⟩ := mem_nhdsWithin_Ici_iff_exists_Icc_subset.mp <|
+      mem_nhdsWithin_of_mem_nhds <| mem_interior_iff_mem_nhds.mp h_mem
+    exact Nonempty.image _ ⟨x, hxs <| mem_Icc.mpr ⟨hxx₀.le, le_rfl⟩, hxx₀⟩
+  · rw [← hax, slope, vsub_eq_sub, smul_eq_mul, mul_comm, ← division_def, div_nonneg_iff]
+    exact Or.inl ⟨sub_nonneg.mpr <| hf_one hxs, sub_nonneg.mpr hxx₀.le⟩
 
 end ConvexOn
 
