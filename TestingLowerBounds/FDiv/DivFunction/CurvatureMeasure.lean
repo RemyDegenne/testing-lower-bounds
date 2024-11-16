@@ -36,281 +36,281 @@ namespace DivFunction
 
 variable {𝒳 : Type*} {m𝒳 : MeasurableSpace 𝒳} {μ ν : Measure 𝒳} {f g : DivFunction} {β γ x t : ℝ}
 
-theorem orderIsoUnitIntervalBirational_symm_apply (x : Icc 0 1) :
-    ENNReal.orderIsoUnitIntervalBirational.symm x
-      = if x = 0 then 0 else if x = 1 then ∞ else ENNReal.ofReal ((x : ℝ)⁻¹ - 1)⁻¹ := by
-  suffices x = ENNReal.orderIsoUnitIntervalBirational
-      (if x = 0 then 0 else if x = 1 then ∞ else ENNReal.ofReal ((x : ℝ)⁻¹ - 1)⁻¹) by
-    conv_lhs => rw [this, OrderIso.symm_apply_apply]
-  ext
-  simp only [ENNReal.orderIsoUnitIntervalBirational_apply_coe, ENNReal.toReal_inv]
-  by_cases hx0 : x = 0
-  · simp [hx0]
-  by_cases hx1 : x = 1
-  · simp [hx1]
-  rw [if_neg hx0, if_neg hx1]
-  have hx_ne0 : (x : ℝ) ≠ 0 := fun h ↦ hx0 (by ext; simp only [Icc.coe_zero, Icc.coe_eq_zero, h])
-  have hx_ne1 : (x : ℝ) ≠ 1 := fun h ↦ hx1 (by ext; simp only [Icc.coe_one, Icc.coe_eq_one, h])
-  rw [ENNReal.toReal_add, ENNReal.one_toReal, ENNReal.toReal_inv, ENNReal.toReal_ofReal]
-  · simp
-  · simp only [inv_nonneg, sub_nonneg]
-    rw [one_le_inv₀ (lt_of_le_of_ne x.2.1 hx_ne0.symm)]
-    exact x.2.2
-  · simp only [ne_eq, ENNReal.inv_eq_top, ENNReal.ofReal_eq_zero, inv_nonpos, tsub_le_iff_right,
-      zero_add, not_le]
-    rw [one_lt_inv₀ (lt_of_le_of_ne x.2.1 hx_ne0.symm)]
-    exact lt_of_le_of_ne x.2.2 hx_ne1
-  · simp
+-- theorem orderIsoUnitIntervalBirational_symm_apply (x : Icc 0 1) :
+--     ENNReal.orderIsoUnitIntervalBirational.symm x
+--       = if x = 0 then 0 else if x = 1 then ∞ else ENNReal.ofReal ((x : ℝ)⁻¹ - 1)⁻¹ := by
+--   suffices x = ENNReal.orderIsoUnitIntervalBirational
+--       (if x = 0 then 0 else if x = 1 then ∞ else ENNReal.ofReal ((x : ℝ)⁻¹ - 1)⁻¹) by
+--     conv_lhs => rw [this, OrderIso.symm_apply_apply]
+--   ext
+--   simp only [ENNReal.orderIsoUnitIntervalBirational_apply_coe, ENNReal.toReal_inv]
+--   by_cases hx0 : x = 0
+--   · simp [hx0]
+--   by_cases hx1 : x = 1
+--   · simp [hx1]
+--   rw [if_neg hx0, if_neg hx1]
+--   have hx_ne0 : (x : ℝ) ≠ 0 := fun h ↦ hx0 (by ext; simp only [Icc.coe_zero, Icc.coe_eq_zero, h])
+--   have hx_ne1 : (x : ℝ) ≠ 1 := fun h ↦ hx1 (by ext; simp only [Icc.coe_one, Icc.coe_eq_one, h])
+--   rw [ENNReal.toReal_add, ENNReal.one_toReal, ENNReal.toReal_inv, ENNReal.toReal_ofReal]
+--   · simp
+--   · simp only [inv_nonneg, sub_nonneg]
+--     rw [one_le_inv₀ (lt_of_le_of_ne x.2.1 hx_ne0.symm)]
+--     exact x.2.2
+--   · simp only [ne_eq, ENNReal.inv_eq_top, ENNReal.ofReal_eq_zero, inv_nonpos, tsub_le_iff_right,
+--       zero_add, not_le]
+--     rw [one_lt_inv₀ (lt_of_le_of_ne x.2.1 hx_ne0.symm)]
+--     exact lt_of_le_of_ne x.2.2 hx_ne1
+--   · simp
 
-noncomputable
-def xmin_01 (f : DivFunction) : Icc (0 : ℝ) 1 := ENNReal.orderIsoUnitIntervalBirational f.xmin
+-- noncomputable
+-- def xmin_01 (f : DivFunction) : Icc (0 : ℝ) 1 := ENNReal.orderIsoUnitIntervalBirational f.xmin
 
-lemma coe_xmin_01 : (f.xmin_01 : ℝ) = (f.xmin⁻¹ + 1).toReal⁻¹ := by simp [xmin_01]
+-- lemma coe_xmin_01 : (f.xmin_01 : ℝ) = (f.xmin⁻¹ + 1).toReal⁻¹ := by simp [xmin_01]
 
-lemma orderIsoUnitIntervalBirational_xmin_01 (f : DivFunction) :
-    ENNReal.orderIsoUnitIntervalBirational.symm f.xmin_01 = f.xmin := by
-  simp [xmin_01]
+-- lemma orderIsoUnitIntervalBirational_xmin_01 (f : DivFunction) :
+--     ENNReal.orderIsoUnitIntervalBirational.symm f.xmin_01 = f.xmin := by
+--   simp [xmin_01]
 
-noncomputable
-def xmax_01 (f : DivFunction) : Icc (0 : ℝ) 1 := ENNReal.orderIsoUnitIntervalBirational f.xmax
+-- noncomputable
+-- def xmax_01 (f : DivFunction) : Icc (0 : ℝ) 1 := ENNReal.orderIsoUnitIntervalBirational f.xmax
 
-lemma coe_xmax_01 : (f.xmax_01 : ℝ) = (f.xmax.toReal⁻¹ + 1)⁻¹ := by
-  simp only [xmax_01, ENNReal.orderIsoUnitIntervalBirational_apply_coe, ENNReal.toReal_inv, inv_inj]
-  rw [ENNReal.toReal_add, ENNReal.toReal_inv]
-  · simp
-  · simp [xmax_pos.ne']
-  · simp
+-- lemma coe_xmax_01 : (f.xmax_01 : ℝ) = (f.xmax.toReal⁻¹ + 1)⁻¹ := by
+--   simp only [xmax_01, ENNReal.orderIsoUnitIntervalBirational_apply_coe, ENNReal.toReal_inv, inv_inj]
+--   rw [ENNReal.toReal_add, ENNReal.toReal_inv]
+--   · simp
+--   · simp [xmax_pos.ne']
+--   · simp
 
-lemma orderIsoUnitIntervalBirational_xmax_01 (f : DivFunction) :
-    ENNReal.orderIsoUnitIntervalBirational.symm f.xmax_01 = f.xmax := by
-  simp [xmax_01]
+-- lemma orderIsoUnitIntervalBirational_xmax_01 (f : DivFunction) :
+--     ENNReal.orderIsoUnitIntervalBirational.symm f.xmax_01 = f.xmax := by
+--   simp [xmax_01]
 
-lemma xmin_01_lt_xmax_01 : (f.xmin_01 : ℝ) < f.xmax_01 := sorry
+-- lemma xmin_01_lt_xmax_01 : (f.xmin_01 : ℝ) < f.xmax_01 := sorry
 
-noncomputable
-def minmaxOrderIso (f : DivFunction) : Ioo (f.xmin_01 : ℝ) f.xmax_01 ≃o ℝ :=
-  (IooOrderIsoIoo (ENNReal.orderIsoUnitIntervalBirational.lt_iff_lt.mpr xmin_lt_xmax)).trans
-    IooOrderIsoReal
+-- noncomputable
+-- def minmaxOrderIso (f : DivFunction) : Ioo (f.xmin_01 : ℝ) f.xmax_01 ≃o ℝ :=
+--   (IooOrderIsoIoo (ENNReal.orderIsoUnitIntervalBirational.lt_iff_lt.mpr xmin_lt_xmax)).trans
+--     IooOrderIsoReal
 
-@[simp]
-lemma minmaxOrderIso_apply (x : Ioo (f.xmin_01 : ℝ) f.xmax_01) :
-    f.minmaxOrderIso x
-      = Real.log ((x - f.xmin_01) / (f.xmax_01 - x)) := by
-  simp only [minmaxOrderIso, ENNReal.orderIsoUnitIntervalBirational_apply_coe, OrderIso.trans_apply,
-    IooOrderIsoReal_apply]
-  rw [IooOrderIsoIoo_apply_coe (hab := xmin_01_lt_xmax_01)]
-  congr 1
-  rw [one_sub_div, sub_sub_sub_cancel_right, div_div_div_cancel_right₀]
-  · rw [sub_ne_zero]
-    exact xmin_01_lt_xmax_01.ne'
-  · rw [sub_ne_zero]
-    exact xmin_01_lt_xmax_01.ne'
+-- @[simp]
+-- lemma minmaxOrderIso_apply (x : Ioo (f.xmin_01 : ℝ) f.xmax_01) :
+--     f.minmaxOrderIso x
+--       = Real.log ((x - f.xmin_01) / (f.xmax_01 - x)) := by
+--   simp only [minmaxOrderIso, ENNReal.orderIsoUnitIntervalBirational_apply_coe, OrderIso.trans_apply,
+--     IooOrderIsoReal_apply]
+--   rw [IooOrderIsoIoo_apply_coe (hab := xmin_01_lt_xmax_01)]
+--   congr 1
+--   rw [one_sub_div, sub_sub_sub_cancel_right, div_div_div_cancel_right₀]
+--   · rw [sub_ne_zero]
+--     exact xmin_01_lt_xmax_01.ne'
+--   · rw [sub_ne_zero]
+--     exact xmin_01_lt_xmax_01.ne'
 
-lemma div_xmin_xmax_exp_mem_Ioo (x : ℝ) :
-    (f.xmin_01 + f.xmax_01 * Real.exp x) / (1 + Real.exp x)
-      ∈ Ioo (f.xmin_01 : ℝ) f.xmax_01 := by
-  simp only [mem_Ioo]
-  constructor
-  · sorry
-  · sorry
+-- lemma div_xmin_xmax_exp_mem_Ioo (x : ℝ) :
+--     (f.xmin_01 + f.xmax_01 * Real.exp x) / (1 + Real.exp x)
+--       ∈ Ioo (f.xmin_01 : ℝ) f.xmax_01 := by
+--   simp only [mem_Ioo]
+--   constructor
+--   · sorry
+--   · sorry
 
-@[simp]
-lemma minmaxOrderIso_symm_apply_coe (x : ℝ) :
-    (f.minmaxOrderIso.symm x : ℝ) = (f.xmin_01 + f.xmax_01 * Real.exp x) / (1 + Real.exp x) := by
-  have h_mem : (f.xmin_01 + f.xmax_01 * Real.exp x) / (1 + Real.exp x)
-      ∈ Ioo (f.xmin_01 : ℝ) f.xmax_01 := div_xmin_xmax_exp_mem_Ioo _
-  suffices x = f.minmaxOrderIso ⟨(f.xmin_01 + f.xmax_01 * Real.exp x) / (1 + Real.exp x), h_mem⟩ by
-    conv_lhs => rw [this, OrderIso.symm_apply_apply]
-  simp only [minmaxOrderIso_apply]
-  have h1 : f.xmax_01 + f.xmax_01 * Real.exp x - (f.xmin_01 + f.xmax_01 * Real.exp x)
-      = f.xmax_01 - f.xmin_01 := by ring
-  have h2 : f.xmin_01 + f.xmax_01 * Real.exp x - (f.xmin_01 + Real.exp x * f.xmin_01)
-      = (f.xmax_01 - f.xmin_01) * Real.exp x := by ring
-  rw [sub_div', mul_add, mul_one, h1, div_sub', add_mul, one_mul, h2, div_div_div_cancel_right₀,
-    mul_div_assoc, mul_div_cancel₀, Real.log_exp]
-  · rw [sub_ne_zero]
-    exact xmin_01_lt_xmax_01.ne'
-  · positivity
-  · positivity
-  · positivity
+-- @[simp]
+-- lemma minmaxOrderIso_symm_apply_coe (x : ℝ) :
+--     (f.minmaxOrderIso.symm x : ℝ) = (f.xmin_01 + f.xmax_01 * Real.exp x) / (1 + Real.exp x) := by
+--   have h_mem : (f.xmin_01 + f.xmax_01 * Real.exp x) / (1 + Real.exp x)
+--       ∈ Ioo (f.xmin_01 : ℝ) f.xmax_01 := div_xmin_xmax_exp_mem_Ioo _
+--   suffices x = f.minmaxOrderIso ⟨(f.xmin_01 + f.xmax_01 * Real.exp x) / (1 + Real.exp x), h_mem⟩ by
+--     conv_lhs => rw [this, OrderIso.symm_apply_apply]
+--   simp only [minmaxOrderIso_apply]
+--   have h1 : f.xmax_01 + f.xmax_01 * Real.exp x - (f.xmin_01 + f.xmax_01 * Real.exp x)
+--       = f.xmax_01 - f.xmin_01 := by ring
+--   have h2 : f.xmin_01 + f.xmax_01 * Real.exp x - (f.xmin_01 + Real.exp x * f.xmin_01)
+--       = (f.xmax_01 - f.xmin_01) * Real.exp x := by ring
+--   rw [sub_div', mul_add, mul_one, h1, div_sub', add_mul, one_mul, h2, div_div_div_cancel_right₀,
+--     mul_div_assoc, mul_div_cancel₀, Real.log_exp]
+--   · rw [sub_ne_zero]
+--     exact xmin_01_lt_xmax_01.ne'
+--   · positivity
+--   · positivity
+--   · positivity
 
-lemma Ioo_minmax_subset_Icc (f : DivFunction) : Ioo (f.xmin_01 : ℝ) f.xmax_01 ⊆ Icc 0 1 := by
-  intro x
-  simp only [mem_Ioo, mem_Icc, and_imp]
-  exact fun h1 h2 ↦ ⟨f.xmin_01.2.1.trans h1.le, h2.le.trans f.xmax_01.2.2⟩
+-- lemma Ioo_minmax_subset_Icc (f : DivFunction) : Ioo (f.xmin_01 : ℝ) f.xmax_01 ⊆ Icc 0 1 := by
+--   intro x
+--   simp only [mem_Ioo, mem_Icc, and_imp]
+--   exact fun h1 h2 ↦ ⟨f.xmin_01.2.1.trans h1.le, h2.le.trans f.xmax_01.2.2⟩
 
-lemma minmaxOrderIso_symm_mem_Icc (f : DivFunction) (x : ℝ) :
-    (f.minmaxOrderIso.symm x : ℝ) ∈ Icc (0 : ℝ) 1 :=
-  f.Ioo_minmax_subset_Icc (f.minmaxOrderIso.symm x).2
+-- lemma minmaxOrderIso_symm_mem_Icc (f : DivFunction) (x : ℝ) :
+--     (f.minmaxOrderIso.symm x : ℝ) ∈ Icc (0 : ℝ) 1 :=
+--   f.Ioo_minmax_subset_Icc (f.minmaxOrderIso.symm x).2
 
-noncomputable
-def realToENNRealIoo (f : DivFunction) (x : ℝ) : ℝ≥0∞ :=
-  ENNReal.orderIsoUnitIntervalBirational.symm
-    (⟨f.minmaxOrderIso.symm x, f.minmaxOrderIso_symm_mem_Icc x⟩ : Icc (0 : ℝ) 1)
+-- noncomputable
+-- def realToENNRealIoo (f : DivFunction) (x : ℝ) : ℝ≥0∞ :=
+--   ENNReal.orderIsoUnitIntervalBirational.symm
+--     (⟨f.minmaxOrderIso.symm x, f.minmaxOrderIso_symm_mem_Icc x⟩ : Icc (0 : ℝ) 1)
 
-lemma xmin_lt_realToENNRealIoo (f : DivFunction) (x : ℝ) :
-    f.xmin < f.realToENNRealIoo x := by
-  rw [realToENNRealIoo, ← orderIsoUnitIntervalBirational_xmin_01, OrderIso.lt_iff_lt]
-  suffices (f.xmin_01 : ℝ) < f.minmaxOrderIso.symm x from mod_cast this
-  exact (f.minmaxOrderIso.symm x).2.1
+-- lemma xmin_lt_realToENNRealIoo (f : DivFunction) (x : ℝ) :
+--     f.xmin < f.realToENNRealIoo x := by
+--   rw [realToENNRealIoo, ← orderIsoUnitIntervalBirational_xmin_01, OrderIso.lt_iff_lt]
+--   suffices (f.xmin_01 : ℝ) < f.minmaxOrderIso.symm x from mod_cast this
+--   exact (f.minmaxOrderIso.symm x).2.1
 
-lemma realToENNRealIoo_lt_xmax (f : DivFunction) (x : ℝ) :
-    f.realToENNRealIoo x < f.xmax := by
-  rw [realToENNRealIoo, ← orderIsoUnitIntervalBirational_xmax_01, OrderIso.lt_iff_lt]
-  suffices f.minmaxOrderIso.symm x < (f.xmax_01 : ℝ) from mod_cast this
-  exact (f.minmaxOrderIso.symm x).2.2
+-- lemma realToENNRealIoo_lt_xmax (f : DivFunction) (x : ℝ) :
+--     f.realToENNRealIoo x < f.xmax := by
+--   rw [realToENNRealIoo, ← orderIsoUnitIntervalBirational_xmax_01, OrderIso.lt_iff_lt]
+--   suffices f.minmaxOrderIso.symm x < (f.xmax_01 : ℝ) from mod_cast this
+--   exact (f.minmaxOrderIso.symm x).2.2
 
-noncomputable
-def realToMinmaxOrderIso (f : DivFunction) : ℝ ≃o Ioo f.xmin f.xmax where
-  invFun x := f.minmaxOrderIso ⟨ENNReal.orderIsoUnitIntervalBirational x, by
-    constructor
-    · norm_cast
-      rw [xmin_01, ENNReal.orderIsoUnitIntervalBirational.lt_iff_lt]
-      exact x.2.1
-    · norm_cast
-      rw [xmax_01, ENNReal.orderIsoUnitIntervalBirational.lt_iff_lt]
-      exact x.2.2⟩
-  toFun x := ⟨f.realToENNRealIoo x, ⟨f.xmin_lt_realToENNRealIoo x, f.realToENNRealIoo_lt_xmax x⟩⟩
-  right_inv x := by
-    ext
-    simp only
-    rw [realToENNRealIoo]
-    simp only [OrderIso.symm_apply_apply]
-    rw [OrderIso.symm_apply_apply]
-  left_inv x := by simp only [realToENNRealIoo, OrderIso.apply_symm_apply, Subtype.coe_eta]
-  map_rel_iff' {x y} := by
-    simp only [realToENNRealIoo, Equiv.coe_fn_mk, OrderIsoClass.map_le_map_iff, Subtype.mk_le_mk]
-    norm_cast
-    rw [f.minmaxOrderIso.symm.le_iff_le]
+-- noncomputable
+-- def realToMinmaxOrderIso (f : DivFunction) : ℝ ≃o Ioo f.xmin f.xmax where
+--   invFun x := f.minmaxOrderIso ⟨ENNReal.orderIsoUnitIntervalBirational x, by
+--     constructor
+--     · norm_cast
+--       rw [xmin_01, ENNReal.orderIsoUnitIntervalBirational.lt_iff_lt]
+--       exact x.2.1
+--     · norm_cast
+--       rw [xmax_01, ENNReal.orderIsoUnitIntervalBirational.lt_iff_lt]
+--       exact x.2.2⟩
+--   toFun x := ⟨f.realToENNRealIoo x, ⟨f.xmin_lt_realToENNRealIoo x, f.realToENNRealIoo_lt_xmax x⟩⟩
+--   right_inv x := by
+--     ext
+--     simp only
+--     rw [realToENNRealIoo]
+--     simp only [OrderIso.symm_apply_apply]
+--     rw [OrderIso.symm_apply_apply]
+--   left_inv x := by simp only [realToENNRealIoo, OrderIso.apply_symm_apply, Subtype.coe_eta]
+--   map_rel_iff' {x y} := by
+--     simp only [realToENNRealIoo, Equiv.coe_fn_mk, OrderIsoClass.map_le_map_iff, Subtype.mk_le_mk]
+--     norm_cast
+--     rw [f.minmaxOrderIso.symm.le_iff_le]
 
-lemma realToMinMaxOrderIso_apply_coe (f : DivFunction) (x : ℝ) :
-    (f.realToMinmaxOrderIso x : ℝ≥0∞)
-      = ENNReal.ofReal ((f.xmin_01 + f.xmax_01 * Real.exp x)
-                          / (1 - f.xmin_01 + (1 - f.xmax_01) * Real.exp x)) := by
-  simp only [realToMinmaxOrderIso, realToENNRealIoo, minmaxOrderIso_symm_apply_coe,
-    ENNReal.orderIsoUnitIntervalBirational_apply_coe, ENNReal.toReal_inv, minmaxOrderIso_apply,
-    RelIso.coe_fn_mk, Equiv.coe_fn_mk]
-  rw [orderIsoUnitIntervalBirational_symm_apply]
-  simp only [inv_div]
-  have h := div_xmin_xmax_exp_mem_Ioo (f := f) (x := x)
-  rw [if_neg, if_neg]
-  rotate_left
-  · rw [Subtype.ext_iff]
-    simp only [Icc.coe_one]
-    exact (h.2.trans_le f.xmax_01.2.2).ne
-  · rw [Subtype.ext_iff]
-    simp only [Icc.coe_zero]
-    refine (ne_of_lt ?_).symm
-    exact f.xmin_01.2.1.trans_lt h.1
-  rw [div_sub_one, inv_div]
-  · congr
-    ring
-  · refine (ne_of_lt ?_).symm
-    refine add_pos_of_nonneg_of_pos f.xmin_01.2.1 ((mul_pos_iff_of_pos_right ?_).mpr ?_)
-    · positivity
-    · exact f.xmin_01.2.1.trans_lt xmin_01_lt_xmax_01
+-- lemma realToMinMaxOrderIso_apply_coe (f : DivFunction) (x : ℝ) :
+--     (f.realToMinmaxOrderIso x : ℝ≥0∞)
+--       = ENNReal.ofReal ((f.xmin_01 + f.xmax_01 * Real.exp x)
+--                           / (1 - f.xmin_01 + (1 - f.xmax_01) * Real.exp x)) := by
+--   simp only [realToMinmaxOrderIso, realToENNRealIoo, minmaxOrderIso_symm_apply_coe,
+--     ENNReal.orderIsoUnitIntervalBirational_apply_coe, ENNReal.toReal_inv, minmaxOrderIso_apply,
+--     RelIso.coe_fn_mk, Equiv.coe_fn_mk]
+--   rw [orderIsoUnitIntervalBirational_symm_apply]
+--   simp only [inv_div]
+--   have h := div_xmin_xmax_exp_mem_Ioo (f := f) (x := x)
+--   rw [if_neg, if_neg]
+--   rotate_left
+--   · rw [Subtype.ext_iff]
+--     simp only [Icc.coe_one]
+--     exact (h.2.trans_le f.xmax_01.2.2).ne
+--   · rw [Subtype.ext_iff]
+--     simp only [Icc.coe_zero]
+--     refine (ne_of_lt ?_).symm
+--     exact f.xmin_01.2.1.trans_lt h.1
+--   rw [div_sub_one, inv_div]
+--   · congr
+--     ring
+--   · refine (ne_of_lt ?_).symm
+--     refine add_pos_of_nonneg_of_pos f.xmin_01.2.1 ((mul_pos_iff_of_pos_right ?_).mpr ?_)
+--     · positivity
+--     · exact f.xmin_01.2.1.trans_lt xmin_01_lt_xmax_01
 
-lemma realToMinmaxOrderIso_ne_top (f : DivFunction) {x : ℝ} :
-    (f.realToMinmaxOrderIso x : ℝ≥0∞) ≠ ∞ := by simp [realToMinMaxOrderIso_apply_coe]
+-- lemma realToMinmaxOrderIso_ne_top (f : DivFunction) {x : ℝ} :
+--     (f.realToMinmaxOrderIso x : ℝ≥0∞) ≠ ∞ := by simp [realToMinMaxOrderIso_apply_coe]
 
-lemma toReal_realToMinMaxOrderIso_apply (f : DivFunction) (x : ℝ) :
-    (f.realToMinmaxOrderIso x : ℝ≥0∞).toReal
-      = (f.xmin_01 + f.xmax_01 * Real.exp x) / (1 - f.xmin_01 + (1 - f.xmax_01) * Real.exp x) := by
-  simp only [realToMinMaxOrderIso_apply_coe, ENNReal.toReal_ofReal_eq_iff]
-  refine div_nonneg ?_ ?_
-  · exact add_nonneg f.xmin_01.2.1 (mul_nonneg f.xmax_01.2.1 (by positivity))
-  · refine add_nonneg ?_ (mul_nonneg ?_ (by positivity))
-    · simp [f.xmin_01.2.2]
-    · simp [f.xmax_01.2.2]
+-- lemma toReal_realToMinMaxOrderIso_apply (f : DivFunction) (x : ℝ) :
+--     (f.realToMinmaxOrderIso x : ℝ≥0∞).toReal
+--       = (f.xmin_01 + f.xmax_01 * Real.exp x) / (1 - f.xmin_01 + (1 - f.xmax_01) * Real.exp x) := by
+--   simp only [realToMinMaxOrderIso_apply_coe, ENNReal.toReal_ofReal_eq_iff]
+--   refine div_nonneg ?_ ?_
+--   · exact add_nonneg f.xmin_01.2.1 (mul_nonneg f.xmax_01.2.1 (by positivity))
+--   · refine add_nonneg ?_ (mul_nonneg ?_ (by positivity))
+--     · simp [f.xmin_01.2.2]
+--     · simp [f.xmax_01.2.2]
 
-lemma measurableEmbedding_toReal_realToMinMaxOrderIso :
-    MeasurableEmbedding (fun x ↦ (f.realToMinmaxOrderIso x : ℝ≥0∞).toReal) := by
-  have h1 := f.realToMinmaxOrderIso.toHomeomorph.toMeasurableEquiv.measurableEmbedding
-  change MeasurableEmbedding ((ENNReal.toReal ∘ Subtype.val) ∘ f.realToMinmaxOrderIso)
-  refine MeasurableEmbedding.comp ?_ h1
-  sorry
+-- lemma measurableEmbedding_toReal_realToMinMaxOrderIso :
+--     MeasurableEmbedding (fun x ↦ (f.realToMinmaxOrderIso x : ℝ≥0∞).toReal) := by
+--   have h1 := f.realToMinmaxOrderIso.toHomeomorph.toMeasurableEquiv.measurableEmbedding
+--   change MeasurableEmbedding ((ENNReal.toReal ∘ Subtype.val) ∘ f.realToMinmaxOrderIso)
+--   refine MeasurableEmbedding.comp ?_ h1
+--   sorry
 
-lemma hasDerivAt_toReal_realToMinMaxOrderIso (f : DivFunction) (x : ℝ) :
-    HasDerivAt (fun x ↦ (f.realToMinmaxOrderIso x : ℝ≥0∞).toReal)
-      (Real.exp x * (f.xmax_01 - f.xmin_01) / (1 - f.xmin_01 + (1 - f.xmax_01) * Real.exp x)^2)
-      x := by
-  sorry
+-- lemma hasDerivAt_toReal_realToMinMaxOrderIso (f : DivFunction) (x : ℝ) :
+--     HasDerivAt (fun x ↦ (f.realToMinmaxOrderIso x : ℝ≥0∞).toReal)
+--       (Real.exp x * (f.xmax_01 - f.xmin_01) / (1 - f.xmin_01 + (1 - f.xmax_01) * Real.exp x)^2)
+--       x := by
+--   sorry
 
-lemma hasDerivAt_toReal_realToMinMaxOrderIso2 (f : DivFunction) (x : ℝ) :
-    HasDerivAt
-      (fun x ↦ Real.exp x * (f.xmax_01 - f.xmin_01) / (1 - f.xmin_01 + (1 - f.xmax_01) * Real.exp x)^2)
-      ((f.xmax_01 - f.xmin_01) * Real.exp x *
-        ((1 - f.xmin_01)^2 - ((1 - f.xmax_01) * Real.exp x)^2)
-        / (1 - f.xmin_01 + (1 - f.xmax_01) * Real.exp x)^4)
-      x := by
-  sorry
+-- lemma hasDerivAt_toReal_realToMinMaxOrderIso2 (f : DivFunction) (x : ℝ) :
+--     HasDerivAt
+--       (fun x ↦ Real.exp x * (f.xmax_01 - f.xmin_01) / (1 - f.xmin_01 + (1 - f.xmax_01) * Real.exp x)^2)
+--       ((f.xmax_01 - f.xmin_01) * Real.exp x *
+--         ((1 - f.xmin_01)^2 - ((1 - f.xmax_01) * Real.exp x)^2)
+--         / (1 - f.xmin_01 + (1 - f.xmax_01) * Real.exp x)^4)
+--       x := by
+--   sorry
 
-lemma strictMono_toReal_realToMinMaxOrderIso (f : DivFunction):
-    StrictMono fun x ↦ (f.realToMinmaxOrderIso x : ℝ≥0∞).toReal := by
-  sorry
+-- lemma strictMono_toReal_realToMinMaxOrderIso (f : DivFunction):
+--     StrictMono fun x ↦ (f.realToMinmaxOrderIso x : ℝ≥0∞).toReal := by
+--   sorry
 
-/-- Map `ℝ` to the interior of the effective domain of `f`, `Ioo f.xmin f.xmax`, then take the
-right derivative.
-This transformation of the domain from an interval to `ℝ` allows us to get a function from `ℝ`
-to `ℝ`, which is needed to define a Stieltjes function and get a measure from it. -/
-noncomputable
-def rightDerivEnlarged (f : DivFunction) (x : ℝ) : ℝ :=
-  rightDeriv f.realFun (f.realToMinmaxOrderIso x : ℝ≥0∞).toReal
+-- /-- Map `ℝ` to the interior of the effective domain of `f`, `Ioo f.xmin f.xmax`, then take the
+-- right derivative.
+-- This transformation of the domain from an interval to `ℝ` allows us to get a function from `ℝ`
+-- to `ℝ`, which is needed to define a Stieltjes function and get a measure from it. -/
+-- noncomputable
+-- def rightDerivEnlarged (f : DivFunction) (x : ℝ) : ℝ :=
+--   rightDeriv f.realFun (f.realToMinmaxOrderIso x : ℝ≥0∞).toReal
 
-lemma rightDeriv_comp {f g : ℝ → ℝ}
-    (hf_diff : DifferentiableWithinAt ℝ f (Ioi (g x)) (g x))
-    (hg_diff : DifferentiableWithinAt ℝ g (Ioi x) x) (hg : StrictMono g) :
-    rightDeriv (f ∘ g) x = rightDeriv f (g x) * rightDeriv g x := by
-  simp_rw [rightDeriv]
-  rw [derivWithin.comp]
-  · exact hf_diff
-  · exact hg_diff
-  · exact hg.mapsTo_Ioi
-  · exact uniqueDiffWithinAt_Ioi x
+-- lemma rightDeriv_comp {f g : ℝ → ℝ}
+--     (hf_diff : DifferentiableWithinAt ℝ f (Ioi (g x)) (g x))
+--     (hg_diff : DifferentiableWithinAt ℝ g (Ioi x) x) (hg : StrictMono g) :
+--     rightDeriv (f ∘ g) x = rightDeriv f (g x) * rightDeriv g x := by
+--   simp_rw [rightDeriv]
+--   rw [derivWithin.comp]
+--   · exact hf_diff
+--   · exact hg_diff
+--   · exact hg.mapsTo_Ioi
+--   · exact uniqueDiffWithinAt_Ioi x
 
-noncomputable
-def rightDerivEnlargedStieltjes (f : DivFunction) : StieltjesFunction where
-  toFun := f.rightDerivEnlarged
-  mono' x y hxy := by
-    simp only [rightDerivEnlarged]
-    --rw [rightDeriv_comp, rightDeriv_comp]
-    -- rotate_left
-    -- · sorry
-    -- · exact (f.hasDerivAt_toReal_realToMinMaxOrderIso y).differentiableAt.differentiableWithinAt
-    -- · exact f.strictMono_toReal_realToMinMaxOrderIso
-    -- · sorry
-    -- · exact (f.hasDerivAt_toReal_realToMinMaxOrderIso x).differentiableAt.differentiableWithinAt
-    -- · exact f.strictMono_toReal_realToMinMaxOrderIso
-    -- refine mul_le_mul_of_nonneg' ?_ ?_ ?_ ?_
-    refine f.rightDeriv_mono ?_ ?_ ?_
-    rw [ENNReal.toReal_le_toReal f.realToMinmaxOrderIso_ne_top f.realToMinmaxOrderIso_ne_top]
-    simp only [Subtype.coe_le_coe, OrderIsoClass.map_le_map_iff, hxy]
-    · rw [ENNReal.ofReal_toReal f.realToMinmaxOrderIso_ne_top]
-      exact (f.realToMinmaxOrderIso x).2.1
-    · rw [ENNReal.ofReal_toReal f.realToMinmaxOrderIso_ne_top]
-      exact (f.realToMinmaxOrderIso y).2.2
-    -- · sorry
-    -- · sorry
-    -- · sorry
-  right_continuous' x := by
-    unfold rightDerivEnlarged
-    have h := f.continuousWithinAt_rightDeriv (x := (f.realToMinmaxOrderIso x : ℝ≥0∞).toReal) ?_ ?_
-    rotate_left
-    · rw [ENNReal.ofReal_toReal f.realToMinmaxOrderIso_ne_top]
-      exact (f.realToMinmaxOrderIso x).2.1
-    · rw [ENNReal.ofReal_toReal f.realToMinmaxOrderIso_ne_top]
-      exact (f.realToMinmaxOrderIso x).2.2
-    rw [ContinuousWithinAt] at h ⊢
-    refine h.comp ?_
-    rw [tendsto_nhdsWithin_iff]
-    constructor
-    · refine tendsto_nhdsWithin_of_tendsto_nhds ?_
-      refine (ENNReal.tendsto_toReal f.realToMinmaxOrderIso_ne_top).comp ?_
-      exact f.realToMinmaxOrderIso.continuous.subtype_val.tendsto x
-    · refine eventually_nhdsWithin_of_forall fun y hy ↦ ?_
-      rw [mem_Ici, ENNReal.toReal_le_toReal f.realToMinmaxOrderIso_ne_top
-        f.realToMinmaxOrderIso_ne_top]
-      simp [mem_Ici.mp hy]
+-- noncomputable
+-- def rightDerivEnlargedStieltjes (f : DivFunction) : StieltjesFunction where
+--   toFun := f.rightDerivEnlarged
+--   mono' x y hxy := by
+--     simp only [rightDerivEnlarged]
+--     --rw [rightDeriv_comp, rightDeriv_comp]
+--     -- rotate_left
+--     -- · sorry
+--     -- · exact (f.hasDerivAt_toReal_realToMinMaxOrderIso y).differentiableAt.differentiableWithinAt
+--     -- · exact f.strictMono_toReal_realToMinMaxOrderIso
+--     -- · sorry
+--     -- · exact (f.hasDerivAt_toReal_realToMinMaxOrderIso x).differentiableAt.differentiableWithinAt
+--     -- · exact f.strictMono_toReal_realToMinMaxOrderIso
+--     -- refine mul_le_mul_of_nonneg' ?_ ?_ ?_ ?_
+--     refine f.rightDeriv_mono ?_ ?_ ?_
+--     rw [ENNReal.toReal_le_toReal f.realToMinmaxOrderIso_ne_top f.realToMinmaxOrderIso_ne_top]
+--     simp only [Subtype.coe_le_coe, OrderIsoClass.map_le_map_iff, hxy]
+--     · rw [ENNReal.ofReal_toReal f.realToMinmaxOrderIso_ne_top]
+--       exact (f.realToMinmaxOrderIso x).2.1
+--     · rw [ENNReal.ofReal_toReal f.realToMinmaxOrderIso_ne_top]
+--       exact (f.realToMinmaxOrderIso y).2.2
+--     -- · sorry
+--     -- · sorry
+--     -- · sorry
+--   right_continuous' x := by
+--     unfold rightDerivEnlarged
+--     have h := f.continuousWithinAt_rightDeriv (x := (f.realToMinmaxOrderIso x : ℝ≥0∞).toReal) ?_ ?_
+--     rotate_left
+--     · rw [ENNReal.ofReal_toReal f.realToMinmaxOrderIso_ne_top]
+--       exact (f.realToMinmaxOrderIso x).2.1
+--     · rw [ENNReal.ofReal_toReal f.realToMinmaxOrderIso_ne_top]
+--       exact (f.realToMinmaxOrderIso x).2.2
+--     rw [ContinuousWithinAt] at h ⊢
+--     refine h.comp ?_
+--     rw [tendsto_nhdsWithin_iff]
+--     constructor
+--     · refine tendsto_nhdsWithin_of_tendsto_nhds ?_
+--       refine (ENNReal.tendsto_toReal f.realToMinmaxOrderIso_ne_top).comp ?_
+--       exact f.realToMinmaxOrderIso.continuous.subtype_val.tendsto x
+--     · refine eventually_nhdsWithin_of_forall fun y hy ↦ ?_
+--       rw [mem_Ici, ENNReal.toReal_le_toReal f.realToMinmaxOrderIso_ne_top
+--         f.realToMinmaxOrderIso_ne_top]
+--       simp [mem_Ici.mp hy]
 
 -- noncomputable
 -- def enlargedCurvatureMeasure (f : DivFunction) : Measure ℝ :=

@@ -291,7 +291,12 @@ lemma stronglyMeasurable_realFun : StronglyMeasurable f.realFun :=
   f.measurable_realFun.stronglyMeasurable
 
 lemma convexOn_Ioo_realFun : ConvexOn ℝ (ENNReal.toReal '' (Ioo f.xmin f.xmax)) f.realFun := by
-  sorry
+  constructor
+  · sorry
+  · intro x hx y hy a b ha hb hab
+    have h := f.convexOn.2 (mem_univ (ENNReal.ofReal x)) (mem_univ (ENNReal.ofReal y))
+      (zero_le ⟨a, ha⟩) (zero_le ⟨b, hb⟩) (by ext; simp [hab])
+    sorry
 
 lemma convexOn_Ici_realFun (h : ∀ x ≠ ∞, f x ≠ ∞) : ConvexOn ℝ (Ici 0) f.realFun := sorry
 
@@ -312,11 +317,34 @@ lemma differentiableWithinAt {x : ℝ} (hx_nonneg : 0 ≤ x)
 lemma differentiableWithinAt_one : DifferentiableWithinAt ℝ f.realFun (Ioi 1) 1 :=
   f.differentiableWithinAt zero_le_one <| by simp [xmin_lt_one, one_lt_xmax]
 
-@[simp] lemma leftDeriv_one_nonpos : leftDeriv f.realFun 1 ≤ 0 := by
-  sorry
+lemma isMinOn_realFun_one : IsMinOn f.realFun (ENNReal.toReal '' Ioo f.xmin f.xmax) 1 := by
+  intro x _
+  simp only [realFun_one, mem_setOf_eq]
+  exact realFun_nonneg _
 
-@[simp] lemma rightDeriv_one_nonneg : 0 ≤ rightDeriv f.realFun 1 := by
-  sorry
+lemma one_mem_interior_toReal_Ioo_xmin_xmax :
+    1 ∈ interior (ENNReal.toReal '' Ioo f.xmin f.xmax) := by
+  by_cases h_top : f.xmax = ∞
+  · simp only [h_top, ne_eq, xmin_ne_top, not_false_eq_true, ENNReal.toReal_Ioo_top, interior_Ioi,
+      mem_Ioi]
+    refine ENNReal.toReal_lt_of_lt_ofReal ?_
+    simp [xmin_lt_one]
+  · simp only [ENNReal.toReal_Ioo xmin_ne_top h_top, interior_Ioo, mem_Ioo]
+    constructor
+    · refine ENNReal.toReal_lt_of_lt_ofReal ?_
+      simp [xmin_lt_one]
+    · rw [← ENNReal.ofReal_lt_iff_lt_toReal zero_le_one h_top]
+      simp [one_lt_xmax]
+
+lemma leftDeriv_one_nonpos : leftDeriv f.realFun 1 ≤ 0 := by
+  refine ConvexOn.leftDeriv_nonpos_of_isMinOn f.convexOn_Ioo_realFun ?_ ?_
+  · exact f.isMinOn_realFun_one
+  · exact f.one_mem_interior_toReal_Ioo_xmin_xmax
+
+lemma rightDeriv_one_nonneg : 0 ≤ rightDeriv f.realFun 1 := by
+  refine ConvexOn.rightDeriv_nonneg_of_isMinOn f.convexOn_Ioo_realFun ?_ ?_
+  · exact f.isMinOn_realFun_one
+  · exact f.one_mem_interior_toReal_Ioo_xmin_xmax
 
 lemma continuousOn_realFun_Ioo :
     ContinuousOn f.realFun (ENNReal.toReal '' (Ioo f.xmin f.xmax)) := by
@@ -355,7 +383,7 @@ lemma eq_zero_iff {a b : ℝ} (ha : a < 1) (hb : 1 < b)
         intro y hy
         simp [realFun_nonneg]
       · sorry
-      · sorry
+      · exact ⟨ha, hb⟩
     · simp [h, ha, hb]
   refine ⟨fun h ↦ ?_, fun h ↦ by simp [h]⟩
   by_cases hxb : ENNReal.ofReal b ≤ x
@@ -425,11 +453,9 @@ instance : Module ℝ≥0 DivFunction where
 
 end Module
 
-@[simp] lemma xmin_zero : (0 : DivFunction).xmin = 0 := by
-  sorry
+@[simp] lemma xmin_zero : (0 : DivFunction).xmin = 0 := by simp [xmin]
 
-@[simp] lemma xmax_zero : (0 : DivFunction).xmax = ∞ := by
-  sorry
+@[simp] lemma xmax_zero : (0 : DivFunction).xmax = ∞ := by simp [xmax]
 
 @[simp] lemma xmin_add : (f + g).xmin = max f.xmin g.xmin := by
   sorry
@@ -450,10 +476,10 @@ lemma rightDeriv_mono (f : DivFunction) {x y : ℝ} (hxy : x ≤ y)
     rightDeriv f.realFun x ≤ rightDeriv f.realFun y := by
   sorry
 
-lemma continuousWithinAt_rightDeriv (f : DivFunction) {x : ℝ}
-    (hx : f.xmin < ENNReal.ofReal x) (hx' : ENNReal.ofReal x < f.xmax) :
-    ContinuousWithinAt (rightDeriv f.realFun) (Ici x) x := by
-  sorry
+-- lemma continuousWithinAt_rightDeriv (f : DivFunction) {x : ℝ}
+--     (hx : f.xmin < ENNReal.ofReal x) (hx' : ENNReal.ofReal x < f.xmax) :
+--     ContinuousWithinAt (rightDeriv f.realFun) (Ici x) x := by
+--   sorry
 
 -- the `rightLim` matters only at `f.xmin`: `rightDeriv` could be 0 because it has no limit in `ℝ`,
 -- but in that case it should be `⊥`.
