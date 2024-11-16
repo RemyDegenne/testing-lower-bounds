@@ -31,7 +31,9 @@ import TestingLowerBounds.FDiv.CondFDivOfReal
 import TestingLowerBounds.FDiv.DPIJensen
 import TestingLowerBounds.FDiv.DivFunction.Basic
 import TestingLowerBounds.FDiv.DivFunction.CurvatureMeasure
+import TestingLowerBounds.FDiv.DivFunction.DerivAtTop
 import TestingLowerBounds.FDiv.DivFunction.OfReal
+import TestingLowerBounds.FDiv.DivFunction.RightDeriv
 import TestingLowerBounds.FDiv.ERealStieltjes
 import TestingLowerBounds.FDiv.FDivEqIntegral
 import TestingLowerBounds.FDiv.FDivOfReal
