@@ -8,8 +8,7 @@ import Mathlib.MeasureTheory.Constructions.Polish.Basic
 import Mathlib.MeasureTheory.Integral.FundThmCalculus
 import TestingLowerBounds.Sorry.ByParts
 import TestingLowerBounds.ForMathlib.LeftRightDeriv
-import TestingLowerBounds.ForMathlib.OrderIso
-import TestingLowerBounds.FDiv.DivFunction
+import TestingLowerBounds.FDiv.DivFunction.Basic
 
 
 open MeasureTheory Set StieltjesFunction Function Filter

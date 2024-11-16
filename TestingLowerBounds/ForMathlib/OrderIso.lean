@@ -3,13 +3,9 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne
 -/
-import Mathlib.Topology.Order.LeftRightLim
-import TestingLowerBounds.ForMathlib.EReal
-import Mathlib.MeasureTheory.Constructions.Polish.Basic
-import Mathlib.MeasureTheory.Integral.FundThmCalculus
-import TestingLowerBounds.Sorry.ByParts
-import TestingLowerBounds.ForMathlib.LeftRightDeriv
-import TestingLowerBounds.FDiv.DivFunction
+import Mathlib.Algebra.EuclideanDomain.Basic
+import Mathlib.Algebra.EuclideanDomain.Field
+import Mathlib.Analysis.SpecialFunctions.Log.Basic
 
 /-!
 
