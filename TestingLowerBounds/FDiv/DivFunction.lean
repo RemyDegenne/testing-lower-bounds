@@ -85,6 +85,44 @@ lemma leftDeriv_congr {f g : ℝ → ℝ} {x : ℝ} (h : f =ᶠ[𝓝[<] x] g) (h
 lemma rightDeriv_congr {f g : ℝ → ℝ} {x : ℝ} (h : f =ᶠ[𝓝[>] x] g) (hx : f x = g x) :
     rightDeriv f x = rightDeriv g x := h.derivWithin_eq hx
 
+@[simp] lemma leftLim_const {β : Type*} {a : ℝ} {x : β} [TopologicalSpace β] [T2Space β] :
+    Function.leftLim (fun _ ↦ x) a = x :=
+  leftLim_eq_of_tendsto (NeBot.ne inferInstance) tendsto_const_nhds
+
+@[simp] lemma rightLim_const {β : Type*} {a : ℝ} {x : β} [TopologicalSpace β] [T2Space β] :
+    Function.rightLim (fun _ ↦ x) a = x :=
+  rightLim_eq_of_tendsto (NeBot.ne inferInstance) tendsto_const_nhds
+
+lemma right_continuous_rightLim {β : Type*} [TopologicalSpace β]
+    [ConditionallyCompleteLinearOrder β] [OrderTopology β] [T2Space β]
+    {f : ℝ → β} (hf : Monotone f)
+    {a : ℝ} (h_ne_bot : 𝓝[>] a ≠ ⊥) {y : β} (h_tendsto : Tendsto f (𝓝[>] a) (𝓝 y)) :
+    ContinuousWithinAt (Function.rightLim f) (Ici a) a := by
+  rw [← continuousWithinAt_Ioi_iff_Ici, ContinuousWithinAt,
+    rightLim_eq_of_tendsto h_ne_bot h_tendsto]
+  obtain ⟨u, hu_anti, hu_lt, hu_tendsto⟩ := exists_seq_strictAnti_tendsto a
+  refine tendsto_of_tendsto_of_tendsto_of_le_of_le' (h := fun x ↦ f (a + 2 * |x - a|))
+    h_tendsto ?_ (.of_forall fun _ ↦ hf.le_rightLim le_rfl) ?_
+  · refine h_tendsto.comp ?_
+    sorry
+  · filter_upwards [eventually_nhdsWithin_of_forall fun y hy ↦ hy] with b hb
+    refine hf.rightLim_le ?_
+    rw [abs_of_nonneg (sub_nonneg.mpr hb.le)]
+    calc b = a + (b - a) := by abel
+    _ < a + 2 * (b - a) := by
+      gcongr
+      refine lt_two_mul_self ?_
+      exact sub_pos.mpr hb
+
+lemma rightLim_rightLim {β : Type*}
+    [ConditionallyCompleteLinearOrder β] [TopologicalSpace β] [OrderTopology β] [T2Space β]
+    {f : ℝ → β} (hf : Monotone f)
+    {a : ℝ} (h_ne_bot : 𝓝[>] a ≠ ⊥) {y : β} (h_tendsto : Tendsto f (𝓝[>] a) (𝓝 y)) :
+    Function.rightLim (Function.rightLim f) a = y := by
+  rw [← rightLim_eq_of_tendsto h_ne_bot h_tendsto,
+    ← hf.rightLim.continuousWithinAt_Ioi_iff_rightLim_eq, continuousWithinAt_Ioi_iff_Ici]
+  exact right_continuous_rightLim hf h_ne_bot h_tendsto
+
 namespace ConvexOn
 
 lemma nonneg_of_todo {f : ℝ → ℝ} (hf : ConvexOn ℝ (Ioi 0) f)
@@ -292,13 +330,18 @@ lemma stronglyMeasurable_realFun : StronglyMeasurable f.realFun :=
 
 lemma convexOn_Ioo_realFun : ConvexOn ℝ (ENNReal.toReal '' (Ioo f.xmin f.xmax)) f.realFun := by
   constructor
-  · sorry
+  · by_cases h_top : f.xmax = ∞
+    · simp only [h_top, ENNReal.toReal_Ioo_top xmin_ne_top]
+      exact convex_Ioi _
+    · simp only [h_top, ENNReal.toReal_Ioo xmin_ne_top h_top]
+      exact convex_Ioo _ _
   · intro x hx y hy a b ha hb hab
     have h := f.convexOn.2 (mem_univ (ENNReal.ofReal x)) (mem_univ (ENNReal.ofReal y))
       (zero_le ⟨a, ha⟩) (zero_le ⟨b, hb⟩) (by ext; simp [hab])
     sorry
 
-lemma convexOn_Ici_realFun (h : ∀ x ≠ ∞, f x ≠ ∞) : ConvexOn ℝ (Ici 0) f.realFun := sorry
+lemma convexOn_Ici_realFun (h : ∀ x ≠ ∞, f x ≠ ∞) : ConvexOn ℝ (Ici 0) f.realFun := by
+  sorry
 
 lemma differentiableWithinAt {x : ℝ} (hx_nonneg : 0 ≤ x)
     (hx : ENNReal.ofReal x ∈ Ioo f.xmin f.xmax) :
@@ -453,6 +496,10 @@ instance : Module ℝ≥0 DivFunction where
 
 end Module
 
+@[simp] lemma realFun_zero : (0 : DivFunction).realFun = fun _ ↦ 0 := by
+  unfold DivFunction.realFun
+  simp
+
 @[simp] lemma xmin_zero : (0 : DivFunction).xmin = 0 := by simp [xmin]
 
 @[simp] lemma xmax_zero : (0 : DivFunction).xmax = ∞ := by simp [xmax]
@@ -489,6 +536,8 @@ lemma rightLim_congr {α β : Type*} [LinearOrder α] [TopologicalSpace α] [Ord
   rw [rightLim_eq_of_tendsto h_ne_bot h_tendsto,
     rightLim_eq_of_tendsto h_ne_bot ((tendsto_congr' h).mp h_tendsto)]
 
+-- the `rightLim` matters only at `f.xmin`: `rightDeriv` could be 0 because it has no limit in `ℝ`,
+-- but in that case it should be `⊥`.
 noncomputable def rightDerivFun (f : DivFunction) : ℝ → EReal :=
   fun x ↦
     if x < f.xmin.toReal then ⊥
@@ -508,6 +557,7 @@ lemma monotone_rightDerivFun (f : DivFunction) : Monotone f.rightDerivFun := by
   · refine not_le.mpr (lt_of_le_of_lt ?_ hy_lt_max)
     rwa [ENNReal.ofReal_le_ofReal_iff]
     exact ENNReal.toReal_nonneg.trans (hx_ge_min.trans hxy)
+  have h_mono := f.convexOn_Ioo_realFun.rightDeriv_monotoneOn
   sorry
 
 lemma rightLim_rightDerivFun_of_lt_xmin (f : DivFunction) {x : ℝ} (h : x < f.xmin.toReal) :
@@ -529,45 +579,56 @@ lemma rightLim_rightDerivFun_of_ge_xmax (f : DivFunction) {x : ℝ} (h : f.xmax 
   rw [← ENNReal.one_le_ofReal]
   exact one_lt_xmax.le.trans h
 
--- the `rightLim` matters only at `f.xmin`: `rightDeriv` could be 0 because it has no limit in `ℝ`,
--- but in that case it should be `⊥`.
+lemma rightLim_rightDerivFun_of_mem_Ico (f : DivFunction) {x : ℝ}
+    (h1 : f.xmin.toReal ≤ x) (h2 : ENNReal.ofReal x < f.xmax) :
+    Function.rightLim f.rightDerivFun x
+      = Function.rightLim (fun y ↦ (rightDeriv f.realFun y : EReal)) x := by
+  have : f.rightDerivFun =ᶠ[𝓝[>] x]
+      fun x' ↦ Function.rightLim (fun y ↦ ↑(rightDeriv f.realFun y)) x' := by
+    unfold rightDerivFun
+    by_cases h_top : f.xmax = ∞
+    · refine eventually_nhdsWithin_of_forall fun y hy ↦ ?_
+      simp only
+      rw [if_neg, if_neg]
+      · simp [h_top]
+      · exact not_lt.mpr (h1.trans_lt hy).le
+    have h2' : x < f.xmax.toReal := by
+      rw [← ENNReal.toReal_ofReal (ENNReal.toReal_nonneg.trans h1),
+        ENNReal.toReal_lt_toReal ENNReal.ofReal_ne_top h_top]
+      exact h2
+    filter_upwards [eventually_nhdsWithin_of_eventually_nhds (eventually_lt_nhds h2'),
+      eventually_nhdsWithin_of_forall (fun y hy ↦ h1.trans hy.le)] with y hy1 hy2
+    rw [if_neg (not_lt.mpr hy2), if_neg]
+    rwa [not_le, ENNReal.ofReal_lt_iff_lt_toReal (ENNReal.toReal_nonneg.trans hy2) h_top]
+  rw [rightLim_congr (NeBot.ne inferInstance) (f.monotone_rightDerivFun.tendsto_rightLim x) this]
+  sorry
+
+lemma right_continuous_rightDerivFun (f : DivFunction) (x : ℝ) :
+    ContinuousWithinAt f.rightDerivFun (Ici x) x := by
+  rw [← continuousWithinAt_Ioi_iff_Ici,
+    f.monotone_rightDerivFun.continuousWithinAt_Ioi_iff_rightLim_eq]
+  unfold rightDerivFun
+  split_ifs with h1 h2
+  · exact f.rightLim_rightDerivFun_of_lt_xmin h1
+  · exact f.rightLim_rightDerivFun_of_ge_xmax h2
+  · push_neg at h1 h2
+    exact f.rightLim_rightDerivFun_of_mem_Ico h1 h2
+
 protected noncomputable def rightDerivStieltjes (f : DivFunction) : ERealStieltjes where
   toFun := f.rightDerivFun
   mono' := f.monotone_rightDerivFun
-  right_continuous' x := by
-    rw [← continuousWithinAt_Ioi_iff_Ici,
-      f.monotone_rightDerivFun.continuousWithinAt_Ioi_iff_rightLim_eq]
-    unfold rightDerivFun
-    split_ifs with h1 h2
-    · exact f.rightLim_rightDerivFun_of_lt_xmin h1
-    · exact f.rightLim_rightDerivFun_of_ge_xmax h2
-    · push_neg at h1 h2
-      have : (fun (x' : ℝ) ↦ if x' < f.xmin.toReal then (⊥ : EReal)
-            else if f.xmax ≤ ENNReal.ofReal x' then ⊤ else
-              Function.rightLim (fun y ↦ ↑(rightDeriv f.realFun y)) x')
-          =ᶠ[𝓝[>] x] fun x' ↦ Function.rightLim (fun y ↦ ↑(rightDeriv f.realFun y)) x' := by
-        by_cases h_top : f.xmax = ∞
-        · refine eventually_nhdsWithin_of_forall fun y hy ↦ ?_
-          simp only
-          rw [if_neg, if_neg]
-          · simp [h_top]
-          · exact not_lt.mpr (h1.trans_lt hy).le
-        have h2' : x < f.xmax.toReal := by
-          rw [← ENNReal.toReal_ofReal (ENNReal.toReal_nonneg.trans h1),
-            ENNReal.toReal_lt_toReal ENNReal.ofReal_ne_top h_top]
-          exact h2
-        filter_upwards [eventually_nhdsWithin_of_eventually_nhds (eventually_lt_nhds h2'),
-          eventually_nhdsWithin_of_forall (fun y hy ↦ h1.trans hy.le)] with y hy1 hy2
-        rw [if_neg (not_lt.mpr hy2), if_neg]
-        rwa [not_le, ENNReal.ofReal_lt_iff_lt_toReal (ENNReal.toReal_nonneg.trans hy2) h_top]
-      obtain ⟨y, h_tendsto⟩ : ∃ y, Tendsto
-          (fun x' ↦ if x' < f.xmin.toReal then (⊥ : EReal)
-            else if f.xmax ≤ ENNReal.ofReal x' then ⊤ else Function.rightLim
-              (fun y ↦ (rightDeriv f.realFun y)) x')
-          (𝓝[>] x) (𝓝 y) := by
-        sorry
-      rw [rightLim_congr (NeBot.ne inferInstance) h_tendsto this]
-      sorry
+  right_continuous' := f.right_continuous_rightDerivFun
+
+@[simp] lemma rightDerivFun_zero :
+    (0 : DivFunction).rightDerivFun = fun x ↦ if x < 0 then ⊥ else 0 := by
+  ext ; simp [rightDerivFun]
+
+@[simp] lemma rightDerivStieltjes_zero :
+    (0 : DivFunction).rightDerivStieltjes =
+    { toFun := fun x ↦ if x < 0 then ⊥ else 0
+      mono' := by convert (0 : DivFunction).monotone_rightDerivFun; simp
+      right_continuous' := by convert (0 : DivFunction).right_continuous_rightDerivFun; simp } := by
+  ext x; simp [DivFunction.rightDerivStieltjes]
 
 lemma rightDerivStieltjes_of_lt_xmin {x : ℝ} (hx : x < f.xmin.toReal) :
     f.rightDerivStieltjes x = ⊥ := if_pos hx
@@ -651,20 +712,33 @@ section DerivAtTop
 noncomputable
 def derivAtTop (f : DivFunction) : ℝ≥0∞ := (limsup f.rightDerivStieltjes atTop).toENNReal
 
+lemma limsup_rightDerivStieltjes_atTop_nonneg :
+    0 ≤ limsup f.rightDerivStieltjes atTop := by
+  sorry
+
 lemma tendsto_rightDerivStieltjes_atTop :
     Tendsto f.rightDerivStieltjes atTop (𝓝 f.derivAtTop) := by
-  rw [derivAtTop, EReal.coe_toENNReal]
-  · sorry
-  · sorry
+  rw [derivAtTop, EReal.coe_toENNReal limsup_rightDerivStieltjes_atTop_nonneg]
+  sorry
 
 @[simp]
-lemma derivAtTop_zero : derivAtTop (0 : DivFunction) = 0 := sorry
+lemma derivAtTop_zero : derivAtTop (0 : DivFunction) = 0 := by
+  simp only [derivAtTop, rightDerivStieltjes_zero]
+  rw [EReal.toENNReal_eq_zero_iff]
+  have : (fun x ↦ if x < (0 : ℝ) then (⊥ : EReal) else 0) =ᶠ[atTop] fun _ ↦ 0 := by
+    filter_upwards [eventually_ge_atTop 0] with x hx
+    rw [if_neg (not_lt.mpr hx)]
+  rw [limsup_congr this]
+  simp
 
 lemma derivAtTop_congr (h : f =ᶠ[atTop] g) : f.derivAtTop = g.derivAtTop := by
+  rw [derivAtTop, derivAtTop]
+  congr 1
+  refine limsup_congr ?_
   sorry
-  --refine limsup_congr ?_
-  --filter_upwards [h] with x hx
-  --rw [hx]
+  -- refine ENNReal.eventuallyEq_of_toReal_eventuallyEq ?_ ?_ ?_
+  -- filter_upwards [h] with x hx
+  -- rw [hx]
 
 lemma derivAtTop_congr_nonneg (h : ∀ x, f x = g x) : f.derivAtTop = g.derivAtTop :=
   derivAtTop_congr (.of_forall h)
