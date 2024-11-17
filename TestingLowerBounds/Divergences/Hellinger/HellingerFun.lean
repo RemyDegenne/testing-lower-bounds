@@ -175,7 +175,11 @@ lemma integral_rpow_rnDeriv_pos_iff_not_mutuallySingular [SigmaFinite μ] [Sigma
 
 lemma integral_rpow_rnDeriv_smul_left [SigmaFinite μ] [SigmaFinite ν] (c : ℝ≥0) :
     ∫ x, ((∂(c • μ)/∂ν) x).toReal ^ a ∂ν = c ^ a * ∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν := by
-  sorry
+  rw [← integral_mul_left]
+  refine integral_congr_ae ?_
+  filter_upwards [Measure.rnDeriv_smul_left' μ ν c] with x hx
+  rw [← mul_rpow NNReal.zero_le_coe ENNReal.toReal_nonneg, hx, Pi.smul_apply, ENNReal.toReal_smul]
+  rfl
 
 lemma integral_rpow_rnDeriv_smul_right [SigmaFinite μ] [SigmaFinite ν] (c : ℝ≥0) :
     ∫ x, ((∂μ/∂(c • ν)) x).toReal ^ a ∂(c • ν) = c ^ (1 - a) * ∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν := by
