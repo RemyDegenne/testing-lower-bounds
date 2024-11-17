@@ -181,9 +181,19 @@ lemma integral_rpow_rnDeriv_smul_left [SigmaFinite μ] [SigmaFinite ν] (c : ℝ
   rw [← mul_rpow NNReal.zero_le_coe ENNReal.toReal_nonneg, hx, Pi.smul_apply, ENNReal.toReal_smul]
   rfl
 
-lemma integral_rpow_rnDeriv_smul_right [SigmaFinite μ] [SigmaFinite ν] (c : ℝ≥0) :
+lemma integral_rpow_rnDeriv_smul_right [SigmaFinite μ] [SigmaFinite ν] (c : ℝ≥0)
+    (ha : c = 0 → a ≠ 1) :
     ∫ x, ((∂μ/∂(c • ν)) x).toReal ^ a ∂(c • ν) = c ^ (1 - a) * ∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν := by
-  sorry
+  by_cases hc : c = 0; · simp [hc, zero_rpow <| sub_ne_zero_of_ne (ha hc).symm]
+  rw [integral_smul_nnreal_measure, ← integral_mul_left, NNReal.smul_def, ← integral_smul]
+  refine integral_congr_ae ?_
+  filter_upwards [Measure.rnDeriv_smul_right' μ ν hc] with x hx
+  rw [hx, Pi.smul_apply, ENNReal.toReal_smul, smul_eq_mul, NNReal.smul_def, smul_eq_mul,
+    mul_rpow NNReal.zero_le_coe ENNReal.toReal_nonneg, NNReal.coe_inv, inv_rpow NNReal.zero_le_coe,
+    ← mul_assoc, mul_eq_mul_right_iff]
+  left
+  rw [rpow_sub, rpow_one, div_eq_mul_inv]
+  exact NNReal.coe_pos.mpr <| pos_iff_ne_zero.mpr hc
 
 lemma tendsto_mul_log_integral_rpow_rnDeriv [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
     (h_int : Integrable (llr μ ν) μ) :
