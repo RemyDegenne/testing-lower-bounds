@@ -97,7 +97,12 @@ lemma mul_log_add_one_sub_nonneg {x : ℝ} (hx : 0 ≤ x) : 0 ≤ x * log x + 1 
 
 -- unused?
 lemma mul_log_add_one_sub_eq_zero_iff {x : ℝ} (hx : 0 ≤ x) : x * log x + 1 - x = 0 ↔ x = 1 := by
-  sorry
+  refine ⟨fun h ↦ ?_, fun h ↦ by simp [h]⟩
+  refine strictConvexOn_mul_log_add_one_sub.eq_of_isMinOn
+    (isMinOn_iff.mpr fun y hy ↦ h ▸ mul_log_add_one_sub_nonneg hy) (isMinOn_iff.mpr fun y hy ↦ ?_)
+    hx (zero_le_one' ℝ)
+  rw [log_one, mul_zero, zero_add, sub_self]
+  exact mul_log_add_one_sub_nonneg hy
 
 lemma integrable_mul_log_add_one_sub_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hμν : μ ≪ ν) :
     Integrable (fun x ↦ ((∂μ/∂ν) x).toReal * log ((∂μ/∂ν) x).toReal + 1 - ((∂μ/∂ν) x).toReal) ν
