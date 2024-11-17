@@ -240,7 +240,7 @@ zero if and only if the two distributions are equal. -/
 lemma kl_eq_zero_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     kl μ ν = 0 ↔ μ = ν := by
   refine kl_eq_fDiv (μ := μ) (ν := ν) ▸ fDiv_eq_zero_iff derivAtTop_klDivFun ?_
-  exact strictConvexOn_klDivFun
+  exact strictConvexOn_klDivFun.subset (Ioi_subset_Ici le_rfl) (convex_Ioi _)
 
 -- /-- **Converse Gibbs' inequality**: the Kullback-Leibler divergence between two probability
 -- distributions is zero if and only if the two distributions are equal. -/

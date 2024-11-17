@@ -68,12 +68,10 @@ lemma _root_.convexOn_mul_log_add_one_sub :
   (convexOn_mul_log.add (convexOn_const _ (convex_Ici _))).sub (concaveOn_id (convex_Ici _))
 
 lemma strictConvexOn_mul_log_add_one_sub :
-    StrictConvexOn ℝ (Ioi 0) fun x ↦ x * log x + 1 - x := by
+    StrictConvexOn ℝ (Ici 0) fun x ↦ x * log x + 1 - x := by
   simp_rw [add_sub_assoc]
-  have h : StrictConvexOn ℝ (Ioi 0) fun x ↦ x * log x :=
-    Real.strictConvexOn_mul_log.subset (Ioi_subset_Ici le_rfl) (convex_Ioi _)
-  refine h.add_convexOn ?_
-  exact (convexOn_const _ (convex_Ioi _)).sub (concaveOn_id (convex_Ioi _))
+  refine strictConvexOn_mul_log.add_convexOn ?_
+  exact (convexOn_const _ (convex_Ici _)).sub (concaveOn_id (convex_Ici _))
 
 lemma hasDerivAt_mul_log_add_one_sub {x : ℝ} (hx : x ≠ 0) :
     HasDerivAt (fun x ↦ x * log x + 1 - x) (log x) x := by
@@ -159,10 +157,10 @@ lemma klDivFun_realFun_apply {x : ℝ} (hx : 0 ≤ x) : klDivFun.realFun x = x *
   rw [tendsto_congr' rightDeriv_mul_log_add_one_sub_eventually_eq]
   exact tendsto_log_atTop
 
-lemma eqOn_klDivFun_realFun : EqOn klDivFun.realFun (fun x ↦ x * log x + 1 - x) (Ioi 0) :=
-  fun _ hx ↦ klDivFun_realFun_apply hx.le
+lemma eqOn_klDivFun_realFun : EqOn klDivFun.realFun (fun x ↦ x * log x + 1 - x) (Ici 0) :=
+  fun _ hx ↦ klDivFun_realFun_apply hx
 
-lemma strictConvexOn_klDivFun : StrictConvexOn ℝ (Ioi 0) klDivFun.realFun :=
+lemma strictConvexOn_klDivFun : StrictConvexOn ℝ (Ici 0) klDivFun.realFun :=
   StrictConvexOn.congr strictConvexOn_mul_log_add_one_sub eqOn_klDivFun_realFun.symm
 
 lemma lintegral_klDivFun_rnDeriv [SigmaFinite μ] [SigmaFinite ν] :
