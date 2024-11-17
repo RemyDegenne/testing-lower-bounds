@@ -438,7 +438,7 @@ lemma toReal_hellingerDiv_symm (ha_pos : 0 < a) (ha : a < 1)
   rw [← neg_sub, neg_mul, mul_inv_cancel₀, mul_neg, mul_inv_cancel₀ ha_pos.ne']
   linarith
 
-lemma hellingerDiv_symm' (ha_pos : 0 < a) (ha : a < 1) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
+lemma hellingerDiv_symm (ha_pos : 0 < a) (ha : a < 1) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     ENNReal.ofReal (1 - a) * hellingerDiv a μ ν = ENNReal.ofReal a * hellingerDiv (1 - a) ν μ := by
   rw [← ENNReal.toReal_eq_toReal_iff', ENNReal.toReal_mul, ENNReal.toReal_mul]
   rotate_left
@@ -447,11 +447,6 @@ lemma hellingerDiv_symm' (ha_pos : 0 < a) (ha : a < 1) [IsFiniteMeasure μ] [IsF
     linarith
   rw [ENNReal.toReal_ofReal ha_pos.le, ENNReal.toReal_ofReal (by linarith)]
   exact toReal_hellingerDiv_symm ha_pos ha
-
-lemma hellingerDiv_symm (ha_pos : 0 < a) (ha : a < 1)
-    [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
-    ENNReal.ofReal (1 - a) * hellingerDiv a μ ν = ENNReal.ofReal a * hellingerDiv (1 - a) ν μ :=
-  hellingerDiv_symm' ha_pos ha
 
 -- lemma hellingerDiv_zero_nonneg (μ ν : Measure α) :
 --     0 ≤ hellingerDiv 0 μ ν := hellingerDiv_zero _ _ ▸ EReal.coe_ennreal_nonneg _
