@@ -39,21 +39,19 @@ namespace ERealStieltjes
 
 attribute [coe] toFun
 
-instance instCoeFun : CoeFun ERealStieltjes fun _ => ℝ → EReal :=
-  ⟨toFun⟩
+instance instCoeFun : CoeFun ERealStieltjes fun _ ↦ ℝ → EReal where
+  coe := toFun
 
 initialize_simps_projections ERealStieltjes (toFun → apply)
 
-@[ext] lemma ext {f g : ERealStieltjes} (h : ∀ x, f x = g x) : f = g := by
-  exact (ERealStieltjes.mk.injEq ..).mpr (funext h)
+@[ext] lemma ext {f g : ERealStieltjes} (h : ∀ x, f x = g x) : f = g :=
+  (ERealStieltjes.mk.injEq ..).mpr (funext h)
 
 variable (f : ERealStieltjes)
 
-theorem mono : Monotone f :=
-  f.mono'
+theorem mono : Monotone f := f.mono'
 
-theorem right_continuous (x : ℝ) : ContinuousWithinAt f (Ici x) x :=
-  f.right_continuous' x
+theorem right_continuous (x : ℝ) : ContinuousWithinAt f (Ici x) x := f.right_continuous' x
 
 theorem rightLim_eq (f : ERealStieltjes) (x : ℝ) : Function.rightLim f x = f x := by
   rw [← f.mono.continuousWithinAt_Ioi_iff_rightLim_eq, continuousWithinAt_Ioi_iff_Ici]
@@ -65,15 +63,6 @@ theorem iInf_Ioi_eq (f : ERealStieltjes) (x : ℝ) : ⨅ r : Ioi x, f r = f x :=
   rw [← neBot_iff]
   infer_instance
 
--- theorem iInf_rat_gt_eq (f : ERealStieltjes) (x : ℝ) :
---     ⨅ r : { r' : ℚ // x < r' }, f r = f x := by
---   rw [← iInf_Ioi_eq f x]
---   refine (Real.iInf_Ioi_eq_iInf_rat_gt _ ?_ f.mono).symm
---   refine ⟨f x, fun y => ?_⟩
---   rintro ⟨y, hy_mem, rfl⟩
---   exact f.mono (le_of_lt hy_mem)
-
--- /-- The identity of `ℝ` as a Stieltjes function, used to construct Lebesgue measure. -/
 -- @[simps]
 -- protected def id : ERealStieltjes where
 --   toFun := id
@@ -84,9 +73,6 @@ theorem iInf_Ioi_eq (f : ERealStieltjes) (x : ℝ) : ⨅ r : Ioi x, f r = f x :=
 -- theorem id_leftLim (x : ℝ) : leftLim ERealStieltjes.id x = x :=
 --   tendsto_nhds_unique (ERealStieltjes.id.mono.tendsto_leftLim x) <|
 --     continuousAt_id.tendsto.mono_left nhdsWithin_le_nhds
-
--- instance instInhabited : Inhabited ERealStieltjes :=
---   ⟨ERealStieltjes.id⟩
 
 /-- Constant functions are Stieltjes function. -/
 protected def const (c : EReal) : ERealStieltjes where
@@ -100,6 +86,9 @@ instance : Zero ERealStieltjes where
   zero := ERealStieltjes.const 0
 
 @[simp] lemma zero_apply (x : ℝ) : (0 : ERealStieltjes) x = 0 := rfl
+
+instance : Inhabited ERealStieltjes where
+  default := 0
 
 /-- The sum of two Stieltjes functions is a Stieltjes function. -/
 protected def add (f g : ERealStieltjes) : ERealStieltjes where
@@ -244,6 +233,14 @@ theorem countable_leftLim_ne (f : ERealStieltjes) : Set.Countable { x | leftLim 
   intro x hx h'x
   apply hx
   exact tendsto_nhds_unique (f.mono.tendsto_leftLim x) (h'x.tendsto.mono_left nhdsWithin_le_nhds)
+
+section EffectiveDomain
+
+def xmin : ℝ := sInf {y | f y ≠ ⊥}
+
+def xmax : ℝ := sSup {y | f y ≠ ⊤}
+
+end EffectiveDomain
 
 /-! ### The outer measure associated to a Stieltjes function -/
 
@@ -609,7 +606,7 @@ theorem borel_le_measurable : borel ℝ ≤ f.outer.caratheodory := by
 interval `(a, b]`. -/
 protected irreducible_def measure : Measure ℝ where
   toOuterMeasure := f.outer
-  m_iUnion _s hs := f.outer.iUnion_eq_of_caratheodory fun i => f.borel_le_measurable _ (hs i)
+  m_iUnion _s hs := f.outer.iUnion_eq_of_caratheodory fun i ↦ f.borel_le_measurable _ (hs i)
   trim_le := f.outer_trim.le
 
 @[simp]
@@ -1077,17 +1074,21 @@ lemma isLocallyFiniteMeasure (hf : ∀ x, f x ≠ ⊥ ∧ f x ≠ ⊤) :
   · exact fun h ↦ absurd h <| ne_top_of_le_ne_top (hf _).2 (f.mono.leftLim_le le_rfl)
   · exact fun _ ↦ (hf _).1
 
--- lemma eq_of_measure_of_tendsto_atBot (g : ERealStieltjes) {l : ℝ}
---     (hfg : f.measure = g.measure) (hfl : Tendsto f atBot (𝓝 l)) (hgl : Tendsto g atBot (𝓝 l)) :
---     f = g := by
---   ext x
---   have hf := measure_Iic f hfl x
---   rw [hfg, measure_Iic g hgl x, EReal.toENNReal_eq_toENNReal_iff, eq_comm] at hf
---   · simpa using hf
---   · rw [EReal.sub_nonneg (EReal.coe_ne_top _) (EReal.coe_ne_bot _)]
---     exact Monotone.le_of_tendsto g.mono hgl x
---   · rw [EReal.sub_nonneg (EReal.coe_ne_top _) (EReal.coe_ne_bot _)]
---     exact Monotone.le_of_tendsto f.mono hfl x
+lemma eq_of_measure_of_tendsto_atBot (g : ERealStieltjes) {l : ℝ}
+    (hfg : f.measure = g.measure) (hfl : Tendsto f atBot (𝓝 l)) (hgl : Tendsto g atBot (𝓝 l)) :
+    f = g := by
+  ext x
+  have hf := measure_Iic f hfl x
+  rw [hfg, measure_Iic g hgl x, EReal.toENNReal_eq_toENNReal, eq_comm] at hf
+  · calc f x = (f x - l) + l := by rw [sub_eq_add_neg, add_assoc, add_comm _ (l : EReal),
+        ← sub_eq_add_neg, EReal.sub_self] <;> simp
+    _ = (g x - l) + l := by rw [hf]
+    _ = g x := by rw [sub_eq_add_neg, add_assoc, add_comm _ (l : EReal),
+        ← sub_eq_add_neg, EReal.sub_self] <;> simp
+  · rw [EReal.sub_nonneg (EReal.coe_ne_top _) (EReal.coe_ne_bot _)]
+    exact Monotone.le_of_tendsto g.mono hgl x
+  · rw [EReal.sub_nonneg (EReal.coe_ne_top _) (EReal.coe_ne_bot _)]
+    exact Monotone.le_of_tendsto f.mono hfl x
 
 lemma EReal.toENNReal_toEReal (x : ℝ) : EReal.toENNReal x = ENNReal.ofReal x := rfl
 
