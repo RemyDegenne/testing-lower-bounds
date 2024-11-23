@@ -335,7 +335,17 @@ lemma derivAtTop_ofConvexOn_of_tendsto_atTop {f : ℝ → ℝ} {hf : ConvexOn �
     (h : Tendsto (rightDeriv f) atTop atTop) :
     (ofConvexOn f hf).derivAtTop = ∞ := by
   rw [ofConvexOn, derivAtTop_ofReal_of_tendsto_atTop]
-  sorry
+  have : rightDeriv (fun x ↦ f x - f 1 - rightDeriv f 1 * (x - 1))
+      = fun x ↦ rightDeriv f x - rightDeriv f 1 := by
+    have h_eq : (fun x ↦ f x - f 1 - rightDeriv f 1 * (x - 1))
+        = fun x ↦ f x + (- rightDeriv f 1) * x + (- f 1 + rightDeriv f 1) := by ext; ring
+    rw [h_eq]
+    ext x
+    rw [rightDeriv_add_const_apply, rightDeriv_add_linear_apply, sub_eq_add_neg]
+    · sorry
+    · sorry
+  rw [this]
+  exact tendsto_atTop_add_const_right atTop (-rightDeriv f 1) h
 
 end DerivAtTop
 
