@@ -37,7 +37,14 @@ def ofReal (f : ℝ → ℝ) (hf : ConvexOn ℝ (Ioi 0) f)
     else ENNReal.ofReal (f x.toReal)
   one := by simp [hf_one]
   convexOn' := sorry
-  continuous' := sorry
+  continuous' := by
+    have h_cont := hf.continuousOn isOpen_Ioi
+    refine continuous_iff_continuousAt.mpr fun x ↦ ?_
+    by_cases hx0 : x = 0
+    · sorry
+    by_cases hx_top : x = ∞
+    · sorry
+    sorry
 
 variable {hf : ConvexOn ℝ (Ioi 0) f} {hf_one : f 1 = 0}
 
@@ -92,6 +99,7 @@ section DerivAtTop
 lemma derivAtTop_ofReal :
     (ofReal f hf hf_one).derivAtTop
       = limsup (fun x ↦ ENNReal.ofReal (rightDeriv f x)) atTop := by
+  rw [derivAtTop]
   sorry
 
 lemma derivAtTop_ofReal_ne_top
