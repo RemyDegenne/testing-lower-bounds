@@ -28,7 +28,9 @@ def derivAtTop (f : DivFunction) : ℝ≥0∞ := (limsup f.rightDerivStieltjes a
 
 lemma limsup_rightDerivStieltjes_atTop_nonneg :
     0 ≤ limsup f.rightDerivStieltjes atTop := by
-  sorry
+  refine le_limsup_of_frequently_le <| Eventually.frequently ?_
+  filter_upwards [eventually_ge_atTop (1 : ℝ)] with a ha
+  exact rightDerivStieltjes_one_nonneg.trans (f.rightDerivStieltjes.mono ha)
 
 lemma tendsto_rightDerivStieltjes_atTop :
     Tendsto f.rightDerivStieltjes atTop (𝓝 f.derivAtTop) := by
@@ -37,8 +39,7 @@ lemma tendsto_rightDerivStieltjes_atTop :
 
 @[simp]
 lemma derivAtTop_zero : derivAtTop (0 : DivFunction) = 0 := by
-  simp only [derivAtTop, rightDerivStieltjes_zero]
-  rw [EReal.toENNReal_eq_zero_iff]
+  simp only [derivAtTop, rightDerivStieltjes_zero, EReal.toENNReal_eq_zero_iff]
   have : (fun x ↦ if x < (0 : ℝ) then (⊥ : EReal) else 0) =ᶠ[atTop] fun _ ↦ 0 := by
     filter_upwards [eventually_ge_atTop 0] with x hx
     rw [if_neg (not_lt.mpr hx)]
@@ -62,9 +63,11 @@ lemma tendsto_derivAtTop : Tendsto (fun x ↦ f x / x) atTop (𝓝 f.derivAtTop)
 
 @[simp]
 lemma derivAtTop_add : (f + g).derivAtTop = f.derivAtTop + g.derivAtTop := by
-  suffices Tendsto (fun x ↦ (f + g) x / x) atTop (𝓝 (f.derivAtTop + g.derivAtTop)) from
-    tendsto_nhds_unique tendsto_derivAtTop this
-  simp only [add_apply]
+  simp only [derivAtTop]
+  rw [rightDerivStieltjes_add]
+  --suffices Tendsto (fun x ↦ (f + g) x / x) atTop (𝓝 (f.derivAtTop + g.derivAtTop)) from
+  --  tendsto_nhds_unique tendsto_derivAtTop this
+  --simp only [add_apply]
   sorry
 
 @[simp]

@@ -179,6 +179,11 @@ lemma rightDerivStieltjes_ne_top (hf : ∀ x, 0 < x → f x ≠ ∞) (x : ℝ) :
 lemma rightDerivStieltjes_one : f.rightDerivStieltjes 1 = rightDeriv f.realFun 1 := by
   sorry
 
+lemma rightDerivStieltjes_one_nonneg : 0 ≤ f.rightDerivStieltjes 1 := by
+  rw [rightDerivStieltjes_one]
+  norm_cast
+  exact f.rightDeriv_one_nonneg
+
 @[simp]
 lemma toReal_max_xmin : (max f.xmin g.xmin).toReal = max f.xmin.toReal g.xmin.toReal := by
   sorry
