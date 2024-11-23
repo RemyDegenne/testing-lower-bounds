@@ -235,7 +235,8 @@ lemma measurable_comp_rnDeriv_of_convexOn_of_continuous [SigmaFinite μ] [SigmaF
     · rw [h0, ← continuousWithinAt_Ioi_iff_Ici]
       exact h_cont
     · have h := h_Ioi.continuousWithinAt (lt_of_le_of_ne hx (Ne.symm h0))
-      sorry  -- goal is `h`, except for Ioi vs Ici mismatch
+      refine (h.continuousAt ?_).continuousWithinAt
+      exact Ioi_mem_nhds (lt_of_le_of_ne hx (Ne.symm h0))
   exact h1.comp (μ.measurable_rnDeriv ν).ennreal_toReal.subtype_mk
 
 lemma lintegral_ofReal_ne_top_iff_integrable_of_continuous [SigmaFinite μ] [IsFiniteMeasure ν]
