@@ -100,11 +100,17 @@ lemma right_continuous_rightLim {β : Type*} [TopologicalSpace β]
     ContinuousWithinAt (Function.rightLim f) (Ici a) a := by
   rw [← continuousWithinAt_Ioi_iff_Ici, ContinuousWithinAt,
     rightLim_eq_of_tendsto h_ne_bot h_tendsto]
-  obtain ⟨u, hu_anti, hu_lt, hu_tendsto⟩ := exists_seq_strictAnti_tendsto a
+  obtain ⟨u, _, _, _⟩ := exists_seq_strictAnti_tendsto a
   refine tendsto_of_tendsto_of_tendsto_of_le_of_le' (h := fun x ↦ f (a + 2 * |x - a|))
     h_tendsto ?_ (.of_forall fun _ ↦ hf.le_rightLim le_rfl) ?_
   · refine h_tendsto.comp ?_
-    sorry
+    rw [tendsto_nhdsWithin_iff]
+    constructor
+    · refine tendsto_nhdsWithin_of_tendsto_nhds ?_
+      convert tendsto_const_nhds.add ((tendsto_norm_sub_self a).const_mul _)
+      ring
+    · refine eventually_nhdsWithin_of_forall fun x hx ↦ ?_
+      simp [sub_ne_zero, hx.ne']
   · filter_upwards [eventually_nhdsWithin_of_forall fun y hy ↦ hy] with b hb
     refine hf.rightLim_le ?_
     rw [abs_of_nonneg (sub_nonneg.mpr hb.le)]
@@ -505,16 +511,27 @@ end Module
 @[simp] lemma xmax_zero : (0 : DivFunction).xmax = ∞ := by simp [xmax]
 
 @[simp] lemma xmin_add : (f + g).xmin = max f.xmin g.xmin := by
-  sorry
+  simp only [xmin, add_apply, ne_eq, ENNReal.add_eq_top, not_or]
+  refine le_antisymm ?_ le_sInf_inter
+  rcases le_total f.xmin g.xmin with h | h
+  · simp only [xmin, ne_eq, le_sInf_iff, mem_setOf_eq, le_max_iff] at h ⊢
+    right
+    intro y hy
+    sorry
+  · simp only [xmin, ne_eq, le_sInf_iff, mem_setOf_eq, le_max_iff] at h ⊢
+    left
+    intro y hy
+    specialize h y hy
+    sorry
 
 @[simp] lemma xmax_add : (f + g).xmax = min f.xmax g.xmax := by
   sorry
 
-@[simp] lemma xmin_smul {c : ℝ≥0} : (c • f).xmin = c * f.xmin := by
-  sorry
+@[simp] lemma xmin_smul {c : ℝ≥0} (hc : c ≠ 0) : (c • f).xmin = f.xmin := by
+  simp [xmin, hc, ENNReal.mul_eq_top]
 
-@[simp] lemma xmax_smul {c : ℝ≥0} (hc : c ≠ 0) : (c • f).xmax = c * f.xmax := by
-  sorry
+@[simp] lemma xmax_smul {c : ℝ≥0} (hc : c ≠ 0) : (c • f).xmax = f.xmax := by
+  simp [xmax, hc, ENNReal.mul_eq_top]
 
 end DivFunction
 
