@@ -1,9 +1,17 @@
 \chapter{Radon-Nikodym derivatives and disintegration}
 \label{app:rnDeriv}
 
+For $\mu$ and $\nu$ two $\sigma$-finite measures on a measurable space $\mathcal{X}$, we can decompose $\mu$ into $\frac{d \mu}{d \nu} \cdot \nu + \mu_{\perp \nu}$, where $\frac{d \mu}{d \nu}$ is a measurable function, unique $\nu$-a.e., and $\mu_{\perp \nu} \perp \nu$.
+
+If we then introduce two kernels $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$, we will want to compare the joint measures $\mu \otimes \kappa$ and $\nu \otimes \eta$, as well as the compositions $\kappa \circ \mu$ and $\eta \circ \nu$.
+
 
 \section{Kernel Radon-Nikodym derivative}
 
+In standard Borel spaces, we can define a Radon-Nikodym derivative for finite kernels.
+This is a measurable function $\frac{d \kappa}{d \eta} : \mathcal X \times \mathcal Y \to \mathbb{R}_{+, \infty}$ with $\kappa = \frac{d \kappa}{d \eta} \cdot \eta + \kappa_{\perp \eta}$, where for all $x$, $\kappa_{\perp \eta}(x) \perp \eta(x)$.
+The hypothesis that the spaces are standard Borel is used to ensure the measurability of the function on the product space.
+Taking for all $x$ the ratio $\frac{d \kappa(x)}{d \eta(x)}$ would give us measurable function $\mathcal Y \to \mathbb{R}_{+, \infty}$ for all $x \in \mathcal X$, but not necessarily a jointly measurable function.
 
 \begin{definition}
   \label{def:kernel_rnDeriv}
@@ -43,7 +51,6 @@ Apply Lemma~\ref{lem:rnDeriv_unique}.
 
 
 \section{Composition-product}
-
 
 \subsection{Absolute Continuity}
 
