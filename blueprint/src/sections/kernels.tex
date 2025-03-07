@@ -408,7 +408,8 @@ TODO: transcribe the code.
   %\lean{}
   %\leanok
   \uses{def:bayesInv}
-  Let $\mu \in \mathcal M(\mathcal X)$ and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ such that $\kappa_\mu^\dagger$ exists and there exists $\nu \in \mathcal M(\mathcal X)$ such that $\kappa_\mu^\dagger$. Then for $\mu$-almost all $x$ and $(\kappa \circ \mu)$-almost all $y$,
+  Let $\mu \in \mathcal M(\mathcal X)$ and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ such that $\kappa_\mu^\dagger$ exists and such that $\kappa(x) \ll \kappa \circ \mu$ almost surely.
+  Then for $\mu$-almost all $x$ and $(\kappa \circ \mu)$-almost all $y$,
   \begin{align*}
   \frac{d \kappa_\mu^\dagger(y)}{d \mu}(x) = \frac{d \kappa(x)}{d(\kappa \circ \mu)}(y)
   \: .
@@ -420,7 +421,8 @@ TODO: transcribe the code.
 $\mu$-almost all $x$ and $(\kappa \circ \mu)$-almost all $y$ is the same as $(\mu \times (\kappa \circ \mu))$-almost all $(x, y)$.
 It suffices to show that for all measurable sets of $\mathcal X \times \mathcal Y$, the integrals with respect to that product measure of the two sides of the equality on the set are equal. Furthermore, it is sufficient to show it for sets of the form $s \times t$ since those are a $\pi$-system.
 
-TODO: do we have $\kappa_\mu^\dagger(y) \ll \mu$ and $\kappa(x) \ll \kappa \circ \mu$ a.e.?
+Since $\kappa(x) \ll \kappa \circ \mu$ almost surely, we have $\mu \otimes \kappa \ll \mu \times (\kappa \circ \mu)$, hence $(\kappa \circ \mu) \otimes \kappa_\mu^\dagger \ll (\kappa \circ \mu) \times \mu$.
+We get that $\kappa_\mu^\dagger(y) \ll \mu$ almost surely.
 \begin{align*}
 \int_{x \in s, y \in t} \frac{d \kappa_\mu^\dagger(y)}{d \mu}(x) \partial (\mu \times (\kappa \circ \mu))
 &= \int_{y \in t} \int_{x \in s} \frac{d \kappa_\mu^\dagger(y)}{d \mu}(x) \partial \mu \partial (\kappa \circ \mu)
@@ -432,7 +434,7 @@ TODO: do we have $\kappa_\mu^\dagger(y) \ll \mu$ and $\kappa(x) \ll \kappa \circ
 \end{align*}
 
 \begin{align*}
-\int_{x \in s, y \in t} \frac{d \kappa(x)}{d(\kappa \circ \mu)}(y) \partial (\mu \otimes \kappa)
+\int_{x \in s, y \in t} \frac{d \kappa(x)}{d(\kappa \circ \mu)}(y) \partial (\mu \times (\kappa \circ \mu))
 &= \int_{x \in s} \int_{y \in t} \frac{d \kappa(x)}{d(\kappa \circ \mu)}(y) \partial (\kappa \circ \mu) \partial \mu
 \\
 &= \int_{x \in s} \kappa(x)(t) \partial \mu
