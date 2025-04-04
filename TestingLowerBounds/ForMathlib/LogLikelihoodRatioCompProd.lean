@@ -2,6 +2,7 @@ import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
 import Mathlib.MeasureTheory.Measure.LogLikelihoodRatio
 import TestingLowerBounds.FDiv.CompProd.CompProd
 import TestingLowerBounds.FDiv.Measurable
+import TestingLowerBounds.FDiv.CompProd.OldEqTopIff
 
 open Real MeasureTheory MeasurableSpace
 
@@ -69,7 +70,7 @@ lemma integrable_llr_of_integrable_llr_compProd [CountableOrCountablyGenerated �
     Integrable (llr μ ν) μ := by
   have ⟨hμν_ac, hκη_ac⟩ := Measure.absolutelyContinuous_compProd_iff.mp h_ac
   rw [← integrable_rnDeriv_mul_log_iff h_ac] at h_int
-  replace h_int := integrable_f_rnDeriv_of_integrable_compProd' μ ν κ η
+  replace h_int := integrable_f_rnDeriv_of_integrable_compProd''' μ ν κ η
     continuous_mul_log.stronglyMeasurable convexOn_mul_log continuous_mul_log.continuousOn h_int
     (fun _ ↦ hκη_ac)
   exact (integrable_rnDeriv_mul_log_iff hμν_ac).mp h_int
@@ -171,7 +172,15 @@ lemma measurableSet_integrable_llr [CountableOrCountablyGenerated α β]
     (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
     MeasurableSet {a | Integrable (fun b ↦ ((∂κ a/∂η a) b).toReal * llr (κ a) (η a) b) (η a)} := by
   simp_rw [llr_def]
-  exact measurableSet_integrable_f_rnDeriv κ η continuous_mul_log.stronglyMeasurable
+  suffices MeasurableSet {a |
+      Integrable (fun b ↦ (κ.rnDeriv η a b).toReal * log (κ.rnDeriv η a b).toReal) (η a)} by
+    convert this using 3
+    refine integrable_congr ?_
+    filter_upwards [κ.rnDeriv_eq_rnDeriv_measure] with b hb
+    rw [hb]
+  refine measurableSet_kernel_integrable ?_
+  exact continuous_mul_log.stronglyMeasurable.comp_measurable
+    (κ.measurable_rnDeriv η).ennreal_toReal
 
 lemma ae_compProd_integrable_llr_iff [CountableOrCountablyGenerated (α × β) γ] [SFinite μ]
     {ξ : Kernel α β} [IsSFiniteKernel ξ]

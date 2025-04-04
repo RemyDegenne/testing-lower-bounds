@@ -3,6 +3,10 @@ import Mathlib.MeasureTheory.Constructions.BorelSpace.Real
 open scoped ENNReal NNReal Topology
 open Filter Set
 
+@[simp]
+lemma frontier_singleton {X : Type*} [TopologicalSpace X] [T1Space X] (x : X) [(𝓝[≠] x).NeBot] :
+    frontier {x} = {x} := by simp [frontier]
+
 namespace EReal
 
 instance : CharZero EReal := inferInstanceAs (CharZero (WithBot (WithTop ℝ)))
@@ -170,6 +174,21 @@ lemma add_ne_bot_iff {x y : EReal} : x + y ≠ ⊥ ↔ x ≠ ⊥ ∧ y ≠ ⊥ :
 lemma add_ne_bot {x y : EReal} (hx : x ≠ ⊥) (hy : y ≠ ⊥) : x + y ≠ ⊥ :=
   add_ne_bot_iff.mpr ⟨hx, hy⟩
 
+lemma add_eq_top_iff {x y : EReal} : x + y = ⊤ ↔ x = ⊤ ∧ y ≠ ⊥ ∨ x ≠ ⊥ ∧ y = ⊤ := by
+  induction x <;> induction y
+  · simp
+  · simp
+  · simp
+  · simp
+  · simp only [coe_ne_top, ne_eq, coe_ne_bot, not_false_eq_true, and_true, and_false,
+      or_self, iff_false]
+    norm_cast
+    exact coe_ne_top _
+  · simp
+  · simp
+  · simp
+  · simp
+
 lemma coe_mul_add_of_nonneg {x : ℝ} (hx_nonneg : 0 ≤ x) (y z : EReal) :
     x * (y + z) = x * y + x * z := by
   by_cases hx0 : x = 0
@@ -294,11 +313,30 @@ lemma toReal_ne_zero_iff {x : EReal} : x.toReal ≠ 0 ↔ x ≠ 0 ∧ x ≠ ⊤ 
 lemma toReal_eq_zero_iff {x : EReal} : x.toReal = 0 ↔ x = 0 ∨ x = ⊤ ∨ x = ⊥ := by
   induction x <;> norm_num
 
-lemma sub_nonneg {x y : EReal} (hy : y ≠ ⊤) (hy' : y ≠ ⊥) : 0 ≤ x - y ↔ y ≤ x := by
-  lift y to ℝ using ⟨hy, hy'⟩
-  induction x <;> simp [← EReal.coe_sub]
+lemma sub_nonneg' {x y : EReal} (h : x ≠ ⊤ ∨ y ≠ ⊤) (h' : x ≠ ⊥ ∨ y ≠ ⊥) :
+    0 ≤ x - y ↔ y ≤ x := by
+  induction x <;> induction y
+  · simp at h'
+  · simp
+  · simp
+  · simp
+  · norm_cast
+    simp
+  · simp
+  · simp
+  · simp
+  · simp at h
 
-lemma sub_nonpos {x y : EReal} (hy : y ≠ ⊤) (hy' : y ≠ ⊥) : x - y ≤ 0 ↔ x ≤ y := by
+lemma sub_nonneg {x y : EReal} (hy : y ≠ ⊤) (hy' : y ≠ ⊥) : 0 ≤ x - y ↔ y ≤ x := by
+  refine sub_nonneg' (Or.inr hy) (Or.inr hy')
+
+lemma sub_nonpos {x y : EReal} : x - y ≤ 0 ↔ x ≤ y := by
+  by_cases hy : y = ⊤
+  · simp [hy]
+  by_cases hy' : y = ⊥
+  · simp only [hy', le_bot_iff]
+    rw [sub_eq_add_neg, neg_bot]
+    induction x <;> simp
   lift y to ℝ using ⟨hy, hy'⟩
   induction x <;> simp [← EReal.coe_sub]
 
@@ -485,6 +523,23 @@ theorem toENNReal_le_toENNReal {x y : EReal} (h : x ≤ y) : x.toENNReal ≤ y.t
     refine EReal.toReal_le_toReal h (coe_ne_bot _) hy_top
   · simp_all
 
+lemma toENNReal_eq_toENNReal {x y : EReal} (hx : 0 ≤ x) (hy : 0 ≤ y) :
+    x.toENNReal = y.toENNReal ↔ x = y := by
+  induction x <;> induction y
+  · simp
+  · simp at hx
+  · simp
+  · simp at hy
+  · simp only [ne_eq, coe_ne_top, not_false_eq_true, toENNReal_of_ne_top,
+      toReal_coe, EReal.coe_eq_coe_iff]
+    rw [ENNReal.ofReal_eq_ofReal_iff]
+    · exact mod_cast hx
+    · exact mod_cast hy
+  · simp
+  · simp
+  · simp
+  · simp
+
 @[simp]
 lemma real_coe_toENNReal (x : ℝ) : (x : EReal).toENNReal = ENNReal.ofReal x := rfl
 
@@ -504,6 +559,13 @@ theorem _root_.Measurable.ereal_toENNReal {α : Type*} {_ : MeasurableSpace α}
     Measurable fun x => (f x).toENNReal :=
   measurable_ereal_toENNReal.comp hf
 
+lemma toENNReal_add_le {x y : EReal} :
+    (x + y).toENNReal ≤ x.toENNReal + y.toENNReal := by
+  induction x <;> induction y <;> try {· simp_all}
+  norm_cast
+  simp_rw [real_coe_toENNReal]
+  exact ENNReal.ofReal_add_le
+
 lemma toENNReal_add {x y : EReal} (hx : 0 ≤ x) (hy : 0 ≤ y) :
     (x + y).toENNReal = x.toENNReal + y.toENNReal := by
   induction x <;> induction y <;> try {· simp_all}
@@ -518,7 +580,7 @@ lemma toENNReal_sub {x y : EReal} (hy : 0 ≤ y) :
   simp only [ne_eq, coe_ne_top, not_false_eq_true, toENNReal_of_ne_top, toReal_coe]
   by_cases hxy : x ≤ y
   · rw [toENNReal_of_nonpos]
-    swap; · exact (sub_nonpos (coe_ne_top y) (coe_ne_bot y)).mpr <| EReal.coe_le_coe_iff.mpr hxy
+    swap; · exact sub_nonpos.mpr <| EReal.coe_le_coe_iff.mpr hxy
     simp_all
   · rw [toENNReal_of_ne_top, ← EReal.coe_sub, toReal_coe,
       ENNReal.ofReal_sub x (EReal.coe_nonneg.mp hy)]
@@ -540,6 +602,131 @@ lemma toENNReal_mul {x y : EReal} (hx : 0 ≤ x) :
 lemma toENNReal_mul' {x y : EReal} (hy : 0 ≤ y) :
     (x * y).toENNReal = x.toENNReal * y.toENNReal := by
   rw [mul_comm, toENNReal_mul hy, mul_comm]
+
+@[simp]
+lemma toENNReal_one : (1 : EReal).toENNReal = 1 := by
+  rw [toENNReal, if_neg (ne_of_beq_false rfl)]
+  simp
+
+lemma sub_add_sub_cancel (b a : EReal) (c : ℝ) :
+    b - c + (c - a) = b - a := by
+  induction a <;> induction b
+  · simp
+  · simp only [coe_sub_bot]
+    rw [← coe_sub, coe_add_top]
+  · simp
+  · simp
+  · norm_cast
+    ring
+  · simp only [top_sub_coe]
+    rw [← coe_sub, top_add_coe]
+  · simp
+  · simp
+  · simp
+
+lemma toENNReal_sub_le_add (b a c : EReal) :
+    (b - a).toENNReal ≤ (b - c).toENNReal + (c - a).toENNReal := by
+  by_cases hc_top : c = ⊤
+  · simp only [hc_top, sub_top, ne_eq, bot_ne_top, not_false_eq_true,
+      toENNReal_of_ne_top, toReal_bot, ENNReal.ofReal_zero, zero_add]
+    by_cases ha : a = ⊤
+    · simp [ha]
+    · simp [top_sub_of_ne_top ha]
+  by_cases hc_bot : c = ⊥
+  · simp [hc_bot, sub_eq_add_neg]
+    by_cases hb_bot : b = ⊥
+    · simp [hb_bot]
+    · simp [add_top_of_ne_bot hb_bot]
+  refine (toENNReal_le_toENNReal ?_).trans toENNReal_add_le
+  lift c to ℝ using ⟨hc_top, hc_bot⟩ with c
+  rw [sub_add_sub_cancel]
+
+lemma toENNReal_sub_add_cancel {b a c : EReal} (hac : a ≤ c) (hcb : c ≤ b) :
+    (b - c).toENNReal + (c - a).toENNReal = (b - a).toENNReal := by
+  induction c
+  · have ha : a = ⊥ := eq_bot_iff.mpr hac
+    simp [ha]
+  · rw [← toENNReal_add, sub_add_sub_cancel]
+    · rwa [sub_nonneg (coe_ne_top _) (coe_ne_bot _)]
+    · by_cases ha : a = ⊥
+      · simp [ha]
+      rwa [sub_nonneg _ ha]
+      exact (hac.trans_lt (coe_lt_top _)).ne
+  · have hb : b = ⊤ := eq_top_iff.mpr hcb
+    simp [hb]
+
+lemma continuousAt_sub {p : EReal × EReal} (h : p.1 ≠ ⊤ ∨ p.2 ≠ ⊤) (h' : p.1 ≠ ⊥ ∨ p.2 ≠ ⊥) :
+    ContinuousAt (fun p : EReal × EReal ↦ p.1 - p.2) p := by
+  simp_rw [sub_eq_add_neg]
+  change ContinuousAt ((fun p : EReal × EReal => p.1 + p.2) ∘ (fun p ↦ (p.1, -p.2))) p
+  refine ContinuousAt.comp ?_ ?_
+  · refine EReal.continuousAt_add ?_ ?_
+    · simp [h]
+    · simp [h']
+  · fun_prop
+
+lemma continuousAt_const_sub {c x : EReal} (h' : x ≠ ⊤ ∨ c ≠ ⊤) :
+    ContinuousAt (fun x : EReal ↦ c - x) x := by
+  by_cases hc_top : c = ⊥
+  · simp [hc_top]
+    exact continuous_const.continuousAt
+  change ContinuousAt ((fun p : EReal × EReal ↦ p.1 - p.2) ∘ (fun x ↦ (c, x))) x
+  exact (EReal.continuousAt_sub h'.symm (Or.inl hc_top)).comp (by fun_prop)
+
+lemma continuousAt_sub_const {c x : EReal} (h' : x ≠ ⊥ ∨ c ≠ ⊥) :
+    ContinuousAt (fun x : EReal ↦ x - c) x := by
+  by_cases hc_top : c = ⊤
+  · simp [hc_top]
+    exact continuous_const.continuousAt
+  change ContinuousAt ((fun p : EReal × EReal ↦ p.1 - p.2) ∘ (fun x ↦ (x, c))) x
+  exact (EReal.continuousAt_sub (Or.inr hc_top) h').comp (by fun_prop)
+
+lemma continuous_coe_mul {c : ℝ} : Continuous (fun x : EReal ↦ c * x) := by
+  by_cases hc0 : c = 0
+  · simp only [hc0, EReal.coe_zero, zero_mul]
+    exact continuous_const
+  rw [continuous_iff_continuousAt]
+  intro x
+  have h_cont : ContinuousAt (fun p : EReal × EReal ↦ p.1 * p.2) (c, x) := by
+    refine EReal.continuousAt_mul ?_ ?_ ?_ ?_ <;> exact Or.inl (by simp [hc0])
+  refine h_cont.comp ?_
+  fun_prop
+
+lemma continuous_toENNReal : Continuous EReal.toENNReal := by
+  refine continuous_if' ?_ ?_ ?_ ?_
+  · simp only [setOf_eq_eq_singleton]
+    intro a ha
+    simp only [frontier_singleton, mem_singleton_iff] at ha
+    simp [ha]
+  · intro a ha
+    simp only [setOf_eq_eq_singleton, frontier_singleton, mem_singleton_iff] at ha
+    simp only [ha, ↓reduceIte, ENNReal.tendsto_ofReal_nhds_top]
+    exact EReal.tendsto_toReal_atTop
+  · fun_prop
+  · intro x hx
+    by_cases hx_bot : x = ⊥
+    · simp only [hx_bot]
+      refine (tendsto_congr' ?_).mpr tendsto_const_nhds
+      simp only [EReal.toReal_bot, ENNReal.ofReal_zero]
+      suffices (fun x : EReal ↦ ENNReal.ofReal x.toReal) =ᶠ[𝓝 ⊥] fun _ ↦ 0 from
+        EventuallyEq.filter_mono this nhdsWithin_le_nhds
+      rw [EventuallyEq, eventually_nhds_iff]
+      refine ⟨Iio 0, fun y hy ↦ ?_, isOpen_Iio, by simp⟩
+      rw [ENNReal.ofReal_eq_zero]
+      exact EReal.toReal_nonpos hy.le
+    refine ENNReal.continuous_ofReal.continuousAt.comp_continuousWithinAt ?_
+    refine ContinuousAt.continuousWithinAt ?_
+    refine EReal.continuousOn_toReal.continuousAt ?_
+    rw [← EReal.range_coe, EReal.range_coe_eq_Ioo, mem_nhds_iff]
+    exact ⟨Ioo ⊥ ⊤, subset_rfl, isOpen_Ioo, ⟨Ne.bot_lt hx_bot, Ne.lt_top hx⟩⟩
+
+lemma tendsto_atTop_toENNReal : Tendsto EReal.toENNReal atTop atTop := by
+  rw [tendsto_atTop_atTop]
+  intro b
+  refine ⟨b, fun a hba ↦ ?_⟩
+  have : b = (b : EReal).toENNReal := by simp
+  rw [this]
+  exact EReal.toENNReal_le_toENNReal hba
 
 end EReal
 

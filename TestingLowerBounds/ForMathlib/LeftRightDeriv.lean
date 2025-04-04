@@ -372,11 +372,11 @@ lemma differentiableWithinAt_Ioi_of_mem_interior (hfc : ConvexOn ℝ s f) (hxs :
     DifferentiableWithinAt ℝ f (Ioi x) x :=
   (hfc.hasRightDerivAt_of_mem_interior hxs).differentiableWithinAt
 
-lemma hadDerivWithinAt_rightDeriv_of_mem_interior (hfc : ConvexOn ℝ s f) (hxs : x ∈ interior s) :
+lemma hasDerivWithinAt_rightDeriv_of_mem_interior (hfc : ConvexOn ℝ s f) (hxs : x ∈ interior s) :
     HasDerivWithinAt f (rightDeriv f x) (Ioi x) x :=
   (hfc.differentiableWithinAt_Ioi_of_mem_interior hxs).hasDerivWithinAt
 
-lemma rightDeriv_eq_sInf_slope_of_mem_interior(hfc : ConvexOn ℝ s f) (hxs : x ∈ interior s) :
+lemma rightDeriv_eq_sInf_slope_of_mem_interior (hfc : ConvexOn ℝ s f) (hxs : x ∈ interior s) :
     rightDeriv f x = sInf (slope f x '' {y | y ∈ s ∧ x < y}) :=
   (hfc.hasRightDerivAt_of_mem_interior hxs).derivWithin (uniqueDiffWithinAt_Ioi x)
 
@@ -425,7 +425,7 @@ lemma differentiableWithinAt_Iio_of_mem_interior (hfc : ConvexOn ℝ s f) (hxs :
     DifferentiableWithinAt ℝ f (Iio x) x :=
   (hfc.hasLeftDerivAt_of_mem_interior hxs).differentiableWithinAt
 
-lemma hadDerivWithinAt_leftDeriv_of_mem_interior (hfc : ConvexOn ℝ s f) (hxs : x ∈ interior s) :
+lemma hasDerivWithinAt_leftDeriv_of_mem_interior (hfc : ConvexOn ℝ s f) (hxs : x ∈ interior s) :
     HasDerivWithinAt f (leftDeriv f x) (Iio x) x :=
   (hfc.differentiableWithinAt_Iio_of_mem_interior hxs).hasDerivWithinAt
 
@@ -459,6 +459,81 @@ lemma leftDeriv_le_rightDeriv_of_mem_interior (hfc : ConvexOn ℝ s f) (hxs : x 
     exact ⟨z, habs ⟨hxab.1.trans hxz, hzb⟩, hxz⟩
   rintro _ ⟨y, ⟨hys, hxy⟩, rfl⟩
   exact slope_mono hfc (interior_subset hxs) ⟨hzs, hzx.ne⟩ ⟨hys, hxy.ne'⟩ (hzx.trans hxy).le
+
+lemma rightDeriv_monotoneOn (hfc : ConvexOn ℝ s f) : MonotoneOn (rightDeriv f) (interior s) := by
+  intro x hxs y hys hxy
+  rcases eq_or_lt_of_le hxy with rfl | hxy; · rfl
+  rw [hfc.rightDeriv_eq_sInf_slope_of_mem_interior hxs,
+    hfc.rightDeriv_eq_sInf_slope_of_mem_interior hys]
+  refine csInf_le_of_le (b := slope f x y) (bddBelow_slope_Ioi_of_mem_interior hfc hxs)
+    ⟨y, by simp only [mem_setOf_eq, hxy, and_true]; exact interior_subset hys⟩
+    (le_csInf ?_ ?_)
+  · have hys' := hys
+    rw [mem_interior_iff_mem_nhds, mem_nhds_iff_exists_Ioo_subset] at hys'
+    obtain ⟨a, b, hxab, habs⟩ := hys'
+    rw [image_nonempty]
+    obtain ⟨z, hxz, hzb⟩ := exists_between hxab.2
+    exact ⟨z, habs ⟨hxab.1.trans hxz, hzb⟩, hxz⟩
+  · rintro _ ⟨z, ⟨hzs, hyz : y < z⟩, rfl⟩
+    rw [slope_comm]
+    exact slope_mono hfc (interior_subset hys) ⟨interior_subset hxs, hxy.ne⟩ ⟨hzs, hyz.ne'⟩
+      (hxy.trans hyz).le
+
+lemma leftDeriv_monotoneOn (hfc : ConvexOn ℝ s f) : MonotoneOn (leftDeriv f) (interior s) := by
+  intro x hxs y hys hxy
+  rcases eq_or_lt_of_le hxy with rfl | hxy; · rfl
+  rw [hfc.leftDeriv_eq_sSup_slope_of_mem_interior hxs,
+    hfc.leftDeriv_eq_sSup_slope_of_mem_interior hys]
+  refine le_csSup_of_le (b := slope f x y) (bddAbove_slope_Iio_of_mem_interior hfc hys)
+    ⟨x, by simp only [slope_comm, mem_setOf_eq, hxy, and_true]; exact interior_subset hxs⟩
+    (csSup_le ?_ ?_)
+  · have hxs' := hxs
+    rw [mem_interior_iff_mem_nhds, mem_nhds_iff_exists_Ioo_subset] at hxs'
+    obtain ⟨a, b, hxab, habs⟩ := hxs'
+    rw [image_nonempty]
+    obtain ⟨z, hxz, hzb⟩ := exists_between hxab.1
+    exact ⟨z, habs ⟨hxz, hzb.trans hxab.2⟩, hzb⟩
+  · rintro _ ⟨z, ⟨hzs, hyz : z < x⟩, rfl⟩
+    exact slope_mono hfc (interior_subset hxs) ⟨hzs, hyz.ne⟩ ⟨interior_subset hys, hxy.ne'⟩
+      (hyz.trans hxy).le
+
+lemma rightDeriv_right_continuous_of_mem_interior (hfc : ConvexOn ℝ s f)
+    {w : ℝ} (hw : w ∈ interior s) :
+    ContinuousWithinAt (rightDeriv f) (Ici w) w := by
+  simp_rw [← continuousWithinAt_Ioi_iff_Ici, ContinuousWithinAt]
+  change Tendsto (rightDeriv f) (nhdsWithin w (Ioi w)) (𝓝 (rightDeriv f w))
+  suffices Tendsto (rightDeriv f) (nhdsWithin w (Ioi w ∩ interior s)) (𝓝 (rightDeriv f w)) by
+    sorry
+  sorry
+  -- have h_lim := MonotoneOn.tendsto_nhdsWithin_Ioi (hfc.rightDeriv_mono.monotoneOn (Ioi w))
+  --   (Monotone.map_bddBelow hfc.rightDeriv_mono bddBelow_Ioi)
+  -- set l := sInf (rightDeriv f '' Ioi w)
+  -- convert h_lim
+  -- apply le_antisymm
+  -- · exact ge_of_tendsto h_lim <| eventually_nhdsWithin_of_forall
+  --     fun y (hy : w < y) ↦ hfc.rightDeriv_mono hy.le
+  -- · rw [hfc.rightDeriv_eq_sInf_slope]
+  --   refine le_csInf nonempty_of_nonempty_subtype ?_ --is there any way to avoid the rintro here? if I just use fun inside the refine it does not work, it seems that the rfl inside the pattern is not supported by the refine tactic
+  --   rintro _ ⟨y, (wy : w < y), rfl⟩
+  --   have slope_lim : Tendsto (slope f y) (𝓝[>] w) (𝓝 (slope f y w)) := by
+  --     have hf_cont : ContinuousWithinAt f (Ioi w) w := -- I would like to replace this with a lemma that derives the continuity from the convexity, it seems that this result is still not in mathlib, see https://leanprover.zulipchat.com/#narrow/stream/116395-maths/topic/Continuity.20.20of.20convex.20functions, they are in the process of proving it in the LeanCamCombi project
+  --       DifferentiableWithinAt.continuousWithinAt (hfc.differentiableWithinAt_Ioi w)
+  --     exact ((continuousWithinAt_id.sub continuousWithinAt_const).inv₀ (sub_ne_zero.2 wy.ne)).smul
+  --       (hf_cont.sub continuousWithinAt_const) |>.tendsto
+  --   rw [slope_comm] at slope_lim
+  --   refine le_of_tendsto_of_tendsto h_lim slope_lim ?_
+  --   rw [← nhdsWithin_Ioo_eq_nhdsWithin_Ioi wy]
+  --   refine eventually_nhdsWithin_of_forall fun z hz ↦ ?_
+  --   rw [slope_comm, hfc.rightDeriv_eq_sInf_slope]
+  --   exact csInf_le (bddBelow_slope_Ioi hfc z) ⟨y, hz.2, rfl⟩
+
+lemma leftDeriv_left_continuous_of_mem_interior (hfc : ConvexOn ℝ univ f)
+    {w : ℝ} (hw : w ∈ interior s) :
+    ContinuousWithinAt (leftDeriv f) (Iic w) w := by
+  sorry
+  -- have h_map : MapsTo Neg.neg (Iic w) (Ici (-w)) := fun _ (h : _ ≤ w) ↦ (neg_le_neg_iff.mpr h)
+  -- rw [leftDeriv_eq_rightDeriv]
+  -- exact (hfc.comp_neg.rightDeriv_right_continuous _).comp continuousWithinAt_neg h_map |>.neg
 
 end GeneralSet
 
