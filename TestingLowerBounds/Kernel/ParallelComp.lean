@@ -20,19 +20,11 @@ variable {α β γ δ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace
 
 section ParallelComp
 
-instance (κ : Kernel α β) [IsFiniteKernel κ] (η : Kernel γ δ) [IsFiniteKernel η] :
-    IsFiniteKernel (κ ∥ₖ η) := by
-  rw [parallelComp]; infer_instance
-
-instance (κ : Kernel α β) [IsMarkovKernel κ] (η : Kernel γ δ) [IsMarkovKernel η] :
-    IsMarkovKernel (κ ∥ₖ η) := by
-  rw [parallelComp]; infer_instance
-
 lemma prod_eq_parallelComp_comp_copy (κ : Kernel α β) [IsSFiniteKernel κ]
     (η : Kernel α γ) [IsSFiniteKernel η] :
     κ ×ₖ η = (κ ∥ₖ η) ∘ₖ (copy α) := by
   ext a s hs
-  simp_rw [prod_apply, comp_apply, copy_apply, Measure.bind_apply hs (Kernel.measurable _)]
+  simp_rw [prod_apply, comp_apply, copy_apply, Measure.bind_apply hs (aemeasurable _)]
   rw [lintegral_dirac']
   swap; · exact Kernel.measurable_coe _ hs
   rw [parallelComp_apply]
@@ -47,11 +39,12 @@ lemma measurable_Kernel_prod_mk_left'' {κ : Kernel α β}
   have h2 (p : α × γ) : κ p.1
       = (κ ∘ₖ (deterministic (fun (p : α × γ) ↦ p.1) measurable_fst (mα := inferInstance))) p := by
     ext s hs
-    rw [comp_apply, deterministic_apply, Measure.bind_apply hs κ.measurable,
+    rw [comp_apply, deterministic_apply, Measure.bind_apply hs (aemeasurable _),
       lintegral_dirac' _ (κ.measurable_coe hs)]
   simp_rw [Function.uncurry_def, h1, h2]
-  exact Kernel.measurable_kernel_prod_mk_left <| (MeasurableEquiv.measurableSet_preimage _).mpr
-    (MeasurableSet.univ.prod ht)
+  refine measurable_kernel_prodMk_left ?_
+  refine (MeasurableEquiv.measurableSet_preimage _).mpr ?_
+  exact MeasurableSet.univ.prod ht
 
 end ParallelComp
 

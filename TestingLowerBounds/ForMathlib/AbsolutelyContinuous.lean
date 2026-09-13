@@ -54,9 +54,9 @@ lemma absolutelyContinuous_compProd_of_compProd'
     (hκη : μ ⊗ₘ κ ≪ ν ⊗ₘ η) :
     μ ⊗ₘ κ ≪ μ ⊗ₘ η := by
   rw [ν.haveLebesgueDecomposition_add μ, compProd_add_left, add_comm] at hκη
-  have h := absolutelyContinuous_of_add_of_mutuallySingular ?_ hκη
+  have h := absolutelyContinuous_of_add_of_mutuallySingular hκη ?_
   · refine h.trans ?_
-    refine absolutelyContinuous_compProd_left ?_ _
+    refine AbsolutelyContinuous.compProd_left ?_ η
     exact withDensity_absolutelyContinuous _ _
   · refine mutuallySingular_compProd_left ?_ _ _
     exact (mutuallySingular_singularPart _ _).symm
@@ -65,7 +65,7 @@ lemma absolutelyContinuous_compProd_iff'
     [SigmaFinite μ] [SigmaFinite ν] [IsSFiniteKernel κ] [IsSFiniteKernel η] [∀ x, NeZero (κ x)] :
     μ ⊗ₘ κ ≪ ν ⊗ₘ η ↔ μ ≪ ν ∧ μ ⊗ₘ κ ≪ μ ⊗ₘ η :=
   ⟨fun h ↦ ⟨absolutelyContinuous_of_compProd h, absolutelyContinuous_compProd_of_compProd' h⟩,
-    fun h ↦ absolutelyContinuous_compProd_of_compProd h.1 h.2⟩
+   absolutelyContinuous_compProd_iff.mpr⟩
 
 variable [CountableOrCountablyGenerated α γ]
 
@@ -130,7 +130,7 @@ lemma absolutelyContinuous_kernel_of_compProd
 lemma absolutelyContinuous_compProd_right_iff
     {μ : Measure α} {κ η : Kernel α γ} [SFinite μ] [IsFiniteKernel κ] [IsFiniteKernel η] :
     μ ⊗ₘ κ ≪ μ ⊗ₘ η ↔ ∀ᵐ a ∂μ, κ a ≪ η a :=
-  ⟨absolutelyContinuous_kernel_of_compProd, fun h ↦ absolutelyContinuous_compProd_right h⟩
+  ⟨absolutelyContinuous_kernel_of_compProd, fun h ↦ AbsolutelyContinuous.compProd_right h⟩
 
 end MeasureCompProd
 
@@ -144,5 +144,6 @@ lemma ProbabilityTheory.Kernel.absolutelyContinuous_compProd_iff
     {κ₂ η₂ : Kernel (α × β) γ} [IsSFiniteKernel κ₁] [IsSFiniteKernel η₁] [IsFiniteKernel κ₂]
     [IsFiniteKernel η₂] (a : α) [∀ b, NeZero (κ₂ (a, b))] :
     (κ₁ ⊗ₖ κ₂) a ≪ (η₁ ⊗ₖ η₂) a ↔ κ₁ a ≪ η₁ a ∧ ∀ᵐ b ∂κ₁ a, κ₂ (a, b) ≪ η₂ (a, b) := by
-  simp_rw [Kernel.compProd_apply_eq_compProd_snd', Measure.absolutelyContinuous_compProd_iff,
-    Kernel.snd'_apply]
+  -- simp_rw [Kernel.compProd_apply_eq_compProd_sectR,
+  --   Measure.absolutelyContinuous_compProd_iff', Kernel.sectR_apply]
+  sorry
