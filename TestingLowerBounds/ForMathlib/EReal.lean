@@ -9,63 +9,39 @@ lemma frontier_singleton {X : Type*} [TopologicalSpace X] [T1Space X] (x : X) [(
 
 namespace EReal
 
+-- TODO: Deprecate this file
+
 instance : CharZero EReal := inferInstanceAs (CharZero (WithBot (WithTop ℝ)))
 
 instance : NoZeroDivisors EReal where
   eq_zero_or_eq_zero_of_mul_eq_zero := by
     intro a b h
-    contrapose! h
-    induction a <;> induction b <;> try {· simp_all [← EReal.coe_mul]}
-    · rcases lt_or_gt_of_ne h.2 with (h | h)
-        <;> simp [EReal.bot_mul_of_neg, EReal.bot_mul_of_pos, h]
-    · rcases lt_or_gt_of_ne h.1 with (h | h)
-        <;> simp [EReal.mul_bot_of_pos, EReal.mul_bot_of_neg, h]
-    · rcases lt_or_gt_of_ne h.1 with (h | h)
-        <;> simp [EReal.mul_top_of_neg, EReal.mul_top_of_pos, h]
-    · rcases lt_or_gt_of_ne h.2 with (h | h)
-        <;> simp [EReal.top_mul_of_pos, EReal.top_mul_of_neg, h]
+    exact mul_eq_zero.mp h
 
-lemma lt_neg_iff_lt_neg {x y : EReal} : x < -y ↔ y < -x := by
-  nth_rw 1 [← neg_neg x, neg_lt_neg_iff]
+lemma lt_neg_iff_lt_neg {x y : EReal} : x < -y ↔ y < -x := lt_neg_comm
 
-lemma le_neg_iff_le_neg {x y : EReal} : x ≤ -y ↔ y ≤ -x := by
-  nth_rw 1 [← neg_neg x, neg_le_neg_iff]
+lemma le_neg_iff_le_neg {x y : EReal} : x ≤ -y ↔ y ≤ -x := EReal.le_neg
 
-lemma neg_le_iff_neg_le {x y : EReal} : -x ≤ y ↔ -y ≤ x := by
-  nth_rw 1 [← neg_neg y, neg_le_neg_iff]
+lemma neg_le_iff_neg_le {x y : EReal} : -x ≤ y ↔ -y ≤ x := EReal.neg_le
 
-lemma top_mul_ennreal_coe {x : ℝ≥0∞} (hx : x ≠ 0) : ⊤ * (x : EReal) = ⊤ := by
-  by_cases hx_top : x = ∞
-  · simp [hx_top]
-  · rw [← coe_ennreal_toReal hx_top, top_mul_coe_of_pos]
-    exact ENNReal.toReal_pos hx hx_top
+lemma top_mul_ennreal_coe {x : ℝ≥0∞} (hx : x ≠ 0) : ⊤ * (x : EReal) = ⊤ :=
+  top_mul_coe_ennreal hx
 
-lemma ennreal_coe_mul_top {x : ℝ≥0∞} (hx : x ≠ 0) : (x : EReal) * ⊤ = ⊤ := by
-  rw [mul_comm, top_mul_ennreal_coe hx]
+lemma ennreal_coe_mul_top {x : ℝ≥0∞} (hx : x ≠ 0) : (x : EReal) * ⊤ = ⊤ :=
+  coe_ennreal_mul_top hx
 
 lemma add_ne_top_iff_of_ne_bot {x y : EReal} (hx : x ≠ ⊥) (hy : y ≠ ⊥) :
-    x + y ≠ ⊤ ↔ x ≠ ⊤ ∧ y ≠ ⊤ := by
-  refine ⟨?_, fun h ↦ add_ne_top h.1 h.2⟩
-  induction x <;> simp_all
-  induction y <;> simp_all
+    x + y ≠ ⊤ ↔ x ≠ ⊤ ∧ y ≠ ⊤ := add_ne_top_iff_ne_top₂ hx hy
 
 lemma add_ne_bot {x y : EReal} (hx : x ≠ ⊥) (hy : y ≠ ⊥) : x + y ≠ ⊥ :=
   add_ne_bot_iff.mpr ⟨hx, hy⟩
 
 lemma add_eq_top_iff {x y : EReal} : x + y = ⊤ ↔ x = ⊤ ∧ y ≠ ⊥ ∨ x ≠ ⊥ ∧ y = ⊤ := by
-  induction x <;> induction y
-  · simp
-  · simp
-  · simp
-  · simp
-  · simp only [coe_ne_top, ne_eq, coe_ne_bot, not_false_eq_true, and_true, and_false,
-      or_self, iff_false]
-    norm_cast
-    exact coe_ne_top _
-  · simp
-  · simp
-  · simp
-  · simp
+  induction x <;> induction y <;> try · simp
+  simp only [coe_ne_top, ne_eq, coe_ne_bot, not_false_eq_true, and_true, and_false,
+    or_self, iff_false]
+  norm_cast
+  exact coe_ne_top _
 
 lemma coe_mul_add_of_nonneg {x : ℝ} (hx_nonneg : 0 ≤ x) (y z : EReal) :
     x * (y + z) = x * y + x * z := by
@@ -92,52 +68,14 @@ lemma add_mul_coe_of_nonneg {x : ℝ} (hx_nonneg : 0 ≤ x) (y z : EReal) :
   simp_rw [mul_comm _ (x : EReal)]
   exact EReal.coe_mul_add_of_nonneg hx_nonneg y z
 
-lemma add_sub_cancel (x : EReal) (y : ℝ) : x + y - y = x := by
-  induction x
-  · simp
-  · norm_cast
-    ring
-  · simp
+lemma add_sub_cancel (x : EReal) (y : ℝ) : x + y - y = x := add_sub_cancel_right
 
-lemma add_sub_cancel' (x : EReal) (y : ℝ) : y + x - y = x := by
-  rw [add_comm, EReal.add_sub_cancel]
+lemma add_sub_cancel' (x : EReal) (y : ℝ) : y + x - y = x := add_sub_cancel_left
 
-lemma top_sub_of_ne_top {x : EReal} (hx : x ≠ ⊤) : ⊤ - x = ⊤ := by
-  induction x <;> tauto
+lemma top_sub_of_ne_top {x : EReal} (hx : x ≠ ⊤) : ⊤ - x = ⊤ := top_sub hx
 
 lemma top_mul_add_of_nonneg {x y : EReal} (hx : 0 ≤ x) (hy : 0 ≤ y) :
-    ⊤ * (x + y) = ⊤ * x + ⊤ * y := by
-  induction x, y using EReal.induction₂_symm with
-  | symm h =>
-    rw [add_comm, add_comm (⊤ * _)]
-    exact h hy hx
-  | top_top => simp
-  | top_pos _ h =>
-    rw [top_add_coe, top_mul_top, top_mul_of_pos, top_add_top]
-    exact mod_cast h
-  | top_zero => simp
-  | top_neg _ h =>
-    refine absurd hy ?_
-    exact mod_cast h.not_le
-  | top_bot => simp
-  | pos_bot => simp
-  | coe_coe x y =>
-    by_cases hx0 : x = 0
-    · simp [hx0]
-    by_cases hy0 : y = 0
-    · simp [hy0]
-    have hx_pos : 0 < (x : EReal) := by
-      refine hx.lt_of_ne' ?_
-      exact mod_cast hx0
-    have hy_pos : 0 < (y : EReal) := by
-      refine hy.lt_of_ne' ?_
-      exact mod_cast hy0
-    rw [top_mul_of_pos hx_pos, top_mul_of_pos hy_pos, top_mul_of_pos]
-    · simp
-    · exact add_pos hx_pos hy_pos
-  | zero_bot => simp
-  | neg_bot => simp
-  | bot_bot => simp
+    ⊤ * (x + y) = ⊤ * x + ⊤ * y := left_distrib_of_nonneg hx hy
 
 lemma mul_add_coe_of_nonneg (x : EReal) {y z : ℝ} (hy : 0 ≤ y) (hz : 0 ≤ z) :
     x * (y + z) = x * y + x * z := by
@@ -154,7 +92,7 @@ lemma mul_add_coe_of_nonneg (x : EReal) {y z : ℝ} (hy : 0 ≤ y) (hz : 0 ≤ z
     have hz_pos : 0 < (z : EReal) := lt_of_le_of_ne' (mod_cast hz) (mod_cast hz0)
     rw [bot_mul_of_pos hy_pos, bot_mul_of_pos hz_pos, bot_mul_of_pos]
     · simp
-    · exact add_pos hy_pos hz_pos
+    · exact EReal.add_pos hy_pos hz_pos
   lift x to ℝ using ⟨hx_top, hx_bot⟩
   norm_cast
   rw [mul_add]
@@ -166,16 +104,10 @@ lemma coe_add_mul_of_nonneg (x : EReal) {y z : ℝ} (hy : 0 ≤ y) (hz : 0 ≤ z
 
 lemma sub_nonneg' {x y : EReal} (h : x ≠ ⊤ ∨ y ≠ ⊤) (h' : x ≠ ⊥ ∨ y ≠ ⊥) :
     0 ≤ x - y ↔ y ≤ x := by
-  induction x <;> induction y
+  induction x <;> induction y <;> try · simp
   · simp at h'
-  · simp
-  · simp
-  · simp
   · norm_cast
     simp
-  · simp
-  · simp
-  · simp
   · simp at h
 
 instance : MeasurableAdd₂ EReal := ⟨EReal.lowerSemicontinuous_add.measurable⟩
@@ -188,7 +120,7 @@ theorem measurable_from_prod_countable'' [Countable β] [MeasurableSingletonClas
     {f : β × α → γ} (hf : ∀ y, Measurable fun x => f (y, x)) :
     Measurable f := by
   change Measurable ((fun (p : α × β) ↦ f (p.2, p.1)) ∘ Prod.swap)
-  exact (measurable_from_prod_countable hf).comp measurable_swap
+  exact measurable_from_prod_countable_right hf
 
 theorem measurable_of_measurable_real_prod {f : EReal × β → γ}
     (h_real : Measurable fun p : ℝ × β ↦ f (p.1, p.2))
@@ -242,7 +174,7 @@ theorem measurable_of_measurable_real_real {f : EReal × EReal → β}
 private lemma measurable_const_mul (c : EReal) : Measurable fun (x : EReal) ↦ c * x := by
   refine measurable_of_measurable_real ?_
   induction c with
-  | h_bot =>
+  | bot =>
     have : (fun (p : ℝ) ↦ (⊥ : EReal) * p)
         = fun p ↦ if p = 0 then (0 : EReal) else (if p < 0 then ⊤ else ⊥) := by
       ext p
@@ -254,8 +186,8 @@ private lemma measurable_const_mul (c : EReal) : Measurable fun (x : EReal) ↦ 
     rw [this]
     refine Measurable.piecewise (measurableSet_singleton _) measurable_const ?_
     exact Measurable.piecewise measurableSet_Iio measurable_const measurable_const
-  | h_real c => exact (measurable_id.const_mul _).coe_real_ereal
-  | h_top =>
+  | coe c => exact (measurable_id.const_mul _).coe_real_ereal
+  | top =>
     have : (fun (p : ℝ) ↦ (⊤ : EReal) * p)
         = fun p ↦ if p = 0 then (0 : EReal) else (if p < 0 then ⊥ else ⊤) := by
       ext p
@@ -324,11 +256,11 @@ lemma toENNReal_sub_add_cancel {b a c : EReal} (hac : a ≤ c) (hcb : c ≤ b) :
   · have ha : a = ⊥ := eq_bot_iff.mpr hac
     simp [ha]
   · rw [← toENNReal_add, sub_add_sub_cancel]
-    · rwa [sub_nonneg (coe_ne_top _) (coe_ne_bot _)]
+    · rwa [sub_nonneg (.inr <| coe_ne_top _) (.inr <| coe_ne_bot _)]
     · by_cases ha : a = ⊥
       · simp [ha]
-      rwa [sub_nonneg _ ha]
-      exact (hac.trans_lt (coe_lt_top _)).ne
+      rwa [sub_nonneg _ (.inr ha)]
+      exact .inr (hac.trans_lt (coe_lt_top _)).ne
   · have hb : b = ⊤ := eq_top_iff.mpr hcb
     simp [hb]
 
@@ -385,9 +317,9 @@ variable {a b c x y : ℝ≥0∞}
 
 --PR these 2 lemmas to mathlib, just after ENNReal.mul_max
 -- #check ENNReal.mul_max
-theorem min_mul : min a b * c = min (a * c) (b * c) := mul_right_mono.map_min
+theorem min_mul : min a b * c = min (a * c) (b * c) := (min_mul_mul_right ..).symm
 
-theorem mul_min : a * min b c = min (a * b) (a * c) := mul_left_mono.map_min
+theorem mul_min : a * min b c = min (a * b) (a * c) := (min_mul_mul_left ..).symm
 
 @[simp]
 lemma toReal_toEReal_of_ne_top (hx : x ≠ ⊤) : x.toReal.toEReal = x.toEReal := by
