@@ -46,14 +46,14 @@ lemma ae_eq_compProd_of_forall_ae_eq {β : Type*} {_ : MeasurableSpace β} [AddG
 lemma ENNReal.ae_eq_compProd_of_ae_eq_fst (μ : Measure α) (κ : Kernel α γ) {f g : α → ℝ≥0∞}
     (hf : Measurable f) (hg : Measurable g) (h : f =ᵐ[μ] g) :
     (fun p ↦ f p.1) =ᵐ[μ ⊗ₘ κ] (fun p ↦ g p.1) :=
-  ae_compProd_of_ae_fst κ (measurableSet_eq_fun' hf hg) h
+  ae_compProd_of_ae_fst κ (measurableSet_eq_fun hf hg) h
 
 lemma ENNReal.ae_eq_compProd_of_forall_ae_eq
     (μ : Measure α) (κ : Kernel α γ) {f g : α → γ → ℝ≥0∞}
     (hf : Measurable (Function.uncurry f)) (hg : Measurable (Function.uncurry g))
     (h : ∀ a, f a =ᵐ[κ a] g a) :
     (fun p ↦ f p.1 p.2) =ᵐ[μ ⊗ₘ κ] (fun p ↦ g p.1 p.2) :=
-  ae_compProd_of_ae_ae (measurableSet_eq_fun' hf hg)
+  ae_compProd_of_ae_ae (measurableSet_eq_fun hf hg)
     (ae_of_all _ (fun a ↦ measure_mono_null (fun x ↦ by simp) (h a)))
 
 lemma rnDeriv_measure_compProd_left_of_ac {μ ν : Measure α} (hμν : μ ≪ ν) (κ : Kernel α γ)
@@ -65,7 +65,7 @@ lemma rnDeriv_measure_compProd_left_of_ac {μ ν : Measure α} (hμν : μ ≪ �
   have h_key t₁ t₂ : MeasurableSet t₁ → MeasurableSet t₂ →
       ∫⁻ x in t₁ ×ˢ t₂, (∂μ ⊗ₘ κ/∂ν ⊗ₘ κ) x ∂ν ⊗ₘ κ = ∫⁻ x in t₁ ×ˢ t₂, (∂μ/∂ν) x.1 ∂ν ⊗ₘ κ := by
     intro ht₁ ht₂
-    rw [Measure.setLIntegral_rnDeriv (Measure.absolutelyContinuous_compProd_left hμν _)]
+    rw [Measure.setLIntegral_rnDeriv (Measure.AbsolutelyContinuous.compProd_left hμν _)]
     rw [Measure.setLIntegral_compProd _ ht₁ ht₂]
     swap; · exact (Measure.measurable_rnDeriv _ _).comp measurable_fst
     simp only [MeasureTheory.lintegral_const, MeasurableSet.univ, Measure.restrict_apply,
@@ -155,6 +155,7 @@ lemma todo' (μ ν : Measure α) (κ η : Kernel α γ)
   filter_upwards [h_add, h02] with a h_add h02
   rw [h_add, Pi.add_apply, h02]
   simp
+  rfl
 
 lemma todo1 (μ ν : Measure α) (κ η : Kernel α γ)
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] [IsFiniteKernel κ] [IsFiniteKernel η] :
@@ -206,7 +207,7 @@ lemma rnDeriv_measure_compProd_right_of_ac (μ : Measure α) {κ η : Kernel α 
       ∫⁻ p in t₁ ×ˢ t₂, (∂μ ⊗ₘ κ/∂μ ⊗ₘ η) p ∂μ ⊗ₘ η
         = ∫⁻ p in t₁ ×ˢ t₂, κ.rnDeriv η p.1 p.2 ∂μ ⊗ₘ η := by
     rw [Measure.setLIntegral_rnDeriv, setLIntegral_rnDeriv_compProd h_ac ht₁ ht₂]
-    exact Measure.absolutelyContinuous_compProd_right h_ac
+    exact Measure.AbsolutelyContinuous.compProd_right h_ac
   apply induction_on_inter generateFrom_prod.symm isPiSystem_prod _ _ _ _ hs
   · simp
   · rintro _ ⟨t₁, ht₁, t₂, ht₂, rfl⟩
@@ -258,15 +259,15 @@ lemma rnDeriv_measure_compProd (μ ν : Measure α) (κ η : Kernel α γ)
       (measurable_rnDeriv _ _) fun a ↦ ?_
     exact rnDeriv_withDensity (measurable_rnDeriv _ _) _
   have hκη : ∀ᵐ a ∂μ, κ' a ≪ η a := ae_of_all _ (fun _ ↦ withDensity_absolutelyContinuous _ _)
-  refine (rnDeriv_compProd (Measure.absolutelyContinuous_compProd_right hκη) ν).symm.trans ?_
+  refine (rnDeriv_compProd (Measure.AbsolutelyContinuous.compProd_right hκη) ν).symm.trans ?_
   have h_eq := rnDeriv_measure_compProd_right μ κ' η
   rw [Filter.EventuallyEq, Measure.ae_compProd_iff] at h_eq ⊢
   refine Measure.ae_eq_mul_rnDeriv_of_ae_eq h_eq
-  · refine measurableSet_eq_fun' ?_ ?_
+  · refine measurableSet_eq_fun ?_ ?_
     · exact ((Measure.measurable_rnDeriv _ _).comp measurable_fst).mul
         (Measure.measurable_rnDeriv _ _)
     · exact ((Measure.measurable_rnDeriv _ _).comp measurable_fst).mul (measurable_rnDeriv _ _)
-  · exact measurableSet_eq_fun' (Measure.measurable_rnDeriv _ _) (measurable_rnDeriv _ _)
+  · exact measurableSet_eq_fun (Measure.measurable_rnDeriv _ _) (measurable_rnDeriv _ _)
 
 lemma rnDeriv_measure_compProd' (μ ν : Measure α) (κ η : Kernel α γ)
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] [IsFiniteKernel κ] [IsFiniteKernel η] :

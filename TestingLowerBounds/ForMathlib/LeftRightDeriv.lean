@@ -16,7 +16,8 @@ variable {f : ℝ → ℝ} {x : ℝ}
 namespace ConvexOn
 
 lemma comp_neg {𝕜 F β : Type*} [Field 𝕜] [LinearOrder 𝕜] [AddCommGroup F]
-    [OrderedAddCommMonoid β] [Module 𝕜 F] [SMul 𝕜 β] {f : F → β} {s : Set F}
+    [AddCommMonoid β] [PartialOrder β] [IsOrderedAddMonoid β]
+    [Module 𝕜 F] [SMul 𝕜 β] {f : F → β} {s : Set F}
     (hf : ConvexOn 𝕜 s f) :
     ConvexOn 𝕜 (-s) (fun x ↦ f (-x)) := by
   refine ⟨hf.1.neg, fun x hx y hy a b ha hb hab ↦ ?_⟩
@@ -24,7 +25,8 @@ lemma comp_neg {𝕜 F β : Type*} [Field 𝕜] [LinearOrder 𝕜] [AddCommGroup
   exact hf.2 hx hy ha hb hab
 
 lemma comp_neg_iff {𝕜 F β : Type*} [Field 𝕜] [LinearOrder 𝕜] [AddCommGroup F]
-    [OrderedAddCommMonoid β] [Module 𝕜 F] [SMul 𝕜 β] {f : F → β} {s : Set F}  :
+    [AddCommMonoid β] [PartialOrder β] [IsOrderedAddMonoid β]
+    [Module 𝕜 F] [SMul 𝕜 β] {f : F → β} {s : Set F}  :
     ConvexOn 𝕜 (-s) (fun x ↦ f (-x)) ↔ ConvexOn 𝕜 s f := by
   refine ⟨fun h ↦ ?_, fun h ↦ ConvexOn.comp_neg h⟩
   rw [← neg_neg s, ← Function.comp_id f, ← neg_comp_neg, ← Function.comp_assoc]
@@ -87,7 +89,7 @@ lemma rightDeriv_eq_leftDeriv (f : ℝ → ℝ) :
 
 lemma leftDeriv_eq_rightDeriv_apply (f : ℝ → ℝ) (x : ℝ) :
     leftDeriv f x = - rightDeriv (fun y ↦ f (-y)) (-x) := by
-  simp [rightDeriv_eq_leftDeriv_apply, Function.comp_assoc]
+  simp [rightDeriv_eq_leftDeriv_apply]
 
 lemma leftDeriv_eq_rightDeriv (f : ℝ → ℝ) :
     leftDeriv f = fun x ↦ - rightDeriv (fun y ↦ f (-y)) (-x) := by
@@ -99,7 +101,7 @@ lemma Filter.EventuallyEq.derivWithin_eq_nhds {𝕜 F : Type*} [NontriviallyNorm
     (h : f₁ =ᶠ[𝓝 x] f) :
     derivWithin f₁ s x = derivWithin f s x := by
   simp_rw [derivWithin]
-  rw [Filter.EventuallyEq.fderivWithin_eq h]
+  rw [fderivWithin_eq_of_nhds h]
 
 lemma Filter.EventuallyEq.rightDeriv_eq_nhds {x : ℝ} {g : ℝ → ℝ} (h : f =ᶠ[𝓝 x] g) :
     rightDeriv f x = rightDeriv g x := h.derivWithin_eq_nhds
@@ -330,10 +332,11 @@ lemma hasRightDerivAt_of_mem_interior (hfc : ConvexOn ℝ s f) (hxs : x ∈ inte
   obtain ⟨a, b, hxab, habs⟩ := hxs'
   simp_rw [hasDerivWithinAt_iff_tendsto_slope]
   simp only [mem_Ioi, lt_self_iff_false, not_false_eq_true, diff_singleton_eq_self]
-  have h_mono : MonotoneOn (slope f x) {y ∈ s | x < y} := monotoneOn_slope_gt hfc hxs
+  have h_mono : MonotoneOn (slope f x) {y ∈ s | x < y} := monotoneOn_slope_gt hfc (habs hxab)
   have h_bddBelow : BddBelow (slope f x '' Ioo x b) := by
     refine (bddBelow_slope_Ioi_of_mem_interior hfc hxs).mono ?_
-    exact image_subset _ fun z hz ↦ ⟨habs ⟨hxab.1.trans hz.1, hz.2⟩, hz.1⟩
+    refine image_subset_iff.mpr ?_
+    grind
   have h_Ioo : Tendsto (slope f x) (𝓝[>] x) (𝓝 (sInf (slope f x '' Ioo x b))) := by
     refine MonotoneOn.tendsto_nhdsWithin_Ioo_right ?_ ?_ h_bddBelow
     · simpa using hxab.2
@@ -353,8 +356,8 @@ lemma hasRightDerivAt_of_mem_interior (hfc : ConvexOn ℝ s f) (hxs : x ∈ inte
         exact ⟨habs ⟨hxab.1.trans hxz, hzy.trans_le (min_le_left _ _)⟩, hxz⟩
   · refine csInf_le_csInf (bddBelow_slope_Ioi_of_mem_interior hfc hxs) ?_ ?_
     · simpa using hxab.2
-    · refine image_subset _ fun z hz ↦ ?_
-      exact ⟨habs ⟨hxab.1.trans hz.1, hz.2⟩, hz.1⟩
+    · refine image_subset_iff.mpr ?_
+      grind
 
 lemma hasLeftDerivAt_of_mem_interior (hfc : ConvexOn ℝ s f) (hxs : x ∈ interior s) :
     HasDerivWithinAt f (sSup (slope f x '' {y ∈ s | y < x})) (Iio x) x := by
