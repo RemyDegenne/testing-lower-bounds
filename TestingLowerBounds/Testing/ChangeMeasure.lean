@@ -40,14 +40,14 @@ lemma setLIntegral_nnnorm_exp_neg_llr_le [SigmaFinite ν] [SigmaFinite μ]
   calc ∫⁻ a in s, ‖rexp (-llr μ ν a)‖₊ ∂μ
       ≤ ∫⁻ a in t, ‖rexp (-llr μ ν a)‖₊ ∂μ := lintegral_mono_set (subset_toMeasurable ν s)
     _ = ∫⁻ a in t, ‖(ν.rnDeriv μ a).toReal‖₊ ∂μ := by
-        refine setLIntegral_congr_fun ht ?_
+        refine setLIntegral_congr_fun_ae ht ?_
         filter_upwards [exp_neg_llr hμν] with x hx _
         rw [hx]
     _ = ∫⁻ a in t, ν.rnDeriv μ a ∂μ := by
-        refine setLIntegral_congr_fun ht ?_
+        refine setLIntegral_congr_fun_ae ht ?_
         filter_upwards [ν.rnDeriv_ne_top μ] with x hx _
-        rw [← ofReal_norm_eq_coe_nnnorm]
-        simp [hx]
+        rw [← Real.toNNReal_eq_nnnorm_of_nonneg ENNReal.toReal_nonneg]
+        exact ENNReal.ofReal_toReal hx
     _ ≤ ν t := Measure.setLIntegral_rnDeriv_le t
     _ = ν s := measure_toMeasurable s
 
@@ -87,7 +87,7 @@ lemma measure_sub_le_measure_mul_exp [SigmaFinite μ] [IsFiniteMeasure ν] (hμ�
     (s : Set α) (c : ℝ) (hμc : μ {x | c < llr μ ν x} ≠ ∞) :
     (μ s).toReal - (μ {x | c < llr μ ν x}).toReal ≤ (ν s).toReal * exp c := by
   by_cases hμs : μ s = ∞
-  · simp only [hμs, ENNReal.toReal_top, gt_iff_lt, zero_sub]
+  · simp only [hμs, ENNReal.toReal_top, zero_sub]
     calc - (μ {x | c < llr μ ν x}).toReal
       ≤ 0 := by simp
     _ ≤ (ν s).toReal * exp c := by positivity
@@ -101,10 +101,12 @@ lemma measure_sub_le_measure_mul_exp [SigmaFinite μ] [IsFiniteMeasure ν] (hμ�
         · exact (tsub_le_self.trans_lt (Ne.lt_top hμs)).ne
         · exact ((measure_mono Set.inter_subset_left).trans_lt (Ne.lt_top hμs)).ne
   _ = (μ (s ∩ {x | llr μ ν x ≤ c})).toReal * rexp (-c) := by congr with x; simp
-  _ = ∫ _ in s ∩ {x | llr μ ν x ≤ c}, exp (- c) ∂μ := by rw [setIntegral_const _, smul_eq_mul]
+  _ = ∫ _ in s ∩ {x | llr μ ν x ≤ c}, exp (- c) ∂μ := by
+        rw [setIntegral_const _, smul_eq_mul]
+        exact ext_cauchy rfl
   _ ≤ ∫ x in s ∩ {x | llr μ ν x ≤ c}, exp (- llr μ ν x) ∂μ := by
         refine setIntegral_mono_ae_restrict ?_ ?_ ?_
-        · simp only [integrableOn_const]
+        · simp only [ne_eq, enorm_ne_top, not_false_eq_true, integrableOn_const_iff]
           exact Or.inr ((measure_mono Set.inter_subset_left).trans_lt (Ne.lt_top hμs))
         · refine Integrable.integrableOn ?_
           refine (integrable_congr (exp_neg_llr hμν)).mpr ?_

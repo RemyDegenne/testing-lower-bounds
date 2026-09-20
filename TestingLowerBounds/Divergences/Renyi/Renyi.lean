@@ -123,7 +123,7 @@ lemma avgMass_add_mul_hellingerDiv_nonneg (ha_pos : 0 < a) [IsFiniteMeasure μ] 
     · rw [mul_hellingerDiv_add_meas_eq_integral_of_lt_one ha_pos ha]
       exact integral_rpow_rnDeriv_nonneg
     · rw [hellingerDiv_eq_top_iff_of_one_lt ha] at h_top
-      push_neg at h_top
+      push Not at h_top
       rw [mul_hellingerDiv_add_meas_eq_integral_of_integrable_of_ac ha_pos ha_one h_top.1 h_top.2]
       exact integral_rpow_rnDeriv_nonneg
 
@@ -138,7 +138,7 @@ lemma avgMass_add_mul_hellingerDiv_nonneg'_of_lt_one (ha_pos : 0 < a) (ha_lt : a
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     0 ≤ avgMass a μ ν + (a - 1) * (hellingerDiv a μ ν).toReal := by
   by_cases h_top : hellingerDiv a μ ν = ∞
-  · simp only [h_top, ENNReal.toReal_top, mul_zero, add_zero, ge_iff_le]
+  · simp only [h_top, ENNReal.toReal_top, mul_zero, add_zero]
     exact avgMass_nonneg_of_lt_one ha_pos.le ha_lt.le
   · exact avgMass_add_mul_hellingerDiv_nonneg' ha_pos h_top
 
@@ -176,8 +176,8 @@ lemma renyi_toENNReal_arg_nonneg (ha_zero : a ≠ 0) (ha_ne_one : a ≠ 1) :
   · -- a < 1
     rw [EReal.sub_nonneg]
     rotate_left
-    · norm_cast; exact EReal.coe_ne_top _
-    · norm_cast; exact EReal.coe_ne_bot _
+    · exact .inr (EReal.coe_ne_top _)
+    · exact .inr (EReal.coe_ne_bot _)
     sorry
   · -- 1 < a
     sorry
@@ -430,7 +430,7 @@ lemma renyiDiv_eq_top_iff_mutuallySingular_of_lt_one (ha_nonneg : 0 ≤ a) (ha :
 
 -- lemma renyiDiv_ne_bot [hμ : NeZero μ] [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
 --     renyiDiv a μ ν ≠ ⊥ := by
---   rcases le_or_lt a 1 with (ha | ha)
+--   rcases le_or_gt a 1 with (ha | ha)
 --   · exact renyiDiv_ne_bot_of_le_one ha
 --   · exact (renyiDiv_eq_bot_iff_of_one_lt ha).mp.mt hμ.out
 
@@ -445,8 +445,8 @@ lemma renyiDiv_of_mutuallySingular (ha_nonneg : 0 ≤ a) [NeZero μ]
   by_cases ha : a < 1
   · rw [renyiDiv_eq_top_iff_mutuallySingular_of_lt_one ha_nonneg ha]
     exact hμν
-  · rw [renyiDiv_eq_top_iff_hellingerDiv_eq_top_of_one_le (le_of_not_lt ha)]
-    exact hellingerDiv_of_mutuallySingular_of_one_le (le_of_not_lt ha) hμν
+  · rw [renyiDiv_eq_top_iff_hellingerDiv_eq_top_of_one_le (le_of_not_gt ha)]
+    exact hellingerDiv_of_mutuallySingular_of_one_le (le_of_not_gt ha) hμν
 
 lemma renyiDiv_of_one_lt_of_not_integrable (ha : 1 < a)
     [NeZero μ] [IsFiniteMeasure μ] [IsFiniteMeasure ν]
@@ -649,7 +649,7 @@ lemma le_renyiDiv_of_le_hellingerDiv {a : ℝ} {μ₁ ν₁ : Measure α} {μ₂
     simp_rw [← neg_mul, ← EReal.coe_neg, neg_inv, neg_sub]
     gcongr
     · simp only [EReal.coe_nonneg, inv_nonneg, sub_nonneg, ha.le]
-    refine ENNReal.log_monotone <| EReal.toENNReal_le_toENNReal ?_
+    refine EReal.toENNReal_le_toENNReal ?_
     gcongr _ + ?_
     apply EReal.neg_le_neg_iff.mp
     norm_cast
@@ -663,9 +663,6 @@ lemma le_renyiDiv_of_le_hellingerDiv {a : ℝ} {μ₁ ν₁ : Measure α} {μ₂
     refine EReal.toENNReal_le_toENNReal ?_
     refine EReal.sub_le_sub ?_ le_rfl
     gcongr
-    · refine EReal.inv_nonneg_of_nonneg ?_
-      norm_cast
-      exact ENNReal.toReal_nonneg
     refine EReal.sub_le_sub ?_ le_rfl
     gcongr
     exact mod_cast h_le
@@ -674,7 +671,7 @@ lemma le_renyiDiv_of_le_hellingerDiv {a : ℝ} {μ₁ ν₁ : Measure α} {μ₂
     refine EReal.sub_le_sub ?_ le_rfl
     gcongr
     · simp only [EReal.coe_nonneg, inv_nonneg, sub_nonneg, ha.le]
-    refine ENNReal.log_monotone <| EReal.toENNReal_le_toENNReal ?_
+    refine EReal.toENNReal_le_toENNReal ?_
     gcongr
     · norm_cast
       linarith

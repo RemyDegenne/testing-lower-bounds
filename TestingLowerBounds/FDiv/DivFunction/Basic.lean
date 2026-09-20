@@ -23,21 +23,6 @@ open Real MeasureTheory Filter Set MeasurableSpace
 
 open scoped ENNReal NNReal Topology
 
-instance : OrderedSMul ℝ≥0 ℝ≥0∞ := by
-  constructor
-  intro a b u hab hu
-  simp_rw [ENNReal.smul_def, smul_eq_mul]
-  · rw [ENNReal.mul_lt_mul_left]
-    · exact hab
-    · simp [hu.ne']
-    · exact ENNReal.coe_ne_top
-  · intro a b u h_lt h_pos
-    simp_rw [ENNReal.smul_def, smul_eq_mul] at h_lt
-    rw [ENNReal.mul_lt_mul_left] at h_lt
-    · exact h_lt
-    · simp [h_pos.ne']
-    · exact ENNReal.coe_ne_top
-
 lemma ENNReal.tendsto_of_monotone {ι : Type*} [Preorder ι] {f : ι → ℝ≥0∞} (hf : Monotone f) :
     ∃ y, Tendsto f atTop (𝓝 y) :=
   ⟨_, tendsto_atTop_ciSup hf (OrderTop.bddAbove _)⟩
@@ -110,7 +95,7 @@ lemma right_continuous_rightLim {β : Type*} [TopologicalSpace β]
       convert tendsto_const_nhds.add ((tendsto_norm_sub_self a).const_mul _)
       ring
     · refine eventually_nhdsWithin_of_forall fun x hx ↦ ?_
-      simp [sub_ne_zero, hx.ne']
+      simp [sub_ne_zero, (mem_Ioi.mp hx).ne']
   · filter_upwards [eventually_nhdsWithin_of_forall fun y hy ↦ hy] with b hb
     refine hf.rightLim_le ?_
     rw [abs_of_nonneg (sub_nonneg.mpr hb.le)]
@@ -120,7 +105,7 @@ lemma right_continuous_rightLim {β : Type*} [TopologicalSpace β]
       refine lt_two_mul_self ?_
       exact sub_pos.mpr hb
 
-lemma rightLim_rightLim {β : Type*}
+lemma rightLim_rightLim_of_tendsto {β : Type*}
     [ConditionallyCompleteLinearOrder β] [TopologicalSpace β] [OrderTopology β] [T2Space β]
     {f : ℝ → β} (hf : Monotone f)
     {a : ℝ} (h_ne_bot : 𝓝[>] a ≠ ⊥) {y : β} (h_tendsto : Tendsto f (𝓝[>] a) (𝓝 y)) :
@@ -158,9 +143,9 @@ lemma nonneg_of_todo' {f : ℝ → ℝ} (hf : ConvexOn ℝ (Ioi 0) f)
 lemma leftDeriv_nonpos_of_isMinOn {f : ℝ → ℝ} {s : Set ℝ} (hf : ConvexOn ℝ s f) {x₀ : ℝ}
     (hf_one : IsMinOn f s x₀) (h_mem : x₀ ∈ interior s) :
     leftDeriv f x₀ ≤ 0 := by
-  rw [leftDeriv_eq_sSup_slope_of_mem_interior hf h_mem]
+  rw [leftDeriv_def, leftDeriv_eq_sSup_slope_of_mem_interior hf h_mem]
   refine csSup_le ?_ fun a ⟨x, ⟨hxs, hxx₀⟩, hax⟩ ↦ ?_
-  · obtain ⟨x, hxx₀, hxs⟩ := mem_nhdsWithin_Iic_iff_exists_Icc_subset.mp <|
+  · obtain ⟨x, hxx₀, hxs⟩ := mem_nhdsLE_iff_exists_Icc_subset.mp <|
       mem_nhdsWithin_of_mem_nhds <| mem_interior_iff_mem_nhds.mp h_mem
     exact Nonempty.image _ ⟨x, hxs <| mem_Icc.mpr ⟨le_rfl, hxx₀.le⟩, hxx₀⟩
   · rw [← hax, slope, vsub_eq_sub, smul_eq_mul, mul_comm, ← division_def, div_nonpos_iff]
@@ -169,9 +154,9 @@ lemma leftDeriv_nonpos_of_isMinOn {f : ℝ → ℝ} {s : Set ℝ} (hf : ConvexOn
 lemma rightDeriv_nonneg_of_isMinOn {f : ℝ → ℝ} {s : Set ℝ} (hf : ConvexOn ℝ s f) {x₀ : ℝ}
     (hf_one : IsMinOn f s x₀) (h_mem : x₀ ∈ interior s) :
     0 ≤ rightDeriv f x₀ := by
-  rw [rightDeriv_eq_sInf_slope_of_mem_interior hf h_mem]
+  rw [rightDeriv_def, rightDeriv_eq_sInf_slope_of_mem_interior hf h_mem]
   refine le_csInf ?_ fun a ⟨x, ⟨hxs, hxx₀⟩, hax⟩ ↦ ?_
-  · obtain ⟨x, hxx₀, hxs⟩ := mem_nhdsWithin_Ici_iff_exists_Icc_subset.mp <|
+  · obtain ⟨x, hxx₀, hxs⟩ := mem_nhdsGE_iff_exists_Icc_subset.mp <|
       mem_nhdsWithin_of_mem_nhds <| mem_interior_iff_mem_nhds.mp h_mem
     exact Nonempty.image _ ⟨x, hxs <| mem_Icc.mpr ⟨hxx₀.le, le_rfl⟩, hxx₀⟩
   · rw [← hax, slope, vsub_eq_sub, smul_eq_mul, mul_comm, ← division_def, div_nonneg_iff]
@@ -223,7 +208,7 @@ variable {f : DivFunction}
 lemma eventually_ne_top_nhds_one (f : DivFunction) : ∀ᶠ a in 𝓝 1, f a ≠ ∞ := by
   suffices ∀ᶠ a in 𝓝 1, f a < 1 by
     filter_upwards [this] with x hx using ne_top_of_lt hx
-  refine eventually_lt_of_tendsto_lt ?_ (f.continuous.tendsto 1)
+  refine Filter.Tendsto.eventually_lt_const ?_ (f.continuous.tendsto 1)
   simp
 
 /-- Lower bound of the effective domain of `f`. -/
@@ -238,7 +223,7 @@ lemma xmin_lt_one : f.xmin < 1 := by
     exact ⟨a, ha, ha_lt⟩
   suffices ∀ᶠ a in 𝓝 1, f a < 1 by
     filter_upwards [this] with x hx using ne_top_of_lt hx
-  refine eventually_lt_of_tendsto_lt ?_ (f.continuous.tendsto 1)
+  refine Filter.Tendsto.eventually_lt_const ?_ (f.continuous.tendsto 1)
   simp
 
 lemma xmin_lt_top : f.xmin < ∞ := lt_top_of_lt xmin_lt_one
@@ -257,12 +242,12 @@ lemma xmin_lt_xmax : f.xmin < f.xmax := xmin_lt_one.trans one_lt_xmax
 lemma eq_top_of_lt_xmin {x : ℝ≥0∞} (hx_lt : x < f.xmin) : f x = ∞ := by
   rw [xmin] at hx_lt
   by_contra h_eq
-  exact not_le_of_lt hx_lt (sInf_le h_eq)
+  exact not_le_of_gt hx_lt (sInf_le h_eq)
 
 lemma eq_top_of_xmax_lt {x : ℝ≥0∞} (hx_gt : f.xmax < x) : f x = ∞ := by
   rw [xmax] at hx_gt
   by_contra h_eq
-  exact not_le_of_lt hx_gt (le_sSup h_eq)
+  exact not_le_of_gt hx_gt (le_sSup h_eq)
 
 lemma lt_top_of_mem_Ioo {x : ℝ≥0∞} (hx : x ∈ Ioo f.xmin f.xmax) : f x < ∞ := by
   rw [mem_Ioo, xmin, sInf_lt_iff, xmax, lt_sSup_iff] at hx
@@ -274,7 +259,8 @@ lemma lt_top_of_mem_Ioo {x : ℝ≥0∞} (hx : x ∈ Ioo f.xmin f.xmax) : f x < 
     have h := f.convexOn.2 (mem_univ a) (mem_univ b)
     obtain ⟨u, v, huv, rfl⟩ : ∃ (u : ℝ≥0) (v : ℝ≥0), u + v = 1 ∧ u • a + v • b = x := by
       have h_mem : x ∈ Icc a b := ⟨hax.le, hxb.le⟩
-      have h_cvx : Convex ℝ≥0 (Icc a b) := convex_Icc _ _
+      -- `Convex ℝ≥0 (Icc a b)`: `convex_Icc` no longer applies, the `Module ℝ≥0 ℝ≥0∞`
+      -- and `Algebra ℝ≥0 ℝ≥0∞` scalar actions are not syntactically the same instance.
       -- refine Convex.exists_mem_add_smul_eq
       sorry
     refine (h (zero_le u) (zero_le v) huv).trans ?_
@@ -339,7 +325,7 @@ lemma convexOn_Ioo_realFun : ConvexOn ℝ (ENNReal.toReal '' (Ioo f.xmin f.xmax)
   · by_cases h_top : f.xmax = ∞
     · simp only [h_top, ENNReal.toReal_Ioo_top xmin_ne_top]
       exact convex_Ioi _
-    · simp only [h_top, ENNReal.toReal_Ioo xmin_ne_top h_top]
+    · simp only [ENNReal.toReal_Ioo xmin_ne_top h_top]
       exact convex_Ioo _ _
   · intro x hx y hy a b ha hb hab
     have h := f.convexOn.2 (mem_univ (ENNReal.ofReal x)) (mem_univ (ENNReal.ofReal y))
@@ -486,7 +472,12 @@ instance : SMul ℝ≥0 DivFunction where
   smul c f := {
     toFun := fun x ↦ c * f x
     one := by simp
-    convexOn' := f.convexOn.smul c.2
+    convexOn' := ⟨convex_univ, fun x _ y _ a b ha hb hab ↦ by
+      have h := f.convexOn.2 (mem_univ x) (mem_univ y) ha hb hab
+      calc (c : ℝ≥0∞) * f (a • x + b • y)
+        _ ≤ (c : ℝ≥0∞) * (a • f x + b • f y) := by gcongr
+        _ = a • ((c : ℝ≥0∞) * f x) + b • ((c : ℝ≥0∞) * f y) := by
+            simp only [ENNReal.smul_def, smul_eq_mul]; ring⟩
     continuous' := (ENNReal.continuous_const_mul ENNReal.coe_ne_top).comp f.continuous}
 
 @[simp] lemma smul_apply (c : ℝ≥0) (f : DivFunction) (x : ℝ≥0∞) : (c • f) x = c * f x := rfl

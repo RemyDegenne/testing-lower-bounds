@@ -215,7 +215,7 @@ lemma hellingerDiv_eq_integral_of_lt_one [IsFiniteMeasure μ] [IsFiniteMeasure �
 lemma hellingerDiv_ne_top_of_lt_one (ha : a < 1) (μ ν : Measure α)
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     hellingerDiv a μ ν ≠ ∞ := by
-  rcases le_or_lt a 0 with (ha0 | ha0)
+  rcases le_or_gt a 0 with (ha0 | ha0)
   · simp [ha0]
   rw [hellingerDiv_eq_integral_of_lt_one ha0 ha]
   simp
@@ -294,7 +294,7 @@ lemma hellingerDiv_ne_top_iff (μ ν : Measure α) [IsFiniteMeasure μ] [SigmaFi
     hellingerDiv a μ ν ≠ ∞
       ↔ ∫⁻ x, hellingerDivFun a ((∂μ/∂ν) x) ∂ν ≠ ∞ ∧ (1 ≤ a → μ ≪ ν) := by
   rw [ne_eq, hellingerDiv_eq_top_iff]
-  push_neg
+  push Not
   rfl
 
 lemma hellingerDiv_eq_top_iff_of_one_le (ha : 1 ≤ a) (μ ν : Measure α)
@@ -308,7 +308,7 @@ lemma hellingerDiv_ne_top_iff_of_one_le (ha : 1 ≤ a) (μ ν : Measure α)
     hellingerDiv a μ ν ≠ ∞
       ↔ ∫⁻ x, hellingerDivFun a ((∂μ/∂ν) x) ∂ν ≠ ∞ ∧ μ ≪ ν := by
   rw [ne_eq, hellingerDiv_eq_top_iff_of_one_le ha]
-  push_neg
+  push Not
   rfl
 
 lemma hellingerDiv_eq_top_iff_of_one_lt (ha : 1 < a) (μ ν : Measure α)
@@ -351,7 +351,7 @@ lemma hellingerDiv_ne_top_iff_of_one_lt (ha : 1 < a) (μ ν : Measure α)
 --     (h : hellingerDiv a μ ν ≠ ∞) :
 --     hellingerDiv a μ ν = ∫ x, hellingerFun a ((∂μ/∂ν) x).toReal ∂ν := by
 --   rw [hellingerDiv, fDiv_of_ne_top (by rwa [hellingerDiv] at h)]
---   cases lt_or_le a 1 with
+--   cases lt_or_ge a 1 with
 --   | inl ha_lt => rw [derivAtTop_hellingerFun_of_lt_one ha_lt, zero_mul, add_zero]
 --   | inr ha_ge =>
 --     rw [hellingerDiv_ne_top_iff_of_one_le ha_ge] at h
@@ -399,7 +399,7 @@ lemma hellingerDiv_of_mutuallySingular_of_one_le (ha : 1 ≤ a) [hμ : NeZero μ
     [SigmaFinite μ] [IsFiniteMeasure ν] (hμν : μ ⟂ₘ ν) :
     hellingerDiv a μ ν = ∞ := by
   have ha_pos : 0 < a := by positivity
-  simp [ha_pos, not_le.mpr ha_pos, hellingerDiv, fDiv_of_mutuallySingular hμν, not_lt.mpr ha,
+  simp [not_le.mpr ha_pos, hellingerDiv, fDiv_of_mutuallySingular hμν, not_lt.mpr ha,
     hμ.out]
 
 lemma hellingerDiv_of_mutuallySingular_of_lt_one (ha_pos : 0 < a) (ha : a < 1)
@@ -552,7 +552,7 @@ lemma toReal_hellingerDiv_eq_add_measure_univ_iff_of_lt_one (ha_pos : 0 < a) (ha
   rw [toReal_hellingerDiv_eq_integral_of_lt_one ha_pos ha] at h
   rw [← integral_rpow_rnDeriv_eq_zero_iff_mutuallySingular (a := a) ha_pos.ne']
   swap; · exact integrable_rpow_rnDeriv_of_lt_one ha_pos.le ha
-  rw [mul_comm a, add_assoc, add_comm, add_right_eq_self, mul_eq_zero, inv_eq_zero,
+  rw [mul_comm a, add_assoc, add_comm, add_eq_left, mul_eq_zero, inv_eq_zero,
     sub_eq_zero] at h
   simpa [ha.ne] using h
 
@@ -564,7 +564,7 @@ lemma toReal_hellingerDiv_ne_add_measure_univ_of_one_lt (ha_lt : 1 < a)
   rw [hellingerDiv_ne_top_iff_of_one_lt ha_lt] at h_top
   rw [toReal_hellingerDiv_eq_integral_of_integrable_of_ac (zero_lt_one.trans ha_lt)
     ha_lt.ne' h_top.1 h_top.2]
-  rw [mul_comm a, add_assoc, add_comm, ne_eq, add_right_eq_self, mul_eq_zero, inv_eq_zero,
+  rw [mul_comm a, add_assoc, add_comm, ne_eq, add_eq_left, mul_eq_zero, inv_eq_zero,
     sub_eq_zero]
   simp only [ha_lt.ne', false_or]
   rwa [integral_rpow_rnDeriv_eq_zero_iff_mutuallySingular (a := a) (zero_lt_one.trans ha_lt).ne'
@@ -591,7 +591,7 @@ lemma hellingerDiv_eq_add_measure_univ_iff_of_lt_one (ha_pos : 0 < a) (ha : a < 
       simp [ha.le]
     · refine mul_nonneg ha_pos.le ?_
       simp [ha.le]
-  rw [h_eq, ENNReal.ofReal_eq_ofReal_iff, add_assoc, mul_comm a, add_left_eq_self, mul_eq_zero,
+  rw [h_eq, ENNReal.ofReal_eq_ofReal_iff, add_assoc, mul_comm a, add_eq_right, mul_eq_zero,
     inv_eq_zero, sub_eq_zero] at h
   · simpa [ha.ne] using h
   · refine (integral_hellingerFun_rnDeriv_nonneg ha_pos ha (μ := μ) (ν := ν)).trans ?_

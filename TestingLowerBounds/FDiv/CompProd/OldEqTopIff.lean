@@ -35,7 +35,7 @@ lemma f_rnDeriv_ae_le_integral'' [CountableOrCountablyGenerated α β]
   swap
   · refine (Measurable.stronglyMeasurable ?_).aestronglyMeasurable
     exact (Measure.measurable_rnDeriv _ _).ennreal_toReal
-  have hκη' : ∀ᵐ a ∂ν, (∂μ/∂ν) a ≠ 0 → κ a ≪ η a := Measure.ae_rnDeriv_ne_zero_imp_of_ae hκη
+  have hκη' : ∀ᵐ a ∂ν, (∂μ/∂ν) a ≠ 0 → κ a ≪ η a := Measure.ae_rnDeriv_ne_zero_imp_of_ae ν hκη
   filter_upwards [hκη', h_compProd, h_lt_top, h_int.compProd_mk_left_ae', this.1]
     with a h_ac h_eq h_lt_top h_int' h_rnDeriv_int
   calc f ((∂μ/∂ν) a * κ a .univ).toReal
@@ -48,7 +48,7 @@ lemma f_rnDeriv_ae_le_integral'' [CountableOrCountablyGenerated α β]
   _ = f (∫⁻ b, (∂μ ⊗ₘ κ/∂ν ⊗ₘ η) (a, b) ∂η a).toReal := by rw [lintegral_congr_ae h_eq]
   _ = f (∫ b, ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) (a, b)).toReal ∂η a) := by
         rw [integral_toReal _ h_lt_top]
-        exact ((Measure.measurable_rnDeriv _ _).comp measurable_prod_mk_left).aemeasurable
+        exact ((Measure.measurable_rnDeriv _ _).comp measurable_prodMk_left).aemeasurable
   _ ≤ ∫ b, f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) (a, b)).toReal ∂η a := by
         rw [← average_eq_integral, ← average_eq_integral]
         exact ConvexOn.map_average_le hf_cvx hf_cont isClosed_Ici (by simp) h_rnDeriv_int h_int'
@@ -75,7 +75,7 @@ lemma integrable_f_rnDeriv_mul_kernel'' [CountableOrCountablyGenerated α β]
     simp_rw [ENNReal.toReal_mul]
     have h := integrable_rnDeriv_mul_withDensity μ ν κ η
     have h_ae : ∀ᵐ a ∂ν, (∂μ/∂ν) a ≠ 0 → η.withDensity (κ.rnDeriv η) a = κ a := by
-      refine Measure.ae_rnDeriv_ne_zero_imp_of_ae ?_
+      refine Measure.ae_rnDeriv_ne_zero_imp_of_ae ν ?_
       filter_upwards [hκη] with x hx
       rw [Kernel.withDensity_rnDeriv_eq hx]
     refine (integrable_congr ?_).mp h
@@ -109,7 +109,7 @@ lemma f_rnDeriv_le_add'' [CountableOrCountablyGenerated α β]
   by_cases h_deriv_top : derivAtTop f = ⊤
   · simp only [ENNReal.toReal_mul, h_deriv_top, EReal.toReal_top, zero_mul, add_zero]
     have h_ae : ∀ᵐ a ∂ν, (∂μ/∂ν) a ≠ 0 → η.withDensity (κ.rnDeriv η) a = κ a := by
-      refine Measure.ae_rnDeriv_ne_zero_imp_of_ae ?_
+      refine Measure.ae_rnDeriv_ne_zero_imp_of_ae ν ?_
       filter_upwards [h_deriv h_deriv_top] with a ha_ac
       rw [Kernel.withDensity_rnDeriv_eq ha_ac]
     filter_upwards [h_ae] with a ha
@@ -128,13 +128,13 @@ lemma f_rnDeriv_le_add'' [CountableOrCountablyGenerated α β]
       _ ≤ (κ a .univ).toReal := by
           gcongr
           · exact measure_ne_top _ _
-          · exact κ.withDensity_rnDeriv_le η a .univ
+          · exact κ.withDensity_rnDeriv_le η a
       _ = 1 := by simp
   _ = f (((∂μ/∂ν) a).toReal * (κ' a .univ).toReal)
         + (derivAtTop f).toReal * ((∂μ/∂ν) a).toReal * (κ.singularPart η a .univ).toReal := by
       congr
       norm_cast
-      unfold_let κ'
+      unfold κ'
       rw [sub_eq_iff_eq_add, ← ENNReal.toReal_one, ← measure_univ (μ := κ a)]
       conv_lhs => rw [← κ.rnDeriv_add_singularPart η, add_comm]
       simp only [Kernel.coe_add, Pi.add_apply, Measure.coe_add]

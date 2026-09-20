@@ -130,7 +130,7 @@ lemma lintegral_ofReal_eq_top_of_not_integrable [SigmaFinite μ] [IsFiniteMeasur
   rw [this, integrableOn_union] at h_int
   have h_int_zero : IntegrableOn (fun x ↦ f (μ.rnDeriv ν x).toReal) {x | μ.rnDeriv ν x = 0} ν := by
     refine (integrableOn_congr_fun ?_ ?_).mpr
-      ((integrableOn_const (C := f 0)).mpr (.inr (measure_lt_top _ _)))
+      (integrableOn_const (C := f 0) (measure_ne_top _ _))
     · intro x hx
       simp only [mem_setOf_eq] at hx
       simp [hx]
@@ -158,11 +158,11 @@ lemma lintegral_ofReal' [SigmaFinite μ] [SigmaFinite ν] (h : ν {x | μ.rnDeri
         = Function.rightLim (fun x ↦ ENNReal.ofReal (f x)) 0 := by
       intro x hx
       simp [hs_zero x hx]
-    rw [setLIntegral_congr_fun hs (ae_of_all _ this)]
-    simp
+    rw [setLIntegral_congr_fun_ae hs (ae_of_all _ this)]
+    rw [setLIntegral_const]
   have h2 : ∫⁻ x in sᶜ, ofReal f hf hf_one (μ.rnDeriv ν x) ∂ν
       = ∫⁻ x in sᶜ, ENNReal.ofReal (f (μ.rnDeriv ν x).toReal) ∂ν := by
-    refine setLIntegral_congr_fun hs.compl ?_
+    refine setLIntegral_congr_fun_ae hs.compl ?_
     filter_upwards [μ.rnDeriv_ne_top ν] with x hx_top hx
     rw [ofReal_apply hx hx_top]
   have h3 : ∫⁻ x in s, ENNReal.ofReal (f (μ.rnDeriv ν x).toReal) ∂ν
@@ -171,8 +171,8 @@ lemma lintegral_ofReal' [SigmaFinite μ] [SigmaFinite ν] (h : ν {x | μ.rnDeri
         = ENNReal.ofReal (f 0) := by
       intro x hx
       simp [hs_zero x hx]
-    rw [setLIntegral_congr_fun hs (ae_of_all _ this)]
-    simp
+    rw [setLIntegral_congr_fun_ae hs (ae_of_all _ this)]
+    rw [setLIntegral_const]
   rw [h1, h2, ← h3]
   conv_rhs => rw [← lintegral_add_compl _ hs (μ := ν), add_comm]
   congr 1
@@ -199,11 +199,11 @@ lemma lintegral_ofReal_of_continuous [SigmaFinite μ] [SigmaFinite ν]
     have : ∀ x ∈ s, ofReal f hf hf_one (μ.rnDeriv ν x) = ENNReal.ofReal (f 0) := by
       intro x hx
       rw [hs_zero x hx, ofReal_apply_zero_of_continuousWithinAt hf_cont]
-    rw [setLIntegral_congr_fun hs (ae_of_all _ this)]
-    simp
+    rw [setLIntegral_congr_fun_ae hs (ae_of_all _ this)]
+    rw [setLIntegral_const]
   have h2 : ∫⁻ x in sᶜ, ofReal f hf hf_one (μ.rnDeriv ν x) ∂ν
       = ∫⁻ x in sᶜ, ENNReal.ofReal (f (μ.rnDeriv ν x).toReal) ∂ν := by
-    refine setLIntegral_congr_fun hs.compl ?_
+    refine setLIntegral_congr_fun_ae hs.compl ?_
     filter_upwards [μ.rnDeriv_ne_top ν] with x hx_top hx
     rw [ofReal_apply hx hx_top]
   have h3 : ∫⁻ x in s, ENNReal.ofReal (f (μ.rnDeriv ν x).toReal) ∂ν
@@ -211,8 +211,8 @@ lemma lintegral_ofReal_of_continuous [SigmaFinite μ] [SigmaFinite ν]
     have : ∀ x ∈ s, ENNReal.ofReal (f (μ.rnDeriv ν x).toReal) = ENNReal.ofReal (f 0) := by
       intro x hx
       simp [hs_zero x hx]
-    rw [setLIntegral_congr_fun hs (ae_of_all _ this)]
-    simp
+    rw [setLIntegral_congr_fun_ae hs (ae_of_all _ this)]
+    rw [setLIntegral_const]
   rw [h1, h2, h3]
 
 lemma lintegral_ofReal_eq_integral_of_continuous [SigmaFinite μ] [SigmaFinite ν]

@@ -117,7 +117,7 @@ lemma fDiv_compProd_eq_top_iff'' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
           ¬ μ ⊗ₘ κ ≪ μ ⊗ₘ η) := by
   rw [← not_iff_not, ← ne_eq, fDiv_compProd_ne_top_iff'' h_zero,
     Measure.absolutelyContinuous_compProd_iff']
-  push_neg
+  push Not
   rfl
 
 lemma fDiv_compProd_eq_top_iff' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
@@ -128,7 +128,7 @@ lemma fDiv_compProd_eq_top_iff' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
           ¬ μ ⊗ₘ κ ≪ μ ⊗ₘ η) := by
   rw [← not_iff_not, ← ne_eq, fDiv_compProd_ne_top_iff' h_zero,
     Measure.absolutelyContinuous_compProd_iff']
-  push_neg
+  push Not
   rfl
 
 lemma fDiv_compProd_right_ne_top_iff' [IsFiniteMeasure μ]
@@ -144,7 +144,7 @@ lemma fDiv_compProd_right_eq_top_iff' [IsFiniteMeasure μ]
       f.derivAtTop = ∞
       ∧ (∫⁻ a, ∫⁻ b, f ((∂(μ ⊗ₘ κ)/∂(μ ⊗ₘ η)) (a, b)) ∂η a ∂μ ≠ ∞ → ¬ μ ⊗ₘ κ ≪ μ ⊗ₘ η) := by
   rw [← not_iff_not, ← ne_eq, fDiv_compProd_right_ne_top_iff' h_zero]
-  push_neg
+  push Not
   rfl
 
 variable [CountableOrCountablyGenerated α β]
@@ -155,6 +155,7 @@ lemma fDiv_compProd_ne_top_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν]
       ∫⁻ a, ∫⁻ b, f ((∂μ/∂ν) a * (∂κ a/∂η a) b) ∂(η a) ∂ν ≠ ∞
         ∧ (f.derivAtTop = ∞ → μ ≪ ν ∧ ∀ᵐ a ∂μ, κ a ≪ η a) := by
   rw [fDiv_ne_top_iff, Measure.absolutelyContinuous_compProd_iff,
+    Measure.absolutelyContinuous_compProd_right_iff,
     Measure.lintegral_compProd measurable_divFunction_rnDeriv]
   suffices ∫⁻ a, ∫⁻ b, f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) (a, b)) ∂η a ∂ν
       = ∫⁻ a, ∫⁻ b, f ((∂μ/∂ν) a * (∂κ a/∂η a) b) ∂(η a) ∂ν by
@@ -172,7 +173,7 @@ lemma fDiv_compProd_eq_top_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν]
       ∫⁻ a, ∫⁻ b, f ((∂μ/∂ν) a * (∂κ a/∂η a) b) ∂η a ∂ν ≠ ∞ →
         f.derivAtTop = ∞ ∧ (μ ≪ ν → ¬∀ᵐ a ∂μ, κ a ≪ η a) := by
   rw [← not_iff_not, ← ne_eq, fDiv_compProd_ne_top_iff]
-  push_neg
+  push Not
   rfl
 
 lemma fDiv_compProd_right_ne_top_iff [IsFiniteMeasure μ]
@@ -199,7 +200,7 @@ lemma fDiv_compProd_right_eq_top_iff [IsFiniteMeasure μ]
     fDiv f (μ ⊗ₘ κ) (μ ⊗ₘ η) = ∞ ↔
       ∫⁻ a, ∫⁻ b, f ((∂κ a/∂η a) b) ∂η a ∂μ ≠ ∞ → f.derivAtTop = ∞ ∧ ¬∀ᵐ a ∂μ, κ a ≪ η a := by
   rw [← not_iff_not, ← ne_eq, fDiv_compProd_right_ne_top_iff]
-  push_neg
+  push Not
   rfl
 
 end CompProd
@@ -212,9 +213,9 @@ lemma f_rnDeriv_le_add [CountableOrCountablyGenerated α β]
       ≤ f ((∂μ/∂ν) a * η.withDensity (κ.rnDeriv η) a .univ)
         + f.derivAtTop * ((∂μ/∂ν) a) * (κ.singularPart η a .univ) := by
   by_cases h_deriv_top : f.derivAtTop = ∞
-  · simp only [ENNReal.toReal_mul, h_deriv_top, EReal.toReal_top, zero_mul, add_zero]
+  · simp only [h_deriv_top]
     have h_ae : ∀ᵐ a ∂ν, (∂μ/∂ν) a ≠ 0 → η.withDensity (κ.rnDeriv η) a = κ a := by
-      refine Measure.ae_rnDeriv_ne_zero_imp_of_ae ?_
+      refine Measure.ae_rnDeriv_ne_zero_imp_of_ae ν ?_
       filter_upwards [h_deriv h_deriv_top] with a ha_ac
       rw [Kernel.withDensity_rnDeriv_eq ha_ac]
     filter_upwards [h_ae] with a ha
@@ -236,7 +237,7 @@ lemma f_rnDeriv_le_add [CountableOrCountablyGenerated α β]
         + f.derivAtTop * (∂μ/∂ν) a * κ.singularPart η a .univ := by
       congr
       norm_cast
-      unfold_let κ'
+      unfold κ'
       refine ENNReal.sub_eq_of_eq_add (measure_ne_top _ _) ?_
       rw [← measure_univ (μ := κ a)]
       conv_lhs => rw [← κ.rnDeriv_add_singularPart η, add_comm]
@@ -257,7 +258,7 @@ lemma f_rnDeriv_ae_le_lintegral [CountableOrCountablyGenerated α β]
   swap
   · refine (Measurable.stronglyMeasurable ?_).aestronglyMeasurable
     exact (Measure.measurable_rnDeriv _ _).ennreal_toReal
-  have hκη' : ∀ᵐ a ∂ν, (∂μ/∂ν) a ≠ 0 → κ a ≪ η a := Measure.ae_rnDeriv_ne_zero_imp_of_ae hκη
+  have hκη' : ∀ᵐ a ∂ν, (∂μ/∂ν) a ≠ 0 → κ a ≪ η a := Measure.ae_rnDeriv_ne_zero_imp_of_ae ν hκη
   filter_upwards [hκη', h_compProd, h_lt_top, this.1, h_int'.compProd_mk_left_ae']
     with a h_ac h_eq h_lt_top h_rnDeriv_int h_int'
   calc f ((∂μ/∂ν) a * κ a .univ)
@@ -271,7 +272,7 @@ lemma f_rnDeriv_ae_le_lintegral [CountableOrCountablyGenerated α β]
   _ = f (ENNReal.ofReal (∫ b, ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) (a, b)).toReal ∂η a)) := by
         rw [integral_toReal _ h_lt_top]
         · sorry
-        · exact ((Measure.measurable_rnDeriv _ _).comp measurable_prod_mk_left).aemeasurable
+        · exact ((Measure.measurable_rnDeriv _ _).comp measurable_prodMk_left).aemeasurable
   _ = ENNReal.ofReal (f.realFun (∫ b, ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) (a, b)).toReal ∂η a)) := by
         rw [DivFunction.realFun, ENNReal.ofReal_toReal]
         sorry

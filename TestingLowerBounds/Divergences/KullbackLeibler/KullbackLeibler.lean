@@ -76,14 +76,14 @@ lemma kl_self (μ : Measure α) [SigmaFinite μ] : kl μ μ = 0 := by
 @[simp]
 lemma kl_zero_left [IsFiniteMeasure ν] : kl 0 ν = ν .univ := by
   convert kl_of_ac_of_integrable (Measure.AbsolutelyContinuous.zero _) integrable_zero_measure
-  simp [integral_zero_measure, EReal.coe_zero]
+  simp [integral_zero_measure]
 
 @[simp]
 lemma kl_zero_right [NeZero μ] : kl μ 0 = ∞ :=
   kl_of_not_ac (Measure.absolutelyContinuous_zero_iff.mp.mt (NeZero.ne _))
 
 lemma kl_eq_top_iff : kl μ ν = ∞ ↔ μ ≪ ν → ¬ Integrable (llr μ ν) μ := by
-  constructor <;> intro h <;> push_neg at *
+  constructor <;> intro h <;> try push Not at *
   · contrapose! h
     rw [kl_of_ac_of_integrable h.1 h.2]
     simp only [ne_eq, ENNReal.ofReal_ne_top, not_false_eq_true]
@@ -91,7 +91,7 @@ lemma kl_eq_top_iff : kl μ ν = ∞ ↔ μ ≪ ν → ¬ Integrable (llr μ ν)
 
 lemma kl_ne_top_iff : kl μ ν ≠ ∞ ↔ μ ≪ ν ∧ Integrable (llr μ ν) μ := by
   rw [ne_eq, kl_eq_top_iff]
-  push_neg
+  push Not
   rfl
 
 lemma kl_ne_top_iff' :
@@ -186,7 +186,7 @@ lemma kl_ge_mul_log (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure �
   · simp [ENNReal.toReal_eq_zero_iff, hμ]
   · simp [ENNReal.toReal_eq_zero_iff, hν]
   simp only [ENNReal.toReal_inv, log_inv, sub_neg_eq_add, measure_univ, ENNReal.toReal_one,
-    add_le_add_iff_right] at h
+    ] at h
   rw [ENNReal.ofReal_le_ofReal_iff'] at h
   cases h with
   | inl h =>

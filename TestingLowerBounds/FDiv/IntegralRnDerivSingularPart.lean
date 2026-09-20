@@ -38,7 +38,7 @@ section IntegralRnDeriv
 lemma lintegral_measure_prod_mk_left {f : α → Set β → ℝ≥0∞} (hf : ∀ a, f a ∅ = 0)
     {s : Set α} (hs : MeasurableSet s) (t : Set β) :
     ∫⁻ a, f a (Prod.mk a ⁻¹' s ×ˢ t) ∂μ = ∫⁻ a in s, f a t ∂μ := by
-  rw [← lintegral_indicator _ hs]
+  rw [← lintegral_indicator hs _]
   congr with a
   classical
   rw [Set.indicator_apply]
@@ -59,10 +59,10 @@ lemma setLIntegral_rnDeriv_mul_withDensity
   simp_rw [this]
   rw [withDensity_apply _ (hs.prod ht),
     Measure.setLIntegral_compProd (Measure.measurable_rnDeriv _ _) hs ht]
-  refine setLIntegral_congr_fun hs ?_
+  refine setLIntegral_congr_fun_ae hs ?_
   filter_upwards [κ.rnDeriv_measure_compProd' μ ν η] with a ha _
   rw [← lintegral_const_mul _ (κ.measurable_rnDeriv_right _ _)]
-  refine setLIntegral_congr_fun ht ?_
+  refine setLIntegral_congr_fun_ae ht ?_
   filter_upwards [ha, κ.rnDeriv_eq_rnDeriv_measure] with b hb hb' _
   rw [hb, hb']
 
@@ -87,7 +87,7 @@ lemma setLIntegral_rnDeriv_mul_singularPart
     withDensity_congr_ae (ν.rnDeriv_withDensity (μ.measurable_rnDeriv _))
   rw [this, ← setLIntegral_rnDeriv_mul (μ := ν.withDensity (∂μ/∂ν)) (ν := ν)
     (withDensity_absolutelyContinuous _ _) (Kernel.measurable_coe _ ht).aemeasurable hs]
-  refine setLIntegral_congr_fun hs ?_
+  refine setLIntegral_congr_fun_ae hs ?_
   filter_upwards [ν.rnDeriv_withDensity (μ.measurable_rnDeriv ν)] with x hx _
   rw [hx, Kernel.singularPart_eq_singularPart_measure]
 
@@ -104,7 +104,7 @@ lemma setLIntegral_withDensity (μ : Measure α) [IsFiniteMeasure μ]
     ∫⁻ a in s, η.withDensity (κ.rnDeriv η) a t ∂μ
       = (μ ⊗ₘ η).withDensity (∂(μ ⊗ₘ κ)/∂(μ ⊗ₘ η)) (s ×ˢ t) := by
   rw [← setLIntegral_rnDeriv_mul_withDensity μ μ κ η hs ht]
-  refine setLIntegral_congr_fun hs ?_
+  refine setLIntegral_congr_fun_ae hs ?_
   filter_upwards [μ.rnDeriv_self] with a ha _
   rw [ha, one_mul]
 

@@ -144,6 +144,6 @@ lemma ProbabilityTheory.Kernel.absolutelyContinuous_compProd_iff
     {κ₂ η₂ : Kernel (α × β) γ} [IsSFiniteKernel κ₁] [IsSFiniteKernel η₁] [IsFiniteKernel κ₂]
     [IsFiniteKernel η₂] (a : α) [∀ b, NeZero (κ₂ (a, b))] :
     (κ₁ ⊗ₖ κ₂) a ≪ (η₁ ⊗ₖ η₂) a ↔ κ₁ a ≪ η₁ a ∧ ∀ᵐ b ∂κ₁ a, κ₂ (a, b) ≪ η₂ (a, b) := by
-  -- simp_rw [Kernel.compProd_apply_eq_compProd_sectR,
-  --   Measure.absolutelyContinuous_compProd_iff', Kernel.sectR_apply]
-  sorry
+  simp_rw [Kernel.compProd_apply_eq_compProd_sectR]
+  exact ⟨fun h ↦ ⟨Measure.absolutelyContinuous_of_compProd h,
+      Measure.absolutelyContinuous_kernel_of_compProd h⟩, fun h ↦ h.1.compProd h.2⟩

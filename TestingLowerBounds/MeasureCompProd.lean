@@ -217,7 +217,7 @@ variable {δ : Type*} {mδ : MeasurableSpace δ}
 --     μ.prod (κ ∘ₘ ν) = (Kernel.id ∥ₖ κ) ∘ₘ (μ.prod ν) := by
 --   ext s hs
 --   rw [Measure.prod_apply hs, Measure.bind_apply hs (Kernel.measurable _)]
---   simp_rw [Measure.bind_apply (measurable_prod_mk_left hs) (Kernel.measurable _)]
+--   simp_rw [Measure.bind_apply (measurable_prodMk_left hs) (Kernel.measurable _)]
 --   rw [MeasureTheory.lintegral_prod]
 --   swap; · exact (Kernel.measurable_coe _ hs).aemeasurable
 --   congr with a

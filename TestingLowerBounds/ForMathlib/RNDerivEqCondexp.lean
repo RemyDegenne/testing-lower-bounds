@@ -25,7 +25,7 @@ lemma toReal_rnDeriv_comp_eq_condexp_compProd [IsFiniteMeasure μ] [IsFiniteMeas
     [IsFiniteKernel κ] [IsFiniteKernel η] (hκη : ∀ᵐ x ∂μ, κ x ≪ η x) :
     (fun ab ↦ ((κ ∘ₘ μ).rnDeriv (η ∘ₘ ν) ab.2).toReal)
       =ᵐ[ν ⊗ₘ η] (ν ⊗ₘ η)[fun ab ↦ ((μ ⊗ₘ κ).rnDeriv (ν ⊗ₘ η) ab).toReal | mβ.comap Prod.snd] := by
-  have h_ac : μ ⊗ₘ κ ≪ ν ⊗ₘ η := Measure.absolutelyContinuous_compProd hμν hκη
+  have h_ac : μ ⊗ₘ κ ≪ ν ⊗ₘ η := Measure.AbsolutelyContinuous.compProd hμν hκη
   refine Filter.EventuallyEq.trans ?_ (Measure.toReal_rnDeriv_map h_ac measurable_snd)
   refine ae_of_all _ (fun ab ↦ ?_)
   simp only
@@ -42,7 +42,7 @@ lemma toReal_rnDeriv_comp [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hμν : μ 
     [IsFiniteKernel κ] :
     (fun ab ↦ ((κ ∘ₘ μ).rnDeriv (κ ∘ₘ ν) ab.2).toReal)
       =ᵐ[ν ⊗ₘ κ] (ν ⊗ₘ κ)[fun ab ↦ (μ.rnDeriv ν ab.1).toReal | mβ.comap Prod.snd] := by
-  refine (toReal_rnDeriv_comp_eq_condexp_compProd_right hμν κ).trans (condexp_congr_ae ?_)
+  refine (toReal_rnDeriv_comp_eq_condexp_compProd_right hμν κ).trans (condExp_congr_ae ?_)
   filter_upwards [Kernel.rnDeriv_measure_compProd_left μ ν κ] with x hx
   rw [hx]
 

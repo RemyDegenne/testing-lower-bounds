@@ -121,7 +121,7 @@ lemma tendsto_mul_log_add_one_sub_atTop : Tendsto (fun x ↦ x * log x + 1 - x) 
   have : (fun x ↦ x * log x + 1 - x) = (fun x ↦ x * (log x - 1) + 1) := by ext; ring
   rw [this]
   refine Tendsto.atTop_add ?_ tendsto_const_nhds
-  refine Tendsto.atTop_mul_atTop ?_ ?_
+  refine Tendsto.atTop_mul_atTop₀ ?_ ?_
   · exact fun _ a ↦ a
   · exact tendsto_log_atTop.atTop_add tendsto_const_nhds
 

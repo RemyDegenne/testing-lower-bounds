@@ -13,6 +13,7 @@ open MeasureTheory Set StieltjesFunction
 
 variable {𝒳 : Type*} {m𝒳 : MeasurableSpace 𝒳} {μ ν : Measure 𝒳} {f g : ℝ → ℝ} {β γ x t : ℝ}
 
+/-
 namespace StieltjesFunction
 
 open Set Filter Function ENNReal NNReal Topology MeasureTheory
@@ -77,6 +78,7 @@ lemma measure_univ_of_tendsto_atBot_atBot (hf : Tendsto f atBot atBot) :
 
 
 end StieltjesFunction
+-/
 
 namespace ConvexOn
 
@@ -147,7 +149,7 @@ theorem convex_taylor (hf : ConvexOn ℝ univ f) (hf_cont : Continuous f) {a b :
     (fun x _ ↦ hf.hadDerivWithinAt_rightDeriv x) h_int]
   simp_rw [← neg_sub _ b, intervalIntegral.integral_neg, curvatureMeasure_of_convexOn hf,
     mul_neg, sub_neg_eq_add, mul_comm _ (a - b)]
-  let g := StieltjesFunction.id + StieltjesFunction.const (-b)
+  let g := StieltjesFunction.id + StieltjesFunction.const _ (-b)
   have hg : g = fun x ↦ x - b := rfl
   rw [← hg, integral_stieltjes_meas_by_parts g hf.rightDerivStieltjes]
   swap; · rw [hg]; fun_prop

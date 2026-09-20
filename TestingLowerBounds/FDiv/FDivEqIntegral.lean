@@ -117,7 +117,7 @@ lemma fDiv_ne_top_iff_lintegral_fDiv_statInfoFun_ne_top_of_ac'
 lemma measurable_fDiv_statInfoFun_right [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     Measurable fun y ↦ fDiv (statInfoDivFun 1 y) μ ν := by
   change Measurable ((fun p : ℝ × ℝ ↦ fDiv (statInfoDivFun p.1 p.2) μ ν) ∘ (fun x ↦ (1, x)))
-  exact (measurable_fDiv_statInfoFun _ _).comp measurable_prod_mk_left
+  exact (measurable_fDiv_statInfoFun _ _).comp measurable_prodMk_left
 
 lemma lintegral_fDiv_statInfoDivFun_curvatureMeasureReal_ne_top_iff
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
@@ -152,7 +152,7 @@ lemma lintegral_statInfoFun_one_zero' (hfderiv_one : rightDeriv f.realFun 1 = 0)
   have := f.convex_taylor_one_left hfderiv_one zero_le_one
   simp only [tsub_zero] at this
   rw [this, f.lintegral_curvatureMeasureReal measurable_statInfoFun2.ennreal_ofReal]
-  rw [← lintegral_indicator _ measurableSet_Ioc]
+  rw [← lintegral_indicator measurableSet_Ioc _]
   refine lintegral_congr fun x ↦ ?_
   simp_rw [statInfoFun_one_zero_right, indicator_apply]
   by_cases hx_top : x = ∞

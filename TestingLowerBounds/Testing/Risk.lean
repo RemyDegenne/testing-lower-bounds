@@ -42,7 +42,7 @@ We don't put the data generating kernel into this structure, since we will often
 on it and we don't want to duplicate all kernel operations on `estimationProblem`. -/
 @[ext]
 structure estimationProblem (Θ 𝒴 𝒵 : Type*) [MeasurableSpace Θ]
-    [MeasurableSpace 𝒴] [MeasurableSpace 𝒵] :=
+    [MeasurableSpace 𝒴] [MeasurableSpace 𝒵] where
   /-- The objective function. -/
   y : Θ → 𝒴
   y_meas : Measurable y
@@ -197,7 +197,7 @@ lemma bayesianRisk_eq_integral_integral_integral [StandardBorelSpace Θ] [Nonemp
   have := E.ℓ_meas
   have := E.y_meas
   rw [bayesianRisk_eq_lintegral_bayesInv_prod,
-    Measure.lintegral_bind ((P†π) ×ₖ κ).measurable (by fun_prop)]
+    Measure.lintegral_bind ((P†π) ×ₖ κ).measurable.aemeasurable (by fun_prop)]
   congr with x
   rw [Kernel.prod_apply, lintegral_prod_symm' _ (by fun_prop)]
 
@@ -209,7 +209,7 @@ lemma bayesianRisk_ge_lintegral_iInf_bayesInv [StandardBorelSpace Θ] [Nonempty 
   gcongr with x
   calc
     _ ≥ ∫⁻ _, ⨅ z, ∫⁻ (θ : Θ), E.ℓ (E.y θ, z) ∂(P†π) x ∂κ x :=
-      lintegral_mono fun z ↦ iInf_le' _ z
+      lintegral_mono fun z ↦ iInf_le _ z
     _ = ⨅ z, ∫⁻ (θ : Θ), E.ℓ (E.y θ, z) ∂(P†π) x := by
       rw [lintegral_const, measure_univ, mul_one]
 
@@ -296,12 +296,14 @@ lemma le_bayesRiskIncrease_comp (E : estimationProblem Θ 𝒴 𝒵) (P : Kernel
     bayesRiskIncrease E (κ ∘ₖ P) π η ≤ bayesRiskIncrease E P π (η ∘ₖ κ) := by
   simp [bayesRiskIncrease_comp]
 
+universe u
+
 /-- **Data processing inequality** for the Bayes risk increase. -/
 lemma bayesRiskIncrease_discard_comp_le_bayesRiskIncrease (E : estimationProblem Θ 𝒴 𝒵)
     (P : Kernel Θ 𝒳) (π : Measure Θ) (κ : Kernel 𝒳 𝒳') [IsMarkovKernel κ] :
-    bayesRiskIncrease E (κ ∘ₖ P) π (Kernel.discard 𝒳')
-      ≤ bayesRiskIncrease E P π (Kernel.discard 𝒳) := by
-  convert le_bayesRiskIncrease_comp E P π κ (Kernel.discard 𝒳')
+    bayesRiskIncrease E (κ ∘ₖ P) π (Kernel.discard 𝒳' : Kernel 𝒳' PUnit.{u + 1})
+      ≤ bayesRiskIncrease E P π (Kernel.discard 𝒳 : Kernel 𝒳 PUnit.{u + 1}) := by
+  convert le_bayesRiskIncrease_comp E P π κ (Kernel.discard 𝒳' : Kernel 𝒳' PUnit.{u + 1})
   simp
 
 end BayesRiskIncrease
