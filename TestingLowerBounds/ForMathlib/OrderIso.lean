@@ -47,7 +47,7 @@ def IooOrderIsoIoo {a b : ℝ} (hab : a < b) : Ioo a b ≃o Ioo (0 : ℝ) 1 wher
     exact hab.ne'
   map_rel_iff' {x y} := by
     simp only [Equiv.coe_fn_mk, Subtype.mk_le_mk]
-    rw [div_le_div_right, sub_le_sub_iff_right]
+    rw [div_le_div_iff_of_pos_right, sub_le_sub_iff_right]
     · norm_cast
     · simp [hab]
 
@@ -98,7 +98,7 @@ def IooOrderIsoReal : (Ioo (0 : ℝ) 1) ≃o ℝ where
     rotate_left
     · exact div_pos x.2.1 (by simp [x.2.2])
     · exact div_pos y.2.1 (by simp [y.2.2])
-    rw [div_le_div_iff, mul_sub, mul_sub, mul_one, mul_one, mul_comm, sub_le_sub_iff_right]
+    rw [div_le_div_iff₀, mul_sub, mul_sub, mul_one, mul_one, mul_comm, sub_le_sub_iff_right]
     · norm_cast
     · simp [x.2.2]
     · simp [y.2.2]

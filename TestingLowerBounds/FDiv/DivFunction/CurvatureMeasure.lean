@@ -5,7 +5,7 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import Mathlib.Analysis.Calculus.Deriv.Comp
 import Mathlib.MeasureTheory.Constructions.Polish.Basic
-import Mathlib.MeasureTheory.Integral.FundThmCalculus
+import Mathlib.MeasureTheory.Integral.IntervalIntegral.FundThmCalculus
 import TestingLowerBounds.Sorry.ByParts
 import TestingLowerBounds.ForMathlib.LeftRightDeriv
 import TestingLowerBounds.FDiv.DivFunction.RightDeriv
@@ -20,7 +20,7 @@ namespace ProbabilityTheory
 lemma ENNReal.preimage_toReal_Ioc {a b : ℝ} (h : 0 ≤ a) :
     ENNReal.toReal ⁻¹' Ioc a b = Ioc (ENNReal.ofReal a) (ENNReal.ofReal b) := by
   ext x
-  rcases lt_or_le b a with hb | hb
+  rcases lt_or_ge b a with hb | hb
   · rw [Ioc_eq_empty (not_lt.mpr hb.le), Ioc_eq_empty]
     · simp
     · rw [not_lt, ENNReal.ofReal_le_ofReal_iff h]
@@ -50,7 +50,7 @@ variable {𝒳 : Type*} {m𝒳 : MeasurableSpace 𝒳} {μ ν : Measure 𝒳} {f
 --   rw [if_neg hx0, if_neg hx1]
 --   have hx_ne0 : (x : ℝ) ≠ 0 := fun h ↦ hx0 (by ext; simp only [Icc.coe_zero, Icc.coe_eq_zero, h])
 --   have hx_ne1 : (x : ℝ) ≠ 1 := fun h ↦ hx1 (by ext; simp only [Icc.coe_one, Icc.coe_eq_one, h])
---   rw [ENNReal.toReal_add, ENNReal.one_toReal, ENNReal.toReal_inv, ENNReal.toReal_ofReal]
+--   rw [ENNReal.toReal_add, ENNReal.toReal_one, ENNReal.toReal_inv, ENNReal.toReal_ofReal]
 --   · simp
 --   · simp only [inv_nonneg, sub_nonneg]
 --     rw [one_le_inv₀ (lt_of_le_of_ne x.2.1 hx_ne0.symm)]
@@ -404,7 +404,7 @@ irreducible_def curvatureMeasure (f : DivFunction) : Measure ℝ≥0∞ :=
 lemma curvatureMeasure_Ioi (a : ℝ≥0∞) (ha : a ≠ ∞) :
     f.curvatureMeasure (Ioi a) = f.rightDerivStieltjes.measure (Ioi a.toReal) := by
   rw [curvatureMeasure, Measure.map_apply]
-  · congr
+  · congr 1
     ext x
     simp only [mem_preimage, mem_Ioi]
     rw [ENNReal.lt_ofReal_iff_toReal_lt ha]
@@ -536,7 +536,7 @@ lemma integrable_curvatureMeasureReal_sub_iff_ne_top_of_ge (hf : rightDeriv f.re
   have : ∫⁻ x in Ioc 1 (ENNReal.ofReal b),
         ENNReal.ofReal b - ENNReal.ofReal x.toReal ∂f.curvatureMeasure
       = ∫⁻ x in Ioc 1 (ENNReal.ofReal b), ENNReal.ofReal b - x ∂f.curvatureMeasure := by
-    refine setLIntegral_congr_fun measurableSet_Ioc <| ae_of_all _ fun x hx ↦ ?_
+    refine setLIntegral_congr_fun_ae measurableSet_Ioc <| ae_of_all _ fun x hx ↦ ?_
     rw [ENNReal.ofReal_toReal]
     refine (hx.2.trans_lt ?_).ne
     exact ENNReal.ofReal_lt_top
@@ -563,7 +563,7 @@ lemma integrable_curvatureMeasureReal_sub_iff_ne_top_of_le (hf : rightDeriv f.re
   have : ∫⁻ x in Ioc (ENNReal.ofReal b) 1,
         ENNReal.ofReal x.toReal - ENNReal.ofReal b ∂f.curvatureMeasure
       = ∫⁻ x in Ioc (ENNReal.ofReal b) 1, x - ENNReal.ofReal b ∂f.curvatureMeasure := by
-    refine setLIntegral_congr_fun measurableSet_Ioc <| ae_of_all _ fun x hx ↦ ?_
+    refine setLIntegral_congr_fun_ae measurableSet_Ioc <| ae_of_all _ fun x hx ↦ ?_
     rw [ENNReal.ofReal_toReal]
     refine (hx.2.trans_lt ?_).ne
     exact ENNReal.one_lt_top
@@ -614,7 +614,7 @@ theorem convex_taylor_one_left' (hf : rightDeriv f.realFun 1 = 0) {b : ℝ}
 
 theorem convex_taylor_one (hf : rightDeriv f.realFun 1 = 0) {b : ℝ} (hb_zero : 0 ≤ b) :
     f.realFun b = ∫ x in (1)..b, b - x ∂f.curvatureMeasureReal := by
-  rcases le_or_lt 1 b with hb | hb
+  rcases le_or_gt 1 b with hb | hb
   · simp only [intervalIntegral, not_lt, hb, Ioc_eq_empty, Measure.restrict_empty,
       integral_zero_measure, sub_zero]
     exact convex_taylor_one_right' hf hb

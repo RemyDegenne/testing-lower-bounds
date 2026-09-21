@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import Mathlib.Analysis.SpecialFunctions.Log.ENNRealLogExp
-import Mathlib.MeasureTheory.Constructions.Prod.Integral
+import Mathlib.MeasureTheory.Integral.Prod
 import Mathlib.Order.CompletePartialOrder
 import TestingLowerBounds.CurvatureMeasure
 import TestingLowerBounds.Divergences.StatInfo.StatInfo
@@ -33,7 +33,7 @@ def statInfoDivFun (β γ : ℝ) : DivFunction :=
 lemma measurable_statInfoDivFun :
     Measurable (Function.uncurry fun (a : ℝ × ℝ) x ↦ statInfoDivFun a.1 a.2 ((∂μ/∂ν) x)) := by
   have h_meas := stronglyMeasurable_statInfoFun.measurable.comp
-    (f := fun ((a, b), x) ↦ ((a, b), ((∂μ/∂ν) x).toReal)) (measurable_fst.prod_mk (by fun_prop))
+    (f := fun ((a, b), x) ↦ ((a, b), ((∂μ/∂ν) x).toReal)) (measurable_fst.prodMk (by fun_prop))
   unfold statInfoDivFun
   -- convert h_meas
   sorry
@@ -63,11 +63,11 @@ lemma derivAtTop_statInfoDivFun_eq :
         else if γ ≤ β then ENNReal.ofReal (-β) else 0 := by
   by_cases hβ : 0 ≤ β <;> by_cases hγ : γ ≤ β <;> simp [derivAtTop_statInfoDivFun_of_nonneg_of_le,
     derivAtTop_statInfoDivFun_of_nonneg_of_gt, derivAtTop_statInfoDivFun_of_nonpos_of_le,
-    derivAtTop_statInfoDivFun_of_nonpos_of_gt, hβ, hγ, lt_of_not_le, le_of_lt (lt_of_not_le _)]
+    derivAtTop_statInfoDivFun_of_nonpos_of_gt, hβ, hγ, lt_of_not_ge, le_of_lt (lt_of_not_ge _)]
 
 lemma derivAtTop_statInfoDivFun_ne_top (β γ : ℝ) :
     (statInfoDivFun β γ).derivAtTop ≠ ∞ := by
-  rcases le_total 0 β with (hβ | hβ) <;> rcases le_or_lt γ β with (hγ | hγ) <;>
+  rcases le_total 0 β with (hβ | hβ) <;> rcases le_or_gt γ β with (hγ | hγ) <;>
     simp [derivAtTop_statInfoDivFun_of_nonneg_of_le, derivAtTop_statInfoDivFun_of_nonneg_of_gt,
       derivAtTop_statInfoDivFun_of_nonpos_of_le, derivAtTop_statInfoDivFun_of_nonpos_of_gt, hβ, hγ]
 

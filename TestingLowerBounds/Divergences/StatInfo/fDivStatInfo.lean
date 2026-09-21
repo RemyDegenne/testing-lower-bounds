@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import Mathlib.Analysis.SpecialFunctions.Log.ENNRealLogExp
-import Mathlib.MeasureTheory.Constructions.Prod.Integral
+import Mathlib.MeasureTheory.Integral.Prod
 import Mathlib.Order.CompletePartialOrder
 import TestingLowerBounds.CurvatureMeasure
 import TestingLowerBounds.Divergences.StatInfo.StatInfo
@@ -105,7 +105,7 @@ lemma fDiv_statInfoFun_eq_integral_max_of_nonneg_of_le [IsFiniteMeasure μ] [IsF
     (fDiv (statInfoDivFun β γ) μ ν).toReal
       = ∫ x, max 0 (γ - β * ((∂μ/∂ν) x).toReal) ∂ν := by
   simp_rw [toReal_fDiv_statInfoFun_eq_integral_add, derivAtTop_statInfoDivFun_of_nonneg_of_le hβ hγ,
-    ENNReal.zero_toReal, zero_mul, add_zero, statInfoFun_of_le hγ]
+    ENNReal.toReal_zero, zero_mul, add_zero, statInfoFun_of_le hγ]
 
 lemma fDiv_statInfoFun_eq_integral_max_of_nonneg_of_gt [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (hβ : 0 ≤ β) (hγ : β < γ) :
@@ -129,7 +129,7 @@ lemma fDiv_statInfoFun_eq_integral_max_of_nonpos_of_gt [IsFiniteMeasure μ] [IsF
     (fDiv (statInfoDivFun β γ) μ ν).toReal
       = ∫ x, max 0 (β * ((∂μ/∂ν) x).toReal - γ) ∂ν := by
   simp_rw [toReal_fDiv_statInfoFun_eq_integral_add,
-    derivAtTop_statInfoDivFun_of_nonpos_of_gt hβ hγ, statInfoFun_of_gt hγ, ENNReal.zero_toReal,
+    derivAtTop_statInfoDivFun_of_nonpos_of_gt hβ hγ, statInfoFun_of_gt hγ, ENNReal.toReal_zero,
     zero_mul, add_zero]
 
 lemma fDiv_statInfoFun_eq_zero_of_nonneg_of_nonpos [IsFiniteMeasure μ] [IsFiniteMeasure ν]
@@ -153,13 +153,13 @@ lemma integral_max_eq_integral_abs [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     ∫ x, max 0 (γ - β * ((∂μ/∂ν) x).toReal) ∂ν
       = 2⁻¹ * (∫ x, |β * ((∂μ/∂ν) x).toReal - γ| ∂ν + γ * (ν univ).toReal - β * (μ univ).toReal
         + β * ((μ.singularPart ν) univ).toReal) := by
-  simp_rw [max_eq_add_add_abs_sub, zero_add, zero_sub, neg_sub, integral_mul_left]
+  simp_rw [max_eq_add_add_abs_sub, zero_add, zero_sub, neg_sub, integral_const_mul]
   congr
   have h_int : Integrable (fun x ↦ β * ((∂μ/∂ν) x).toReal) ν :=
     Measure.integrable_toReal_rnDeriv.const_mul _
   have h_int' : Integrable (fun x ↦ γ - β * ((∂μ/∂ν) x).toReal) ν := (integrable_const γ).sub h_int
   rw [integral_add h_int', integral_sub (integrable_const γ) h_int, integral_const, smul_eq_mul,
-    mul_comm, integral_mul_left, add_comm, add_sub_assoc, add_assoc, sub_eq_add_neg, sub_eq_add_neg,
+    mul_comm, integral_const_mul, add_comm, add_sub_assoc, add_assoc, sub_eq_add_neg, sub_eq_add_neg,
     add_assoc, ← mul_neg, ← mul_neg, ← mul_add]
   swap; · exact (integrable_add_const_iff.mpr h_int).abs
   congr
@@ -178,13 +178,13 @@ lemma integral_max_eq_integral_abs' [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     ∫ x, max 0 (β * ((∂μ/∂ν) x).toReal - γ) ∂ν
       = 2⁻¹ * (∫ x, |β * ((∂μ/∂ν) x).toReal - γ| ∂ν - γ * (ν univ).toReal + β * (μ univ).toReal
         - β * ((μ.singularPart ν) univ).toReal) := by
-  simp_rw [max_eq_add_add_abs_sub, zero_add, zero_sub, abs_neg, integral_mul_left]
+  simp_rw [max_eq_add_add_abs_sub, zero_add, zero_sub, abs_neg, integral_const_mul]
   congr
   have h_int : Integrable (fun x ↦ β * ((∂μ/∂ν) x).toReal) ν :=
     Measure.integrable_toReal_rnDeriv.const_mul _
   have h_int' : Integrable (fun x ↦ β * ((∂μ/∂ν) x).toReal - γ) ν := h_int.sub (integrable_const γ)
   rw [integral_add h_int', integral_sub h_int (integrable_const γ), integral_const, smul_eq_mul,
-    mul_comm, integral_mul_left, add_comm, add_sub_assoc, sub_eq_add_neg, add_comm (β * _),
+    mul_comm, integral_const_mul, add_comm, add_sub_assoc, sub_eq_add_neg, add_comm (β * _),
     ← add_assoc, ← sub_eq_add_neg]
   swap; · exact (h_int.sub (integrable_const _)).abs
   congr
@@ -276,10 +276,10 @@ lemma fDiv_statInfoFun_eq_StatInfo_of_nonneg [IsFiniteMeasure μ] [IsFiniteMeasu
       = (statInfo μ ν (Bool.boolMeasure (.ofReal β) (.ofReal γ))).toReal
         + 2⁻¹ * (|β * (μ univ).toReal - γ * (ν univ).toReal|
         + (if γ ≤ β then -1 else 1) * (β * (μ univ).toReal - γ * (ν univ).toReal)) := by
-  rcases le_or_lt γ β with (hβγ | hβγ)
+  rcases le_or_gt γ β with (hβγ | hβγ)
   · rw [fDiv_statInfoFun_eq_StatInfo_of_nonneg_of_le hβ hγ hβγ, if_pos hβγ, neg_one_mul, neg_sub,
       sub_eq_add_neg, add_assoc, ← sub_eq_add_neg]
-  · rw [fDiv_statInfoFun_eq_StatInfo_of_nonneg_of_gt hβ hγ hβγ, if_neg hβγ.not_le, one_mul,
+  · rw [fDiv_statInfoFun_eq_StatInfo_of_nonneg_of_gt hβ hγ hβγ, if_neg hβγ.not_ge, one_mul,
       add_sub_assoc]
 
 end FDivStatInfoEqStatInfo

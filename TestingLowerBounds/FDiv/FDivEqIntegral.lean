@@ -92,7 +92,7 @@ lemma lintegral_f_rnDeriv_eq_lintegralfDiv_statInfoFun_of_absolutelyContinuous
     ∫⁻ x, f ((∂μ/∂ν) x) ∂ν = ∫⁻ x, fDiv (statInfoDivFun 1 x.toReal) μ ν ∂f.curvatureMeasure := by
   have h_meas : Measurable (fun x γ ↦ statInfoFun 1 γ ((∂μ/∂ν) x).toReal).uncurry :=
     measurable_statInfoFun.comp <|
-      (measurable_const.prod_mk measurable_snd).prod_mk <|
+      (measurable_const.prodMk measurable_snd).prodMk <|
       ((μ.measurable_rnDeriv ν).comp measurable_fst).ennreal_toReal
   classical
   simp_rw [fDiv_statInfoFun_eq_lintegral_of_ac h_ac]
@@ -117,7 +117,7 @@ lemma fDiv_ne_top_iff_lintegral_fDiv_statInfoFun_ne_top_of_ac'
 lemma measurable_fDiv_statInfoFun_right [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     Measurable fun y ↦ fDiv (statInfoDivFun 1 y) μ ν := by
   change Measurable ((fun p : ℝ × ℝ ↦ fDiv (statInfoDivFun p.1 p.2) μ ν) ∘ (fun x ↦ (1, x)))
-  exact (measurable_fDiv_statInfoFun _ _).comp measurable_prod_mk_left
+  exact (measurable_fDiv_statInfoFun _ _).comp measurable_prodMk_left
 
 lemma lintegral_fDiv_statInfoDivFun_curvatureMeasureReal_ne_top_iff
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
@@ -152,14 +152,14 @@ lemma lintegral_statInfoFun_one_zero' (hfderiv_one : rightDeriv f.realFun 1 = 0)
   have := f.convex_taylor_one_left hfderiv_one zero_le_one
   simp only [tsub_zero] at this
   rw [this, f.lintegral_curvatureMeasureReal measurable_statInfoFun2.ennreal_ofReal]
-  rw [← lintegral_indicator _ measurableSet_Ioc]
+  rw [← lintegral_indicator measurableSet_Ioc _]
   refine lintegral_congr fun x ↦ ?_
   simp_rw [statInfoFun_one_zero_right, indicator_apply]
   by_cases hx_top : x = ∞
   · simp [hx_top]
   have h_iff: x ∈ Ioc 0 1 ↔ x.toReal ∈ Ioc 0 1 := by
     simp only [mem_Ioc, ← ENNReal.ofReal_lt_iff_lt_toReal le_rfl hx_top,
-        ← ENNReal.one_toReal, ENNReal.toReal_le_toReal hx_top ENNReal.one_ne_top,
+        ← ENNReal.toReal_one, ENNReal.toReal_le_toReal hx_top ENNReal.one_ne_top,
         ENNReal.ofReal_zero]
   by_cases hx_mem : x ∈ Ioc 0 1
   · have hx_mem' : x.toReal ∈ Ioc 0 1 := h_iff.mp hx_mem
@@ -187,16 +187,16 @@ lemma lintegral_derivAtTop_statInfoDivFun' (hfderiv_one : rightDeriv f.realFun 1
     simp only [mem_preimage, mem_Ioi, mem_Ioo]
     constructor <;> intro h
     · by_cases hx_top : x = ∞
-      · simp only [hx_top, ENNReal.top_toReal] at h
+      · simp only [hx_top, ENNReal.toReal_top] at h
         exact absurd h (not_lt.mpr zero_le_one)
-      · rw [← ENNReal.one_toReal, ENNReal.toReal_lt_toReal ENNReal.one_ne_top hx_top] at h
+      · rw [← ENNReal.toReal_one, ENNReal.toReal_lt_toReal ENNReal.one_ne_top hx_top] at h
         exact ⟨h, Ne.lt_top hx_top⟩
-    · rw [← ENNReal.one_toReal, ENNReal.toReal_lt_toReal ENNReal.one_ne_top h.2.ne]
+    · rw [← ENNReal.toReal_one, ENNReal.toReal_lt_toReal ENNReal.one_ne_top h.2.ne]
       exact h.1
   rw [this]
   simp only [ne_eq, ENNReal.one_ne_top, not_false_eq_true,
     DivFunction.curvatureMeasure_Ioo_top_eq_curvatureMeasure_Ioi, f.curvatureMeasure_Ioi,
-    ENNReal.one_toReal]
+    ENNReal.toReal_one]
   rw [ERealStieltjes.measure_Ioi f.rightDerivStieltjes f.tendsto_rightDerivStieltjes_atTop]
   have : f.rightDerivStieltjes 1 = 0 := by simp [hfderiv_one]
   simp [this]

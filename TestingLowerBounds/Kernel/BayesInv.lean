@@ -113,7 +113,7 @@ lemma bayesInv_id : ∀ᵐ a ∂μ, (Kernel.id†μ) a = Kernel.id a := by
   refine eq_bayesInv_of_compProd_eq Kernel.id ?_
   rw [Measure.comp_id, Measure.compProd_id, Measure.map_map measurable_swap]
   · congr
-  · exact measurable_id.prod_mk measurable_id
+  · exact measurable_id.prodMk measurable_id
 
 /-- The Bayesian inverse is contravariant. -/
 lemma bayesInv_comp [StandardBorelSpace β] [Nonempty β] {η : Kernel β γ} [IsFiniteKernel η] :

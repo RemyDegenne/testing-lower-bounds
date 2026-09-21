@@ -121,7 +121,7 @@ lemma tendsto_mul_log_add_one_sub_atTop : Tendsto (fun x ↦ x * log x + 1 - x) 
   have : (fun x ↦ x * log x + 1 - x) = (fun x ↦ x * (log x - 1) + 1) := by ext; ring
   rw [this]
   refine Tendsto.atTop_add ?_ tendsto_const_nhds
-  refine Tendsto.atTop_mul_atTop ?_ ?_
+  refine Tendsto.atTop_mul_atTop₀ ?_ ?_
   · exact fun _ a ↦ a
   · exact tendsto_log_atTop.atTop_add tendsto_const_nhds
 
@@ -144,7 +144,7 @@ lemma klDivFun_apply {x : ℝ≥0∞} (hx : x ≠ ∞) :
     klDivFun x = ENNReal.ofReal (x.toReal * log x.toReal + 1 - x.toReal) := by
   by_cases hx0 : x = 0
   · rw [klDivFun, hx0, DivFunction.ofReal_apply_zero_of_continuousWithinAt]
-    simp only [log_zero, mul_zero, zero_add, sub_zero, ENNReal.ofReal_one, ENNReal.zero_toReal]
+    simp only [log_zero, mul_zero, zero_add, sub_zero, ENNReal.ofReal_one, ENNReal.toReal_zero]
     exact continuous_mul_log_add_one_sub.continuousWithinAt
   · rw [klDivFun, DivFunction.ofReal_apply hx0 hx]
 
@@ -218,7 +218,7 @@ lemma integral_llr_add_mul_log_nonneg [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     exact h_int.sub (integrable_const _)
   rw [integral_congr_ae (llr_smul_right hμν (ν .univ)⁻¹ (by simp) (by simp [hν]))] at h
   rw [integral_sub h_int (integrable_const _), integral_const, smul_eq_mul] at h
-  simp only [ENNReal.toReal_inv, log_inv, mul_neg, sub_neg_eq_add, measure_univ, ENNReal.one_toReal]
+  simp only [ENNReal.toReal_inv, log_inv, mul_neg, sub_neg_eq_add, measure_univ, ENNReal.toReal_one]
     at h
   exact h
 

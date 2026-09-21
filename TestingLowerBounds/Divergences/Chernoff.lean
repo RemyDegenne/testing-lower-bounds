@@ -38,7 +38,7 @@ lemma chernoffDiv_one [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
   simp_rw [chernoffDiv, renyiDiv_one]
   congr with ξ
   congr with hξ
-  simp only [measure_univ, ENNReal.one_toReal, EReal.coe_one, inv_one, one_mul, ne_eq, one_ne_zero,
+  simp only [measure_univ, ENNReal.toReal_one, EReal.coe_one, inv_one, one_mul, ne_eq, one_ne_zero,
     not_false_eq_true, div_self, log_one, EReal.coe_zero, sub_zero]
   have : (1 : EReal) = ((1 : ℝ) : EReal) := rfl
   simp_rw [this, EReal.add_sub_cancel]

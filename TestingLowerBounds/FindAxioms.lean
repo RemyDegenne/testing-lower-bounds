@@ -1,7 +1,7 @@
 /-
 Written by Kyle Miller
 -/
-import Batteries.Lean.NameMap
+import Batteries.Lean.NameMapAttribute
 import Mathlib.Data.List.Monad
 import Mathlib.Tactic.StacksAttribute
 

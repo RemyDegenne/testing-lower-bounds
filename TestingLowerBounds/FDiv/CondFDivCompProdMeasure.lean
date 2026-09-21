@@ -34,7 +34,7 @@ lemma condFDiv_kernel_snd'_integrable_iff [CountableOrCountablyGenerated (α × 
     ∫⁻ a, condFDiv f (κ.snd' a) (η.snd' a) (ξ a) ∂μ ≠ ∞ ↔
       ∫⁻ a, ∫⁻ b, ∫⁻ x, f ((∂κ (a, b)/∂η (a, b)) x) ∂η (a, b) ∂ξ a ∂μ ≠ ∞ := by
   by_cases h_empty : Nonempty α
-  swap; · have := not_nonempty_iff.mp h_empty; simp [Integrable.of_finite (μ := μ)]
+  swap; · have := not_nonempty_iff.mp h_empty; simp
   have := countableOrCountablyGenerated_right_of_prod_left_of_nonempty (α := α) (β := β) (γ := γ)
   simp_rw [condFDiv_eq_add]
   rw [lintegral_add_right]
@@ -59,7 +59,7 @@ lemma condFDiv_kernel_snd'_integrable_iff [CountableOrCountablyGenerated (α × 
     rw [Pi.zero_apply, lintegral_eq_zero_iff]
     swap
     · refine (Measure.measurable_coe .univ).comp ?_
-      exact (κ.measurable_singularPart η).comp measurable_prod_mk_left
+      exact (κ.measurable_singularPart η).comp measurable_prodMk_left
     filter_upwards [hx] with y hy
     simp only [Pi.zero_apply, Measure.measure_univ_eq_zero]
     exact Measure.singularPart_eq_zero_of_ac hy
@@ -69,9 +69,9 @@ lemma condFDiv_kernel_snd'_integrable_iff [CountableOrCountablyGenerated (α × 
     _ ≤ ∫⁻ a, ∫⁻ b, (κ (a, b)) univ ∂ξ a ∂μ :=
         lintegral_mono fun _ ↦ lintegral_mono fun _ ↦ Measure.singularPart_le _ _ _
     _ = ∫⁻ a, (ξ a) univ ∂μ := by simp
-    _ ≤ ∫⁻ _, IsFiniteKernel.bound ξ ∂μ := lintegral_mono fun _ ↦ ξ.measure_le_bound  _ univ
-    _ = IsFiniteKernel.bound ξ * μ univ := by simp
-    _ < ∞ := ENNReal.mul_lt_top (IsFiniteKernel.bound_lt_top ξ) (by simp)
+    _ ≤ ∫⁻ _, ξ.bound ∂μ := lintegral_mono fun _ ↦ ξ.measure_le_bound  _ univ
+    _ = ξ.bound * μ univ := by simp
+    _ < ∞ := ENNReal.mul_lt_top (ξ.bound_lt_top) (by simp)
 
 lemma condFDiv_kernel_snd'_eq_top_iff [CountableOrCountablyGenerated (α × β) γ]
     [IsFiniteMeasure μ] {ξ : Kernel α β}  [IsFiniteKernel ξ]
@@ -106,8 +106,8 @@ lemma condFDiv_compProd_meas_eq_top [CountableOrCountablyGenerated (α × β) γ
   by_cases h_empty : Nonempty α
   swap
   · have := not_nonempty_iff.mp h_empty
-    simp only [condFDiv_of_isEmpty_left, ENNReal.zero_ne_top, ne_eq, not_eventually,
-      Decidable.not_not, lintegral_of_isEmpty, or_false, false_iff, not_frequently]
+    simp only [condFDiv_of_isEmpty_left, ENNReal.zero_ne_top, 
+      lintegral_of_isEmpty]
   have := countableOrCountablyGenerated_right_of_prod_left_of_nonempty (α := α) (β := β) (γ := γ)
   rw [condFDiv_eq_top_iff]
   by_cases h_ac : f.derivAtTop = ∞ → ∀ᵐ x ∂(μ ⊗ₘ ξ), κ x ≪ η x
@@ -119,7 +119,7 @@ lemma condFDiv_compProd_meas_eq_top [CountableOrCountablyGenerated (α × β) γ
     simp only [or_iff_left_iff_imp, and_imp]
     intro h_top h_not
     exact absurd (h_ac h_top) h_not
-  push_neg at h_ac
+  rw [Classical.not_imp] at h_ac
   simp only [h_ac, not_false_eq_true, and_self, or_true, true_iff]
   suffices ∃ᵐ x ∂μ, condFDiv f (κ.snd' x) (η.snd' x) (ξ x) = ∞ by
     by_contra h_ne_top
@@ -143,7 +143,7 @@ lemma condFDiv_compProd_meas [CountableOrCountablyGenerated (α × β) γ] [IsFi
   by_cases h_empty : Nonempty α
   swap
   · simp only [isEmpty_prod, not_nonempty_iff.mp h_empty, true_or, condFDiv_of_isEmpty_left,
-      lintegral_of_isEmpty, EReal.coe_zero]
+      lintegral_of_isEmpty]
   have := countableOrCountablyGenerated_right_of_prod_left_of_nonempty (α := α) (β := β) (γ := γ)
   rw [condFDiv, Measure.lintegral_compProd (measurable_fDiv _ _)]
   rfl
@@ -154,28 +154,19 @@ lemma Measure.ext_prod {μ ν : Measure (α × β)} [IsFiniteMeasure μ] [IsFini
       μ (s ×ˢ t) = ν (s ×ˢ t)) :
     μ = ν := by
   ext s hs
-  apply induction_on_inter generateFrom_prod.symm isPiSystem_prod _ _ _ _ hs
-  · simp
-  · rintro _ ⟨t₁, ht₁, t₂, ht₂, rfl⟩
+  induction s, hs using MeasurableSpace.induction_on_inter generateFrom_prod.symm
+    isPiSystem_prod with
+  | empty => simp
+  | basic t ht =>
+    obtain ⟨t₁, ht₁, t₂, ht₂, rfl⟩ := ht
     exact h ht₁ ht₂
-  · intro t ht ht_eq
+  | compl t ht ht_eq =>
     simp_rw [measure_compl ht (measure_ne_top _ _), ht_eq]
     congr 1
     specialize h .univ .univ
     simpa only [univ_prod_univ, Measure.restrict_univ] using h
-  · intro f' hf_disj hf_meas hf_eq
+  | iUnion f' hf_disj hf_meas hf_eq =>
     simp_rw [measure_iUnion hf_disj hf_meas, hf_eq]
-
-lemma _root_.MeasureTheory.Measure.compProd_assoc [IsFiniteMeasure μ]
-    {ξ : Kernel α β} [IsFiniteKernel ξ] {κ : Kernel (α × β) γ} [IsFiniteKernel κ] :
-    μ ⊗ₘ ξ ⊗ₘ κ = (μ ⊗ₘ (ξ ⊗ₖ κ)).map MeasurableEquiv.prodAssoc.symm := by
-  simp_rw [Measure.compProd_eq_comp]
-  rw [Measure.map_comp _ _ MeasurableEquiv.prodAssoc.symm.measurable, Measure.comp_assoc]
-  congr 1
-  ext a : 1
-  rw [Kernel.comp_apply, Kernel.map_apply _ MeasurableEquiv.prodAssoc.symm.measurable,
-    Kernel.prod_apply, Kernel.prod_apply, Kernel.id_apply]
-  sorry
 
 lemma condFDiv_compProd_meas' [CountableOrCountablyGenerated α (β × γ)]
     [CountableOrCountablyGenerated (α × β) γ] [IsFiniteMeasure μ]
@@ -186,7 +177,7 @@ lemma condFDiv_compProd_meas' [CountableOrCountablyGenerated α (β × γ)]
   swap; · simp [not_nonempty_iff.mp h_empty]
   have := countableOrCountablyGenerated_right_of_prod_left_of_nonempty (α := α) (β := β) (γ := γ)
   rw [← fDiv_compProd_left]
-  simp_rw [Measure.compProd_assoc]
+  simp_rw [← Measure.compProd_assoc]
   rw [fDiv_map_measurableEmbedding MeasurableEquiv.prodAssoc.symm.measurableEmbedding]
   rw [fDiv_compProd_left, condFDiv]
   simp_rw [Kernel.compProd_apply_eq_compProd_snd', fDiv_compProd_left]

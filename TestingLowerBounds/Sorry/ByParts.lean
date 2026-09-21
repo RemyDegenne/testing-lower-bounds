@@ -1,4 +1,4 @@
-import Mathlib.MeasureTheory.Integral.IntervalIntegral
+import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
 
 /-!
 Here there is the statement of a version of the integration by parts theorem for the Riemann-Stieltjes integral.
@@ -22,7 +22,7 @@ In our case both functions are Stieltjes functions, hence they are of bounded va
 -/
 -- #check intervalIntegral.integral_deriv_mul_eq_sub_of_hasDeriv_right --one of the versions of the integration by parts that is currently in mathlib.
 
-lemma integral_stieltjes_meas_by_parts (f g : StieltjesFunction) (a b : ℝ)
+lemma integral_stieltjes_meas_by_parts (f g : StieltjesFunction ℝ) (a b : ℝ)
     (hf : ContinuousOn f (Set.Icc a b)) :
     ∫ x in a..b, f x ∂g.measure = (f b) * (g b) - (f a) * (g a) - ∫ x in a..b, g x ∂f.measure := by
   sorry

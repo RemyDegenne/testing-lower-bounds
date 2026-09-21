@@ -62,7 +62,7 @@ lemma comp_twoHypKernel (κ : Kernel 𝒳 𝒴) :
 lemma measure_comp_twoHypKernel (μ ν : Measure 𝒳) (π : Measure Bool) :
     twoHypKernel μ ν ∘ₘ π = π {true} • ν + π {false} • μ := by
   ext s hs
-  rw [Measure.bind_apply hs (Kernel.measurable _)]
+  rw [Measure.bind_apply hs (Kernel.aemeasurable _)]
   simp only [twoHypKernel_apply, lintegral_fintype, Fintype.univ_bool, Finset.mem_singleton,
     Bool.true_eq_false, not_false_eq_true, Finset.sum_insert, cond_true, Finset.sum_singleton,
     cond_false, Measure.coe_add, Measure.coe_smul, Pi.add_apply, Pi.smul_apply, smul_eq_mul]
@@ -189,13 +189,16 @@ lemma measure_prod_ext {μ ν : Measure (𝒳 × 𝒴)} [IsFiniteMeasure μ]
       μ (A ×ˢ B) = ν (A ×ˢ B)) :
     μ = ν := by
   ext s hs
-  apply MeasurableSpace.induction_on_inter generateFrom_prod.symm isPiSystem_prod _ _ _ _ hs
-  · simp_rw [measure_empty]
-  · exact fun t ⟨A, hA, B, hB, ht⟩ ↦ ht ▸ h A hA B hB
-  · intro t ht h_eq
+  induction s, hs using MeasurableSpace.induction_on_inter generateFrom_prod.symm
+    isPiSystem_prod with
+  | empty => simp_rw [measure_empty]
+  | basic t ht =>
+    obtain ⟨A, hA, B, hB, rfl⟩ := ht
+    exact h A hA B hB
+  | compl t ht h_eq =>
     rw [measure_compl ht (measure_ne_top μ t), measure_compl ht (h_eq ▸ measure_ne_top μ t), h_eq,
       ← Set.univ_prod_univ, ← h _ .univ _ .univ]
-  · intro A h_disj h_meas h_eq
+  | iUnion A h_disj h_meas h_eq =>
     simp_rw [measure_iUnion h_disj h_meas, h_eq]
 
 lemma bayesInv_twoHypKernel (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
@@ -207,7 +210,7 @@ lemma bayesInv_twoHypKernel (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFinit
   · simp
   · rw [Measure.compProd_apply_prod hA hB, Measure.map_apply measurable_swap (hA.prod hB),
       Set.preimage_swap_prod, Measure.compProd_apply_prod hB hA, lintegral_singleton,
-      twoHypKernel_apply, cond_true, setLIntegral_congr_fun hA _]
+      twoHypKernel_apply, cond_true, setLIntegral_congr_fun_ae hA _]
     rotate_left
     · exact fun x ↦ π {true} * (∂ν/∂twoHypKernel μ ν ∘ₘ π) x
     · filter_upwards [twoHypKernelInv_apply' μ ν π {true}] with x hx
@@ -220,7 +223,7 @@ lemma bayesInv_twoHypKernel (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFinit
     simp [mul_comm]
   · rw [Measure.compProd_apply_prod hA hB, Measure.map_apply measurable_swap (hA.prod hB),
       Set.preimage_swap_prod, Measure.compProd_apply_prod hB hA, lintegral_singleton,
-      twoHypKernel_apply, cond_false, setLIntegral_congr_fun hA _]
+      twoHypKernel_apply, cond_false, setLIntegral_congr_fun_ae hA _]
     rotate_left
     · exact fun x ↦ π {false} * (∂μ/∂twoHypKernel μ ν ∘ₘ π) x
     · filter_upwards [twoHypKernelInv_apply' μ ν π {false}] with x hx
@@ -237,7 +240,7 @@ lemma bayesInv_twoHypKernel (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFinit
       Set.pair_comm, ← Bool.univ_eq]
     simp only [measure_univ, lintegral_const, MeasurableSet.univ, Measure.restrict_apply,
       Set.univ_inter, one_mul, Measure.restrict_univ]
-    rw [Measure.bind_apply hA (by exact fun _ _ ↦ hB), Bool.lintegral_bool]
+    rw [Measure.bind_apply hA (twoHypKernel μ ν).measurable.aemeasurable, Bool.lintegral_bool]
     simp
 
 lemma bayesRiskPrior_eq_of_hasGenBayesEstimator_binary {𝒴 𝒵 : Type*}

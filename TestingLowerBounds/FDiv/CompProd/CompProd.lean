@@ -111,7 +111,7 @@ lemma integral_f_rnDeriv_le_integral_add [CountableOrCountablyGenerated α β]
   swap
   · exact f.continuous.measurable.comp
       ((μ.measurable_rnDeriv _).mul (Kernel.measurable_coe _ .univ))
-  unfold_let κ'
+  unfold κ'
   simp_rw [mul_assoc]
   rw [lintegral_const_mul]
   exact (μ.measurable_rnDeriv _).mul (Kernel.measurable_coe _ .univ)
@@ -141,15 +141,16 @@ lemma le_fDiv_compProd [CountableOrCountablyGenerated α β] (μ ν : Measure α
         rw [add_assoc]
         congr
         by_cases h_top : f.derivAtTop = ∞
-        · simp only [h_top, EReal.toReal_top, EReal.coe_zero, zero_mul, zero_add]
+        · simp only [h_top]
           rw [Measure.singularPart_eq_zero_of_ac (h2 h_top).1, Measure.singularPart_eq_zero_of_ac,
             Measure.singularPart_eq_zero_of_ac]
           · simp
-          · rw [Measure.absolutelyContinuous_compProd_iff]
+          · rw [Measure.absolutelyContinuous_compProd_iff,
+              Measure.absolutelyContinuous_compProd_right_iff]
             exact h2 h_top
-          · refine Measure.absolutelyContinuous_compProd (withDensity_absolutelyContinuous _ _) ?_
+          · refine Measure.AbsolutelyContinuous.compProd (withDensity_absolutelyContinuous _ _) ?_
             rw [ae_withDensity_iff (μ.measurable_rnDeriv ν)]
-            exact Measure.ae_rnDeriv_ne_zero_imp_of_ae (h2 h_top).2
+            exact Measure.ae_rnDeriv_ne_zero_imp_of_ae ν (h2 h_top).2
         conv_rhs => rw [μ.haveLebesgueDecomposition_add ν]
         rw [Measure.compProd_add_left, add_comm, Measure.singularPart_add]
         simp only [Measure.coe_add, Pi.add_apply]
@@ -164,8 +165,8 @@ lemma le_fDiv_compProd [CountableOrCountablyGenerated α β] (μ ν : Measure α
           congr with a
           have h : κ a .univ = 1 := by simp
           rw [← κ.rnDeriv_add_singularPart η] at h
-          simp only [Kernel.coe_add, Pi.add_apply, Measure.add_toOuterMeasure,
-            OuterMeasure.coe_add] at h
+          simp only [Kernel.coe_add, Pi.add_apply, 
+            ] at h
           exact h.symm
         · exact Kernel.measurable_coe _ .univ
 

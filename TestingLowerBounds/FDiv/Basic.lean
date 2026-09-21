@@ -7,6 +7,7 @@ import Mathlib.Analysis.Convex.Integral
 import Mathlib.Probability.Notation
 import TestingLowerBounds.FDiv.DivFunction.OfReal
 import TestingLowerBounds.ForMathlib.RadonNikodym
+import Mathlib.MeasureTheory.Measure.Decomposition.IntegralRNDeriv
 
 /-!
 
@@ -338,7 +339,7 @@ lemma fDiv_absolutelyContinuous_add_mutuallySingular {μ₁ μ₂ ν : Measure �
     have h_zero : (∂μ₂/∂ν) =ᵐ[ν] 0 := (Measure.rnDeriv_eq_zero _ _).mpr h₂
     filter_upwards [h_zero, Measure.rnDeriv_add' μ₁ μ₂ ν] with x hx_zero hx_add
     rw [hx_add, Pi.add_apply, hx_zero]
-    simp only [Pi.zero_apply, add_zero, implies_true]
+    simp only [Pi.zero_apply, add_zero]
   simp [fDiv, lintegral_congr_ae h_ae, h1, h2]
 
 -- lemma fDiv_eq_add_withDensity_singularPart
@@ -444,7 +445,7 @@ lemma fDiv_add_measure_le (μ₁ μ₂ ν : Measure α) [SigmaFinite μ₁] [Sig
   rw [this, fDiv_absolutelyContinuous_add_mutuallySingular
       ((withDensity_absolutelyContinuous _ _).add_left (withDensity_absolutelyContinuous _ _))
       ((μ₁.mutuallySingular_singularPart _).add_left (μ₂.mutuallySingular_singularPart _))]
-  simp only [Measure.coe_add, Pi.add_apply, EReal.coe_ennreal_add]
+  simp only [Measure.coe_add, Pi.add_apply]
   conv_rhs => rw [add_comm (μ₁.singularPart ν)]
   rw [fDiv_absolutelyContinuous_add_mutuallySingular (withDensity_absolutelyContinuous _ _)
     (μ₁.mutuallySingular_singularPart _)]
@@ -570,7 +571,7 @@ lemma fDiv_eq_top_iff [IsFiniteMeasure μ] [SigmaFinite ν] :
   · simp only [h, true_and]
     by_cases hf : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν = ∞
     · simp [fDiv, hf]
-    · simp only [hf, not_true_eq_false, false_or]
+    · simp only [hf, false_or]
       exact fDiv_eq_top_iff_not_ac h hf
   · simp only [h, false_and, or_false]
     exact fDiv_eq_top_iff_of_derivAtTop_ne_top h
@@ -581,19 +582,19 @@ lemma fDiv_eq_top_iff' [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
         ∨ ((f 0 = ∞ ∨ f.derivAtTop = ∞) ∧ ∫⁻ x, f ((∂μ/∂ν) x) ∂ν = ∞) := by
   by_cases h_top : f.derivAtTop = ∞
   · rw [fDiv_eq_top_iff]
-    simp only [h_top, true_and, iff_or_self, and_imp]
+    simp only [h_top, true_and]
     tauto
   by_cases h_zero : f 0 = ∞
   · rw [fDiv_eq_top_iff]
     simp [h_top, h_zero]
-  simp only [h_top, false_and, or_false, h_zero, or_self, iff_false]
+  simp only [h_top, false_and, h_zero, or_self, iff_false]
   exact fDiv_ne_top_of_derivAtTop_ne_top h_zero h_top
 
 lemma fDiv_ne_top_iff [IsFiniteMeasure μ] [SigmaFinite ν] :
     fDiv f μ ν ≠ ∞
       ↔ (∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞) ∧ (f.derivAtTop = ∞ → μ ≪ ν) := by
   rw [ne_eq, fDiv_eq_top_iff]
-  push_neg
+  push Not
   rfl
 
 lemma fDiv_ne_top_iff' [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
@@ -601,7 +602,7 @@ lemma fDiv_ne_top_iff' [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
       ↔ ((f.derivAtTop = ⊤ → μ ≪ ν)
         ∧ ((f 0 = ∞ ∨ f.derivAtTop = ∞) → ∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞)) := by
   rw [ne_eq, fDiv_eq_top_iff']
-  push_neg
+  push Not
   rfl
 
 lemma lintegral_ne_top_of_fDiv_ne_top (h : fDiv f μ ν ≠ ⊤) :
@@ -640,7 +641,7 @@ lemma _root_.MeasureTheory.laverage_eq_average [IsFiniteMeasure μ] {f : α → 
   rw [laverage_eq, average_eq]
   by_cases hμ0 : μ = 0
   · simp [hμ0]
-  simp only [smul_eq_mul]
+  simp only [smul_eq_mul, measureReal_def]
   rw [ENNReal.ofReal_mul (by simp),
     ENNReal.ofReal_inv_of_pos (by simp [ENNReal.toReal_pos_iff, hμ0]),
     ENNReal.ofReal_toReal (by simp), integral_toReal hf (ae_lt_top' hf hf_top),
@@ -668,8 +669,8 @@ lemma _root_.ConvexOn.map_laverage_le [IsFiniteMeasure μ] [NeZero μ]
   rotate_left
   · rw [← h_avg_real]
     sorry
-  · simp only [laverage, lintegral_smul_measure, ne_eq, ENNReal.mul_eq_top, ENNReal.inv_eq_zero,
-      measure_ne_top, not_false_eq_true, hgi, and_false, ENNReal.inv_eq_top,
+  · simp only [laverage, lintegral_smul_measure, smul_eq_mul, ne_eq, ENNReal.mul_eq_top,
+      ENNReal.inv_eq_zero, measure_ne_top, not_false_eq_true, hgi, and_false, ENNReal.inv_eq_top,
       Measure.measure_univ_eq_zero, false_or, not_and, Decidable.not_not]
     intro hμ
     simp [hμ]
@@ -710,7 +711,7 @@ lemma le_fDiv_of_ac [IsFiniteMeasure μ] [IsProbabilityMeasure ν] (hμν : μ �
   by_cases hf_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν = ∞
   · simp [hf_int]
   have h_eq : μ univ = ENNReal.ofReal (∫ x, (μ.rnDeriv ν x).toReal ∂ν) := by
-    rw [Measure.integral_toReal_rnDeriv hμν, ENNReal.ofReal_toReal]
+    rw [Measure.integral_toReal_rnDeriv hμν, measureReal_def, ENNReal.ofReal_toReal]
     simp
   calc f (μ .univ)
   _ = f (ENNReal.ofReal (∫ x, (μ.rnDeriv ν x).toReal ∂ν)) := by rw [h_eq]
@@ -810,7 +811,7 @@ theorem lintegral_piecewise {s : Set α} {f g : α → ℝ≥0∞} [DecidablePre
     ∫⁻ x, s.piecewise f g x ∂μ = ∫⁻ x in s, f x ∂μ + ∫⁻ x in sᶜ, g x ∂μ := by
   rw [← Set.indicator_add_compl_eq_piecewise]
   simp only [Pi.add_apply]
-  rw [lintegral_add_left', lintegral_indicator _ hs, lintegral_indicator _ hs.compl]
+  rw [lintegral_add_left', lintegral_indicator hs _, lintegral_indicator hs.compl _]
   exact hf.indicator hs
 
 lemma fDiv_restrict (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν]

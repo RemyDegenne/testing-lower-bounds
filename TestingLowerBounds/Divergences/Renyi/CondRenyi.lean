@@ -94,7 +94,7 @@ section TopAndBounds
 --         ∧ Integrable (fun x ↦ ∫ (b : β), ((∂κ x/∂η x) b).toReal ^ a ∂η x) μ
 --         ∧ ∀ᵐ x ∂μ, κ x ≪ η x := by
 --   rw [ne_eq, condRenyiDiv_eq_top_iff_of_one_lt ha]
---   push_neg
+--   push Not
 --   rfl
 
 -- lemma condRenyiDiv_eq_top_iff_of_lt_one [CountableOrCountablyGenerated α β]

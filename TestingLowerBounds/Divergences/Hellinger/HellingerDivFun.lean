@@ -57,7 +57,7 @@ lemma hellingerDivFun_of_pos_of_ne_one (ha_pos : 0 < a) (ha_one : a ≠ 1) :
 
 lemma hellingerDivFun_apply_zero_of_pos (ha_pos : 0 < a) : hellingerDivFun a 0 = 1 := by
   by_cases ha_one : a = 1
-  · simp [ha_one, hellingerFun_one]
+  · simp [ha_one]
   rw [hellingerDivFun_of_pos_of_ne_one ha_pos ha_one,
     DivFunction.ofReal_apply_zero_of_continuousWithinAt]
   · simp
@@ -76,7 +76,7 @@ lemma hellingerDivFun_apply_of_pos_of_ne_one (ha_pos : 0 < a) (ha_one : a ≠ 1)
   rw [hellingerDivFun_of_pos_of_ne_one ha_pos ha_one]
   by_cases hx0 : x = 0
   · rw [hx0, DivFunction.ofReal_apply_zero_of_continuousWithinAt]
-    · simp only [hellingerFun_apply_zero, ENNReal.ofReal_one, ENNReal.zero_toReal, ne_eq,
+    · simp only [hellingerFun_apply_zero, ENNReal.ofReal_one, ENNReal.toReal_zero, ne_eq,
         ha_pos.ne', not_false_eq_true, zero_rpow, zero_sub, mul_neg, mul_one, sub_neg_eq_add]
       rw [add_comm, ← sub_eq_add_neg, inv_mul_cancel₀, ENNReal.ofReal_one]
       rwa [sub_ne_zero]
@@ -118,9 +118,9 @@ lemma derivAtTop_hellingerDivFun_one : (hellingerDivFun 1).derivAtTop = ∞ :=
 lemma derivAtTop_hellingerDivFun_eq_top_iff : (hellingerDivFun a).derivAtTop = ∞ ↔ 1 ≤ a := by
   simp only [derivAtTop_hellingerDivFun]
   split_ifs with h1 h2
-  · simp [h1, h1.trans_lt zero_lt_one]
-  · simp [h1, h2]
-  · simp [h1, h2, not_lt.mp h2]
+  · simp [h1.trans_lt zero_lt_one]
+  · simp [h2]
+  · simp [not_lt.mp h2]
 
 lemma lintegral_hellingerDivFun_of_pos_of_ne_one_of_integrable
     [IsFiniteMeasure μ] [IsFiniteMeasure ν]
@@ -149,7 +149,7 @@ lemma lintegral_hellingerDivFun_of_pos_of_ne_one_of_integrable_of_ac
       = ENNReal.ofReal ((a - 1)⁻¹ * ∫ x, (μ.rnDeriv ν x).toReal ^ a ∂ν
         + (ν .univ).toReal + (1 - a)⁻¹ * a * (μ univ).toReal) := by
   rw [lintegral_hellingerDivFun_of_pos_of_ne_one_of_integrable ha_pos ha_ne h_int,
-    Measure.integral_toReal_rnDeriv hμν]
+    Measure.integral_toReal_rnDeriv hμν, measureReal_def]
 
 lemma lintegral_hellingerDivFun_of_pos_of_lt_one [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (ha_pos : 0 < a) (ha_lt : a < 1) :
@@ -165,6 +165,6 @@ lemma lintegral_hellingerDivFun_of_pos_of_lt_one_of_ac [IsFiniteMeasure μ] [IsF
       = ENNReal.ofReal ((a - 1)⁻¹ * ∫ x, (μ.rnDeriv ν x).toReal ^ a ∂ν
         + (ν univ).toReal + (1 - a)⁻¹ * a * (μ univ).toReal) := by
   rw [lintegral_hellingerDivFun_of_pos_of_lt_one ha_pos ha_lt,
-    Measure.integral_toReal_rnDeriv hμν]
+    Measure.integral_toReal_rnDeriv hμν, measureReal_def]
 
 end ProbabilityTheory

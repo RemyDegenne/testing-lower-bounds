@@ -53,9 +53,9 @@ noncomputable def rightDerivFun (f : DivFunction) : ℝ → EReal :=
 
 lemma monotone_rightDerivFun (f : DivFunction) : Monotone f.rightDerivFun := by
   intro x y hxy
-  rcases lt_or_le x f.xmin.toReal with hx_lt_min | hx_ge_min
+  rcases lt_or_ge x f.xmin.toReal with hx_lt_min | hx_ge_min
   · simp [rightDerivFun, hx_lt_min]
-  rcases le_or_lt f.xmax (ENNReal.ofReal y) with hy_ge_max | hy_lt_max
+  rcases le_or_gt f.xmax (ENNReal.ofReal y) with hy_ge_max | hy_lt_max
   · simp only [rightDerivFun, not_lt.mpr (hx_ge_min.trans hxy), ↓reduceIte, hy_ge_max, le_top]
   simp only [rightDerivFun, not_lt.mpr hx_ge_min, ↓reduceIte, not_le.mpr hy_lt_max,
     not_lt.mpr (hx_ge_min.trans hxy)]
@@ -118,7 +118,7 @@ lemma right_continuous_rightDerivFun (f : DivFunction) (x : ℝ) :
   split_ifs with h1 h2
   · exact f.rightLim_rightDerivFun_of_lt_xmin h1
   · exact f.rightLim_rightDerivFun_of_ge_xmax h2
-  · push_neg at h1 h2
+  · push Not at h1 h2
     exact f.rightLim_rightDerivFun_of_mem_Ico h1 h2
 
 protected noncomputable def rightDerivStieltjes (f : DivFunction) : ERealStieltjes where
@@ -164,6 +164,7 @@ lemma rightDerivStieltjes_eq_top_iff {x : ℝ} :
   refine ⟨fun h ↦ ?_, fun h ↦ rightDerivStieltjes_of_ge_xmax h⟩
   simp only [DivFunction.rightDerivStieltjes, rightDerivFun] at h
   split_ifs at h with h1 h2
+  · simp at h
   · exact h2
   sorry
 
@@ -208,13 +209,13 @@ lemma rightDerivStieltjes_add :
   have hx_lt_g : ENNReal.ofReal x < g.xmax := by
     rw [rightDerivStieltjes_eq_top_iff] at hg_top
     simpa using hg_top
-  simp only [DivFunction.rightDerivStieltjes, xmin_add, toReal_max_xmin, lt_max_iff, xmax_add,
-    min_le_iff, not_le.mpr hx_lt_f, not_le.mpr hx_lt_g, or_self, ↓reduceIte]
+  simp only [DivFunction.rightDerivStieltjes, 
+    ]
   by_cases hx_fmin : x < f.xmin.toReal
   · simp [hx_fmin, rightDerivFun]
   by_cases hx_gmin : x < g.xmin.toReal
   · simp [hx_gmin, rightDerivFun]
-  simp only [hx_fmin, hx_gmin, or_self, ↓reduceIte, rightDerivFun]
+  simp only [hx_fmin, hx_gmin, ↓reduceIte, rightDerivFun]
   sorry
 
 end RightDeriv

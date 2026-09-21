@@ -23,24 +23,6 @@ instance [hα : CountableOrCountablyGenerated α γ] [hβ : CountableOrCountably
     CountableOrCountablyGenerated (α × β) γ := by
   rcases hα with (hα | hα) <;> rcases hβ with (hβ | hβ) <;> infer_instance
 
--- PRed, see #15418
-lemma countableOrCountablyGenerated_left_of_prod_left_of_nonempty [Nonempty β]
-    [h : CountableOrCountablyGenerated (α × β) γ] :
-    CountableOrCountablyGenerated α γ := by
-  rcases h.countableOrCountablyGenerated with (h | h)
-  · have := countable_left_of_prod_of_nonempty h
-    infer_instance
-  · infer_instance
-
--- PRed, see #15418
-lemma countableOrCountablyGenerated_right_of_prod_left_of_nonempty [Nonempty α]
-    [h : CountableOrCountablyGenerated (α × β) γ] :
-    CountableOrCountablyGenerated β γ := by
-  rcases h.countableOrCountablyGenerated with (h | h)
-  · have := countable_right_of_prod_of_nonempty h
-    infer_instance
-  · infer_instance
-
 --it would be nice to have also the following lemmas. I think they are true, but I cannot be sure,
 --because I cannot prove them even informally.
 --this seems like exactly what I'm looking for:
@@ -57,6 +39,7 @@ lemma countablyGenerated_right_of_prod_of_nonempty [Nonempty α] (h : CountablyG
   -- contrapose h
   sorry
 
+omit [MeasurableSpace α] in
 lemma countableOrCountablyGenerated_right_of_prod_right_of_nonempty [Nonempty β]
     [h : CountableOrCountablyGenerated α (β × γ)] :
     CountableOrCountablyGenerated α γ := by
@@ -65,6 +48,7 @@ lemma countableOrCountablyGenerated_right_of_prod_right_of_nonempty [Nonempty β
   · have := countablyGenerated_right_of_prod_of_nonempty h
     infer_instance
 
+omit [MeasurableSpace α] in
 lemma countableOrCountablyGenerated_left_of_prod_right_of_nonempty [Nonempty γ]
     [h : CountableOrCountablyGenerated α (β × γ)] :
     CountableOrCountablyGenerated α β := by

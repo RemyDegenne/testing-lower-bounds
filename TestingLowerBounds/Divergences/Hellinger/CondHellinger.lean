@@ -102,12 +102,12 @@ lemma hellingerDiv_ae_ne_top_iff'' (κ η : Kernel α β) [IsFiniteKernel κ] [I
 --       EReal.toReal_sub (EReal.coe_ne_top _) (EReal.coe_ne_bot _), EReal.toReal_coe,
 --       EReal.toReal_mul, EReal.toReal_coe, EReal.toReal_coe_ennreal, mul_sub]
 --     · refine (EReal.mul_eq_top _ _).mp.mt ?_
---       push_neg
+--       push Not
 --       exact ⟨fun _ ↦ EReal.coe_ennreal_nonneg _, ⟨fun _ ↦ EReal.coe_ennreal_ne_bot _,
 --         ⟨by simp only [EReal.coe_ne_top, IsEmpty.forall_iff],
 --         fun _ ↦ EReal.coe_ennreal_eq_top_iff.mp.mt (measure_ne_top _ _)⟩⟩⟩
 --     · refine (EReal.mul_eq_bot _ _).mp.mt ?_
---       push_neg
+--       push Not
 --       exact ⟨by simp only [EReal.coe_ne_bot, IsEmpty.forall_iff],
 --         ⟨fun _ ↦ EReal.coe_ennreal_ne_bot _, ⟨fun _ ↦ EReal.coe_ennreal_nonneg _,
 --         fun _ ↦ EReal.coe_ennreal_eq_top_iff.mp.mt (measure_ne_top _ _)⟩⟩⟩
@@ -249,7 +249,7 @@ lemma condHellingerDiv_of_not_ae_finite [CountableOrCountablyGenerated α β]
 --   swap; exact condHellingerDiv_of_not_ae_integrable ha_ne_one h_int2
 --   by_cases h_ac : 1 ≤ a → ∀ᵐ x ∂μ, κ x ≪ η x
 --   swap
---   · push_neg at h_ac
+--   · push Not at h_ac
 --     exact condHellingerDiv_of_not_ae_ac_of_one_le h_ac.1 h_ac.2
 --   apply condHellingerDiv_of_not_integrable
 --   rwa [integrable_hellingerDiv_iff' ha_pos ha_ne_one h_int2 h_ac]
@@ -330,7 +330,7 @@ lemma condHellingerDiv_of_not_ae_finite [CountableOrCountablyGenerated α β]
 --         ∧ (1 ≤ a → ∀ᵐ x ∂μ, (κ x) ≪ (η x))
 --         ∧ Integrable (fun x ↦ (hellingerDiv a (κ x) (η x)).toReal) μ := by
 --   rw [ne_eq, condHellingerDiv_eq_top_iff]
---   push_neg
+--   push Not
 --   rfl
 
 -- lemma condHellingerDiv_ne_top_iff' (ha_pos : 0 < a) (ha_ne_one : a ≠ 1)
@@ -463,7 +463,7 @@ lemma condHellingerDiv_of_not_ae_finite [CountableOrCountablyGenerated α β]
 --     condHellingerDiv a κ η μ = (a - 1)⁻¹ * ∫ x, ∫ b, ((∂κ x/∂η x) b).toReal ^ a ∂η x ∂μ
 --       - (a - 1)⁻¹ * (μ .univ).toReal := by
 --   simp_rw [condHellingerDiv_eq_integral'_of_one_lt ha h_int h_ac h_int',
---     compProd_univ_toReal, measure_univ, ENNReal.one_toReal, integral_const, smul_eq_mul, mul_one]
+--     compProd_univ_toReal, measure_univ, ENNReal.toReal_one, integral_const, smul_eq_mul, mul_one]
 
 -- lemma condHellingerDiv_eq_integral'_of_one_lt'' (ha : 1 < a)
 --     [IsProbabilityMeasure μ] [IsFiniteKernel κ] [IsMarkovKernel η]
@@ -473,7 +473,7 @@ lemma condHellingerDiv_of_not_ae_finite [CountableOrCountablyGenerated α β]
 --     condHellingerDiv a κ η μ = (a - 1)⁻¹ * ∫ x, ∫ b, ((∂κ x/∂η x) b).toReal ^ a ∂η x ∂μ
 --       - (a - 1)⁻¹ := by
 --   rw [condHellingerDiv_eq_integral'_of_one_lt' ha h_int h_ac h_int', measure_univ,
---     ENNReal.one_toReal, EReal.coe_one, mul_one]
+--     ENNReal.toReal_one, EReal.coe_one, mul_one]
 
 -- lemma condHellingerDiv_eq_integral'_of_lt_one (ha_pos : 0 < a) (ha : a < 1)
 --     [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η]
@@ -514,7 +514,7 @@ lemma condHellingerDiv_of_not_ae_finite [CountableOrCountablyGenerated α β]
 --     condHellingerDiv a κ η μ = (a - 1)⁻¹ * ∫ x, ∫ b, ((∂κ x/∂η x) b).toReal ^ a ∂η x ∂μ
 --       - (a - 1)⁻¹ * (μ .univ).toReal := by
 --   simp_rw [condHellingerDiv_eq_integral'_of_lt_one ha_pos ha h_int', compProd_univ_toReal,
---     measure_univ, ENNReal.one_toReal, integral_const, smul_eq_mul, mul_one]
+--     measure_univ, ENNReal.toReal_one, integral_const, smul_eq_mul, mul_one]
 
 -- lemma condHellingerDiv_eq_integral'_of_lt_one'' (ha_pos : 0 < a) (ha : a < 1)
 --     [IsProbabilityMeasure μ] [IsFiniteKernel κ] [IsMarkovKernel η]
@@ -522,7 +522,7 @@ lemma condHellingerDiv_of_not_ae_finite [CountableOrCountablyGenerated α β]
 --     condHellingerDiv a κ η μ = (a - 1)⁻¹ * ∫ x, ∫ b, ((∂κ x/∂η x) b).toReal ^ a ∂η x ∂μ
 --       - (a - 1)⁻¹ := by
 --   rw [condHellingerDiv_eq_integral'_of_lt_one' ha_pos ha h_int', measure_univ,
---     ENNReal.one_toReal, EReal.coe_one, mul_one]
+--     ENNReal.toReal_one, EReal.coe_one, mul_one]
 
 end CondHellingerEq
 

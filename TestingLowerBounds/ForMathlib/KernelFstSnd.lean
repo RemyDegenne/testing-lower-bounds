@@ -1,4 +1,4 @@
-import Mathlib.Probability.Kernel.MeasureCompProd
+import Mathlib.Probability.Kernel.Composition.MeasureCompProd
 
 open MeasureTheory
 
@@ -26,7 +26,7 @@ variable {δ : Type*} {mδ : MeasurableSpace δ}
 /-- Define a `Kernel α γ` from a `Kernel (α × β) γ` by taking the comap of `fun a ↦ (a, b)` for
 a given `b : β`. -/
 noncomputable def fst' (κ : Kernel (α × β) γ) (b : β) : Kernel α γ :=
-  comap κ (fun a ↦ (a, b)) (measurable_id.prod_mk measurable_const)
+  comap κ (fun a ↦ (a, b)) (measurable_id.prodMk measurable_const)
 
 @[simp]
 theorem fst'_apply (κ : Kernel (α × β) γ) (b : β) (a : α) : fst' κ b a = κ (a, b) := rfl
@@ -53,7 +53,7 @@ instance (priority := 100) {κ : Kernel (α × β) γ} [∀ b, IsMarkovKernel (f
 
 --I'm not sure this lemma is actually useful
 lemma comap_fst' (κ : Kernel (α × β) γ) (b : β) {f : δ → α} (hf : Measurable f) :
-    comap (fst' κ b) f hf = comap κ (fun d ↦ (f d, b)) (hf.prod_mk measurable_const) := by
+    comap (fst' κ b) f hf = comap κ (fun d ↦ (f d, b)) (hf.prodMk measurable_const) := by
   ext d s
   rw [comap_apply, fst'_apply, comap_apply]
 
@@ -68,7 +68,7 @@ lemma fst'_prodMkRight (β : Type*) [MeasurableSpace β] (κ : Kernel α γ) (b 
 /-- Define a `Kernel β γ` from a `Kernel (α × β) γ` by taking the comap of `fun b ↦ (a, b)` for
 a given `a : α`. -/
 noncomputable def snd' (κ : Kernel (α × β) γ) (a : α) : Kernel β γ :=
-  comap κ (fun b ↦ (a, b)) (measurable_const.prod_mk measurable_id)
+  comap κ (fun b ↦ (a, b)) (measurable_const.prodMk measurable_id)
 
 @[simp]
 theorem snd'_apply (κ : Kernel (α × β) γ) (b : β) (a : α) : snd' κ a b = κ (a, b) := rfl
@@ -95,7 +95,7 @@ instance (priority := 100) {κ : Kernel (α × β) γ} [∀ b, IsMarkovKernel (s
 
 --I'm not sure this lemma is actually useful
 lemma comap_snd' (κ : Kernel (α × β) γ) (a : α) {f : δ → β} (hf : Measurable f) :
-    comap (snd' κ a) f hf = comap κ (fun d ↦ (a, f d)) (measurable_const.prod_mk hf) := by
+    comap (snd' κ a) f hf = comap κ (fun d ↦ (a, f d)) (measurable_const.prodMk hf) := by
   ext d s
   rw [comap_apply, snd'_apply, comap_apply]
 
@@ -120,8 +120,7 @@ lemma compProd_apply_eq_compProd_snd' (κ : Kernel α β) (η : Kernel (α × β
     [IsSFiniteKernel κ] [IsSFiniteKernel η] (a : α) :
     (κ ⊗ₖ η) a = (κ a) ⊗ₘ (snd' η a) := by
   ext s hs
-  simp_rw [compProd_apply _ _ _ hs, Measure.compProd_apply hs, snd'_apply]
-  rfl
+  simp_rw [compProd_apply hs κ η a, Measure.compProd_apply hs, snd'_apply]
 
 end Kernel
 
