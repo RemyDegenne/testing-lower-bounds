@@ -67,7 +67,7 @@ lemma fDiv_of_lintegral_eq_top (hf : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν = ∞) 
 
 -- lemma fDiv_of_integrable (hf : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) :
 --     fDiv f μ ν = ∫ x, f ((∂μ/∂ν) x).toReal ∂ν + derivAtTop f * μ.singularPart ν .univ :=
---   if_neg (not_not.mpr hf)
+--   ite_eq_right (not_not.mpr hf)
 
 -- lemma fDiv_ne_bot [IsFiniteMeasure μ] (hf_cvx : ConvexOn ℝ (Ici 0) f) : fDiv f μ ν ≠ ⊥ := by
 --   rw [fDiv]
@@ -365,7 +365,7 @@ lemma fDiv_absolutelyContinuous_add_mutuallySingular {μ₁ μ₂ ν : Measure �
 --     rw [hx]
 --   · refine ENNReal.mul_ne_top ENNReal.coe_ne_top ?_
 --   by_cases hf : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν
---   · rw [fDiv_of_absolutelyContinuous (withDensity_absolutelyContinuous _ _), if_pos,
+--   · rw [fDiv_of_absolutelyContinuous (withDensity_absolutelyContinuous _ _), ite_eq_left,
 --       fDiv_of_integrable hf]
 --     swap
 --     · exact h_int_iff.mp hf

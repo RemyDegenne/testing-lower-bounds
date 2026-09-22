@@ -92,11 +92,11 @@ irreducible_def curvatureMeasure (f : ℝ → ℝ) : Measure ℝ :=
 
 lemma curvatureMeasure_of_convexOn (hf : ConvexOn ℝ univ f) :
     curvatureMeasure f = hf.rightDerivStieltjes.measure := by
-  rw [curvatureMeasure, dif_pos hf]
+  rw [curvatureMeasure, dite_eq_left hf]
 
 lemma curvatureMeasure_of_not_convexOn (hf : ¬ConvexOn ℝ univ f) :
     curvatureMeasure f = 0 := by
-  rw [curvatureMeasure, dif_neg hf]
+  rw [curvatureMeasure, dite_eq_right hf]
 
 instance {f : ℝ → ℝ} : IsLocallyFiniteMeasure (curvatureMeasure f) := by
   simp_rw [curvatureMeasure]
@@ -153,7 +153,8 @@ theorem convex_taylor (hf : ConvexOn ℝ univ f) (hf_cont : Continuous f) {a b :
   have hg : g = fun x ↦ x - b := rfl
   rw [← hg, integral_stieltjes_meas_by_parts g hf.rightDerivStieltjes]
   swap; · rw [hg]; fun_prop
-  simp only [Real.volume_eq_stieltjes_id, add_apply, id_apply, id_eq, const_apply, add_neg_cancel,
+  simp only [Real.volume_eq_stieltjes_id, StieltjesFunction.add_apply, id_apply, id_eq, const_apply,
+    add_neg_cancel,
     zero_mul, zero_sub, measure_add, measure_const, add_zero, neg_sub, sub_neg_eq_add, g]
   rfl
 

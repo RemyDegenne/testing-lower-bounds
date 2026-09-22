@@ -36,13 +36,6 @@ lemma add_ne_top_iff_of_ne_bot {x y : EReal} (hx : x ≠ ⊥) (hy : y ≠ ⊥) :
 lemma add_ne_bot {x y : EReal} (hx : x ≠ ⊥) (hy : y ≠ ⊥) : x + y ≠ ⊥ :=
   add_ne_bot_iff.mpr ⟨hx, hy⟩
 
-lemma add_eq_top_iff {x y : EReal} : x + y = ⊤ ↔ x = ⊤ ∧ y ≠ ⊥ ∨ x ≠ ⊥ ∧ y = ⊤ := by
-  induction x <;> induction y <;> try · simp
-  simp only [coe_ne_top, ne_eq, coe_ne_bot, not_false_eq_true, and_true, and_false,
-    or_self, iff_false]
-  norm_cast
-  exact coe_ne_top _
-
 lemma coe_mul_add_of_nonneg {x : ℝ} (hx_nonneg : 0 ≤ x) (y z : EReal) :
     x * (y + z) = x * y + x * z := by
   by_cases hx0 : x = 0
@@ -214,7 +207,7 @@ end MeasurableMul
 
 @[simp]
 lemma toENNReal_one : (1 : EReal).toENNReal = 1 := by
-  rw [toENNReal, if_neg (ne_of_beq_false rfl)]
+  rw [toENNReal, ite_eq_right (ne_of_beq_false rfl)]
   simp
 
 lemma sub_add_sub_cancel (b a : EReal) (c : ℝ) :

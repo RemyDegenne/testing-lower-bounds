@@ -41,19 +41,19 @@ def hellingerDivFun (a : ℝ) : DivFunction :=
     hellingerFun_apply_one_eq_zero
 
 @[simp]
-lemma hellingerDivFun_of_nonpos (ha : a ≤ 0) : hellingerDivFun a = 0 := dif_pos ha
+lemma hellingerDivFun_of_nonpos (ha : a ≤ 0) : hellingerDivFun a = 0 := dite_eq_left ha
 
-lemma hellingerDivFun_zero : hellingerDivFun 0 = 0 := dif_pos le_rfl
+lemma hellingerDivFun_zero : hellingerDivFun 0 = 0 := dite_eq_left le_rfl
 
 @[simp]
 lemma hellingerDivFun_one : hellingerDivFun 1 = klDivFun := by
-  rw [hellingerDivFun, dif_neg (not_le.mpr zero_lt_one), if_pos rfl]
+  rw [hellingerDivFun, dite_eq_right (not_le.mpr zero_lt_one), ite_eq_left rfl]
 
 lemma hellingerDivFun_of_pos_of_ne_one (ha_pos : 0 < a) (ha_one : a ≠ 1) :
     hellingerDivFun a = DivFunction.ofReal (hellingerFun a)
       ((convexOn_hellingerFun ha_pos.le).subset (Ioi_subset_Ici le_rfl) (convex_Ioi _))
       hellingerFun_apply_one_eq_zero := by
-  rw [hellingerDivFun, dif_neg (not_le.mpr ha_pos), if_neg ha_one]
+  rw [hellingerDivFun, dite_eq_right (not_le.mpr ha_pos), ite_eq_right ha_one]
 
 lemma hellingerDivFun_apply_zero_of_pos (ha_pos : 0 < a) : hellingerDivFun a 0 = 1 := by
   by_cases ha_one : a = 1

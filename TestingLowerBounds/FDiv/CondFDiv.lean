@@ -65,7 +65,7 @@ lemma condFDiv_of_not_ae_ac [IsFiniteKernel κ] [IsFiniteKernel η] (h_top : f.d
 -- @[simp]
 -- lemma condFDiv_of_not_integrable
 --     (hf : ¬ Integrable (fun x ↦ (fDiv f (κ x) (η x)).toReal) μ) :
---     condFDiv f κ η μ = ∞ := if_neg (not_and_of_not_right _ hf)
+--     condFDiv f κ η μ = ∞ := ite_eq_right (not_and_of_not_right _ hf)
 
 @[simp]
 lemma condFDiv_of_not_integrable' [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η]
@@ -82,7 +82,7 @@ lemma condFDiv_of_not_integrable' [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFi
 -- lemma condFDiv_eq' (hf_ae : ∀ᵐ a ∂μ, fDiv f (κ a) (η a) ≠ ∞)
 --     (hf : Integrable (fun x ↦ (fDiv f (κ x) (η x)).toReal) μ) :
 --     condFDiv f κ η μ = ((μ[fun x ↦ (fDiv f (κ x) (η x)).toReal] : ℝ) : EReal) :=
---   if_pos ⟨hf_ae, hf⟩
+--   ite_eq_left ⟨hf_ae, hf⟩
 
 lemma condFDiv_ne_top_iff [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η] :
     condFDiv f κ η μ ≠ ∞ ↔
@@ -150,7 +150,7 @@ lemma condFDiv_self (κ : Kernel α β) (μ : Measure α) [IsFiniteKernel κ] :
 lemma condFDiv_zero_left [IsFiniteMeasure μ] [IsFiniteKernel η] :
     condFDiv f 0 η μ = f 0 * ∫⁻ a, ((η a) .univ) ∂μ := by
   rw [condFDiv]
-  simp only [Kernel.zero_apply, fDiv_zero_measure_left]
+  simp only [zero_apply, fDiv_zero_measure_left]
   rw [lintegral_const_mul]
   exact Kernel.measurable_coe _ .univ
 

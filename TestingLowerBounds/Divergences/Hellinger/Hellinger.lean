@@ -80,7 +80,7 @@ noncomputable def hellingerDiv (a : ℝ) (μ ν : Measure α) : ℝ≥0∞ := fD
 --     hellingerDiv 0 μ ν = ν .univ - ν {x | 0 < (∂μ/∂ν) x} := by
 --   have h : {x | μ.rnDeriv ν x = 0} = {x | 0 < μ.rnDeriv ν x}ᶜ := by
 --     ext x
---     simp only [Set.mem_setOf_eq, Set.mem_compl_iff, not_lt, nonpos_iff_eq_zero, eq_comm]
+--     simp only [Set.mem_ofPred_eq, Set.mem_compl_iff, not_lt, nonpos_iff_eq_zero, eq_comm]
 --   rw [hellingerDiv_zero', h,
 --     measure_compl (measurableSet_lt measurable_const (μ.measurable_rnDeriv _)) (measure_ne_top _ _),
 --     ENNReal.toEReal_sub (measure_ne_top _ _) (measure_mono _)]
@@ -406,7 +406,7 @@ lemma hellingerDiv_of_mutuallySingular_of_lt_one (ha_pos : 0 < a) (ha : a < 1)
     [SigmaFinite μ] [IsFiniteMeasure ν] (hμν : μ ⟂ₘ ν) :
     hellingerDiv a μ ν = ν Set.univ + ENNReal.ofReal (a * (1 - a)⁻¹) * μ Set.univ := by
   rw [hellingerDiv, fDiv_of_mutuallySingular hμν, derivAtTop_hellingerDivFun_of_lt_one ha_pos ha,
-    hellingerDivFun_apply_zero, if_neg (not_le.mpr ha_pos), one_mul]
+    hellingerDivFun_apply_zero, ite_eq_right (not_le.mpr ha_pos), one_mul]
 
 lemma toReal_hellingerDiv_of_mutuallySingular_of_lt_one (ha_pos : 0 < a) (ha : a < 1)
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hμν : μ ⟂ₘ ν) :
@@ -597,10 +597,8 @@ lemma hellingerDiv_eq_add_measure_univ_iff_of_lt_one (ha_pos : 0 < a) (ha : a < 
   · refine (integral_hellingerFun_rnDeriv_nonneg ha_pos ha (μ := μ) (ν := ν)).trans ?_
     refine add_le_add le_rfl ?_
     gcongr
-    · refine mul_nonneg ?_ ha_pos.le
-      simp [ha.le]
-    · rw [Measure.integral_toReal_rnDeriv']
-      exact sub_le_self _ ENNReal.toReal_nonneg
+    rw [Measure.integral_toReal_rnDeriv']
+    exact sub_le_self _ ENNReal.toReal_nonneg
   · refine add_nonneg (by positivity) (mul_nonneg (mul_nonneg ha_pos.le ?_) (by positivity))
     simp [ha.le]
 

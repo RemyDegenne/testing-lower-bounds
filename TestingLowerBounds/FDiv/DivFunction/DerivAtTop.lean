@@ -42,7 +42,7 @@ lemma derivAtTop_zero : derivAtTop (0 : DivFunction) = 0 := by
   simp only [derivAtTop, rightDerivStieltjes_zero, EReal.toENNReal_eq_zero_iff]
   have : (fun x ↦ if x < (0 : ℝ) then (⊥ : EReal) else 0) =ᶠ[atTop] fun _ ↦ 0 := by
     filter_upwards [eventually_ge_atTop 0] with x hx
-    rw [if_neg (not_lt.mpr hx)]
+    rw [ite_eq_right (not_lt.mpr hx)]
   rw [limsup_congr this]
   simp
 

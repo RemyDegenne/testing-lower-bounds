@@ -36,14 +36,14 @@ noncomputable def kl (μ ν : Measure α) : ℝ≥0∞ :=
 
 lemma kl_of_ac_of_integrable (h1 : μ ≪ ν) (h2 : Integrable (llr μ ν) μ) :
     kl μ ν = ENNReal.ofReal (∫ x, llr μ ν x ∂μ + (ν .univ).toReal - (μ .univ).toReal) :=
-  if_pos ⟨h1, h2⟩
+  ite_eq_left ⟨h1, h2⟩
 
 @[simp]
-lemma kl_of_not_ac (h : ¬ μ ≪ ν) : kl μ ν = ∞ := if_neg (not_and_of_not_left _ h)
+lemma kl_of_not_ac (h : ¬ μ ≪ ν) : kl μ ν = ∞ := ite_eq_right (not_and_of_not_left _ h)
 
 @[simp]
 lemma kl_of_not_integrable (h : ¬ Integrable (llr μ ν) μ) : kl μ ν = ∞ :=
-  if_neg (not_and_of_not_right _ h)
+  ite_eq_right (not_and_of_not_right _ h)
 
 lemma kl_toReal [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h : μ ≪ ν)
     (h_int : Integrable (llr μ ν) μ) :
@@ -68,7 +68,7 @@ lemma kl_toReal_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h : μ ≪ ν)
 @[simp]
 lemma kl_self (μ : Measure α) [SigmaFinite μ] : kl μ μ = 0 := by
   have h := llr_self μ
-  rw [kl, if_pos]
+  rw [kl, ite_eq_left]
   · simp [integral_congr_ae h]
   · rw [integrable_congr h]
     exact ⟨Measure.AbsolutelyContinuous.rfl, integrable_zero _ _ μ⟩
@@ -137,7 +137,7 @@ lemma kl_eq_fDiv [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
   swap; · rw [fDiv_of_not_ac derivAtTop_klDivFun hμν, kl_of_not_ac hμν]
   by_cases h_int : Integrable (llr μ ν) μ
   · rw [fDiv_of_derivAtTop_eq_top derivAtTop_klDivFun, kl_of_ac_of_integrable hμν h_int,
-      if_pos hμν]
+      ite_eq_left hμν]
     exact (lintegral_klDivFun_eq_integral hμν h_int).symm
   · rw [kl_of_not_integrable h_int, fDiv_of_lintegral_eq_top]
     exact lintegral_klDivFun_of_not_integrable hμν h_int

@@ -116,7 +116,7 @@ lemma fDiv_compProd_eq_top_iff'' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
       ∧ (∫⁻ a, ∫⁻ b, f ((∂(μ ⊗ₘ κ)/∂(ν ⊗ₘ η)) (a, b)) ∂η a ∂ν ≠ ∞ → μ ≪ ν →
           ¬ μ ⊗ₘ κ ≪ μ ⊗ₘ η) := by
   rw [← not_iff_not, ← ne_eq, fDiv_compProd_ne_top_iff'' h_zero,
-    Measure.absolutelyContinuous_compProd_iff']
+    Measure.absolutelyContinuous_compProd_iff_compProd_right]
   push Not
   rfl
 
@@ -127,7 +127,7 @@ lemma fDiv_compProd_eq_top_iff' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
       ∧ (∫⁻ a, ∫⁻ b, f ((∂μ/∂ν) a * (∂(μ ⊗ₘ κ)/∂(μ ⊗ₘ η)) (a, b)) ∂η a ∂ν ≠ ∞ → μ ≪ ν →
           ¬ μ ⊗ₘ κ ≪ μ ⊗ₘ η) := by
   rw [← not_iff_not, ← ne_eq, fDiv_compProd_ne_top_iff' h_zero,
-    Measure.absolutelyContinuous_compProd_iff']
+    Measure.absolutelyContinuous_compProd_iff_compProd_right]
   push Not
   rfl
 
@@ -241,7 +241,7 @@ lemma f_rnDeriv_le_add [CountableOrCountablyGenerated α β]
       refine ENNReal.sub_eq_of_eq_add (measure_ne_top _ _) ?_
       rw [← measure_univ (μ := κ a)]
       conv_lhs => rw [← κ.rnDeriv_add_singularPart η, add_comm]
-      simp only [Kernel.coe_add, Pi.add_apply, Measure.coe_add]
+      simp only [FunLike.coe_add, Pi.add_apply, Measure.coe_add]
 
 lemma f_rnDeriv_ae_le_lintegral [CountableOrCountablyGenerated α β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]

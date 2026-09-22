@@ -3,7 +3,6 @@ Written by Kyle Miller
 -/
 import Batteries.Lean.NameMapAttribute
 import Mathlib.Data.List.Monad
-import Mathlib.Tactic.StacksAttribute
 
 section
 open Lean Elab Command

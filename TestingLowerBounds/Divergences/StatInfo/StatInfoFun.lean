@@ -83,12 +83,12 @@ end Measurability
 section statInfoFun_x
 -- Lemmas useful when we want to consider `statInfoFun` as a function of `x`
 
-lemma statInfoFun_of_le (h : γ ≤ β) : statInfoFun β γ x = max 0 (γ - β * x) := if_pos h
+lemma statInfoFun_of_le (h : γ ≤ β) : statInfoFun β γ x = max 0 (γ - β * x) := ite_eq_left h
 
 lemma statInfoFun_of_le' (h : γ ≤ β) : statInfoFun β γ = fun x ↦ max 0 (γ - β * x) := by
   ext; exact statInfoFun_of_le h
 
-lemma statInfoFun_of_gt (h : γ > β) : statInfoFun β γ x = max 0 (β * x - γ) := if_neg h.not_ge
+lemma statInfoFun_of_gt (h : γ > β) : statInfoFun β γ x = max 0 (β * x - γ) := ite_eq_right h.not_ge
 
 lemma statInfoFun_of_gt' (h : γ > β) : statInfoFun β γ = fun x ↦ max 0 (β * x - γ) := by
   ext; exact statInfoFun_of_gt h
@@ -126,10 +126,10 @@ lemma statInfoFun_of_neg_of_gt_of_ge (hβ : β < 0) (hγ : γ > β) (hx : x ≥ 
   statInfoFun_of_gt hγ ▸ max_eq_left_iff.mpr <| sub_nonpos.mpr <| (div_le_iff_of_neg' hβ).mp hx
 
 lemma statInfoFun_of_one_of_le_one (h : γ ≤ 1) : statInfoFun 1 γ x = max 0 (γ - x) :=
-  statInfoFun_one ▸ if_pos h
+  statInfoFun_one ▸ ite_eq_left h
 
 lemma statInfoFun_of_one_of_one_lt (h : 1 < γ) : statInfoFun 1 γ x = max 0 (x - γ) :=
-  statInfoFun_one ▸ if_neg h.not_ge
+  statInfoFun_one ▸ ite_eq_right h.not_ge
 
 lemma statInfoFun_of_one_of_le_one_of_le (h : γ ≤ 1) (hx : x ≤ γ) : statInfoFun 1 γ x = γ - x :=
   statInfoFun_of_one_of_le_one h ▸ max_eq_right_iff.mpr (sub_nonneg.mpr hx)
@@ -363,7 +363,7 @@ lemma derivAtTop_statInfoFun_of_nonpos_of_gt (hβ : β ≤ 0) (hγ : γ > β) :
   refine ⟨γ / β, fun x hx ↦ ?_⟩
   rw [statInfoFun_of_gt hγ]
   simp only [Pi.zero_apply, max_eq_left_iff, tsub_le_iff_right, zero_add]
-  rwa [ge_iff_le, div_le_iff_of_neg hβ, mul_comm] at hx
+  rwa [div_le_iff_of_neg hβ, mul_comm] at hx
 
 lemma derivAtTop_statInfoFun_eq :
     derivAtTop (fun x ↦ statInfoFun β γ x)

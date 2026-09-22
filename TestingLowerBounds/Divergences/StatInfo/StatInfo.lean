@@ -70,11 +70,11 @@ lemma statInfo_symm : statInfo μ ν π = statInfo ν μ (π.map Bool.not) := by
 
 lemma statInfo_of_measure_true_eq_zero (μ ν : Measure 𝒳) (hπ : π {true} = 0) :
     statInfo μ ν π = 0 :=
-  le_antisymm (statInfo_le_min.trans (by simp [hπ])) (zero_le _)
+  le_antisymm (statInfo_le_min.trans (by simp [hπ])) zero_le
 
 lemma statInfo_of_measure_false_eq_zero (μ ν : Measure 𝒳) (hπ : π {false} = 0) :
     statInfo μ ν π = 0 :=
-  le_antisymm (statInfo_le_min.trans (by simp [hπ])) (zero_le _)
+  le_antisymm (statInfo_le_min.trans (by simp [hπ])) zero_le
 
 /-- **Data processing inequality** for the statistical information. -/
 lemma statInfo_comp_le (μ ν : Measure 𝒳) (π : Measure Bool) (η : Kernel 𝒳 𝒳') [IsMarkovKernel η] :

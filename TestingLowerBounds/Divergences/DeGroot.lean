@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne
 -/
 import TestingLowerBounds.Divergences.StatInfo.StatInfo
-import Mathlib.Probability.ProbabilityMassFunction.Constructions
+import Mathlib.Probability.Distributions.Bernoulli
 
 /-!
 # DeGroot statistical information
@@ -35,10 +35,8 @@ variable {𝒳 𝒳' : Type*} {m𝒳 : MeasurableSpace 𝒳} {m𝒳' : Measurabl
 /-- The DeGroot statistical information between two measures, for prior Bernoulli `p`. -/
 noncomputable
 def deGrootInfo (μ ν : Measure 𝒳) (p : ℝ≥0∞) (hp : p ≤ 1) : ℝ≥0∞ :=
-  statInfo μ ν (PMF.bernoulli p.toNNReal (by
-    rw [← ENNReal.coe_le_coe, ENNReal.coe_toNNReal (ne_top_of_le_ne_top ENNReal.one_ne_top hp),
-      ENNReal.coe_one]
-    exact hp)).toMeasure
+  statInfo μ ν (bernoulliMeasure true false
+    ⟨p.toReal, ENNReal.toReal_nonneg, by simpa using ENNReal.toReal_mono ENNReal.one_ne_top hp⟩)
 
 /-- **Data processing inequality** for the DeGroot statistical information. -/
 lemma deGrootInfo_comp_le (μ ν : Measure 𝒳) (p : ℝ≥0∞) (hp : p ≤ 1)

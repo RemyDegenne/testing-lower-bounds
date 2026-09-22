@@ -89,7 +89,8 @@ lemma eq_bayesInv_of_compProd_eq (η : Kernel β α) [IsFiniteKernel η]
     ∀ᵐ a ∂(κ ∘ₘ μ), η a = (κ†μ) a := by
   rw [← Measure.fst_swap_compProd] at h
   convert eq_condKernel_of_measure_eq_compProd η h.symm
-  rw [Measure.fst_swap_compProd]
+  · rfl
+  · rw [Measure.fst_swap_compProd]
 
 @[simp]
 lemma bayesInv_comp_self [IsMarkovKernel κ] : (κ†μ) ∘ₘ (κ ∘ₘ μ) = μ := by

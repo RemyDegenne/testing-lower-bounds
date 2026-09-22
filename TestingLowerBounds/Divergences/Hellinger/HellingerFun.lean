@@ -93,10 +93,10 @@ lemma integral_rpow_rnDeriv (ha_pos : 0 < a) (ha : a ≠ 1) [SigmaFinite μ] [Si
           conv_lhs => rw [this]
           rw [rpow_add, rpow_one]
           rw [ENNReal.toReal_pos_iff]
-          exact ⟨(zero_le _).lt_of_ne' hp, hp_top⟩
+          exact ⟨zero_le.lt_of_ne' hp, hp_top⟩
         · rw [mul_comm, rpow_sub, rpow_one, rpow_neg ENNReal.toReal_nonneg, div_eq_mul_inv]
           rw [ENNReal.toReal_pos_iff]
-          exact ⟨(zero_le _).lt_of_ne' hq, hq_top⟩
+          exact ⟨zero_le.lt_of_ne' hq, hq_top⟩
   _ = ∫ x, ((q/p) x).toReal ^ (1 - a) ∂μ := by
         rw [← integral_rnDeriv_smul (_ : μ ≪ μ + ν)]
         · simp [p]
@@ -188,7 +188,7 @@ lemma integral_rpow_rnDeriv_smul_right [SigmaFinite μ] [SigmaFinite ν] (c : �
     (ha : c = 0 → a ≠ 1) :
     ∫ x, ((∂μ/∂(c • ν)) x).toReal ^ a ∂(c • ν) = c ^ (1 - a) * ∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν := by
   by_cases hc : c = 0
-  · simp [hc, NNReal.smul_def, zero_rpow <| sub_ne_zero_of_ne (ha hc).symm]
+  · simp [hc, zero_rpow <| sub_ne_zero_of_ne (ha hc).symm]
   rw [integral_smul_nnreal_measure, ← integral_const_mul, NNReal.smul_def, ← integral_smul]
   refine integral_congr_ae ?_
   filter_upwards [Measure.rnDeriv_smul_right' μ ν hc] with x hx
@@ -275,7 +275,7 @@ lemma continuous_hellingerFun (ha_pos : 0 < a) : Continuous (hellingerFun a) := 
   by_cases ha_eq : a = 1
   · rw [ha_eq, hellingerFun_one]
     fun_prop
-  rw [hellingerFun, if_neg ha_pos.ne', if_neg ha_eq]
+  rw [hellingerFun, ite_eq_right ha_pos.ne', ite_eq_right ha_eq]
   refine continuous_const.mul ?_
   refine ((continuous_rpow_const ha_pos.le).sub continuous_const).sub ?_
   fun_prop
@@ -328,7 +328,7 @@ lemma convexOn_hellingerFun (ha_pos : 0 ≤ a) : ConvexOn ℝ (Set.Ici 0) (helli
     exact ((convexOn_id (convex_Ici 0)).sub (concaveOn_const _ (convex_Ici 0))).smul ha_pos.le
   · simp only [hellingerFun, ha, one_ne_zero, ↓reduceIte]
     exact convexOn_mul_log_add_one_sub
-  · simp_rw [hellingerFun, ← smul_eq_mul, if_neg ha_pos.ne', if_neg ha.ne']
+  · simp_rw [hellingerFun, ← smul_eq_mul, ite_eq_right ha_pos.ne', ite_eq_right ha.ne']
     refine ((convexOn_rpow ha.le).sub (concaveOn_const _ (convex_Ici 0))).sub ?_ |>.smul
       (by simp [ha.le])
     exact ((concaveOn_id (convex_Ici 0)).sub (convexOn_const _ (convex_Ici 0))).smul ha_pos.le

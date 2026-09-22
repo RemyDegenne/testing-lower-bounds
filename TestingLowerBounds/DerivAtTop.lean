@@ -41,7 +41,7 @@ lemma EReal.tendsto_of_monotoneOn {ι : Type*} [SemilatticeSup ι] [Nonempty ι]
     refine ⟨y, ?_⟩
     refine (tendsto_congr' ?_).mp hy
     rw [EventuallyEq, eventually_atTop]
-    exact ⟨x, fun z hz ↦ if_pos hz⟩
+    exact ⟨x, fun z hz ↦ ite_eq_left hz⟩
   refine EReal.tendsto_of_monotone (fun y z hyz ↦ ?_)
   split_ifs with hxy hxz hxz
   · exact hf hxy hxz hyz
@@ -111,7 +111,7 @@ lemma derivAtTop_of_tendsto_atTop (h : Tendsto (rightDeriv f) atTop atTop) :
     derivAtTop f = ⊤ := by
   refine derivAtTop_of_tendsto ?_
   rw [EReal.tendsto_nhds_top_iff_real]
-  simp only [EReal.coe_lt_coe_iff, eventually_atTop, ge_iff_le]
+  simp only [EReal.coe_lt_coe_iff, eventually_atTop]
   rw [tendsto_atTop_atTop] at h
   intro x
   obtain ⟨a, ha⟩ := h (x + 1)
@@ -242,9 +242,9 @@ lemma slope_le_rightDeriv (h_cvx : ConvexOn ℝ (Ici 0) f) {x y : ℝ} (hx : 0 �
   simp only [mem_Ioi] at hyz
   rw [← slope_def_field, slope_comm]
   refine h_cvx.slope_mono (hx.trans hxy.le) ?_ ?_ (hxy.trans hyz).le
-  · simp only [mem_diff, mem_Ici, mem_singleton_iff]
+  · simp only [Set.mem_sdiff, mem_Ici, mem_singleton_iff]
     exact ⟨hx, hxy.ne⟩
-  · simp only [mem_diff, mem_Ici, mem_singleton_iff]
+  · simp only [Set.mem_sdiff, mem_Ici, mem_singleton_iff]
     exact ⟨(hx.trans hxy.le).trans hyz.le, hyz.ne'⟩
 
 lemma rightDeriv_le_toReal_derivAtTop (h_cvx : ConvexOn ℝ (Ici 0) f) (h : derivAtTop f ≠ ⊤)

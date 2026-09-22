@@ -36,7 +36,7 @@ lemma ENNReal.tendsto_of_monotoneOn {ι : Type*} [SemilatticeSup ι] [Nonempty �
     refine ⟨y, ?_⟩
     refine (tendsto_congr' ?_).mp hy
     rw [EventuallyEq, eventually_atTop]
-    exact ⟨x, fun z hz ↦ if_pos hz⟩
+    exact ⟨x, fun z hz ↦ ite_eq_left hz⟩
   refine ENNReal.tendsto_of_monotone (fun y z hyz ↦ ?_)
   split_ifs with hxy hxz hxz
   · exact hf hxy hxz hyz
@@ -72,11 +72,11 @@ lemma rightDeriv_congr {f g : ℝ → ℝ} {x : ℝ} (h : f =ᶠ[𝓝[>] x] g) (
 
 @[simp] lemma leftLim_const {β : Type*} {a : ℝ} {x : β} [TopologicalSpace β] [T2Space β] :
     Function.leftLim (fun _ ↦ x) a = x :=
-  leftLim_eq_of_tendsto (NeBot.ne inferInstance) tendsto_const_nhds
+  leftLim_eq_of_tendsto tendsto_const_nhds
 
 @[simp] lemma rightLim_const {β : Type*} {a : ℝ} {x : β} [TopologicalSpace β] [T2Space β] :
     Function.rightLim (fun _ ↦ x) a = x :=
-  rightLim_eq_of_tendsto (NeBot.ne inferInstance) tendsto_const_nhds
+  rightLim_eq_of_tendsto tendsto_const_nhds
 
 lemma right_continuous_rightLim {β : Type*} [TopologicalSpace β]
     [ConditionallyCompleteLinearOrder β] [OrderTopology β] [T2Space β]
@@ -84,7 +84,7 @@ lemma right_continuous_rightLim {β : Type*} [TopologicalSpace β]
     {a : ℝ} (h_ne_bot : 𝓝[>] a ≠ ⊥) {y : β} (h_tendsto : Tendsto f (𝓝[>] a) (𝓝 y)) :
     ContinuousWithinAt (Function.rightLim f) (Ici a) a := by
   rw [← continuousWithinAt_Ioi_iff_Ici, ContinuousWithinAt,
-    rightLim_eq_of_tendsto h_ne_bot h_tendsto]
+    rightLim_eq_of_tendsto (h := ⟨h_ne_bot⟩) h_tendsto]
   obtain ⟨u, _, _, _⟩ := exists_seq_strictAnti_tendsto a
   refine tendsto_of_tendsto_of_tendsto_of_le_of_le' (h := fun x ↦ f (a + 2 * |x - a|))
     h_tendsto ?_ (.of_forall fun _ ↦ hf.le_rightLim le_rfl) ?_
@@ -92,8 +92,8 @@ lemma right_continuous_rightLim {β : Type*} [TopologicalSpace β]
     rw [tendsto_nhdsWithin_iff]
     constructor
     · refine tendsto_nhdsWithin_of_tendsto_nhds ?_
-      convert tendsto_const_nhds.add ((tendsto_norm_sub_self a).const_mul _)
-      ring
+      convert (tendsto_const_nhds (x := a)).add ((tendsto_norm_sub_self a).const_mul 2) using 2
+      simp
     · refine eventually_nhdsWithin_of_forall fun x hx ↦ ?_
       simp [sub_ne_zero, (mem_Ioi.mp hx).ne']
   · filter_upwards [eventually_nhdsWithin_of_forall fun y hy ↦ hy] with b hb
@@ -110,7 +110,7 @@ lemma rightLim_rightLim_of_tendsto {β : Type*}
     {f : ℝ → β} (hf : Monotone f)
     {a : ℝ} (h_ne_bot : 𝓝[>] a ≠ ⊥) {y : β} (h_tendsto : Tendsto f (𝓝[>] a) (𝓝 y)) :
     Function.rightLim (Function.rightLim f) a = y := by
-  rw [← rightLim_eq_of_tendsto h_ne_bot h_tendsto,
+  rw [← rightLim_eq_of_tendsto (h := ⟨h_ne_bot⟩) h_tendsto,
     ← hf.rightLim.continuousWithinAt_Ioi_iff_rightLim_eq, continuousWithinAt_Ioi_iff_Ici]
   exact right_continuous_rightLim hf h_ne_bot h_tendsto
 
@@ -263,7 +263,7 @@ lemma lt_top_of_mem_Ioo {x : ℝ≥0∞} (hx : x ∈ Ioo f.xmin f.xmax) : f x < 
       -- and `Algebra ℝ≥0 ℝ≥0∞` scalar actions are not syntactically the same instance.
       -- refine Convex.exists_mem_add_smul_eq
       sorry
-    refine (h (zero_le u) (zero_le v) huv).trans ?_
+    refine (h (zero_le (a := u)) (zero_le (a := v)) huv).trans ?_
     sorry
   _ < ∞ := sorry
 
@@ -329,7 +329,7 @@ lemma convexOn_Ioo_realFun : ConvexOn ℝ (ENNReal.toReal '' (Ioo f.xmin f.xmax)
       exact convex_Ioo _ _
   · intro x hx y hy a b ha hb hab
     have h := f.convexOn.2 (mem_univ (ENNReal.ofReal x)) (mem_univ (ENNReal.ofReal y))
-      (zero_le ⟨a, ha⟩) (zero_le ⟨b, hb⟩) (by ext; simp [hab])
+      (zero_le (a := ⟨a, ha⟩)) (zero_le (a := ⟨b, hb⟩)) (by ext; exact hab)
     sorry
 
 lemma convexOn_Ici_realFun (h : ∀ x ≠ ∞, f x ≠ ∞) : ConvexOn ℝ (Ici 0) f.realFun := by
@@ -354,7 +354,7 @@ lemma differentiableWithinAt_one : DifferentiableWithinAt ℝ f.realFun (Ioi 1) 
 
 lemma isMinOn_realFun_one : IsMinOn f.realFun (ENNReal.toReal '' Ioo f.xmin f.xmax) 1 := by
   intro x _
-  simp only [realFun_one, mem_setOf_eq]
+  simp only [realFun_one, mem_ofPred_eq]
   exact realFun_nonneg _
 
 lemma one_mem_interior_toReal_Ioo_xmin_xmax :
@@ -505,11 +505,11 @@ end Module
   simp only [xmin, add_apply, ne_eq, ENNReal.add_eq_top, not_or]
   refine le_antisymm ?_ le_sInf_inter
   rcases le_total f.xmin g.xmin with h | h
-  · simp only [xmin, ne_eq, le_sInf_iff, mem_setOf_eq, le_max_iff] at h ⊢
+  · simp only [xmin, ne_eq, le_sInf_iff, mem_ofPred_eq, le_max_iff] at h ⊢
     right
     intro y hy
     sorry
-  · simp only [xmin, ne_eq, le_sInf_iff, mem_setOf_eq, le_max_iff] at h ⊢
+  · simp only [xmin, ne_eq, le_sInf_iff, mem_ofPred_eq, le_max_iff] at h ⊢
     left
     intro y hy
     specialize h y hy

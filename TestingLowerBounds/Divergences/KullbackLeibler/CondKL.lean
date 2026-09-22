@@ -151,8 +151,7 @@ lemma condKL_of_not_integrable [CountableOrCountablyGenerated α β]
   swap; · exact condKL_of_not_ae_ne_top h_top
   rw [condKL]
   rwa [integrable_toReal_iff, ne_eq, not_not] at h
-  · exact (measurable_kl _ _).aemeasurable
-  · exact h_top
+  exact (measurable_kl _ _).aemeasurable
 
 @[simp]
 lemma condKL_of_not_integrable' [CountableOrCountablyGenerated α β]
@@ -496,7 +495,7 @@ lemma kl_compProd [CountableOrCountablyGenerated α β] [IsMarkovKernel κ] [IsM
   swap
   · simp only [h_prod, not_false_eq_true, kl_of_not_ac]
     have h := Measure.absolutelyContinuous_compProd_iff.mpr.mt h_prod
-    set_option push_neg.use_distrib true in push_neg at h
+    set_option push_neg.use_distrib true in push Not at h
     rcases h with (hμν | hκη)
     · simp [hμν, not_false_eq_true, kl_of_not_ac]
     · rw [Measure.absolutelyContinuous_compProd_right_iff] at hκη

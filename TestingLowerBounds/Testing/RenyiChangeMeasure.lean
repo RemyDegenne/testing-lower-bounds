@@ -38,7 +38,7 @@ lemma measure_llr_gt_renyiDiv_le_exp [NeZero μ] [IsFiniteMeasure μ] [IsFiniteM
   calc (μ {x | (renyiDiv (1 + a) μ ν).toReal + c < llr μ ν x}).toReal
   _ ≤ (μ {x | (renyiDiv (1 + a) μ ν).toReal + c ≤ llr μ ν x}).toReal := by
         refine ENNReal.toReal_mono (measure_ne_top _ _) (measure_mono (fun x ↦ ?_))
-        simp only [Set.mem_setOf_eq]
+        simp only [Set.mem_ofPred_eq]
         exact le_of_lt
   _ ≤ exp (-a * ((renyiDiv (1 + a) μ ν).toReal + c) + cgf (llr μ ν) μ a) := by
         refine measure_ge_le_exp_cgf (X := llr μ ν) (μ := μ) ((renyiDiv (1 + a) μ ν).toReal + c)

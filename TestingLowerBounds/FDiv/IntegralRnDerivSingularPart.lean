@@ -231,12 +231,12 @@ end IntegralRnDeriv
 --Is this name (`ProbabilityTheory.Integrable.Kernel`) ok?
 lemma Integrable.Kernel [IsFiniteKernel κ] [IsFiniteMeasure μ] (s : Set β) (hs : MeasurableSet s) :
   Integrable (fun x ↦ ((κ x) s).toReal) μ := by
-obtain ⟨C, ⟨hC_finite, hC_le⟩⟩ := IsFiniteKernel.exists_univ_le (κ := κ)
-apply (integrable_const C.toReal).mono'
-· exact κ.measurable_coe hs |>.ennreal_toReal.aestronglyMeasurable
-simp_rw [Real.norm_eq_abs, abs_eq_self.mpr ENNReal.toReal_nonneg, ENNReal.toReal_le_toReal
-  (measure_ne_top _ _) (lt_top_iff_ne_top.mp hC_finite)]
-exact .of_forall <| fun x ↦ (κ x).mono s.subset_univ |>.trans (hC_le x)
+  obtain ⟨C, ⟨hC_finite, hC_le⟩⟩ := IsFiniteKernel.exists_univ_le (κ := κ)
+  apply (integrable_const C.toReal).mono'
+  · exact κ.measurable_coe hs |>.ennreal_toReal.aestronglyMeasurable
+  simp_rw [Real.norm_eq_abs, abs_eq_self.mpr ENNReal.toReal_nonneg, ENNReal.toReal_le_toReal
+    (measure_ne_top _ _) (lt_top_iff_ne_top.mp hC_finite)]
+  exact .of_forall <| fun x ↦ (κ x).mono s.subset_univ |>.trans (hC_le x)
 
 lemma Measure.rnDeriv_measure_compProd_Kernel_withDensity [CountableOrCountablyGenerated α β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]

@@ -49,7 +49,7 @@ def simpleBinaryHypTest : estimationProblem Bool Bool Bool where
 @[simp]
 lemma risk_simpleBinaryHypTest_true (μ ν : Measure 𝒳) (κ : Kernel 𝒳 Bool) :
     risk simpleBinaryHypTest (twoHypKernel μ ν) κ true = (κ ∘ₘ ν) {false} := by
-  simp only [risk, simpleBinaryHypTest, comp_twoHypKernel, twoHypKernel_apply, cond_true, id_eq,
+  simp only [risk, simpleBinaryHypTest, comp_twoHypKernel, twoHypKernel_apply, Bool.cond_true, id_eq,
     Bool.true_eq]
   calc ∫⁻ z, if z = true then 0 else 1 ∂(κ ∘ₘ ν)
   _ = ∫⁻ z, Set.indicator {false} (fun _ ↦ 1) z ∂(κ ∘ₘ ν) := by
@@ -68,7 +68,7 @@ lemma risk_simpleBinaryHypTest_true (μ ν : Measure 𝒳) (κ : Kernel 𝒳 Boo
 @[simp]
 lemma risk_simpleBinaryHypTest_false (μ ν : Measure 𝒳) (κ : Kernel 𝒳 Bool) :
     risk simpleBinaryHypTest (twoHypKernel μ ν) κ false = (κ ∘ₘ μ) {true} := by
-  simp only [risk, simpleBinaryHypTest, comp_twoHypKernel, twoHypKernel_apply, cond_false, id_eq,
+  simp only [risk, simpleBinaryHypTest, comp_twoHypKernel, twoHypKernel_apply, Bool.cond_false, id_eq,
     Bool.false_eq]
   calc ∫⁻ z, if z = false then 0 else 1 ∂(κ ∘ₘ μ)
   _ = ∫⁻ z, Set.indicator {true} (fun _ ↦ 1) z ∂(κ ∘ₘ μ) := by
@@ -195,13 +195,13 @@ lemma bayesBinaryRisk_le_min (μ ν : Measure 𝒳) (π : Measure Bool) :
   rw [Measure.comp_discard, Measure.comp_discard, bayesBinaryRisk_dirac]
 
 @[simp] lemma bayesBinaryRisk_zero_left : bayesBinaryRisk 0 ν π = 0 :=
-  le_antisymm ((bayesBinaryRisk_le_min _ _ _).trans (by simp)) (zero_le _)
+  le_antisymm ((bayesBinaryRisk_le_min _ _ _).trans (by simp)) zero_le
 
 @[simp] lemma bayesBinaryRisk_zero_right : bayesBinaryRisk μ 0 π = 0 :=
-  le_antisymm ((bayesBinaryRisk_le_min _ _ _).trans (by simp)) (zero_le _)
+  le_antisymm ((bayesBinaryRisk_le_min _ _ _).trans (by simp)) zero_le
 
 @[simp] lemma bayesBinaryRisk_zero_prior : bayesBinaryRisk μ ν 0 = 0 :=
-  le_antisymm ((bayesBinaryRisk_le_min _ _ _).trans (by simp)) (zero_le _)
+  le_antisymm ((bayesBinaryRisk_le_min _ _ _).trans (by simp)) zero_le
 
 lemma bayesBinaryRisk_ne_top (μ ν : Measure 𝒳) [IsFiniteMeasure μ]
     (π : Measure Bool) [IsFiniteMeasure π] :
@@ -210,16 +210,12 @@ lemma bayesBinaryRisk_ne_top (μ ν : Measure 𝒳) [IsFiniteMeasure μ]
   exact min_lt_iff.mpr <| Or.inl <| ENNReal.mul_lt_top (measure_lt_top π _) (measure_lt_top μ _)
 
 lemma bayesBinaryRisk_of_measure_true_eq_zero (μ ν : Measure 𝒳) (hπ : π {true} = 0) :
-    bayesBinaryRisk μ ν π = 0 := by
-  refine le_antisymm ?_ (zero_le _)
-  convert bayesBinaryRisk_le_min μ ν π
-  simp [hπ]
+    bayesBinaryRisk μ ν π = 0 :=
+  le_antisymm ((bayesBinaryRisk_le_min _ _ _).trans (by simp [hπ])) zero_le
 
 lemma bayesBinaryRisk_of_measure_false_eq_zero (μ ν : Measure 𝒳) (hπ : π {false} = 0) :
-    bayesBinaryRisk μ ν π = 0 := by
-  refine le_antisymm ?_ (zero_le _)
-  convert bayesBinaryRisk_le_min μ ν π
-  simp [hπ]
+    bayesBinaryRisk μ ν π = 0 :=
+  le_antisymm ((bayesBinaryRisk_le_min _ _ _).trans (by simp [hπ])) zero_le
 
 lemma bayesBinaryRisk_symm (μ ν : Measure 𝒳) (π : Measure Bool) :
     bayesBinaryRisk μ ν π = bayesBinaryRisk ν μ (π.map Bool.not) := by
@@ -235,12 +231,12 @@ lemma bayesBinaryRisk_symm (μ ν : Measure 𝒳) (π : Measure Bool) :
   -- the `Bool.not` operation, maybe it can be shortened or something can be separated as
   -- a different lemma, but I'm not sure how useful this would be
   let e : (Kernel 𝒳 Bool) ≃ (Kernel 𝒳 Bool) := by
-    have h_id : (Kernel.deterministic Bool.not (fun _ a ↦ a)).comap Bool.not (fun _ a ↦ a)
+    have h_id : (Kernel.deterministic Bool.not .of_discrete).comap Bool.not .of_discrete
         = Kernel.id := by
       ext x : 1
       simp_rw [Kernel.comap_apply, Kernel.deterministic_apply, Kernel.id_apply, Bool.not_not]
-    refine ⟨fun κ ↦ (Kernel.deterministic Bool.not (fun _ a ↦ a)) ∘ₖ κ,
-      fun κ ↦ (Kernel.deterministic Bool.not (fun _ a ↦ a)) ∘ₖ κ, fun κ ↦ ?_, fun κ ↦ ?_⟩ <;>
+    refine ⟨fun κ ↦ (Kernel.deterministic Bool.not .of_discrete) ∘ₖ κ,
+      fun κ ↦ (Kernel.deterministic Bool.not .of_discrete) ∘ₖ κ, fun κ ↦ ?_, fun κ ↦ ?_⟩ <;>
     · dsimp
       ext x : 1
       rw [← Kernel.comp_assoc, Kernel.comp_deterministic_eq_comap, h_id, Kernel.id_comp]

@@ -47,7 +47,7 @@ variable {𝒳 : Type*} {m𝒳 : MeasurableSpace 𝒳} {μ ν : Measure 𝒳} {f
 --   · simp [hx0]
 --   by_cases hx1 : x = 1
 --   · simp [hx1]
---   rw [if_neg hx0, if_neg hx1]
+--   rw [ite_eq_right hx0, ite_eq_right hx1]
 --   have hx_ne0 : (x : ℝ) ≠ 0 := fun h ↦ hx0 (by ext; simp only [Icc.coe_zero, Icc.coe_eq_zero, h])
 --   have hx_ne1 : (x : ℝ) ≠ 1 := fun h ↦ hx1 (by ext; simp only [Icc.coe_one, Icc.coe_eq_one, h])
 --   rw [ENNReal.toReal_add, ENNReal.toReal_one, ENNReal.toReal_inv, ENNReal.toReal_ofReal]
@@ -192,7 +192,7 @@ variable {𝒳 : Type*} {m𝒳 : MeasurableSpace 𝒳} {μ ν : Measure 𝒳} {f
 --   rw [orderIsoUnitIntervalBirational_symm_apply]
 --   simp only [inv_div]
 --   have h := div_xmin_xmax_exp_mem_Ioo (f := f) (x := x)
---   rw [if_neg, if_neg]
+--   rw [ite_eq_right, ite_eq_right]
 --   rotate_left
 --   · rw [Subtype.ext_iff]
 --     simp only [Icc.coe_one]

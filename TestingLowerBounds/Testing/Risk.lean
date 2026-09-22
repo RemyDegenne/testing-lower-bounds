@@ -171,7 +171,7 @@ lemma bayesRiskPrior_le_inf (E : estimationProblem Θ 𝒴 𝒵) (P : Kernel Θ 
     congr with θ
     rw [lintegral_dirac']
     have := E.ℓ_meas
-    fun_prop [E.ℓ_meas]
+    fun_prop
   · infer_instance
 
 /-- The Bayesian risk of an estimator `κ` with respect to a prior `π` can be expressed as

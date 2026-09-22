@@ -75,8 +75,8 @@ lemma strictConvexOn_mul_log_add_one_sub :
 
 lemma hasDerivAt_mul_log_add_one_sub {x : ℝ} (hx : x ≠ 0) :
     HasDerivAt (fun x ↦ x * log x + 1 - x) (log x) x := by
-  convert ((hasDerivAt_mul_log hx).add (hasDerivAt_const x 1)).sub (hasDerivAt_id x) using 1
-  ring
+  exact (((hasDerivAt_mul_log hx).add (hasDerivAt_const x 1)).sub (hasDerivAt_id x)).congr_deriv
+    (by ring)
 
 @[simp]
 lemma rightDeriv_mul_log_add_one_sub {x : ℝ} (hx : x ≠ 0) :

@@ -86,7 +86,7 @@ lemma rnDeriv_eq_div' {ξ : Measure α} [SigmaFinite μ] [SigmaFinite ν] [Sigma
 lemma rnDeriv_eq_zero_ae_of_zero_measure (ν : Measure α) {s : Set α} (hs : MeasurableSet s)
     (hμ : μ s = 0) : ∀ᵐ x ∂ν, x ∈ s → (μ.rnDeriv ν) x = 0 := by
   rw [← setLIntegral_eq_zero_iff hs (μ.measurable_rnDeriv ν)]
-  exact le_antisymm (hμ ▸ Measure.setLIntegral_rnDeriv_le s) (zero_le _)
+  exact le_antisymm (hμ ▸ Measure.setLIntegral_rnDeriv_le s) zero_le
 
 /--Singular part set of μ with respect to ν.-/
 def singularPartSet (μ ν : Measure α) := {x | ν.rnDeriv (μ + ν) x = 0}
@@ -123,7 +123,7 @@ lemma measure_inter_compl_singularPartSet' (μ ν : Measure α) [SigmaFinite μ]
       sorry
       -- filter_upwards [ν.rnDeriv_lt_top (μ + ν)] with x hx_top hx
       -- rw [div_eq_mul_inv, mul_comm, mul_assoc, ENNReal.inv_mul_cancel, mul_one]
-      -- · simp only [Set.mem_inter_iff, Set.mem_compl_iff, Set.mem_setOf_eq, s] at hx
+      -- · simp only [Set.mem_inter_iff, Set.mem_compl_iff, Set.mem_ofPred_eq, s] at hx
       --   exact hx.2
       -- · exact hx_top.ne
     rw [this, Measure.setLIntegral_rnDeriv (rfl.absolutelyContinuous.add_right _)]
@@ -291,7 +291,8 @@ lemma ae_integrable_mul_rnDeriv_of_ae_integrable {κ : α → Measure β} [Sigma
   filter_upwards [h] with a ha
   by_cases h_zero : μ.rnDeriv ν a = 0
   · rw [h_zero]
-    simp only [ENNReal.toReal_zero, zero_mul, integrable_zero]
+    simp only [ENNReal.toReal_zero, zero_mul]
+    exact integrable_zero _ _ _
   · apply Integrable.const_mul
     exact ha h_zero
 

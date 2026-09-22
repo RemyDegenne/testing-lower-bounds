@@ -277,9 +277,9 @@ lemma fDiv_statInfoFun_eq_StatInfo_of_nonneg [IsFiniteMeasure μ] [IsFiniteMeasu
         + 2⁻¹ * (|β * (μ univ).toReal - γ * (ν univ).toReal|
         + (if γ ≤ β then -1 else 1) * (β * (μ univ).toReal - γ * (ν univ).toReal)) := by
   rcases le_or_gt γ β with (hβγ | hβγ)
-  · rw [fDiv_statInfoFun_eq_StatInfo_of_nonneg_of_le hβ hγ hβγ, if_pos hβγ, neg_one_mul, neg_sub,
+  · rw [fDiv_statInfoFun_eq_StatInfo_of_nonneg_of_le hβ hγ hβγ, ite_eq_left hβγ, neg_one_mul, neg_sub,
       sub_eq_add_neg, add_assoc, ← sub_eq_add_neg]
-  · rw [fDiv_statInfoFun_eq_StatInfo_of_nonneg_of_gt hβ hγ hβγ, if_neg hβγ.not_ge, one_mul,
+  · rw [fDiv_statInfoFun_eq_StatInfo_of_nonneg_of_gt hβ hγ hβγ, ite_eq_right hβγ.not_ge, one_mul,
       add_sub_assoc]
 
 end FDivStatInfoEqStatInfo

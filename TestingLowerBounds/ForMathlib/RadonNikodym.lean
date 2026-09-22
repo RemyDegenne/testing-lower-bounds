@@ -217,7 +217,7 @@ lemma rnDeriv_measure_compProd_right_of_ac (μ : Measure α) {κ η : Kernel α 
   | empty => simp
   | basic t ht =>
     obtain ⟨t₁, ht₁, t₂, ht₂, rfl⟩ := ht
-    simp only [mem_setOf_eq] at ht₁ ht₂
+    simp only [mem_ofPred_eq] at ht₁ ht₂
     exact h_eq t₁ ht₁ t₂ ht₂
   | compl t ht ht_eq =>
     have h := h_eq .univ .univ .univ .univ

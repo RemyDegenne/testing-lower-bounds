@@ -61,8 +61,6 @@ theorem rightLim_eq (f : ERealStieltjes) (x : ℝ) : Function.rightLim f x = f x
 theorem iInf_Ioi_eq (f : ERealStieltjes) (x : ℝ) : ⨅ r : Ioi x, f r = f x := by
   suffices Function.rightLim f x = ⨅ r : Ioi x, f r by rw [← this, f.rightLim_eq]
   rw [f.mono.rightLim_eq_sInf, sInf_image']
-  rw [← neBot_iff]
-  infer_instance
 
 -- @[simps]
 -- protected def id : ERealStieltjes where
@@ -181,7 +179,7 @@ instance : SMul ℝ≥0 ERealStieltjes where
     mono' := by
       refine f.mono.const_mul ?_
       norm_cast
-      exact zero_le _
+      exact zero_le
     right_continuous' := fun x ↦
       EReal.continuous_coe_mul.continuousAt.comp_continuousWithinAt (f.right_continuous x)}
 
@@ -265,7 +263,7 @@ theorem length_Ioc (a b : ℝ) : f.length (Ioc a b) = (f b - f a).toENNReal := b
       (le_iInf fun a' ↦ le_iInf fun b' ↦ le_iInf fun h ↦ ?_)
   rcases le_or_gt b a with ab | ab
   · rw [EReal.toENNReal_of_nonpos (EReal.sub_nonpos.mpr (f.mono ab))]
-    exact zero_le _
+    exact zero_le
   refine EReal.toENNReal_le_toENNReal ?_
   obtain ⟨h₁, h₂⟩ := (Ioc_subset_Ioc_iff ab).1 h
   exact EReal.sub_le_sub (f.mono h₁) (f.mono h₂)
@@ -311,7 +309,7 @@ theorem length_subadditive_Icc_Ioo {a b : ℝ} {c d : ℕ → ℝ} (ss : Icc a b
   refine fun s => Finset.strongInductionOn s fun s IH b cv => ?_
   rcases le_total b a with ab | ab
   · rw [EReal.toENNReal_of_nonpos (EReal.sub_nonpos.2 (f.mono ab))]
-    exact zero_le _
+    exact zero_le
   have := cv ⟨ab, le_rfl⟩
   simp only [Finset.mem_coe, mem_iUnion, mem_Ioo, exists_and_left, exists_prop] at this
   rcases this with ⟨i, cb, is, bd⟩
@@ -442,7 +440,7 @@ theorem outer_Ioc_of_ne_bot (a b : ℝ) (ha : f a ≠ ⊥) :
     _ = ∑' i : ℕ, f.length (s i) + ε := by simp [δ, add_assoc, ENNReal.add_halves]
 
 theorem outer_Ioc_of_eq_bot (a b : ℝ) (hb : f b = ⊥) : f.outer (Ioc a b) = 0 := by
-  refine le_antisymm ?_ (zero_le _)
+  refine le_antisymm ?_ zero_le
   suffices f.outer (Ioc a b) ≤ (f b - f a).toENNReal by simpa [hb] using this
   exact (f.length_Ioc _ _).symm ▸ outer_le_length _ _
 
@@ -505,7 +503,7 @@ lemma outer_singleton_aux {b : ℝ} (ha' : ∀ x < b, f x = ⊥) (hb : f b ≠ �
     f.outer {b} = ∞ := by
   refine outer_singleton_eq_top f ?_
   have : leftLim f b = ⊥ := by
-    refine leftLim_eq_of_tendsto NeBot.ne' ?_
+    refine leftLim_eq_of_tendsto ?_
     refine (tendsto_congr' ?_).mpr tendsto_const_nhds
     rw [EventuallyEq, eventually_nhdsWithin_iff]
     exact .of_forall ha'
@@ -556,15 +554,15 @@ theorem measurableSet_Ioi {c : ℝ} : MeasurableSet[f.outer.caratheodory] (Ioi c
   refine
     le_trans
       (add_le_add (f.length_mono <| inter_subset_inter_left _ h)
-        (f.length_mono <| diff_subset_diff_left h)) ?_
+        (f.length_mono <| sdiff_subset_sdiff_left h)) ?_
   rcases le_total a c with hac | hac <;> rcases le_total b c with hbc | hbc
   · simp only [Ioc_inter_Ioi, f.length_Ioc, hac, hbc, le_refl, Ioc_eq_empty,
-      max_eq_right, min_eq_left, Ioc_diff_Ioi, f.length_empty, zero_add, not_lt]
-  · simp only [Ioc_inter_Ioi, hac, sup_of_le_right, length_Ioc, Ioc_diff_Ioi, hbc, min_eq_right]
+      max_eq_right, min_eq_left, Ioc_sdiff_Ioi, f.length_empty, zero_add, not_lt]
+  · simp only [Ioc_inter_Ioi, hac, sup_of_le_right, length_Ioc, Ioc_sdiff_Ioi, hbc, min_eq_right]
     rw [EReal.toENNReal_sub_add_cancel (f.mono hac) (f.mono hbc)]
-  · simp only [hbc, le_refl, Ioc_eq_empty, Ioc_inter_Ioi, min_eq_left, Ioc_diff_Ioi, f.length_empty,
+  · simp only [hbc, le_refl, Ioc_eq_empty, Ioc_inter_Ioi, min_eq_left, Ioc_sdiff_Ioi, f.length_empty,
       zero_add, or_true, le_sup_iff, f.length_Ioc, not_lt]
-  · simp only [hac, hbc, Ioc_inter_Ioi, Ioc_diff_Ioi, f.length_Ioc, min_eq_right,
+  · simp only [hac, hbc, Ioc_inter_Ioi, Ioc_sdiff_Ioi, f.length_Ioc, min_eq_right,
       le_refl, Ioc_eq_empty, add_zero, max_eq_left, f.length_empty, not_lt]
 
 theorem outer_trim : f.outer.trim = f.outer := by
@@ -621,7 +619,7 @@ lemma leftLim_toENNReal_sub_left (a b : ℝ) :
     leftLim (fun x ↦ (f x - f a).toENNReal) b = (leftLim f b - f a).toENNReal := by
   rcases le_or_gt a b with (_ | hab)
   swap
-  · refine leftLim_eq_of_tendsto NeBot.ne' ?_
+  · refine leftLim_eq_of_tendsto ?_
     refine (tendsto_congr' ?_).mpr tendsto_const_nhds
     have : ∀ᶠ x in 𝓝[<] b, x < a := by
       refine eventually_nhdsWithin_iff.mpr ?_
@@ -638,17 +636,17 @@ lemma leftLim_toENNReal_sub_left (a b : ℝ) :
     · simp only [h_lim, EReal.bot_add, ne_eq, bot_ne_top, not_false_eq_true,
         EReal.toENNReal_of_ne_top, EReal.toReal_bot, ofReal_zero]
       have h_lt x (hxb : x < b) : f x = ⊥ := eq_bot_mono (f.mono.le_leftLim hxb) h_lim
-      refine leftLim_eq_of_tendsto NeBot.ne' ?_
+      refine leftLim_eq_of_tendsto ?_
       refine (tendsto_congr' ?_).mpr tendsto_const_nhds
       refine eventually_nhdsWithin_of_forall fun x hx ↦ ?_
       simp [h_lt x hx]
     · rw [EReal.add_top_of_ne_bot h_lim, EReal.toENNReal_top]
-      refine leftLim_eq_of_tendsto NeBot.ne' ?_
+      refine leftLim_eq_of_tendsto ?_
       refine (tendsto_congr' ?_).mpr tendsto_const_nhds
       obtain ⟨x, hxb, hx⟩ : ∃ x < b, f x ≠ ⊥ := by
         by_contra! h_bot
         refine h_lim ?_
-        refine leftLim_eq_of_tendsto NeBot.ne' ?_
+        refine leftLim_eq_of_tendsto ?_
         refine (tendsto_congr' ?_).mpr tendsto_const_nhds
         exact eventually_nhdsWithin_of_forall h_bot
       have : ∀ᶠ y in 𝓝[<] b, x < y := by
@@ -657,7 +655,7 @@ lemma leftLim_toENNReal_sub_left (a b : ℝ) :
       filter_upwards [this] with y hy
       rw [EReal.toENNReal_eq_top_iff, EReal.add_top_of_ne_bot]
       exact fun h_bot ↦ hx (eq_bot_mono (f.mono hy.le) h_bot)
-  refine leftLim_eq_of_tendsto NeBot.ne' ?_
+  refine leftLim_eq_of_tendsto ?_
   have h1 := EReal.continuous_toENNReal.tendsto (leftLim f b - f a)
   have h2 := EReal.continuousAt_sub_const (c := f a) (x := leftLim f b) (Or.inr hfa)
   exact h1.comp <| h2.tendsto.comp <| f.mono.tendsto_leftLim _
@@ -667,7 +665,7 @@ lemma leftLim_toENNReal_sub_right (a : ℝ) (c : EReal)
     leftLim (fun x ↦ (c - f x).toENNReal) a = (c - leftLim f a).toENNReal := by
   rcases le_or_gt (leftLim f a) c with (hab | hab)
   swap
-  · refine leftLim_eq_of_tendsto NeBot.ne' ?_
+  · refine leftLim_eq_of_tendsto ?_
     refine (tendsto_congr' ?_).mpr tendsto_const_nhds
     have : ∀ᶠ x in 𝓝[<] a, c < f x := Filter.Tendsto.eventually_const_lt hab (f.mono.tendsto_leftLim _)
     filter_upwards [this] with x hx
@@ -680,14 +678,14 @@ lemma leftLim_toENNReal_sub_right (a : ℝ) (c : EReal)
   have h2 := EReal.continuousAt_const_sub (c := c) (x := leftLim f a)
   by_cases hfb : c = ⊤
   swap
-  · refine leftLim_eq_of_tendsto NeBot.ne' ?_
+  · refine leftLim_eq_of_tendsto ?_
     refine h1.comp ?_
     refine (h2 (Or.inr hfb)).tendsto.comp ?_
     exact f.mono.tendsto_leftLim _
   specialize h hfb
   by_cases h_lim : leftLim f a = ⊤
   swap
-  · refine leftLim_eq_of_tendsto NeBot.ne' ?_
+  · refine leftLim_eq_of_tendsto ?_
     refine h1.comp ?_
     refine (h2 (Or.inl h_lim)).tendsto.comp ?_
     exact f.mono.tendsto_leftLim _
@@ -697,7 +695,7 @@ lemma leftLim_toENNReal_sub_right (a : ℝ) (c : EReal)
   have hfb : c = ⊤ := eq_top_mono hab hfa_lim
   simp only [hfb, hfa_lim, EReal.sub_top, ne_eq, bot_ne_top, not_false_eq_true,
     EReal.toENNReal_of_ne_top, EReal.toReal_bot, ofReal_zero]
-  refine leftLim_eq_of_tendsto NeBot.ne' ?_
+  refine leftLim_eq_of_tendsto ?_
   refine (tendsto_congr' ?_).mpr tendsto_const_nhds
   have : ∀ᶠ y in 𝓝[<] a, x < y := by
     refine eventually_nhdsWithin_iff.mpr ?_
@@ -716,11 +714,12 @@ theorem measure_singleton (a : ℝ) :
     change f.outer {a} = _
     rw [outer_singleton_eq_top']
     · symm
-      refine leftLim_eq_of_tendsto NeBot.ne' ?_
+      refine leftLim_eq_of_tendsto ?_
       refine (tendsto_congr' ?_).mpr tendsto_const_nhds
       refine eventually_nhdsWithin_of_forall fun x hx ↦ ?_
       simp [h_top x hx]
     · convert h_top
+      simp
   obtain ⟨u, u_mono, u_lt_a, u_lim⟩ :
     ∃ u : ℕ → ℝ, StrictMono u ∧ (∀ n : ℕ, u n < a) ∧ Tendsto u atTop (𝓝 a) :=
     exists_seq_strictMono_tendsto a
@@ -767,11 +766,11 @@ theorem measure_Icc (a b : ℝ) :
     calc (f b - f a).toENNReal + leftLim (fun x ↦ (f a - f x).toENNReal) a
     _ = leftLim (fun x ↦ (f b - f a).toENNReal + (f a - f x).toENNReal) a := by
       symm
-      refine leftLim_eq_of_tendsto NeBot.ne' ?_
+      refine leftLim_eq_of_tendsto ?_
       refine Tendsto.const_add _ ?_
       exact (antitone_toENNReal_const_sub f a).tendsto_leftLim _
     _ = leftLim (fun x ↦ (f b - f x).toENNReal) a := by
-      refine leftLim_eq_of_tendsto NeBot.ne' ?_
+      refine leftLim_eq_of_tendsto ?_
       have h := (antitone_toENNReal_const_sub f b).tendsto_leftLim a
       refine (tendsto_congr' ?_).mpr h
       refine eventually_nhdsWithin_of_forall fun x hx ↦ ?_
@@ -781,7 +780,7 @@ theorem measure_Icc (a b : ℝ) :
       · exact f.mono hab
   · simp only [hab, measure_empty, Icc_eq_empty, not_le]
     symm
-    refine leftLim_eq_of_tendsto NeBot.ne' ?_
+    refine leftLim_eq_of_tendsto ?_
     refine (tendsto_congr' ?_).mpr tendsto_const_nhds
     have : ∀ᶠ x in 𝓝[<] a, b < x := by
       refine eventually_nhdsWithin_iff.mpr ?_
@@ -797,7 +796,7 @@ theorem measure_Ioo {a b : ℝ} :
   rcases le_or_gt b a with (hab | hab)
   · simp only [not_lt, hab, Ioo_eq_empty, measure_empty]
     symm
-    refine leftLim_eq_of_tendsto NeBot.ne' ?_
+    refine leftLim_eq_of_tendsto ?_
     refine (tendsto_congr' ?_).mpr tendsto_const_nhds
     refine eventually_nhdsWithin_of_forall fun x hx ↦ ?_
     simp only
@@ -815,7 +814,7 @@ theorem measure_Ioo {a b : ℝ} :
       fun _ _ hxy ↦ EReal.toENNReal_le_toENNReal (EReal.sub_le_sub (f.mono hxy) le_rfl)
     rw [h_iUnion, Monotone.measure_iUnion]
     · simp only [measure_Ioc]
-      rw [Monotone.leftLim_eq_sSup h_mono NeBot.ne']
+      rw [Monotone.leftLim_eq_sSup h_mono]
       apply le_antisymm
       · refine iSup_le fun n ↦ ?_
         refine le_sSup ?_
@@ -924,7 +923,7 @@ lemma measure_Iio {l : EReal} (hf : Tendsto f atBot (𝓝 l)) (x : ℝ) :
   rw [h_iUnion, Monotone.measure_iUnion]
   swap; · exact monotone_Iic.comp hc_mono.monotone
   simp only [measure_Iic f hf]
-  rw [Monotone.leftLim_eq_sSup h_mono NeBot.ne']
+  rw [Monotone.leftLim_eq_sSup h_mono]
   apply le_antisymm
   · refine iSup_le fun n ↦ ?_
     refine le_sSup ?_

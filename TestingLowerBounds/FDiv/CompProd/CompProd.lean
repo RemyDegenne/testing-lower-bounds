@@ -165,7 +165,7 @@ lemma le_fDiv_compProd [CountableOrCountablyGenerated α β] (μ ν : Measure α
           congr with a
           have h : κ a .univ = 1 := by simp
           rw [← κ.rnDeriv_add_singularPart η] at h
-          simp only [Kernel.coe_add, Pi.add_apply, 
+          simp only [FunLike.coe_add, Pi.add_apply, 
             ] at h
           exact h.symm
         · exact Kernel.measurable_coe _ .univ

@@ -58,7 +58,7 @@ lemma ofReal_apply_zero :
 lemma ofReal_apply_zero_of_continuousWithinAt (hf_cont : ContinuousWithinAt f (Ioi 0) 0) :
     ofReal f hf hf_one 0 = ENNReal.ofReal (f 0) := by
   simp only [ofReal_apply_zero]
-  refine rightLim_eq_of_tendsto NeBot.ne' ?_
+  refine rightLim_eq_of_tendsto ?_
   refine ContinuousWithinAt.tendsto ?_
   exact (ENNReal.continuous_ofReal.tendsto _).comp hf_cont.tendsto
 
@@ -132,7 +132,7 @@ lemma lintegral_ofReal_eq_top_of_not_integrable [SigmaFinite μ] [IsFiniteMeasur
     refine (integrableOn_congr_fun ?_ ?_).mpr
       (integrableOn_const (C := f 0) (measure_ne_top _ _))
     · intro x hx
-      simp only [mem_setOf_eq] at hx
+      simp only [mem_ofPred_eq] at hx
       simp [hx]
     · exact μ.measurable_rnDeriv ν (measurableSet_singleton 0)
   simp [h_int_zero] at h_int
@@ -234,8 +234,7 @@ lemma measurable_comp_rnDeriv_of_convexOn_of_continuous [SigmaFinite μ] [SigmaF
   rw [this]
   have h1 : Measurable (fun x : Ici (0 : ℝ) ↦ f x) := by
     refine Continuous.measurable ?_
-    change Continuous ((Ici 0).restrict f)
-    rw [← continuousOn_iff_continuous_restrict]
+    refine continuousOn_iff_continuous_domRestrict.mp ?_
     have h_Ioi : ContinuousOn f (Ioi 0) := hf.continuousOn isOpen_Ioi
     rw [ContinuousOn]
     intro x hx

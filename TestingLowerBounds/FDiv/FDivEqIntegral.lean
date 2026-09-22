@@ -324,7 +324,7 @@ lemma fDiv_eq_lintegral_fDiv_statInfoFun [IsFiniteMeasure μ] [IsFiniteMeasure �
 -- --     · exact .of_forall fun _ ↦ EReal.toENNReal_ne_top_iff.mpr fDiv_statInfoFun_ne_top
 -- --     simp_rw [EReal.toReal_toENNReal fDiv_statInfoFun_nonneg, h_int]
 -- --   · classical
--- --     rw [fDiv_of_absolutelyContinuous h_ac, if_neg h_int]
+-- --     rw [fDiv_of_absolutelyContinuous h_ac, ite_eq_right h_int]
 -- --     convert (EReal.top_add_of_ne_bot ?_).symm
 -- --     swap
 -- --     · simp [sub_eq_add_neg, measure_ne_top, EReal.add_ne_top, EReal.add_ne_bot, EReal.mul_ne_bot]

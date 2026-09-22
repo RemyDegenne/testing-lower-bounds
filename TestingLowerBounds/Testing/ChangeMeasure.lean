@@ -97,7 +97,7 @@ lemma measure_sub_le_measure_mul_exp [SigmaFinite μ] [IsFiniteMeasure ν] (hμ�
         gcongr
         refine (ENNReal.le_toReal_sub hμc).trans ?_
         rw [ENNReal.toReal_le_toReal]
-        · exact le_measure_diff
+        · exact le_measure_sdiff
         · exact (tsub_le_self.trans_lt (Ne.lt_top hμs)).ne
         · exact ((measure_mono Set.inter_subset_left).trans_lt (Ne.lt_top hμs)).ne
   _ = (μ (s ∩ {x | llr μ ν x ≤ c})).toReal * rexp (-c) := by congr with x; simp
@@ -113,7 +113,7 @@ lemma measure_sub_le_measure_mul_exp [SigmaFinite μ] [IsFiniteMeasure ν] (hμ�
           exact Measure.integrable_toReal_rnDeriv
         · rw [Filter.EventuallyLE, ae_restrict_iff]
           · refine ae_of_all _ (fun x hxs ↦ ?_)
-            simp only [Set.mem_inter_iff, Set.mem_setOf_eq] at hxs
+            simp only [Set.mem_inter_iff, Set.mem_ofPred_eq] at hxs
             simp [hxs.2]
           · exact (measurable_llr _ _).neg.exp measurableSet_Ici
   _ ≤ (ν (s ∩ {x | llr μ ν x ≤ c})).toReal := by

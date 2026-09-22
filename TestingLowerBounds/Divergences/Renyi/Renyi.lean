@@ -5,7 +5,7 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import TestingLowerBounds.Divergences.Hellinger.Hellinger
 import Mathlib.Probability.Moments.Basic
-import Mathlib.Data.Real.Sign
+import Mathlib.Basic.Real.Sign
 import Mathlib.Analysis.SpecialFunctions.Log.ENNRealLog
 
 /-!
@@ -186,20 +186,20 @@ open Classical in
 @[simp]
 lemma renyiDiv_zero (μ ν : Measure α) :
     renyiDiv 0 μ ν = (- ENNReal.log (ν {x | 0 < (∂μ/∂ν) x} / ν .univ)).toENNReal :=
-  if_pos rfl
+  ite_eq_left rfl
 
 @[simp]
 lemma renyiDiv_one (μ ν : Measure α) :
     renyiDiv 1 μ ν
       = (((μ .univ).toReal⁻¹ : EReal) * (kl μ ν + (μ .univ).toReal - (ν .univ).toReal)
         - log ((μ .univ).toReal / (ν .univ).toReal)).toENNReal := by
-  rw [renyiDiv, if_neg one_ne_zero, if_pos rfl]
+  rw [renyiDiv, ite_eq_right one_ne_zero, ite_eq_left rfl]
 
 lemma renyiDiv_of_ne_one (ha_zero : a ≠ 0) (ha_ne_one : a ≠ 1) (μ ν : Measure α) :
     renyiDiv a μ ν = ((a - 1)⁻¹ * ENNReal.log
       (((avgMass a μ ν : EReal) + (a - 1) * (hellingerDiv a μ ν)).toENNReal)
       - (a - 1)⁻¹ * Real.log (avgMass a μ ν)).toENNReal := by
-  rw [renyiDiv, if_neg ha_zero, if_neg ha_ne_one]
+  rw [renyiDiv, ite_eq_right ha_zero, ite_eq_right ha_ne_one]
 
 lemma renyiDiv_eq_top_of_hellingerDiv_eq_top [NeZero μ] [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (h : hellingerDiv a μ ν = ∞) :
@@ -251,7 +251,7 @@ lemma renyiDiv_of_lt_one [IsFiniteMeasure μ] [IsFiniteMeasure ν] (ha_pos : 0 <
     exact EReal.coe_ne_top _
   · rw [← mul_hellingerDiv_add_meas_eq_integral_of_lt_one ha_pos ha_lt,
       avgMass_add_mul_hellingerDiv_eq_ofReal (hellingerDiv_ne_top_of_lt_one ha_lt _ _),
-      EReal.real_coe_toENNReal, ENNReal.log_ofReal, if_neg]
+      EReal.real_coe_toENNReal, ENNReal.log_ofReal, ite_eq_right]
     · norm_cast
       rw [EReal.real_coe_toENNReal, mul_sub]
     · rw [not_le]
@@ -269,7 +269,7 @@ lemma renyiDiv_of_one_lt [NeZero μ] [IsFiniteMeasure μ] [IsFiniteMeasure ν] (
   split_ifs with h
   · exact renyiDiv_eq_top_of_hellingerDiv_eq_top h
   rw [renyiDiv_of_ne_one ha_pos.ne' ha_lt.ne', avgMass_add_mul_hellingerDiv_eq_ofReal h,
-    EReal.real_coe_toENNReal, ENNReal.log_ofReal, if_neg]
+    EReal.real_coe_toENNReal, ENNReal.log_ofReal, ite_eq_right]
   · norm_cast
     rw [← ne_eq, hellingerDiv_ne_top_iff_of_one_lt ha_lt] at h
     rw [EReal.real_coe_toENNReal, mul_sub,
@@ -648,16 +648,13 @@ lemma le_renyiDiv_of_le_hellingerDiv {a : ℝ} {μ₁ ν₁ : Measure α} {μ₂
     apply EReal.neg_le_neg_iff.mp
     simp_rw [← neg_mul, ← EReal.coe_neg, neg_inv, neg_sub]
     gcongr
-    · simp only [EReal.coe_nonneg, inv_nonneg, sub_nonneg, ha.le]
     refine EReal.toENNReal_le_toENNReal ?_
     gcongr _ + ?_
     apply EReal.neg_le_neg_iff.mp
     norm_cast
     simp_rw [← neg_mul, ← EReal.coe_neg, neg_sub]
     gcongr
-    · norm_cast
-      linarith
-    · exact mod_cast h_le
+    exact mod_cast h_le
   · simp only [renyiDiv_one, ge_iff_le, h_eq_μ, h_eq_ν]
     simp [hellingerDiv_one] at h_le
     refine EReal.toENNReal_le_toENNReal ?_
@@ -670,7 +667,6 @@ lemma le_renyiDiv_of_le_hellingerDiv {a : ℝ} {μ₁ ν₁ : Measure α} {μ₂
     refine EReal.toENNReal_le_toENNReal ?_
     refine EReal.sub_le_sub ?_ le_rfl
     gcongr
-    · simp only [EReal.coe_nonneg, inv_nonneg, sub_nonneg, ha.le]
     refine EReal.toENNReal_le_toENNReal ?_
     gcongr
     · norm_cast
