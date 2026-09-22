@@ -26,8 +26,6 @@ import TestingLowerBounds.IntegrableFRNDeriv
 
 ## Notation
 
-
-
 ## Implementation details
 
 How to define a `DivFunction` from a real function `f`:
@@ -431,11 +429,11 @@ lemma tendsto_rightDeriv_hellingerFun_atTop_of_lt_one (ha : a < 1) :
 lemma derivAtTop_hellingerFun_of_one_lt (ha : 1 < a) : derivAtTop (hellingerFun a) = ⊤ :=
    derivAtTop_of_tendsto_atTop <| tendsto_rightDeriv_hellingerFun_atTop_of_one_lt ha
 
--- lemma derivAtTop_hellingerFun_of_one_le (ha : 1 ≤ a) :
---     derivAtTop (hellingerFun a) = ⊤ := by
---   by_cases ha_eq : a = 1
---   · simp only [hellingerFun, ha, ha_eq, one_ne_zero, ↓reduceIte, derivAtTop_mul_log]
---   · exact derivAtTop_hellingerFun_of_one_lt <| lt_of_le_of_ne ha fun h ↦ ha_eq h.symm
+lemma derivAtTop_hellingerFun_of_one_le (ha : 1 ≤ a) : derivAtTop (hellingerFun a) = ⊤ := by
+  rcases ha.eq_or_lt with rfl | ha
+  · rw [hellingerFun_one]
+    exact derivAtTop_of_tendsto_atTop tendsto_rightDeriv_klFun_atTop
+  · exact derivAtTop_hellingerFun_of_one_lt ha
 
 lemma derivAtTop_hellingerFun_of_lt_one (ha : a < 1) :
     derivAtTop (hellingerFun a) = (a * (1 - a)⁻¹) :=

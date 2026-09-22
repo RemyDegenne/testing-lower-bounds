@@ -76,17 +76,6 @@ theorem iInf_Ioi_eq (f : ERealStieltjes) (x : ℝ) : ⨅ r : Ioi x, f r = f x :=
   suffices Function.rightLim f x = ⨅ r : Ioi x, f r by rw [← this, f.rightLim_eq]
   rw [f.mono.rightLim_eq_sInf, sInf_image']
 
--- @[simps]
--- protected def id : ERealStieltjes where
---   toFun := id
---   mono' _ _ := id
---   right_continuous' _ := continuousWithinAt_id
-
--- @[simp]
--- theorem id_leftLim (x : ℝ) : leftLim ERealStieltjes.id x = x :=
---   tendsto_nhds_unique (ERealStieltjes.id.mono.tendsto_leftLim x) <|
---     continuousAt_id.tendsto.mono_left nhdsWithin_le_nhds
-
 /-- Constant functions are Stieltjes function. -/
 protected def const (c : EReal) : ERealStieltjes where
   toFun := fun _ ↦ c
@@ -258,7 +247,6 @@ def xmax : ℝ := sSup {y | f y ≠ ⊤}
 end EffectiveDomain
 
 /-! ### The outer measure associated to a Stieltjes function -/
-
 
 /-- Length of an interval. This is the largest monotone function which correctly measures all
 intervals. -/
@@ -613,7 +601,6 @@ theorem borel_le_measurable : borel ℝ ≤ f.outer.caratheodory := by
   simp (config := { contextual := true }) [f.measurableSet_Ioi]
 
 /-! ### The measure associated to a Stieltjes function -/
-
 
 /-- The measure associated to a Stieltjes function, giving mass `f b - f a` to the
 interval `(a, b]`. -/
@@ -1035,33 +1022,6 @@ lemma measure_Ioi_of_tendsto_atTop_atTop (hf : Tendsto f atTop atTop) (x : ℝ) 
     exact mod_cast (lt_add_one x)
   rw [measure_Ioi f hf']
 
--- lemma measure_Ici_of_tendsto_atTop_atTop (hf : Tendsto f atTop atTop) (x : ℝ) :
---     f.measure (Ici x) = ∞ := by
---   rw [← top_le_iff, ← f.measure_Ioi_of_tendsto_atTop_atTop hf x]
---   exact measure_mono Ioi_subset_Ici_self
-
--- lemma measure_Iic_of_tendsto_atBot_atBot (hf : Tendsto f atBot atBot) (x : ℝ) :
---     f.measure (Iic x) = ∞ := by
---   refine ENNReal.eq_top_of_forall_nnreal_le fun r ↦ ?_
---   obtain ⟨N, hN⟩ := eventually_atBot.mp (tendsto_atBot.mp hf (f x - r))
---   exact (f.measure_Ioc (min x N) x ▸ ENNReal.coe_nnreal_eq r ▸ (ENNReal.ofReal_le_ofReal <|
---     le_sub_comm.mp <| hN _ (min_le_right x N))).trans (measure_mono Ioc_subset_Iic_self)
-
--- lemma measure_Iio_of_tendsto_atBot_atBot (hf : Tendsto f atBot atBot) (x : ℝ) :
---     f.measure (Iio x) = ∞ := by
---   rw [← top_le_iff, ← f.measure_Iic_of_tendsto_atBot_atBot hf (x - 1)]
---   exact measure_mono <| Set.Iic_subset_Iio.mpr <| sub_one_lt x
-
--- lemma measure_univ_of_tendsto_atTop_atTop (hf : Tendsto f atTop atTop) :
---     f.measure univ = ∞ := by
---   rw [← top_le_iff, ← f.measure_Ioi_of_tendsto_atTop_atTop hf 0]
---   exact measure_mono fun _ _ ↦ trivial
-
--- lemma measure_univ_of_tendsto_atBot_atBot (hf : Tendsto f atBot atBot) :
---     f.measure univ = ∞ := by
---   rw [← top_le_iff, ← f.measure_Iio_of_tendsto_atBot_atBot hf 0]
---   exact measure_mono fun _ _ ↦ trivial
-
 @[simp]
 lemma measure_zero : (0 : ERealStieltjes).measure = 0 := measure_const 0
 
@@ -1337,13 +1297,5 @@ lemma measure_add (f g : ERealStieltjes) (hf : ∀ x, f x ≠ ⊥ ∧ f x ≠ �
   · exact mod_cast hgab
   congr 1
   ring
-
--- @[simp]
--- lemma measure_smul (c : ℝ≥0) (f : ERealStieltjes) : (c • f).measure = c • f.measure := by
---   refine Measure.ext_of_Ioc _ _ (fun a b _ ↦ ?_)
---   simp only [measure_Ioc, Measure.smul_apply]
---   change ofReal (c * f b - c * f a) = c • ofReal (f b - f a)
---   rw [← _root_.mul_sub, ENNReal.ofReal_mul zero_le_coe, ofReal_coe_nnreal, ← smul_eq_mul]
---   rfl
 
 end ERealStieltjes

@@ -31,16 +31,6 @@ section StatInfoFun
 
 open Set Filter ConvexOn
 
--- lemma nnreal_mul_fDiv_statInfoFun {a : NNReal} :
---     a * fDiv (statInfoDivFun β γ) μ ν = fDiv (fun x ↦ statInfoFun (a * β) (a * γ) x) μ ν := by
---   change (a.1 : EReal) * _ = _
---   rw [← fDiv_mul a.2 ((convexOn_statInfoFun β γ).subset (fun _ _ ↦ trivial) (convex_Ici 0)) μ ν]
---   simp_rw [const_mul_statInfoFun a.2]
---   rfl
-
--- lemma fDiv_statInfoFun_nonneg : 0 ≤ fDiv (statInfoDivFun β γ) μ ν :=
---   fDiv_nonneg_of_nonneg (fun x ↦ statInfoFun_nonneg β γ x) (derivAtTop_statInfoFun_nonneg β γ)
-
 lemma measurable_fDiv_statInfoFun (μ ν : Measure 𝒳) [SFinite ν] :
     Measurable (Function.uncurry fun β γ ↦ fDiv (statInfoDivFun β γ) μ ν) := by
   simp_rw [fDiv]

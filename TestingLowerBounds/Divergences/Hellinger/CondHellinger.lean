@@ -19,8 +19,6 @@ import TestingLowerBounds.Divergences.Hellinger.Hellinger
 
 ## Notation
 
-
-
 ## Implementation details
 
 -/
@@ -41,6 +39,8 @@ lemma hellingerDiv_ae_ne_top_iff'' (κ η : Kernel α β) [IsFiniteKernel κ] [I
         ∧ (1 ≤ a → ∀ᵐ x ∂μ, (κ x) ≪ (η x)) := by
   simp_rw [hellingerDiv_ne_top_iff, eventually_and, eventually_all]
 
+/- TODO (ℝ≥0∞ refactor): the commented-out declarations below are pre-refactor statements about
+real- or `EReal`-valued divergences. They are kept as a porting backlog. -/
 -- lemma hellingerDiv_ae_ne_top_iff' (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
 --     (∀ᵐ x ∂μ, hellingerDiv a (κ x) (η x) ≠ ∞)
 --       ↔ (∀ᵐ x ∂μ, Integrable (fun b ↦ hellingerFun a ((∂κ x/∂η x) b).toReal) (η x))

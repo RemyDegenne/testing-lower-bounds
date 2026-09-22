@@ -19,9 +19,7 @@ import TestingLowerBounds.Divergences.Renyi.Renyi
 
 ## Notation
 
-
 ## Implementation details
-
 
 -/
 
@@ -34,6 +32,8 @@ namespace ProbabilityTheory
 variable {α β γ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {mγ : MeasurableSpace γ}
   {μ ν : Measure α} {κ η : Kernel α β} {a : ℝ}
 
+/- TODO (ℝ≥0∞ refactor): the commented-out declarations below are pre-refactor statements about
+real- or `EReal`-valued divergences. They are kept as a porting backlog. -/
 -- lemma integrable_rpow_rnDeriv_compProd_right_iff [CountableOrCountablyGenerated α β]
 --     (ha_pos : 0 < a) (ha_one : a ≠ 1) (κ η : Kernel α β) (μ : Measure α)
 --     [IsFiniteKernel κ] [IsFiniteKernel η] [IsFiniteMeasure μ]

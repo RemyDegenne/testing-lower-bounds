@@ -62,11 +62,6 @@ lemma condFDiv_of_not_ae_ac [IsFiniteKernel κ] [IsFiniteKernel η] (h_top : f.d
   rw [fDiv_ae_ne_top_iff]
   tauto
 
--- @[simp]
--- lemma condFDiv_of_not_integrable
---     (hf : ¬ Integrable (fun x ↦ (fDiv f (κ x) (η x)).toReal) μ) :
---     condFDiv f κ η μ = ∞ := ite_eq_right (not_and_of_not_right _ hf)
-
 @[simp]
 lemma condFDiv_of_not_integrable' [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η]
     (hf : ∫⁻ a, ∫⁻ b, f ((∂κ a/∂η a) b) ∂η a ∂μ = ∞) :
@@ -77,12 +72,6 @@ lemma condFDiv_of_not_integrable' [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFi
     ne_eq, not_not]
   rw [fDiv_ae_ne_top_iff] at h_top
   exact h_top.2
-
--- /- Use condFDiv_eq instead: its assumptions are in normal form. -/
--- lemma condFDiv_eq' (hf_ae : ∀ᵐ a ∂μ, fDiv f (κ a) (η a) ≠ ∞)
---     (hf : Integrable (fun x ↦ (fDiv f (κ x) (η x)).toReal) μ) :
---     condFDiv f κ η μ = ((μ[fun x ↦ (fDiv f (κ x) (η x)).toReal] : ℝ) : EReal) :=
---   ite_eq_left ⟨hf_ae, hf⟩
 
 lemma condFDiv_ne_top_iff [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η] :
     condFDiv f κ η μ ≠ ∞ ↔
@@ -102,22 +91,6 @@ lemma condFDiv_eq_top_iff [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKern
         ∨ (f.derivAtTop = ∞ ∧ ¬ ∀ᵐ a ∂μ, κ a ≪ η a) := by
   have h := condFDiv_ne_top_iff (κ := κ) (η := η) (μ := μ) (f := f)
   tauto
-
--- lemma condFDiv_eq [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η]
---     --(hf_ae : ∀ᵐ a ∂μ, Integrable (fun x ↦ f ((∂κ a/∂η a) x).toReal) (η a))
---     (hf : ∫⁻ a, ∫⁻ b, f ((∂κ a/∂η a) b) ∂η a ∂μ ≠ ∞)
---     (h_deriv : f.derivAtTop = ∞ → ∀ᵐ a ∂μ, κ a ≪ η a) :
---     condFDiv f κ η μ = ((μ[fun x ↦ (fDiv f (κ x) (η x)).toReal] : ℝ) : EReal) :=
---   condFDiv_eq' (fDiv_ae_ne_top_iff.mpr ⟨hf_ae, h_deriv⟩)
---     ((integrable_fDiv_iff h_cvx hf_ae h_deriv).mpr hf)
-
--- lemma condFDiv_ne_top_iff' [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η] :
---     condFDiv f κ η μ ≠ ∞
---       ↔ condFDiv f κ η μ = ((μ[fun x ↦ (fDiv f (κ x) (η x)).toReal] : ℝ) : EReal) := by
---   constructor
---   · rw [condFDiv_ne_top_iff h_cvx]
---     exact fun ⟨h1, h2, h3⟩ => condFDiv_eq h_cvx h1 h2 h3
---   · simp_all only [ne_eq, EReal.coe_ne_top, not_false_eq_true, implies_true]
 
 lemma condFDiv_eq_add [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η] :
     condFDiv f κ η μ = ∫⁻ a, ∫⁻ y, f ((∂κ a/∂η a) y) ∂η a ∂μ
@@ -176,24 +149,6 @@ lemma condFDiv_of_isEmpty_right [IsEmpty β] [IsFiniteKernel κ] :
   suffices κ = η from by exact this ▸ condFDiv_self κ _
   ext x s _
   simp [s.eq_empty_of_isEmpty]
-
--- lemma condFDiv_ne_bot (κ η : Kernel α β) (μ : Measure α) : condFDiv f κ η μ ≠ ⊥ := by
---   rw [condFDiv]
---   split_ifs with h
---   · simp only [ne_eq, EReal.coe_ne_bot, not_false_eq_true]
---   · norm_num
-
--- lemma condFDiv_nonneg [IsMarkovKernel κ] [IsMarkovKernel η] : 0 ≤ condFDiv f κ η μ := by
---   by_cases h_ae : ∀ᵐ a ∂μ, fDiv f (κ a) (η a) ≠ ∞
---   swap; · rw[condFDiv_of_not_ae_finite h_ae]; exact le_top
---   by_cases h_int : Integrable (fun x ↦ (fDiv f (κ x) (η x)).toReal) μ
---   swap; · rw[condFDiv_of_not_integrable h_int]; exact le_top
---   rw [condFDiv_eq' h_ae h_int]
---   simp only [EReal.coe_nonneg]
---   apply integral_nonneg _
---   intro x
---   have h := fDiv_nonneg (μ := κ x) (ν := η x) hf_cvx hf_cont hf_one
---   simp [EReal.toReal_nonneg, h]
 
 @[simp]
 lemma condFDiv_const {ξ : Measure β} :

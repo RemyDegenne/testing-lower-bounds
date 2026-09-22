@@ -22,8 +22,6 @@ import Mathlib.Analysis.SpecialFunctions.Pow.Deriv
 
 ## Notation
 
-
-
 ## Implementation details
 
 -/
@@ -45,29 +43,8 @@ function, so that in the case `a = 0` we have `hellingerDiv 0 μ ν = ν {x | (�
 the case `a = 1` the Hellinger divergence coincides with the KL divergence. -/
 noncomputable def hellingerDiv (a : ℝ) (μ ν : Measure α) : ℝ≥0∞ := fDiv (hellingerDivFun a) μ ν
 
--- lemma hellingerDiv_zero (μ ν : Measure α) :
---     hellingerDiv 0 μ ν = ν {x | ((∂μ/∂ν) x).toReal = 0} := by
---   have h_eq : (fun x ↦ Set.indicator {0} 1 (μ.rnDeriv ν x).toReal)
---       = {y | ((∂μ/∂ν) y).toReal = 0}.indicator (1 : α → ℝ) := by
---     simp_rw [← Set.indicator_comp_right fun x ↦ ((∂μ/∂ν) x).toReal, Set.preimage,
---       Set.mem_singleton_iff, Pi.one_comp]
---   have h_meas : MeasurableSet {y | (μ.rnDeriv ν y).toReal = 0} := by
---     apply measurableSet_eq_fun <;> fun_prop
---   by_cases h_int : Integrable (fun x ↦ hellingerFun 0 (μ.rnDeriv ν x).toReal) ν
---   swap
---   · rw [hellingerDiv, fDiv_of_not_integrable h_int]
---     rw [hellingerFun_zero'', h_eq, integrable_indicator_iff h_meas] at h_int
---     have := integrableOn_const.mpr.mt h_int
---     simp only [not_or, not_lt, top_le_iff] at this
---     rw [this.2, EReal.coe_ennreal_top]
---   rw [hellingerDiv, fDiv_of_integrable h_int, hellingerFun_zero'', h_eq, ← hellingerFun_zero'',
---     derivAtTop_hellingerFun_of_lt_one zero_lt_one, zero_mul, add_zero,
---     integral_indicator_one h_meas]
---   rw [hellingerFun_zero'', h_eq, integrable_indicator_iff h_meas, Pi.one_def] at h_int
---   apply integrableOn_const.mp at h_int
---   simp only [one_ne_zero, false_or] at h_int
---   exact EReal.coe_ennreal_toReal h_int.ne_top
-
+/- TODO (ℝ≥0∞ refactor): the commented-out declarations below are pre-refactor statements about
+real- or `EReal`-valued divergences. They are kept as a porting backlog. -/
 -- lemma hellingerDiv_zero' (μ ν : Measure α) [SigmaFinite μ] :
 --     hellingerDiv 0 μ ν = ν {x | (∂μ/∂ν) x = 0} := by
 --   rw [hellingerDiv_zero]
@@ -237,12 +214,6 @@ lemma hellingerDiv_ne_top_of_lt_one (ha : a < 1) (μ ν : Measure α)
 --     hellingerDiv a μ ν = ∫ x, hellingerFun a ((∂μ/∂ν) x).toReal ∂ν :=
 --   hellingerDiv_eq_integral_of_integrable_of_ac h_int ha.not_le.elim
 
--- lemma hellingerDiv_eq_integral_of_lt_one (ha_nonneg : 0 ≤ a) (ha : a < 1) (μ ν : Measure α)
---     [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
---     hellingerDiv a μ ν = ∫ x, hellingerFun a ((∂μ/∂ν) x).toReal ∂ν :=
---   hellingerDiv_eq_integral_of_integrable_of_ac
---     (integrable_hellingerFun_rnDeriv_of_lt_one ha_nonneg ha) ha.not_le.elim
-
 lemma lintegral_hellingerDivFun_eq_top_of_not_integrable [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (ha_pos : 0 < a) (ha_one : a ≠ 1)
     (h : ¬ Integrable (fun x ↦ ((∂μ/∂ν) x).toReal ^ a) ν) :
@@ -339,13 +310,6 @@ lemma hellingerDiv_ne_top_iff_of_one_lt (ha : 1 < a) (μ ν : Measure α)
 -- lemma hellingerDiv_ne_top_iff_of_lt_one (ha : a < 1) (μ ν : Measure α) :
 --     hellingerDiv a μ ν ≠ ∞ ↔ Integrable (fun x ↦ hellingerFun a ((∂μ/∂ν) x).toReal) ν := by
 --   rw [ne_eq, hellingerDiv_eq_top_iff_of_lt_one ha, not_not]
-
--- lemma hellingerDiv_ne_bot : hellingerDiv a μ ν ≠ ⊥ := by
---   refine fDiv_ne_bot_of_derivAtTop_nonneg ?_
---   by_cases ha : 1 ≤ a
---   · rw [derivAtTop_hellingerFun_of_one_le ha]
---     exact OrderTop.le_top 0
---   · rw [derivAtTop_hellingerFun_of_lt_one (lt_of_not_ge ha)]
 
 -- lemma hellingerDiv_eq_integral_of_ne_top [IsFiniteMeasure μ] [SigmaFinite ν]
 --     (h : hellingerDiv a μ ν ≠ ∞) :
@@ -447,19 +411,6 @@ lemma hellingerDiv_symm (ha_pos : 0 < a) (ha : a < 1) [IsFiniteMeasure μ] [IsFi
     linarith
   rw [ENNReal.toReal_ofReal ha_pos.le, ENNReal.toReal_ofReal (by linarith)]
   exact toReal_hellingerDiv_symm ha_pos ha
-
--- lemma hellingerDiv_zero_nonneg (μ ν : Measure α) :
---     0 ≤ hellingerDiv 0 μ ν := hellingerDiv_zero _ _ ▸ EReal.coe_ennreal_nonneg _
-
--- lemma hellingerDiv_nonneg (ha_pos : 0 ≤ a) (μ ν : Measure α)
---     [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
---     0 ≤ hellingerDiv a μ ν := by
---   by_cases h_zero : a = 0
---   · exact h_zero ▸ hellingerDiv_zero_nonneg μ ν
---   replace ha_pos := ha_pos.lt_of_ne fun h ↦ h_zero h.symm
---   rw [hellingerDiv]
---   exact fDiv_nonneg (convexOn_hellingerFun ha_pos.le) (continuous_hellingerFun ha_pos).continuousOn
---     hellingerFun_apply_one_eq_zero
 
 section DataProcessingInequality
 

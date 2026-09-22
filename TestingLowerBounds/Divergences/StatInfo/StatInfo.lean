@@ -300,20 +300,6 @@ duplication. To finish the proof we would need something like `∂μ/∂ν * ∂
 when `∂ν/∂μ ≠ 0`, and also that `∂μ/∂ν =ᵐ[ν.simgularPart μ] 0`, if we have this we can split `ν`
 using the Lebesgue decomposition and we should be done quite easily.
 -/
--- lemma toReal_statInfo_eq_integral_max_of_gt' {μ ν : Measure 𝒳} [IsFiniteMeasure μ] [IsFiniteMeasure ν]
---     {π : Measure Bool} [IsFiniteMeasure π] (h : π {true} * ν univ < π {false} * μ univ) :
---     (statInfo μ ν π).toReal
---       = ∫ x, max 0 ((π {true}).toReal - (π {false} * (∂μ/∂ν) x).toReal) ∂ν := by
---   have h1 : (Measure.map Bool.not π) {false} = π {true} := by sorry
---   have h2 : (Measure.map Bool.not π) {true} = π {false} := by sorry
---   rw [statInfo_symm]
---   rw [toReal_statInfo_eq_integral_max_of_le]
---   swap
---   · rw [h1, h2]
---     exact h.le
---   rw [h1, h2]
---   sorry
-
 lemma toReal_statInfo_eq_integral_max_of_ge [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     [IsFiniteMeasure π] (h : π {true} * ν univ ≤ π {false} * μ univ) :
     (statInfo μ ν π).toReal

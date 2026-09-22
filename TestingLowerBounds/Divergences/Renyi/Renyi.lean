@@ -21,9 +21,7 @@ import Mathlib.Analysis.SpecialFunctions.Log.ENNRealLog
 
 ## Notation
 
-
 ## Implementation details
-
 
 -/
 
@@ -408,32 +406,6 @@ lemma renyiDiv_eq_top_iff_mutuallySingular_of_lt_one (ha_nonneg : 0 ≤ a) (ha :
   rw [renyiDiv_of_lt_one (ha_nonneg.lt_of_ne' ha_zero) ha]
   simp
 
--- lemma renyiDiv_ne_bot_of_le_one (ha : a ≤ 1) [IsFiniteMeasure ν] :
---     renyiDiv a μ ν ≠ ⊥ := by
---   by_cases ha_one : a = 1
---   · rw [ha_one, renyiDiv_one]
---     exact klDiv_ne_bot μ ν
---   replace ha : a < 1 := lt_of_le_of_ne ha ha_one
---   rw [renyiDiv_of_ne_one ha_one, ne_eq, EReal.mul_eq_bot]
---   simp only [EReal.coe_ne_bot, false_and, EReal.coe_pos, inv_pos, sub_pos, not_lt_of_gt ha,
---     EReal.coe_ne_top, EReal.coe_neg', inv_lt_zero, sub_neg, ha, ENNReal.log_eq_top_iff,
---     EReal.toENNReal_eq_top_iff, true_and, false_or]
---   exact meas_univ_add_mul_hellingerDiv_ne_top_of_lt_one ha
-
--- lemma renyiDiv_eq_bot_iff_of_one_lt (ha : 1 < a) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
---     renyiDiv a μ ν = ⊥ ↔ μ = 0 := by
---   rw [renyiDiv_of_ne_one ha.ne', EReal.mul_eq_bot]
---   simp only [EReal.coe_ne_bot, false_and, EReal.coe_pos, inv_pos, sub_pos, ha, ENNReal.log_eq_bot_iff,
---     true_and, EReal.coe_ne_top, EReal.coe_neg', inv_lt_zero, sub_neg, not_lt_of_gt ha,
---     ENNReal.log_eq_top_iff, EReal.toENNReal_eq_top_iff, or_self, or_false, false_or]
---   exact toENNReal_meas_univ_add_mul_hellingerDiv_eq_zero_iff_of_one_lt ha
-
--- lemma renyiDiv_ne_bot [hμ : NeZero μ] [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
---     renyiDiv a μ ν ≠ ⊥ := by
---   rcases le_or_gt a 1 with (ha | ha)
---   · exact renyiDiv_ne_bot_of_le_one ha
---   · exact (renyiDiv_eq_bot_iff_of_one_lt ha).mp.mt hμ.out
-
 /- TODO: it may be possible to handle also the cases where `ν` is infinite in many of the lemmas
 in this section, since in this case, if `a < 1`, then `Rₐ(μ, ν) = ⊥`, it is likely possible to
 prove similar properties in the case where `1 < a`. Maybe something similar is possible also for
@@ -476,6 +448,8 @@ lemma forall_renyiDiv_eq_top_of_eq_top_of_lt_one (ha_nonneg : 0 ≤ a) (ha : a <
 
 -- section IntegralForm
 
+/- TODO (ℝ≥0∞ refactor): the commented-out declarations below are pre-refactor statements about
+real- or `EReal`-valued divergences. They are kept as a porting backlog. -/
 -- /-- The Rényi divergence `renyiDiv a μ ν` can be written as the log of an integral
 -- with respect to `ν`. -/
 -- lemma renyiDiv_eq_log_integral_of_lt_one (ha_pos : 0 < a) (ha : a < 1)
