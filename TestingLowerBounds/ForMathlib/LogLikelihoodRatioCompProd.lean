@@ -1,5 +1,6 @@
 import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
 import Mathlib.MeasureTheory.Measure.LogLikelihoodRatio
+import Mathlib.InformationTheory.KullbackLeibler.ChainRule
 import TestingLowerBounds.FDiv.CompProd.CompProd
 import TestingLowerBounds.FDiv.Measurable
 import TestingLowerBounds.FDiv.CompProd.OldEqTopIff
@@ -10,11 +11,6 @@ namespace ProbabilityTheory
 
 variable {α β γ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {mγ : MeasurableSpace γ}
   {μ ν : Measure α} {κ η : Kernel α β}
-
-lemma integrable_rnDeriv_mul_log_iff [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν) :
-    Integrable (fun a ↦ (μ.rnDeriv ν a).toReal * log (μ.rnDeriv ν a).toReal) ν
-      ↔ Integrable (llr μ ν) μ :=
-  integrable_rnDeriv_smul_iff hμν
 
 lemma integrable_llr_compProd_of_integrable_llr [CountableOrCountablyGenerated α β]
     [IsMarkovKernel κ] [IsFiniteKernel η] [IsFiniteMeasure μ] [IsFiniteMeasure ν]
@@ -64,19 +60,6 @@ lemma integrable_llr_compProd_of_integrable_llr [CountableOrCountablyGenerated �
     simp_rw [← llr_def]
     exact hκη_int
 
-lemma integrable_llr_of_integrable_llr_compProd [CountableOrCountablyGenerated α β]
-    [IsMarkovKernel κ] [IsMarkovKernel η] [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (h_ac : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
-    (h_int : Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ)) :
-    Integrable (llr μ ν) μ := by
-  have ⟨hμν_ac, hκη_ac⟩ := Measure.absolutelyContinuous_compProd_iff.mp h_ac
-  rw [Measure.absolutelyContinuous_compProd_right_iff] at hκη_ac
-  rw [← integrable_rnDeriv_mul_log_iff h_ac] at h_int
-  replace h_int := integrable_f_rnDeriv_of_integrable_compProd''' μ ν κ η
-    continuous_mul_log.stronglyMeasurable convexOn_mul_log continuous_mul_log.continuousOn h_int
-    (fun _ ↦ hκη_ac)
-  exact (integrable_rnDeriv_mul_log_iff hμν_ac).mp h_int
-
 lemma ae_integrable_llr_of_integrable_llr_compProd [CountableOrCountablyGenerated α β]
     [IsMarkovKernel κ] [IsFiniteKernel η] [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (h_ac : μ ⊗ₘ κ ≪ ν ⊗ₘ η)
@@ -112,7 +95,7 @@ lemma integrable_integral_llr_of_integrable_llr_compProd [CountableOrCountablyGe
   have hμν_pos : ∀ᵐ a ∂μ, 0 < ((∂μ/∂ν) a).toReal := Measure.rnDeriv_toReal_pos hμν_ac
   have hμν_int : Integrable (fun a ↦ log ((∂μ/∂ν) a).toReal) μ := by
     rw [← llr_def]
-    exact integrable_llr_of_integrable_llr_compProd h_ac h_int
+    exact InformationTheory.integrable_llr_of_integrable_llr_compProd h_ac h_int
   have h : (fun a ↦ log ((∂μ/∂ν) a).toReal + ∫ b, log ((∂κ a/∂η a) b).toReal ∂κ a)
       =ᵐ[μ] (fun a ↦ ∫ b, ((∂κ a/∂η a) b).toReal
       * log (((∂μ/∂ν) a).toReal * ((∂κ a/∂η a) b).toReal) ∂η a) := by
@@ -146,7 +129,7 @@ lemma integrable_llr_compProd_iff [CountableOrCountablyGenerated α β] [IsMarko
     Integrable (llr (μ ⊗ₘ κ) (ν ⊗ₘ η)) (μ ⊗ₘ κ) ↔ (Integrable (llr μ ν) μ
     ∧ Integrable (fun a ↦ ∫ b, llr (κ a) (η a) b ∂(κ a)) μ)
     ∧ ∀ᵐ a ∂μ, Integrable (llr (κ a) (η a)) (κ a):=
-  ⟨fun h ↦ ⟨⟨integrable_llr_of_integrable_llr_compProd h_ac h,
+  ⟨fun h ↦ ⟨⟨InformationTheory.integrable_llr_of_integrable_llr_compProd h_ac h,
     integrable_integral_llr_of_integrable_llr_compProd h_ac h⟩,
     ae_integrable_llr_of_integrable_llr_compProd h_ac h⟩,
     fun h ↦ integrable_llr_compProd_of_integrable_llr h_ac h.1.1 h.1.2 h.2⟩
@@ -159,9 +142,9 @@ lemma Kernel.integrable_llr_compProd_iff [CountableOrCountablyGenerated β γ]
       ↔ Integrable (llr (κ₁ a) (η₁ a)) (κ₁ a)
         ∧ Integrable (fun b ↦ ∫ x, (llr (κ₂ (a, b)) (η₂ (a, b)) x) ∂(κ₂ (a, b))) (κ₁ a)
         ∧ ∀ᵐ b ∂κ₁ a, Integrable (llr (κ₂ (a, b)) (η₂ (a, b))) (κ₂ (a, b)) := by
-  simp_rw [Kernel.compProd_apply_eq_compProd_snd'] at h_ac
-  simp_rw [Kernel.compProd_apply_eq_compProd_snd',
-    ProbabilityTheory.integrable_llr_compProd_iff h_ac, Kernel.snd'_apply]
+  simp_rw [Kernel.compProd_apply_eq_compProd_sectR] at h_ac
+  simp_rw [Kernel.compProd_apply_eq_compProd_sectR,
+    ProbabilityTheory.integrable_llr_compProd_iff h_ac, Kernel.sectR_apply]
   by_cases h_int₁ : Integrable (llr (κ₁ a) (η₁ a)) (κ₁ a)
   swap; tauto
   by_cases h_int₂ : ∀ᵐ b ∂κ₁ a, Integrable (llr (κ₂ (a, b)) (η₂ (a, b))) (κ₂ (a, b))

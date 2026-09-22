@@ -65,13 +65,13 @@ lemma lintegral_statInfoFun_curvatureMeasureReal (hfderiv_one : rightDeriv f.rea
     ∫⁻ y, ENNReal.ofReal (statInfoFun 1 y t.toReal) ∂f.curvatureMeasureReal = f t := by
   by_cases ht : f t = ∞
   · rw [ht]
-    refine lintegral_ofReal_eq_top_of_not_integrable_of_nonneg ?_ ?_ ?_
-    · refine (Measurable.stronglyMeasurable ?_).aestronglyMeasurable
-      exact measurable_statInfoFun2
-    · rw [integrable_statInfoFun_one_curvatureMeasureReal_iff hfderiv_one ENNReal.toReal_nonneg,
-        ENNReal.ofReal_toReal ht_ne, ne_eq, not_not]
-      exact ht
-    · exact ae_of_all _ fun x ↦ statInfoFun_nonneg _ _ _
+    by_contra h_ne
+    have h_int : Integrable (fun y ↦ statInfoFun 1 y t.toReal) f.curvatureMeasureReal :=
+      (lintegral_ofReal_ne_top_iff_integrable measurable_statInfoFun2.aestronglyMeasurable
+        (ae_of_all _ fun x ↦ statInfoFun_nonneg _ _ _)).mp h_ne
+    rw [integrable_statInfoFun_one_curvatureMeasureReal_iff hfderiv_one ENNReal.toReal_nonneg,
+      ENNReal.ofReal_toReal ht_ne] at h_int
+    exact h_int ht
   rw [← ofReal_integral_eq_lintegral_ofReal]
   rotate_left
   · rw [integrable_statInfoFun_one_curvatureMeasureReal_iff hfderiv_one ENNReal.toReal_nonneg,

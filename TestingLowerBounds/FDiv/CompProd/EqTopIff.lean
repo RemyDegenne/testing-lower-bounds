@@ -46,7 +46,7 @@ lemma fDiv_compProd_right (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMea
   refine fDiv_congr_measure ?_ ?_
   · have h_eq : (fun x ↦ f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ κ) x))
         =ᵐ[ν ⊗ₘ κ] fun x ↦ f ((∂μ/∂ν) x.1) := by
-      filter_upwards [Kernel.rnDeriv_measure_compProd_left μ ν κ] with x hx
+      filter_upwards [rnDeriv_measure_compProd_left μ ν κ] with x hx
       rw [hx]
     rw [lintegral_congr_ae h_eq, Measure.lintegral_compProd]
     · simp
@@ -98,7 +98,7 @@ lemma fDiv_compProd_ne_top_iff' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
   swap; · simp [h_top]
   simp only [h_top, true_implies, and_congr_left_iff]
   intro h_ac'
-  have h_ac : μ ⊗ₘ κ ≪ μ ⊗ₘ η := Measure.absolutelyContinuous_compProd_of_compProd' h_ac'
+  have h_ac : μ ⊗ₘ κ ≪ μ ⊗ₘ η := Measure.absolutelyContinuous_compProd_of_compProd h_ac'
   suffices ∫⁻ a, ∫⁻ b, f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) (a, b)) ∂η a ∂ν
       = ∫⁻ a, ∫⁻ b, f ((∂μ/∂ν) a * (∂(μ ⊗ₘ κ)/∂(μ ⊗ₘ η)) (a, b)) ∂η a ∂ν by
     rw [this]
@@ -116,7 +116,7 @@ lemma fDiv_compProd_eq_top_iff'' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
       ∧ (∫⁻ a, ∫⁻ b, f ((∂(μ ⊗ₘ κ)/∂(ν ⊗ₘ η)) (a, b)) ∂η a ∂ν ≠ ∞ → μ ≪ ν →
           ¬ μ ⊗ₘ κ ≪ μ ⊗ₘ η) := by
   rw [← not_iff_not, ← ne_eq, fDiv_compProd_ne_top_iff'' h_zero,
-    Measure.absolutelyContinuous_compProd_iff_compProd_right]
+    Measure.absolutelyContinuous_compProd_iff]
   push Not
   rfl
 
@@ -127,7 +127,7 @@ lemma fDiv_compProd_eq_top_iff' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
       ∧ (∫⁻ a, ∫⁻ b, f ((∂μ/∂ν) a * (∂(μ ⊗ₘ κ)/∂(μ ⊗ₘ η)) (a, b)) ∂η a ∂ν ≠ ∞ → μ ≪ ν →
           ¬ μ ⊗ₘ κ ≪ μ ⊗ₘ η) := by
   rw [← not_iff_not, ← ne_eq, fDiv_compProd_ne_top_iff' h_zero,
-    Measure.absolutelyContinuous_compProd_iff_compProd_right]
+    Measure.absolutelyContinuous_compProd_iff]
   push Not
   rfl
 

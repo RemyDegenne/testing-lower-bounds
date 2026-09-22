@@ -6,7 +6,6 @@ Authors: Rémy Degenne
 import TestingLowerBounds.FDiv.CompProd.CompProd
 import TestingLowerBounds.FDiv.Trim
 import TestingLowerBounds.ForMathlib.RNDerivEqCondexp
-import TestingLowerBounds.Sorry.Jensen
 
 /-!
 
@@ -27,7 +26,7 @@ variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
 lemma fDiv_comp_le_compProd_right (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ : Kernel α β) [IsFiniteKernel κ] (hf : ∀ x ≠ ∞, f x ≠ ∞) :
     fDiv f (κ ∘ₘ μ) (κ ∘ₘ ν) ≤ fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ κ) := by
-  simp_rw [Measure.comp_eq_snd_compProd]
+  simp_rw [← Measure.snd_compProd]
   exact fDiv_map_le measurable_snd hf
 
 -- todo: remove `hf`
@@ -44,7 +43,7 @@ lemma fDiv_comp_le_of_comp_le_of_ac [IsFiniteMeasure ν] (κ : Kernel α β) [Is
     (h : ∀ μ : Measure α, IsFiniteMeasure μ → μ ≪ ν → fDiv f (κ ∘ₘ μ) (κ ∘ₘ ν) ≤ fDiv f μ ν)
     (μ : Measure α) [IsFiniteMeasure μ] :
     fDiv f (κ ∘ₘ μ) (κ ∘ₘ ν) ≤ fDiv f μ ν := by
-  conv_lhs => rw [← Measure.rnDeriv_add_singularPart μ ν, Measure.comp_add_right]
+  conv_lhs => rw [← Measure.rnDeriv_add_singularPart μ ν, Measure.comp_add]
   refine (fDiv_add_measure_le _ _ _).trans ?_
   rw [fDiv_eq_add_withDensity_derivAtTop μ ν, Measure.comp_apply_univ]
   exact add_le_add (h _ inferInstance (withDensity_absolutelyContinuous _ _)) le_rfl

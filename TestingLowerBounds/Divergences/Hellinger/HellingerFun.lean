@@ -42,7 +42,7 @@ Then use `DivFunction.ofReal`.
 
 -/
 
-open Real MeasureTheory Filter MeasurableSpace
+open Real MeasureTheory Filter MeasurableSpace InformationTheory
 
 open scoped ENNReal NNReal Topology
 
@@ -224,9 +224,9 @@ lemma tendsto_mul_log_integral_rpow_rnDeriv'' [IsFiniteMeasure μ] [IsFiniteMeas
     Tendsto (fun a ↦ (a - 1)⁻¹ * log (∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν)
                     - (a - 1)⁻¹ * log ((1 - a) * (ν .univ).toReal + a * (μ .univ).toReal))
       (𝓝[<] 1)
-      (𝓝 ((μ .univ).toReal⁻¹ * ((kl μ ν).toReal + (μ .univ).toReal - (ν .univ).toReal)
+      (𝓝 ((μ .univ).toReal⁻¹ * ((klDiv μ ν).toReal + (μ .univ).toReal - (ν .univ).toReal)
             - log ((μ .univ).toReal / (ν .univ).toReal))) := by
-  rw [kl_toReal hμν h_int]
+  rw [toReal_klDiv hμν h_int, measureReal_def, measureReal_def]
   convert tendsto_mul_log_integral_rpow_rnDeriv' h_int
   ring
 
@@ -327,7 +327,7 @@ lemma convexOn_hellingerFun (ha_pos : 0 ≤ a) : ConvexOn ℝ (Set.Ici 0) (helli
       (convexOn_const _ (convex_Ici 0))).sub ?_).smul (by simp [ha.le]) |>.neg
     exact ((convexOn_id (convex_Ici 0)).sub (concaveOn_const _ (convex_Ici 0))).smul ha_pos.le
   · simp only [hellingerFun, ha, one_ne_zero, ↓reduceIte]
-    exact convexOn_mul_log_add_one_sub
+    exact convexOn_klFun
   · simp_rw [hellingerFun, ← smul_eq_mul, ite_eq_right ha_pos.ne', ite_eq_right ha.ne']
     refine ((convexOn_rpow ha.le).sub (concaveOn_const _ (convex_Ici 0))).sub ?_ |>.smul
       (by simp [ha.le])
@@ -344,7 +344,7 @@ lemma hasDerivAt_hellingerFun (a : ℝ) {x : ℝ} (hx : x ≠ 0) :
     filter_upwards [eventually_ne_nhds hx] with y hy
     simp [hy]
   · simp only [h2, hellingerFun_one]
-    exact hasDerivAt_mul_log_add_one_sub hx
+    exact hasDerivAt_klFun hx
   · rw [hellingerFun_of_ne_zero_of_ne_one h1 h2, mul_assoc]
     refine HasDerivAt.const_mul _ ?_
     rw [mul_sub]
@@ -445,7 +445,7 @@ lemma integrable_hellingerFun_one_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν] 
     Integrable (fun x ↦ hellingerFun 1 ((∂μ/∂ν) x).toReal) ν
       ↔ Integrable (llr μ ν) μ := by
   simp only [hellingerFun_one]
-  rw [integrable_mul_log_add_one_sub_iff hμν]
+  exact integrable_klFun_rnDeriv_iff hμν
 
 lemma integrable_hellingerFun_iff_integrable_rpow (ha_one : a ≠ 1)
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] :

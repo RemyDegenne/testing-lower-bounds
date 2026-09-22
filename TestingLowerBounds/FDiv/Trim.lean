@@ -4,7 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne
 -/
 import TestingLowerBounds.FDiv.Basic
-import TestingLowerBounds.Sorry.Jensen
+import Mathlib.InformationTheory.KullbackLeibler.DataProcessing
+import Mathlib.MeasureTheory.Function.ConditionalExpectation.RadonNikodym
 
 /-!
 
@@ -37,30 +38,33 @@ lemma fDiv_map_le_of_map_le_of_ac [IsFiniteMeasure ν] {g : α → β} (hg : Mea
   rw [fDiv_eq_add_withDensity_derivAtTop μ ν, Measure.map_apply hg MeasurableSet.univ]
   exact add_le_add (h _ inferInstance (withDensity_absolutelyContinuous _ _)) le_rfl
 
+/-- **Jensen's inequality** for the conditional expectation of `f.realFun (∂μ/∂ν)`. -/
 lemma DivFunction.condexp_rnDeriv_le [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ mα)
-    (h_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞) :
+    (hf : ∀ x ≠ ∞, f x ≠ ∞) (h_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞) :
     (fun x ↦ f.realFun ((ν[fun x ↦ (μ.rnDeriv ν x).toReal | m]) x))
-      ≤ᵐ[ν.trim hm] ν[fun x ↦ f.realFun (μ.rnDeriv ν x).toReal | m] := by
-  sorry
+      ≤ᵐ[ν.trim hm] ν[fun x ↦ f.realFun (μ.rnDeriv ν x).toReal | m] :=
+  ConvexOn.map_condExp_rnDeriv_le hm f.stronglyMeasurable_realFun (f.convexOn_Ici_realFun hf)
+    ((f.continuousOn_realFun_Ici hf).continuousWithinAt (mem_Ici.mpr le_rfl))
+    (integrable_realFun_rnDeriv h_int)
 
 lemma f_rnDeriv_map_le [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (hμν : μ ≪ ν) {g : α → β} (hg : Measurable g)
+    (hμν : μ ≪ ν) {g : α → β} (hg : Measurable g) (hf : ∀ x ≠ ∞, f x ≠ ∞)
     (h_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞) :
     (fun x ↦ f.realFun ((∂μ.map g/∂ν.map g) (g x)).toReal)
       ≤ᵐ[ν] ν[fun x ↦ f.realFun ((∂μ/∂ν) x).toReal | mβ.comap g] := by
-  filter_upwards [Measure.toReal_rnDeriv_map hμν hg,
-    ae_of_ae_trim _ <| f.condexp_rnDeriv_le hg.comap_le h_int] with a ha1 ha2
+  filter_upwards [toReal_rnDeriv_map hμν hg,
+    ae_of_ae_trim _ <| f.condexp_rnDeriv_le hg.comap_le hf h_int] with a ha1 ha2
   calc f.realFun ((∂μ.map g/∂ν.map g) (g a)).toReal
       = f.realFun ((ν[fun x ↦ ((∂μ/∂ν) x).toReal | mβ.comap g]) a) := by rw [ha1]
     _ ≤ (ν[fun x ↦ f.realFun ((∂μ/∂ν) x).toReal | mβ.comap g]) a := ha2
 
 lemma f_rnDeriv_map_le' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (hμν : μ ≪ ν) {g : α → β} (hg : Measurable g)
+    (hμν : μ ≪ ν) {g : α → β} (hg : Measurable g) (hf : ∀ x ≠ ∞, f x ≠ ∞)
     (h_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞) :
     (fun x ↦ (f ((∂μ.map g/∂ν.map g) (g x))).toReal)
       ≤ᵐ[ν] ν[fun x ↦ f.realFun ((∂μ/∂ν) x).toReal | mβ.comap g] := by
   have h_lt := ae_of_ae_map hg.aemeasurable ((μ.map g).rnDeriv_lt_top (ν.map g))
-  filter_upwards [f_rnDeriv_map_le hμν hg h_int, h_lt] with x hx h_lt
+  filter_upwards [f_rnDeriv_map_le hμν hg hf h_int, h_lt] with x hx h_lt
   rw [f.realFun_toReal h_lt.ne] at hx
   exact hx
 
@@ -70,7 +74,7 @@ lemma f_rnDeriv_map [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (fun a ↦ f ((∂μ.map g/∂ν.map g) (g a)))
       =ᶠ[ae ν] fun a ↦ f (ENNReal.ofReal ((ν[fun x ↦ ((∂μ/∂ν) x).toReal|mβ.comap g]) a)) := by
   have h_lt := ae_of_ae_map hg.aemeasurable ((μ.map g).rnDeriv_lt_top (ν.map g))
-  filter_upwards [Measure.toReal_rnDeriv_map hμν hg, h_lt] with a ha h_lt
+  filter_upwards [toReal_rnDeriv_map hμν hg, h_lt] with a ha h_lt
   rw [← ENNReal.toReal_eq_toReal_iff']
   · rw [← f.realFun_toReal h_lt.ne, ha, DivFunction.realFun]
   · exact hf _ h_lt.ne
@@ -95,9 +99,9 @@ lemma integrable_f_rnDeriv_map [IsFiniteMeasure μ] [IsFiniteMeasure ν]
   · refine (f.stronglyMeasurable_realFun.comp_measurable ?_).aestronglyMeasurable
     exact ((Measure.measurable_rnDeriv _ _).comp hg).ennreal_toReal
   · exact ae_of_all _ (fun x ↦ h _ ENNReal.toReal_nonneg)
-  · exact f_rnDeriv_map_le hμν hg h_int
+  · exact f_rnDeriv_map_le hμν hg hf h_int
   · refine (Integrable.const_mul ?_ _).add (integrable_const _)
-    rw [integrable_congr (Measure.toReal_rnDeriv_map hμν hg)]
+    rw [integrable_congr (toReal_rnDeriv_map hμν hg)]
     exact integrable_condExp
   · exact integrable_condExp
 
@@ -128,18 +132,18 @@ lemma fDiv_trim_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ mα)
     (hf : ∀ x ≠ ∞, f x ≠ ∞) :
     fDiv f (μ.trim hm) (ν.trim hm)
       = ∫⁻ x, f (ENNReal.ofReal ((ν[fun x ↦ ((∂μ/∂ν) x).toReal | m]) x)) ∂ν := by
-  simp_rw [Measure.trim_eq_map]
+  simp_rw [trim_eq_map]
   rw [fDiv_map_of_ac hμν (measurable_id'' hm) hf]
   congr with x
   congr
   simp
 
 lemma f_rnDeriv_trim_le [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ mα) (hμν : μ ≪ ν)
-    (h_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞) :
+    (hf : ∀ x ≠ ∞, f x ≠ ∞) (h_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν ≠ ∞) :
     (fun x ↦ f.realFun ((∂μ.trim hm/∂ν.trim hm) x).toReal)
       ≤ᵐ[ν.trim hm] ν[fun x ↦ f.realFun ((∂μ/∂ν) x).toReal | m] := by
-  filter_upwards [Measure.toReal_rnDeriv_trim_of_ac hm hμν,
-    f.condexp_rnDeriv_le hm h_int] with a ha1 ha2
+  filter_upwards [toReal_rnDeriv_trim hm hμν,
+    f.condexp_rnDeriv_le hm hf h_int] with a ha1 ha2
   calc f.realFun ((∂μ.trim hm/∂ν.trim hm) a).toReal
       = f.realFun ((ν[fun x ↦ ((∂μ/∂ν) x).toReal | m]) a) := by rw [ha1]
     _ ≤ (ν[fun x ↦ f.realFun ((∂μ/∂ν) x).toReal | m]) a := ha2
@@ -157,7 +161,7 @@ lemma integrable_f_rnDeriv_trim [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : 
   · refine (f.stronglyMeasurable_realFun.comp_measurable ?_).aestronglyMeasurable
     exact @Measurable.ennreal_toReal _ m _ (Measure.measurable_rnDeriv _ _)
   · exact ae_of_all _ (fun x ↦ h _ ENNReal.toReal_nonneg)
-  · exact f_rnDeriv_trim_le hm hμν h_int
+  · exact f_rnDeriv_trim_le hm hμν hf h_int
   · refine (Integrable.const_mul ?_ _).add (integrable_const _)
     exact Measure.integrable_toReal_rnDeriv
   · exact integrable_condExp.trim hm stronglyMeasurable_condExp
@@ -168,7 +172,7 @@ lemma integrable_f_condexp_rnDeriv [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     Integrable (fun x ↦ f.realFun ((ν[fun x ↦ ((∂μ/∂ν) x).toReal | m]) x)) ν := by
   have h := integrable_f_rnDeriv_trim hm hμν h_int hf
   refine integrable_of_integrable_trim hm ((integrable_congr ?_).mp h)
-  filter_upwards [Measure.toReal_rnDeriv_trim_of_ac hm hμν] with a ha
+  filter_upwards [toReal_rnDeriv_trim hm hμν] with a ha
   rw [ha]
 
 /-- **Data processing inequality** for f-divergences and measurable functions. -/
@@ -201,12 +205,12 @@ theorem fDiv_map_le [IsFiniteMeasure μ] [IsFiniteMeasure ν]
   rw [h_eq]
   refine integral_mono_ae ?_ integrable_condExp ?_
   · exact integrable_f_condexp_rnDeriv hg.comap_le hμν h_int hf
-  · exact ae_of_ae_trim _ <| f.condexp_rnDeriv_le hg.comap_le h_int
+  · exact ae_of_ae_trim _ <| f.condexp_rnDeriv_le hg.comap_le hf h_int
 
 /-- **Data processing inequality** for f-divergences and sub-sigma-algebras. -/
 theorem fDiv_trim_le [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hm : m ≤ mα) (hf : ∀ x ≠ ∞, f x ≠ ∞) :
     fDiv f (μ.trim hm) (ν.trim hm) ≤ fDiv f μ ν := by
-  simp_rw [Measure.trim_eq_map]
+  simp_rw [trim_eq_map]
   exact fDiv_map_le (measurable_id'' hm) hf
 
 -- todo: remove the ac hypothesis?
@@ -228,7 +232,7 @@ lemma fDiv_trim_comap_rnDeriv_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h
       · exact μ.rnDeriv_lt_top ν
       · refine MeasurableSet.compl ?_
         exact @measurableSet_lt ℝ≥0∞ _ _ _ _ m _ _ _ _ _ h_meas measurable_const
-    filter_upwards [Measure.rnDeriv_trim_of_ac hm hμν, h_lt] with x hx h_lt
+    filter_upwards [rnDeriv_trim hm hμν, h_lt] with x hx h_lt
     rw [hx, condExp_of_stronglyMeasurable hm]
     · rw [ENNReal.ofReal_toReal h_lt.ne]
     · refine Measurable.stronglyMeasurable ?_

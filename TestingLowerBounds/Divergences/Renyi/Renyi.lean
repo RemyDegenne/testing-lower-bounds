@@ -27,7 +27,7 @@ import Mathlib.Analysis.SpecialFunctions.Log.ENNRealLog
 
 -/
 
-open Real MeasureTheory Filter MeasurableSpace
+open Real MeasureTheory Filter MeasurableSpace InformationTheory
 
 open scoped ENNReal NNReal Topology
 
@@ -62,7 +62,7 @@ lemma avgMass_nonneg_of_lt_one (ha_nonneg : 0 ≤ a) (ha_le : a ≤ 1)
     (mul_nonneg ha_nonneg ENNReal.toReal_nonneg)
 
 open Classical in
-/-- Rényi divergence of order `a`. If `a = 1`, it is defined as `kl μ ν`, otherwise as
+/-- Rényi divergence of order `a`. If `a = 1`, it is defined as `klDiv μ ν`, otherwise as
 `(a - 1)⁻¹ * log (ν(α) + (a - 1) * Hₐ(μ, ν))`.
 If `ν` is a probability measure then this becomes the more usual definition
 `(a - 1)⁻¹ * log (1 + (a - 1) * Hₐ(μ, ν))`, but this definition maintains some useful properties
@@ -74,7 +74,7 @@ Hellinger divergence to the Rényi divergence. -/
 noncomputable def renyiDiv (a : ℝ) (μ ν : Measure α) : ℝ≥0∞ :=
   if a = 0 then (- ENNReal.log (ν {x | 0 < (∂μ/∂ν) x} / ν .univ)).toENNReal
   else if a = 1 then
-    (((μ .univ).toReal⁻¹ : EReal) * (kl μ ν + (μ .univ).toReal - (ν .univ).toReal)
+    (((μ .univ).toReal⁻¹ : EReal) * (klDiv μ ν + (μ .univ).toReal - (ν .univ).toReal)
       - log ((μ .univ).toReal / (ν .univ).toReal)).toENNReal
   else ((a - 1)⁻¹ * ENNReal.log
     (((avgMass a μ ν : EReal) + (a - 1) * (hellingerDiv a μ ν)).toENNReal)
@@ -191,7 +191,7 @@ lemma renyiDiv_zero (μ ν : Measure α) :
 @[simp]
 lemma renyiDiv_one (μ ν : Measure α) :
     renyiDiv 1 μ ν
-      = (((μ .univ).toReal⁻¹ : EReal) * (kl μ ν + (μ .univ).toReal - (ν .univ).toReal)
+      = (((μ .univ).toReal⁻¹ : EReal) * (klDiv μ ν + (μ .univ).toReal - (ν .univ).toReal)
         - log ((μ .univ).toReal / (ν .univ).toReal)).toENNReal := by
   rw [renyiDiv, ite_eq_right one_ne_zero, ite_eq_left rfl]
 
@@ -341,7 +341,7 @@ lemma renyiDiv_zero_measure_right (ha_nonneg : 0 ≤ a)
     simp only [ne_eq, EReal.neg_eq_bot_iff]
     norm_cast
     exact EReal.coe_ne_top _
-  · simp only [renyiDiv_one, kl_zero_right, EReal.coe_ennreal_top, ne_eq, EReal.coe_ne_bot,
+  · simp only [renyiDiv_one, klDiv_zero_right, EReal.coe_ennreal_top, ne_eq, EReal.coe_ne_bot,
       not_false_eq_true, EReal.top_add_of_ne_bot, Measure.coe_zero, Pi.zero_apply,
       ENNReal.toReal_zero, EReal.coe_zero, sub_zero, div_zero, log_zero, EReal.toENNReal_eq_top_iff]
     rw [EReal.mul_eq_top]
@@ -412,7 +412,7 @@ lemma renyiDiv_eq_top_iff_mutuallySingular_of_lt_one (ha_nonneg : 0 ≤ a) (ha :
 --     renyiDiv a μ ν ≠ ⊥ := by
 --   by_cases ha_one : a = 1
 --   · rw [ha_one, renyiDiv_one]
---     exact kl_ne_bot μ ν
+--     exact klDiv_ne_bot μ ν
 --   replace ha : a < 1 := lt_of_le_of_ne ha ha_one
 --   rw [renyiDiv_of_ne_one ha_one, ne_eq, EReal.mul_eq_bot]
 --   simp only [EReal.coe_ne_bot, false_and, EReal.coe_pos, inv_pos, sub_pos, not_lt_of_gt ha,
@@ -461,7 +461,7 @@ lemma renyiDiv_of_one_le_of_not_ac (ha : 1 ≤ a) (h_ac : ¬ μ ≪ ν)
   by_cases ha_one : a = 1
   · rw [ha_one, renyiDiv_one]
     sorry
-    -- exact kl_of_not_ac h_ac
+    -- exact klDiv_of_not_ac h_ac
   replace ha : 1 < a := lt_of_le_of_ne ha fun h ↦ ha_one h.symm
   rw [renyiDiv_eq_top_iff_of_one_lt ha]
   exact Or.inr h_ac

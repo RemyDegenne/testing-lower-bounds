@@ -10,7 +10,6 @@ import TestingLowerBounds.ForMathlib.LeftRightDeriv
 import TestingLowerBounds.Convex
 import TestingLowerBounds.DerivAtTop
 import TestingLowerBounds.FDiv.ERealStieltjes
-import TestingLowerBounds.ForMathlib.Integrable
 import TestingLowerBounds.ForMathlib.RnDeriv
 
 /-!

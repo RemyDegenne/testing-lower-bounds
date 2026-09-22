@@ -68,7 +68,7 @@ end Domain
 lemma rightDeriv_mono (f : DivFunction) {x y : ℝ} (hxy : x ≤ y)
     (hx : f.xmin < ENNReal.ofReal x) (hy : ENNReal.ofReal y < f.xmax) :
     rightDeriv f.realFun x ≤ rightDeriv f.realFun y := by
-  have h := f.convexOn_Ioo_realFun.rightDeriv_monotoneOn
+  have h := f.convexOn_Ioo_realFun.monotoneOn_rightDeriv
   rw [f.isOpen_toReal_Ioo.interior_eq] at h
   refine h ?_ ?_ hxy
   · exact mem_toReal_Ioo_iff.mpr ⟨hx, (ENNReal.ofReal_le_ofReal hxy).trans_lt hy⟩

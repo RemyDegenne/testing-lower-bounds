@@ -305,7 +305,7 @@ lemma toReal_le_add_derivAtTop (hf_cvx : ConvexOn ℝ (Ici 0) f) {a b : ENNReal}
   · rw [hf_top]
     by_cases hb_zero : b = 0
     · simp [hb_zero]
-    · rw [EReal.top_mul_ennreal_coe hb_zero, EReal.coe_add_top]
+    · rw [EReal.top_mul_coe_ennreal hb_zero, EReal.coe_add_top]
       exact le_top
   · have h_le : a.toReal ≤ (a + b).toReal := by
       gcongr

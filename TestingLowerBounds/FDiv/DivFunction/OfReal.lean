@@ -290,7 +290,7 @@ lemma derivAtTop_ofReal (hf_nonneg : ∀ x, 0 < x → 0 ≤ f x) :
       = limsup (fun x ↦ ENNReal.ofReal (rightDeriv f x)) atTop := by
   rw [derivAtTop_ofReal_eq_toENNReal hf_nonneg]
   have h_mono : MonotoneOn (rightDeriv f) (Ioi 0) := by
-    have h := hf.rightDeriv_monotoneOn
+    have h := hf.monotoneOn_rightDeriv
     rwa [interior_Ioi] at h
   have h_tendsto : Tendsto (fun x ↦ ENNReal.ofReal (rightDeriv f x)) atTop
       (𝓝 (_root_.derivAtTop f).toENNReal) := by
@@ -457,7 +457,7 @@ lemma lintegral_ofReal_ne_top_iff_integrable_of_continuous [SigmaFinite μ] [IsF
     (h_cont : ContinuousWithinAt f (Ioi 0) 0) :
     ∫⁻ x, ofReal f hf hf_one (μ.rnDeriv ν x) ∂ν ≠ ∞
       ↔ Integrable (fun x ↦ f (μ.rnDeriv ν x).toReal) ν := by
-  rw [lintegral_ofReal_of_continuous h_cont, lintegral_ofReal_ne_top_iff_integrable_of_nonneg]
+  rw [lintegral_ofReal_of_continuous h_cont, lintegral_ofReal_ne_top_iff_integrable]
   · refine Measurable.aestronglyMeasurable ?_
     exact measurable_comp_rnDeriv_of_convexOn_of_continuous hf h_cont
   · exact ae_of_all _ fun x ↦ hf_nonneg _ ENNReal.toReal_nonneg

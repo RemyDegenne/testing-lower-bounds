@@ -56,12 +56,12 @@ theorem fDiv_comp_right_le' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
 
 lemma fDiv_fst_le' (μ ν : Measure (𝒳 × 𝒳')) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     fDiv f μ.fst ν.fst ≤ fDiv f μ ν := by
-  simp_rw [Measure.fst, ← Measure.comp_deterministic_eq_map measurable_fst]
+  simp_rw [Measure.fst, ← Measure.deterministic_comp_eq_map measurable_fst]
   exact fDiv_comp_right_le' _
 
 lemma fDiv_snd_le' (μ ν : Measure (𝒳 × 𝒳')) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     fDiv f μ.snd ν.snd ≤ fDiv f μ ν := by
-  simp_rw [Measure.snd, ← Measure.comp_deterministic_eq_map measurable_snd]
+  simp_rw [Measure.snd, ← Measure.deterministic_comp_eq_map measurable_snd]
   exact fDiv_comp_right_le' _
 
 lemma le_fDiv_compProd' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
@@ -74,7 +74,7 @@ lemma fDiv_compProd_right' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ : Kernel 𝒳 𝒳') [IsMarkovKernel κ] :
     fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ κ) = fDiv f μ ν := by
   refine le_antisymm ?_ (le_fDiv_compProd' κ κ)
-  simp_rw [Measure.compProd_eq_comp]
+  simp_rw [Measure.compProd_eq_comp_prod]
   exact fDiv_comp_right_le' _
 
 lemma fDiv_comp_le_compProd' [IsFiniteMeasure μ] [IsFiniteMeasure ν]

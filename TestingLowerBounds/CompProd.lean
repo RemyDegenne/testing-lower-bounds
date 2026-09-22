@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import TestingLowerBounds.Convex
-import TestingLowerBounds.ForMathlib.Integrable
 import TestingLowerBounds.ForMathlib.RadonNikodym
 import Mathlib.Probability.Kernel.Composition.IntegralCompProd
 import Mathlib.MeasureTheory.Measure.Decomposition.IntegralRNDeriv
@@ -37,7 +36,7 @@ lemma singularPart_compProd_left (μ ν : Measure α) [IsFiniteMeasure μ] [IsFi
     · exact ae_of_all _ fun _ ↦ by rfl
   rw [this, add_zero]
   rw [Measure.singularPart_eq_self]
-  refine Measure.mutuallySingular_compProd_left ?_ κ κ
+  refine Measure.MutuallySingular.compProd_of_left ?_ κ κ
   exact Measure.mutuallySingular_singularPart _ _
 
 variable [CountableOrCountablyGenerated α β]
@@ -57,13 +56,13 @@ lemma singularPart_compProd'' (μ ν : Measure α) [IsFiniteMeasure μ] [IsFinit
   rw [this, add_zero, ← add_assoc]
   congr
   · rw [Measure.singularPart_eq_self]
-    exact Measure.mutuallySingular_compProd_left (μ.mutuallySingular_singularPart ν)
+    exact Measure.MutuallySingular.compProd_of_left (μ.mutuallySingular_singularPart ν)
       (η.withDensity (κ.rnDeriv η)) η
   · rw [Measure.singularPart_eq_self]
-    exact Measure.mutuallySingular_compProd_left (μ.mutuallySingular_singularPart ν)
+    exact Measure.MutuallySingular.compProd_of_left (μ.mutuallySingular_singularPart ν)
       (κ.singularPart η) η
   · rw [Measure.singularPart_eq_self]
-    exact Measure.mutuallySingular_compProd_right (ν.withDensity (∂μ/∂ν)) ν
+    exact Measure.MutuallySingular.compProd_of_right (ν.withDensity (∂μ/∂ν)) ν
       (.of_forall <| κ.mutuallySingular_singularPart _)
 
 lemma singularPart_compProd (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]

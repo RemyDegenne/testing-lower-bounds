@@ -25,7 +25,7 @@ import TestingLowerBounds.Divergences.Renyi.Renyi
 
 -/
 
-open Real MeasureTheory Filter MeasurableSpace
+open Real MeasureTheory Filter MeasurableSpace InformationTheory
 
 open scoped ENNReal NNReal Topology
 
@@ -67,7 +67,7 @@ lemma condRenyiDiv_zero (κ η : Kernel α β) (μ : Measure α)
 lemma condRenyiDiv_one [CountableOrCountablyGenerated α β] (κ η : Kernel α β) (μ : Measure α)
     [IsMarkovKernel κ] [IsMarkovKernel η] [IsFiniteMeasure μ] [NeZero μ] :
     condRenyiDiv 1 κ η μ = condKL κ η μ := by
-  rw [condRenyiDiv, renyiDiv_one, kl_compProd_left]
+  rw [condRenyiDiv, renyiDiv_one, klDiv_compProd_eq_condKL]
   simp only [Measure.compProd_apply_univ, ne_eq, measure_ne_top, not_false_eq_true,
     ENNReal.toReal_toEReal_of_ne_top]
   sorry
@@ -102,7 +102,7 @@ section TopAndBounds
 --     (κ η : Kernel α β) (μ : Measure α) [IsFiniteKernel κ] [IsFiniteKernel η] [IsFiniteMeasure μ] :
 --     condRenyiDiv a κ η μ = ⊤ ↔ ∀ᵐ a ∂μ, κ a ⟂ₘ η a := by
 --   rw [condRenyiDiv, renyiDiv_eq_top_iff_mutuallySingular_of_lt_one ha_nonneg ha,
---     Measure.mutuallySingular_compProd_iff_of_same_left]
+--     Measure.mutuallySingular_compProd_right_iff]
 
 -- lemma condRenyiDiv_of_not_ae_integrable_of_one_lt [CountableOrCountablyGenerated α β] (ha : 1 < a)
 --     [IsFiniteKernel κ] [IsFiniteKernel η] [IsFiniteMeasure μ]
@@ -129,7 +129,7 @@ section TopAndBounds
 --     (h_ms : ∀ᵐ x ∂μ, κ x ⟂ₘ η x) :
 --     condRenyiDiv a κ η μ = ⊤ := by
 --   rw [condRenyiDiv, renyiDiv_eq_top_iff_mutuallySingular_of_lt_one ha_nonneg ha]
---   exact (Measure.mutuallySingular_compProd_iff_of_same_left μ κ η).mpr h_ms
+--   exact Measure.mutuallySingular_compProd_right_iff.mpr h_ms
 
 -- lemma condRenyiDiv_of_ne_zero [CountableOrCountablyGenerated α β] (ha_nonneg : 0 ≤ a)
 --     (ha_ne_one : a ≠ 1) (κ η : Kernel α β) (μ : Measure α) [IsFiniteKernel κ] [∀ x, NeZero (κ x)]

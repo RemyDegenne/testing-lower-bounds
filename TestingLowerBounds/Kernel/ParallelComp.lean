@@ -3,7 +3,7 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import TestingLowerBounds.Kernel.DeterministicComp
+import Mathlib.Probability.Kernel.Composition.Lemmas
 
 /-!
 
@@ -19,15 +19,6 @@ variable {α β γ δ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace
   {mγ : MeasurableSpace γ} {mδ : MeasurableSpace δ}
 
 section ParallelComp
-
-lemma prod_eq_parallelComp_comp_copy (κ : Kernel α β) [IsSFiniteKernel κ]
-    (η : Kernel α γ) [IsSFiniteKernel η] :
-    κ ×ₖ η = (κ ∥ₖ η) ∘ₖ (copy α) := by
-  ext a s hs
-  simp_rw [prod_apply, comp_apply, copy_apply, Measure.bind_apply hs (aemeasurable _)]
-  rw [lintegral_dirac']
-  swap; · exact Kernel.measurable_coe _ hs
-  rw [parallelComp_apply]
 
 --move this and PR it to mathlib, it should go right after `Kernel.measurable_Kernel_prod_mk_left'`, but in that file ∘ₖ is not defined, so maybe we should find a better place for it or modify the proof so it does not need it
 lemma measurable_Kernel_prod_mk_left'' {κ : Kernel α β}

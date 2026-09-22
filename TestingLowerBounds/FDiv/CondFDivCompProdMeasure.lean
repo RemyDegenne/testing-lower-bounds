@@ -21,17 +21,17 @@ namespace ProbabilityTheory
 variable {α β γ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {mγ : MeasurableSpace γ}
   {μ : Measure α} {f : DivFunction}
 
-lemma condFDiv_snd' [CountableOrCountablyGenerated β γ] {ξ : Kernel α β}
+lemma condFDiv_sectR [CountableOrCountablyGenerated β γ] {ξ : Kernel α β}
     [IsFiniteKernel ξ] {κ η : Kernel (α × β) γ} [IsFiniteKernel κ] [IsFiniteKernel η]
     {a : α} :
-    condFDiv f (κ.snd' a) (η.snd' a) (ξ a) = ∫⁻ b, (fDiv f (κ (a, b)) (η (a, b))) ∂ξ a := by
-  simp [condFDiv, Kernel.snd'_apply]
+    condFDiv f (κ.sectR a) (η.sectR a) (ξ a) = ∫⁻ b, (fDiv f (κ (a, b)) (η (a, b))) ∂ξ a := by
+  simp [condFDiv, Kernel.sectR_apply]
 
-lemma condFDiv_kernel_snd'_integrable_iff [CountableOrCountablyGenerated (α × β) γ]
+lemma condFDiv_kernel_sectR_integrable_iff [CountableOrCountablyGenerated (α × β) γ]
     [IsFiniteMeasure μ] {ξ : Kernel α β}  [IsFiniteKernel ξ]
     {κ η : Kernel (α × β) γ} [IsMarkovKernel κ] [IsMarkovKernel η]
     (h_ac : f.derivAtTop = ∞ → ∀ᵐ a ∂μ, ∀ᵐ b ∂ξ a, κ (a, b) ≪ η (a, b)) :
-    ∫⁻ a, condFDiv f (κ.snd' a) (η.snd' a) (ξ a) ∂μ ≠ ∞ ↔
+    ∫⁻ a, condFDiv f (κ.sectR a) (η.sectR a) (ξ a) ∂μ ≠ ∞ ↔
       ∫⁻ a, ∫⁻ b, ∫⁻ x, f ((∂κ (a, b)/∂η (a, b)) x) ∂η (a, b) ∂ξ a ∂μ ≠ ∞ := by
   by_cases h_empty : Nonempty α
   swap; · have := not_nonempty_iff.mp h_empty; simp
@@ -42,7 +42,7 @@ lemma condFDiv_kernel_snd'_integrable_iff [CountableOrCountablyGenerated (α × 
   · refine Measurable.const_mul ?_ _
     refine Measurable.lintegral_kernel_prod_right ?_
     exact (Measure.measurable_coe .univ).comp (κ.measurable_singularPart η)
-  simp only [Kernel.snd'_apply, ne_eq, ENNReal.add_eq_top, not_or, and_iff_left_iff_imp]
+  simp only [Kernel.sectR_apply, ne_eq, ENNReal.add_eq_top, not_or, and_iff_left_iff_imp]
   intro
   rw [lintegral_const_mul]
   swap
@@ -73,36 +73,37 @@ lemma condFDiv_kernel_snd'_integrable_iff [CountableOrCountablyGenerated (α × 
     _ = ξ.bound * μ univ := by simp
     _ < ∞ := ENNReal.mul_lt_top (ξ.bound_lt_top) (by simp)
 
-lemma condFDiv_kernel_snd'_eq_top_iff [CountableOrCountablyGenerated (α × β) γ]
+lemma condFDiv_kernel_sectR_eq_top_iff [CountableOrCountablyGenerated (α × β) γ]
     [IsFiniteMeasure μ] {ξ : Kernel α β}  [IsFiniteKernel ξ]
     {κ η : Kernel (α × β) γ} [IsMarkovKernel κ] [IsMarkovKernel η]
     (h_ac : f.derivAtTop = ∞ → ∀ᵐ a ∂μ, ∀ᵐ b ∂ξ a, κ (a, b) ≪ η (a, b)) :
-    ∫⁻ a, condFDiv f (κ.snd' a) (η.snd' a) (ξ a) ∂μ = ∞ ↔
+    ∫⁻ a, condFDiv f (κ.sectR a) (η.sectR a) (ξ a) ∂μ = ∞ ↔
       ∫⁻ a, ∫⁻ b, ∫⁻ x, f ((∂κ (a, b)/∂η (a, b)) x) ∂η (a, b) ∂ξ a ∂μ = ∞ := by
   rw [← not_iff_not]
-  exact condFDiv_kernel_snd'_integrable_iff h_ac
+  exact condFDiv_kernel_sectR_integrable_iff h_ac
 
-lemma condFDiv_kernel_fst'_integrable_iff [CountableOrCountablyGenerated (α × β) γ]
+lemma condFDiv_kernel_sectL_integrable_iff [CountableOrCountablyGenerated (α × β) γ]
     {μ : Measure β} [IsFiniteMeasure μ] {ξ : Kernel β α} [IsFiniteKernel ξ]
     {κ η : Kernel (α × β) γ} [IsMarkovKernel κ] [IsMarkovKernel η]
     (h_ac : f.derivAtTop = ∞ → ∀ᵐ b ∂μ, ∀ᵐ a ∂ξ b, κ (a, b) ≪ η (a, b)) :
-    ∫⁻ b, condFDiv f (κ.fst' b) (η.fst' b) (ξ b) ∂μ ≠ ∞ ↔
+    ∫⁻ b, condFDiv f (κ.sectL b) (η.sectL b) (ξ b) ∂μ ≠ ∞ ↔
       ∫⁻ b, ∫⁻ a, ∫⁻ x, f ((∂κ (a, b)/∂η (a, b)) x) ∂η (a, b) ∂ξ b ∂μ ≠ ∞ := by
-  simp_rw [← Kernel.snd'_swapRight]
-  exact condFDiv_kernel_snd'_integrable_iff h_ac
+  have := countableOrCountablyGenerated_prod_left_swap (α := α) (β := β) (γ := γ)
+  simp_rw [← Kernel.sectR_swapRight]
+  exact condFDiv_kernel_sectR_integrable_iff h_ac
 
-lemma measurable_condFDiv_snd' [CountableOrCountablyGenerated (α × β) γ]
+lemma measurable_condFDiv_sectR [CountableOrCountablyGenerated (α × β) γ]
     {ξ : Kernel α β} [IsFiniteKernel ξ]
     {κ η : Kernel (α × β) γ} [IsMarkovKernel κ] [IsMarkovKernel η] :
-    Measurable fun x ↦ condFDiv f (κ.snd' x) (η.snd' x) (ξ x) := by
-  simp_rw [condFDiv, Kernel.snd'_apply]
+    Measurable fun x ↦ condFDiv f (κ.sectR x) (η.sectR x) (ξ x) := by
+  simp_rw [condFDiv, Kernel.sectR_apply]
   exact Measurable.lintegral_kernel_prod_right <| measurable_fDiv _ _
 
 lemma condFDiv_compProd_meas_eq_top [CountableOrCountablyGenerated (α × β) γ] [IsFiniteMeasure μ]
     {ξ : Kernel α β} [IsFiniteKernel ξ]
     {κ η : Kernel (α × β) γ} [IsMarkovKernel κ] [IsMarkovKernel η] :
     condFDiv f κ η (μ ⊗ₘ ξ) = ∞
-      ↔ ∫⁻ x, condFDiv f (κ.snd' x) (η.snd' x) (ξ x) ∂μ = ∞ := by
+      ↔ ∫⁻ x, condFDiv f (κ.sectR x) (η.sectR x) (ξ x) ∂μ = ∞ := by
   by_cases h_empty : Nonempty α
   swap
   · have := not_nonempty_iff.mp h_empty
@@ -111,7 +112,7 @@ lemma condFDiv_compProd_meas_eq_top [CountableOrCountablyGenerated (α × β) γ
   have := countableOrCountablyGenerated_right_of_prod_left_of_nonempty (α := α) (β := β) (γ := γ)
   rw [condFDiv_eq_top_iff]
   by_cases h_ac : f.derivAtTop = ∞ → ∀ᵐ x ∂(μ ⊗ₘ ξ), κ x ≪ η x
-  · rw [condFDiv_kernel_snd'_eq_top_iff]
+  · rw [condFDiv_kernel_sectR_eq_top_iff]
     swap; · exact fun h ↦
       (Measure.ae_compProd_iff (Kernel.measurableSet_absolutelyContinuous κ η)).mp (h_ac h)
     rw [Measure.lintegral_compProd]
@@ -121,15 +122,15 @@ lemma condFDiv_compProd_meas_eq_top [CountableOrCountablyGenerated (α × β) γ
     exact absurd (h_ac h_top) h_not
   rw [Classical.not_imp] at h_ac
   simp only [h_ac, not_false_eq_true, and_self, or_true, true_iff]
-  suffices ∃ᵐ x ∂μ, condFDiv f (κ.snd' x) (η.snd' x) (ξ x) = ∞ by
+  suffices ∃ᵐ x ∂μ, condFDiv f (κ.sectR x) (η.sectR x) (ξ x) = ∞ by
     by_contra h_ne_top
     have h_lt_top := ae_lt_top ?_ h_ne_top
-    swap; · exact measurable_condFDiv_snd'
+    swap; · exact measurable_condFDiv_sectR
     refine absurd h_lt_top ?_
     simp only [not_eventually, not_lt, top_le_iff]
     exact this
   simp_rw [condFDiv_eq_top_iff]
-  simp only [Kernel.snd'_apply, not_eventually, frequently_or_distrib, frequently_and_distrib_left]
+  simp only [Kernel.sectR_apply, not_eventually, frequently_or_distrib, frequently_and_distrib_left]
   rw [Measure.ae_compProd_iff (κ.measurableSet_absolutelyContinuous _)] at h_ac
   right
   convert h_ac with a
@@ -139,7 +140,7 @@ lemma condFDiv_compProd_meas_eq_top [CountableOrCountablyGenerated (α × β) γ
 lemma condFDiv_compProd_meas [CountableOrCountablyGenerated (α × β) γ] [IsFiniteMeasure μ]
     {ξ : Kernel α β} [IsFiniteKernel ξ]
     {κ η : Kernel (α × β) γ} [IsMarkovKernel κ] [IsMarkovKernel η] :
-    condFDiv f κ η (μ ⊗ₘ ξ) = ∫⁻ x, condFDiv f (κ.snd' x) (η.snd' x) (ξ x) ∂μ := by
+    condFDiv f κ η (μ ⊗ₘ ξ) = ∫⁻ x, condFDiv f (κ.sectR x) (η.sectR x) (ξ x) ∂μ := by
   by_cases h_empty : Nonempty α
   swap
   · simp only [isEmpty_prod, not_nonempty_iff.mp h_empty, true_or, condFDiv_of_isEmpty_left,
@@ -172,7 +173,7 @@ lemma condFDiv_compProd_meas' [CountableOrCountablyGenerated α (β × γ)]
     [CountableOrCountablyGenerated (α × β) γ] [IsFiniteMeasure μ]
     {ξ : Kernel α β} [IsMarkovKernel ξ]
     {κ η : Kernel (α × β) γ} [IsMarkovKernel κ] [IsMarkovKernel η] :
-    condFDiv f κ η (μ ⊗ₘ ξ) = ∫⁻ x, condFDiv f (κ.snd' x) (η.snd' x) (ξ x) ∂μ := by
+    condFDiv f κ η (μ ⊗ₘ ξ) = ∫⁻ x, condFDiv f (κ.sectR x) (η.sectR x) (ξ x) ∂μ := by
   by_cases h_empty : Nonempty α
   swap; · simp [not_nonempty_iff.mp h_empty]
   have := countableOrCountablyGenerated_right_of_prod_left_of_nonempty (α := α) (β := β) (γ := γ)
@@ -180,6 +181,6 @@ lemma condFDiv_compProd_meas' [CountableOrCountablyGenerated α (β × γ)]
   simp_rw [← Measure.compProd_assoc]
   rw [fDiv_map_measurableEmbedding MeasurableEquiv.prodAssoc.symm.measurableEmbedding]
   rw [fDiv_compProd_left, condFDiv]
-  simp_rw [Kernel.compProd_apply_eq_compProd_snd', fDiv_compProd_left]
+  simp_rw [Kernel.compProd_apply_eq_compProd_sectR, fDiv_compProd_left]
 
 end ProbabilityTheory

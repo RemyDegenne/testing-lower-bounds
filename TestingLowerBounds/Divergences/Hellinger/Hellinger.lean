@@ -28,7 +28,7 @@ import Mathlib.Analysis.SpecialFunctions.Pow.Deriv
 
 -/
 
-open Real MeasureTheory Filter MeasurableSpace
+open Real MeasureTheory Filter MeasurableSpace InformationTheory
 
 open scoped ENNReal NNReal Topology
 
@@ -104,8 +104,8 @@ lemma hellingerDiv_zero [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     hellingerDiv 0 μ ν = 0 := by simp
 
 @[simp] lemma hellingerDiv_one (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
-    hellingerDiv 1 μ ν = kl μ ν := by
-  rw [hellingerDiv, hellingerDivFun_one, kl_eq_fDiv]
+    hellingerDiv 1 μ ν = klDiv μ ν := by
+  rw [hellingerDiv, hellingerDivFun_one, klDiv_eq_fDiv]
 
 @[simp]
 lemma hellingerDiv_zero_measure_left (ha_pos : 0 < a) (ν : Measure α) [IsFiniteMeasure ν] :
@@ -274,7 +274,7 @@ lemma hellingerDiv_of_not_integrable [IsFiniteMeasure μ] [IsFiniteMeasure ν]
   have ha_pos : 0 < a := ha.lt_of_ne (Ne.symm ha_zero)
   by_cases ha_one : a = 1
   · simp only [ha_one, hellingerDiv_one]
-    rw [kl_eq_top_iff]
+    rw [klDiv_eq_top_iff]
     intro hμν
     rwa [ha_one, integrable_hellingerFun_one_iff hμν] at h
   simp [hellingerDiv, hellingerDivFun, (not_le.mpr ha_pos), ha_one]

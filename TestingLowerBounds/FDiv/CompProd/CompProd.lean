@@ -188,7 +188,7 @@ lemma fDiv_comp_le_compProd [Nonempty α] [StandardBorelSpace α]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
     fDiv f (κ ∘ₘ μ) (η ∘ₘ ν) ≤ fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ η) := by
-  simp_rw [Measure.comp_eq_snd_compProd]
+  simp_rw [← Measure.snd_compProd]
   exact fDiv_snd_le _ _
 
 /--The **Data Processing Inequality** for the f-divergence. -/

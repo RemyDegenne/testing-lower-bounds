@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne
 -/
 import TestingLowerBounds.ForMathlib.RadonNikodym
-import TestingLowerBounds.ForMathlib.RnDeriv
+import Mathlib.MeasureTheory.Function.ConditionalExpectation.RadonNikodym
 import TestingLowerBounds.MeasureCompProd
 
 /-!
@@ -26,7 +26,7 @@ lemma toReal_rnDeriv_comp_eq_condexp_compProd [IsFiniteMeasure μ] [IsFiniteMeas
     (fun ab ↦ ((κ ∘ₘ μ).rnDeriv (η ∘ₘ ν) ab.2).toReal)
       =ᵐ[ν ⊗ₘ η] (ν ⊗ₘ η)[fun ab ↦ ((μ ⊗ₘ κ).rnDeriv (ν ⊗ₘ η) ab).toReal | mβ.comap Prod.snd] := by
   have h_ac : μ ⊗ₘ κ ≪ ν ⊗ₘ η := Measure.AbsolutelyContinuous.compProd hμν hκη
-  refine Filter.EventuallyEq.trans ?_ (Measure.toReal_rnDeriv_map h_ac measurable_snd)
+  refine Filter.EventuallyEq.trans ?_ (toReal_rnDeriv_map h_ac measurable_snd)
   refine ae_of_all _ (fun ab ↦ ?_)
   simp only
   congr <;> rw [← Measure.snd, Measure.snd_compProd]
@@ -43,12 +43,7 @@ lemma toReal_rnDeriv_comp [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hμν : μ 
     (fun ab ↦ ((κ ∘ₘ μ).rnDeriv (κ ∘ₘ ν) ab.2).toReal)
       =ᵐ[ν ⊗ₘ κ] (ν ⊗ₘ κ)[fun ab ↦ (μ.rnDeriv ν ab.1).toReal | mβ.comap Prod.snd] := by
   refine (toReal_rnDeriv_comp_eq_condexp_compProd_right hμν κ).trans (condExp_congr_ae ?_)
-  filter_upwards [Kernel.rnDeriv_measure_compProd_left μ ν κ] with x hx
+  filter_upwards [rnDeriv_measure_compProd_left μ ν κ] with x hx
   rw [hx]
-
-theorem _root_.Measurable.setLIntegral_kernel_prod_right' [IsSFiniteKernel κ]
-    {f : α × β → ℝ≥0∞} (hf : Measurable f) {s : Set β} (hs : MeasurableSet s) :
-    Measurable fun a => ∫⁻ b in s, f (a, b) ∂κ a := by
-  simp_rw [← Kernel.lintegral_restrict κ hs]; exact hf.lintegral_kernel_prod_right'
 
 end ProbabilityTheory

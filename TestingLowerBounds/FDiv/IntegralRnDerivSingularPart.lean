@@ -248,8 +248,8 @@ lemma Measure.rnDeriv_measure_compProd_Kernel_withDensity [CountableOrCountablyG
     · exact κ'.measurable_rnDeriv _
     · exact κ.measurable_rnDeriv _
     · exact fun a ↦ η.rnDeriv_withDensity (κ.measurable_rnDeriv _) a
-  filter_upwards [κ.rnDeriv_measure_compProd μ ν η,
-      κ'.rnDeriv_measure_compProd μ ν η, h_ae] with p h1 h2 h3
+  filter_upwards [rnDeriv_measure_compProd μ ν κ η,
+      rnDeriv_measure_compProd μ ν κ' η, h_ae] with p h1 h2 h3
   rw [h1, h2, h3]
 
 end ProbabilityTheory
