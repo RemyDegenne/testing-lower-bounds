@@ -172,7 +172,7 @@ end SimpleValues
 section Congr
 
 lemma fDiv_congr' (μ ν : Measure α) (hfg : ∀ᵐ x ∂ν.map (fun x ↦ ((∂μ/∂ν) x)), f x = g x)
-    (hfg' : f =ᶠ[atTop] g) :
+    (hfg' : (f : ℝ≥0∞ → ℝ≥0∞) =ᶠ[𝓝[<] ∞] g) :
     fDiv f μ ν = fDiv g μ ν := by
   have h : (fun a ↦ f ((∂μ/∂ν) a)) =ᶠ[ae ν] fun a ↦ g ((∂μ/∂ν) a) :=
     ae_of_ae_map (μ.measurable_rnDeriv ν).aemeasurable hfg

@@ -64,6 +64,36 @@ lemma ENNReal.toReal_Ioo_top {x : ℝ≥0∞} (hx : x ≠ ∞) :
   rw [← ofReal_toReal hx, ofReal_lt_ofReal_iff']
   exact ⟨hxa, toReal_nonneg.trans_lt hxa⟩
 
+/-- A point of `[x, y]` (with `y ≠ ∞`) is a convex combination of `x` and `y` with `ℝ≥0` weights. -/
+lemma ENNReal.exists_nnreal_smul_add_eq {x y z : ℝ≥0∞} (hy : y ≠ ∞) (hxz : x ≤ z) (hzy : z ≤ y) :
+    ∃ u v : ℝ≥0, u + v = 1 ∧ u • x + v • y = z := by
+  have hz : z ≠ ∞ := ne_top_of_le_ne_top hy hzy
+  have hx : x ≠ ∞ := ne_top_of_le_ne_top hz hxz
+  rcases eq_or_lt_of_le (hxz.trans hzy) with hxy | hxy
+  · subst hxy
+    obtain rfl := le_antisymm hxz hzy
+    exact ⟨1, 0, by simp, by simp⟩
+  have hxy' : x.toReal < y.toReal := ENNReal.toReal_strict_mono hy hxy
+  have hxy_ne : y.toReal - x.toReal ≠ 0 := (sub_pos.mpr hxy').ne'
+  set v : ℝ := (z.toReal - x.toReal) / (y.toReal - x.toReal) with hv
+  have hv0 : 0 ≤ v :=
+    div_nonneg (sub_nonneg.mpr (ENNReal.toReal_mono hz hxz)) (sub_nonneg.mpr hxy'.le)
+  have hv1 : v ≤ 1 :=
+    (div_le_one (sub_pos.mpr hxy')).mpr (sub_le_sub_right (ENNReal.toReal_mono hy hzy) _)
+  refine ⟨(1 - v).toNNReal, v.toNNReal, ?_, ?_⟩
+  · rw [← Real.toNNReal_add (sub_nonneg.mpr hv1) hv0, sub_add_cancel, Real.toNNReal_one]
+  · rw [← ENNReal.toReal_eq_toReal_iff' ?_ hz]
+    · simp only [ENNReal.smul_def, smul_eq_mul,
+        ENNReal.toReal_add (ENNReal.mul_ne_top ENNReal.coe_ne_top hx)
+          (ENNReal.mul_ne_top ENNReal.coe_ne_top hy),
+        ENNReal.toReal_mul, ENNReal.coe_toReal, Real.coe_toNNReal _ (sub_nonneg.mpr hv1),
+        Real.coe_toNNReal _ hv0]
+      rw [hv]
+      field_simp
+      ring
+    · exact ENNReal.add_ne_top.mpr ⟨ENNReal.mul_ne_top ENNReal.coe_ne_top hx,
+        ENNReal.mul_ne_top ENNReal.coe_ne_top hy⟩
+
 lemma leftDeriv_congr {f g : ℝ → ℝ} {x : ℝ} (h : f =ᶠ[𝓝[<] x] g) (hx : f x = g x) :
     leftDeriv f x = leftDeriv g x := h.derivWithin_eq hx
 
@@ -202,6 +232,48 @@ def realFun (f : DivFunction) : ℝ → ℝ := (fun x : ℝ ↦ (f (ENNReal.ofRe
 
 end Def
 
+section Monotone
+variable (f : DivFunction)
+
+lemma le_of_one_le_of_le_of_ne_top {x y : ℝ≥0∞} (hx : 1 ≤ x) (hxy : x ≤ y) (hy : y ≠ ∞) :
+    f x ≤ f y := by
+  obtain ⟨u, v, huv, hxuv⟩ := ENNReal.exists_nnreal_smul_add_eq hy hx hxy
+  calc f x = f (u • 1 + v • y) := by rw [hxuv]
+  _ ≤ u • f 1 + v • f y := f.convexOn.2 (mem_univ _) (mem_univ _) zero_le zero_le huv
+  _ = v • f y := by simp
+  _ ≤ f y := by
+    rw [ENNReal.smul_def, smul_eq_mul]
+    exact mul_le_of_le_one_left' (ENNReal.coe_le_one_iff.mpr (le_add_self.trans_eq huv))
+
+/-- A `DivFunction` is nondecreasing on `[1, ∞]`. -/
+lemma monotoneOn : MonotoneOn f (Ici 1) := by
+  intro x hx y _ hxy
+  by_cases hy_top : y = ∞
+  swap; · exact f.le_of_one_le_of_le_of_ne_top hx hxy hy_top
+  subst hy_top
+  rcases eq_or_lt_of_le hxy with rfl | hx_lt
+  · exact le_rfl
+  have h_ne_bot : (𝓝[<] (∞ : ℝ≥0∞)).NeBot := by
+    refine mem_closure_iff_nhdsWithin_neBot.mp ?_
+    rw [closure_Iio' ⟨0, ENNReal.zero_lt_top⟩]
+    simp
+  refine ge_of_tendsto ((f.continuous.tendsto ∞).mono_left (nhdsWithin_le_nhds (s := Iio ∞))) ?_
+  filter_upwards [Ioo_mem_nhdsLT hx_lt] with z hz
+  exact f.le_of_one_le_of_le_of_ne_top hx hz.1.le hz.2.ne
+
+/-- A `DivFunction` is nonincreasing on `[0, 1]`. -/
+lemma antitoneOn : AntitoneOn f (Iic 1) := by
+  intro x _ y hy hxy
+  obtain ⟨u, v, huv, hyuv⟩ := ENNReal.exists_nnreal_smul_add_eq ENNReal.one_ne_top hxy hy
+  calc f y = f (u • x + v • 1) := by rw [hyuv]
+  _ ≤ u • f x + v • f 1 := f.convexOn.2 (mem_univ _) (mem_univ _) zero_le zero_le huv
+  _ = u • f x := by simp
+  _ ≤ f x := by
+    rw [ENNReal.smul_def, smul_eq_mul]
+    exact mul_le_of_le_one_left' (ENNReal.coe_le_one_iff.mpr ((self_le_add_right u v).trans_eq huv))
+
+end Monotone
+
 section EffectiveDomain
 variable {f : DivFunction}
 
@@ -253,19 +325,9 @@ lemma lt_top_of_mem_Ioo {x : ℝ≥0∞} (hx : x ∈ Ioo f.xmin f.xmax) : f x < 
   rw [mem_Ioo, xmin, sInf_lt_iff, xmax, lt_sSup_iff] at hx
   obtain ⟨a, ha, hax⟩ := hx.1
   obtain ⟨b, hb, hxb⟩ := hx.2
-  calc f x
-  _ ≤ max (f a) (f b) := by
-    -- todo: should be ConvexOn.le_max_of_mem_Icc but that does not work with ℝ≥0∞
-    have h := f.convexOn.2 (mem_univ a) (mem_univ b)
-    obtain ⟨u, v, huv, rfl⟩ : ∃ (u : ℝ≥0) (v : ℝ≥0), u + v = 1 ∧ u • a + v • b = x := by
-      have h_mem : x ∈ Icc a b := ⟨hax.le, hxb.le⟩
-      -- `Convex ℝ≥0 (Icc a b)`: `convex_Icc` no longer applies, the `Module ℝ≥0 ℝ≥0∞`
-      -- and `Algebra ℝ≥0 ℝ≥0∞` scalar actions are not syntactically the same instance.
-      -- refine Convex.exists_mem_add_smul_eq
-      sorry
-    refine (h (zero_le (a := u)) (zero_le (a := v)) huv).trans ?_
-    sorry
-  _ < ∞ := sorry
+  rcases le_total x 1 with hx1 | h1x
+  · exact (f.antitoneOn (hax.le.trans hx1) hx1 hax.le).trans_lt (Ne.lt_top ha)
+  · exact (f.monotoneOn h1x (h1x.trans hxb.le) hxb.le).trans_lt (Ne.lt_top hb)
 
 lemma apply_xmin_eq_top (h : 0 < f.xmin) : f f.xmin = ∞ := by
   suffices Tendsto f (𝓝[<] f.xmin) (𝓝 ∞) by
@@ -320,20 +382,50 @@ lemma measurable_realFun : Measurable f.realFun :=
 lemma stronglyMeasurable_realFun : StronglyMeasurable f.realFun :=
   f.measurable_realFun.stronglyMeasurable
 
+/-- `f.realFun` is convex on any convex set of nonnegative reals on which `f` is finite. -/
+lemma convexOn_realFun_of_ne_top {s : Set ℝ} (hs : Convex ℝ s) (hs_nonneg : ∀ x ∈ s, 0 ≤ x)
+    (h : ∀ x ∈ s, f (ENNReal.ofReal x) ≠ ∞) :
+    ConvexOn ℝ s f.realFun := by
+  refine ⟨hs, fun x hx y hy a b ha hb hab ↦ ?_⟩
+  have hx0 := hs_nonneg x hx
+  have hy0 := hs_nonneg y hy
+  have hfx : f (ENNReal.ofReal x) ≠ ∞ := h x hx
+  have hfy : f (ENNReal.ofReal y) ≠ ∞ := h y hy
+  have h_eq : ENNReal.ofReal (a * x + b * y)
+      = ↑a.toNNReal * ENNReal.ofReal x + ↑b.toNNReal * ENNReal.ofReal y := by
+    rw [ENNReal.ofReal_add (mul_nonneg ha hx0) (mul_nonneg hb hy0), ENNReal.ofReal_mul ha,
+      ENNReal.ofReal_mul hb]
+    rfl
+  have hab' : a.toNNReal + b.toNNReal = 1 := by
+    rw [← Real.toNNReal_add ha hb, hab, Real.toNNReal_one]
+  have h_cvx := f.convexOn.2 (mem_univ (ENNReal.ofReal x)) (mem_univ (ENNReal.ofReal y))
+    (zero_le (a := a.toNNReal)) (zero_le (a := b.toNNReal)) hab'
+  simp only [ENNReal.smul_def, smul_eq_mul] at h_cvx
+  simp only [realFun, smul_eq_mul]
+  rw [h_eq]
+  refine (ENNReal.toReal_mono ?_ h_cvx).trans_eq ?_
+  · exact ENNReal.add_ne_top.mpr ⟨ENNReal.mul_ne_top ENNReal.coe_ne_top hfx,
+      ENNReal.mul_ne_top ENNReal.coe_ne_top hfy⟩
+  · rw [ENNReal.toReal_add (ENNReal.mul_ne_top ENNReal.coe_ne_top hfx)
+      (ENNReal.mul_ne_top ENNReal.coe_ne_top hfy), ENNReal.toReal_mul, ENNReal.toReal_mul,
+      ENNReal.coe_toReal, ENNReal.coe_toReal, Real.coe_toNNReal a ha, Real.coe_toNNReal b hb]
+
 lemma convexOn_Ioo_realFun : ConvexOn ℝ (ENNReal.toReal '' (Ioo f.xmin f.xmax)) f.realFun := by
-  constructor
+  refine convexOn_realFun_of_ne_top f ?_ ?_ ?_
   · by_cases h_top : f.xmax = ∞
     · simp only [h_top, ENNReal.toReal_Ioo_top xmin_ne_top]
       exact convex_Ioi _
     · simp only [ENNReal.toReal_Ioo xmin_ne_top h_top]
       exact convex_Ioo _ _
-  · intro x hx y hy a b ha hb hab
-    have h := f.convexOn.2 (mem_univ (ENNReal.ofReal x)) (mem_univ (ENNReal.ofReal y))
-      (zero_le (a := ⟨a, ha⟩)) (zero_le (a := ⟨b, hb⟩)) (by ext; exact hab)
-    sorry
+  · rintro _ ⟨x, _, rfl⟩
+    exact ENNReal.toReal_nonneg
+  · rintro _ ⟨x, hx, rfl⟩
+    rw [ENNReal.ofReal_toReal (ne_top_of_lt hx.2)]
+    exact (lt_top_of_mem_Ioo hx).ne
 
-lemma convexOn_Ici_realFun (h : ∀ x ≠ ∞, f x ≠ ∞) : ConvexOn ℝ (Ici 0) f.realFun := by
-  sorry
+lemma convexOn_Ici_realFun (h : ∀ x ≠ ∞, f x ≠ ∞) : ConvexOn ℝ (Ici 0) f.realFun :=
+  convexOn_realFun_of_ne_top f (convex_Ici 0) (fun _ hx ↦ hx)
+    (fun _ _ ↦ h _ ENNReal.ofReal_ne_top)
 
 lemma differentiableWithinAt {x : ℝ} (hx_nonneg : 0 ≤ x)
     (hx : ENNReal.ofReal x ∈ Ioo f.xmin f.xmax) :
@@ -396,10 +488,10 @@ lemma continuousOn_realFun_Ioi (h : f.xmax = ∞) : ContinuousOn f.realFun (Ioi 
   rw [ENNReal.lt_ofReal_iff_toReal_lt xmin_ne_top]
   exact hx
 
-lemma continuousOn_realFun_Ici (h : ∀ x ≠ ∞, f x ≠ ∞) : ContinuousOn f.realFun (Ici 0) := by
-  -- refine ENNReal.continuousOn_toReal.comp ?_
-  --  (f.continuous.comp_continuousOn ENNReal.continuous_ofReal.continuousOn) fun _ _ ↦ h _
-  sorry
+lemma continuousOn_realFun_Ici (h : ∀ x ≠ ∞, f x ≠ ∞) : ContinuousOn f.realFun (Ici 0) :=
+  ENNReal.continuousOn_toReal.comp
+    (f.continuous.comp_continuousOn ENNReal.continuous_ofReal.continuousOn)
+    fun _ _ ↦ h _ ENNReal.ofReal_ne_top
 
 lemma eq_zero_iff {a b : ℝ} (ha : a < 1) (hb : 1 < b)
     (hf_cvx : StrictConvexOn ℝ (Ioo a b) f.realFun) {x : ℝ≥0∞} :
@@ -428,10 +520,6 @@ lemma eq_zero_iff {a b : ℝ} (ha : a < 1) (hb : 1 < b)
   exact h_iff.mp ⟨h, ⟨not_le.mp hxa, not_le.mp hxb⟩⟩
 
 end RealFun
-
-lemma monotoneOn (f : DivFunction) : MonotoneOn f (Ici 1) := sorry
-
-lemma antitoneOn (f : DivFunction) : AntitoneOn f (Iic 1) := sorry
 
 variable {f g : DivFunction}
 
@@ -503,20 +591,33 @@ end Module
 
 @[simp] lemma xmin_add : (f + g).xmin = max f.xmin g.xmin := by
   simp only [xmin, add_apply, ne_eq, ENNReal.add_eq_top, not_or]
-  refine le_antisymm ?_ le_sInf_inter
-  rcases le_total f.xmin g.xmin with h | h
-  · simp only [xmin, ne_eq, le_sInf_iff, mem_ofPred_eq, le_max_iff] at h ⊢
-    right
-    intro y hy
-    sorry
-  · simp only [xmin, ne_eq, le_sInf_iff, mem_ofPred_eq, le_max_iff] at h ⊢
-    left
-    intro y hy
-    specialize h y hy
-    sorry
+  refine le_antisymm ?_ (max_le (sInf_le_sInf fun _ hx ↦ hx.1) (sInf_le_sInf fun _ hx ↦ hx.2))
+  refine le_of_forall_gt_imp_ge_of_dense fun y hy ↦ ?_
+  rw [max_lt_iff, sInf_lt_iff, sInf_lt_iff] at hy
+  obtain ⟨⟨a, ha, hay⟩, ⟨b, hb, hby⟩⟩ := hy
+  rcases lt_or_ge 1 y with hy1 | hy1
+  · exact (sInf_le (a := 1) (by simp)).trans hy1.le
+  have hmax : max a b ≤ 1 := (max_lt hay hby).le.trans hy1
+  refine sInf_le_of_le (b := max a b) ⟨?_, ?_⟩ (max_lt hay hby).le
+  · exact ne_top_of_le_ne_top ha
+      (f.antitoneOn ((le_max_left a b).trans hmax) hmax (le_max_left _ _))
+  · exact ne_top_of_le_ne_top hb
+      (g.antitoneOn ((le_max_right a b).trans hmax) hmax (le_max_right _ _))
 
 @[simp] lemma xmax_add : (f + g).xmax = min f.xmax g.xmax := by
-  sorry
+  simp only [xmax, add_apply, ne_eq, ENNReal.add_eq_top, not_or]
+  refine le_antisymm (le_min (sSup_le_sSup fun _ hx ↦ hx.1) (sSup_le_sSup fun _ hx ↦ hx.2)) ?_
+  refine le_of_forall_lt fun y hy ↦ ?_
+  rw [lt_min_iff, lt_sSup_iff, lt_sSup_iff] at hy
+  obtain ⟨⟨a, ha, hya⟩, ⟨b, hb, hyb⟩⟩ := hy
+  rw [lt_sSup_iff]
+  rcases lt_or_ge y 1 with hy1 | hy1
+  · exact ⟨1, by simp, hy1⟩
+  refine ⟨min a b, ⟨?_, ?_⟩, lt_min hya hyb⟩
+  · exact ne_top_of_le_ne_top ha
+      (f.monotoneOn (hy1.trans (lt_min hya hyb).le) (hy1.trans hya.le) (min_le_left _ _))
+  · exact ne_top_of_le_ne_top hb
+      (g.monotoneOn (hy1.trans (lt_min hya hyb).le) (hy1.trans hyb.le) (min_le_right _ _))
 
 @[simp] lemma xmin_smul {c : ℝ≥0} (hc : c ≠ 0) : (c • f).xmin = f.xmin := by
   simp [xmin, hc, ENNReal.mul_eq_top]

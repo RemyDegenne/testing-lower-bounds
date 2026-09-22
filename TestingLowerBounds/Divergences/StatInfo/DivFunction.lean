@@ -40,22 +40,29 @@ lemma measurable_statInfoDivFun :
 
 section derivAtTop
 
+lemma derivAtTop_statInfoDivFun :
+    (statInfoDivFun β γ).derivAtTop = (derivAtTop (fun x ↦ statInfoFun β γ x)).toENNReal :=
+  DivFunction.derivAtTop_ofReal_eq_toENNReal fun x _ ↦ statInfoFun_nonneg β γ x
+
 lemma derivAtTop_statInfoDivFun_of_nonneg_of_le (hβ : 0 ≤ β) (hγ : γ ≤ β) :
     (statInfoDivFun β γ).derivAtTop = 0 := by
-  rw [statInfoDivFun, derivAtTop_ofReal]
-  sorry
+  rw [derivAtTop_statInfoDivFun, derivAtTop_statInfoFun_of_nonneg_of_le hβ hγ,
+    EReal.toENNReal_zero]
 
 lemma derivAtTop_statInfoDivFun_of_nonneg_of_gt (hβ : 0 ≤ β) (hγ : γ > β) :
     (statInfoDivFun β γ).derivAtTop = ENNReal.ofReal β := by
-  sorry
+  rw [derivAtTop_statInfoDivFun, derivAtTop_statInfoFun_of_nonneg_of_gt hβ hγ,
+    EReal.toENNReal_of_ne_top (EReal.coe_ne_top _), EReal.toReal_coe]
 
 lemma derivAtTop_statInfoDivFun_of_nonpos_of_le (hβ : β ≤ 0) (hγ : γ ≤ β) :
     (statInfoDivFun β γ).derivAtTop = ENNReal.ofReal (-β) := by
-  sorry
+  rw [derivAtTop_statInfoDivFun, derivAtTop_statInfoFun_of_nonpos_of_le hβ hγ, ← EReal.coe_neg,
+    EReal.toENNReal_of_ne_top (EReal.coe_ne_top _), EReal.toReal_coe]
 
 lemma derivAtTop_statInfoDivFun_of_nonpos_of_gt (hβ : β ≤ 0) (hγ : γ > β) :
     (statInfoDivFun β γ).derivAtTop = 0 := by
-  sorry
+  rw [derivAtTop_statInfoDivFun, derivAtTop_statInfoFun_of_nonpos_of_gt hβ hγ,
+    EReal.toENNReal_zero]
 
 lemma derivAtTop_statInfoDivFun_eq :
     (statInfoDivFun β γ).derivAtTop

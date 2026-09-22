@@ -58,10 +58,12 @@ lemma fDiv_ofReal_ne_top' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
   simp [h_zero]
 
 lemma fDiv_ofReal_ne_top [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (hf_nonneg : ∀ x, 0 ≤ x → 0 ≤ f x)
     (h_zero : Function.rightLim (fun x ↦ ENNReal.ofReal (f x)) 0 ≠ ∞)
     (h_top : limsup (fun x ↦ ENNReal.ofReal (rightDeriv f x)) atTop ≠ ∞) :
     fDiv (.ofReal f hf hf_one) μ ν ≠ ∞ :=
-  fDiv_ofReal_ne_top' h_zero (DivFunction.derivAtTop_ofReal_ne_top h_top)
+  fDiv_ofReal_ne_top' h_zero
+    (DivFunction.derivAtTop_ofReal_ne_top (fun x hx ↦ hf_nonneg x hx.le) h_top)
 
 lemma fDiv_ofReal_eq_integral_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (hf_nonneg : ∀ x, 0 ≤ x → 0 ≤ f x) (h_cont : ContinuousWithinAt f (Ioi 0) 0)
@@ -110,6 +112,6 @@ lemma toReal_fDiv_ofReal_eq_integral_add [IsFiniteMeasure μ] [IsFiniteMeasure �
       = ∫ x, f ((∂μ/∂ν) x).toReal ∂ν
         + (DivFunction.ofReal f hf hf_one).derivAtTop.toReal * (μ.singularPart ν univ).toReal := by
   rw [toReal_fDiv_ofReal_eq_integral_add' hf_nonneg h_cont h_int]
-  exact DivFunction.derivAtTop_ofReal_ne_top h_ne
+  exact DivFunction.derivAtTop_ofReal_ne_top (fun x hx ↦ hf_nonneg x hx.le) h_ne
 
 end ProbabilityTheory

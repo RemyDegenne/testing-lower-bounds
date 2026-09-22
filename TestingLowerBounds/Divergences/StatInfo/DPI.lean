@@ -43,10 +43,16 @@ lemma fDiv_statInfoFun_comp_right_le [IsFiniteMeasure μ] [IsFiniteMeasure ν]
 theorem fDiv_comp_right_le' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (η : Kernel 𝒳 𝒳') [IsMarkovKernel η] :
     fDiv f (η ∘ₘ μ) (η ∘ₘ ν) ≤ fDiv f μ ν := by
-  rw [fDiv_eq_lintegral_fDiv_statInfoFun, fDiv_eq_lintegral_fDiv_statInfoFun]
-  -- simp_rw [Measure.comp_apply_univ] -- this will be needed when we fix the integral equality
-  -- gcongr
-  exact lintegral_mono fun x ↦ fDiv_statInfoFun_comp_right_le η zero_le_one
+  have h1 := fDiv_eq_lintegral_fDiv_statInfoFun (f := f) (μ := η ∘ₘ μ) (ν := η ∘ₘ ν)
+  have h2 := fDiv_eq_lintegral_fDiv_statInfoFun (f := f) (μ := μ) (ν := ν)
+  rw [Measure.comp_apply_univ, Measure.comp_apply_univ] at h1
+  have h3 : fDiv f (η ∘ₘ μ) (η ∘ₘ ν) + ENNReal.ofReal (rightDeriv f.realFun 1) * ν univ
+      ≤ fDiv f μ ν + ENNReal.ofReal (rightDeriv f.realFun 1) * ν univ := by
+    rw [h1, h2]
+    exact add_le_add
+      (lintegral_mono fun x ↦ fDiv_statInfoFun_comp_right_le (μ := μ) (ν := ν) η zero_le_one) le_rfl
+  exact (ENNReal.add_le_add_iff_right
+    (ENNReal.mul_ne_top ENNReal.ofReal_ne_top (measure_ne_top ν _))).mp h3
 
 lemma fDiv_fst_le' (μ ν : Measure (𝒳 × 𝒳')) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     fDiv f μ.fst ν.fst ≤ fDiv f μ ν := by

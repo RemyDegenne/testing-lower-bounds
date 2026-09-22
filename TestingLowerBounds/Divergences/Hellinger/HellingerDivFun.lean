@@ -92,14 +92,15 @@ lemma derivAtTop_hellingerDivFun :
   split_ifs with h h_one
   · simp [h]
   · rw [hellingerDivFun_of_pos_of_ne_one (not_le.mp h) h_one.ne]
-    rw [DivFunction.derivAtTop_ofReal]
+    rw [DivFunction.derivAtTop_ofReal fun x hx ↦ hellingerFun_nonneg (not_le.mp h).le hx.le]
     refine Tendsto.limsup_eq ?_
     refine ENNReal.tendsto_ofReal ?_
     exact tendsto_rightDeriv_hellingerFun_atTop_of_lt_one h_one
   · by_cases ha_one : a = 1
     · simp [ha_one]
     rw [hellingerDivFun_of_pos_of_ne_one (not_le.mp h) ha_one]
-    refine DivFunction.derivAtTop_ofReal_of_tendsto_atTop ?_
+    refine DivFunction.derivAtTop_ofReal_of_tendsto_atTop
+      (fun x hx ↦ hellingerFun_nonneg (not_le.mp h).le hx.le) ?_
     exact tendsto_rightDeriv_hellingerFun_atTop_of_one_lt
       ((not_lt.mp h_one).lt_of_ne (Ne.symm ha_one))
 

@@ -6,6 +6,8 @@ Authors: Rémy Degenne
 import Mathlib.Topology.Order.LeftRightLim
 import TestingLowerBounds.ForMathlib.EReal
 import Mathlib.MeasureTheory.Measure.Typeclasses.Probability
+import Mathlib.MeasureTheory.Measure.Dirac.Basic
+import Mathlib.MeasureTheory.Measure.WithDensity
 
 /-!
 # Stieltjes measures on the real line
@@ -53,6 +55,18 @@ variable (f : ERealStieltjes)
 theorem mono : Monotone f := f.mono'
 
 theorem right_continuous (x : ℝ) : ContinuousWithinAt f (Ici x) x := f.right_continuous' x
+
+/-- If a function `f : ℝ → EReal` is monotone, then the function mapping `x` to the right limit of
+`f` at `x` is an `ERealStieltjes` function, i.e., it is monotone and right-continuous.
+This is the `EReal` analogue of `Monotone.stieltjesFunction`. -/
+noncomputable def _root_.Monotone.erealStieltjes {g : ℝ → EReal} (hg : Monotone g) :
+    ERealStieltjes where
+  toFun := Function.rightLim g
+  mono' := hg.rightLim
+  right_continuous' x := continuousWithinAt_rightLim_Ici (hg.tendsto_rightLim x)
+
+theorem _root_.Monotone.erealStieltjes_eq {g : ℝ → EReal} (hg : Monotone g) (x : ℝ) :
+    hg.erealStieltjes x = Function.rightLim g x := rfl
 
 theorem rightLim_eq (f : ERealStieltjes) (x : ℝ) : Function.rightLim f x = f x := by
   rw [← f.mono.continuousWithinAt_Ioi_iff_rightLim_eq, continuousWithinAt_Ioi_iff_Ici]
@@ -1049,8 +1063,212 @@ lemma measure_Ioi_of_tendsto_atTop_atTop (hf : Tendsto f atTop atTop) (x : ℝ) 
 @[simp]
 lemma measure_zero : (0 : ERealStieltjes).measure = 0 := measure_const 0
 
+section SFinite
+
+lemma measure_Ioc_eq_zero_of_eq_bot {a b : ℝ} (ha : f a = ⊥) (hb : f b = ⊥) :
+    f.measure (Ioc a b) = 0 := by
+  rw [measure_Ioc, hb, ha, EReal.bot_sub, EReal.toENNReal_bot]
+
+lemma measure_Ioc_eq_zero_of_eq_top {a b : ℝ} (ha : f a = ⊤) (hb : f b = ⊤) :
+    f.measure (Ioc a b) = 0 := by
+  rw [measure_Ioc, hb, ha, EReal.sub_top, EReal.toENNReal_bot]
+
+lemma iUnion_Ioc_neg_nat_nat : ⋃ n : ℕ, Ioc (-(n : ℝ)) n = univ := by
+  refine eq_univ_of_forall fun x ↦ mem_iUnion.mpr ?_
+  obtain ⟨n, hn⟩ := exists_nat_gt |x|
+  exact ⟨n, by linarith [neg_abs_le x], by linarith [le_abs_self x]⟩
+
+lemma measure_eq_zero_of_forall_eq_bot (h : ∀ x, f x = ⊥) : f.measure = 0 := by
+  refine Measure.measure_univ_eq_zero.mp ?_
+  rw [← iUnion_Ioc_neg_nat_nat]
+  exact measure_iUnion_null fun n ↦ f.measure_Ioc_eq_zero_of_eq_bot (h _) (h _)
+
+lemma measure_eq_zero_of_forall_eq_top (h : ∀ x, f x = ⊤) : f.measure = 0 := by
+  refine Measure.measure_univ_eq_zero.mp ?_
+  rw [← iUnion_Ioc_neg_nat_nat]
+  exact measure_iUnion_null fun n ↦ f.measure_Ioc_eq_zero_of_eq_top (h _) (h _)
+
+lemma measure_Iio_eq_zero_of_forall_lt_eq_bot {c : ℝ} (h : ∀ x, x < c → f x = ⊥) :
+    f.measure (Iio c) = 0 := by
+  have : Iio c = ⋃ n : ℕ, Ioc (c - (n + 1)) (c - 1 / (n + 1)) := by
+    ext y
+    simp only [mem_Iio, mem_iUnion, mem_Ioc]
+    constructor
+    · intro hy
+      obtain ⟨n, hn⟩ := exists_nat_one_div_lt (sub_pos.mpr hy)
+      obtain ⟨m, hm⟩ := exists_nat_gt (c - y)
+      refine ⟨max n m, ?_, ?_⟩
+      · have : (m : ℝ) ≤ max n m := by exact_mod_cast le_max_right n m
+        linarith
+      · have : (1 : ℝ) / (max n m + 1) ≤ 1 / (n + 1) :=
+          one_div_le_one_div_of_le (by positivity) (by exact_mod_cast Nat.add_le_add_right (le_max_left n m) 1)
+        linarith
+    · rintro ⟨n, _, hy⟩
+      have : (0 : ℝ) < 1 / (n + 1) := by positivity
+      linarith
+  rw [this]
+  refine measure_iUnion_null fun n ↦ f.measure_Ioc_eq_zero_of_eq_bot (h _ ?_) (h _ ?_)
+  · have : (0 : ℝ) ≤ n + 1 := by positivity
+    linarith
+  · have : (0 : ℝ) < 1 / (n + 1) := by positivity
+    linarith
+
+lemma measure_Ioi_eq_zero_of_forall_gt_eq_top {d : ℝ} (h : ∀ x, d < x → f x = ⊤) :
+    f.measure (Ioi d) = 0 := by
+  have : Ioi d = ⋃ n : ℕ, Ioc (d + 1 / (n + 1)) (d + (n + 1)) := by
+    ext y
+    simp only [mem_Ioi, mem_iUnion, mem_Ioc]
+    constructor
+    · intro hy
+      obtain ⟨n, hn⟩ := exists_nat_one_div_lt (sub_pos.mpr hy)
+      obtain ⟨m, hm⟩ := exists_nat_gt (y - d)
+      refine ⟨max n m, ?_, ?_⟩
+      · have : (1 : ℝ) / (max n m + 1) ≤ 1 / (n + 1) :=
+          one_div_le_one_div_of_le (by positivity) (by exact_mod_cast Nat.add_le_add_right (le_max_left n m) 1)
+        linarith
+      · have : (m : ℝ) ≤ max n m := by exact_mod_cast le_max_right n m
+        linarith
+    · rintro ⟨n, hy, _⟩
+      have : (0 : ℝ) < 1 / (n + 1) := by positivity
+      linarith
+  rw [this]
+  refine measure_iUnion_null fun n ↦ f.measure_Ioc_eq_zero_of_eq_top (h _ ?_) (h _ ?_)
+  · have : (0 : ℝ) < 1 / (n + 1) := by positivity
+    linarith
+  · have : (0 : ℝ) ≤ n + 1 := by positivity
+    linarith
+
+/-- The restriction of `f.measure` to the region where `f` is `⊥`, together with its right
+endpoint, is s-finite: that region is null except possibly for an infinite atom at its endpoint. -/
+lemma sfinite_restrict_of_forall_lt_eq_bot (c : EReal) (h : ∀ x : ℝ, (x : EReal) < c → f x = ⊥) :
+    SFinite (f.measure.restrict {x : ℝ | (x : EReal) ≤ c}) := by
+  induction c with
+  | bot =>
+    have : {x : ℝ | (x : EReal) ≤ ⊥} = ∅ := by
+      ext x
+      simp
+    rw [this, Measure.restrict_empty]
+    infer_instance
+  | coe c =>
+    have : {x : ℝ | (x : EReal) ≤ c} = Iio c ∪ {c} := by
+      ext x
+      simp only [mem_ofPred_eq, EReal.coe_le_coe_iff, union_singleton, mem_insert_iff, mem_Iio]
+      exact le_iff_eq_or_lt
+    rw [this, Measure.restrict_union ((Set.disjoint_singleton_right (s := Iio c)).mpr (lt_irrefl c))
+        (measurableSet_singleton _),
+      Measure.restrict_eq_zero.mpr
+        (f.measure_Iio_eq_zero_of_forall_lt_eq_bot fun x hx ↦ h x (EReal.coe_lt_coe_iff.mpr hx)),
+      zero_add, Measure.restrict_singleton]
+    infer_instance
+  | top =>
+    rw [f.measure_eq_zero_of_forall_eq_bot fun x ↦ h x (EReal.coe_lt_top x)]
+    infer_instance
+
+/-- The restriction of `f.measure` to the region where `f` is `⊤`, together with its left
+endpoint, is s-finite: that region is null except possibly for an infinite atom at its endpoint. -/
+lemma sfinite_restrict_of_forall_gt_eq_top (d : EReal) (h : ∀ x : ℝ, d < (x : EReal) → f x = ⊤) :
+    SFinite (f.measure.restrict {x : ℝ | d ≤ (x : EReal)}) := by
+  induction d with
+  | bot =>
+    rw [f.measure_eq_zero_of_forall_eq_top fun x ↦ h x (EReal.bot_lt_coe x)]
+    infer_instance
+  | coe d =>
+    have : {x : ℝ | (d : EReal) ≤ x} = {d} ∪ Ioi d := by
+      ext x
+      simp only [mem_ofPred_eq, EReal.coe_le_coe_iff, singleton_union, mem_insert_iff, mem_Ioi]
+      exact le_iff_eq_or_lt.trans (or_congr_left eq_comm)
+    rw [this, Measure.restrict_union ((Set.disjoint_singleton_left (s := Ioi d)).mpr (lt_irrefl d))
+        _root_.measurableSet_Ioi,
+      Measure.restrict_eq_zero.mpr
+        (f.measure_Ioi_eq_zero_of_forall_gt_eq_top fun x hx ↦ h x (EReal.coe_lt_coe_iff.mpr hx)),
+      add_zero, Measure.restrict_singleton]
+    infer_instance
+  | top =>
+    have : {x : ℝ | (⊤ : EReal) ≤ x} = ∅ := by
+      ext x
+      simp
+    rw [this, Measure.restrict_empty]
+    infer_instance
+
+/-- The measure associated to an `ERealStieltjes` function is s-finite: it is σ-finite on the
+(open) region where `f` is finite, vanishes where `f` is `⊥` or `⊤`, and has at most two
+(possibly infinite) atoms at the boundary of that region. -/
 instance : SFinite f.measure := by
-  sorry
+  -- `c` bounds the region where `f = ⊥`, `d` the region where `f = ⊤`
+  set c : EReal := sSup (Real.toEReal '' {x | f x = ⊥}) with hc
+  set d : EReal := sInf (Real.toEReal '' {x | f x = ⊤}) with hd
+  have hc_lt : ∀ x : ℝ, (x : EReal) < c → f x = ⊥ := by
+    intro x hx
+    obtain ⟨_, ⟨y, hy, rfl⟩, hxy⟩ := lt_sSup_iff.mp hx
+    exact eq_bot_mono (f.mono (EReal.coe_lt_coe_iff.mp hxy).le) hy
+  have hc_gt : ∀ x : ℝ, c < x → f x ≠ ⊥ := fun x hx h ↦
+    (not_le.mpr hx) (le_sSup ⟨x, h, rfl⟩)
+  have hd_gt : ∀ x : ℝ, d < x → f x = ⊤ := by
+    intro x hx
+    obtain ⟨_, ⟨y, hy, rfl⟩, hxy⟩ := sInf_lt_iff.mp hx
+    exact eq_top_mono (f.mono (EReal.coe_lt_coe_iff.mp hxy).le) hy
+  have hd_lt : ∀ x : ℝ, (x : EReal) < d → f x ≠ ⊤ := fun x hx h ↦
+    (not_le.mpr hx) (sInf_le ⟨x, h, rfl⟩)
+  -- the region where `f` is finite
+  set M : Set ℝ := {x | c < x ∧ (x : EReal) < d} with hM
+  have hM_open : IsOpen M :=
+    (isOpen_lt continuous_const continuous_coe_real_ereal).inter
+      (isOpen_lt continuous_coe_real_ereal continuous_const)
+  have h_fin : ∀ x ∈ M, ∀ y ∈ M, f.measure (Ioc x y) ≠ ∞ := by
+    intro x hx y hy
+    have h3 : f y - f x ≠ ⊤ := by
+      rw [sub_eq_add_neg]
+      exact (EReal.add_ne_top_iff_ne_top₂ (hc_gt y hy.1) (by simpa using hd_lt x hx.2)).mpr
+        ⟨hd_lt y hy.2, by simpa using hc_gt x hx.1⟩
+    rw [measure_Ioc]
+    exact fun h ↦ h3 (EReal.toENNReal_eq_top_iff.mp h)
+  have h_sigma : SigmaFinite (f.measure.restrict M) := by
+    refine Measure.sigmaFinite_of_countable
+      (S := (fun p : ℚ × ℚ ↦ Ioc (p.1 : ℝ) p.2) '' {p | (p.1 : ℝ) ∈ M ∧ (p.2 : ℝ) ∈ M} ∪ {Mᶜ})
+      (((Set.to_countable _).image _).union (countable_singleton _)) ?_ ?_
+    · rintro s (⟨p, hp, rfl⟩ | rfl)
+      · rw [Measure.restrict_apply measurableSet_Ioc]
+        exact (measure_mono inter_subset_left).trans_lt (h_fin _ hp.1 _ hp.2).lt_top
+      · rw [Measure.restrict_apply hM_open.measurableSet.compl]
+        simp
+    · refine eq_univ_of_forall fun x ↦ mem_sUnion.mpr ?_
+      by_cases hx : x ∈ M
+      · obtain ⟨a, b, hxab, habM⟩ := mem_nhds_iff_exists_Ioo_subset.mp (hM_open.mem_nhds hx)
+        obtain ⟨q, haq, hqx⟩ := exists_rat_btwn hxab.1
+        obtain ⟨r, hxr, hrb⟩ := exists_rat_btwn hxab.2
+        exact ⟨Ioc (q : ℝ) r, Or.inl ⟨(q, r), ⟨habM ⟨haq, hqx.trans hxab.2⟩,
+          habM ⟨hxab.1.trans hxr, hrb⟩⟩, rfl⟩, hqx, hxr.le⟩
+      · exact ⟨Mᶜ, Or.inr rfl, hx⟩
+  -- assemble the pieces
+  have hA := f.sfinite_restrict_of_forall_lt_eq_bot c hc_lt
+  have hB := f.sfinite_restrict_of_forall_gt_eq_top d hd_gt
+  have hA_meas : MeasurableSet {x : ℝ | (x : EReal) ≤ c} :=
+    (isClosed_le continuous_coe_real_ereal continuous_const).measurableSet
+  have hB_meas : MeasurableSet {x : ℝ | d ≤ (x : EReal)} :=
+    (isClosed_le continuous_const continuous_coe_real_ereal).measurableSet
+  have h1 : f.measure = f.measure.restrict {x : ℝ | (x : EReal) ≤ c}
+      + f.measure.restrict {x : ℝ | (x : EReal) ≤ c}ᶜ :=
+    (Measure.restrict_add_restrict_compl hA_meas).symm
+  have h2 : f.measure.restrict {x : ℝ | (x : EReal) ≤ c}ᶜ
+      = (f.measure.restrict {x : ℝ | (x : EReal) ≤ c}ᶜ).restrict {x : ℝ | d ≤ (x : EReal)}
+        + (f.measure.restrict {x : ℝ | (x : EReal) ≤ c}ᶜ).restrict {x : ℝ | d ≤ (x : EReal)}ᶜ :=
+    (Measure.restrict_add_restrict_compl hB_meas).symm
+  have h3 : (f.measure.restrict {x : ℝ | (x : EReal) ≤ c}ᶜ).restrict {x : ℝ | d ≤ (x : EReal)}
+      = (f.measure.restrict {x : ℝ | d ≤ (x : EReal)}).restrict {x : ℝ | (x : EReal) ≤ c}ᶜ := by
+    rw [Measure.restrict_restrict hB_meas, Measure.restrict_restrict hA_meas.compl, inter_comm]
+  have h4 : (f.measure.restrict {x : ℝ | (x : EReal) ≤ c}ᶜ).restrict {x : ℝ | d ≤ (x : EReal)}ᶜ
+      = f.measure.restrict M := by
+    rw [Measure.restrict_restrict hB_meas.compl]
+    congr 1
+    ext x
+    simp [M, not_le, and_comm]
+  have : SFinite (f.measure.restrict {x : ℝ | (x : EReal) ≤ c}ᶜ) := by
+    rw [h2, h3, h4]
+    infer_instance
+  rw [h1]
+  infer_instance
+
+end SFinite
 
 lemma isFiniteMeasure {l u : ℝ} (hfl : Tendsto f atBot (𝓝 l)) (hfu : Tendsto f atTop (𝓝 u)) :
     IsFiniteMeasure f.measure := by

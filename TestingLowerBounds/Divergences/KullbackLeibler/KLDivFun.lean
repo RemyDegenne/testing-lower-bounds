@@ -158,7 +158,8 @@ lemma klDivFun_realFun_apply {x : ℝ} (hx : 0 ≤ x) : klDivFun.realFun x = x *
   exact mul_log_add_one_sub_nonneg hx
 
 @[simp] lemma derivAtTop_klDivFun : klDivFun.derivAtTop = ∞ := by
-  refine DivFunction.derivAtTop_ofReal_of_tendsto_atTop ?_
+  refine DivFunction.derivAtTop_ofReal_of_tendsto_atTop
+    (fun x hx ↦ mul_log_add_one_sub_nonneg hx.le) ?_
   rw [tendsto_congr' rightDeriv_mul_log_add_one_sub_eventually_eq]
   exact tendsto_log_atTop
 
