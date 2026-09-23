@@ -43,6 +43,28 @@ lemma ENNReal.tendsto_of_monotoneOn {ι : Type*} [SemilatticeSup ι] [Nonempty �
   · exact hf le_rfl hxz hxz
   · exact le_rfl
 
+/-- A sequence of rationals in `(a, b)` converging to `a`. -/
+lemma exists_rat_seq_tendsto_nhdsGT {a b : ℝ} (hab : a < b) :
+    ∃ q : ℕ → ℚ, (∀ n, a < q n ∧ (q n : ℝ) < b) ∧ Tendsto (fun n ↦ (q n : ℝ)) atTop (𝓝 a) := by
+  have h : ∀ n : ℕ, a < min b (a + 1 / ((n : ℝ) + 1)) :=
+    fun n ↦ lt_min hab (lt_add_of_pos_right a (by positivity))
+  choose q hq using fun n ↦ exists_rat_btwn (h n)
+  refine ⟨q, fun n ↦ ⟨(hq n).1, (hq n).2.trans_le (min_le_left _ _)⟩, ?_⟩
+  refine tendsto_of_tendsto_of_tendsto_of_le_of_le tendsto_const_nhds ?_ (fun n ↦ (hq n).1.le)
+    (fun n ↦ ((hq n).2.trans_le (min_le_right _ _)).le)
+  simpa using tendsto_const_nhds.add (tendsto_one_div_add_atTop_nhds_zero_nat (𝕜 := ℝ))
+
+/-- A sequence of rationals in `(a, b)` converging to `b`. -/
+lemma exists_rat_seq_tendsto_nhdsLT {a b : ℝ} (hab : a < b) :
+    ∃ q : ℕ → ℚ, (∀ n, a < q n ∧ (q n : ℝ) < b) ∧ Tendsto (fun n ↦ (q n : ℝ)) atTop (𝓝 b) := by
+  have h : ∀ n : ℕ, max a (b - 1 / ((n : ℝ) + 1)) < b :=
+    fun n ↦ max_lt hab (sub_lt_self b (by positivity))
+  choose q hq using fun n ↦ exists_rat_btwn (h n)
+  refine ⟨q, fun n ↦ ⟨(le_max_left _ _).trans_lt (hq n).1, (hq n).2⟩, ?_⟩
+  refine tendsto_of_tendsto_of_tendsto_of_le_of_le ?_ tendsto_const_nhds
+    (fun n ↦ ((le_max_right _ _).trans_lt (hq n).1).le) (fun n ↦ (hq n).2.le)
+  simpa using tendsto_const_nhds.sub (tendsto_one_div_add_atTop_nhds_zero_nat (𝕜 := ℝ))
+
 lemma ENNReal.toReal_Ioo {x y : ℝ≥0∞} (hx : x ≠ ∞) (hy : y ≠ ∞) :
     ENNReal.toReal '' (Ioo x y) = Ioo x.toReal y.toReal := by
   ext a
@@ -522,6 +544,217 @@ lemma apply_add_le_apply_add {x : ℝ≥0∞} (hx : x ∈ Ioo f.xmin f.xmax) {y 
       ENNReal.ofReal_toReal hfy, ENNReal.ofReal_toReal hy, ENNReal.ofReal_toReal hx_top]
   rw [← e1, ← e2]
   exact ENNReal.ofReal_le_ofReal (by linarith)
+
+lemma monotoneOn_rightDeriv_realFun :
+    MonotoneOn (rightDeriv f.realFun) (interior {x : ℝ | 0 ≤ x ∧ f (ENNReal.ofReal x) ≠ ∞}) :=
+  f.convexOn_realFun_setOf_ne_top.monotoneOn_rightDeriv
+
+lemma rightDeriv_realFun_toReal_mono {x y : ℝ≥0∞} (hx : x ∈ Ioo f.xmin f.xmax)
+    (hy : y ∈ Ioo f.xmin f.xmax) (hxy : x ≤ y) :
+    rightDeriv f.realFun x.toReal ≤ rightDeriv f.realFun y.toReal :=
+  f.monotoneOn_rightDeriv_realFun (f.toReal_mem_interior_setOf_ne_top hx)
+    (f.toReal_mem_interior_setOf_ne_top hy) (ENNReal.toReal_mono (ne_top_of_lt hy.2) hxy)
+
+/-- Consequence of the supporting line inequality at `x ≤ y`. -/
+lemma apply_le_add_of_le {x y g : ℝ≥0∞} (hx_top : x ≠ ∞) (hxy : x ≤ y) {c : ℝ}
+    (h : f x + ENNReal.ofReal (max c 0) * y + ENNReal.ofReal (max (-c) 0) * x
+      ≤ g + ENNReal.ofReal (max c 0) * x + ENNReal.ofReal (max (-c) 0) * y) :
+    f x ≤ g + ENNReal.ofReal (max (-c) 0) * (y - x) := by
+  have hy' : y = x + (y - x) := (add_tsub_cancel_of_le hxy).symm
+  rw [hy', mul_add, mul_add] at h
+  have hfin : ENNReal.ofReal (max c 0) * x + ENNReal.ofReal (max (-c) 0) * x ≠ ∞ := by
+    simp [ENNReal.mul_ne_top, hx_top]
+  calc f x ≤ f x + ENNReal.ofReal (max c 0) * (y - x) := le_self_add
+    _ ≤ g + ENNReal.ofReal (max (-c) 0) * (y - x) := by
+        refine ENNReal.le_of_add_le_add_right hfin ?_
+        calc f x + ENNReal.ofReal (max c 0) * (y - x)
+              + (ENNReal.ofReal (max c 0) * x + ENNReal.ofReal (max (-c) 0) * x)
+            = f x + (ENNReal.ofReal (max c 0) * x + ENNReal.ofReal (max c 0) * (y - x))
+              + ENNReal.ofReal (max (-c) 0) * x := by ring
+          _ ≤ g + ENNReal.ofReal (max c 0) * x
+              + (ENNReal.ofReal (max (-c) 0) * x + ENNReal.ofReal (max (-c) 0) * (y - x)) := h
+          _ = g + ENNReal.ofReal (max (-c) 0) * (y - x)
+              + (ENNReal.ofReal (max c 0) * x + ENNReal.ofReal (max (-c) 0) * x) := by ring
+
+/-- Consequence of the supporting line inequality at `x ≥ y`. -/
+lemma apply_le_add_of_ge {x y g : ℝ≥0∞} (hy_top : y ≠ ∞) (hyx : y ≤ x) {c : ℝ}
+    (h : f x + ENNReal.ofReal (max c 0) * y + ENNReal.ofReal (max (-c) 0) * x
+      ≤ g + ENNReal.ofReal (max c 0) * x + ENNReal.ofReal (max (-c) 0) * y) :
+    f x ≤ g + ENNReal.ofReal (max c 0) * (x - y) := by
+  have e1 : ENNReal.ofReal (max c 0) * x
+      = ENNReal.ofReal (max c 0) * y + ENNReal.ofReal (max c 0) * (x - y) := by
+    rw [← mul_add, add_tsub_cancel_of_le hyx]
+  have e2 : ENNReal.ofReal (max (-c) 0) * x
+      = ENNReal.ofReal (max (-c) 0) * y + ENNReal.ofReal (max (-c) 0) * (x - y) := by
+    rw [← mul_add, add_tsub_cancel_of_le hyx]
+  rw [e1, e2] at h
+  have hfin : ENNReal.ofReal (max c 0) * y + ENNReal.ofReal (max (-c) 0) * y ≠ ∞ := by
+    simp [ENNReal.mul_ne_top, hy_top]
+  calc f x ≤ f x + ENNReal.ofReal (max (-c) 0) * (x - y) := le_self_add
+    _ ≤ g + ENNReal.ofReal (max c 0) * (x - y) := by
+        refine ENNReal.le_of_add_le_add_right hfin ?_
+        calc f x + ENNReal.ofReal (max (-c) 0) * (x - y)
+              + (ENNReal.ofReal (max c 0) * y + ENNReal.ofReal (max (-c) 0) * y)
+            = f x + ENNReal.ofReal (max c 0) * y
+              + (ENNReal.ofReal (max (-c) 0) * y + ENNReal.ofReal (max (-c) 0) * (x - y)) := by ring
+          _ ≤ g + (ENNReal.ofReal (max c 0) * y + ENNReal.ofReal (max c 0) * (x - y))
+              + ENNReal.ofReal (max (-c) 0) * y := h
+          _ = g + ENNReal.ofReal (max c 0) * (x - y)
+              + (ENNReal.ofReal (max c 0) * y + ENNReal.ofReal (max (-c) 0) * y) := by ring
+
+/-- If `g` dominates the supporting lines of `f` at all rational interior points, evaluated at
+`y`, then `f y ≤ g`. This is the pointwise step of Jensen's inequality for conditional
+expectations. -/
+lemma le_of_forall_rat_tangent_le {y g : ℝ≥0∞} (hy_top : y ≠ ∞)
+    (h : ∀ q : ℚ, ENNReal.ofReal q ∈ Ioo f.xmin f.xmax →
+      f (ENNReal.ofReal q)
+          + ENNReal.ofReal (max (rightDeriv f.realFun (ENNReal.ofReal q).toReal) 0) * y
+          + ENNReal.ofReal (max (-rightDeriv f.realFun (ENNReal.ofReal q).toReal) 0)
+            * ENNReal.ofReal q
+        ≤ g + ENNReal.ofReal (max (rightDeriv f.realFun (ENNReal.ofReal q).toReal) 0)
+            * ENNReal.ofReal q
+          + ENNReal.ofReal (max (-rightDeriv f.realFun (ENNReal.ofReal q).toReal) 0) * y) :
+    f y ≤ g := by
+  have h1 : (1 : ℝ≥0∞) ∈ Ioo f.xmin f.xmax := ⟨xmin_lt_one, one_lt_xmax⟩
+  set c : ℝ≥0∞ → ℝ := fun x ↦ rightDeriv f.realFun x.toReal with hc
+  have h_below : ∀ q : ℚ, ENNReal.ofReal q ∈ Ioo f.xmin f.xmax → ENNReal.ofReal q ≤ y →
+      f (ENNReal.ofReal q)
+        ≤ g + ENNReal.ofReal (max (-c (ENNReal.ofReal q)) 0) * (y - ENNReal.ofReal q) :=
+    fun q hq hqy ↦ f.apply_le_add_of_le ENNReal.ofReal_ne_top hqy (h q hq)
+  have h_above : ∀ q : ℚ, ENNReal.ofReal q ∈ Ioo f.xmin f.xmax → y ≤ ENNReal.ofReal q →
+      f (ENNReal.ofReal q)
+        ≤ g + ENNReal.ofReal (max (c (ENNReal.ofReal q)) 0) * (ENNReal.ofReal q - y) :=
+    fun q hq hqy ↦ f.apply_le_add_of_ge hy_top hqy (h q hq)
+  have h_tendsto_ofReal {q : ℕ → ℚ} {a : ℝ} (hq : Tendsto (fun n ↦ (q n : ℝ)) atTop (𝓝 a)) :
+      Tendsto (fun n ↦ ENNReal.ofReal (q n)) atTop (𝓝 (ENNReal.ofReal a)) :=
+    (ENNReal.continuous_ofReal.tendsto a).comp hq
+  rcases lt_or_ge y f.xmax with hy_lt | hy_ge
+  · rcases lt_or_ge f.xmin y with hy_gt | hy_le
+    · -- interior point: approach `y` from below
+      have hy_toReal : f.xmin.toReal < y.toReal := ENNReal.toReal_strict_mono hy_top hy_gt
+      set a : ℝ := (f.xmin.toReal + y.toReal) / 2 with ha
+      have ha_gt : f.xmin.toReal < a := by rw [ha]; linarith
+      have ha_lt : a < y.toReal := by rw [ha]; linarith
+      have ha_pos : 0 < a := lt_of_le_of_lt ENNReal.toReal_nonneg ha_gt
+      have ha_mem : ENNReal.ofReal a ∈ Ioo f.xmin f.xmax := by
+        refine ⟨?_, (ENNReal.ofReal_lt_iff_lt_toReal ha_pos.le hy_top).mpr ha_lt |>.trans hy_lt⟩
+        rw [← ENNReal.ofReal_toReal xmin_ne_top]
+        exact ENNReal.ofReal_lt_ofReal_iff'.mpr ⟨ha_gt, ha_pos⟩
+      obtain ⟨q, hq, hq_tendsto⟩ := exists_rat_seq_tendsto_nhdsLT ha_lt
+      have hq_mem : ∀ n, ENNReal.ofReal (q n) ∈ Ioo f.xmin f.xmax := fun n ↦
+        ⟨ha_mem.1.trans_le (ENNReal.ofReal_le_ofReal (hq n).1.le),
+          ((ENNReal.ofReal_lt_iff_lt_toReal (ha_pos.trans (hq n).1).le hy_top).mpr (hq n).2).trans
+            hy_lt⟩
+      have hq_le : ∀ n, ENNReal.ofReal (q n) ≤ y := fun n ↦
+        ((ENNReal.ofReal_lt_iff_lt_toReal (ha_pos.trans (hq n).1).le hy_top).mpr (hq n).2).le
+      have h_bound : ∀ n, f (ENNReal.ofReal (q n))
+          ≤ g + ENNReal.ofReal (max (-c (ENNReal.ofReal a)) 0) * (y - ENNReal.ofReal (q n)) := by
+        intro n
+        refine (h_below (q n) (hq_mem n) (hq_le n)).trans ?_
+        gcongr
+        exact f.rightDeriv_realFun_toReal_mono ha_mem (hq_mem n)
+          (ENNReal.ofReal_le_ofReal (hq n).1.le)
+      have h_lim_q : Tendsto (fun n ↦ ENNReal.ofReal (q n)) atTop (𝓝 y) := by
+        simpa [ENNReal.ofReal_toReal hy_top] using h_tendsto_ofReal hq_tendsto
+      refine le_of_tendsto_of_tendsto' ((f.continuous.tendsto y).comp h_lim_q) ?_ h_bound
+      have : Tendsto (fun n ↦ g + ENNReal.ofReal (max (-c (ENNReal.ofReal a)) 0)
+          * (y - ENNReal.ofReal (q n))) atTop
+          (𝓝 (g + ENNReal.ofReal (max (-c (ENNReal.ofReal a)) 0) * (y - y))) :=
+        tendsto_const_nhds.add (ENNReal.Tendsto.const_mul
+          (ENNReal.Tendsto.sub tendsto_const_nhds h_lim_q (Or.inl hy_top))
+          (Or.inr ENNReal.ofReal_ne_top))
+      simpa using this
+    · -- `y ≤ xmin`
+      rcases eq_or_ne f.xmin 0 with h0 | h0
+      · -- then `y = 0`: approach `0` from above
+        have hy0 : y = 0 := le_antisymm (h0 ▸ hy_le) bot_le
+        obtain ⟨q, hq, hq_tendsto⟩ := exists_rat_seq_tendsto_nhdsGT (zero_lt_one' ℝ)
+        have hq_mem : ∀ n, ENNReal.ofReal (q n) ∈ Ioo f.xmin f.xmax := fun n ↦
+          ⟨h0 ▸ ENNReal.ofReal_pos.mpr (hq n).1,
+            (ENNReal.ofReal_lt_one.mpr (hq n).2).trans one_lt_xmax⟩
+        have h_bound : ∀ n, f (ENNReal.ofReal (q n))
+            ≤ g + ENNReal.ofReal (max (c 1) 0) * (ENNReal.ofReal (q n) - y) := by
+          intro n
+          refine (h_above (q n) (hq_mem n) (by rw [hy0]; exact bot_le)).trans ?_
+          gcongr
+          exact f.rightDeriv_realFun_toReal_mono (hq_mem n) h1
+            (ENNReal.ofReal_le_one.mpr (hq n).2.le)
+        have h_lim_q : Tendsto (fun n ↦ ENNReal.ofReal (q n)) atTop (𝓝 y) := by
+          simpa [hy0] using h_tendsto_ofReal hq_tendsto
+        refine le_of_tendsto_of_tendsto' ((f.continuous.tendsto y).comp h_lim_q) ?_ h_bound
+        have : Tendsto (fun n ↦ g + ENNReal.ofReal (max (c 1) 0) * (ENNReal.ofReal (q n) - y))
+            atTop (𝓝 (g + ENNReal.ofReal (max (c 1) 0) * (y - y))) :=
+          tendsto_const_nhds.add (ENNReal.Tendsto.const_mul
+            (ENNReal.Tendsto.sub h_lim_q tendsto_const_nhds (Or.inr hy_top))
+            (Or.inr ENNReal.ofReal_ne_top))
+        simpa using this
+      · -- `0 < xmin`, so `f xmin = ∞`: approach `xmin` from above, which forces `g = ∞`
+        have hmin_pos : 0 < f.xmin := pos_iff_ne_zero.mpr h0
+        have hmin_lt : f.xmin.toReal < 1 := by
+          rw [← ENNReal.toReal_one]
+          exact ENNReal.toReal_strict_mono ENNReal.one_ne_top xmin_lt_one
+        obtain ⟨q, hq, hq_tendsto⟩ := exists_rat_seq_tendsto_nhdsGT hmin_lt
+        have hq_mem : ∀ n, ENNReal.ofReal (q n) ∈ Ioo f.xmin f.xmax := fun n ↦
+          ⟨by
+            rw [← ENNReal.ofReal_toReal xmin_ne_top]
+            exact ENNReal.ofReal_lt_ofReal_iff'.mpr
+              ⟨(hq n).1, ENNReal.toReal_nonneg.trans_lt (hq n).1⟩,
+            (ENNReal.ofReal_lt_one.mpr (hq n).2).trans one_lt_xmax⟩
+        have h_bound : ∀ n, f (ENNReal.ofReal (q n))
+            ≤ g + ENNReal.ofReal (max (c 1) 0) * (ENNReal.ofReal (q n) - y) := by
+          intro n
+          refine (h_above (q n) (hq_mem n) (hy_le.trans (hq_mem n).1.le)).trans ?_
+          gcongr
+          exact f.rightDeriv_realFun_toReal_mono (hq_mem n) h1
+            (ENNReal.ofReal_le_one.mpr (hq n).2.le)
+        have h_lim_q : Tendsto (fun n ↦ ENNReal.ofReal (q n)) atTop (𝓝 f.xmin) := by
+          simpa [ENNReal.ofReal_toReal xmin_ne_top] using h_tendsto_ofReal hq_tendsto
+        have h_lim_f : Tendsto (fun n ↦ f (ENNReal.ofReal (q n))) atTop (𝓝 ∞) := by
+          rw [← f.apply_xmin_eq_top hmin_pos]
+          exact (f.continuous.tendsto _).comp h_lim_q
+        have h_lim_g : Tendsto (fun n ↦ g + ENNReal.ofReal (max (c 1) 0)
+            * (ENNReal.ofReal (q n) - y)) atTop
+            (𝓝 (g + ENNReal.ofReal (max (c 1) 0) * (f.xmin - y))) :=
+          tendsto_const_nhds.add (ENNReal.Tendsto.const_mul
+            (ENNReal.Tendsto.sub h_lim_q tendsto_const_nhds (Or.inr hy_top))
+            (Or.inr ENNReal.ofReal_ne_top))
+        have h_top := le_of_tendsto_of_tendsto' h_lim_f h_lim_g h_bound
+        rw [top_le_iff, ENNReal.add_eq_top] at h_top
+        rcases h_top with hg | hg
+        · rw [hg]; exact le_top
+        · exact absurd hg (ENNReal.mul_ne_top ENNReal.ofReal_ne_top
+            (ENNReal.sub_ne_top xmin_ne_top))
+  · -- `xmax ≤ y`, so `xmax < ∞` and `f xmax = ∞`: approach `xmax` from below, forcing `g = ∞`
+    have hmax_top : f.xmax ≠ ∞ := ne_top_of_le_ne_top hy_top hy_ge
+    have hmax_gt : 1 < f.xmax.toReal := by
+      rw [← ENNReal.toReal_one]
+      exact ENNReal.toReal_strict_mono hmax_top one_lt_xmax
+    obtain ⟨q, hq, hq_tendsto⟩ := exists_rat_seq_tendsto_nhdsLT hmax_gt
+    have hq_mem : ∀ n, ENNReal.ofReal (q n) ∈ Ioo f.xmin f.xmax := fun n ↦
+      ⟨xmin_lt_one.trans (ENNReal.one_lt_ofReal.mpr (hq n).1),
+        (ENNReal.ofReal_lt_iff_lt_toReal (zero_le_one.trans (hq n).1.le) hmax_top).mpr (hq n).2⟩
+    have h_bound : ∀ n, f (ENNReal.ofReal (q n))
+        ≤ g + ENNReal.ofReal (max (-c 1) 0) * (y - ENNReal.ofReal (q n)) := by
+      intro n
+      refine (h_below (q n) (hq_mem n) ((hq_mem n).2.le.trans hy_ge)).trans ?_
+      gcongr
+      exact f.rightDeriv_realFun_toReal_mono h1 (hq_mem n) (ENNReal.one_le_ofReal.mpr (hq n).1.le)
+    have h_lim_q : Tendsto (fun n ↦ ENNReal.ofReal (q n)) atTop (𝓝 f.xmax) := by
+      simpa [ENNReal.ofReal_toReal hmax_top] using h_tendsto_ofReal hq_tendsto
+    have h_lim_f : Tendsto (fun n ↦ f (ENNReal.ofReal (q n))) atTop (𝓝 ∞) := by
+      rw [← f.apply_xmax_eq_top hmax_top]
+      exact (f.continuous.tendsto _).comp h_lim_q
+    have h_lim_g : Tendsto (fun n ↦ g + ENNReal.ofReal (max (-c 1) 0)
+        * (y - ENNReal.ofReal (q n))) atTop
+        (𝓝 (g + ENNReal.ofReal (max (-c 1) 0) * (y - f.xmax))) :=
+      tendsto_const_nhds.add (ENNReal.Tendsto.const_mul
+        (ENNReal.Tendsto.sub tendsto_const_nhds h_lim_q (Or.inl hy_top))
+        (Or.inr ENNReal.ofReal_ne_top))
+    have h_top := le_of_tendsto_of_tendsto' h_lim_f h_lim_g h_bound
+    rw [top_le_iff, ENNReal.add_eq_top] at h_top
+    rcases h_top with hg | hg
+    · rw [hg]; exact le_top
+    · exact absurd hg (ENNReal.mul_ne_top ENNReal.ofReal_ne_top (ENNReal.sub_ne_top hy_top))
 
 lemma differentiableWithinAt {x : ℝ} (hx_nonneg : 0 ≤ x)
     (hx : ENNReal.ofReal x ∈ Ioo f.xmin f.xmax) :

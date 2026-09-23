@@ -22,19 +22,19 @@ namespace ProbabilityTheory
 variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
   {μ ν : Measure α} {κ : Kernel α β} {f : DivFunction}
 
--- todo: remove `hf`
 lemma fDiv_comp_le_compProd_right (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (κ : Kernel α β) [IsFiniteKernel κ] (hf : ∀ x ≠ ∞, f x ≠ ∞) :
+    (κ : Kernel α β) [IsFiniteKernel κ] :
     fDiv f (κ ∘ₘ μ) (κ ∘ₘ ν) ≤ fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ κ) := by
   simp_rw [← Measure.snd_compProd]
-  exact fDiv_map_le measurable_snd hf
+  exact fDiv_map_le measurable_snd
 
--- todo: remove `hf`
-/--The **Data Processing Inequality** for the f-divergence. -/
+/-- The **Data Processing Inequality** for the f-divergence, proved through Jensen's inequality
+for conditional expectations. Compare with `fDiv_comp_right_le`, which is proved through the
+disintegration of the composition-product and needs `StandardBorelSpace α`. -/
 theorem fDiv_comp_right_le'' (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (κ : Kernel α β) [IsMarkovKernel κ] (hf : ∀ x ≠ ∞, f x ≠ ∞) :
+    (κ : Kernel α β) [IsMarkovKernel κ] :
     fDiv f (κ ∘ₘ μ) (κ ∘ₘ ν) ≤ fDiv f μ ν :=
-  (fDiv_comp_le_compProd_right μ ν κ hf).trans_eq (fDiv_compProd_right μ ν κ)
+  (fDiv_comp_le_compProd_right μ ν κ).trans_eq (fDiv_compProd_right μ ν κ)
 
 -- todo: unused.
 /-- To prove the DPI for an f-divergence, it suffices to prove it under an absolute continuity
