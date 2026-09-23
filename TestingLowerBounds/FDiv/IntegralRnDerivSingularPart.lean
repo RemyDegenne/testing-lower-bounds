@@ -6,20 +6,10 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 import TestingLowerBounds.CompProd
 
 /-!
+# Integrals of Radon-Nikodym derivatives against singular parts of composition-products
 
-# f-Divergences
-
-## Main definitions
-
-* `FooBar`
-
-## Main statements
-
-* `fooBar_unique`
-
-## Notation
-
-## Implementation details
+Results about `∫⁻ (∂μ/∂ν) * g ∂(ν.withDensity ...)` and integrals against the singular part of a
+composition-product of a measure and a kernel, used for f-divergences of composition-products.
 
 -/
 
@@ -38,7 +28,7 @@ section IntegralRnDeriv
 lemma lintegral_measure_prod_mk_left {f : α → Set β → ℝ≥0∞} (hf : ∀ a, f a ∅ = 0)
     {s : Set α} (hs : MeasurableSet s) (t : Set β) :
     ∫⁻ a, f a (Prod.mk a ⁻¹' s ×ˢ t) ∂μ = ∫⁻ a in s, f a t ∂μ := by
-  rw [← lintegral_indicator _ hs]
+  rw [← lintegral_indicator hs _]
   congr with a
   classical
   rw [Set.indicator_apply]
@@ -59,10 +49,10 @@ lemma setLIntegral_rnDeriv_mul_withDensity
   simp_rw [this]
   rw [withDensity_apply _ (hs.prod ht),
     Measure.setLIntegral_compProd (Measure.measurable_rnDeriv _ _) hs ht]
-  refine setLIntegral_congr_fun hs ?_
+  refine setLIntegral_congr_fun_ae hs ?_
   filter_upwards [κ.rnDeriv_measure_compProd' μ ν η] with a ha _
   rw [← lintegral_const_mul _ (κ.measurable_rnDeriv_right _ _)]
-  refine setLIntegral_congr_fun ht ?_
+  refine setLIntegral_congr_fun_ae ht ?_
   filter_upwards [ha, κ.rnDeriv_eq_rnDeriv_measure] with b hb hb' _
   rw [hb, hb']
 
@@ -87,7 +77,7 @@ lemma setLIntegral_rnDeriv_mul_singularPart
     withDensity_congr_ae (ν.rnDeriv_withDensity (μ.measurable_rnDeriv _))
   rw [this, ← setLIntegral_rnDeriv_mul (μ := ν.withDensity (∂μ/∂ν)) (ν := ν)
     (withDensity_absolutelyContinuous _ _) (Kernel.measurable_coe _ ht).aemeasurable hs]
-  refine setLIntegral_congr_fun hs ?_
+  refine setLIntegral_congr_fun_ae hs ?_
   filter_upwards [ν.rnDeriv_withDensity (μ.measurable_rnDeriv ν)] with x hx _
   rw [hx, Kernel.singularPart_eq_singularPart_measure]
 
@@ -104,7 +94,7 @@ lemma setLIntegral_withDensity (μ : Measure α) [IsFiniteMeasure μ]
     ∫⁻ a in s, η.withDensity (κ.rnDeriv η) a t ∂μ
       = (μ ⊗ₘ η).withDensity (∂(μ ⊗ₘ κ)/∂(μ ⊗ₘ η)) (s ×ˢ t) := by
   rw [← setLIntegral_rnDeriv_mul_withDensity μ μ κ η hs ht]
-  refine setLIntegral_congr_fun hs ?_
+  refine setLIntegral_congr_fun_ae hs ?_
   filter_upwards [μ.rnDeriv_self] with a ha _
   rw [ha, one_mul]
 
@@ -231,12 +221,12 @@ end IntegralRnDeriv
 --Is this name (`ProbabilityTheory.Integrable.Kernel`) ok?
 lemma Integrable.Kernel [IsFiniteKernel κ] [IsFiniteMeasure μ] (s : Set β) (hs : MeasurableSet s) :
   Integrable (fun x ↦ ((κ x) s).toReal) μ := by
-obtain ⟨C, ⟨hC_finite, hC_le⟩⟩ := IsFiniteKernel.exists_univ_le (κ := κ)
-apply (integrable_const C.toReal).mono'
-· exact κ.measurable_coe hs |>.ennreal_toReal.aestronglyMeasurable
-simp_rw [Real.norm_eq_abs, abs_eq_self.mpr ENNReal.toReal_nonneg, ENNReal.toReal_le_toReal
-  (measure_ne_top _ _) (lt_top_iff_ne_top.mp hC_finite)]
-exact .of_forall <| fun x ↦ (κ x).mono s.subset_univ |>.trans (hC_le x)
+  obtain ⟨C, ⟨hC_finite, hC_le⟩⟩ := IsFiniteKernel.exists_univ_le (κ := κ)
+  apply (integrable_const C.toReal).mono'
+  · exact κ.measurable_coe hs |>.ennreal_toReal.aestronglyMeasurable
+  simp_rw [Real.norm_eq_abs, abs_eq_self.mpr ENNReal.toReal_nonneg, ENNReal.toReal_le_toReal
+    (measure_ne_top _ _) (lt_top_iff_ne_top.mp hC_finite)]
+  exact .of_forall <| fun x ↦ (κ x).mono s.subset_univ |>.trans (hC_le x)
 
 lemma Measure.rnDeriv_measure_compProd_Kernel_withDensity [CountableOrCountablyGenerated α β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
@@ -248,8 +238,8 @@ lemma Measure.rnDeriv_measure_compProd_Kernel_withDensity [CountableOrCountablyG
     · exact κ'.measurable_rnDeriv _
     · exact κ.measurable_rnDeriv _
     · exact fun a ↦ η.rnDeriv_withDensity (κ.measurable_rnDeriv _) a
-  filter_upwards [κ.rnDeriv_measure_compProd μ ν η,
-      κ'.rnDeriv_measure_compProd μ ν η, h_ae] with p h1 h2 h3
+  filter_upwards [rnDeriv_measure_compProd μ ν κ η,
+      rnDeriv_measure_compProd μ ν κ' η, h_ae] with p h1 h2 h3
   rw [h1, h2, h3]
 
 end ProbabilityTheory

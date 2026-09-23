@@ -56,7 +56,7 @@ Apply Lemma~\ref{lem:rnDeriv_unique}.
 
 \begin{lemma}
   \label{lem:ac_compProd_iff}
-  \lean{MeasureTheory.Measure.absolutelyContinuous_compProd_of_compProd,MeasureTheory.Measure.absolutelyContinuous_compProd_of_compProd',MeasureTheory.Measure.absolutelyContinuous_of_compProd}
+  \lean{MeasureTheory.Measure.absolutelyContinuous_compProd_of_compProd, MeasureTheory.Measure.absolutelyContinuous_of_compProd}
   \leanok
   \uses{lem:kernel_properties}
   Let $\mu, \nu$ be two $\sigma$-finite measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two s-finite kernels. Then
@@ -157,7 +157,7 @@ Hence for $\mu$-almost all $x$, $\kappa(x)(\{y \mid (x, y) \in s\}) = 0$. Simila
 
 \begin{lemma}
   \label{lem:rnDeriv_eq_ac_left}
-  \lean{ProbabilityTheory.Kernel.todo}
+  \lean{ProbabilityTheory.rnDeriv_compProd_withDensity_rnDeriv}
   \leanok
   \uses{}
   Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels.
@@ -205,7 +205,7 @@ It suffices to show that the integrals of the two functions agree on all sets in
 
 \begin{lemma}
   \label{lem:rnDeriv_chain}
-  \lean{MeasureTheory.Measure.rnDeriv_mul_rnDeriv,MeasureTheory.Measure.rnDeriv_mul_rnDeriv'}
+  \lean{MeasureTheory.Measure.rnDeriv_mul_rnDeriv, MeasureTheory.Measure.rnDeriv_mul_rnDeriv'}
   \mathlibok
   \uses{}
   Let $\mu, \nu, \xi$ be $\sigma$-finite measures on $\mathcal X$.
@@ -246,15 +246,15 @@ Then, by Lemma~\ref{cor:rnDeriv_compProd_left}, $\frac{d (\mu \otimes \eta)}{d (
 
 \begin{lemma}
   \label{lem:rnDeriv_eq_ac}
-  \lean{ProbabilityTheory.Kernel.todo1}
-  \leanok
+  %\lean{}
+  %\leanok
   \uses{def:kernel_rnDeriv}
   Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels, with either $\mathcal X$ countable or $\mathcal{Y}$ countably generated.
   Let $\mu' = \left(\frac{\partial \mu}{\partial \nu}\right) \cdot \nu$ and $\kappa' = \left(\frac{\partial \kappa}{\partial \eta}\right) \cdot \eta$.
   Then for $(\nu \otimes \eta)$-almost all $z$, $\frac{\partial(\mu' \otimes \kappa')}{\partial (\nu \otimes \eta)}(z) = \frac{\partial(\mu \otimes \kappa)}{\partial (\nu \otimes \eta)}(z)$.
 \end{lemma}
 
-\begin{proof} \leanok
+\begin{proof} %\leanok
 \end{proof}
 
 
@@ -376,8 +376,8 @@ TODO: also show measurability.
 
 \begin{lemma}
   \label{lem:rnDeriv_comp_eq_condexp}
-  \lean{ProbabilityTheory.toReal_rnDeriv_comp_eq_condexp_compProd}
-  \leanok
+  %\lean{ProbabilityTheory.toReal_rnDeriv_comp_eq_condexp_compProd}
+  %\leanok
   \uses{}
   Let $\mu, \nu \in \mathcal M(\mathcal X)$ with $\mu \ll \nu$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be finite kernels with $\kappa(x) \ll \eta(x)$ $\nu$-a.e..
   Let $\mathcal B$ be the sigma-algebra on $\mathcal X \times \mathcal Y$ obtained by taking the comap of the sigma-algebra of $\mathcal Y$ by the projection.
@@ -406,8 +406,8 @@ By Lemma~\ref{lem:rnDeriv_map_eq_condexp}, $(\nu \otimes \eta)$-almost everywher
 
 \begin{lemma}[\cite{csiszar1963informationstheoretische}]
   \label{lem:rnDeriv_comp_eq_condexp_right}
-  \lean{ProbabilityTheory.toReal_rnDeriv_comp}
-  \leanok
+  %\lean{ProbabilityTheory.toReal_rnDeriv_comp}
+  %\leanok
   \uses{}
   Let $\mu, \nu \in \mathcal M(\mathcal X)$ with $\mu \ll \nu$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a finite kernel.
   Let $\mathcal B$ be the sigma-algebra on $\mathcal X \times \mathcal Y$ obtained by taking the comap of the sigma-algebra of $\mathcal Y$ by the projection.
@@ -438,7 +438,7 @@ For $\mathcal A$ a sub-$\sigma$-algebra and $\mu$ a measure, we write $\mathcal 
 
 \begin{lemma}
   \label{lem:rnDeriv_trim_of_ac}
-  \lean{MeasureTheory.Measure.toReal_rnDeriv_trim_of_ac}
+  \lean{MeasureTheory.toReal_rnDeriv_trim}
   \leanok
   %\uses{}
   Let $\mu, \nu$ be two finite measures on $\mathcal X$ with $\mu \ll \nu$ and let $\mathcal A$ be a sub-$\sigma$-algebra of $\mathcal X$.

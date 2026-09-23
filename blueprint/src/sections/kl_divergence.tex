@@ -2,7 +2,7 @@
 
 \begin{definition}[Kullback-Leibler divergence]
   \label{def:KL}
-  \lean{ProbabilityTheory.kl}
+  \lean{InformationTheory.klDiv}
   \leanok
   %\uses{}
   Let $\mu, \nu$ be two measures on $\mathcal X$. The Kullback-Leibler divergence between $\mu$ and $\nu$ is
@@ -15,7 +15,7 @@
 
 \begin{lemma}
   \label{lem:kl_eq_fDiv}
-  \lean{ProbabilityTheory.kl_eq_fDiv}
+  \lean{ProbabilityTheory.klDiv_eq_fDiv}
   \leanok
   \uses{def:KL, def:fDiv, lem:fDiv_properties}
   $\KL(\mu, \nu) = D_f(\mu, \nu)$ for $f: x \mapsto x \log x$.
@@ -41,7 +41,7 @@ Simple computation.
 
 \begin{lemma}
   \label{lem:condKL_eq_condFDiv}
-  \lean{ProbabilityTheory.kl_eq_fDiv}
+  \lean{ProbabilityTheory.klDiv_eq_fDiv}
   \leanok
   \uses{def:condKL, def:condFDiv, lem:condFDiv_properties}
   $\KL(\kappa, \eta \mid \mu) = D_f(\kappa, \eta \mid \mu)$ for $f: x \mapsto x \log x$.
@@ -59,7 +59,7 @@ Since $\KL$ is an f-divergence, every inequality for f-divergences can be transl
 
 \begin{lemma}
   \label{lem:kl_self}
-  \lean{ProbabilityTheory.kl_self}
+  \lean{InformationTheory.klDiv_self}
   \leanok
   \uses{def:KL}
   $\KL(\mu, \mu) = 0$.
@@ -87,7 +87,7 @@ Since $\KL$ is an f-divergence, every inequality for f-divergences can be transl
 
 \begin{theorem}[Marginals]
   \label{thm:kl_fst_le}
-  \lean{ProbabilityTheory.kl_fst_le, ProbabilityTheory.kl_snd_le}
+  \lean{ProbabilityTheory.klDiv_fst_le, ProbabilityTheory.klDiv_snd_le}
   \leanok
   \uses{def:KL}
   Let $\mu$ and $\nu$ be two measures on $\mathcal X \times \mathcal Y$, and let $\mu_X, \nu_X$ be their marginals on $\mathcal X$.
@@ -103,7 +103,7 @@ Apply Theorem~\ref{thm:fDiv_fst_le_2}.
 
 \begin{theorem}[Data-processing]
   \label{thm:kl_data_proc}
-  \lean{ProbabilityTheory.kl_comp_right_le}
+  \lean{InformationTheory.klDiv_comp_right_le}
   \leanok
   \uses{def:KL}
   Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
@@ -118,7 +118,7 @@ Apply Theorem~\ref{thm:fDiv_data_proc_2}.
 
 \begin{lemma}
   \label{lem:kl_ge}
-  \lean{ProbabilityTheory.kl_ge_mul_log}
+  \lean{InformationTheory.mul_log_le_klDiv}
   \leanok
   \uses{def:KL}
   Let $\mu, \nu$ be two finite measures on $\mathcal X$. Then $\KL(\mu, \nu) \ge \mu(\mathcal X) \log \frac{\mu(\mathcal X)}{\nu(\mathcal X)}$.
@@ -131,7 +131,7 @@ Apply Theorem~\ref{thm:fDiv_data_proc_2}.
 
 \begin{lemma}[Gibbs' inequality]
   \label{lem:kl_nonneg}
-  \lean{ProbabilityTheory.kl_nonneg}
+  %\lean{}
   \leanok
   \uses{def:KL}
   Let $\mu, \nu$ be two probability measures. Then $\KL(\mu, \nu) \ge 0$.
@@ -145,7 +145,7 @@ Apply Lemma~\ref{lem:kl_ge} and use $\mu(\mathcal X) = \nu (\mathcal X)$.
 
 \begin{lemma}[Converse Gibbs' inequality]
   \label{lem:kl_eq_zero_iff}
-  \lean{ProbabilityTheory.kl_eq_zero_iff'}
+  \lean{InformationTheory.klDiv_eq_zero_iff}
   \leanok
   \uses{def:KL}
   Let $\mu, \nu$ be two probability measures. Then $\KL(\mu, \nu) = 0$ if and only if $\mu = \nu$.
@@ -261,7 +261,7 @@ We use the chain rule for Radon-Nikodym derivatives (Theorem~\ref{thm:rnDeriv_ch
 
 \begin{theorem}[Chain rule, kernel version]
   \label{thm:kl_compProd}
-  \lean{ProbabilityTheory.kl_compProd}
+  \lean{ProbabilityTheory.klDiv_compProd_eq_add_condKL}
   \leanok
   \uses{def:KL, def:condKL}
   Let $\mu, \nu$ be two finite measures on $\mathcal X$ and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ two Markov kernels, with either $\mathcal X$ countable or $\mathcal{Y}$ countably generated.
@@ -313,7 +313,7 @@ For the case where $\mu \otimes \kappa \ll \nu \otimes \eta$ and $p \mapsto \log
 
 \begin{theorem}[Chain rule, product version]
   \label{thm:kl_fst_add_condKL}
-  \lean{ProbabilityTheory.kl_fst_add_condKL}
+  \lean{ProbabilityTheory.klDiv_fst_add_condKL}
   \leanok
   \uses{def:KL, def:condKL}
   Let $\mu, \nu$ be two finite measures on $\mathcal X \times \mathcal Y$, where $\mathcal Y$ is standard Borel.
@@ -328,7 +328,7 @@ Write $\mu = \mu_X \otimes \mu_{Y|X}$ and $\nu = \nu_X \otimes \nu_{Y|X}$, then 
 
 \begin{lemma}
   \label{lem:kl_prod_two'}
-  \lean{ProbabilityTheory.kl_prod_two'}
+  \lean{ProbabilityTheory.klDiv_prod_two'}
   \leanok
   \uses{def:KL}
   Let $\mu_1, \nu_1$ be finite measures on $\mathcal X$ and $\mu_2, \nu_2$ probability measures on $\mathcal{Y}$. Then
@@ -343,7 +343,7 @@ Write $\mu_1 \times \mu_2$ and $\nu_1 \times \nu_2$ as composition products of a
 
 \begin{theorem}[Tensorization]
   \label{thm:kl_prod_two}
-  \lean{ProbabilityTheory.kl_prod_two}
+  \lean{ProbabilityTheory.klDiv_prod_two}
   \leanok
   \uses{def:KL}
   For $\mu_1$ a probability measure on $\mathcal X$, $\nu_1$ a finite measure on $\mathcal{X}$ and $\mu_2, \nu_2$ two probability measures on $\mathcal Y$,
@@ -360,7 +360,7 @@ This is a particular case of Lemma~\ref{lem:kl_prod_two'}.
 
 \begin{theorem}[Tensorization - finite product]
   \label{thm:kl_pi}
-  \lean{ProbabilityTheory.kl_pi}
+  \lean{ProbabilityTheory.klDiv_pi}
   \leanok
   \uses{def:KL}
   Let $I$ be a finite index set. Let $(\mu_i)_{i \in I}, (\nu_i)_{i \in I}$ be probability measures on spaces $(\mathcal X_i)_{i \in I}$. Then

@@ -7,16 +7,13 @@ import TestingLowerBounds.Divergences.Chernoff
 import TestingLowerBounds.Testing.ChangeMeasure
 
 /-!
-
 # Change of measure inequalities involving Rényi divergences
-
-## Main definitions
-
-* `FooBar`
 
 ## Main statements
 
-* `fooBar_unique`
+* `measure_sub_le_measure_mul_exp_renyiDiv`, `one_sub_exp_le_add_measure_mul_exp_max_renyiDiv`:
+  change of measure inequalities in which the log-likelihood ratio is controlled through
+  a Rényi divergence.
 
 -/
 
@@ -28,17 +25,17 @@ namespace ProbabilityTheory
 
 variable {α : Type*} {mα : MeasurableSpace α} {μ ν ν' : Measure α} {s : Set α}
 
-lemma measure_llr_gt_renyiDiv_le_exp [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    {a : ℝ} (ha : 0 < a) (c : ℝ) (h : renyiDiv (1 + a) μ ν ≠ ⊤) :
-    (μ {x | EReal.toReal (renyiDiv (1 + a) μ ν) + c < llr μ ν x}).toReal ≤ exp (-a * c) := by
+lemma measure_llr_gt_renyiDiv_le_exp [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
+    {a : ℝ} (ha : 0 < a) (c : ℝ) (h : renyiDiv (1 + a) μ ν ≠ ∞) :
+    (μ {x | (renyiDiv (1 + a) μ ν).toReal + c < llr μ ν x}).toReal ≤ exp (-a * c) := by
   have hμν : μ ≪ ν := by
     by_contra h_not
     exact h (renyiDiv_of_one_le_of_not_ac (by linarith) h_not)
   rw [renyiDiv_ne_top_iff_of_one_lt (by linarith)] at h
-  calc (μ {x | EReal.toReal (renyiDiv (1 + a) μ ν) + c < llr μ ν x}).toReal
-  _ ≤ (μ {x | EReal.toReal (renyiDiv (1 + a) μ ν) + c ≤ llr μ ν x}).toReal := by
+  calc (μ {x | (renyiDiv (1 + a) μ ν).toReal + c < llr μ ν x}).toReal
+  _ ≤ (μ {x | (renyiDiv (1 + a) μ ν).toReal + c ≤ llr μ ν x}).toReal := by
         refine ENNReal.toReal_mono (measure_ne_top _ _) (measure_mono (fun x ↦ ?_))
-        simp only [Set.mem_setOf_eq]
+        simp only [Set.mem_ofPred_eq]
         exact le_of_lt
   _ ≤ exp (-a * ((renyiDiv (1 + a) μ ν).toReal + c) + cgf (llr μ ν) μ a) := by
         refine measure_ge_le_exp_cgf (X := llr μ ν) (μ := μ) ((renyiDiv (1 + a) μ ν).toReal + c)
@@ -47,12 +44,12 @@ lemma measure_llr_gt_renyiDiv_le_exp [IsFiniteMeasure μ] [IsFiniteMeasure ν]
         · rw [integrable_rpow_rnDeriv_iff hμν ha]
           exact h.1
   _ = exp (-a * c) := by
-        congr
         rw [cgf_llr' ha h.1 h.2]
+        congr 1
         ring
 
-lemma measure_sub_le_measure_mul_exp_renyiDiv [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (s : Set α) {a : ℝ} (ha : 0 < a) (c : ℝ) (h : renyiDiv (1 + a) μ ν ≠ ⊤) :
+lemma measure_sub_le_measure_mul_exp_renyiDiv [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
+    (s : Set α) {a : ℝ} (ha : 0 < a) (c : ℝ) (h : renyiDiv (1 + a) μ ν ≠ ∞) :
     (μ s).toReal - exp (- a * c) ≤ (ν s).toReal * exp ((renyiDiv (1 + a) μ ν).toReal + c) := by
   have hμν : μ ≪ ν := by
     by_contra h_not
@@ -63,9 +60,9 @@ lemma measure_sub_le_measure_mul_exp_renyiDiv [IsFiniteMeasure μ] [IsFiniteMeas
   exact measure_llr_gt_renyiDiv_le_exp ha c h
 
 lemma one_sub_exp_le_add_measure_mul_exp_max_renyiDiv [IsProbabilityMeasure μ]
-    [IsFiniteMeasure ν] [IsFiniteMeasure ν'] (s : Set α)
+    [IsProbabilityMeasure ν] [IsProbabilityMeasure ν'] (s : Set α)
     {a : ℝ} (ha : 0 < a) (c : ℝ)
-    (hν : renyiDiv (1 + a) μ ν ≠ ⊤) (hν' : renyiDiv (1 + a) μ ν' ≠ ⊤) :
+    (hν : renyiDiv (1 + a) μ ν ≠ ⊤) (hν' : renyiDiv (1 + a) μ ν' ≠ ∞) :
     1 - 2 * exp (- a * c)
       ≤ ((ν s).toReal + (ν' sᶜ).toReal)
         * exp (max (renyiDiv (1 + a) μ ν).toReal (renyiDiv (1 + a) μ ν').toReal + c) := by
@@ -90,8 +87,8 @@ lemma one_sub_exp_le_add_measure_mul_exp_max_renyiDiv [IsProbabilityMeasure μ]
         rw [max_add_add_right]
 
 lemma exp_neg_max_renyiDiv_le_add_measure [IsProbabilityMeasure μ]
-    [IsFiniteMeasure ν] [IsFiniteMeasure ν'] (s : Set α)
-    {a : ℝ} (ha : 0 < a) (hν : renyiDiv (1 + a) μ ν ≠ ⊤) (hν' : renyiDiv (1 + a) μ ν' ≠ ⊤) :
+    [IsProbabilityMeasure ν] [IsProbabilityMeasure ν'] (s : Set α)
+    {a : ℝ} (ha : 0 < a) (hν : renyiDiv (1 + a) μ ν ≠ ∞) (hν' : renyiDiv (1 + a) μ ν' ≠ ∞) :
     2⁻¹ * exp (- max (renyiDiv (1 + a) μ ν).toReal (renyiDiv (1 + a) μ ν').toReal - log 4 / a)
       ≤ (ν s).toReal + (ν' sᶜ).toReal := by
   have h := one_sub_exp_le_add_measure_mul_exp_max_renyiDiv s ha (log 4 / a) hν hν'

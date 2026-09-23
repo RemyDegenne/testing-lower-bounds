@@ -34,8 +34,8 @@
 
 \begin{lemma}
   \label{lem:hellingerAlpha_eq_integral}
-  \lean{ProbabilityTheory.hellingerDiv_eq_integral_of_ne_top''}
-  \leanok
+  %\lean{}
+  %\leanok
   \uses{def:hellingerAlpha}
   For $\alpha \in (0,1)\cup(1, \infty)$, $\mu$ a finite measure and $\nu$ a probability measure, if $\He_\alpha(\mu, \nu) < \infty$ then
   \begin{align*}
@@ -44,7 +44,7 @@
   \end{align*}
 \end{lemma}
 
-\begin{proof}\leanok
+\begin{proof}%\leanok
 \uses{}
 \end{proof}
 
@@ -78,10 +78,10 @@
 
 \begin{lemma}
   \label{lem:hellingerAlpha_symm}
-  \lean{ProbabilityTheory.hellingerDiv_symm'}
+  \lean{ProbabilityTheory.hellingerDiv_symm}
   \leanok
   \uses{def:hellingerAlpha}
-  For $\alpha \in (0, 1)$ and finite measures $\mu, \nu$ with $\mu(\mathcal X) = \nu(\mathcal X)$, $(1 - \alpha) \He_\alpha(\mu, \nu) = \alpha \He_{1 - \alpha}(\nu, \mu)$.
+  For $\alpha \in (0, 1)$ and finite measures $\mu, \nu$, $(1 - \alpha) \He_\alpha(\mu, \nu) = \alpha \He_{1 - \alpha}(\nu, \mu)$.
 \end{lemma}
 
 \begin{proof}\leanok
@@ -124,7 +124,7 @@ Apply Theorem~\ref{thm:fDiv_data_proc_2}.
 
 \begin{lemma}
   \label{lem:hellingerAlpha_nonneg}
-  \lean{ProbabilityTheory.hellingerDiv_nonneg}
+  %\lean{}
   \leanok
   \uses{def:hellingerAlpha}
   Let $\mu, \nu$ be two probability measures. Then $\He_\alpha(\mu, \nu) \ge 0$.

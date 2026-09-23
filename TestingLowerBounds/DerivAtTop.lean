@@ -7,20 +7,19 @@ import TestingLowerBounds.ForMathlib.EReal
 import TestingLowerBounds.ForMathlib.LeftRightDeriv
 
 /-!
-
-# DerivAtTop
+# Derivative at infinity of a real function
 
 ## Main definitions
 
-* `FooBar`
+* `derivAtTop f`: the limit at `+∞` of the right derivative of `f : ℝ → ℝ`, as an `EReal`.
+  It is defined as a `limsup`, so that it is always defined.
 
 ## Main statements
 
-* `fooBar_unique`
-
-## Notation
-
-## Implementation details
+* `MonotoneOn.tendsto_derivAtTop`, `ConvexOn.tendsto_derivAtTop`: for a function with monotone right
+  derivative (in particular a convex function), the right derivative tends to `derivAtTop f`.
+* `slope_le_derivAtTop`, `le_add_derivAtTop`: for a convex function, slopes are bounded by
+  `derivAtTop f`, hence `f y ≤ f x + derivAtTop f * (y - x)`.
 
 -/
 
@@ -41,7 +40,7 @@ lemma EReal.tendsto_of_monotoneOn {ι : Type*} [SemilatticeSup ι] [Nonempty ι]
     refine ⟨y, ?_⟩
     refine (tendsto_congr' ?_).mp hy
     rw [EventuallyEq, eventually_atTop]
-    exact ⟨x, fun z hz ↦ if_pos hz⟩
+    exact ⟨x, fun z hz ↦ ite_eq_left hz⟩
   refine EReal.tendsto_of_monotone (fun y z hyz ↦ ?_)
   split_ifs with hxy hxz hxz
   · exact hf hxy hxz hyz
@@ -63,7 +62,7 @@ lemma ite_bot_ae_eq_atTop (f : ℝ → EReal) :
 lemma MonotoneOn.monotone_ite_bot (hf : MonotoneOn (rightDeriv f) (Ioi 0)) :
     Monotone (fun x ↦ if 1 ≤ x then (rightDeriv f x : EReal) else ⊥) := by
   intro x y hxy
-  cases le_or_lt 1 x with
+  cases le_or_gt 1 x with
   | inl hx =>
     simp only [hx, hx.trans hxy, ↓reduceIte]
     norm_cast
@@ -111,7 +110,7 @@ lemma derivAtTop_of_tendsto_atTop (h : Tendsto (rightDeriv f) atTop atTop) :
     derivAtTop f = ⊤ := by
   refine derivAtTop_of_tendsto ?_
   rw [EReal.tendsto_nhds_top_iff_real]
-  simp only [EReal.coe_lt_coe_iff, eventually_atTop, ge_iff_le]
+  simp only [EReal.coe_lt_coe_iff, eventually_atTop]
   rw [tendsto_atTop_atTop] at h
   intro x
   obtain ⟨a, ha⟩ := h (x + 1)
@@ -195,8 +194,7 @@ lemma derivAtTop_add' (hf_cvx : ConvexOn ℝ (Ici 0) f) (hg_cvx : ConvexOn ℝ (
     refine (tendsto_congr' ?_).mp this
     rw [EventuallyEq, eventually_atTop]
     refine ⟨1, fun x hx ↦ ?_⟩
-    change _ = ↑(rightDeriv (fun x ↦ f x + g x) x)
-    rw [rightDeriv_add_apply' (hf_cvx.differentiableWithinAt_Ioi' (zero_lt_one.trans_le hx))
+    rw [rightDeriv_add_apply (hf_cvx.differentiableWithinAt_Ioi' (zero_lt_one.trans_le hx))
         (hg_cvx.differentiableWithinAt_Ioi' (zero_lt_one.trans_le hx))]
     simp only [EReal.coe_add]
   have h_cont : ContinuousAt (fun p : (EReal × EReal) ↦ p.1 + p.2) (derivAtTop f, derivAtTop g) :=
@@ -205,7 +203,7 @@ lemma derivAtTop_add' (hf_cvx : ConvexOn ℝ (Ici 0) f) (hg_cvx : ConvexOn ℝ (
   change Tendsto ((fun p : (EReal × EReal) ↦ p.1 + p.2)
       ∘ (fun x ↦ (↑(rightDeriv f x), ↑(rightDeriv g x))))
     atTop (𝓝 (derivAtTop f + derivAtTop g))
-  exact h_cont.tendsto.comp (hf_cvx.tendsto_derivAtTop.prod_mk_nhds hg_cvx.tendsto_derivAtTop)
+  exact h_cont.tendsto.comp (hf_cvx.tendsto_derivAtTop.prodMk_nhds hg_cvx.tendsto_derivAtTop)
 
 lemma derivAtTop_add (hf_cvx : ConvexOn ℝ (Ici 0) f) (hg_cvx : ConvexOn ℝ (Ici 0) g) :
     derivAtTop (fun x ↦ f x + g x) = derivAtTop f + derivAtTop g := derivAtTop_add' hf_cvx hg_cvx
@@ -233,19 +231,19 @@ lemma derivAtTop_const_mul (hf_cvx : ConvexOn ℝ (Ici 0) f) {c : ℝ} (hc : c �
   swap; · simp only [ne_eq, EReal.coe_eq_zero]; exact hc
   change Tendsto ((fun p : (EReal × EReal) ↦ p.1 * p.2) ∘ (fun x ↦ (↑c, ↑(rightDeriv f x))))
     atTop (𝓝 (↑c * derivAtTop f))
-  exact h_cont.tendsto.comp (tendsto_const_nhds.prod_mk_nhds hf_cvx.tendsto_derivAtTop)
+  exact h_cont.tendsto.comp (tendsto_const_nhds.prodMk_nhds hf_cvx.tendsto_derivAtTop)
 
 lemma slope_le_rightDeriv (h_cvx : ConvexOn ℝ (Ici 0) f) {x y : ℝ} (hx : 0 ≤ x) (hxy : x < y) :
     (f y - f x) / (y - x) ≤ rightDeriv f y := by
   rw [h_cvx.rightDeriv_eq_sInf_slope' (hx.trans_lt hxy)]
-  refine le_csInf nonempty_of_nonempty_subtype (fun b hb ↦ ?_)
+  refine le_csInf Set.Nonempty.of_subtype (fun b hb ↦ ?_)
   obtain ⟨z, hyz, rfl⟩ := hb
   simp only [mem_Ioi] at hyz
   rw [← slope_def_field, slope_comm]
   refine h_cvx.slope_mono (hx.trans hxy.le) ?_ ?_ (hxy.trans hyz).le
-  · simp only [mem_diff, mem_Ici, mem_singleton_iff]
+  · simp only [Set.mem_sdiff, mem_Ici, mem_singleton_iff]
     exact ⟨hx, hxy.ne⟩
-  · simp only [mem_diff, mem_Ici, mem_singleton_iff]
+  · simp only [Set.mem_sdiff, mem_Ici, mem_singleton_iff]
     exact ⟨(hx.trans hxy.le).trans hyz.le, hyz.ne'⟩
 
 lemma rightDeriv_le_toReal_derivAtTop (h_cvx : ConvexOn ℝ (Ici 0) f) (h : derivAtTop f ≠ ⊤)
@@ -306,7 +304,7 @@ lemma toReal_le_add_derivAtTop (hf_cvx : ConvexOn ℝ (Ici 0) f) {a b : ENNReal}
   · rw [hf_top]
     by_cases hb_zero : b = 0
     · simp [hb_zero]
-    · rw [EReal.top_mul_ennreal_coe hb_zero, EReal.coe_add_top]
+    · rw [EReal.top_mul_coe_ennreal hb_zero, EReal.coe_add_top]
       exact le_top
   · have h_le : a.toReal ≤ (a + b).toReal := by
       gcongr

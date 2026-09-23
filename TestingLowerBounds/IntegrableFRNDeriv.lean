@@ -5,8 +5,8 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import TestingLowerBounds.Convex
 import TestingLowerBounds.DerivAtTop
-import TestingLowerBounds.ForMathlib.Integrable
 import TestingLowerBounds.ForMathlib.RnDeriv
+import Mathlib.MeasureTheory.Measure.Decomposition.IntegralRNDeriv
 
 /-!
 # An integrability lemma

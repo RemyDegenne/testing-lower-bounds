@@ -7,20 +7,14 @@ import Mathlib.Analysis.InnerProductSpace.Basic
 import TestingLowerBounds.ForMathlib.LeftRightDeriv
 
 /-!
-
 # Properties of convex functions
-
-## Main definitions
-
-* `FooBar`
 
 ## Main statements
 
-* `fooBar_unique`
-
-## Notation
-
-## Implementation details
+* `ConvexOn.affine_le_of_mem_interior`: a convex function is above its tangent line (with slope
+  the right derivative) at any interior point of its domain.
+* `ConvexOn.exists_affine_le`: a convex function on a convex set is bounded below by an affine
+  function.
 
 -/
 
@@ -32,21 +26,43 @@ variable {f g : ℝ → ℝ} {s : Set ℝ} {x : ℝ}
 
 namespace ConvexOn
 
+-- maybe this could be called `affine_rightDeriv_le_of_mem_interior` and the next lemma
+-- `affine_leftDeriv_le_of_mem_interior`
 lemma affine_le_of_mem_interior (hf : ConvexOn ℝ s f) {x y : ℝ} (hx : x ∈ interior s) (hy : y ∈ s) :
     rightDeriv f x * y + (f x - rightDeriv f x * x) ≤ f y := by
   rw [add_comm]
   rcases lt_trichotomy x y with hxy | h_eq | hyx
-  · have : rightDeriv f x ≤ slope f x y := rightDeriv_le_slope hf hx hy hxy
+  · have : rightDeriv f x ≤ slope f x y := rightDeriv_le_slope_of_mem_interior hf hx hy hxy
     rw [slope_def_field] at this
     rwa [le_div_iff₀ (by simp [hxy]), le_sub_iff_add_le, add_comm, mul_sub, add_sub,
       add_sub_right_comm] at this
   · simp [h_eq]
-  · have : slope f x y ≤ rightDeriv f x :=
-      (slope_le_leftDeriv hf hx hy hyx).trans (leftDeriv_le_rightDeriv_of_mem_interior hf hx)
+  · have : slope f x y ≤ rightDeriv f x := by
+      rw [slope_comm]
+      exact (slope_le_leftDeriv_of_mem_interior hf hy hx hyx).trans
+        (leftDeriv_le_rightDeriv_of_mem_interior hf hx)
     rw [slope_def_field] at this
     rw [← neg_div_neg_eq, neg_sub, neg_sub] at this
     rwa [div_le_iff₀ (by simp [hyx]), sub_le_iff_le_add, mul_sub, ← sub_le_iff_le_add',
       sub_sub_eq_add_sub, add_sub_right_comm] at this
+
+lemma affine_le_of_mem_interior' (hf : ConvexOn ℝ s f) {x y : ℝ} (hx : x ∈ interior s)
+    (hy : y ∈ s) :
+    leftDeriv f x * y + (f x - leftDeriv f x * x) ≤ f y := by
+  rw [add_comm]
+  rcases lt_trichotomy x y with hxy | h_eq | hyx
+  · have : leftDeriv f x ≤ slope f x y :=
+      (leftDeriv_le_rightDeriv_of_mem_interior hf hx).trans
+        (rightDeriv_le_slope_of_mem_interior hf hx hy hxy)
+    rwa [slope_def_field, le_div_iff₀ (by simp [hxy]), le_sub_iff_add_le, add_comm, mul_sub,
+      add_sub, add_sub_right_comm] at this
+  · simp [h_eq]
+  · have : slope f x y ≤ leftDeriv f x := by
+      rw [slope_comm]
+      exact slope_le_leftDeriv_of_mem_interior hf hy hx hyx
+    rwa [slope_def_field, ← neg_div_neg_eq, neg_sub, neg_sub, div_le_iff₀ (by simp [hyx]),
+      sub_le_iff_le_add, mul_sub, ← sub_le_iff_le_add', sub_sub_eq_add_sub,
+      add_sub_right_comm] at this
 
 lemma _root_.Convex.subsingleton_of_interior_eq_empty (hs : Convex ℝ s) (h : interior s = ∅) :
     s.Subsingleton := by

@@ -1,10 +1,24 @@
-import Mathlib.Algebra.Order.Field.Defs
+/-
+Copyright (c) 2024 Rémy Degenne. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Rémy Degenne, Lorenzo Luccioli
+-/
+import Mathlib.Tactic.Basic
+import Mathlib.Tactic.Bound.Init
+import Mathlib.Util.CompileInductive
 import Mathlib.Algebra.Order.Group.Unbundled.Abs
 import Mathlib.Tactic.Ring.RingNF
+import Mathlib.Algebra.Order.Monoid.Unbundled.MinMax
+import Mathlib.Algebra.Order.Ring.Defs
+
+/-! # `max` and `min` in terms of the absolute value
+
+`max a b = 2⁻¹ * (a + b + |a - b|)` and `min a b = 2⁻¹ * (a + b - |a - b|)`.
+-/
 
 --PR this to mathlib
 --the hp LinearOrderedField may not be optimal
-variable {α : Type*} [LinearOrderedField α]
+variable {α : Type*} [Field α] [LinearOrder α] [IsStrictOrderedRing α]
 
 lemma max_eq_add_add_abs_sub (a b : α) : max a b = 2⁻¹  * (a + b + |a - b|) := by
   rw [← max_add_min a, ← max_sub_min_eq_abs', add_sub_left_comm, add_sub_cancel_right]

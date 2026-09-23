@@ -295,7 +295,7 @@ TODO: find a way to hide the following dummy lemma
 
 \begin{definition}
   \label{def:bayesInv}
-  \lean{ProbabilityTheory.bayesInv}
+  \lean{ProbabilityTheory.posterior}
   \leanok
   \uses{lem:kernel_properties}
   For $\mu \in \mathcal M(\mathcal X)$ and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$, a Bayesian inverse of $\kappa$ is a Markov kernel $\kappa_\mu^\dagger : \mathcal Y \rightsquigarrow \mathcal X$ such that $\mu \otimes \kappa = ((\kappa \circ \mu) \otimes \kappa_\mu^\dagger)_\leftrightarrow$ in which $(\cdot)_\leftrightarrow$ denotes swapping the two coordinates.
@@ -326,7 +326,7 @@ See \cite{clerc2017pointless} and \cite{dahlqvist2018borel} for a category theor
 
 \begin{lemma}[a.e.-uniqueness of the Bayesian inverse]
   \label{lem:eq_bayesInv_of_compProd_eq}
-  \lean{ProbabilityTheory.eq_bayesInv_of_compProd_eq}
+  \lean{ProbabilityTheory.ae_eq_posterior_of_compProd_eq}
   \leanok
   \uses{def:bayesInv}
   Let $\mu \in \mathcal M(\mathcal X)$ be a finite measure and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a finite kernel.
@@ -341,7 +341,7 @@ TODO: uniqueness of the conditional kernel.
 
 \begin{lemma}
   \label{lem:bayesInv_comp_self}
-  \lean{ProbabilityTheory.bayesInv_comp_self}
+  \lean{ProbabilityTheory.posterior_comp_self}
   \leanok
   \uses{def:bayesInv}
   For $\mu \in \mathcal M(\mathcal X)$ s-finite, $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ a Markov kernel and $\kappa_\mu^\dagger$ the Bayesian inverse of $\kappa$ with respect to $\mu$, these objects satisfy the equality $\kappa_\mu^\dagger \circ \kappa \circ \mu = \mu$.
@@ -355,7 +355,7 @@ The measure $\kappa_\mu^\dagger \circ (\kappa \circ \mu)$ is the projection on $
 
 \begin{lemma}
   \label{lem:bayesInv_self}
-  \lean{ProbabilityTheory.bayesInv_bayesInv}
+  \lean{ProbabilityTheory.posterior_posterior}
   \leanok
   \uses{def:bayesInv}
   For $\mathcal X$ and $\mathcal Y$ two standard Borel spaces, $\mu \in \mathcal M(\mathcal X)$ s-finite and $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ a Markov kernel, $(\kappa_\mu^\dagger)_{\kappa \circ \mu}^\dagger = \kappa$ ($\mu$-a.e.).
@@ -371,7 +371,7 @@ This is true by definition of $\kappa_\mu^\dagger$~.
 
 \begin{lemma}
   \label{lem:bayesInv_id}
-  \lean{ProbabilityTheory.bayesInv_id}
+  \lean{ProbabilityTheory.posterior_id}
   \leanok
   \uses{def:bayesInv}
   Let $\mu \in \mathcal M (\mathcal X)$ and let $\textup{id} : \mathcal X \rightsquigarrow \mathcal X$ be the identity kernel. Then $\textup{id}_\mu^\dagger = \textup{id}$.
@@ -385,7 +385,7 @@ It suffices to show that $\mu \otimes \textup{id} = ((\textup{id} \circ \mu) \ot
 
 \begin{lemma}
   \label{lem:bayesInv_comp}
-  \lean{ProbabilityTheory.bayesInv_comp}
+  \lean{ProbabilityTheory.posterior_comp}
   \leanok
   \uses{def:bayesInv,def:kernel_comp}
   Let $\mu \in \mathcal M(\mathcal X)$, $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ and $\eta : \mathcal Y \rightsquigarrow \mathcal Z$. Then $(\eta \circ \kappa \circ \mu)$-a.e.,

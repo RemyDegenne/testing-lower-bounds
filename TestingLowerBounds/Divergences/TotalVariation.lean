@@ -11,27 +11,14 @@ import TestingLowerBounds.Divergences.StatInfo.StatInfo
 
 ## Main definitions
 
-* `FooBar`
+* `tv μ ν`: the total variation distance between `μ` and `ν`, defined as the statistical
+  information `statInfo μ ν π` for the uniform prior `π` on `Bool`.
 
 ## Main statements
 
-* `fooBar_unique`
+* `tv_le`: `tv μ ν ≤ min (μ univ) (ν univ)`.
+* `tv_comp_le`: data-processing inequality.
 
-## Notation
-
-
-
-## Implementation details
-
-
-
-## References
-
-* [F. Bar, *Quuxes*][bibkey]
-
-## Tags
-
-Foobars, barfoos
 -/
 
 open MeasureTheory Bool
