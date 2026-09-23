@@ -3,15 +3,19 @@ Copyright (c) 2024 Lorenzo Luccioli. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import Mathlib.MeasureTheory.Integral.IntegrableOn
-import Mathlib.MeasureTheory.Measure.Regular
-import TestingLowerBounds.DerivAtTop
+module
+
+public import Mathlib.MeasureTheory.Integral.IntegrableOn
+public import Mathlib.MeasureTheory.Measure.Regular
+public import TestingLowerBounds.DerivAtTop
 
 /-! # The functions `statInfoFun β γ`
 
 Properties of the functions `statInfoFun β γ : ℝ → ℝ`, the building blocks of the integral
 representation of f-divergences in terms of statistical informations.
 -/
+
+@[expose] public section
 
 open MeasureTheory Set Filter Topology StieltjesFunction
 

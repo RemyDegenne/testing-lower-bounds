@@ -3,18 +3,22 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import Mathlib.MeasureTheory.Order.Group.Lattice
-import Mathlib.Probability.Kernel.Integral
-import TestingLowerBounds.FDiv.CompProd.CompProd
-import TestingLowerBounds.FDiv.Measurable
-import Mathlib.MeasureTheory.MeasurableSpace.CountablyGenerated
-import TestingLowerBounds.FDiv.DPIJensen
+module
+
+public import Mathlib.MeasureTheory.Order.Group.Lattice
+public import Mathlib.Probability.Kernel.Integral
+public import TestingLowerBounds.FDiv.CompProd.CompProd
+public import TestingLowerBounds.FDiv.Measurable
+public import Mathlib.MeasureTheory.MeasurableSpace.CountablyGenerated
+public import TestingLowerBounds.FDiv.DPIJensen
 
 /-!
 
 # Conditional f-divergence
 
 -/
+
+@[expose] public section
 
 open Real MeasureTheory Filter MeasurableSpace Set
 

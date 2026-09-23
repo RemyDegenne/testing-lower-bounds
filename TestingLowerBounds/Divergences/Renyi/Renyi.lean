@@ -3,10 +3,12 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import TestingLowerBounds.Divergences.Hellinger.Hellinger
-import Mathlib.Probability.Moments.Basic
-import Mathlib.Basic.Real.Sign
-import Mathlib.Analysis.SpecialFunctions.Log.ENNRealLog
+module
+
+public import TestingLowerBounds.Divergences.Hellinger.Hellinger
+public import Mathlib.Probability.Moments.Basic
+public import Mathlib.Basic.Real.Sign
+public import Mathlib.Analysis.SpecialFunctions.Log.ENNRealLog
 
 /-!
 # Rényi divergence
@@ -27,6 +29,8 @@ import Mathlib.Analysis.SpecialFunctions.Log.ENNRealLog
 * `renyiDiv_comp_le_compProd`, `renyiDiv_comp_right_le`: data-processing inequalities.
 
 -/
+
+@[expose] public section
 
 open Real MeasureTheory Filter MeasurableSpace InformationTheory
 

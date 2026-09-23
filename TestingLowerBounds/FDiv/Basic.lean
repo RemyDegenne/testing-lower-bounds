@@ -3,11 +3,13 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import Mathlib.Analysis.Convex.Integral
-import Mathlib.Probability.Notation
-import TestingLowerBounds.FDiv.DivFunction.OfReal
-import TestingLowerBounds.ForMathlib.RadonNikodym
-import Mathlib.MeasureTheory.Measure.Decomposition.IntegralRNDeriv
+module
+
+public import Mathlib.Analysis.Convex.Integral
+public import Mathlib.Probability.Notation
+public import TestingLowerBounds.FDiv.DivFunction.OfReal
+public import TestingLowerBounds.ForMathlib.RadonNikodym
+public import Mathlib.MeasureTheory.Measure.Decomposition.IntegralRNDeriv
 
 /-!
 # f-Divergences
@@ -38,6 +40,8 @@ The results that need derivatives or the convexity lemmas of Mathlib use the rea
 `f.realFun : ℝ → ℝ` instead.
 
 -/
+
+@[expose] public section
 
 open Real MeasureTheory Filter Set MeasurableSpace
 

@@ -3,19 +3,23 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import Mathlib.Analysis.SpecialFunctions.Log.ENNRealLogExp
-import Mathlib.MeasureTheory.Integral.Prod
-import Mathlib.Order.CompletePartialOrder
-import TestingLowerBounds.Divergences.StatInfo.StatInfo
-import TestingLowerBounds.Divergences.StatInfo.DivFunction
-import TestingLowerBounds.FDiv.Measurable
-import TestingLowerBounds.FDiv.DivFunction.CurvatureMeasure
-import TestingLowerBounds.FDiv.Basic
+module
+
+public import Mathlib.Analysis.SpecialFunctions.Log.ENNRealLogExp
+public import Mathlib.MeasureTheory.Integral.Prod
+public import Mathlib.Order.CompletePartialOrder
+public import TestingLowerBounds.Divergences.StatInfo.StatInfo
+public import TestingLowerBounds.Divergences.StatInfo.DivFunction
+public import TestingLowerBounds.FDiv.Measurable
+public import TestingLowerBounds.FDiv.DivFunction.CurvatureMeasure
+public import TestingLowerBounds.FDiv.Basic
 
 /-!
 # fDiv and StatInfo
 
 -/
+
+@[expose] public section
 
 open MeasureTheory Set
 

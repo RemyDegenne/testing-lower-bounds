@@ -3,15 +3,17 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import Mathlib.Analysis.Convex.SpecificFunctions.Pow
-import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
-import Mathlib.Analysis.SpecialFunctions.Pow.Deriv
-import Mathlib.MeasureTheory.Constructions.Polish.Basic
-import Mathlib.Probability.Notation
-import TestingLowerBounds.ForMathlib.LeftRightDeriv
-import TestingLowerBounds.ForMathlib.RnDeriv
-import TestingLowerBounds.Divergences.KullbackLeibler.KullbackLeibler
-import TestingLowerBounds.IntegrableFRNDeriv
+module
+
+public import Mathlib.Analysis.Convex.SpecificFunctions.Pow
+public import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
+public import Mathlib.Analysis.SpecialFunctions.Pow.Deriv
+public import Mathlib.MeasureTheory.Constructions.Polish.Basic
+public import Mathlib.Probability.Notation
+public import TestingLowerBounds.ForMathlib.LeftRightDeriv
+public import TestingLowerBounds.ForMathlib.RnDeriv
+public import TestingLowerBounds.Divergences.KullbackLeibler.KullbackLeibler
+public import TestingLowerBounds.IntegrableFRNDeriv
 
 /-!
 # The real function of the Hellinger divergence
@@ -42,6 +44,8 @@ How to define a `DivFunction` from a real function `f`:
 Then use `DivFunction.ofReal`.
 
 -/
+
+@[expose] public section
 
 open Real MeasureTheory Filter MeasurableSpace InformationTheory
 

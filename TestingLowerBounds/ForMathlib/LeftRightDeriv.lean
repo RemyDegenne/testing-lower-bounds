@@ -3,9 +3,11 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import Mathlib.Analysis.Calculus.Deriv.Shift
-import Mathlib.Analysis.Convex.Deriv
-import Mathlib.MeasureTheory.Measure.Stieltjes
+module
+
+public import Mathlib.Analysis.Calculus.Deriv.Shift
+public import Mathlib.Analysis.Convex.Deriv
+public import Mathlib.MeasureTheory.Measure.Stieltjes
 
 
 /-! # Left and right derivatives of convex functions
@@ -13,6 +15,8 @@ import Mathlib.MeasureTheory.Measure.Stieltjes
 Properties of `leftDeriv` and `rightDeriv` of convex functions on `ℝ`, and of the Stieltjes
 function `rightDerivStieltjes` associated to the right derivative.
 -/
+
+@[expose] public section
 
 open Set Filter Topology
 

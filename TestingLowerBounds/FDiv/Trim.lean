@@ -3,10 +3,12 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne
 -/
-import TestingLowerBounds.FDiv.Basic
-import Mathlib.InformationTheory.KullbackLeibler.DataProcessing
-import Mathlib.MeasureTheory.Function.ConditionalLExpectation
-import Mathlib.MeasureTheory.Function.ConditionalExpectation.RadonNikodym
+module
+
+public import TestingLowerBounds.FDiv.Basic
+public import Mathlib.InformationTheory.KullbackLeibler.DataProcessing
+public import Mathlib.MeasureTheory.Function.ConditionalLExpectation
+public import Mathlib.MeasureTheory.Function.ConditionalExpectation.RadonNikodym
 
 /-!
 
@@ -21,6 +23,8 @@ import Mathlib.MeasureTheory.Function.ConditionalExpectation.RadonNikodym
 * `fDiv_trim_le`: data processing inequality for f-divergences and sub-sigma-algebras
 
 -/
+
+@[expose] public section
 
 open Real MeasureTheory Filter Set
 

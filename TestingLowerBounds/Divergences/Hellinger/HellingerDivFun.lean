@@ -3,7 +3,9 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import TestingLowerBounds.Divergences.Hellinger.HellingerFun
+module
+
+public import TestingLowerBounds.Divergences.Hellinger.HellingerFun
 
 /-!
 # The divergence function of the Hellinger divergence
@@ -20,6 +22,8 @@ import TestingLowerBounds.Divergences.Hellinger.HellingerFun
   at infinity is `∞` for `1 ≤ a` and `a / (1 - a)` for `a < 1`.
 
 -/
+
+@[expose] public section
 
 open Real MeasureTheory Filter MeasurableSpace Set
 

@@ -3,16 +3,20 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
-import Mathlib.MeasureTheory.Measure.LogLikelihoodRatio
-import Mathlib.InformationTheory.KullbackLeibler.ChainRule
-import TestingLowerBounds.FDiv.CompProd.CompProd
-import TestingLowerBounds.FDiv.Measurable
+module
+
+public import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
+public import Mathlib.MeasureTheory.Measure.LogLikelihoodRatio
+public import Mathlib.InformationTheory.KullbackLeibler.ChainRule
+public import TestingLowerBounds.FDiv.CompProd.CompProd
+public import TestingLowerBounds.FDiv.Measurable
 
 /-! # Log-likelihood ratio of composition-products
 
 Integrability of the log-likelihood ratio of `μ ⊗ₘ κ` with respect to `ν ⊗ₘ η`.
 -/
+
+@[expose] public section
 
 open Real MeasureTheory MeasurableSpace
 

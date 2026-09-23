@@ -3,8 +3,10 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne
 -/
-import TestingLowerBounds.Testing.BoolMeasure
-import TestingLowerBounds.Divergences.StatInfo.StatInfo
+module
+
+public import TestingLowerBounds.Testing.BoolMeasure
+public import TestingLowerBounds.Divergences.StatInfo.StatInfo
 
 /-!
 # Total variation distance
@@ -20,6 +22,8 @@ import TestingLowerBounds.Divergences.StatInfo.StatInfo
 * `tv_comp_le`: data-processing inequality.
 
 -/
+
+@[expose] public section
 
 open MeasureTheory Bool
 

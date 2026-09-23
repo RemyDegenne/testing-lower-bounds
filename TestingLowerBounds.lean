@@ -1,52 +1,53 @@
-import TestingLowerBounds.CompProd
-import TestingLowerBounds.Convex
-import TestingLowerBounds.DerivAtTop
-import TestingLowerBounds.Divergences.Chernoff
-import TestingLowerBounds.Divergences.DeGroot
-import TestingLowerBounds.Divergences.EGamma
-import TestingLowerBounds.Divergences.Hellinger.CondHellinger
-import TestingLowerBounds.Divergences.Hellinger.Hellinger
-import TestingLowerBounds.Divergences.Hellinger.HellingerDivFun
-import TestingLowerBounds.Divergences.Hellinger.HellingerFun
-import TestingLowerBounds.Divergences.KullbackLeibler.CondKL
-import TestingLowerBounds.Divergences.KullbackLeibler.KLDivFun
-import TestingLowerBounds.Divergences.KullbackLeibler.KullbackLeibler
-import TestingLowerBounds.Divergences.Renyi.CondRenyi
-import TestingLowerBounds.Divergences.Renyi.Renyi
-import TestingLowerBounds.Divergences.StatInfo.DPI
-import TestingLowerBounds.Divergences.StatInfo.DivFunction
-import TestingLowerBounds.Divergences.StatInfo.StatInfo
-import TestingLowerBounds.Divergences.StatInfo.StatInfoFun
-import TestingLowerBounds.Divergences.StatInfo.fDivStatInfo
-import TestingLowerBounds.Divergences.TotalVariation
-import TestingLowerBounds.FDiv.Basic
-import TestingLowerBounds.FDiv.CompProd.CompProd
-import TestingLowerBounds.FDiv.CompProd.EqTopIff
-import TestingLowerBounds.FDiv.CondFDiv
-import TestingLowerBounds.FDiv.CondFDivCompProdMeasure
-import TestingLowerBounds.FDiv.DPIJensen
-import TestingLowerBounds.FDiv.DivFunction.Basic
-import TestingLowerBounds.FDiv.DivFunction.Conj
-import TestingLowerBounds.FDiv.DivFunction.Conj
-import TestingLowerBounds.FDiv.DivFunction.CurvatureMeasure
-import TestingLowerBounds.FDiv.DivFunction.DerivAtTop
-import TestingLowerBounds.FDiv.DivFunction.OfReal
-import TestingLowerBounds.FDiv.DivFunction.RightDeriv
-import TestingLowerBounds.FDiv.ERealStieltjes
-import TestingLowerBounds.FDiv.FDivEqIntegral
-import TestingLowerBounds.FDiv.IntegralRnDerivSingularPart
-import TestingLowerBounds.FDiv.Measurable
-import TestingLowerBounds.FDiv.Trim
-import TestingLowerBounds.ForMathlib.AbsolutelyContinuous
-import TestingLowerBounds.ForMathlib.EReal
-import TestingLowerBounds.ForMathlib.LeftRightDeriv
-import TestingLowerBounds.ForMathlib.LogLikelihoodRatioCompProd
-import TestingLowerBounds.ForMathlib.MaxMinEqAbs
-import TestingLowerBounds.ForMathlib.RadonNikodym
-import TestingLowerBounds.ForMathlib.RnDeriv
-import TestingLowerBounds.IntegrableFRNDeriv
-import TestingLowerBounds.MeasureCompProd
-import TestingLowerBounds.Testing.Binary
-import TestingLowerBounds.Testing.BoolMeasure
-import TestingLowerBounds.Testing.ChangeMeasure
-import TestingLowerBounds.Testing.RenyiChangeMeasure
+module  -- shake: keep-all --deprecated_module: ignore
+
+public import TestingLowerBounds.CompProd
+public import TestingLowerBounds.Convex
+public import TestingLowerBounds.DerivAtTop
+public import TestingLowerBounds.Divergences.Chernoff
+public import TestingLowerBounds.Divergences.DeGroot
+public import TestingLowerBounds.Divergences.EGamma
+public import TestingLowerBounds.Divergences.Hellinger.CondHellinger
+public import TestingLowerBounds.Divergences.Hellinger.Hellinger
+public import TestingLowerBounds.Divergences.Hellinger.HellingerDivFun
+public import TestingLowerBounds.Divergences.Hellinger.HellingerFun
+public import TestingLowerBounds.Divergences.KullbackLeibler.CondKL
+public import TestingLowerBounds.Divergences.KullbackLeibler.KLDivFun
+public import TestingLowerBounds.Divergences.KullbackLeibler.KullbackLeibler
+public import TestingLowerBounds.Divergences.Renyi.CondRenyi
+public import TestingLowerBounds.Divergences.Renyi.Renyi
+public import TestingLowerBounds.Divergences.StatInfo.DPI
+public import TestingLowerBounds.Divergences.StatInfo.DivFunction
+public import TestingLowerBounds.Divergences.StatInfo.StatInfo
+public import TestingLowerBounds.Divergences.StatInfo.StatInfoFun
+public import TestingLowerBounds.Divergences.StatInfo.fDivStatInfo
+public import TestingLowerBounds.Divergences.TotalVariation
+public import TestingLowerBounds.FDiv.Basic
+public import TestingLowerBounds.FDiv.CompProd.CompProd
+public import TestingLowerBounds.FDiv.CompProd.EqTopIff
+public import TestingLowerBounds.FDiv.CondFDiv
+public import TestingLowerBounds.FDiv.CondFDivCompProdMeasure
+public import TestingLowerBounds.FDiv.DPIJensen
+public import TestingLowerBounds.FDiv.DivFunction.Basic
+public import TestingLowerBounds.FDiv.DivFunction.Conj
+public import TestingLowerBounds.FDiv.DivFunction.CurvatureMeasure
+public import TestingLowerBounds.FDiv.DivFunction.DerivAtTop
+public import TestingLowerBounds.FDiv.DivFunction.OfReal
+public import TestingLowerBounds.FDiv.DivFunction.RightDeriv
+public import TestingLowerBounds.FDiv.ERealStieltjes
+public import TestingLowerBounds.FDiv.FDivEqIntegral
+public import TestingLowerBounds.FDiv.IntegralRnDerivSingularPart
+public import TestingLowerBounds.FDiv.Measurable
+public import TestingLowerBounds.FDiv.Trim
+public import TestingLowerBounds.ForMathlib.AbsolutelyContinuous
+public import TestingLowerBounds.ForMathlib.EReal
+public import TestingLowerBounds.ForMathlib.LeftRightDeriv
+public import TestingLowerBounds.ForMathlib.LogLikelihoodRatioCompProd
+public import TestingLowerBounds.ForMathlib.MaxMinEqAbs
+public import TestingLowerBounds.ForMathlib.RadonNikodym
+public import TestingLowerBounds.ForMathlib.RnDeriv
+public import TestingLowerBounds.IntegrableFRNDeriv
+public import TestingLowerBounds.MeasureCompProd
+public import TestingLowerBounds.Testing.Binary
+public import TestingLowerBounds.Testing.BoolMeasure
+public import TestingLowerBounds.Testing.ChangeMeasure
+public import TestingLowerBounds.Testing.RenyiChangeMeasure

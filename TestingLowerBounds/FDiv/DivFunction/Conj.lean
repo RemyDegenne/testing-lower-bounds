@@ -3,13 +3,17 @@ Copyright (c) 2026 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne
 -/
-import TestingLowerBounds.FDiv.DivFunction.DerivAtTop
+module
+
+public import TestingLowerBounds.FDiv.DivFunction.DerivAtTop
 
 /-! # Conjugate of a divergence function
 
 For a divergence function `f`, its conjugate is `x ↦ x * f x⁻¹`, extended by `f.derivAtTop` at `0`
 (the limit of `f y / y` as `y → ∞`, see `tendsto_div_nhdsLT_top`) and by `∞ * f 0` at `∞`.
 -/
+
+@[expose] public section
 
 open Real MeasureTheory Filter Set
 open scoped ENNReal NNReal Topology

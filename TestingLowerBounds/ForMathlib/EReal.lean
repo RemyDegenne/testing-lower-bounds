@@ -3,12 +3,16 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import Mathlib.MeasureTheory.Constructions.BorelSpace.Real
+module
+
+public import Mathlib.MeasureTheory.Constructions.BorelSpace.Real
 
 /-! # Lemmas about `EReal`
 
 Results about `EReal` (continuity of subtraction, `toENNReal`, ...) that could be moved to Mathlib.
 -/
+
+@[expose] public section
 
 open scoped ENNReal NNReal Topology
 open Filter Set

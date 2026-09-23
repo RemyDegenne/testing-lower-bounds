@@ -3,7 +3,9 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne
 -/
-import TestingLowerBounds.Divergences.Renyi.Renyi
+module
+
+public import TestingLowerBounds.Divergences.Renyi.Renyi
 
 /-!
 # Chernoff divergence
@@ -19,6 +21,8 @@ import TestingLowerBounds.Divergences.Renyi.Renyi
   divergences.
 
 -/
+
+@[expose] public section
 
 open Real MeasureTheory InformationTheory
 

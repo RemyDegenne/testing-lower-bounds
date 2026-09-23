@@ -3,11 +3,13 @@ Copyright (c) 2024 Lorenzo Luccioli. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import Mathlib.Analysis.Calculus.Deriv.Comp
-import Mathlib.MeasureTheory.Constructions.Polish.Basic
-import Mathlib.MeasureTheory.Integral.IntervalIntegral.FundThmCalculus
-import TestingLowerBounds.ForMathlib.LeftRightDeriv
-import TestingLowerBounds.FDiv.DivFunction.RightDeriv
+module
+
+public import Mathlib.Analysis.Calculus.Deriv.Comp
+public import Mathlib.MeasureTheory.Constructions.Polish.Basic
+public import Mathlib.MeasureTheory.Integral.IntervalIntegral.FundThmCalculus
+public import TestingLowerBounds.ForMathlib.LeftRightDeriv
+public import TestingLowerBounds.FDiv.DivFunction.RightDeriv
 
 /-! # Curvature measure of a divergence function
 
@@ -15,6 +17,8 @@ The curvature measure of a `DivFunction` `f` is the Lebesgue-Stieltjes measure a
 right derivative. Its main use is the Taylor formula expressing `f x` as an integral against the
 curvature measure (`convex_taylor_one_right'`, `convex_taylor_one_left'`).
 -/
+
+@[expose] public section
 
 open MeasureTheory Set StieltjesFunction Function Filter
 

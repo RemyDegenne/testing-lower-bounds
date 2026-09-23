@@ -3,8 +3,10 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne
 -/
-import TestingLowerBounds.FDiv.CompProd.CompProd
-import TestingLowerBounds.FDiv.Trim
+module
+
+public import TestingLowerBounds.FDiv.CompProd.CompProd
+public import TestingLowerBounds.FDiv.Trim
 
 /-!
 
@@ -20,6 +22,8 @@ need assumptions on the measurable spaces (`StandardBorelSpace`, `CountableOrCou
 the versions here hold without any such assumption.
 
 -/
+
+@[expose] public section
 
 open MeasureTheory Set
 

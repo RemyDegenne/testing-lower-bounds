@@ -3,8 +3,10 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import TestingLowerBounds.Divergences.KullbackLeibler.CondKL
-import TestingLowerBounds.Divergences.Hellinger.Hellinger
+module
+
+public import TestingLowerBounds.Divergences.KullbackLeibler.CondKL
+public import TestingLowerBounds.Divergences.Hellinger.Hellinger
 
 /-!
 # Conditional Hellinger divergence
@@ -22,6 +24,8 @@ import TestingLowerBounds.Divergences.Hellinger.Hellinger
 * `condHellingerDiv_one`: the conditional Hellinger divergence of order `1` is `condKL`.
 
 -/
+
+@[expose] public section
 
 open Real MeasureTheory Filter MeasurableSpace
 

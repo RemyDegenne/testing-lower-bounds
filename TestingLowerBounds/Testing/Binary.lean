@@ -3,11 +3,14 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import TestingLowerBounds.ForMathlib.MaxMinEqAbs
-import TestingLowerBounds.Testing.BoolMeasure
-import Mathlib.MeasureTheory.Measure.Decomposition.IntegralRNDeriv
-import Mathlib.Probability.Decision.BayesEstimator
-import Mathlib.Probability.Decision.Risk.RiskIncrease
+module
+
+public import TestingLowerBounds.ForMathlib.MaxMinEqAbs
+public import TestingLowerBounds.Testing.BoolMeasure
+public import Mathlib.MeasureTheory.Measure.Decomposition.IntegralRNDeriv
+public import Mathlib.Probability.Decision.BayesEstimator
+public import Mathlib.Probability.Decision.Risk.Basic
+public import Mathlib.Probability.Decision.Risk.RiskIncrease
 
 /-!
 # Simple Bayesian binary hypothesis testing
@@ -24,6 +27,8 @@ import Mathlib.Probability.Decision.Risk.RiskIncrease
 * `bayesBinaryRisk_eq_lintegral_min`: formula for the Bayes binary risk as an integral.
 
 -/
+
+@[expose] public section
 
 open MeasureTheory
 

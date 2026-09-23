@@ -3,10 +3,12 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import Mathlib.Probability.Kernel.Disintegration.StandardBorel
-import TestingLowerBounds.FDiv.Basic
-import TestingLowerBounds.FDiv.IntegralRnDerivSingularPart
-import TestingLowerBounds.MeasureCompProd
+module
+
+public import Mathlib.Probability.Kernel.Disintegration.StandardBorel
+public import TestingLowerBounds.FDiv.Basic
+public import TestingLowerBounds.FDiv.IntegralRnDerivSingularPart
+public import TestingLowerBounds.MeasureCompProd
 /-!
 
 # f-Divergences of composition products: infinite values
@@ -26,6 +28,8 @@ If `f.derivAtTop = ⊤`, then `fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ κ) = ⊤` unles
   TODO
 
 -/
+
+@[expose] public section
 
 open Real MeasureTheory Filter MeasurableSpace Set
 

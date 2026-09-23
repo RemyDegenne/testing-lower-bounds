@@ -3,13 +3,17 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import TestingLowerBounds.FDiv.DivFunction.Basic
+module
+
+public import TestingLowerBounds.FDiv.DivFunction.Basic
 
 /-!
 
 # f-Divergences functions
 
 -/
+
+@[expose] public section
 
 open Real MeasureTheory Filter Set MeasurableSpace
 

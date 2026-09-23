@@ -3,10 +3,12 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import TestingLowerBounds.Divergences.KullbackLeibler.KullbackLeibler
-import TestingLowerBounds.FDiv.CondFDivCompProdMeasure
-import TestingLowerBounds.ForMathlib.LogLikelihoodRatioCompProd
-import TestingLowerBounds.FDiv.DPIJensen
+module
+
+public import TestingLowerBounds.Divergences.KullbackLeibler.KullbackLeibler
+public import TestingLowerBounds.FDiv.CondFDivCompProdMeasure
+public import TestingLowerBounds.ForMathlib.LogLikelihoodRatioCompProd
+public import TestingLowerBounds.FDiv.DPIJensen
 
 /-!
 # Conditional Kullback-Leibler divergence
@@ -25,6 +27,8 @@ import TestingLowerBounds.FDiv.DPIJensen
 * `klDiv_prod_two`, `klDiv_pi`: tensorization.
 
 -/
+
+@[expose] public section
 
 open Real MeasureTheory Filter MeasurableSpace InformationTheory
 

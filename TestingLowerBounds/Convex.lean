@@ -3,8 +3,10 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import Mathlib.Analysis.InnerProductSpace.Basic
-import TestingLowerBounds.ForMathlib.LeftRightDeriv
+module
+
+public import Mathlib.Analysis.InnerProductSpace.Basic
+public import TestingLowerBounds.ForMathlib.LeftRightDeriv
 
 /-!
 # Properties of convex functions
@@ -17,6 +19,8 @@ import TestingLowerBounds.ForMathlib.LeftRightDeriv
   function.
 
 -/
+
+@[expose] public section
 
 open Real MeasureTheory Filter
 

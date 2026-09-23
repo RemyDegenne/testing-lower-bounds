@@ -3,11 +3,13 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne
 -/
-import Mathlib.Topology.Order.LeftRightLim
-import TestingLowerBounds.ForMathlib.EReal
-import Mathlib.MeasureTheory.Measure.Typeclasses.Probability
-import Mathlib.MeasureTheory.Measure.Dirac.Basic
-import Mathlib.MeasureTheory.Measure.WithDensity
+module
+
+public import Mathlib.Topology.Order.LeftRightLim
+public import TestingLowerBounds.ForMathlib.EReal
+public import Mathlib.MeasureTheory.Measure.Typeclasses.Probability
+public import Mathlib.MeasureTheory.Measure.Dirac.Basic
+public import Mathlib.MeasureTheory.Measure.WithDensity
 
 /-!
 # Stieltjes measures on the real line
@@ -24,6 +26,8 @@ a Borel measure `f.measure`.
 * `f.measure_Ioo` asserts that `f.measure (Ioo a b) = ofReal (leftLim f b - f a)`.
 * `f.measure_Icc` and `f.measure_Ico` are analogous.
 -/
+
+@[expose] public section
 
 noncomputable section
 

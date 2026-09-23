@@ -3,12 +3,16 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import Mathlib.Probability.Kernel.Composition.AbsolutelyContinuous
+module
+
+public import Mathlib.Probability.Kernel.Composition.AbsolutelyContinuous
 
 /-!
 # Absolute continuity of the composition-product of kernels, pointwise
 
 -/
+
+@[expose] public section
 
 open MeasureTheory MeasurableSpace ProbabilityTheory
 

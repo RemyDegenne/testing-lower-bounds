@@ -3,12 +3,14 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import TestingLowerBounds.Divergences.Hellinger.HellingerDivFun
-import TestingLowerBounds.Divergences.KullbackLeibler.KullbackLeibler
-import TestingLowerBounds.FDiv.Basic
-import Mathlib.Analysis.Convex.SpecificFunctions.Pow
-import Mathlib.Analysis.SpecialFunctions.Pow.Deriv
-import TestingLowerBounds.FDiv.DPIJensen
+module
+
+public import TestingLowerBounds.Divergences.Hellinger.HellingerDivFun
+public import TestingLowerBounds.Divergences.KullbackLeibler.KullbackLeibler
+public import TestingLowerBounds.FDiv.Basic
+public import Mathlib.Analysis.Convex.SpecificFunctions.Pow
+public import Mathlib.Analysis.SpecialFunctions.Pow.Deriv
+public import TestingLowerBounds.FDiv.DPIJensen
 
 /-!
 # Hellinger divergence
@@ -29,6 +31,8 @@ import TestingLowerBounds.FDiv.DPIJensen
 * `sqHellinger`: the squared Hellinger distance, half of the Hellinger divergence of order `2⁻¹`.
 
 -/
+
+@[expose] public section
 
 open Real MeasureTheory Filter MeasurableSpace InformationTheory
 

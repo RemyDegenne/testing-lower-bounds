@@ -3,15 +3,19 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import TestingLowerBounds.Convex
-import TestingLowerBounds.DerivAtTop
-import TestingLowerBounds.ForMathlib.RnDeriv
-import Mathlib.MeasureTheory.Measure.Decomposition.IntegralRNDeriv
+module
+
+public import TestingLowerBounds.Convex
+public import TestingLowerBounds.DerivAtTop
+public import TestingLowerBounds.ForMathlib.RnDeriv
+public import Mathlib.MeasureTheory.Measure.Decomposition.IntegralRNDeriv
 
 /-!
 # An integrability lemma
 
 -/
+
+@[expose] public section
 
 namespace MeasureTheory
 

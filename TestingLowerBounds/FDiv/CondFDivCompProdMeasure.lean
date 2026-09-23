@@ -3,14 +3,18 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import TestingLowerBounds.FDiv.CondFDiv
-import TestingLowerBounds.FDiv.Measurable
+module
+
+public import TestingLowerBounds.FDiv.CondFDiv
+public import TestingLowerBounds.FDiv.Measurable
 
 /-!
 
 # Conditional f-divergence
 
 -/
+
+@[expose] public section
 
 open MeasureTheory MeasurableSpace Set Filter Real
 

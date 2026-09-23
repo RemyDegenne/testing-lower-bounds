@@ -3,9 +3,11 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import Mathlib.Probability.Kernel.Composition.RadonNikodym
-import TestingLowerBounds.ForMathlib.AbsolutelyContinuous
-import TestingLowerBounds.ForMathlib.RnDeriv
+module
+
+public import Mathlib.Probability.Kernel.Composition.RadonNikodym
+public import TestingLowerBounds.ForMathlib.AbsolutelyContinuous
+public import TestingLowerBounds.ForMathlib.RnDeriv
 
 /-!
 # Radon-Nikodym derivative and Lebesgue decomposition for kernels
@@ -14,6 +16,8 @@ Corollaries of the Mathlib results `rnDeriv_measure_compProd_left`, `rnDeriv_com
 `rnDeriv_measure_compProd_right` and `rnDeriv_measure_compProd`, in "a.e. a, a.e. b" form.
 
 -/
+
+@[expose] public section
 
 open MeasureTheory MeasurableSpace Set
 

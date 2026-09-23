@@ -3,16 +3,20 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import TestingLowerBounds.Convex
-import TestingLowerBounds.ForMathlib.RadonNikodym
-import Mathlib.Probability.Kernel.Composition.IntegralCompProd
-import Mathlib.MeasureTheory.Measure.Decomposition.IntegralRNDeriv
+module
+
+public import TestingLowerBounds.Convex
+public import TestingLowerBounds.ForMathlib.RadonNikodym
+public import Mathlib.Probability.Kernel.Composition.IntegralCompProd
+public import Mathlib.MeasureTheory.Measure.Decomposition.IntegralRNDeriv
 
 /-!
 
 # TODO
 
 -/
+
+@[expose] public section
 
 open Real MeasureTheory Filter MeasurableSpace
 

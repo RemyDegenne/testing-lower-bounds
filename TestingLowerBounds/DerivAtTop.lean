@@ -3,8 +3,10 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne
 -/
-import TestingLowerBounds.ForMathlib.EReal
-import TestingLowerBounds.ForMathlib.LeftRightDeriv
+module
+
+public import TestingLowerBounds.ForMathlib.EReal
+public import TestingLowerBounds.ForMathlib.LeftRightDeriv
 
 /-!
 # Derivative at infinity of a real function
@@ -22,6 +24,8 @@ import TestingLowerBounds.ForMathlib.LeftRightDeriv
   `derivAtTop f`, hence `f y ≤ f x + derivAtTop f * (y - x)`.
 
 -/
+
+@[expose] public section
 
 open Real MeasureTheory Filter Set
 

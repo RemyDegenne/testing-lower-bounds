@@ -3,10 +3,12 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import Mathlib.InformationTheory.KullbackLeibler.DataProcessing
-import TestingLowerBounds.Divergences.KullbackLeibler.KLDivFun
-import TestingLowerBounds.FDiv.Basic
-import TestingLowerBounds.FDiv.DPIJensen
+module
+
+public import Mathlib.InformationTheory.KullbackLeibler.DataProcessing
+public import TestingLowerBounds.Divergences.KullbackLeibler.KLDivFun
+public import TestingLowerBounds.FDiv.Basic
+public import TestingLowerBounds.FDiv.DPIJensen
 
 /-!
 # Kullback-Leibler divergence
@@ -19,6 +21,8 @@ This file relates it to the f-divergence for the divergence function `klDivFun`.
 * `klDiv_eq_fDiv`: `klDiv μ ν = fDiv klDivFun μ ν`
 
 -/
+
+@[expose] public section
 
 open Real MeasureTheory Filter MeasurableSpace Set InformationTheory
 

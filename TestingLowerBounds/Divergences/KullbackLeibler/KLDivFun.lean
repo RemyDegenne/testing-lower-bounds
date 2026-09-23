@@ -3,9 +3,11 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import Mathlib.InformationTheory.KullbackLeibler.Basic
-import TestingLowerBounds.FDiv.CompProd.CompProd
-import TestingLowerBounds.FDiv.Measurable
+module
+
+public import Mathlib.InformationTheory.KullbackLeibler.Basic
+public import TestingLowerBounds.FDiv.CompProd.CompProd
+public import TestingLowerBounds.FDiv.Measurable
 
 /-!
 # The divergence function of the Kullback-Leibler divergence
@@ -14,6 +16,8 @@ import TestingLowerBounds.FDiv.Measurable
 `x ↦ x * log x + 1 - x`.
 
 -/
+
+@[expose] public section
 
 open Real MeasureTheory Filter MeasurableSpace Set InformationTheory
 

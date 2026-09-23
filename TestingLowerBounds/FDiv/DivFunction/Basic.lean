@@ -3,20 +3,24 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import Mathlib.Analysis.Convex.Continuous
-import Mathlib.Analysis.InnerProductSpace.Basic
-import Mathlib.MeasureTheory.Measure.Decomposition.RadonNikodym
-import TestingLowerBounds.ForMathlib.LeftRightDeriv
-import TestingLowerBounds.Convex
-import TestingLowerBounds.DerivAtTop
-import TestingLowerBounds.FDiv.ERealStieltjes
-import TestingLowerBounds.ForMathlib.RnDeriv
+module
+
+public import Mathlib.Analysis.Convex.Continuous
+public import Mathlib.Analysis.InnerProductSpace.Basic
+public import Mathlib.MeasureTheory.Measure.Decomposition.RadonNikodym
+public import TestingLowerBounds.ForMathlib.LeftRightDeriv
+public import TestingLowerBounds.Convex
+public import TestingLowerBounds.DerivAtTop
+public import TestingLowerBounds.FDiv.ERealStieltjes
+public import TestingLowerBounds.ForMathlib.RnDeriv
 
 /-!
 
 # f-Divergences functions
 
 -/
+
+@[expose] public section
 
 open Real MeasureTheory Filter Set MeasurableSpace
 

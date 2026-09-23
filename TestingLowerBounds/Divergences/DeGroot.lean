@@ -3,8 +3,10 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne
 -/
-import TestingLowerBounds.Divergences.StatInfo.StatInfo
-import Mathlib.Probability.Distributions.Bernoulli
+module
+
+public import TestingLowerBounds.Divergences.StatInfo.StatInfo
+public import Mathlib.Probability.Distributions.Bernoulli
 
 /-!
 # DeGroot statistical information
@@ -22,6 +24,8 @@ import Mathlib.Probability.Distributions.Bernoulli
 ## Implementation details
 
 -/
+
+@[expose] public section
 
 open MeasureTheory
 

@@ -3,9 +3,11 @@ Copyright (c) 2024 Rémy Degenne. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
-import TestingLowerBounds.IntegrableFRNDeriv
-import TestingLowerBounds.Divergences.StatInfo.StatInfoFun
-import TestingLowerBounds.Testing.Binary
+module
+
+public import TestingLowerBounds.IntegrableFRNDeriv
+public import TestingLowerBounds.Divergences.StatInfo.StatInfoFun
+public import TestingLowerBounds.Testing.Binary
 /-!
 # Statistical information
 
@@ -22,6 +24,8 @@ import TestingLowerBounds.Testing.Binary
 ## Implementation details
 
 -/
+
+@[expose] public section
 
 open MeasureTheory Set
 
