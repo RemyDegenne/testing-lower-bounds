@@ -26,6 +26,7 @@ public import TestingLowerBounds.FDiv.CompProd.CompProd
 public import TestingLowerBounds.FDiv.CompProd.EqTopIff
 public import TestingLowerBounds.FDiv.CondFDiv
 public import TestingLowerBounds.FDiv.CondFDivCompProdMeasure
+public import TestingLowerBounds.FDiv.Conj
 public import TestingLowerBounds.FDiv.DPIJensen
 public import TestingLowerBounds.FDiv.DivFunction.Basic
 public import TestingLowerBounds.FDiv.DivFunction.Conj

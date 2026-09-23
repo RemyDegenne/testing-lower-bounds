@@ -172,7 +172,7 @@ Hence for $\mu$-almost all $x$, $\kappa(x)(\{y \mid (x, y) \in s\}) = 0$. Simila
 
 \begin{lemma}
   \label{cor:rnDeriv_compProd_left}
-  \lean{ProbabilityTheory.Kernel.rnDeriv_measure_compProd_left}
+  \lean{ProbabilityTheory.rnDeriv_measure_compProd_left}
   \leanok
   \uses{}
   Let $\mu, \nu \in \mathcal M(\mathcal X)$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a finite kernel. Then for $(\nu \otimes \kappa)$-almost all $(x, y)$, $\frac{d (\mu \otimes \kappa)}{d (\nu \otimes \kappa)}(x,y) = \frac{d\mu}{d\nu}(x)$.
@@ -222,7 +222,7 @@ It suffices to show that the integrals of the two functions agree on all sets in
 
 \begin{theorem}[Chain rule for Radon-Nikodym derivatives]
   \label{thm:rnDeriv_chain_compProd}
-  \lean{ProbabilityTheory.Kernel.rnDeriv_compProd}
+  \lean{ProbabilityTheory.rnDeriv_compProd}
   \leanok
   \uses{}
   Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels with $\mu \otimes \kappa \ll \mu \otimes \eta$. Then for $(\nu \otimes \eta)$-almost all $(x,y)$,
@@ -260,7 +260,7 @@ Then, by Lemma~\ref{cor:rnDeriv_compProd_left}, $\frac{d (\mu \otimes \eta)}{d (
 
 \begin{lemma}
   \label{cor:rnDeriv_compProd_right}
-  \lean{ProbabilityTheory.Kernel.rnDeriv_measure_compProd_right}
+  \lean{ProbabilityTheory.rnDeriv_measure_compProd_right}
   \leanok
   \uses{def:kernel_rnDeriv}
   Let $\mu \in \mathcal M(\mathcal X)$ be a finite measure and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels, with either $\mathcal X$ countable or $\mathcal{Y}$ countably generated.
@@ -297,7 +297,7 @@ As long as we are happy with $\mu$-almost sure statements, we can use $\frac{d (
 
 \begin{lemma}
   \label{lem:rnDeriv_compProd}
-  \lean{ProbabilityTheory.Kernel.rnDeriv_measure_compProd}
+  \lean{ProbabilityTheory.rnDeriv_measure_compProd}
   \leanok
   \uses{def:kernel_rnDeriv}
   Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels, with either $\mathcal X$ countable or $\mathcal{Y}$ countably generated.
@@ -337,7 +337,7 @@ Finally, by Lemma~\ref{cor:rnDeriv_compProd_left}, $\frac{d(\mu \otimes \eta)}{d
 
 \begin{lemma}
   \label{lem:rnDeriv_map_eq_condexp}
-  \lean{MeasureTheory.Measure.toReal_rnDeriv_map}
+  \lean{MeasureTheory.toReal_rnDeriv_map}
   \leanok
   \uses{}
   Let $\mu, \nu \in \mathcal M(\mathcal X)$ with $\mu \ll \nu$, $g : \mathcal X \to \mathcal Y$ a measurable function and denote by $g^* \mathcal Y$ the comap of the $\sigma$-algebra on $\mathcal Y$ by $g$.

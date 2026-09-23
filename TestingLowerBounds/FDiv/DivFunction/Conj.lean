@@ -180,6 +180,20 @@ def conj (f : DivFunction) : DivFunction where
 @[simp] lemma conj_apply (f : DivFunction) (x : ℝ≥0∞) :
     f.conj x = if x = 0 then f.derivAtTop else x * f x⁻¹ := rfl
 
+lemma conj_of_ne_zero {x : ℝ≥0∞} (hx : x ≠ 0) : f.conj x = x * f x⁻¹ := conjFun_of_ne_zero hx
+
+lemma conj_zero : f.conj 0 = f.derivAtTop := conjFun_zero
+
+@[simp] lemma derivAtTop_conj : f.conj.derivAtTop = f 0 := by
+  have : (𝓝[<] (∞ : ℝ≥0∞)).NeBot := nhdsLT_neBot_of_exists_lt ⟨0, ENNReal.zero_lt_top⟩
+  refine tendsto_nhds_unique f.conj.tendsto_div_nhdsLT_top ?_
+  have h_inv : Tendsto (fun y : ℝ≥0∞ ↦ y⁻¹) (𝓝[<] ∞) (𝓝 0) := by
+    simpa using (continuous_inv.tendsto (∞ : ℝ≥0∞)).mono_left nhdsWithin_le_nhds
+  refine ((f.continuous.tendsto 0).comp h_inv).congr' ?_
+  filter_upwards [Ioo_mem_nhdsLT ENNReal.zero_lt_top] with y hy
+  rw [Function.comp_apply, conj_of_ne_zero hy.1.ne', mul_comm, mul_div_assoc,
+    ENNReal.div_self hy.1.ne' hy.2.ne, mul_one]
+
 end DivFunction
 
 end ProbabilityTheory
