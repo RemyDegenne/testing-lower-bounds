@@ -293,6 +293,10 @@ lemma antitoneOn : AntitoneOn f (Iic 1) := by
     rw [ENNReal.smul_def, smul_eq_mul]
     exact mul_le_of_le_one_left' (ENNReal.coe_le_one_iff.mpr ((self_le_add_right u v).trans_eq huv))
 
+lemma apply_eq_zero_of_le_one (h0 : f 0 = 0) {x : ℝ≥0∞} (hx : x ≤ 1) : f x = 0 :=
+  le_antisymm ((f.antitoneOn (mem_Iic.2 zero_le_one) (mem_Iic.2 hx) zero_le).trans_eq h0)
+    zero_le
+
 end Monotone
 
 section EffectiveDomain

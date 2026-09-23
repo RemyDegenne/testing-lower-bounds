@@ -200,29 +200,136 @@ lemma integral_rpow_rnDeriv_smul_right [SigmaFinite μ] [SigmaFinite ν] (c : �
   rw [rpow_sub, rpow_one, div_eq_mul_inv]
   exact NNReal.coe_pos.mpr <| pos_iff_ne_zero.mpr hc
 
-lemma tendsto_mul_log_integral_rpow_rnDeriv [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
+/-- Slope of `a ↦ x ^ a` between `a` and `1` is bounded by `2 + x * |log x|`, for `a ∈ [1/2, 1)`. -/
+lemma abs_mul_rpow_sub_le {x : ℝ} (hx : 0 ≤ x) (ha : 2⁻¹ ≤ a) (ha1 : a < 1) :
+    |(a - 1)⁻¹ * (x ^ a - x)| ≤ 2 + x * |log x| := by
+  rcases hx.eq_or_lt with rfl | hx_pos
+  · rw [zero_rpow (by linarith), sub_zero, mul_zero, abs_zero, zero_mul, add_zero]
+    norm_num
+  obtain ⟨c, hc, hc_eq⟩ := exists_hasDerivAt_eq_slope (fun t ↦ x ^ t) (fun t ↦ x ^ t * log x) ha1
+    (continuous_iff_continuousAt.2 fun t ↦ Real.continuousAt_const_rpow hx_pos.ne').continuousOn
+    (fun t _ ↦ (Real.hasStrictDerivAt_const_rpow hx_pos t).hasDerivAt)
+  have h_eq : (a - 1)⁻¹ * (x ^ a - x) = x ^ c * log x := by
+    rw [hc_eq, rpow_one]
+    have : a - 1 ≠ 0 := sub_ne_zero.mpr ha1.ne
+    have : 1 - a ≠ 0 := sub_ne_zero.mpr ha1.ne'
+    field_simp
+    ring
+  rw [h_eq, abs_mul, abs_of_nonneg (rpow_nonneg hx c)]
+  have h0 : 0 ≤ x * |log x| := by positivity
+  rcases le_or_gt 1 x with hx1 | hx1
+  · calc x ^ c * |log x| ≤ x * |log x| := by
+          gcongr
+          calc x ^ c ≤ x ^ (1 : ℝ) := rpow_le_rpow_of_exponent_le hx1 hc.2.le
+          _ = x := rpow_one x
+      _ ≤ 2 + x * |log x| := by linarith
+  · have h1 : x ^ c ≤ x ^ (2⁻¹ : ℝ) :=
+      rpow_le_rpow_of_exponent_ge hx_pos hx1.le (by linarith [hc.1])
+    have h2 : x ^ (2⁻¹ : ℝ) * |log x| < 2 := by
+      have := abs_log_mul_self_lt (x ^ (2⁻¹ : ℝ)) (rpow_pos_of_pos hx_pos _)
+        (rpow_le_one hx hx1.le (by norm_num))
+      rw [log_rpow hx_pos, abs_mul, abs_mul, abs_of_pos (by norm_num : (0:ℝ) < 2⁻¹),
+        abs_of_nonneg (rpow_nonneg hx _)] at this
+      calc x ^ (2⁻¹ : ℝ) * |log x| = 2 * (2⁻¹ * |log x| * x ^ (2⁻¹ : ℝ)) := by ring
+        _ < 2 * 1 := by gcongr
+        _ = 2 := by ring
+    calc x ^ c * |log x| ≤ x ^ (2⁻¹ : ℝ) * |log x| := by gcongr
+      _ ≤ 2 := h2.le
+      _ ≤ 2 + x * |log x| := by linarith
+
+lemma tendsto_integral_rpow_rnDeriv_sub_div [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hμν : μ ≪ ν)
     (h_int : Integrable (llr μ ν) μ) :
+    Tendsto (fun a ↦ (a - 1)⁻¹ * (∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν - (μ .univ).toReal)) (𝓝[<] 1)
+      (𝓝 (∫ x, llr μ ν x ∂μ)) := by
+  have h_int' : Integrable (fun x ↦ ((∂μ/∂ν) x).toReal * |log ((∂μ/∂ν) x).toReal|) ν := by
+    have := (integrable_rnDeriv_smul_iff hμν).mpr h_int.abs
+    simpa [llr_def, smul_eq_mul] using this
+  have hL : ∫ x, llr μ ν x ∂μ = ∫ x, ((∂μ/∂ν) x).toReal * log ((∂μ/∂ν) x).toReal ∂ν := by
+    rw [← integral_rnDeriv_smul hμν]
+    simp [llr_def]
+  rw [hL]
+  have h_ev : ∀ᶠ a in 𝓝[<] (1:ℝ), a ∈ Set.Ico 2⁻¹ 1 := Ico_mem_nhdsLT (by norm_num)
+  have h_eq : (fun a ↦ (a - 1)⁻¹ * (∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν - (μ .univ).toReal))
+      =ᶠ[𝓝[<] (1:ℝ)]
+        fun a ↦ ∫ x, (a - 1)⁻¹ * (((∂μ/∂ν) x).toReal ^ a - ((∂μ/∂ν) x).toReal) ∂ν := by
+    filter_upwards [h_ev] with a ha
+    rw [integral_const_mul, integral_sub (integrable_rpow_rnDeriv_of_lt_one (by linarith [ha.1]) ha.2)
+      Measure.integrable_toReal_rnDeriv, Measure.integral_toReal_rnDeriv hμν, measureReal_def]
+  refine Tendsto.congr' h_eq.symm ?_
+  refine tendsto_integral_filter_of_dominated_convergence
+    (fun x ↦ 2 + ((∂μ/∂ν) x).toReal * |log ((∂μ/∂ν) x).toReal|) ?_ ?_ ?_ ?_
+  · exact Eventually.of_forall fun a ↦ (by fun_prop : Measurable _).aestronglyMeasurable
+  · filter_upwards [h_ev] with a ha
+    exact Eventually.of_forall fun x ↦ by
+      rw [Real.norm_eq_abs]
+      exact abs_mul_rpow_sub_le ENNReal.toReal_nonneg ha.1 ha.2
+  · exact (integrable_const _).add h_int'
+  · refine Eventually.of_forall fun x ↦ ?_
+    rcases (ENNReal.toReal_nonneg (a := (∂μ/∂ν) x)).eq_or_lt with h0 | h_pos
+    · rw [← h0]
+      simp only [Real.log_zero, mul_zero]
+      refine tendsto_const_nhds.congr' ?_
+      filter_upwards [h_ev] with a ha
+      rw [zero_rpow (by linarith [ha.1]), sub_zero, mul_zero]
+    · have h := (Real.hasStrictDerivAt_const_rpow h_pos 1).hasDerivAt
+      rw [hasDerivAt_iff_tendsto_slope] at h
+      have h' := tendsto_nhdsWithin_mono_left
+        (fun a (ha : a ∈ Set.Iio (1:ℝ)) ↦ Set.mem_compl_singleton_iff.2 (ne_of_lt ha)) h
+      simp only [rpow_one] at h'
+      refine h'.congr fun a ↦ ?_
+      rw [slope_def_field, rpow_one, div_eq_inv_mul]
+
+lemma tendsto_mul_log_integral_rpow_rnDeriv' [IsFiniteMeasure μ] [IsFiniteMeasure ν] [NeZero μ]
+    (hμν : μ ≪ ν) (h_int : Integrable (llr μ ν) μ) :
+    Tendsto (fun a ↦ (a - 1)⁻¹ * log (∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν)
+        - (a - 1)⁻¹ * (a * log (μ .univ).toReal + (1 - a) * log (ν .univ).toReal))
+      (𝓝[<] 1)
+      (𝓝 ((μ .univ).toReal⁻¹ * ∫ x, llr μ ν x ∂μ
+        - log ((μ .univ).toReal / (ν .univ).toReal))) := by
+  have hm : (μ .univ).toReal ≠ 0 := by
+    rw [ENNReal.toReal_ne_zero]
+    exact ⟨NeZero.ne _, measure_ne_top _ _⟩
+  have hn : (ν .univ).toReal ≠ 0 := by
+    rw [ENNReal.toReal_ne_zero]
+    refine ⟨fun h ↦ ?_, measure_ne_top _ _⟩
+    have hν : ν = 0 := Measure.measure_univ_eq_zero.mp h
+    rw [hν, Measure.absolutelyContinuous_zero_iff] at hμν
+    exact NeZero.ne μ hμν
+  set φ : ℝ → ℝ := fun a ↦ ∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν with hφ
+  have hφ1 : φ 1 = (μ .univ).toReal := by
+    simp [φ, Measure.integral_toReal_rnDeriv hμν, measureReal_def]
+  have hφ' : HasDerivWithinAt φ (∫ x, llr μ ν x ∂μ) (Set.Iio 1) 1 := by
+    rw [hasDerivWithinAt_iff_tendsto_slope' (s := Set.Iio (1 : ℝ)) (x := 1) (by simp)]
+    refine (tendsto_integral_rpow_rnDeriv_sub_div hμν h_int).congr fun a ↦ ?_
+    rw [slope_def_field, div_eq_inv_mul, hφ1]
+  have hlog : HasDerivWithinAt (fun a ↦ log (φ a))
+      ((μ .univ).toReal⁻¹ * ∫ x, llr μ ν x ∂μ) (Set.Iio 1) 1 := by
+    have := (Real.hasDerivAt_log (by rw [hφ1]; exact hm)).comp_hasDerivWithinAt 1 hφ'
+    rwa [hφ1] at this
+  rw [hasDerivWithinAt_iff_tendsto_slope' (s := Set.Iio (1 : ℝ)) (x := 1) (by simp)] at hlog
+  rw [Real.log_div hm hn]
+  refine (hlog.sub_const (log (μ .univ).toReal - log (ν .univ).toReal)).congr' ?_
+  filter_upwards [self_mem_nhdsWithin] with a (ha : a < 1)
+  rw [slope_def_field, hφ1]
+  have : a - 1 ≠ 0 := sub_ne_zero.mpr ha.ne
+  field_simp
+  ring
+
+lemma tendsto_mul_log_integral_rpow_rnDeriv [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
+    (hμν : μ ≪ ν) (h_int : Integrable (llr μ ν) μ) :
     Tendsto (fun a ↦ (a - 1)⁻¹ * log (∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν)) (𝓝[<] 1)
       (𝓝 (∫ x, llr μ ν x ∂μ)) := by
-  sorry
+  simpa using tendsto_mul_log_integral_rpow_rnDeriv' hμν h_int
 
-lemma tendsto_mul_log_integral_rpow_rnDeriv' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (h_int : Integrable (llr μ ν) μ) :
+lemma tendsto_mul_log_integral_rpow_rnDeriv'' [IsFiniteMeasure μ] [IsFiniteMeasure ν] [NeZero μ]
+    (hμν : μ ≪ ν) (h_int : Integrable (llr μ ν) μ) :
     Tendsto (fun a ↦ (a - 1)⁻¹ * log (∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν)
-                    - (a - 1)⁻¹ * log ((1 - a) * (ν .univ).toReal + a * (μ .univ).toReal))
-      (𝓝[<] 1)
-      (𝓝 ((μ .univ).toReal⁻¹ * ∫ x, llr μ ν x ∂μ - log ((μ .univ).toReal / (ν .univ).toReal))) := by
-  sorry
-
-lemma tendsto_mul_log_integral_rpow_rnDeriv'' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (h_int : Integrable (llr μ ν) μ) (hμν : μ ≪ ν) :
-    Tendsto (fun a ↦ (a - 1)⁻¹ * log (∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν)
-                    - (a - 1)⁻¹ * log ((1 - a) * (ν .univ).toReal + a * (μ .univ).toReal))
+                    - (a - 1)⁻¹ * (a * log (μ .univ).toReal + (1 - a) * log (ν .univ).toReal))
       (𝓝[<] 1)
       (𝓝 ((μ .univ).toReal⁻¹ * ((klDiv μ ν).toReal + (μ .univ).toReal - (ν .univ).toReal)
             - log ((μ .univ).toReal / (ν .univ).toReal))) := by
   rw [toReal_klDiv hμν h_int, measureReal_def, measureReal_def]
-  convert tendsto_mul_log_integral_rpow_rnDeriv' h_int
+  convert tendsto_mul_log_integral_rpow_rnDeriv' hμν h_int
   ring
 
 end IntegralRPowRnDeriv

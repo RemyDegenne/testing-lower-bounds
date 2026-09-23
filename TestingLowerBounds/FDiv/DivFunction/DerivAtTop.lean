@@ -261,6 +261,74 @@ lemma le_add_derivAtTop' (x : ℝ≥0∞) {u : ℝ≥0∞} (hu' : u ≤ 1) :
   refine (le_add_derivAtTop'' (x * u) (x * (1 - u))).trans ?_
   rw [mul_assoc]
 
+/-- For `1 ≤ y`, `f y ≤ f.derivAtTop * y`. -/
+lemma apply_le_derivAtTop_mul {y : ℝ≥0∞} (hy : 1 ≤ y) : f y ≤ f.derivAtTop * y := by
+  have h := f.le_add_derivAtTop'' 1 (y - 1)
+  rw [add_tsub_cancel_of_le hy, apply_one, zero_add] at h
+  refine h.trans ?_
+  gcongr
+  exact tsub_le_self
+
+/-- `f y / y` tends to `f.derivAtTop` as `y → ∞`. -/
+lemma tendsto_div_nhdsLT_top : Tendsto (fun y ↦ f y / y) (𝓝[<] ∞) (𝓝 f.derivAtTop) := by
+  refine tendsto_order.2 ⟨fun c hc ↦ ?_, fun c hc ↦ ?_⟩
+  · by_cases h_max : f.xmax = ∞
+    swap
+    · filter_upwards [Ioo_mem_nhdsLT (lt_top_iff_ne_top.2 h_max)] with y hy
+      rw [eq_top_of_xmax_lt hy.1, ENNReal.top_div_of_ne_top hy.2.ne]
+      exact hc.trans_le le_top
+    have hc_top : c ≠ ∞ := hc.ne_top
+    have hc' : (c : EReal) < (f.derivAtTop : EReal) := EReal.coe_ennreal_lt_coe_ennreal_iff.2 hc
+    obtain ⟨x₀, hx₀, hx₀c⟩ := (((tendsto_order.1 f.tendsto_rightDerivStieltjes_atTop).1 c hc').and
+      (eventually_gt_atTop (max 1 f.xmin.toReal))).exists
+    have hx₀1 : 1 < x₀ := (le_max_left _ _).trans_lt hx₀c
+    have hx₀_nonneg : 0 ≤ x₀ := zero_le_one.trans hx₀1.le
+    have hx₀_min : f.xmin < ENNReal.ofReal x₀ := by
+      rw [ENNReal.lt_ofReal_iff_toReal_lt xmin_ne_top]
+      exact (le_max_right _ _).trans_lt hx₀c
+    have hx₀_max : ENNReal.ofReal x₀ < f.xmax := h_max ▸ ENNReal.ofReal_lt_top
+    rw [rightDerivStieltjes_of_mem_interior hx₀_min hx₀_max] at hx₀
+    set d := rightDeriv f.realFun x₀ with hd
+    have hcd : c.toReal < d := by
+      rw [← EReal.coe_ennreal_toReal hc_top] at hx₀
+      exact_mod_cast hx₀
+    have hd_nonneg : 0 ≤ d := ENNReal.toReal_nonneg.trans hcd.le
+    set D := ENNReal.ofReal d with hD
+    have hcD : c < D := by rwa [hD, ENNReal.lt_ofReal_iff_toReal_lt hc_top]
+    set x := ENNReal.ofReal x₀ with hx
+    have hx_top : x ≠ ∞ := ENNReal.ofReal_ne_top
+    -- tangent inequality: `D * (y - x) ≤ f y`
+    have h_key : ∀ y, y ≠ ∞ → D * (y - x) ≤ f y := by
+      intro y hy
+      have h := f.apply_add_le_apply_add ⟨hx₀_min, hx₀_max⟩ hy
+      rw [ENNReal.toReal_ofReal hx₀_nonneg, ← hd, max_eq_left hd_nonneg,
+        max_eq_right (neg_nonpos.2 hd_nonneg), ENNReal.ofReal_zero, zero_mul, add_zero, zero_mul,
+        add_zero, ← hD] at h
+      rw [ENNReal.mul_sub (fun _ _ ↦ ENNReal.ofReal_ne_top), tsub_le_iff_right]
+      exact le_add_self.trans h
+    -- `D * (y - x) / y → D`
+    have h1 : Tendsto (fun y ↦ x / y) (𝓝[<] ∞) (𝓝 0) := by
+      have := ENNReal.Tendsto.const_mul
+        ((continuous_inv.tendsto ∞).mono_left (nhdsWithin_le_nhds (s := Iio ∞)))
+        (Or.inr hx_top) (a := x)
+      simpa [div_eq_mul_inv] using this
+    have h2 : Tendsto (fun y ↦ D * (1 - x / y)) (𝓝[<] ∞) (𝓝 D) := by
+      have := ENNReal.Tendsto.const_mul (ENNReal.Tendsto.sub tendsto_const_nhds h1 (Or.inl ENNReal.one_ne_top))
+        (Or.inl (by simp)) (a := D)
+      simpa using this
+    have h_eq : ∀ᶠ y in 𝓝[<] ∞, D * (1 - x / y) = D * (y - x) / y := by
+      filter_upwards [Ioo_mem_nhdsLT ENNReal.zero_lt_top] with y hy
+      rw [mul_div_assoc, ENNReal.sub_div (fun _ _ ↦ hy.1.ne'), ENNReal.div_self hy.1.ne' hy.2.ne]
+    filter_upwards [(tendsto_order.1 h2).1 c hcD, h_eq, Ioo_mem_nhdsLT ENNReal.zero_lt_top]
+      with y h1 h2 hy
+    calc c < D * (1 - x / y) := h1
+      _ = D * (y - x) / y := h2
+      _ ≤ f y / y := ENNReal.div_le_div_right (h_key y hy.2.ne) y
+  · filter_upwards [Ioo_mem_nhdsLT ENNReal.one_lt_top] with y hy
+    refine lt_of_le_of_lt ?_ hc
+    rw [ENNReal.div_le_iff (zero_lt_one.trans hy.1).ne' hy.2.ne]
+    exact f.apply_le_derivAtTop_mul hy.1.le
+
 lemma lintegral_comp_rnDeriv_ne_top (μ ν : Measure α) [IsFiniteMeasure μ]
     [IsFiniteMeasure ν] (hf_zero : f 0 ≠ ∞) (hf_deriv : f.derivAtTop ≠ ∞) :
     ∫⁻ x, f (μ.rnDeriv ν x) ∂ν ≠ ∞ := by
