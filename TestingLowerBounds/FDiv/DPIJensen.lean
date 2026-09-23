@@ -5,7 +5,6 @@ Authors: Rémy Degenne
 -/
 import TestingLowerBounds.FDiv.CompProd.CompProd
 import TestingLowerBounds.FDiv.Trim
-import TestingLowerBounds.ForMathlib.RNDerivEqCondexp
 
 /-!
 

@@ -561,7 +561,7 @@ The main references for this part are \cite{liese2006divergences} and \cite{lies
 
 \begin{definition}[Curvature measure]
   \label{def:curvatureMeasure}
-  \lean{ConvexOn.curvatureMeasure}
+  \lean{ProbabilityTheory.DivFunction.curvatureMeasure}
   \leanok
   \uses{}
   Let $f: \mathbb{R} \to \mathbb{R}$ be a convex function. Then its right derivative $f'_+(x) \coloneqq \lim_{y \downarrow x}\frac{f(y) - f(x)}{y - x}$ is a Stieltjes function (a monotone right continuous function) and it defines a measure $\gamma_f$ on $\mathbb{R}$ by $\gamma_f((x,y]) \coloneqq f'_+(y) - f'_+(x)$~. \cite{liese2012phi} calls $\gamma_f$ the curvature measure of $f$.
@@ -616,9 +616,10 @@ The main references for this part are \cite{liese2006divergences} and \cite{lies
 
 \begin{lemma}
   \label{lem:convex_taylor}
-  \lean{ConvexOn.convex_taylor}
+  \lean{ProbabilityTheory.DivFunction.convex_taylor_one_right', ProbabilityTheory.DivFunction.convex_taylor_one_left'}
   \leanok
   \uses{def:curvatureMeasure}
+  (In Lean, this is proved for a \texttt{DivFunction} and $x = 1$, by the fundamental theorem of calculus and Tonelli's theorem, without integration by parts.)
   For $f: \mathbb{R} \to \mathbb{R}$ a convex function and $x,y \in \mathbb{R}$,
   \begin{align*}
   f(y) - f(x) - (y - x)f'_+(x) &= \int_{z \in (x,y]} (y - z) \partial \gamma_f & \text{ if } x \le y \: ,

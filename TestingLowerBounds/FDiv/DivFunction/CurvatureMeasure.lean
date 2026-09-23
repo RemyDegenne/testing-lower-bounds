@@ -6,7 +6,6 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 import Mathlib.Analysis.Calculus.Deriv.Comp
 import Mathlib.MeasureTheory.Constructions.Polish.Basic
 import Mathlib.MeasureTheory.Integral.IntervalIntegral.FundThmCalculus
-import TestingLowerBounds.Sorry.ByParts
 import TestingLowerBounds.ForMathlib.LeftRightDeriv
 import TestingLowerBounds.FDiv.DivFunction.RightDeriv
 
@@ -68,14 +67,6 @@ lemma curvatureMeasure_Ioo_top_eq_curvatureMeasure_Ioi {a : ℝ≥0∞} (ha : a 
     · simp [Ne.lt_top hx, hx]
   rw [this, measure_union _ (measurableSet_singleton _), curvatureMeasure_singleton_top, add_zero]
   simp
-
-lemma curvatureMeasure_add (hf : ∀ x, 0 < x → f x ≠ ∞) (hg : ∀ x, 0 < x → g x ≠ ∞) :
-    curvatureMeasure (f + g) = curvatureMeasure f + curvatureMeasure g := by
-  simp_rw [curvatureMeasure, ← Measure.map_add _ _ ENNReal.measurable_ofReal]
-  -- that proof does not work for now. Need to generalize `ERealStieltjes.measure_add`
-  rw [← ERealStieltjes.measure_add, rightDerivStieltjes_add]
-  · exact fun x ↦ ⟨sorry, rightDerivStieltjes_ne_top hf x⟩
-  · exact fun x ↦ ⟨sorry, rightDerivStieltjes_ne_top hg x⟩
 
 section ConvexTaylor
 

@@ -6,7 +6,6 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 import Mathlib.Analysis.SpecialFunctions.Log.ENNRealLogExp
 import Mathlib.MeasureTheory.Integral.Prod
 import Mathlib.Order.CompletePartialOrder
-import TestingLowerBounds.CurvatureMeasure
 import TestingLowerBounds.Divergences.StatInfo.StatInfo
 import TestingLowerBounds.FDiv.Measurable
 

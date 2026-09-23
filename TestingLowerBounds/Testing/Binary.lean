@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import TestingLowerBounds.ForMathlib.MaxMinEqAbs
-import TestingLowerBounds.Testing.TwoHypKernel
+import TestingLowerBounds.Testing.BoolMeasure
 import Mathlib.MeasureTheory.Measure.Decomposition.IntegralRNDeriv
 import Mathlib.Probability.Decision.BayesEstimator
 import Mathlib.Probability.Decision.Risk.RiskIncrease

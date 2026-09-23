@@ -6,7 +6,6 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 import Mathlib.MeasureTheory.Integral.Bochner.Basic
 import Mathlib.Probability.Kernel.Composition.MeasureCompProd
 import Mathlib.Probability.Kernel.Composition.Lemmas
-import TestingLowerBounds.Kernel.ParallelComp
 
 /-!
 
