@@ -8,7 +8,6 @@ module
 public import Mathlib.Analysis.Calculus.Deriv.Comp
 public import Mathlib.MeasureTheory.Constructions.Polish.Basic
 public import Mathlib.MeasureTheory.Integral.IntervalIntegral.FundThmCalculus
-public import TestingLowerBounds.ForMathlib.LeftRightDeriv
 public import TestingLowerBounds.FDiv.DivFunction.RightDeriv
 
 /-! # Curvature measure of a divergence function
@@ -24,25 +23,83 @@ open MeasureTheory Set StieltjesFunction Function Filter
 
 open scoped ENNReal Topology
 
-namespace ProbabilityTheory
+/-- Tonelli: `∫⁻ x in Ioc a t, (t - x) ∂μ = ∫⁻ s in Ioc a t, μ (Ioc a s)`. -/
+lemma setLIntegral_Ioc_ofReal_const_sub (μ : Measure ℝ) [SFinite μ] (a t : ℝ) :
+    ∫⁻ x in Ioc a t, ENNReal.ofReal (t - x) ∂μ = ∫⁻ s in Ioc a t, μ (Ioc a s) := by
+  let g : ℝ → ℝ → ℝ≥0∞ := fun x s ↦ if x ≤ s then 1 else 0
+  have hg : Measurable (Function.uncurry g) := by
+    change Measurable fun p : ℝ × ℝ ↦ if p.1 ≤ p.2 then (1 : ℝ≥0∞) else 0
+    exact Measurable.ite (measurableSet_le measurable_fst measurable_snd) measurable_const
+      measurable_const
+  have h1 : ∀ x ∈ Ioc a t, ∫⁻ s in Ioc a t, g x s = ENNReal.ofReal (t - x) := by
+    intro x hx
+    have : (fun s ↦ g x s) = (Ici x).indicator 1 := by
+      ext s
+      simp [g, indicator_apply]
+    rw [this, lintegral_indicator_one measurableSet_Ici, Measure.restrict_apply measurableSet_Ici]
+    have : Ici x ∩ Ioc a t = Icc x t := by
+      ext s
+      simp only [mem_inter_iff, mem_Ici, mem_Ioc, mem_Icc]
+      exact ⟨fun h ↦ ⟨h.1, h.2.2⟩, fun h ↦ ⟨h.1, hx.1.trans_le h.1, h.2⟩⟩
+    rw [this, Real.volume_Icc]
+  have h2 : ∀ s ∈ Ioc a t, ∫⁻ x in Ioc a t, g x s ∂μ = μ (Ioc a s) := by
+    intro s hs
+    have : (fun x ↦ g x s) = (Iic s).indicator 1 := by
+      ext x
+      simp [g, indicator_apply]
+    rw [this, lintegral_indicator_one measurableSet_Iic, Measure.restrict_apply measurableSet_Iic]
+    congr 1
+    ext x
+    simp only [mem_inter_iff, mem_Iic, mem_Ioc]
+    exact ⟨fun h ↦ ⟨h.2.1, h.1⟩, fun h ↦ ⟨h.2, h.1, h.2.trans hs.2⟩⟩
+  calc ∫⁻ x in Ioc a t, ENNReal.ofReal (t - x) ∂μ
+      = ∫⁻ x in Ioc a t, (∫⁻ s in Ioc a t, g x s ∂volume) ∂μ :=
+        setLIntegral_congr_fun measurableSet_Ioc fun x hx ↦ (h1 x hx).symm
+    _ = ∫⁻ s in Ioc a t, (∫⁻ x in Ioc a t, g x s ∂μ) ∂volume :=
+        lintegral_lintegral_swap hg.aemeasurable
+    _ = ∫⁻ s in Ioc a t, μ (Ioc a s) := setLIntegral_congr_fun measurableSet_Ioc h2
 
-lemma ENNReal.preimage_toReal_Ioc {a b : ℝ} (h : 0 ≤ a) :
-    ENNReal.toReal ⁻¹' Ioc a b = Ioc (ENNReal.ofReal a) (ENNReal.ofReal b) := by
-  ext x
-  rcases lt_or_ge b a with hb | hb
-  · rw [Ioc_eq_empty (not_lt.mpr hb.le), Ioc_eq_empty]
-    · simp
-    · rw [not_lt, ENNReal.ofReal_le_ofReal_iff h]
-      exact hb.le
-  simp only [mem_preimage, mem_Ioc]
-  by_cases hx_top : x = ∞
-  · simp [hx_top, not_lt.mpr h]
-  rw [ENNReal.le_ofReal_iff_toReal_le hx_top (h.trans hb),
-    ENNReal.ofReal_lt_iff_lt_toReal h hx_top]
+/-- Tonelli: `∫⁻ x in Ioc t b, (x - t) ∂μ = ∫⁻ s in Ioc t b, μ (Ioc s b)`. -/
+lemma setLIntegral_Ioc_ofReal_sub_const (μ : Measure ℝ) [SFinite μ] (t b : ℝ) :
+    ∫⁻ x in Ioc t b, ENNReal.ofReal (x - t) ∂μ = ∫⁻ s in Ioc t b, μ (Ioc s b) := by
+  let g : ℝ → ℝ → ℝ≥0∞ := fun x s ↦ if s < x then 1 else 0
+  have hg : Measurable (Function.uncurry g) := by
+    change Measurable fun p : ℝ × ℝ ↦ if p.2 < p.1 then (1 : ℝ≥0∞) else 0
+    exact Measurable.ite (measurableSet_lt measurable_snd measurable_fst) measurable_const
+      measurable_const
+  have h1 : ∀ x ∈ Ioc t b, ∫⁻ s in Ioc t b, g x s = ENNReal.ofReal (x - t) := by
+    intro x hx
+    have : (fun s ↦ g x s) = (Iio x).indicator 1 := by
+      ext s
+      simp [g, indicator_apply]
+    rw [this, lintegral_indicator_one measurableSet_Iio, Measure.restrict_apply measurableSet_Iio]
+    have : Iio x ∩ Ioc t b = Ioo t x := by
+      ext s
+      simp only [mem_inter_iff, mem_Iio, mem_Ioc, mem_Ioo]
+      exact ⟨fun h ↦ ⟨h.2.1, h.1⟩, fun h ↦ ⟨h.2, h.1, h.2.le.trans hx.2⟩⟩
+    rw [this, Real.volume_Ioo]
+  have h2 : ∀ s ∈ Ioc t b, ∫⁻ x in Ioc t b, g x s ∂μ = μ (Ioc s b) := by
+    intro s hs
+    have : (fun x ↦ g x s) = (Ioi s).indicator 1 := by
+      ext x
+      simp [g, indicator_apply]
+    rw [this, lintegral_indicator_one measurableSet_Ioi, Measure.restrict_apply measurableSet_Ioi]
+    congr 1
+    ext x
+    simp only [mem_inter_iff, mem_Ioi, mem_Ioc]
+    exact ⟨fun h ↦ ⟨h.1, h.2.2⟩, fun h ↦ ⟨h.1, hs.1.trans h.1, h.2⟩⟩
+  calc ∫⁻ x in Ioc t b, ENNReal.ofReal (x - t) ∂μ
+      = ∫⁻ x in Ioc t b, (∫⁻ s in Ioc t b, g x s ∂volume) ∂μ :=
+        setLIntegral_congr_fun measurableSet_Ioc fun x hx ↦ (h1 x hx).symm
+    _ = ∫⁻ s in Ioc t b, (∫⁻ x in Ioc t b, g x s ∂μ) ∂volume :=
+        lintegral_lintegral_swap hg.aemeasurable
+    _ = ∫⁻ s in Ioc t b, μ (Ioc s b) := setLIntegral_congr_fun measurableSet_Ioc h2
+
+namespace ProbabilityTheory
 
 namespace DivFunction
 
-variable {𝒳 : Type*} {m𝒳 : MeasurableSpace 𝒳} {μ ν : Measure 𝒳} {f g : DivFunction} {β γ x t : ℝ}
+variable {f : DivFunction}
 
 /-- The curvature measure induced by a convex function. It is defined as the only measure that has
 the right derivative of the function as a CDF. -/
@@ -118,8 +175,8 @@ lemma continuousOn_realFun_Icc {a b : ℝ} (ha : f.xmin < ENNReal.ofReal a)
 
 lemma hasDerivWithinAt_realFun {x : ℝ} (hx : f.xmin < ENNReal.ofReal x)
     (hx' : ENNReal.ofReal x < f.xmax) :
-    HasDerivWithinAt f.realFun (rightDeriv f.realFun x) (Ioi x) x := by
-  exact (f.differentiableWithinAt ⟨hx, hx'⟩).hasDerivWithinAt
+    HasDerivWithinAt f.realFun (rightDeriv f.realFun x) (Ioi x) x :=
+  (f.differentiableWithinAt ⟨hx, hx'⟩).hasDerivWithinAt
 
 lemma intervalIntegrable_rightDeriv_realFun {a b : ℝ} (hab : a ≤ b)
     (ha : f.xmin < ENNReal.ofReal a) (hb : ENNReal.ofReal b < f.xmax) :
@@ -162,97 +219,11 @@ lemma integral_one_sub_rightDeriv_realFun {t : ℝ} (ht : f.xmin < ENNReal.ofRea
     intervalIntegral.integral_const, realFun_one, smul_eq_mul]
   ring
 
-/-- Tonelli: `∫⁻ x in Ioc 1 t, (t - x) ∂μ = ∫⁻ s in Ioc 1 t, μ (Ioc 1 s)`. -/
-lemma setLIntegral_Ioc_sub_right {t : ℝ} (ht : 1 ≤ t) (ht' : ENNReal.ofReal t < f.xmax) :
-    ∫⁻ x in Ioc 1 t, ENNReal.ofReal (t - x) ∂f.rightDerivStieltjes.measure
-      = ∫⁻ s in Ioc 1 t, f.rightDerivStieltjes.measure (Ioc 1 s) := by
-  set μ := f.rightDerivStieltjes.measure with hμ_def
-  have hμ : IsFiniteMeasure (μ.restrict (Ioc 1 t)) := by
-    rw [isFiniteMeasure_restrict, hμ_def, ERealStieltjes.measure_Ioc, rightDerivStieltjes_one,
-      rightDerivStieltjes_of_mem_interior (xmin_lt_one.trans_le (ENNReal.one_le_ofReal.mpr ht)) ht',
-      ← EReal.coe_sub, EReal.toENNReal_of_ne_top (EReal.coe_ne_top _)]
-    exact ENNReal.ofReal_ne_top
-  let g : ℝ → ℝ → ℝ≥0∞ := fun x s ↦ if x ≤ s then 1 else 0
-  have hg : Measurable (Function.uncurry g) := by
-    change Measurable fun p : ℝ × ℝ ↦ if p.1 ≤ p.2 then (1 : ℝ≥0∞) else 0
-    exact Measurable.ite (measurableSet_le measurable_fst measurable_snd) measurable_const
-      measurable_const
-  have h1 : ∀ x ∈ Ioc 1 t, ∫⁻ s in Ioc 1 t, g x s = ENNReal.ofReal (t - x) := by
-    intro x hx
-    have : (fun s ↦ g x s) = (Ici x).indicator 1 := by
-      ext s
-      simp [g, indicator_apply]
-    rw [this, lintegral_indicator_one measurableSet_Ici, Measure.restrict_apply measurableSet_Ici]
-    have : Ici x ∩ Ioc 1 t = Icc x t := by
-      ext s
-      simp only [mem_inter_iff, mem_Ici, mem_Ioc, mem_Icc]
-      exact ⟨fun h ↦ ⟨h.1, h.2.2⟩, fun h ↦ ⟨h.1, hx.1.trans_le h.1, h.2⟩⟩
-    rw [this, Real.volume_Icc]
-  have h2 : ∀ s ∈ Ioc 1 t, ∫⁻ x in Ioc 1 t, g x s ∂μ = μ (Ioc 1 s) := by
-    intro s hs
-    have : (fun x ↦ g x s) = (Iic s).indicator 1 := by
-      ext x
-      simp [g, indicator_apply]
-    rw [this, lintegral_indicator_one measurableSet_Iic, Measure.restrict_apply measurableSet_Iic]
-    congr 1
-    ext x
-    simp only [mem_inter_iff, mem_Iic, mem_Ioc]
-    exact ⟨fun h ↦ ⟨h.2.1, h.1⟩, fun h ↦ ⟨h.2, h.1, h.2.trans hs.2⟩⟩
-  calc ∫⁻ x in Ioc 1 t, ENNReal.ofReal (t - x) ∂μ
-      = ∫⁻ x in Ioc 1 t, (∫⁻ s in Ioc 1 t, g x s ∂volume) ∂μ :=
-        setLIntegral_congr_fun measurableSet_Ioc fun x hx ↦ (h1 x hx).symm
-    _ = ∫⁻ s in Ioc 1 t, (∫⁻ x in Ioc 1 t, g x s ∂μ) ∂volume :=
-        lintegral_lintegral_swap hg.aemeasurable
-    _ = ∫⁻ s in Ioc 1 t, μ (Ioc 1 s) := setLIntegral_congr_fun measurableSet_Ioc h2
-
-/-- Tonelli: `∫⁻ x in Ioc t 1, (x - t) ∂μ = ∫⁻ s in Ioc t 1, μ (Ioc s 1)`. -/
-lemma setLIntegral_Ioc_sub_left {t : ℝ} (ht : f.xmin < ENNReal.ofReal t) (ht' : t ≤ 1) :
-    ∫⁻ x in Ioc t 1, ENNReal.ofReal (x - t) ∂f.rightDerivStieltjes.measure
-      = ∫⁻ s in Ioc t 1, f.rightDerivStieltjes.measure (Ioc s 1) := by
-  set μ := f.rightDerivStieltjes.measure with hμ_def
-  have hμ : IsFiniteMeasure (μ.restrict (Ioc t 1)) := by
-    rw [isFiniteMeasure_restrict, hμ_def, ERealStieltjes.measure_Ioc, rightDerivStieltjes_one,
-      rightDerivStieltjes_of_mem_interior ht ((ENNReal.ofReal_le_one.mpr ht').trans_lt one_lt_xmax),
-      ← EReal.coe_sub, EReal.toENNReal_of_ne_top (EReal.coe_ne_top _)]
-    exact ENNReal.ofReal_ne_top
-  let g : ℝ → ℝ → ℝ≥0∞ := fun x s ↦ if s < x then 1 else 0
-  have hg : Measurable (Function.uncurry g) := by
-    change Measurable fun p : ℝ × ℝ ↦ if p.2 < p.1 then (1 : ℝ≥0∞) else 0
-    exact Measurable.ite (measurableSet_lt measurable_snd measurable_fst) measurable_const
-      measurable_const
-  have h1 : ∀ x ∈ Ioc t 1, ∫⁻ s in Ioc t 1, g x s = ENNReal.ofReal (x - t) := by
-    intro x hx
-    have : (fun s ↦ g x s) = (Iio x).indicator 1 := by
-      ext s
-      simp [g, indicator_apply]
-    rw [this, lintegral_indicator_one measurableSet_Iio, Measure.restrict_apply measurableSet_Iio]
-    have : Iio x ∩ Ioc t 1 = Ioo t x := by
-      ext s
-      simp only [mem_inter_iff, mem_Iio, mem_Ioc, mem_Ioo]
-      exact ⟨fun h ↦ ⟨h.2.1, h.1⟩, fun h ↦ ⟨h.2, h.1, h.2.le.trans hx.2⟩⟩
-    rw [this, Real.volume_Ioo]
-  have h2 : ∀ s ∈ Ioc t 1, ∫⁻ x in Ioc t 1, g x s ∂μ = μ (Ioc s 1) := by
-    intro s hs
-    have : (fun x ↦ g x s) = (Ioi s).indicator 1 := by
-      ext x
-      simp [g, indicator_apply]
-    rw [this, lintegral_indicator_one measurableSet_Ioi, Measure.restrict_apply measurableSet_Ioi]
-    congr 1
-    ext x
-    simp only [mem_inter_iff, mem_Ioi, mem_Ioc]
-    exact ⟨fun h ↦ ⟨h.1, h.2.2⟩, fun h ↦ ⟨h.1, hs.1.trans h.1, h.2⟩⟩
-  calc ∫⁻ x in Ioc t 1, ENNReal.ofReal (x - t) ∂μ
-      = ∫⁻ x in Ioc t 1, (∫⁻ s in Ioc t 1, g x s ∂volume) ∂μ :=
-        setLIntegral_congr_fun measurableSet_Ioc fun x hx ↦ (h1 x hx).symm
-    _ = ∫⁻ s in Ioc t 1, (∫⁻ x in Ioc t 1, g x s ∂μ) ∂volume :=
-        lintegral_lintegral_swap hg.aemeasurable
-    _ = ∫⁻ s in Ioc t 1, μ (Ioc s 1) := setLIntegral_congr_fun measurableSet_Ioc h2
-
 lemma setLIntegral_Ioc_sub_right_eq_ofReal {t : ℝ} (ht : 1 ≤ t)
     (ht' : ENNReal.ofReal t < f.xmax) :
     ∫⁻ x in Ioc 1 t, ENNReal.ofReal (t - x) ∂f.rightDerivStieltjes.measure
       = ENNReal.ofReal (f.realFun t - rightDeriv f.realFun 1 * (t - 1)) := by
-  rw [f.setLIntegral_Ioc_sub_right ht ht']
+  rw [setLIntegral_Ioc_ofReal_const_sub]
   have h_eq : ∀ s ∈ Ioc 1 t, f.rightDerivStieltjes.measure (Ioc 1 s)
       = ENNReal.ofReal (rightDeriv f.realFun s - rightDeriv f.realFun 1) := fun s hs ↦
     f.measure_Ioc_one_right hs.1 ((ENNReal.ofReal_le_ofReal hs.2).trans_lt ht')
@@ -269,7 +240,7 @@ lemma setLIntegral_Ioc_sub_left_eq_ofReal {t : ℝ} (ht : f.xmin < ENNReal.ofRea
     (ht' : t ≤ 1) :
     ∫⁻ x in Ioc t 1, ENNReal.ofReal (x - t) ∂f.rightDerivStieltjes.measure
       = ENNReal.ofReal (f.realFun t + rightDeriv f.realFun 1 * (1 - t)) := by
-  rw [f.setLIntegral_Ioc_sub_left ht ht']
+  rw [setLIntegral_Ioc_ofReal_sub_const]
   have h_eq : ∀ s ∈ Ioc t 1, f.rightDerivStieltjes.measure (Ioc s 1)
       = ENNReal.ofReal (rightDeriv f.realFun 1 - rightDeriv f.realFun s) := fun s hs ↦
     f.measure_Ioc_one_left (ht.trans_le (ENNReal.ofReal_le_ofReal hs.1.le)) hs.2

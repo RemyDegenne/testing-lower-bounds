@@ -567,6 +567,10 @@ end Module
   unfold DivFunction.realFun
   simp
 
+lemma realFun_smul (c : ℝ≥0) (f : DivFunction) : (c • f).realFun = fun x ↦ c * f.realFun x := by
+  ext x
+  simp [realFun, ENNReal.toReal_mul]
+
 @[simp] lemma xmin_zero : (0 : DivFunction).xmin = 0 := by simp [xmin]
 
 @[simp] lemma xmax_zero : (0 : DivFunction).xmax = ∞ := by simp [xmax]

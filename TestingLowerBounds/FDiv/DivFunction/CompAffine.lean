@@ -40,7 +40,7 @@ lemma convexOn_comp_affine (f : DivFunction) (a b : ℝ≥0) :
 
 lemma continuous_comp_affine (f : DivFunction) (a b : ℝ≥0) :
     Continuous (fun x : ℝ≥0∞ ↦ f (a * x + b)) :=
-  f.continuous.comp (((ENNReal.continuous_const_mul ENNReal.coe_ne_top)).add continuous_const)
+  f.continuous.comp ((ENNReal.continuous_const_mul ENNReal.coe_ne_top).add continuous_const)
 
 /-- The divergence function `x ↦ f (a * x + b)`, for `a + b = 1`. -/
 noncomputable

@@ -8,8 +8,18 @@ module
 public import TestingLowerBounds.FDiv.DivFunction.RightDeriv
 
 /-!
+# Derivative at infinity of a divergence function
 
-# f-Divergences functions
+## Main definitions
+
+* `DivFunction.derivAtTop`: the limit at `∞` of the right derivative of a divergence function `f`,
+  as an element of `ℝ≥0∞`.
+
+## Main statements
+
+* `le_add_derivAtTop`: for `y ≤ x`, `f x ≤ f y + f.derivAtTop * (x - y)`.
+* `tendsto_div_nhdsLT_top`: `f y / y` tends to `f.derivAtTop` as `y → ∞`. This characterization
+  gives the behavior of `derivAtTop` under addition, scalar multiplication and pointwise order.
 
 -/
 
@@ -21,7 +31,7 @@ open scoped ENNReal NNReal Topology
 
 namespace ProbabilityTheory
 
-variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {μ ν : Measure α}
+variable {α : Type*} {mα : MeasurableSpace α}
 
 namespace DivFunction
 
@@ -61,109 +71,6 @@ lemma rightDeriv_realFun_le_toReal_derivAtTop (h : f.derivAtTop ≠ ∞) {x : �
   have h1 := f.rightDerivStieltjes_le_derivAtTop x
   rwa [rightDerivStieltjes_of_mem_interior hx hx', ← EReal.coe_ennreal_toReal h,
     EReal.coe_le_coe_iff] at h1
-
-@[simp]
-lemma derivAtTop_zero : derivAtTop (0 : DivFunction) = 0 := by
-  simp only [derivAtTop, rightDerivStieltjes_zero, EReal.toENNReal_eq_zero_iff]
-  have : (fun x ↦ if x < (0 : ℝ) then (⊥ : EReal) else 0) =ᶠ[atTop] fun _ ↦ 0 := by
-    filter_upwards [eventually_ge_atTop 0] with x hx
-    rw [ite_eq_right (not_lt.mpr hx)]
-  rw [limsup_congr this]
-  simp
-
-/-- Two `DivFunction`s that coincide in a (left) neighborhood of `∞` have the same `derivAtTop`. -/
-lemma derivAtTop_congr (h : (f : ℝ≥0∞ → ℝ≥0∞) =ᶠ[𝓝[<] ∞] g) : f.derivAtTop = g.derivAtTop := by
-  obtain ⟨c, hc, hc_sub⟩ := (mem_nhdsLT_iff_exists_Ioo_subset' ENNReal.zero_lt_top).mp h
-  have hc' : c ≠ ∞ := hc.ne
-  have h_eq : ∀ z, c < z → z ≠ ∞ → f z = g z := fun z hz hz' ↦ hc_sub ⟨hz, hz'.lt_top⟩
-  -- the effective domains coincide beyond `c`
-  have h_xmax : ∀ (f g : DivFunction), (∀ z, c < z → z ≠ ∞ → f z = g z) → ∀ x : ℝ,
-      c < ENNReal.ofReal x → f.xmax ≤ ENNReal.ofReal x → g.xmax ≤ ENNReal.ofReal x := by
-    intro f g h_eq x hcx hf
-    rw [xmax]
-    refine sSup_le fun z hz ↦ ?_
-    by_contra hz_lt
-    push Not at hz_lt
-    by_cases hz_top : z = ∞
-    · subst hz_top
-      have h_mem : ENNReal.ofReal x + 1 ∈ {z | f z ≠ ∞} := by
-        rw [mem_ofPred_eq,
-          h_eq _ (hcx.trans (ENNReal.lt_add_right ENNReal.ofReal_ne_top one_ne_zero))
-          (ENNReal.add_ne_top.mpr ⟨ENNReal.ofReal_ne_top, ENNReal.one_ne_top⟩)]
-        exact ne_top_of_le_ne_top hz
-          (g.monotoneOn (mem_Ici.mpr le_add_self) (mem_Ici.mpr le_top) le_top)
-      exact absurd ((le_sSup h_mem).trans hf)
-        (not_le.mpr (ENNReal.lt_add_right ENNReal.ofReal_ne_top one_ne_zero))
-    · have h_mem : z ∈ {z | f z ≠ ∞} := by
-        rw [mem_ofPred_eq, h_eq z (hcx.trans hz_lt) hz_top]
-        exact hz
-      exact absurd ((le_sSup h_mem).trans hf) (not_le.mpr hz_lt)
-  have h_rds : f.rightDerivStieltjes =ᶠ[atTop] g.rightDerivStieltjes := by
-    filter_upwards [eventually_ge_atTop (max 1 (c.toReal + 1))] with x hx
-    have hx1 : 1 ≤ x := (le_max_left _ _).trans hx
-    have hcx : c < ENNReal.ofReal x := by
-      rw [ENNReal.lt_ofReal_iff_toReal_lt hc']
-      linarith [(le_max_right _ _).trans hx]
-    by_cases hf_top : f.xmax ≤ ENNReal.ofReal x
-    · rw [rightDerivStieltjes_of_ge_xmax hf_top,
-        rightDerivStieltjes_of_ge_xmax (h_xmax f g h_eq x hcx hf_top)]
-    by_cases hg_top : g.xmax ≤ ENNReal.ofReal x
-    · exact absurd (h_xmax g f (fun z hz hz' ↦ (h_eq z hz hz').symm) x hcx hg_top) hf_top
-    push Not at hf_top hg_top
-    rw [rightDerivStieltjes_eq_rightLim (xmin_toReal_lt_one.le.trans hx1) hf_top,
-      rightDerivStieltjes_eq_rightLim (xmin_toReal_lt_one.le.trans hx1) hg_top]
-    refine rightLim_congr (NeBot.ne inferInstance)
-      (f.tendsto_rightDeriv_realFun_nhdsGT (xmin_toReal_lt_one.le.trans hx1) hf_top) ?_
-    filter_upwards [self_mem_nhdsWithin] with y (hy : x < y)
-    show ((rightDeriv f.realFun y : ℝ) : EReal) = rightDeriv g.realFun y
-    congr 1
-    refine Filter.EventuallyEq.rightDeriv_eq_nhds ?_
-    have hcy : c.toReal < y := by linarith [(le_max_right _ _).trans hx]
-    filter_upwards [Ioi_mem_nhds hcy] with y' (hy' : c.toReal < y')
-    simp only [realFun]
-    rw [h_eq _ ((ENNReal.lt_ofReal_iff_toReal_lt hc').mpr hy') ENNReal.ofReal_ne_top]
-  rw [derivAtTop, derivAtTop, limsup_congr h_rds]
-
-lemma derivAtTop_congr_nonneg (h : ∀ x, f x = g x) : f.derivAtTop = g.derivAtTop := by
-  rw [DivFunction.ext h]
-
-@[simp]
-lemma derivAtTop_add : (f + g).derivAtTop = f.derivAtTop + g.derivAtTop := by
-  have h_add : Tendsto (fun x ↦ f.rightDerivStieltjes x + g.rightDerivStieltjes x) atTop
-      (𝓝 (f.derivAtTop + g.derivAtTop)) :=
-    (EReal.continuousAt_add (Or.inr (EReal.coe_ennreal_ne_bot _))
-      (Or.inl (EReal.coe_ennreal_ne_bot _))).tendsto.comp
-      (f.tendsto_rightDerivStieltjes_atTop.prodMk_nhds g.tendsto_rightDerivStieltjes_atTop)
-  have h_eq : (f + g).rightDerivStieltjes
-      =ᶠ[atTop] fun x ↦ f.rightDerivStieltjes x + g.rightDerivStieltjes x := by
-    rw [rightDerivStieltjes_add]
-    filter_upwards [eventually_ge_atTop 1] with x hx
-    have hf_bot : f.rightDerivStieltjes x ≠ ⊥ := ne_bot_of_le_ne_bot EReal.zero_ne_bot
-      (rightDerivStieltjes_one_nonneg.trans (f.rightDerivStieltjes.mono hx))
-    have hg_bot : g.rightDerivStieltjes x ≠ ⊥ := ne_bot_of_le_ne_bot EReal.zero_ne_bot
-      (rightDerivStieltjes_one_nonneg.trans (g.rightDerivStieltjes.mono hx))
-    by_cases hf_top : f.rightDerivStieltjes x = ⊤
-    · rw [ERealStieltjes.add_apply_of_eq_top_left hf_top, hf_top, EReal.top_add_of_ne_bot hg_bot]
-    by_cases hg_top : g.rightDerivStieltjes x = ⊤
-    · rw [ERealStieltjes.add_apply_of_eq_top_right hg_top, hg_top, EReal.add_top_of_ne_bot hf_bot]
-    exact ERealStieltjes.add_apply_of_ne_top hf_top hg_top
-  rw [derivAtTop, (h_add.congr' h_eq.symm).limsup_eq, ← EReal.coe_ennreal_add, EReal.toENNReal_coe]
-
-@[simp]
-lemma derivAtTop_smul {c : ℝ≥0} : (c • f).derivAtTop = c * f.derivAtTop := by
-  by_cases hc : c = 0
-  · simp [hc]
-  have h_tendsto : Tendsto (fun x ↦ ((c : ℝ) : EReal) * f.rightDerivStieltjes x) atTop
-      (𝓝 (((c : ℝ) : EReal) * f.derivAtTop)) :=
-    (EReal.continuous_coe_mul.tendsto _).comp f.tendsto_rightDerivStieltjes_atTop
-  have h_eq : (c • f).rightDerivStieltjes
-      =ᶠ[atTop] fun x ↦ ((c : ℝ) : EReal) * f.rightDerivStieltjes x := by
-    rw [rightDerivStieltjes_smul hc]
-    exact .of_forall fun x ↦ by rw [ERealStieltjes.smul_apply, EReal.coe_nnreal_eq_coe_real]
-  rw [derivAtTop, (h_tendsto.congr' h_eq.symm).limsup_eq,
-    EReal.toENNReal_mul (EReal.coe_nonneg.mpr c.coe_nonneg), EReal.toENNReal_coe]
-  congr 1
-  rw [EReal.toENNReal_of_ne_top (EReal.coe_ne_top _), EReal.toReal_coe, ENNReal.ofReal_coe_nnreal]
 
 /-- Core case of `le_add_derivAtTop`: `y` and `x` in the interior of the effective domain. -/
 lemma le_add_derivAtTop_of_mem_Ioo (h : f.derivAtTop ≠ ∞) {x y : ℝ≥0∞}
@@ -219,10 +126,7 @@ lemma le_add_derivAtTop_of_ne_top {x y : ℝ≥0∞} (hyx : y ≤ x) (hx : x ≠
     rw [← hy_eq]
     exact apply_xmin_eq_top (by rw [hy_eq]; exact pos_iff_ne_zero.mpr hy0)
   subst hy0
-  have h_ne_bot : (𝓝[>] (0 : ℝ≥0∞)).NeBot := by
-    refine mem_closure_iff_nhdsWithin_neBot.mp ?_
-    rw [closure_Ioi' ⟨1, zero_lt_one⟩]
-    simp
+  have : (𝓝[>] (0 : ℝ≥0∞)).NeBot := nhdsGT_neBot_of_exists_gt ⟨1, zero_lt_one⟩
   have h_cont : Tendsto (fun y ↦ f y + f.derivAtTop * (x - y)) (𝓝[>] 0)
       (𝓝 (f 0 + f.derivAtTop * (x - 0))) :=
     ((f.continuous.add ((ENNReal.continuous_const_mul h).comp
@@ -242,10 +146,7 @@ lemma le_add_derivAtTop {x y : ℝ≥0∞} (hyx : y ≤ x) :
   · simp [hy]
   by_cases hd : f.derivAtTop = 0
   · simp only [hd, zero_mul, add_zero]
-    have h_ne_bot : (𝓝[<] (∞ : ℝ≥0∞)).NeBot := by
-      refine mem_closure_iff_nhdsWithin_neBot.mp ?_
-      rw [closure_Iio' ⟨0, ENNReal.zero_lt_top⟩]
-      simp
+    have : (𝓝[<] (∞ : ℝ≥0∞)).NeBot := nhdsLT_neBot_of_exists_lt ⟨0, ENNReal.zero_lt_top⟩
     refine le_of_tendsto ((f.continuous.tendsto ∞).mono_left (nhdsWithin_le_nhds (s := Iio ∞))) ?_
     filter_upwards [Ioo_mem_nhdsLT (lt_top_iff_ne_top.mpr hy)] with z hz
     simpa [hd] using f.le_add_derivAtTop_of_ne_top hz.1.le hz.2.ne
@@ -343,6 +244,34 @@ lemma derivAtTop_mono (hfg : ∀ x, f x ≤ g x) : f.derivAtTop ≤ g.derivAtTop
   exact le_of_tendsto_of_tendsto' f.tendsto_div_nhdsLT_top g.tendsto_div_nhdsLT_top
     fun y ↦ ENNReal.div_le_div_right (hfg y) y
 
+/-- Two `DivFunction`s that coincide in a (left) neighborhood of `∞` have the same `derivAtTop`. -/
+lemma derivAtTop_congr (h : (f : ℝ≥0∞ → ℝ≥0∞) =ᶠ[𝓝[<] ∞] g) : f.derivAtTop = g.derivAtTop := by
+  have : (𝓝[<] (∞ : ℝ≥0∞)).NeBot := nhdsLT_neBot_of_exists_lt ⟨0, ENNReal.zero_lt_top⟩
+  refine tendsto_nhds_unique f.tendsto_div_nhdsLT_top (g.tendsto_div_nhdsLT_top.congr' ?_)
+  filter_upwards [h] with y hy
+  rw [hy]
+
+@[simp]
+lemma derivAtTop_zero : derivAtTop (0 : DivFunction) = 0 := by
+  have : (𝓝[<] (∞ : ℝ≥0∞)).NeBot := nhdsLT_neBot_of_exists_lt ⟨0, ENNReal.zero_lt_top⟩
+  refine tendsto_nhds_unique (0 : DivFunction).tendsto_div_nhdsLT_top ?_
+  simp only [zero_apply, ENNReal.zero_div]
+  exact tendsto_const_nhds
+
+@[simp]
+lemma derivAtTop_add : (f + g).derivAtTop = f.derivAtTop + g.derivAtTop := by
+  have : (𝓝[<] (∞ : ℝ≥0∞)).NeBot := nhdsLT_neBot_of_exists_lt ⟨0, ENNReal.zero_lt_top⟩
+  refine tendsto_nhds_unique (f + g).tendsto_div_nhdsLT_top ?_
+  simp only [add_apply, ENNReal.add_div]
+  exact f.tendsto_div_nhdsLT_top.add g.tendsto_div_nhdsLT_top
+
+@[simp]
+lemma derivAtTop_smul {c : ℝ≥0} : (c • f).derivAtTop = c * f.derivAtTop := by
+  have : (𝓝[<] (∞ : ℝ≥0∞)).NeBot := nhdsLT_neBot_of_exists_lt ⟨0, ENNReal.zero_lt_top⟩
+  refine tendsto_nhds_unique (c • f).tendsto_div_nhdsLT_top ?_
+  simp only [smul_apply, mul_div_assoc]
+  exact ENNReal.Tendsto.const_mul f.tendsto_div_nhdsLT_top (Or.inr ENNReal.coe_ne_top)
+
 lemma lintegral_comp_rnDeriv_ne_top (μ ν : Measure α) [IsFiniteMeasure μ]
     [IsFiniteMeasure ν] (hf_zero : f 0 ≠ ∞) (hf_deriv : f.derivAtTop ≠ ∞) :
     ∫⁻ x, f (μ.rnDeriv ν x) ∂ν ≠ ∞ := by
@@ -356,7 +285,5 @@ lemma lintegral_comp_rnDeriv_ne_top (μ ν : Measure α) [IsFiniteMeasure μ]
   exact ne_top_of_le_ne_top (measure_ne_top μ _) Measure.lintegral_rnDeriv_le
 
 end DivFunction
-
-variable {f : DivFunction}
 
 end ProbabilityTheory

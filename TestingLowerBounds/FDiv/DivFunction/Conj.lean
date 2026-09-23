@@ -50,9 +50,8 @@ lemma continuous_conjFun : Continuous f.conjFun := by
       refine (f.tendsto_div_nhdsLT_top.comp h_inv).congr' ?_
       filter_upwards [self_mem_nhdsWithin] with y (hy : 0 < y)
       simp [conjFun, hy.ne', div_eq_mul_inv, mul_comm]
-    rw [continuousWithinAt_Ioi_iff_Ici] at h
-    have h_univ : Ici (0 : ℝ≥0∞) = univ := by ext; simp
-    rwa [h_univ, continuousWithinAt_univ] at h
+    rwa [continuousWithinAt_Ioi_iff_Ici, ← ENNReal.bot_eq_zero, Ici_bot,
+      continuousWithinAt_univ] at h
   rcases eq_or_ne x ∞ with rfl | hx_top
   · by_cases hf0 : f 0 = 0
     · have h_ev : f.conjFun =ᶠ[𝓝 ∞] fun _ ↦ f.conjFun ∞ := by
@@ -76,7 +75,7 @@ lemma continuous_conjFun : Continuous f.conjFun := by
     filter_upwards [eventually_ne_nhds hx0] with y hy
     exact (conjFun_of_ne_zero hy).symm
 
-lemma conjFun_mul_le_aux {a b : ℝ≥0} (hab : a + b = 1) (hb : b ≠ 0) (y : ℝ≥0∞) :
+private lemma conjFun_mul_le {a b : ℝ≥0} (hab : a + b = 1) (hb : b ≠ 0) (y : ℝ≥0∞) :
     f.conjFun (b * y) ≤ a * f.derivAtTop + b * f.conjFun y := by
   have hb' : (b : ℝ≥0∞) ≠ 0 := by exact_mod_cast hb
   have hb1 : (b : ℝ≥0∞) ≤ 1 := by exact_mod_cast (le_add_self.trans hab.le)
@@ -106,7 +105,7 @@ lemma conjFun_mul_le_aux {a b : ℝ≥0} (hab : a + b = 1) (hb : b ≠ 0) (y : �
         ring
     _ = a * f.derivAtTop + b * (y * f y⁻¹) := by rw [h_alg, add_comm, mul_comm]
 
-lemma conjFun_add_le_of_ne_zero {x y : ℝ≥0∞} (hx : x ≠ 0) (hy : y ≠ 0) {a b : ℝ≥0}
+private lemma conjFun_add_le_of_ne_zero {x y : ℝ≥0∞} (hx : x ≠ 0) (hy : y ≠ 0) {a b : ℝ≥0}
     (ha : a ≠ 0) (hb : b ≠ 0) (hab : a + b = 1) :
     f.conjFun (a * x + b * y) ≤ a * f.conjFun x + b * f.conjFun y := by
   have ha' : (a : ℝ≥0∞) ≠ 0 := by exact_mod_cast ha
@@ -163,10 +162,10 @@ lemma convexOn_conjFun : ConvexOn ℝ≥0 univ f.conjFun := by
     simp
   rcases eq_or_ne x 0 with rfl | hx0
   · rw [mul_zero, zero_add, conjFun_zero]
-    exact f.conjFun_mul_le_aux hab hb0 y
+    exact f.conjFun_mul_le hab hb0 y
   rcases eq_or_ne y 0 with rfl | hy0
   · rw [mul_zero, add_zero, conjFun_zero, add_comm]
-    exact f.conjFun_mul_le_aux (by rwa [add_comm]) ha0 x
+    exact f.conjFun_mul_le (by rwa [add_comm]) ha0 x
   exact f.conjFun_add_le_of_ne_zero hx0 hy0 ha0 hb0 hab
 
 /-- Conjugate of a divergence function: `x ↦ x * f x⁻¹`, with value `f.derivAtTop` at `0`. -/
@@ -182,7 +181,7 @@ def conj (f : DivFunction) : DivFunction where
 
 lemma conj_of_ne_zero {x : ℝ≥0∞} (hx : x ≠ 0) : f.conj x = x * f x⁻¹ := conjFun_of_ne_zero hx
 
-lemma conj_zero : f.conj 0 = f.derivAtTop := conjFun_zero
+@[simp] lemma conj_zero : f.conj 0 = f.derivAtTop := conjFun_zero
 
 @[simp] lemma derivAtTop_conj : f.conj.derivAtTop = f 0 := by
   have : (𝓝[<] (∞ : ℝ≥0∞)).NeBot := nhdsLT_neBot_of_exists_lt ⟨0, ENNReal.zero_lt_top⟩

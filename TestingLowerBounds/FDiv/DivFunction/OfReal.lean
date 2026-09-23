@@ -8,8 +8,24 @@ module
 public import TestingLowerBounds.FDiv.DivFunction.DerivAtTop
 
 /-!
+# Divergence functions from real functions
 
-# f-Divergences functions
+## Main definitions
+
+* `DivFunction.ofReal f hf hf_one`: the divergence function built from a function `f : ℝ → ℝ`
+  which is convex on `(0, ∞)` with `f 1 = 0`. It is `ENNReal.ofReal ∘ f` on `(0, ∞)`, extended by
+  its limits at `0` and `∞`.
+* `DivFunction.ofConvexOn f hf`: the divergence function built from a function `f : ℝ → ℝ` convex
+  on `(0, ∞)`, by first subtracting its tangent line at `1`.
+
+## Main statements
+
+* `derivAtTop_ofReal`: the `derivAtTop` of `ofReal f hf hf_one` is the limit of the right
+  derivative of `f`.
+* `lintegral_ofReal_eq_integral_of_continuous`,
+  `lintegral_ofReal_ne_top_iff_integrable_of_continuous`: relation between the integral of
+  `ofReal f hf hf_one` composed with a Radon-Nikodym derivative and the Bochner integral of `f`
+  composed with it.
 
 -/
 
@@ -21,8 +37,7 @@ open scoped ENNReal NNReal Topology
 
 namespace ProbabilityTheory
 
-variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {μ ν : Measure α}
-  {f : ℝ → ℝ}
+variable {α : Type*} {mα : MeasurableSpace α} {μ ν : Measure α} {f : ℝ → ℝ}
 
 namespace DivFunction
 
@@ -228,10 +243,8 @@ lemma ofReal_apply_zero :
 
 lemma ofReal_apply_zero_of_continuousWithinAt (hf_cont : ContinuousWithinAt f (Ioi 0) 0) :
     ofReal f hf hf_one 0 = ENNReal.ofReal (f 0) := by
-  simp only [ofReal_apply_zero]
-  refine rightLim_eq_of_tendsto ?_
-  refine ContinuousWithinAt.tendsto ?_
-  exact (ENNReal.continuous_ofReal.tendsto _).comp hf_cont.tendsto
+  rw [ofReal_apply_zero]
+  exact rightLim_eq_of_tendsto ((ENNReal.continuous_ofReal.tendsto _).comp hf_cont)
 
 @[simp]
 lemma ofReal_apply_top :
@@ -354,77 +367,13 @@ lemma lintegral_ofReal_eq_top_of_not_integrable [SigmaFinite μ] [IsFiniteMeasur
   rw [DivFunction.realFun_ofReal_apply fun x hx ↦ hf_nonneg x hx.le]
   exact ENNReal.toReal_pos hx_zero hx_top
 
-lemma lintegral_ofReal' [SigmaFinite μ] (h : ν {x | μ.rnDeriv ν x = 0} ≠ ∞) :
-    ∫⁻ x, ofReal f hf hf_one (μ.rnDeriv ν x) ∂ν
-      = ∫⁻ x, ENNReal.ofReal (f (μ.rnDeriv ν x).toReal) ∂ν
-        - ENNReal.ofReal (f 0) * ν {x | μ.rnDeriv ν x = 0}
-        + Function.rightLim (fun x ↦ ENNReal.ofReal (f x)) 0 * ν {x | μ.rnDeriv ν x = 0} := by
-  let s := {x | μ.rnDeriv ν x = 0}
-  have hs : MeasurableSet s := μ.measurable_rnDeriv ν (measurableSet_singleton 0)
-  rw [← lintegral_add_compl _ hs]
-  have hs_zero : ∀ x ∈ s, μ.rnDeriv ν x = 0 := fun _ hx ↦ hx
-  have h1 : ∫⁻ x in s, ofReal f hf hf_one (μ.rnDeriv ν x) ∂ν
-      = Function.rightLim (fun x ↦ ENNReal.ofReal (f x)) 0 * ν {x | μ.rnDeriv ν x = 0} := by
-    have : ∀ x ∈ s, ofReal f hf hf_one (μ.rnDeriv ν x)
-        = Function.rightLim (fun x ↦ ENNReal.ofReal (f x)) 0 := by
-      intro x hx
-      simp [hs_zero x hx]
-    rw [setLIntegral_congr_fun_ae hs (ae_of_all _ this)]
-    rw [setLIntegral_const]
-  have h2 : ∫⁻ x in sᶜ, ofReal f hf hf_one (μ.rnDeriv ν x) ∂ν
-      = ∫⁻ x in sᶜ, ENNReal.ofReal (f (μ.rnDeriv ν x).toReal) ∂ν := by
-    refine setLIntegral_congr_fun_ae hs.compl ?_
-    filter_upwards [μ.rnDeriv_ne_top ν] with x hx_top hx
-    rw [ofReal_apply hx hx_top]
-  have h3 : ∫⁻ x in s, ENNReal.ofReal (f (μ.rnDeriv ν x).toReal) ∂ν
-      = ENNReal.ofReal (f 0) * ν {x | μ.rnDeriv ν x = 0} := by
-    have : ∀ x ∈ s, ENNReal.ofReal (f (μ.rnDeriv ν x).toReal)
-        = ENNReal.ofReal (f 0) := by
-      intro x hx
-      simp [hs_zero x hx]
-    rw [setLIntegral_congr_fun_ae hs (ae_of_all _ this)]
-    rw [setLIntegral_const]
-  rw [h1, h2, ← h3]
-  conv_rhs => rw [← lintegral_add_compl _ hs (μ := ν), add_comm]
-  congr 1
-  rw [h3, ENNReal.add_sub_cancel_left]
-  exact ENNReal.mul_ne_top ENNReal.ofReal_ne_top h
-
-lemma lintegral_ofReal [SigmaFinite μ] [IsFiniteMeasure ν] :
-    ∫⁻ x, DivFunction.ofReal f hf hf_one (μ.rnDeriv ν x) ∂ν
-      = ∫⁻ x, ENNReal.ofReal (f (μ.rnDeriv ν x).toReal) ∂ν
-        - ENNReal.ofReal (f 0) * ν {x | μ.rnDeriv ν x = 0}
-        + Function.rightLim (fun x ↦ ENNReal.ofReal (f x)) 0 * ν {x | μ.rnDeriv ν x = 0} :=
-  DivFunction.lintegral_ofReal' (measure_ne_top _ _)
-
 lemma lintegral_ofReal_of_continuous [SigmaFinite μ]
     (hf_cont : ContinuousWithinAt f (Ioi 0) 0) :
     ∫⁻ x, DivFunction.ofReal f hf hf_one (μ.rnDeriv ν x) ∂ν
       = ∫⁻ x, ENNReal.ofReal (f (μ.rnDeriv ν x).toReal) ∂ν := by
-  let s := {x | μ.rnDeriv ν x = 0}
-  have hs : MeasurableSet s := μ.measurable_rnDeriv ν (measurableSet_singleton 0)
-  rw [← lintegral_add_compl _ hs, ← lintegral_add_compl _ hs (μ := ν)]
-  have hs_zero : ∀ x ∈ s, μ.rnDeriv ν x = 0 := fun _ hx ↦ hx
-  have h1 : ∫⁻ x in s, ofReal f hf hf_one (μ.rnDeriv ν x) ∂ν
-      = ENNReal.ofReal (f 0) * ν {x | μ.rnDeriv ν x = 0} := by
-    have : ∀ x ∈ s, ofReal f hf hf_one (μ.rnDeriv ν x) = ENNReal.ofReal (f 0) := by
-      intro x hx
-      rw [hs_zero x hx, ofReal_apply_zero_of_continuousWithinAt hf_cont]
-    rw [setLIntegral_congr_fun_ae hs (ae_of_all _ this)]
-    rw [setLIntegral_const]
-  have h2 : ∫⁻ x in sᶜ, ofReal f hf hf_one (μ.rnDeriv ν x) ∂ν
-      = ∫⁻ x in sᶜ, ENNReal.ofReal (f (μ.rnDeriv ν x).toReal) ∂ν := by
-    refine setLIntegral_congr_fun_ae hs.compl ?_
-    filter_upwards [μ.rnDeriv_ne_top ν] with x hx_top hx
-    rw [ofReal_apply hx hx_top]
-  have h3 : ∫⁻ x in s, ENNReal.ofReal (f (μ.rnDeriv ν x).toReal) ∂ν
-      = ENNReal.ofReal (f 0) * ν {x | μ.rnDeriv ν x = 0} := by
-    have : ∀ x ∈ s, ENNReal.ofReal (f (μ.rnDeriv ν x).toReal) = ENNReal.ofReal (f 0) := by
-      intro x hx
-      simp [hs_zero x hx]
-    rw [setLIntegral_congr_fun_ae hs (ae_of_all _ this)]
-    rw [setLIntegral_const]
-  rw [h1, h2, h3]
+  refine lintegral_congr_ae ?_
+  filter_upwards [μ.rnDeriv_ne_top ν] with x hx
+  exact ofReal_apply_of_continuousWithinAt hf_cont hx
 
 lemma lintegral_ofReal_eq_integral_of_continuous [SigmaFinite μ]
     (hf_nonneg : ∀ x, 0 ≤ x → 0 ≤ f x)
@@ -437,7 +386,7 @@ lemma lintegral_ofReal_eq_integral_of_continuous [SigmaFinite μ]
   refine ae_of_all _ fun x ↦ hf_nonneg _ ENNReal.toReal_nonneg
 
 lemma measurable_comp_rnDeriv_of_convexOn_of_continuous
-    {f : ℝ → ℝ} (hf : ConvexOn ℝ (Ioi 0) f) (h_cont : ContinuousWithinAt f (Ioi 0) 0) :
+    (hf : ConvexOn ℝ (Ioi 0) f) (h_cont : ContinuousWithinAt f (Ioi 0) 0) :
     Measurable (fun x ↦ f (μ.rnDeriv ν x).toReal) := by
   have : (fun x ↦ f (μ.rnDeriv ν x).toReal)
       = (fun x : Ici (0 : ℝ) ↦ f x)
@@ -559,11 +508,11 @@ end OfConvexOnApply
 
 end OfConvexOn
 
-variable {f g : DivFunction}
-
 section DerivAtTop
 
-lemma derivAtTop_ofConvexOn {f : ℝ → ℝ} {hf : ConvexOn ℝ (Ioi 0) f} :
+variable {hf : ConvexOn ℝ (Ioi 0) f}
+
+lemma derivAtTop_ofConvexOn :
     (ofConvexOn f hf).derivAtTop
       = limsup (fun x ↦ ENNReal.ofReal (rightDeriv f x - rightDeriv f 1)) atTop := by
   rw [ofConvexOn, derivAtTop_ofReal fun x hx ↦ hf.sub_one_nonneg hx]
@@ -571,8 +520,7 @@ lemma derivAtTop_ofConvexOn {f : ℝ → ℝ} {hf : ConvexOn ℝ (Ioi 0) f} :
   filter_upwards [eventually_gt_atTop 0] with x hx
   rw [rightDeriv_sub_one_apply hf hx]
 
-lemma derivAtTop_ofConvexOn_of_tendsto_atTop {f : ℝ → ℝ} {hf : ConvexOn ℝ (Ioi 0) f}
-    (h : Tendsto (rightDeriv f) atTop atTop) :
+lemma derivAtTop_ofConvexOn_of_tendsto_atTop (h : Tendsto (rightDeriv f) atTop atTop) :
     (ofConvexOn f hf).derivAtTop = ∞ := by
   rw [ofConvexOn]
   refine derivAtTop_ofReal_of_tendsto_atTop (fun x hx ↦ hf.sub_one_nonneg hx) ?_
@@ -586,7 +534,5 @@ lemma derivAtTop_ofConvexOn_of_tendsto_atTop {f : ℝ → ℝ} {hf : ConvexOn �
 end DerivAtTop
 
 end DivFunction
-
-variable {f : DivFunction}
 
 end ProbabilityTheory

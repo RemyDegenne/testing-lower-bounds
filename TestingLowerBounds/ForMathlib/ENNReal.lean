@@ -42,6 +42,20 @@ lemma toReal_image_Ioo_top {x : ℝ≥0∞} (hx : x ≠ ∞) :
   rw [← ofReal_toReal hx, ofReal_lt_ofReal_iff']
   exact ⟨hxa, toReal_nonneg.trans_lt hxa⟩
 
+lemma preimage_toReal_Ioc {a b : ℝ} (h : 0 ≤ a) :
+    ENNReal.toReal ⁻¹' Ioc a b = Ioc (ENNReal.ofReal a) (ENNReal.ofReal b) := by
+  ext x
+  rcases lt_or_ge b a with hb | hb
+  · rw [Ioc_eq_empty (not_lt.mpr hb.le), Ioc_eq_empty]
+    · simp
+    · rw [not_lt, ENNReal.ofReal_le_ofReal_iff h]
+      exact hb.le
+  simp only [mem_preimage, mem_Ioc]
+  by_cases hx_top : x = ∞
+  · simp [hx_top, not_lt.mpr h]
+  rw [ENNReal.le_ofReal_iff_toReal_le hx_top (h.trans hb),
+    ENNReal.ofReal_lt_iff_lt_toReal h hx_top]
+
 /-- A point of `[x, y]` (with `y ≠ ∞`) is a convex combination of `x` and `y` with `ℝ≥0` weights. -/
 lemma exists_nnreal_smul_add_eq {x y z : ℝ≥0∞} (hy : y ≠ ∞) (hxz : x ≤ z) (hzy : z ≤ y) :
     ∃ u v : ℝ≥0, u + v = 1 ∧ u • x + v • y = z := by

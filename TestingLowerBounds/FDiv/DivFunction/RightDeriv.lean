@@ -11,8 +11,19 @@ public import TestingLowerBounds.FDiv.ERealStieltjes
 public import TestingLowerBounds.ForMathlib.RnDeriv
 
 /-!
+# Right derivative of a divergence function
 
-# f-Divergences functions
+For a divergence function `f`, we define `f.rightDerivStieltjes`, the right derivative of `f` as a
+monotone right-continuous function `ℝ → EReal` (an `ERealStieltjes` function). It is `⊥` below
+`f.xmin`, `⊤` from `f.xmax` on, and it agrees with the right derivative of `f.realFun` in the
+interior of the effective domain of `f`.
+
+## Main statements
+
+* `rightDerivStieltjes_of_mem_interior`: in the interior of the effective domain,
+  `f.rightDerivStieltjes x = rightDeriv f.realFun x`.
+* `rightDerivStieltjes_eq_top_iff`: `f.rightDerivStieltjes x = ⊤ ↔ f.xmax ≤ ENNReal.ofReal x`.
+* `rightDerivStieltjes_add`, `rightDerivStieltjes_smul`: compatibility with the module structure.
 
 -/
 
@@ -22,21 +33,7 @@ open Real MeasureTheory Filter Set MeasurableSpace
 
 open scoped ENNReal NNReal Topology
 
-@[simp] lemma Function.leftLim_const {α β : Type*} [LinearOrder α] [TopologicalSpace α]
-    [OrderTopology α] [TopologicalSpace β] [T2Space β] {a : α} {x : β} :
-    Function.leftLim (fun _ ↦ x) a = x := by
-  rcases (𝓝[<] a).eq_or_neBot with h | h
-  · exact leftLim_eq_of_eq_bot _ h
-  · exact leftLim_eq_of_tendsto tendsto_const_nhds
-
-@[simp] lemma Function.rightLim_const {α β : Type*} [LinearOrder α] [TopologicalSpace α]
-    [OrderTopology α] [TopologicalSpace β] [T2Space β] {a : α} {x : β} :
-    Function.rightLim (fun _ ↦ x) a = x :=
-  Function.leftLim_const (α := αᵒᵈ)
-
 namespace ProbabilityTheory
-
-variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {μ ν : Measure α}
 
 namespace DivFunction
 
@@ -51,16 +48,9 @@ lemma continuousWithinAt_rightDeriv (f : DivFunction) {x : ℝ}
   rw [f.isOpen_toReal_Ioo.interior_eq]
   exact mem_toReal_Ioo_iff.mpr ⟨hx, hx'⟩
 
-lemma rightLim_congr {α β : Type*} [LinearOrder α] [TopologicalSpace α] [OrderTopology α]
-    [TopologicalSpace β] [T2Space β] {f g : α → β}
-    {a : α} (h_ne_bot : 𝓝[>] a ≠ ⊥) {y : β} (h_tendsto : Tendsto f (𝓝[>] a) (𝓝 y))
-    (h : f =ᶠ[𝓝[>] a] g) :
-    Function.rightLim f a = Function.rightLim g a := by
-  rw [rightLim_eq_of_tendsto (h := ⟨h_ne_bot⟩) h_tendsto,
-    rightLim_eq_of_tendsto (h := ⟨h_ne_bot⟩) ((tendsto_congr' h).mp h_tendsto)]
-
 /-- Auxiliary monotone function: `⊥` up to `f.xmin`, `⊤` from `f.xmax` on, and the right
-derivative of `f.realFun` in between. `f.rightDerivFun` is its right-continuous regularization. -/
+derivative of `f.realFun` in between. `f.rightDerivStieltjes` is its right-continuous
+regularization. -/
 noncomputable def rightDerivAux (f : DivFunction) : ℝ → EReal := fun x ↦
   if x ≤ f.xmin.toReal then ⊥
   else if f.xmax ≤ ENNReal.ofReal x then ⊤
@@ -82,17 +72,6 @@ lemma monotone_rightDerivAux (f : DivFunction) : Monotone f.rightDerivAux := by
 below `f.xmin`, `⊤` from `f.xmax` on, and in between it is the right limit of the right derivative
 of `f.realFun` (which is that right derivative itself, except possibly at `f.xmin` where the
 right derivative of `f.realFun` can be `-∞`). -/
-noncomputable def rightDerivFun (f : DivFunction) : ℝ → EReal :=
-  Function.rightLim f.rightDerivAux
-
-lemma monotone_rightDerivFun (f : DivFunction) : Monotone f.rightDerivFun :=
-  f.monotone_rightDerivAux.rightLim
-
-lemma right_continuous_rightDerivFun (f : DivFunction) (x : ℝ) :
-    ContinuousWithinAt f.rightDerivFun (Ici x) x :=
-  continuousWithinAt_rightLim_Ici (f.monotone_rightDerivAux.tendsto_rightLim x)
-
-/-- The right derivative of a `DivFunction`, as an `ERealStieltjes` function. -/
 protected noncomputable def rightDerivStieltjes (f : DivFunction) : ERealStieltjes :=
   f.monotone_rightDerivAux.erealStieltjes
 
@@ -123,15 +102,8 @@ lemma rightDerivStieltjes_of_neg {x : ℝ} (hx : x < 0) :
 lemma eventually_mem_toReal_Ioo {x : ℝ} (hx1 : f.xmin.toReal ≤ x)
     (hx2 : ENNReal.ofReal x < f.xmax) :
     ∀ᶠ y in 𝓝[>] x, y ∈ ENNReal.toReal '' Ioo f.xmin f.xmax := by
-  have h_mem : ∀ᶠ y in 𝓝[>] x, ENNReal.ofReal y < f.xmax := by
-    by_cases h_top : f.xmax = ∞
-    · exact .of_forall fun y ↦ h_top ▸ ENNReal.ofReal_lt_top
-    have hx2' : x < f.xmax.toReal :=
-      (ENNReal.ofReal_lt_iff_lt_toReal (ENNReal.toReal_nonneg.trans hx1) h_top).mp hx2
-    filter_upwards [Ioo_mem_nhdsGT hx2'] with y hy
-    exact (ENNReal.ofReal_lt_iff_lt_toReal (ENNReal.toReal_nonneg.trans (hx1.trans hy.1.le))
-      h_top).mpr hy.2
-  filter_upwards [self_mem_nhdsWithin, h_mem] with y (hy : x < y) hy2
+  filter_upwards [self_mem_nhdsWithin, nhdsWithin_le_nhds
+    ((ENNReal.continuous_ofReal.tendsto x).eventually (gt_mem_nhds hx2))] with y (hy : x < y) hy2
   exact mem_toReal_Ioo_iff.mpr
     ⟨(ENNReal.lt_ofReal_iff_toReal_lt xmin_ne_top).mpr (hx1.trans_lt hy), hy2⟩
 
@@ -180,44 +152,12 @@ lemma rightDerivStieltjes_eq_top_iff {x : ℝ} :
   ⟨fun h ↦ not_lt.mp fun hx ↦ rightDerivStieltjes_ne_top_of_lt_xmax hx h,
     rightDerivStieltjes_of_ge_xmax⟩
 
-lemma rightDerivStieltjes_ne_top' (hf : ∀ x, 0 < x → x ≠ ∞ → f x ≠ ∞) (x : ℝ) :
-    f.rightDerivStieltjes x ≠ ⊤ := by
-  rw [ne_eq, rightDerivStieltjes_eq_top_iff, xmax_eq_top hf]
-  simp
-
-lemma rightDerivStieltjes_ne_top (hf : ∀ x, 0 < x → f x ≠ ∞) (x : ℝ) :
-    f.rightDerivStieltjes x ≠ ⊤ :=
-  rightDerivStieltjes_ne_top' (fun x hx _ ↦ hf x hx) x
-
-lemma rightDerivStieltjes_of_ne_top (hf : ∀ x, 0 < x → x ≠ ∞ → f x ≠ ∞) {x : ℝ} (hx : 0 ≤ x) :
-    f.rightDerivStieltjes x = Function.rightLim (fun y ↦ (rightDeriv f.realFun y : EReal)) x :=
-  rightDerivStieltjes_eq_rightLim (by simp [xmin_eq_zero hf, hx]) (by simp [xmax_eq_top hf])
-
 @[simp]
 lemma rightDerivStieltjes_one : f.rightDerivStieltjes 1 = rightDeriv f.realFun 1 :=
   rightDerivStieltjes_of_mem_interior (by simpa using xmin_lt_one) (by simpa using one_lt_xmax)
 
 lemma rightDerivStieltjes_one_nonneg : 0 ≤ f.rightDerivStieltjes 1 := by
-  rw [rightDerivStieltjes_one]
-  norm_cast
-  exact f.rightDeriv_one_nonneg
-
-@[simp] lemma rightDerivFun_zero :
-    (0 : DivFunction).rightDerivFun = fun x ↦ if x < 0 then ⊥ else 0 := by
-  ext x
-  change (0 : DivFunction).rightDerivStieltjes x = _
-  split_ifs with hx
-  · exact rightDerivStieltjes_of_lt_xmin (by simpa using hx)
-  · rw [rightDerivStieltjes_eq_rightLim (by simpa using hx) (by simp)]
-    simp
-
-@[simp] lemma rightDerivStieltjes_zero :
-    (0 : DivFunction).rightDerivStieltjes =
-    { toFun := fun x ↦ if x < 0 then ⊥ else 0
-      mono' := by convert (0 : DivFunction).monotone_rightDerivFun; simp
-      right_continuous' := by convert (0 : DivFunction).right_continuous_rightDerivFun; simp } := by
-  ext x
-  exact congrFun rightDerivFun_zero x
+  simpa using f.rightDeriv_one_nonneg
 
 @[simp]
 lemma toReal_max_xmin : (max f.xmin g.xmin).toReal = max f.xmin.toReal g.xmin.toReal :=
@@ -278,10 +218,6 @@ lemma rightDerivStieltjes_add :
   filter_upwards [rightDerivAux_eventuallyEq hxfg hx_lt, f.eventually_mem_toReal_Ioo hxf hxf_lt,
     g.eventually_mem_toReal_Ioo hxg hxg_lt] with y hy hyf hyg
   simp only [hy, rightDeriv_realFun_add hyf hyg, EReal.coe_add]
-
-lemma realFun_smul (c : ℝ≥0) (f : DivFunction) : (c • f).realFun = fun x ↦ c * f.realFun x := by
-  ext x
-  simp [realFun, ENNReal.toReal_mul]
 
 lemma rightDerivAux_smul {c : ℝ≥0} (hc : c ≠ 0) :
     (c • f).rightDerivAux = fun x ↦ ((c : ℝ) : EReal) * f.rightDerivAux x := by
