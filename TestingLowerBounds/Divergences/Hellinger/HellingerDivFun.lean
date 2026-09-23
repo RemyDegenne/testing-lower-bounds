@@ -56,6 +56,18 @@ lemma hellingerDivFun_of_pos_of_ne_one (ha_pos : 0 < a) (ha_one : a ≠ 1) :
       hellingerFun_apply_one_eq_zero := by
   rw [hellingerDivFun, dite_eq_right (not_le.mpr ha_pos), ite_eq_right ha_one]
 
+lemma hellingerDivFun_of_pos (ha_pos : 0 < a) :
+    hellingerDivFun a = DivFunction.ofReal (hellingerFun a)
+      ((convexOn_hellingerFun ha_pos.le).subset (Ioi_subset_Ici le_rfl) (convex_Ioi _))
+      hellingerFun_apply_one_eq_zero := by
+  by_cases ha_one : a = 1
+  · subst ha_one
+    rw [hellingerDivFun_one, klDivFun]
+    congr 1
+    ext x
+    simp [hellingerFun_one, InformationTheory.klFun_apply]
+  · exact hellingerDivFun_of_pos_of_ne_one ha_pos ha_one
+
 lemma hellingerDivFun_apply_zero_of_pos (ha_pos : 0 < a) : hellingerDivFun a 0 = 1 := by
   by_cases ha_one : a = 1
   · simp [ha_one]

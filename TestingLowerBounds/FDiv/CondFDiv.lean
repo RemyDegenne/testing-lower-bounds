@@ -92,6 +92,12 @@ lemma condFDiv_eq_top_iff [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKern
   have h := condFDiv_ne_top_iff (κ := κ) (η := η) (μ := μ) (f := f)
   tauto
 
+lemma toReal_condFDiv_eq_integral [IsFiniteKernel κ] [IsFiniteKernel η]
+    (h : condFDiv f κ η μ ≠ ∞) :
+    (condFDiv f κ η μ).toReal = ∫ x, (fDiv f (κ x) (η x)).toReal ∂μ := by
+  rw [condFDiv, integral_toReal (measurable_fDiv _ _).aemeasurable]
+  exact ae_lt_top (measurable_fDiv _ _) h
+
 lemma condFDiv_eq_add [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η] :
     condFDiv f κ η μ = ∫⁻ a, ∫⁻ y, f ((∂κ a/∂η a) y) ∂η a ∂μ
       + f.derivAtTop * ∫⁻ a, (κ a).singularPart (η a) .univ ∂μ := by
