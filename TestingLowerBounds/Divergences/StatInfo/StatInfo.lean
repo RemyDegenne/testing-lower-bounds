@@ -145,42 +145,6 @@ lemma toReal_statInfo_eq_min_sub_integral (μ ν : Measure 𝒳) [IsFiniteMeasur
   rw [toReal_bayesBinaryRisk_eq_integral_min,
     MonotoneOn.map_min (fun _ _ _ hb hab ↦ ENNReal.toReal_mono hb hab) hμ hν]
 
-lemma toReal_statInfo_eq_min_sub_integral' {ζ : Measure 𝒳} [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    [SigmaFinite ζ] (π : Measure Bool) [IsFiniteMeasure π]  (hμζ : μ ≪ ζ) (hνζ : ν ≪ ζ) :
-    (statInfo μ ν π).toReal = min (π {false} * μ univ).toReal (π {true} * ν univ).toReal
-      - ∫ x, min (π {false} * (∂μ/∂ζ) x).toReal (π {true} * (∂ν/∂ζ) x).toReal ∂ζ := by
-  have hμ : π {false} * μ univ ≠ ⊤ := ENNReal.mul_ne_top (measure_ne_top π _) (measure_ne_top μ _)
-  have hν : π {true} * ν univ ≠ ⊤ := ENNReal.mul_ne_top (measure_ne_top π _) (measure_ne_top ν _)
-  rw [statInfo_eq_min_sub_lintegral' π hμζ hνζ, ENNReal.toReal_sub_of_le]
-  rotate_left
-  · sorry
-  · simp only [ne_eq, min_eq_top, hμ, hν, and_self, not_false_eq_true]
-  rw [MonotoneOn.map_min (fun _ _ _ hb hab ↦ ENNReal.toReal_mono hb hab) hμ hν]
-  sorry
-
-lemma statInfo_eq_abs_add_lintegral_abs (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (π : Measure Bool) [IsFiniteMeasure π] :
-    statInfo μ ν π = 2⁻¹ * (∫⁻ x, ‖(π {false} * (∂μ/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal
-      - (π {true} * (∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal‖₊ ∂(Kernel.boolKernel μ ν ∘ₘ π)
-      - (↑|(π {false} * μ univ).toReal - (π {true} * ν univ).toReal| : EReal)) := by
-  have hμ : π {false} * μ univ ≠ ⊤ := ENNReal.mul_ne_top (measure_ne_top π _) (measure_ne_top μ _)
-  have hν : π {true} * ν univ ≠ ⊤ := ENNReal.mul_ne_top (measure_ne_top π _) (measure_ne_top ν _)
-  rw [statInfo_eq_min_sub, bayesBinaryRisk_eq_lintegral_ennnorm]
-  rw [← ENNReal.ofReal_toReal (a := min _ _)]
-  swap
-  · simp only [ne_eq, min_eq_top, hμ, hν, and_self, not_false_eq_true]
-  rw [MonotoneOn.map_min (fun _ _ _ hb hab ↦ ENNReal.toReal_mono hb hab) hμ hν]
-  rw [min_eq_add_sub_abs_sub]
-  rw [ENNReal.ofReal_mul (by positivity), ENNReal.ofReal_sub _ (abs_nonneg _)]
-  rw [ENNReal.ofReal_inv_of_pos zero_lt_two, ENNReal.ofReal_ofNat]
-  rw [ENNReal.ofReal_add ENNReal.toReal_nonneg ENNReal.toReal_nonneg]
-  rw [ENNReal.ofReal_toReal hμ, ENNReal.ofReal_toReal hν]
-  simp_rw [ENNReal.mul_sub (fun _ _ ↦ ENNReal.inv_ne_top.mpr (NeZero.ne 2))]
-  nth_rw 1 [boolKernel_comp_measure]
-  simp_rw [Measure.coe_add, Pi.add_apply, Measure.coe_smul, Pi.smul_apply, smul_eq_mul, add_comm]
-  --this is hard to prove, because we have to deal with a lot of ENNReals and subtractions and they do not work well together, for now I am leaving this. Maybe it could be a good idea to do the toReal version first, proving it starting from the previous lemma (making a toReal version of that as well) essentially mimiking the results for the binary, but here we would have to do double the work, because we have both the version with Kernel.boolKernel μ ν ∘ₘ π and the one with ζ
-  sorry
-
 lemma toReal_statInfo_eq_integral_max_of_le [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     [IsFiniteMeasure π] (h : π {false} * μ univ ≤ π {true} * ν univ) :
     (statInfo μ ν π).toReal
@@ -388,17 +352,6 @@ lemma toReal_statInfo_eq_integral_max_of_ge [IsFiniteMeasure μ] [IsFiniteMeasur
       · exact (integrable_zero _ _ _).sup
           ((integrable_const _).sub (Measure.integrable_toReal_rnDeriv.const_mul _))
       rw [setIntegral_measure_zero _ (μ.measure_singularPartSet ν), zero_add]
-
-lemma statInfo_eq_lintegral_max_of_le (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (π : Measure Bool) [IsFiniteMeasure π] (h : π {false} * μ univ ≤ π {true} * ν univ) :
-    statInfo μ ν π
-      = ∫⁻ x, max 0 (π {false} * (∂μ/∂ν) x - π {true}) ∂ν + π {false} * μ.singularPart ν univ := by
-  sorry
-
-lemma statInfo_eq_lintegral_max_of_gt (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (π : Measure Bool) [IsFiniteMeasure π] (h : π {true} * ν univ < π {false} * μ univ) :
-    statInfo μ ν π = ∫⁻ x, max 0 (π {true} - π {false} * (∂μ/∂ν) x) ∂ν := by
-  sorry
 
 lemma toReal_statInfo_eq_integral_abs (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     {π : Measure Bool} [IsFiniteMeasure π]  :

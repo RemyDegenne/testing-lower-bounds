@@ -1046,19 +1046,4 @@ lemma lintegral_eq_top_of_not_integrable_realFun [SigmaFinite μ]
   by_contra h
   exact h_int (integrable_realFun_rnDeriv h)
 
-section Conj
-
-namespace DivFunction
-
-noncomputable
-def conj (f : DivFunction) : DivFunction where
-  toFun x := x * f x⁻¹
-  one := by simp
-  convexOn' := sorry
-  continuous' := sorry
-
-end DivFunction
-
-end Conj
-
 end ProbabilityTheory

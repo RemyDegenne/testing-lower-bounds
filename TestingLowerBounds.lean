@@ -26,6 +26,7 @@ import TestingLowerBounds.FDiv.CondFDiv
 import TestingLowerBounds.FDiv.CondFDivCompProdMeasure
 import TestingLowerBounds.FDiv.DPIJensen
 import TestingLowerBounds.FDiv.DivFunction.Basic
+import TestingLowerBounds.FDiv.DivFunction.Conj
 import TestingLowerBounds.FDiv.DivFunction.CurvatureMeasure
 import TestingLowerBounds.FDiv.DivFunction.DerivAtTop
 import TestingLowerBounds.FDiv.DivFunction.OfReal

@@ -43,69 +43,46 @@ lemma measure_singularPartSet (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite
     Measure.setLIntegral_rnDeriv hν_ac _
   exact h2.symm.trans h1
 
-lemma measure_inter_compl_singularPartSet' (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν]
-    {t : Set α} (ht : MeasurableSet t) :
-    μ (t ∩ (singularPartSet μ ν)ᶜ) = ∫⁻ x in t ∩ (singularPartSet μ ν)ᶜ, μ.rnDeriv ν x ∂ν := by
-  let s := singularPartSet μ ν
-  have hs : MeasurableSet s := measurableSet_singularPartSet
-  have hν_ac : ν ≪ μ + ν := by rw [add_comm]; exact rfl.absolutelyContinuous.add_right _
-  have : μ (t ∩ sᶜ) = ∫⁻ x in t ∩ sᶜ,
-      ν.rnDeriv (μ + ν) x * (μ.rnDeriv (μ + ν) x / ν.rnDeriv (μ + ν) x) ∂(μ + ν) := by
-    have : ∫⁻ x in t ∩ sᶜ,
-          ν.rnDeriv (μ + ν) x * (μ.rnDeriv (μ + ν) x / ν.rnDeriv (μ + ν) x) ∂(μ + ν)
-        = ∫⁻ x in t ∩ sᶜ, μ.rnDeriv (μ + ν) x ∂(μ + ν) := by
-      refine setLIntegral_congr_fun (ht.inter hs.compl) ?_
-      -- Not sure...
-      sorry
-      -- filter_upwards [ν.rnDeriv_lt_top (μ + ν)] with x hx_top hx
-      -- rw [div_eq_mul_inv, mul_comm, mul_assoc, ENNReal.inv_mul_cancel, mul_one]
-      -- · simp only [Set.mem_inter_iff, Set.mem_compl_iff, Set.mem_ofPred_eq, s] at hx
-      --   exact hx.2
-      -- · exact hx_top.ne
-    rw [this, Measure.setLIntegral_rnDeriv (rfl.absolutelyContinuous.add_right _)]
-  rw [this, setLIntegral_rnDeriv_mul hν_ac _ (ht.inter hs.compl)]
-  swap; · exact ((μ.measurable_rnDeriv _).div (ν.measurable_rnDeriv _)).aemeasurable
-  refine setLIntegral_congr_fun (ht.inter hs.compl) ?_
-  sorry
-  -- filter_upwards [μ.rnDeriv_eq_div ν] with x hx
-  -- exact hx ▸ fun _ ↦ rfl
+lemma absolutelyContinuous_restrict_compl_singularPartSet
+    (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν] :
+    μ.restrict (singularPartSet μ ν)ᶜ ≪ ν := by
+  refine AbsolutelyContinuous.mk fun A hA hA0 ↦ ?_
+  rw [restrict_apply hA]
+  have h1 : ∫⁻ x in A, ν.rnDeriv (μ + ν) x ∂(μ + ν) = 0 := by
+    rw [Measure.setLIntegral_rnDeriv (by rw [add_comm]; exact rfl.absolutelyContinuous.add_right _)]
+    exact hA0
+  rw [lintegral_eq_zero_iff (ν.measurable_rnDeriv _)] at h1
+  have h2 : (μ + ν) (A ∩ (singularPartSet μ ν)ᶜ) = 0 := by
+    rw [inter_comm, ← restrict_apply' hA, ← compl_mem_ae_iff, compl_compl]
+    filter_upwards [h1] with x hx
+    simpa [singularPartSet] using hx
+  rw [Measure.add_apply, add_eq_zero] at h2
+  exact h2.1
 
-lemma measure_inter_compl_singularPartSet (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν]
-    {t : Set α} (ht : MeasurableSet t) :
-    μ (t ∩ (singularPartSet μ ν)ᶜ) = ∫⁻ x in t, μ.rnDeriv ν x ∂ν := by
-  rw [measure_inter_compl_singularPartSet' _ _ ht]
+lemma restrict_singularPartSet_eq_singularPart (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν] :
+    μ.restrict (singularPartSet μ ν) = μ.singularPart ν := by
   symm
-  calc ∫⁻ x in t, rnDeriv μ ν x ∂ν
-    = ∫⁻ x in (singularPartSet μ ν) ∩ t, rnDeriv μ ν x ∂ν
-      + ∫⁻ x in (singularPartSet μ ν)ᶜ ∩ t, rnDeriv μ ν x ∂ν := by
-        rw [← restrict_restrict measurableSet_singularPartSet,
-          ← restrict_restrict measurableSet_singularPartSet.compl,
-          lintegral_add_compl _ measurableSet_singularPartSet]
-  _ = ∫⁻ x in t ∩ (singularPartSet μ ν)ᶜ, rnDeriv μ ν x ∂ν := by
-        rw [setLIntegral_measure_zero _ _ (measure_mono_null Set.inter_subset_left ?_),
-          Set.inter_comm, zero_add]
-        exact measure_singularPartSet _ _
+  refine singularPart_eq_restrict ?_ (measure_singularPartSet μ ν)
+  have h := singularPart_restrict μ ν (measurableSet_singularPartSet (μ := μ) (ν := ν)).compl
+  rw [singularPart_eq_zero_of_ac (absolutelyContinuous_restrict_compl_singularPartSet μ ν)] at h
+  rw [← restrict_apply_univ, ← h]
+  simp
 
 lemma restrict_compl_singularPartSet_eq_withDensity
     (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν] :
     μ.restrict (singularPartSet μ ν)ᶜ = ν.withDensity (μ.rnDeriv ν) := by
-  ext t ht
-  rw [restrict_apply ht, measure_inter_compl_singularPartSet μ ν ht, withDensity_apply _ ht]
+  have h := congr_arg (fun m ↦ m.restrict (singularPartSet μ ν)ᶜ)
+    (haveLebesgueDecomposition_add μ ν)
+  rw [h, restrict_add, ← restrict_singularPartSet_eq_singularPart,
+    restrict_restrict measurableSet_singularPartSet.compl, compl_inter_self, restrict_empty,
+    zero_add]
+  refine restrict_eq_self_of_ae_mem ?_
+  exact compl_mem_ae_iff.2 (withDensity_absolutelyContinuous ν _ (measure_singularPartSet μ ν))
 
-lemma restrict_singularPartSet_eq_singularPart (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν] :
-    μ.restrict (singularPartSet μ ν) = μ.singularPart ν := by
-  have h_add := haveLebesgueDecomposition_add μ ν
-  rw [← restrict_compl_singularPartSet_eq_withDensity μ ν] at h_add
-  have : μ = μ.restrict (singularPartSet μ ν) + μ.restrict (singularPartSet μ ν)ᶜ := by
-    rw [restrict_add_restrict_compl measurableSet_singularPartSet]
-  conv_lhs at h_add => rw [this]
-  exact (Measure.add_left_inj _ _ _).mp h_add
-
-lemma absolutelyContinuous_restrict_compl_singularPartSet
-    (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν] :
-    μ.restrict (singularPartSet μ ν)ᶜ ≪ ν := by
-  rw [restrict_compl_singularPartSet_eq_withDensity]
-  exact withDensity_absolutelyContinuous _ _
+lemma measure_inter_compl_singularPartSet (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν]
+    {t : Set α} (ht : MeasurableSet t) :
+    μ (t ∩ (singularPartSet μ ν)ᶜ) = ∫⁻ x in t, μ.rnDeriv ν x ∂ν := by
+  rw [← restrict_apply ht, restrict_compl_singularPartSet_eq_withDensity, withDensity_apply _ ht]
 
 example [SigmaFinite μ] [SigmaFinite ν] :
     μ (singularPartSet μ ν) = μ.singularPart ν .univ := by
