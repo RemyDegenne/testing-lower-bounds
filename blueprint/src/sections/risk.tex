@@ -40,8 +40,7 @@ Let $\hat{\mu}_\theta$ be the law of $\hat{y}(\theta)$. That is, $\hat{\mu} : \m
 
 \begin{definition}[Risk]
   \label{def:risk}
-  %\lean{}
-  %\leanok
+  \mathlibok
   \uses{lem:kernel_properties}
   The risk of an estimator $\hat{y}$ on the estimation problem $(P, y, \ell')$ at $\theta \in \Theta$ is $r^P_\theta(\hat{y}) = (\hat{y} \circ P)(\theta)\left[z \mapsto \ell'(y(\theta), z)\right]$~.
 \end{definition}
@@ -52,7 +51,7 @@ Let $\hat{\mu}_\theta$ be the law of $\hat{y}(\theta)$. That is, $\hat{\mu} : \m
 \begin{definition}[Bayesian risk]
   \label{def:bayesianRisk}
   \lean{ProbabilityTheory.avgRisk}
-  \leanok
+  \mathlibok
   \uses{def:risk}
   The Bayesian risk of an estimator $\hat{y}$ on $(P, y, \ell')$ for a prior $\pi \in \mathcal M(\Theta)$ is $R^P_\pi(\hat{y}) = \pi\left[\theta \mapsto r^P_\theta(\hat{y})\right]$~. It can also be expanded as $R^P_\pi(\hat{y}) = (\pi \otimes (\hat{y} \circ P))\left[ (\theta, z) \mapsto \ell'(y(\theta), z) \right]$~.
 \end{definition}
@@ -63,7 +62,7 @@ If we write $\ell'$ and $y$ for their deterministic kernels, the Bayesian risk o
 \begin{definition}[Bayes risk]
   \label{def:bayesRisk}
   \lean{ProbabilityTheory.bayesRisk}
-  \leanok
+  \mathlibok
   \uses{def:bayesianRisk}
   The Bayes risk of $(P, y, \ell')$ for prior $\pi \in \mathcal M(\Theta)$ is $\mathcal R^P_\pi = \inf_{\hat{y} : \mathcal X \rightsquigarrow \mathcal Z} R^P_\pi(\hat{y})$~, where the infimum is over Markov kernels.
 
@@ -75,7 +74,7 @@ If we write $\ell'$ and $y$ for their deterministic kernels, the Bayesian risk o
 \begin{definition}[Bayes estimator]
   \label{def:bayesEstimator}
   \lean{ProbabilityTheory.IsBayesEstimator}
-  \leanok
+  \mathlibok
   \uses{def:bayesRisk}
   An estimator $\hat{y}$ is said to be a Bayes estimator for a prior $\pi \in \mathcal P(\Theta)$ if $R^P_\pi(\hat{y}) = \mathcal R^P_\pi$.
 \end{definition}
@@ -83,7 +82,7 @@ If we write $\ell'$ and $y$ for their deterministic kernels, the Bayesian risk o
 \begin{definition}[Minimax risk]
   \label{def:minimaxRisk}
   \lean{ProbabilityTheory.minimaxRisk}
-  \leanok
+  \mathlibok
   \uses{def:risk}
   The minimax risk of $(P, y, \ell')$ is $\mathcal R^* = \inf_{\hat{y} : \mathcal X \rightsquigarrow \mathcal Z} \sup_{\theta \in \Theta} r^P_\theta(\hat{y})$~.
 \end{definition}
@@ -93,12 +92,12 @@ If we write $\ell'$ and $y$ for their deterministic kernels, the Bayesian risk o
 \begin{lemma}
   \label{lem:bayesRisk_le_minimaxRisk}
   \lean{ProbabilityTheory.bayesRisk_le_minimaxRisk}
-  \leanok
+  \mathlibok
   \uses{def:bayesRisk, def:minimaxRisk}
   $\mathcal R_B^* \le \mathcal R^*$.
 \end{lemma}
 
-\begin{proof}\leanok
+\begin{proof}\mathlibok
 For any $\pi \in \mathcal P(\mathcal X)$ and any estimator, $\pi\left[\hat{\mu}_\theta\left[\ell'(y(\theta), \hat{y}(\theta))\right]\right] \le \sup_{\theta \in \Theta}\hat{\mu}_\theta\left[\ell'(y(\theta), \hat{y}(\theta))\right]$.
 \end{proof}
 
@@ -112,7 +111,7 @@ TODO: ``often'', $\mathcal R^*_B = \mathcal R^*$.
 \begin{lemma}
   \label{lem:bayesRisk_le_const}
   \lean{ProbabilityTheory.bayesRisk_le_iInf}
-  \leanok
+  \mathlibok
   \uses{def:bayesRisk}
   The Bayes risk of a prior $\pi \in \mathcal M(\Theta)$ on $(P, y, \ell')$ with $P$ a Markov kernel satisfies
   \begin{align*}
@@ -121,7 +120,7 @@ TODO: ``often'', $\mathcal R^*_B = \mathcal R^*$.
   \end{align*}
 \end{lemma}
 
-\begin{proof}\leanok
+\begin{proof}\mathlibok
 \uses{}
 The infimum over all Markov kernels in the definition of the Bayes risk of $\pi$ is bounded from above by the infimum restricted to constant, deterministic Markov kernels.
 \end{proof}
@@ -129,8 +128,8 @@ The infimum over all Markov kernels in the definition of the Bayes risk of $\pi$
 
 \begin{lemma}
   \label{lem:bayesRisk_const}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.bayesRisk_const}
+  \mathlibok
   \uses{def:bayesRisk}
   The Bayes risk of a prior $\pi \in \mathcal M(\Theta)$ on $(P, y, \ell')$ with $P$ a constant Markov kernel is
   \begin{align*}
@@ -141,7 +140,7 @@ The infimum over all Markov kernels in the definition of the Bayes risk of $\pi$
   In particular, it does not depend on $P$.
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\mathlibok
 \uses{}
 Let $\xi$ be the measure such that $P(\theta) = \xi$ for all $\theta$.
 \begin{align*}
@@ -165,12 +164,12 @@ Let $\xi$ be the measure such that $P(\theta) = \xi$ for all $\theta$.
 \begin{theorem}[Data-processing inequality]
   \label{thm:data_proc_bayesRisk}
   \lean{ProbabilityTheory.bayesRisk_le_bayesRisk_comp}
-  \leanok
+  \mathlibok
   \uses{def:bayesRisk}
   For $P : \Theta \rightsquigarrow \mathcal X$ and $\kappa : \mathcal X \rightsquigarrow \mathcal X'$ a Markov kernel, $\mathcal R^{\kappa \circ P}_\pi \ge \mathcal R^{P}_\pi$ (where the estimation problems differ only in the kernel).
 \end{theorem}
 
-\begin{proof}\leanok
+\begin{proof}\mathlibok
 \uses{}
 The risk $\mathcal R^{\kappa \circ P}_\pi$ is
 \begin{align*}
@@ -188,12 +187,12 @@ The inequality is due to taking an infimum over a larger set: $\{\hat{y} \circ \
 \begin{lemma}
   \label{lem:bayesRisk_compProd_le_fst}
   \lean{ProbabilityTheory.bayesRisk_compProd_le_bayesRisk}
-  \leanok
+  \mathlibok
   \uses{def:bayesRisk}
   For $P : \Theta \rightsquigarrow \mathcal X$ and $\kappa : \Theta \times \mathcal X \rightsquigarrow \mathcal X'$ a Markov kernel, $\mathcal R^{P \otimes \kappa}_\pi \le \mathcal R^{P}_\pi$~.
 \end{lemma}
 
-\begin{proof}\leanok
+\begin{proof}\mathlibok
 \uses{thm:data_proc_bayesRisk}
 Use Theorem~\ref{thm:data_proc_bayesRisk}: $P$ is the composition of $P \otimes \kappa$ and the deterministic kernel $\mathcal X \times \mathcal X' \rightsquigarrow \mathcal X$ that forgets the second value.
 \end{proof}
@@ -245,7 +244,7 @@ TODO: can we build kernels such that this lemma is a consequence of one of the l
 \begin{lemma}
   \label{lem:bayesianRisk_bayesInv}
   \lean{ProbabilityTheory.avgRisk_eq_lintegral_posterior_prod}
-  \leanok
+  \mathlibok
   \uses{def:bayesianRisk, def:bayesInv}
   The Bayesian risk of a Markov kernel $\hat{y} : \mathcal X \rightsquigarrow \mathcal Z$ with respect to a prior $\pi \in \mathcal M(\Theta)$ on $(P, y, \ell')$ satisfies
   \begin{align*}
@@ -254,7 +253,7 @@ TODO: can we build kernels such that this lemma is a consequence of one of the l
   whenever the Bayesian inverse $P_\pi^\dagger$ of $P$ with respect to $\pi$ exists (Definition~\ref{def:bayesInv}).
 \end{lemma}
 
-\begin{proof}\leanok
+\begin{proof}\mathlibok
 \uses{lem:bayesInv_properties}
 Use the main property of the Bayesian inverse.
 \begin{align*}
@@ -273,7 +272,7 @@ Use the main property of the Bayesian inverse.
 \begin{lemma}
   \label{lem:bayesianRisk_ge_inf_bayesInv}
   \lean{ProbabilityTheory.lintegral_iInf_posterior_le_avgRisk}
-  \leanok
+  \mathlibok
   \uses{def:bayesianRisk, def:bayesInv}
   The Bayesian risk of a Markov kernel $\hat{y} : \mathcal X \rightsquigarrow \mathcal Z$ with respect to a prior $\pi \in \mathcal M(\Theta)$ on $(P, y, \ell')$ satisfies
   \begin{align*}
@@ -281,7 +280,7 @@ Use the main property of the Bayesian inverse.
   \end{align*}
 \end{lemma}
 
-\begin{proof}\leanok
+\begin{proof}\mathlibok
 \uses{lem:bayesianRisk_bayesInv}
 Starting from the equality of Lemma~\ref{lem:bayesianRisk_bayesInv}, we get
 \begin{align*}
@@ -301,7 +300,7 @@ R^P_\pi(\hat{y})
 \begin{definition}[Generalized Bayes estimator]
   \label{def:genBayesEstimator}
   \lean{ProbabilityTheory.IsArgminEstimator}
-  \leanok
+  \mathlibok
   \uses{def:risk}
   The generalized Bayes estimator for prior $\pi \in \mathcal P(\Theta)$ on $(P, y, \ell')$ is the deterministic estimator $\mathcal X \to \mathcal Z$ given by
   \begin{align*}
@@ -314,7 +313,7 @@ R^P_\pi(\hat{y})
 \begin{lemma}
   \label{lem:bayesianRisk_genBayesEstimator}
   \lean{ProbabilityTheory.IsArgminEstimator.avgRisk_eq_lintegral_iInf}
-  \leanok
+  \mathlibok
   \uses{def:bayesianRisk, def:genBayesEstimator}
   The Bayesian risk of the generalized Bayes estimator $\hat{y}_B$ is
   \begin{align*}
@@ -323,7 +322,7 @@ R^P_\pi(\hat{y})
   \end{align*}
 \end{lemma}
 
-\begin{proof}\leanok
+\begin{proof}\mathlibok
 \uses{lem:bayesianRisk_bayesInv}
 Start from the equality of Lemma~\ref{lem:bayesianRisk_bayesInv} and use the definition of the generalized Bayes estimator.
 \end{proof}
@@ -331,7 +330,7 @@ Start from the equality of Lemma~\ref{lem:bayesianRisk_bayesInv} and use the def
 \begin{theorem}
   \label{thm:isBayesEstimator_genBayesEstimator}
   \lean{ProbabilityTheory.IsArgminEstimator.isBayesEstimator, ProbabilityTheory.HasArgminEstimator.bayesRisk_eq}
-  \leanok
+  \mathlibok
   \uses{def:bayesEstimator, def:genBayesEstimator, def:bayesRisk}
   When the generalized Bayes estimator is well defined, it is a Bayes estimator. The value of the Bayes risk with respect to the prior $\pi \in \mathcal M(\Theta)$ is then
   \begin{align*}
@@ -340,7 +339,7 @@ Start from the equality of Lemma~\ref{lem:bayesianRisk_bayesInv} and use the def
   \end{align*}
 \end{theorem}
 
-\begin{proof}\leanok
+\begin{proof}\mathlibok
 \uses{lem:bayesianRisk_ge_inf_bayesInv, lem:bayesianRisk_genBayesEstimator}
 By Lemma~\ref{lem:bayesianRisk_ge_inf_bayesInv}, the Bayesian risk of the generalized Bayes estimator obtained in Lemma~\ref{lem:bayesianRisk_genBayesEstimator} is a lower bound for the Bayesian risk.
 \end{proof}
@@ -447,7 +446,7 @@ The following is a new definition, which is a natural generalization of the DeGr
 \begin{definition}
   \label{def:riskIncrease}
   \lean{ProbabilityTheory.riskIncrease}
-  \leanok
+  \mathlibok
   \uses{def:bayesRisk}
   The Bayes risk increase $I^P_{\pi}(\kappa)$ of a kernel $\kappa : \mathcal X \rightsquigarrow \mathcal X'$ with respect to the estimation problem $(P, y, \ell')$ and the prior $\pi \in \mathcal M(\Theta)$ is the difference of the Bayes risk of $(\kappa \circ P, y, \ell')$ and that of $(P, y, \ell')$. That is,
   \begin{align*}
@@ -502,7 +501,7 @@ I^P_\pi(\kappa) + I^{\kappa \circ P}_\pi(\eta)
 \begin{lemma}[Data-processing inequality]
   \label{lem:riskIncrease_comp_del}
   \lean{ProbabilityTheory.riskIncrease_comp_le}
-  \leanok
+  \mathlibok
   \uses{def:riskIncrease}
   For any measurable space $\mathcal X$, let $d_{\mathcal X} : \mathcal X \rightsquigarrow *$ be the Markov kernel to the point space.
   For all Markov kernels $\kappa : \mathcal X \rightsquigarrow \mathcal X'$,
@@ -511,7 +510,7 @@ I^P_\pi(\kappa) + I^{\kappa \circ P}_\pi(\eta)
   \end{align*}
 \end{lemma}
 
-\begin{proof}\leanok
+\begin{proof}\mathlibok
 \uses{lem:riskIncrease_comp, lem:riskIncrease_nonneg}
 By Lemma~\ref{lem:riskIncrease_comp}, then Lemma~\ref{lem:riskIncrease_nonneg},
 \begin{align*}
@@ -533,12 +532,12 @@ In this section, for a measure $\xi$ on $\{0,1\}$, we write $\xi_0$ for $\xi(\{0
 \begin{lemma}
   \label{lem:bayesInv_binary}
   \lean{ProbabilityTheory.posterior_boolKernel_apply_true, ProbabilityTheory.posterior_boolKernel_apply_false}
-  \leanok
+  \mathlibok
   \uses{def:bayesInv}
   The Bayesian inverse of a kernel $P : \{0,1\} \rightsquigarrow \mathcal X$ with respect to a prior $\xi \in \mathcal M(\{0,1\})$ is $P_\xi^\dagger(x) = \left(\xi_0\frac{d P(0)}{d(P \circ \xi)}(x), \xi_1\frac{d P(1)}{d(P \circ \xi)}(x)\right)$ (almost surely w.r.t. $P \circ \xi = \xi_0 P(0) + \xi_1 P(1)$).
 \end{lemma}
 
-\begin{proof}\leanok
+\begin{proof}\mathlibok
 \uses{lem:bayesInv_properties}
 
 \end{proof}

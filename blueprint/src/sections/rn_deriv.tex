@@ -16,7 +16,7 @@ Taking for all $x$ the ratio $\frac{d \kappa(x)}{d \eta(x)}$ would give us measu
 \begin{definition}
   \label{def:kernel_rnDeriv}
   \lean{ProbabilityTheory.Kernel.rnDeriv}
-  \leanok
+  \mathlibok
   \uses{lem:kernel_properties}
   Let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels, with either $\mathcal X$ countable or $\mathcal{Y}$ countably generated. The Radon-Nikodym derivative of $\kappa$ with respect to $\eta$, denoted by $\frac{d \kappa}{d \eta}$, is a measurable function $\mathcal X \times \mathcal Y \to \mathbb{R}_{+, \infty}$ with $\kappa = \frac{d \kappa}{d \eta} \cdot \eta + \kappa_{\perp \eta}$, where for all $x$, $\kappa_{\perp \eta}(x) \perp \eta(x)$.
 \end{definition}
@@ -25,12 +25,12 @@ Taking for all $x$ the ratio $\frac{d \kappa(x)}{d \eta(x)}$ would give us measu
 \begin{lemma}
   \label{lem:rnDeriv_unique}
   \lean{ProbabilityTheory.Kernel.eq_rnDeriv_measure}
-  \leanok
+  \mathlibok
   \uses{def:kernel_rnDeriv}
   Let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels, with either $\mathcal X$ countable or $\mathcal{Y}$ countably generated. If for some $f$ and $\xi$, $\kappa = f \cdot \eta + \xi$ with $\xi(x) \perp \eta(x)$ for all $x$, then for all $x$, $f(x, y) = \frac{d \kappa(x)}{d \eta(x)}(y)$ for $\eta(x)$-almost all $y \in \mathcal Y$.
 \end{lemma}
 
-\begin{proof} \leanok
+\begin{proof}\mathlibok
 Let $f$ and $\xi$ be such that $\kappa = f \cdot \eta + \xi$ with $\xi(x) \perp \eta(x)$ for all $x$. Then for all $x \in \mathcal X$, $\kappa(x) = f(x, \cdot) \cdot \eta(x) + \xi(x)$ with $\xi(x) \perp \eta(x)$. By the uniqueness result for the Radon-Nikodym derivative of measures, $f(x, \cdot) = \frac{d \kappa(x)}{d \eta(x)}$ almost everywhere.
 \end{proof}
 
@@ -38,12 +38,12 @@ Let $f$ and $\xi$ be such that $\kappa = f \cdot \eta + \xi$ with $\xi(x) \perp 
 \begin{corollary}
   \label{cor:rnDeriv_value}
   \lean{ProbabilityTheory.Kernel.rnDeriv_eq_rnDeriv_measure}
-  \leanok
+  \mathlibok
   \uses{def:kernel_rnDeriv}
   For all $x \in \mathcal X$, for $\eta(x)$-almost all $y \in \mathcal Y$, $\frac{d \kappa}{d \eta}(x, y) = \frac{d \kappa(x)}{d \eta(x)}(y)$.
 \end{corollary}
 
-\begin{proof} \leanok
+\begin{proof}\mathlibok
 \uses{lem:rnDeriv_unique}
 Apply Lemma~\ref{lem:rnDeriv_unique}.
 \end{proof}
@@ -57,7 +57,7 @@ Apply Lemma~\ref{lem:rnDeriv_unique}.
 \begin{lemma}
   \label{lem:ac_compProd_iff}
   \lean{MeasureTheory.Measure.absolutelyContinuous_compProd_of_compProd, MeasureTheory.Measure.absolutelyContinuous_of_compProd}
-  \leanok
+  \mathlibok
   \uses{lem:kernel_properties}
   Let $\mu, \nu$ be two $\sigma$-finite measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two s-finite kernels. Then
   \begin{itemize}
@@ -74,7 +74,7 @@ Apply Lemma~\ref{lem:rnDeriv_unique}.
   
 \end{lemma}
 
-\begin{proof}\leanok
+\begin{proof}\mathlibok
 \uses{lem:kernel_properties}
 
 \end{proof}
@@ -82,8 +82,8 @@ Apply Lemma~\ref{lem:rnDeriv_unique}.
 
 \begin{lemma}
   \label{lem:mutuallySingular_compProd}
-  %\lean{}
-  %\leanok
+  \lean{MeasureTheory.Measure.MutuallySingular.compProd_of_left, MeasureTheory.Measure.mutuallySingular_compProd_iff, MeasureTheory.Measure.mutuallySingular_of_mutuallySingular_compProd}
+  \mathlibok
   \uses{lem:kernel_properties}
   Let $\mu, \nu$ be two $\sigma$-finite measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels.
   Let $\mu \sqcap \nu$ denote the infimum of $\mu$ and $\nu$.
@@ -95,7 +95,7 @@ Apply Lemma~\ref{lem:rnDeriv_unique}.
   \end{enumerate}
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\mathlibok
 \uses{}
 First, let's state two facts about mutually singular measures that we will use without proof:
 \begin{itemize}
@@ -158,14 +158,14 @@ Hence for $\mu$-almost all $x$, $\kappa(x)(\{y \mid (x, y) \in s\}) = 0$. Simila
 \begin{lemma}
   \label{lem:rnDeriv_eq_ac_left}
   \lean{ProbabilityTheory.rnDeriv_compProd_withDensity_rnDeriv}
-  \leanok
+  \mathlibok
   \uses{}
   Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels.
   Let $\mu_{\parallel \nu} = \left(\frac{\partial \mu}{\partial \nu}\right) \cdot \nu$.
   Then for $(\nu \otimes \eta)$-almost all $z$, $\frac{d (\mu_{\parallel \nu} \otimes \kappa)}{d (\nu \otimes \eta)}(z) = \frac{d (\mu \otimes \kappa)}{d (\nu \otimes \eta)}(z)$.
 \end{lemma}
 
-\begin{proof} \leanok
+\begin{proof}\mathlibok
 \uses{lem:kernel_properties}
 \end{proof}
 
@@ -173,12 +173,12 @@ Hence for $\mu$-almost all $x$, $\kappa(x)(\{y \mid (x, y) \in s\}) = 0$. Simila
 \begin{lemma}
   \label{cor:rnDeriv_compProd_left}
   \lean{ProbabilityTheory.rnDeriv_measure_compProd_left}
-  \leanok
+  \mathlibok
   \uses{}
   Let $\mu, \nu \in \mathcal M(\mathcal X)$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a finite kernel. Then for $(\nu \otimes \kappa)$-almost all $(x, y)$, $\frac{d (\mu \otimes \kappa)}{d (\nu \otimes \kappa)}(x,y) = \frac{d\mu}{d\nu}(x)$.
 \end{lemma}
 
-\begin{proof} \leanok
+\begin{proof}\mathlibok
 \uses{lem:rnDeriv_eq_ac_left}
 We can suppose $\mu \ll \nu$ without loss of generality (by Lemma~\ref{lem:rnDeriv_eq_ac_left}).
 That implies $\mu \otimes \kappa \ll \nu \otimes \kappa$.
@@ -223,7 +223,7 @@ It suffices to show that the integrals of the two functions agree on all sets in
 \begin{theorem}[Chain rule for Radon-Nikodym derivatives]
   \label{thm:rnDeriv_chain_compProd}
   \lean{ProbabilityTheory.rnDeriv_compProd}
-  \leanok
+  \mathlibok
   \uses{}
   Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels with $\mu \otimes \kappa \ll \mu \otimes \eta$. Then for $(\nu \otimes \eta)$-almost all $(x,y)$,
   \begin{align*}
@@ -233,7 +233,7 @@ It suffices to show that the integrals of the two functions agree on all sets in
   \end{align*}
 \end{theorem}
 
-\begin{proof}\leanok
+\begin{proof}\mathlibok
 \uses{lem:rnDeriv_chain,cor:rnDeriv_compProd_left}
 By the first point of Lemma~\ref{lem:rnDeriv_chain}, $(\nu \otimes \eta)$-almost surely,
 \begin{align*}
@@ -261,7 +261,7 @@ Then, by Lemma~\ref{cor:rnDeriv_compProd_left}, $\frac{d (\mu \otimes \eta)}{d (
 \begin{lemma}
   \label{cor:rnDeriv_compProd_right}
   \lean{ProbabilityTheory.rnDeriv_measure_compProd_right}
-  \leanok
+  \mathlibok
   \uses{def:kernel_rnDeriv}
   Let $\mu \in \mathcal M(\mathcal X)$ be a finite measure and $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels, with either $\mathcal X$ countable or $\mathcal{Y}$ countably generated.
   Then $(\mu \otimes \eta)$-almost surely,
@@ -271,7 +271,7 @@ Then, by Lemma~\ref{cor:rnDeriv_compProd_left}, $\frac{d (\mu \otimes \eta)}{d (
   \end{align*}
 \end{lemma}
 
-\begin{proof}\leanok
+\begin{proof}\mathlibok
 \uses{lem:rnDeriv_eq_ac}
 
 \end{proof}
@@ -283,13 +283,13 @@ As long as we are happy with $\mu$-almost sure statements, we can use $\frac{d (
 \begin{lemma}
   \label{lem:ae_rnDeriv_ne_zero}
   \lean{MeasureTheory.Measure.ae_rnDeriv_ne_zero_imp_of_ae}
-  \leanok
+  \mathlibok
   \uses{}
   Let $\mu, \nu \in \mathcal M(\mathcal X)$ be two $\sigma$-finite measures and let $p$ be a predicate on $\mathcal X$.
   If $p$ is true $\mu$-almost surely, then for $\nu$-almost all $x$, either $\frac{d\mu}{d\nu}(x) = 0$ or $p(x)$.
 \end{lemma}
 
-\begin{proof}\leanok
+\begin{proof}\mathlibok
 \uses{}
 
 \end{proof}
@@ -298,7 +298,7 @@ As long as we are happy with $\mu$-almost sure statements, we can use $\frac{d (
 \begin{lemma}
   \label{lem:rnDeriv_compProd}
   \lean{ProbabilityTheory.rnDeriv_measure_compProd}
-  \leanok
+  \mathlibok
   \uses{def:kernel_rnDeriv}
   Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels, with either $\mathcal X$ countable or $\mathcal{Y}$ countably generated.
   Then for $(\nu \otimes \eta)$-almost all $(x, y)$,
@@ -309,7 +309,7 @@ As long as we are happy with $\mu$-almost sure statements, we can use $\frac{d (
   This implies that the equality is true for $\nu$-almost all $x$, for $\eta(x)$-almost all $y$.
 \end{lemma}
 
-\begin{proof} \leanok
+\begin{proof}\mathlibok
 \uses{thm:rnDeriv_chain_compProd, cor:rnDeriv_compProd_right, lem:ae_rnDeriv_ne_zero, cor:rnDeriv_compProd_left}
 First, by Theorem~\ref{thm:rnDeriv_chain_compProd}, for $(\nu \otimes \eta)$-almost all $(x,y)$,
 \begin{align*}
@@ -338,7 +338,7 @@ Finally, by Lemma~\ref{cor:rnDeriv_compProd_left}, $\frac{d(\mu \otimes \eta)}{d
 \begin{lemma}
   \label{lem:rnDeriv_map_eq_condexp}
   \lean{MeasureTheory.toReal_rnDeriv_map}
-  \leanok
+  \mathlibok
   \uses{}
   Let $\mu, \nu \in \mathcal M(\mathcal X)$ with $\mu \ll \nu$, $g : \mathcal X \to \mathcal Y$ a measurable function and denote by $g^* \mathcal Y$ the comap of the $\sigma$-algebra on $\mathcal Y$ by $g$.
   Then $\nu$-almost everywhere,
@@ -348,7 +348,7 @@ Finally, by Lemma~\ref{cor:rnDeriv_compProd_left}, $\frac{d(\mu \otimes \eta)}{d
   \end{align*}
 \end{lemma}
 
-\begin{proof}\leanok
+\begin{proof}\mathlibok
 \uses{}
 We show that the integrals of the two functions agree on all $g^* \mathcal Y$-measurable sets. It suffices to show equality on all sets oc $\mathcal X$ of the form $g^{-1}(t)$ for $t$ a measurable set of $\mathcal Y$.
 TODO: also show measurability.
@@ -439,13 +439,13 @@ For $\mathcal A$ a sub-$\sigma$-algebra and $\mu$ a measure, we write $\mathcal 
 \begin{lemma}
   \label{lem:rnDeriv_trim_of_ac}
   \lean{MeasureTheory.toReal_rnDeriv_trim}
-  \leanok
+  \mathlibok
   %\uses{}
   Let $\mu, \nu$ be two finite measures on $\mathcal X$ with $\mu \ll \nu$ and let $\mathcal A$ be a sub-$\sigma$-algebra of $\mathcal X$.
   Then $\frac{d \mu_{| \mathcal A}}{d \nu_{| \mathcal A}}$ is $\nu_{| \mathcal A}$-almost everywhere (hence also $\nu$-a.e.) equal to $\nu\left[ \frac{d \mu}{d \nu} \mid \mathcal A\right]$.
 \end{lemma}
 
-\begin{proof}\leanok
+\begin{proof}\mathlibok
 \uses{lem:rnDeriv_map_eq_condexp}
 The restriction $\mu_{| \mathcal A}$ is the map of $\mu$ by the identity, seen as a function from $\mathcal X$ with its $\sigma$-algebra to $\mathcal X$ with $\mathcal{A}$.
 We can thus apply Lemma~\ref{lem:rnDeriv_map_eq_condexp}.

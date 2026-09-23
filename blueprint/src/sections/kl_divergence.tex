@@ -3,7 +3,7 @@
 \begin{definition}[Kullback-Leibler divergence]
   \label{def:KL}
   \lean{InformationTheory.klDiv}
-  \leanok
+  \mathlibok
   %\uses{}
   Let $\mu, \nu$ be two measures on $\mathcal X$. The Kullback-Leibler divergence between $\mu$ and $\nu$ is
   \begin{align*}
@@ -60,12 +60,12 @@ Since $\KL$ is an f-divergence, every inequality for f-divergences can be transl
 \begin{lemma}
   \label{lem:kl_self}
   \lean{InformationTheory.klDiv_self}
-  \leanok
+  \mathlibok
   \uses{def:KL}
   $\KL(\mu, \mu) = 0$.
 \end{lemma}
 
-\begin{proof} \leanok
+\begin{proof}\mathlibok
   \uses{lem:kl_eq_fDiv, lem:fDiv_self}
   KL is an f-divergence thanks to Lemma~\ref{lem:kl_eq_fDiv}, then apply Lemma~\ref{lem:fDiv_self}.
 \end{proof}
@@ -104,13 +104,13 @@ Apply Theorem~\ref{thm:fDiv_fst_le_2}.
 \begin{theorem}[Data-processing]
   \label{thm:kl_data_proc}
   \lean{InformationTheory.klDiv_comp_right_le}
-  \leanok
+  \mathlibok
   \uses{def:KL}
   Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
   Then $\KL(\kappa \circ \mu, \kappa \circ \nu) \le \KL(\mu, \nu)$.
 \end{theorem}
 
-\begin{proof} \leanok
+\begin{proof}\mathlibok
 \uses{thm:fDiv_data_proc_2, lem:kl_eq_fDiv}
 Apply Theorem~\ref{thm:fDiv_data_proc_2}.
 \end{proof}
@@ -119,12 +119,12 @@ Apply Theorem~\ref{thm:fDiv_data_proc_2}.
 \begin{lemma}
   \label{lem:kl_ge}
   \lean{InformationTheory.mul_log_le_klDiv}
-  \leanok
+  \mathlibok
   \uses{def:KL}
   Let $\mu, \nu$ be two finite measures on $\mathcal X$. Then $\KL(\mu, \nu) \ge \mu(\mathcal X) \log \frac{\mu(\mathcal X)}{\nu(\mathcal X)}$.
 \end{lemma}
 
-\begin{proof}\leanok
+\begin{proof}\mathlibok
 \uses{lem:le_fDiv, lem:kl_eq_fDiv}
 \end{proof}
 
@@ -146,12 +146,12 @@ Apply Lemma~\ref{lem:kl_ge} and use $\mu(\mathcal X) = \nu (\mathcal X)$.
 \begin{lemma}[Converse Gibbs' inequality]
   \label{lem:kl_eq_zero_iff}
   \lean{InformationTheory.klDiv_eq_zero_iff}
-  \leanok
+  \mathlibok
   \uses{def:KL}
   Let $\mu, \nu$ be two probability measures. Then $\KL(\mu, \nu) = 0$ if and only if $\mu = \nu$.
 \end{lemma}
 
-\begin{proof}\leanok
+\begin{proof}\mathlibok
 \uses{lem:kl_eq_fDiv, lem:fDiv_eq_zero_iff}
 KL is an f-divergence thanks to Lemma~\ref{lem:kl_eq_fDiv}, then apply Lemma~\ref{lem:fDiv_eq_zero_iff}.
 \end{proof}
