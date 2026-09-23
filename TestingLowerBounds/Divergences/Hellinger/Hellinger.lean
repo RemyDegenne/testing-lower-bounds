@@ -592,7 +592,7 @@ lemma integral_rpow_rnDeriv_smul_right' [SigmaFinite μ] [SigmaFinite ν] {c : �
 
 /-- `∫ (∂μ/∂ν)^a ∂ν` is `μ(univ)^a * ν(univ)^(1 - a)` times its value for the normalized
 measures. -/
-lemma integral_rpow_rnDeriv_eq_mul_integral_rpow_rnDeriv_inv_smul (ha_zero : a ≠ 0) (ha_ne : a ≠ 1)
+lemma integral_rpow_rnDeriv_eq_mul_integral_rpow_rnDeriv_inv_smul (ha_ne : a ≠ 1)
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] [NeZero μ] [NeZero ν] :
     ∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν
       = (μ .univ).toReal ^ a * (ν .univ).toReal ^ (1 - a)
@@ -621,7 +621,7 @@ lemma integral_rpow_rnDeriv_le_rpow_mul_rpow_of_lt_one (ha_pos : 0 < a) (ha_lt :
     positivity
   have : NeZero μ := ⟨hμ⟩
   have : NeZero ν := ⟨hν⟩
-  rw [integral_rpow_rnDeriv_eq_mul_integral_rpow_rnDeriv_inv_smul ha_pos.ne' ha_lt.ne]
+  rw [integral_rpow_rnDeriv_eq_mul_integral_rpow_rnDeriv_inv_smul ha_lt.ne]
   refine mul_le_of_le_one_right (by positivity) ?_
   rw [← mul_hellingerDiv_add_meas_eq_integral_of_lt_one ha_pos ha_lt]
   simp only [measure_univ, ENNReal.toReal_one, mul_one]
@@ -636,10 +636,11 @@ lemma rpow_mul_rpow_le_integral_rpow_rnDeriv_of_one_lt (ha : 1 < a)
   have : NeZero ν :=
     ⟨fun hν ↦ h (by rw [hν]; exact hellingerDiv_zero_measure_right_of_one_le ha.le μ)⟩
   have h' : hellingerDiv a ((μ .univ)⁻¹ • μ) ((ν .univ)⁻¹ • ν) ≠ ∞ := by
-    rwa [ne_eq, hellingerDiv_smul_right_eq_top_iff' ha.ne' (ENNReal.inv_ne_zero.mpr (measure_ne_top _ _))
-      (ENNReal.inv_ne_top.mpr (NeZero.ne _)), hellingerDiv_smul_left_eq_top_iff' ha.ne'
-      (ENNReal.inv_ne_zero.mpr (measure_ne_top _ _)) (ENNReal.inv_ne_top.mpr (NeZero.ne _))]
-  rw [integral_rpow_rnDeriv_eq_mul_integral_rpow_rnDeriv_inv_smul ha_pos.ne' ha.ne']
+    rwa [ne_eq, hellingerDiv_smul_right_eq_top_iff' ha.ne'
+      (ENNReal.inv_ne_zero.mpr (measure_ne_top _ _)) (ENNReal.inv_ne_top.mpr (NeZero.ne _)),
+      hellingerDiv_smul_left_eq_top_iff' ha.ne' (ENNReal.inv_ne_zero.mpr (measure_ne_top _ _))
+      (ENNReal.inv_ne_top.mpr (NeZero.ne _))]
+  rw [integral_rpow_rnDeriv_eq_mul_integral_rpow_rnDeriv_inv_smul ha.ne']
   refine le_mul_of_one_le_right (by positivity) ?_
   rw [hellingerDiv_ne_top_iff_of_one_lt ha] at h'
   rw [← mul_hellingerDiv_add_meas_eq_integral_of_integrable_of_ac ha_pos ha.ne' h'.1 h'.2]

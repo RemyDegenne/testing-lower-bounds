@@ -89,7 +89,7 @@ lemma hellingerDiv_ae_ne_top_iff [IsFiniteKernel κ] [IsFiniteKernel η]
 
 lemma hellingerDiv_ae_ne_top_of_lt_one [IsFiniteKernel κ] [IsFiniteKernel η] (ha : a < 1) :
     ∀ᵐ x ∂μ, hellingerDiv a (κ x) (η x) ≠ ∞ :=
-  ae_of_all _ fun x ↦ hellingerDiv_ne_top_of_lt_one ha _ _
+  ae_of_all _ fun _ ↦ hellingerDiv_ne_top_of_lt_one ha _ _
 
 lemma integrable_toReal_hellingerDiv_iff [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η]
     (ha_pos : 0 < a) (ha_ne : a ≠ 1) (h_ae : ∀ᵐ x ∂μ, hellingerDiv a (κ x) (η x) ≠ ∞) :

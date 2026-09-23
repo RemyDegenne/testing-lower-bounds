@@ -184,8 +184,8 @@ lemma fDiv_add_measure_le_of_ac {μ₁ μ₂ ν : Measure α} [SigmaFinite μ₁
         rw [lintegral_add_left measurable_divFunction_rnDeriv,
           lintegral_const_mul _ (Measure.measurable_rnDeriv _ _), Measure.lintegral_rnDeriv h₂]
 
-/-- Decomposition of `fDiv f μ ν` according to the Lebesgue decomposition of `μ` with respect to `ν`,
-in additive form: the term `f 0 * ν univ` accounts for the value of `f` at `0` on the singular
+/-- Decomposition of `fDiv f μ ν` according to the Lebesgue decomposition of `μ` with respect to
+`ν`, in additive form: the term `f 0 * ν univ` accounts for the value of `f` at `0` on the singular
 part. -/
 lemma fDiv_add_eq_add_withDensity_singularPart
     (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν] :

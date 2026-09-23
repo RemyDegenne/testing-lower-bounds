@@ -80,7 +80,8 @@ noncomputable def renyiDiv (a : ℝ) (μ ν : Measure α) : ℝ≥0∞ :=
   else if a = 1 then klDiv ((μ .univ)⁻¹ • μ) ((ν .univ)⁻¹ • ν)
   else ((a - 1)⁻¹ * ENNReal.log
     (((avgMass a μ ν : EReal) + (a - 1) * (hellingerDiv a μ ν)).toENNReal)
-      - (a - 1)⁻¹ * (a * Real.log (μ .univ).toReal + (1 - a) * Real.log (ν .univ).toReal)).toENNReal
+      - (a - 1)⁻¹ * (a * Real.log (μ .univ).toReal
+        + (1 - a) * Real.log (ν .univ).toReal)).toENNReal
 
 lemma avgMass_add_mul_hellingerDiv_eq_ofReal [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (h : hellingerDiv a μ ν ≠ ∞) :
@@ -271,7 +272,8 @@ lemma renyiDiv_one_eq_top_iff [NeZero μ] [IsFiniteMeasure μ] [IsFiniteMeasure 
 lemma renyiDiv_of_ne_one (ha_zero : a ≠ 0) (ha_ne_one : a ≠ 1) (μ ν : Measure α) :
     renyiDiv a μ ν = ((a - 1)⁻¹ * ENNReal.log
       (((avgMass a μ ν : EReal) + (a - 1) * (hellingerDiv a μ ν)).toENNReal)
-      - (a - 1)⁻¹ * (a * Real.log (μ .univ).toReal + (1 - a) * Real.log (ν .univ).toReal)).toENNReal := by
+      - (a - 1)⁻¹ * (a * Real.log (μ .univ).toReal
+        + (1 - a) * Real.log (ν .univ).toReal)).toENNReal := by
   rw [renyiDiv, ite_eq_right ha_zero, ite_eq_right ha_ne_one]
 
 lemma renyiDiv_eq_top_of_hellingerDiv_eq_top [NeZero μ] [IsFiniteMeasure μ] [IsFiniteMeasure ν]
@@ -301,7 +303,8 @@ lemma renyiDiv_of_lt_one [IsFiniteMeasure μ] [IsFiniteMeasure ν] (ha_pos : 0 <
     renyiDiv a μ ν =
       if μ ⟂ₘ ν then ∞
       else ENNReal.ofReal ((a - 1)⁻¹
-        * (Real.log (∫ x, (μ.rnDeriv ν x).toReal ^ a ∂ν) - (a * Real.log (μ .univ).toReal + (1 - a) * Real.log (ν .univ).toReal))) := by
+        * (Real.log (∫ x, (μ.rnDeriv ν x).toReal ^ a ∂ν)
+          - (a * Real.log (μ .univ).toReal + (1 - a) * Real.log (ν .univ).toReal))) := by
   rw [renyiDiv_of_ne_one ha_pos.ne' ha_lt.ne]
   split_ifs with h
   · rw [(avgMass_add_mul_hellingerDiv_eq_zero_iff_mutuallySingular ha_pos ha_lt).mpr h]
@@ -327,7 +330,8 @@ lemma renyiDiv_of_one_lt [NeZero μ] [IsFiniteMeasure μ] [IsFiniteMeasure ν] (
     renyiDiv a μ ν =
       if hellingerDiv a μ ν = ∞ then ∞
       else ENNReal.ofReal ((a - 1)⁻¹
-        * (Real.log (∫ x, (μ.rnDeriv ν x).toReal ^ a ∂ν) - (a * Real.log (μ .univ).toReal + (1 - a) * Real.log (ν .univ).toReal))) := by
+        * (Real.log (∫ x, (μ.rnDeriv ν x).toReal ^ a ∂ν)
+          - (a * Real.log (μ .univ).toReal + (1 - a) * Real.log (ν .univ).toReal))) := by
   have ha_pos : 0 < a := zero_lt_one.trans ha_lt
   split_ifs with h
   · exact renyiDiv_eq_top_of_hellingerDiv_eq_top h
@@ -358,16 +362,18 @@ with respect to `ν`. Version for `a < 1`. -/
 lemma renyiDiv_eq_log_integral_of_lt_one [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (ha_pos : 0 < a) (ha_lt : a < 1) (h_ms : ¬ μ ⟂ₘ ν) :
     renyiDiv a μ ν = ENNReal.ofReal ((a - 1)⁻¹
-      * (Real.log (∫ x, (μ.rnDeriv ν x).toReal ^ a ∂ν) - (a * Real.log (μ .univ).toReal + (1 - a) * Real.log (ν .univ).toReal))) := by
-  rw [renyiDiv_of_lt_one ha_pos ha_lt, if_neg h_ms]
+      * (Real.log (∫ x, (μ.rnDeriv ν x).toReal ^ a ∂ν)
+        - (a * Real.log (μ .univ).toReal + (1 - a) * Real.log (ν .univ).toReal))) := by
+  rw [renyiDiv_of_lt_one ha_pos ha_lt, ite_eq_right h_ms]
 
 /-- The Rényi divergence `renyiDiv a μ ν` can be written as the log of an integral
 with respect to `ν`. Version for `1 < a`. -/
 lemma renyiDiv_eq_log_integral_of_one_lt [NeZero μ] [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (ha_lt : 1 < a) (h_int : Integrable (fun x ↦ ((∂μ/∂ν) x).toReal ^ a) ν) (h_ac : μ ≪ ν) :
     renyiDiv a μ ν = ENNReal.ofReal ((a - 1)⁻¹
-      * (Real.log (∫ x, (μ.rnDeriv ν x).toReal ^ a ∂ν) - (a * Real.log (μ .univ).toReal + (1 - a) * Real.log (ν .univ).toReal))) := by
-  rw [renyiDiv_of_one_lt ha_lt, if_neg]
+      * (Real.log (∫ x, (μ.rnDeriv ν x).toReal ^ a ∂ν)
+        - (a * Real.log (μ .univ).toReal + (1 - a) * Real.log (ν .univ).toReal))) := by
+  rw [renyiDiv_of_one_lt ha_lt, ite_eq_right]
   exact (hellingerDiv_ne_top_iff_of_one_lt ha_lt _ _).mpr ⟨h_int, h_ac⟩
 
 lemma integral_rpow_rnDeriv_eq_integral_rpow_sub_one (ha_pos : 0 < a) (ha_ne : a ≠ 1)
@@ -384,7 +390,8 @@ with respect to `μ`. Version for `a < 1`. -/
 lemma renyiDiv_eq_log_integral_of_lt_one' [NeZero μ] [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (ha_pos : 0 < a) (ha_lt : a < 1) (h_ac : μ ≪ ν) :
     renyiDiv a μ ν = ENNReal.ofReal ((a - 1)⁻¹
-      * (Real.log (∫ x, (μ.rnDeriv ν x).toReal ^ (a - 1) ∂μ) - (a * Real.log (μ .univ).toReal + (1 - a) * Real.log (ν .univ).toReal))) := by
+      * (Real.log (∫ x, (μ.rnDeriv ν x).toReal ^ (a - 1) ∂μ)
+        - (a * Real.log (μ .univ).toReal + (1 - a) * Real.log (ν .univ).toReal))) := by
   rw [renyiDiv_eq_log_integral_of_lt_one ha_pos ha_lt,
     integral_rpow_rnDeriv_eq_integral_rpow_sub_one ha_pos ha_lt.ne h_ac]
   exact fun h ↦ NeZero.ne μ (Measure.eq_zero_of_absolutelyContinuous_of_mutuallySingular h_ac h)
@@ -394,14 +401,16 @@ with respect to `μ`. Version for `1 < a`. -/
 lemma renyiDiv_eq_log_integral_of_one_lt' [NeZero μ] [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (ha_lt : 1 < a) (h_int : Integrable (fun x ↦ ((∂μ/∂ν) x).toReal ^ a) ν) (h_ac : μ ≪ ν) :
     renyiDiv a μ ν = ENNReal.ofReal ((a - 1)⁻¹
-      * (Real.log (∫ x, (μ.rnDeriv ν x).toReal ^ (a - 1) ∂μ) - (a * Real.log (μ .univ).toReal + (1 - a) * Real.log (ν .univ).toReal))) := by
+      * (Real.log (∫ x, (μ.rnDeriv ν x).toReal ^ (a - 1) ∂μ)
+        - (a * Real.log (μ .univ).toReal + (1 - a) * Real.log (ν .univ).toReal))) := by
   rw [renyiDiv_eq_log_integral_of_one_lt ha_lt h_int h_ac,
     integral_rpow_rnDeriv_eq_integral_rpow_sub_one (zero_lt_one.trans ha_lt) ha_lt.ne' h_ac]
 
 lemma toReal_renyiDiv_of_lt_one [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (ha_pos : 0 < a) (ha_lt : a < 1) (h_ms : ¬ μ ⟂ₘ ν) :
     (renyiDiv a μ ν).toReal
-      = (a - 1)⁻¹ * (Real.log (∫ x, (μ.rnDeriv ν x).toReal ^ a ∂ν) - (a * Real.log (μ .univ).toReal + (1 - a) * Real.log (ν .univ).toReal)) := by
+      = (a - 1)⁻¹ * (Real.log (∫ x, (μ.rnDeriv ν x).toReal ^ a ∂ν)
+        - (a * Real.log (μ .univ).toReal + (1 - a) * Real.log (ν .univ).toReal)) := by
   rw [renyiDiv_eq_log_integral_of_lt_one ha_pos ha_lt h_ms, ENNReal.toReal_ofReal]
   exact mul_nonneg_of_nonpos_of_nonpos (inv_nonpos.mpr (by linarith))
     (sub_nonpos.mpr (log_integral_rpow_rnDeriv_le_of_lt_one ha_pos ha_lt h_ms))
@@ -774,7 +783,8 @@ divergence, for `a < 1`. The hypothesis `ν ≪ μ` is needed because `llr μ ν
 `(∂μ/∂ν) x = 0`, and then `exp (llr μ ν x) = 1 ≠ 0 = (∂μ/∂ν) x`. -/
 lemma cgf_llr_of_lt_one [IsFiniteMeasure μ] [IsFiniteMeasure ν] (ha_pos : 0 < a) (ha_lt : a < 1)
     (hνμ : ν ≪ μ) (h_ms : ¬ μ ⟂ₘ ν) :
-    cgf (llr μ ν) ν a = (a - 1) * (renyiDiv a μ ν).toReal + (a * Real.log (μ .univ).toReal + (1 - a) * Real.log (ν .univ).toReal) := by
+    cgf (llr μ ν) ν a = (a - 1) * (renyiDiv a μ ν).toReal
+      + (a * Real.log (μ .univ).toReal + (1 - a) * Real.log (ν .univ).toReal) := by
   rw [toReal_renyiDiv_of_lt_one ha_pos ha_lt h_ms, ← mul_assoc,
     mul_inv_cancel₀ (sub_ne_zero.mpr ha_lt.ne), one_mul, sub_add_cancel, cgf, mgf,
     integral_congr_ae (exp_mul_llr hνμ)]

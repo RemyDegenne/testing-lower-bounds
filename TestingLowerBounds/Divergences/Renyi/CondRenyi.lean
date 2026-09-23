@@ -85,7 +85,8 @@ lemma condRenyiDiv_eq_top_iff_of_one_lt [CountableOrCountablyGenerated α β] (h
     refine ⟨fun h ↦ NeZero.ne μ ?_⟩
     rw [← Measure.measure_univ_eq_zero, ← Measure.compProd_apply_univ (κ := κ), h,
       Measure.coe_zero, Pi.zero_apply]
-  rw [condRenyiDiv, renyiDiv_eq_top_iff_of_one_lt ha, Measure.absolutelyContinuous_compProd_right_iff]
+  rw [condRenyiDiv, renyiDiv_eq_top_iff_of_one_lt ha,
+    Measure.absolutelyContinuous_compProd_right_iff]
   by_cases h_ac : ∀ᵐ x ∂μ, κ x ≪ η x
   · rw [integrable_rpow_rnDeriv_compProd_right_iff (zero_lt_one.trans ha) ha.ne' κ η μ h_ac]
     tauto
