@@ -383,88 +383,105 @@ lemma _root_.MeasureTheory.laverage_eq_average [IsFiniteMeasure μ] {f : α → 
     ENNReal.ofReal_toReal (by simp), integral_toReal hf (ae_lt_top' hf hf_top),
     ENNReal.ofReal_toReal hf_top, div_eq_mul_inv, mul_comm]
 
-lemma _root_.ConvexOn.map_laverage_le [IsFiniteMeasure μ] [NeZero μ]
-    {f : α → ℝ≥0∞} {g : ℝ≥0∞ → ℝ≥0∞} {s : Set ℝ≥0∞}
-    (hf : AEMeasurable f μ) (hfg : AEMeasurable (g ∘ f) μ)
-    (hg : ConvexOn ℝ≥0 s g) (hgc : ContinuousOn g s) (hsc : IsClosed s)
-    (hfs : ∀ᵐ x ∂μ, f x ∈ s) (hfi : ∫⁻ x, f x ∂μ ≠ ∞) :
-    g (⨍⁻ x, f x ∂μ) ≤ ⨍⁻ x, g (f x) ∂μ := by
-  by_cases hgi : ∫⁻ x, g (f x) ∂μ = ∞
-  · conv_rhs => rw [laverage_eq, hgi]
-    rw [ENNReal.top_div_of_ne_top (measure_ne_top _ _)]
-    simp
-  have hf_lt_top : ∀ᵐ x ∂μ, f x < ∞ := ae_lt_top' hf hfi
-  have hg_lt_top : ∀ᵐ x ∂μ, g (f x) < ∞ := ae_lt_top' hfg hgi
-  have hf_ofReal_toReal : ∀ᵐ x ∂μ, ENNReal.ofReal (f x).toReal = f x := by
+/-- Jensen's inequality for a `DivFunction` and a probability measure. -/
+theorem DivFunction.map_lintegral_le [IsProbabilityMeasure μ] {h : α → ℝ≥0∞} (hh : AEMeasurable h μ)
+    (hhi : ∫⁻ x, h x ∂μ ≠ ∞) :
+    f (∫⁻ x, h x ∂μ) ≤ ∫⁻ x, f (h x) ∂μ := by
+  by_cases hJ : ∫⁻ x, f (h x) ∂μ = ∞
+  · rw [hJ]
+    exact le_top
+  have hfh : AEMeasurable (fun x ↦ f (h x)) μ := f.measurable.comp_aemeasurable hh
+  have h_lt_top : ∀ᵐ x ∂μ, h x < ∞ := ae_lt_top' hh hhi
+  have hf_lt_top : ∀ᵐ x ∂μ, f (h x) < ∞ := ae_lt_top' hfh hJ
+  have h_le_xmax : ∀ᵐ x ∂μ, h x ≤ f.xmax := by
     filter_upwards [hf_lt_top] with x hx
-    rw [ENNReal.ofReal_toReal hx.ne]
-  have h_avg_real : ⨍⁻ x, f x ∂μ = ENNReal.ofReal (⨍ x, (f x).toReal ∂μ) := by
-    sorry
-  rw [laverage_eq_average hf hfi]
-  rw [← ENNReal.toReal_le_toReal]
-  rotate_left
-  · rw [← h_avg_real]
-    sorry
-  · simp only [laverage, lintegral_smul_measure, smul_eq_mul, ne_eq, ENNReal.mul_eq_top,
-      ENNReal.inv_eq_zero, measure_ne_top, not_false_eq_true, hgi, and_false, ENNReal.inv_eq_top,
-      Measure.measure_univ_eq_zero, false_or, not_and, Decidable.not_not]
-    intro hμ
-    simp [hμ]
-  have hf_int : Integrable (fun x ↦ (f x).toReal) μ := integrable_toReal_of_lintegral_ne_top hf hfi
-  have hg_int : Integrable ((fun x ↦ (g (ENNReal.ofReal x)).toReal)
-      ∘ (fun x ↦ (f x).toReal)) μ := by
-    have : ((fun x ↦ (g (ENNReal.ofReal x)).toReal) ∘ fun x ↦ (f x).toReal)
-        =ᵐ[μ] fun x ↦ (g (f x)).toReal := by
-      filter_upwards [hf_ofReal_toReal] with x hx
-      simp [hx]
-    rw [integrable_congr this]
-    exact integrable_toReal_of_lintegral_ne_top hfg hgi
-  refine (ConvexOn.map_average_le ?_ ?_ ?_ ?_ hf_int hg_int (s := ENNReal.toReal '' s)).trans ?_
-  · sorry
-  · sorry
-  · sorry
-  · filter_upwards [hfs] with a has using mem_image_of_mem _ has
-  · sorry
+    by_contra h_gt
+    exact hx.ne (f.eq_top_of_xmax_lt (not_le.mp h_gt))
+  have h_xmin_le : ∀ᵐ x ∂μ, f.xmin ≤ h x := by
+    filter_upwards [hf_lt_top] with x hx
+    by_contra h_gt
+    exact hx.ne (f.eq_top_of_lt_xmin (not_le.mp h_gt))
+  set m := ∫⁻ x, h x ∂μ with hm
+  -- integrated supporting-line inequality at any interior point
+  have h_key : ∀ x ∈ Ioo f.xmin f.xmax,
+      f x + ENNReal.ofReal (max (rightDeriv f.realFun x.toReal) 0) * m
+          + ENNReal.ofReal (max (-rightDeriv f.realFun x.toReal) 0) * x
+        ≤ (∫⁻ y, f (h y) ∂μ) + ENNReal.ofReal (max (rightDeriv f.realFun x.toReal) 0) * x
+          + ENNReal.ofReal (max (-rightDeriv f.realFun x.toReal) 0) * m := by
+    intro x hx
+    have h_ae : ∀ᵐ y ∂μ, f x + ENNReal.ofReal (max (rightDeriv f.realFun x.toReal) 0) * h y
+          + ENNReal.ofReal (max (-rightDeriv f.realFun x.toReal) 0) * x
+        ≤ f (h y) + ENNReal.ofReal (max (rightDeriv f.realFun x.toReal) 0) * x
+          + ENNReal.ofReal (max (-rightDeriv f.realFun x.toReal) 0) * h y := by
+      filter_upwards [h_lt_top] with y hy
+      exact f.apply_add_le_apply_add hx hy.ne
+    have h_int := lintegral_mono_ae h_ae
+    rwa [lintegral_add_right' _ aemeasurable_const, lintegral_add_left' aemeasurable_const,
+      lintegral_const_mul' _ _ ENNReal.ofReal_ne_top, lintegral_const, lintegral_const,
+      measure_univ, mul_one, mul_one, lintegral_add_right' _ (hh.const_mul _),
+      lintegral_add_right' _ aemeasurable_const, lintegral_const, measure_univ, mul_one,
+      lintegral_const_mul' _ _ ENNReal.ofReal_ne_top] at h_int
+  have hm_le : m ≤ f.xmax := by
+    calc m ≤ ∫⁻ _, f.xmax ∂μ := lintegral_mono_ae h_le_xmax
+      _ = f.xmax := by simp
+  have hm_ge : f.xmin ≤ m := by
+    calc f.xmin = ∫⁻ _, f.xmin ∂μ := by simp
+      _ ≤ m := lintegral_mono_ae h_xmin_le
+  rcases lt_or_eq_of_le hm_le with hm_lt | hm_eq
+  swap
+  · -- `m = xmax`: impossible, since `h < xmax` a.e. and the measure is a probability measure
+    exfalso
+    have h_top : f.xmax ≠ ∞ := hm_eq ▸ hhi
+    have h_lt : ∀ᵐ x ∂μ, h x < f.xmax := by
+      filter_upwards [h_le_xmax, hf_lt_top] with x hx hx'
+      refine lt_of_le_of_ne hx fun h_eq ↦ hx'.ne ?_
+      rw [h_eq]
+      exact f.apply_xmax_eq_top h_top
+    have := lintegral_strict_mono (NeZero.ne μ) aemeasurable_const hhi h_lt
+    simp only [lintegral_const, measure_univ, mul_one] at this
+    exact this.ne hm_eq
+  rcases lt_or_eq_of_le hm_ge with hm_gt | hm_eq
+  swap
+  · -- `m = xmin`: either `xmin = 0` and `h = 0` a.e., or `h > xmin` a.e., which is impossible
+    by_cases h0 : f.xmin = 0
+    · have hm0 : m = 0 := by rw [← hm_eq, h0]
+      have h_zero : h =ᵐ[μ] 0 := (lintegral_eq_zero_iff' hh).mp hm0
+      rw [hm0]
+      refine le_of_eq ?_
+      calc f 0 = ∫⁻ _, f 0 ∂μ := by simp
+        _ = ∫⁻ y, f (h y) ∂μ := by
+          refine lintegral_congr_ae ?_
+          filter_upwards [h_zero] with y hy
+          rw [hy, Pi.zero_apply]
+    · exfalso
+      have h_lt : ∀ᵐ x ∂μ, f.xmin < h x := by
+        filter_upwards [h_xmin_le, hf_lt_top] with x hx hx'
+        refine lt_of_le_of_ne hx fun h_eq ↦ hx'.ne ?_
+        rw [← h_eq]
+        exact f.apply_xmin_eq_top (pos_iff_ne_zero.mpr h0)
+      have := lintegral_strict_mono (NeZero.ne μ) hh (by simp [xmin_ne_top]) h_lt
+      simp only [lintegral_const, measure_univ, mul_one] at this
+      exact this.ne hm_eq
+  -- interior case: cancel the finite terms
+  have h := h_key m ⟨hm_gt, hm_lt⟩
+  rw [add_assoc, add_assoc] at h
+  exact ENNReal.le_of_add_le_add_right (by finiteness) h
 
-lemma le_fDiv_of_ac' [IsFiniteMeasure μ] [IsProbabilityMeasure ν] (hμν : μ ≪ ν) :
-    f (μ .univ) ≤ fDiv f μ ν := by
-  rw [fDiv_of_absolutelyContinuous hμν]
-  by_cases hf_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν = ∞
-  · simp [hf_int]
-  calc f (μ .univ)
-  _ = f (∫⁻ x, μ.rnDeriv ν x ∂ν) := by rw [Measure.lintegral_rnDeriv hμν]
-  _ = f (⨍⁻ x, μ.rnDeriv ν x ∂ν) := by rw [laverage_eq_lintegral]
-  _ ≤ ⨍⁻ x, f (μ.rnDeriv ν x) ∂ν := f.convexOn.map_laverage_le (μ.measurable_rnDeriv ν).aemeasurable
-    (f.measurable.comp (μ.measurable_rnDeriv ν)).aemeasurable f.continuous.continuousOn
-    isClosed_univ (ae_of_all _ fun _ ↦ by simp) (Measure.lintegral_rnDeriv_lt_top _ _).ne
-  _ = ∫⁻ x, f (μ.rnDeriv ν x) ∂ν := by rw [laverage_eq_lintegral]
+/-- Jensen's inequality for a `DivFunction` and a finite measure. -/
+theorem DivFunction.map_laverage_le [IsFiniteMeasure μ] [NeZero μ] {h : α → ℝ≥0∞}
+    (hh : AEMeasurable h μ) (hhi : ∫⁻ x, h x ∂μ ≠ ∞) :
+    f (⨍⁻ x, h x ∂μ) ≤ ⨍⁻ x, f (h x) ∂μ := by
+  rw [laverage_eq', laverage_eq']
+  refine f.map_lintegral_le (hh.smul_measure _) ?_
+  rw [lintegral_smul_measure, smul_eq_mul]
+  exact ENNReal.mul_ne_top (ENNReal.inv_ne_top.mpr (NeZero.ne _)) hhi
 
--- todo: remove `hf`
-lemma le_fDiv_of_ac [IsFiniteMeasure μ] [IsProbabilityMeasure ν] (hμν : μ ≪ ν)
-    (hf : ∀ x ≠ ∞, f x ≠ ∞) :
+/-- Jensen-type lower bound on `fDiv` for absolutely continuous measures. -/
+lemma le_fDiv_of_ac [IsFiniteMeasure μ] [IsProbabilityMeasure ν] (hμν : μ ≪ ν) :
     f (μ .univ) ≤ fDiv f μ ν := by
-  rw [fDiv_of_absolutelyContinuous hμν]
-  by_cases hf_int : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν = ∞
-  · simp [hf_int]
-  have h_eq : μ univ = ENNReal.ofReal (∫ x, (μ.rnDeriv ν x).toReal ∂ν) := by
-    rw [Measure.integral_toReal_rnDeriv hμν, measureReal_def, ENNReal.ofReal_toReal]
-    simp
-  calc f (μ .univ)
-  _ = f (ENNReal.ofReal (∫ x, (μ.rnDeriv ν x).toReal ∂ν)) := by rw [h_eq]
-  _ = ENNReal.ofReal (f.realFun (∫ x, (μ.rnDeriv ν x).toReal ∂ν)) := by
-      rw [DivFunction.realFun, ENNReal.ofReal_toReal]
-      rw [← h_eq]
-      exact hf _ (measure_ne_top _ _)
-  _ ≤ ENNReal.ofReal (∫ x, f.realFun (μ.rnDeriv ν x).toReal ∂ν) := by
-    rw [← average_eq_integral, ← average_eq_integral]
-    gcongr
-    refine ConvexOn.map_average_le ?_ ?_ (isClosed_Ici (a := 0)) ?_
-      Measure.integrable_toReal_rnDeriv (integrable_realFun_rnDeriv hf_int)
-    · exact f.convexOn_Ici_realFun hf
-    · exact f.continuousOn_realFun_Ici hf
-    · exact ae_of_all _ fun _ ↦ ENNReal.toReal_nonneg
-  _ = ∫⁻ x, f ((∂μ/∂ν) x) ∂ν := by
-    rw [integral_realFun_rnDeriv hf_int, ENNReal.ofReal_toReal hf_int]
+  rw [fDiv_of_absolutelyContinuous hμν, ← Measure.lintegral_rnDeriv hμν]
+  exact f.map_lintegral_le (μ.measurable_rnDeriv ν).aemeasurable
+    (Measure.lintegral_rnDeriv_lt_top _ _).ne
 
 lemma f_measure_univ_le_add (μ ν : Measure α) [IsFiniteMeasure μ] [IsProbabilityMeasure ν] :
     f (μ .univ)
@@ -475,13 +492,13 @@ lemma f_measure_univ_le_add (μ ν : Measure α) [IsFiniteMeasure μ] [IsProbabi
   rw [this]
   exact f.le_add_derivAtTop'' _ _
 
--- todo: remove `hf`
-lemma le_fDiv [IsFiniteMeasure μ] [IsProbabilityMeasure ν] (hf : ∀ x ≠ ∞, f x ≠ ∞) :
+/-- Jensen-type lower bound on `fDiv`. -/
+lemma le_fDiv [IsFiniteMeasure μ] [IsProbabilityMeasure ν] :
     f (μ .univ) ≤ fDiv f μ ν := by
   refine (f_measure_univ_le_add μ ν).trans ?_
   rw [fDiv_eq_add_withDensity_derivAtTop]
   gcongr
-  exact le_fDiv_of_ac (withDensity_absolutelyContinuous _ _) hf
+  exact le_fDiv_of_ac (withDensity_absolutelyContinuous _ _)
 
 /- The hypothesis `hfg'` can maybe become something like `f ≤ᵐ[atTop] g`, but then we would need
 some lemma like `derivAtTop_mono`. -/

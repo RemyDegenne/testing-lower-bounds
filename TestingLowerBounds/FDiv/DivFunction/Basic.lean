@@ -426,6 +426,103 @@ lemma convexOn_Ici_realFun (h : ∀ x ≠ ∞, f x ≠ ∞) : ConvexOn ℝ (Ici 
   convexOn_realFun_of_ne_top f (convex_Ici 0) (fun _ hx ↦ hx)
     (fun _ _ ↦ h _ ENNReal.ofReal_ne_top)
 
+/-- The set of nonnegative reals at which `f` is finite is convex. -/
+lemma convex_setOf_ne_top : Convex ℝ {x : ℝ | 0 ≤ x ∧ f (ENNReal.ofReal x) ≠ ∞} := by
+  intro x hx y hy a b ha hb hab
+  simp only [smul_eq_mul]
+  refine ⟨add_nonneg (mul_nonneg ha hx.1) (mul_nonneg hb hy.1), ?_⟩
+  have h_eq : ENNReal.ofReal (a * x + b * y)
+      = ↑a.toNNReal * ENNReal.ofReal x + ↑b.toNNReal * ENNReal.ofReal y := by
+    rw [ENNReal.ofReal_add (mul_nonneg ha hx.1) (mul_nonneg hb hy.1), ENNReal.ofReal_mul ha,
+      ENNReal.ofReal_mul hb]
+    rfl
+  have hab' : a.toNNReal + b.toNNReal = 1 := by
+    rw [← Real.toNNReal_add ha hb, hab, Real.toNNReal_one]
+  have h_cvx := f.convexOn.2 (mem_univ (ENNReal.ofReal x)) (mem_univ (ENNReal.ofReal y))
+    (zero_le (a := a.toNNReal)) (zero_le (a := b.toNNReal)) hab'
+  simp only [ENNReal.smul_def, smul_eq_mul] at h_cvx
+  rw [h_eq]
+  exact ne_top_of_le_ne_top (ENNReal.add_ne_top.mpr ⟨ENNReal.mul_ne_top ENNReal.coe_ne_top hx.2,
+    ENNReal.mul_ne_top ENNReal.coe_ne_top hy.2⟩) h_cvx
+
+lemma convexOn_realFun_setOf_ne_top :
+    ConvexOn ℝ {x : ℝ | 0 ≤ x ∧ f (ENNReal.ofReal x) ≠ ∞} f.realFun :=
+  f.convexOn_realFun_of_ne_top f.convex_setOf_ne_top (fun _ hx ↦ hx.1) (fun _ hx ↦ hx.2)
+
+lemma toReal_mem_interior_setOf_ne_top {x : ℝ≥0∞} (hx : x ∈ Ioo f.xmin f.xmax) :
+    x.toReal ∈ interior {y : ℝ | 0 ≤ y ∧ f (ENNReal.ofReal y) ≠ ∞} := by
+  have h_sub : ENNReal.toReal '' Ioo f.xmin f.xmax
+      ⊆ {y : ℝ | 0 ≤ y ∧ f (ENNReal.ofReal y) ≠ ∞} := by
+    rintro _ ⟨z, hz, rfl⟩
+    refine ⟨ENNReal.toReal_nonneg, ?_⟩
+    rw [ENNReal.ofReal_toReal (ne_top_of_lt hz.2)]
+    exact (f.lt_top_of_mem_Ioo hz).ne
+  have h_open : IsOpen (ENNReal.toReal '' Ioo f.xmin f.xmax) := by
+    by_cases h_top : f.xmax = ∞
+    · rw [h_top, ENNReal.toReal_Ioo_top xmin_ne_top]
+      exact isOpen_Ioi
+    · rw [ENNReal.toReal_Ioo xmin_ne_top h_top]
+      exact isOpen_Ioo
+  refine interior_mono h_sub ?_
+  rw [h_open.interior_eq]
+  exact mem_image_of_mem _ hx
+
+/-- Supporting line of the convex function `f.realFun` at an interior point of its finiteness
+set. -/
+lemma realFun_add_rightDeriv_mul_sub_le {x y : ℝ}
+    (hx : x ∈ interior {y : ℝ | 0 ≤ y ∧ f (ENNReal.ofReal y) ≠ ∞})
+    (hy : y ∈ {y : ℝ | 0 ≤ y ∧ f (ENNReal.ofReal y) ≠ ∞}) :
+    f.realFun x + rightDeriv f.realFun x * (y - x) ≤ f.realFun y := by
+  have hfc := f.convexOn_realFun_setOf_ne_top
+  rcases lt_trichotomy x y with hxy | rfl | hyx
+  · have h := hfc.rightDeriv_le_slope_of_mem_interior hx hy hxy
+    rw [slope_def_field, le_div_iff₀ (sub_pos.mpr hxy)] at h
+    simp only [rightDeriv]
+    linarith
+  · simp
+  · have h := hfc.slope_le_leftDeriv_of_mem_interior hy hx hyx
+    have h' := hfc.leftDeriv_le_rightDeriv_of_mem_interior hx
+    rw [slope_def_field, div_le_iff₀ (sub_pos.mpr hyx)] at h
+    have := mul_le_mul_of_nonneg_right h' (sub_pos.mpr hyx).le
+    simp only [rightDeriv]
+    linarith
+
+/-- Supporting line inequality for `f`, written without subtraction in `ℝ≥0∞`. -/
+lemma apply_add_le_apply_add {x : ℝ≥0∞} (hx : x ∈ Ioo f.xmin f.xmax) {y : ℝ≥0∞} (hy : y ≠ ∞) :
+    f x + ENNReal.ofReal (max (rightDeriv f.realFun x.toReal) 0) * y
+        + ENNReal.ofReal (max (-rightDeriv f.realFun x.toReal) 0) * x
+      ≤ f y + ENNReal.ofReal (max (rightDeriv f.realFun x.toReal) 0) * x
+        + ENNReal.ofReal (max (-rightDeriv f.realFun x.toReal) 0) * y := by
+  by_cases hfy : f y = ∞
+  · rw [hfy, top_add, top_add]
+    exact le_top
+  have hx_top : x ≠ ∞ := ne_top_of_lt hx.2
+  have hfx : f x ≠ ∞ := (f.lt_top_of_mem_Ioo hx).ne
+  have h_tangent := f.realFun_add_rightDeriv_mul_sub_le (f.toReal_mem_interior_setOf_ne_top hx)
+    (y := y.toReal) ⟨ENNReal.toReal_nonneg, by rwa [ENNReal.ofReal_toReal hy]⟩
+  rw [realFun_toReal f hx_top, realFun_toReal f hy] at h_tangent
+  set c := rightDeriv f.realFun x.toReal with hc
+  have key : c * (y.toReal - x.toReal)
+      = max c 0 * y.toReal + max (-c) 0 * x.toReal
+        - (max c 0 * x.toReal + max (-c) 0 * y.toReal) := by
+    calc c * (y.toReal - x.toReal) = (max c 0 - max (-c) 0) * (y.toReal - x.toReal) := by
+          rw [max_zero_sub_max_neg_zero_eq_self]
+      _ = _ := by ring
+  have e1 : ENNReal.ofReal ((f x).toReal + max c 0 * y.toReal + max (-c) 0 * x.toReal)
+      = f x + ENNReal.ofReal (max c 0) * y + ENNReal.ofReal (max (-c) 0) * x := by
+    rw [ENNReal.ofReal_add (by positivity) (by positivity),
+      ENNReal.ofReal_add (by positivity) (by positivity),
+      ENNReal.ofReal_mul (le_max_right _ _), ENNReal.ofReal_mul (le_max_right _ _),
+      ENNReal.ofReal_toReal hfx, ENNReal.ofReal_toReal hy, ENNReal.ofReal_toReal hx_top]
+  have e2 : ENNReal.ofReal ((f y).toReal + max c 0 * x.toReal + max (-c) 0 * y.toReal)
+      = f y + ENNReal.ofReal (max c 0) * x + ENNReal.ofReal (max (-c) 0) * y := by
+    rw [ENNReal.ofReal_add (by positivity) (by positivity),
+      ENNReal.ofReal_add (by positivity) (by positivity),
+      ENNReal.ofReal_mul (le_max_right _ _), ENNReal.ofReal_mul (le_max_right _ _),
+      ENNReal.ofReal_toReal hfy, ENNReal.ofReal_toReal hy, ENNReal.ofReal_toReal hx_top]
+  rw [← e1, ← e2]
+  exact ENNReal.ofReal_le_ofReal (by linarith)
+
 lemma differentiableWithinAt {x : ℝ} (hx_nonneg : 0 ≤ x)
     (hx : ENNReal.ofReal x ∈ Ioo f.xmin f.xmax) :
     DifferentiableWithinAt ℝ f.realFun (Ioi x) x := by
@@ -495,28 +592,65 @@ lemma continuousOn_realFun_Ici (h : ∀ x ≠ ∞, f x ≠ ∞) : ContinuousOn f
 lemma eq_zero_iff {a b : ℝ} (ha : a < 1) (hb : 1 < b)
     (hf_cvx : StrictConvexOn ℝ (Ioo a b) f.realFun) {x : ℝ≥0∞} :
     f x = 0 ↔ x = 1 := by
-  have h_iff : (f x = 0 ∧ x ∈ Ioo (ENNReal.ofReal a) (ENNReal.ofReal b)) ↔ x = 1 := by
+  have h_iff : ∀ z : ℝ≥0∞, (f z = 0 ∧ z ∈ Ioo (ENNReal.ofReal a) (ENNReal.ofReal b)) ↔ z = 1 := by
+    intro z
     refine ⟨fun h ↦ ?_, fun h ↦ ⟨by simp [h], ?_⟩⟩
-    · have hx_ne_top : x ≠ ∞ := ne_top_of_lt h.2.2
-      suffices x.toReal = 1 by
-        rw [← ENNReal.ofReal_toReal hx_ne_top, this, ENNReal.ofReal_one]
+    · have hz_ne_top : z ≠ ∞ := ne_top_of_lt h.2.2
+      suffices z.toReal = 1 by
+        rw [← ENNReal.ofReal_toReal hz_ne_top, this, ENNReal.ofReal_one]
       refine StrictConvexOn.eq_of_isMinOn hf_cvx ?_ ?_ ?_ ?_
       · rw [isMinOn_iff]
         intro y hy
-        rw [realFun_toReal f hx_ne_top, h.1]
+        rw [realFun_toReal f hz_ne_top, h.1]
         simp [realFun_nonneg]
       · rw [isMinOn_iff]
         intro y hy
         simp [realFun_nonneg]
-      · sorry
+      · refine ⟨?_, (ENNReal.lt_ofReal_iff_toReal_lt hz_ne_top).mp h.2.2⟩
+        rcases le_or_gt a 0 with ha0 | ha0
+        · have hz0 : 0 < z := by
+            have := h.2.1
+            rwa [ENNReal.ofReal_of_nonpos ha0] at this
+          exact ha0.trans_lt (ENNReal.toReal_pos hz0.ne' hz_ne_top)
+        · exact (ENNReal.ofReal_lt_iff_lt_toReal ha0.le hz_ne_top).mp h.2.1
       · exact ⟨ha, hb⟩
     · simp [h, ha, hb]
   refine ⟨fun h ↦ ?_, fun h ↦ by simp [h]⟩
   by_cases hxb : ENNReal.ofReal b ≤ x
-  · sorry
+  · exfalso
+    set y : ℝ := (1 + b) / 2 with hy_def
+    have hy1 : 1 < y := by rw [hy_def]; linarith
+    have hyb : y < b := by rw [hy_def]; linarith
+    have hy_mem : ENNReal.ofReal y ∈ Ioo (ENNReal.ofReal a) (ENNReal.ofReal b) :=
+      ⟨ENNReal.ofReal_lt_ofReal_iff'.mpr ⟨ha.trans hy1, by linarith⟩,
+        ENNReal.ofReal_lt_ofReal_iff'.mpr ⟨hyb, by linarith⟩⟩
+    have hyx : ENNReal.ofReal y ≤ x := hy_mem.2.le.trans hxb
+    have h_le : f (ENNReal.ofReal y) ≤ f x :=
+      f.monotoneOn (ENNReal.one_le_ofReal.mpr hy1.le)
+        ((ENNReal.one_le_ofReal.mpr hy1.le).trans hyx) hyx
+    rw [h] at h_le
+    have h0 := (h_iff _).mp ⟨le_antisymm h_le (by simp), hy_mem⟩
+    rw [← ENNReal.ofReal_one, ENNReal.ofReal_eq_ofReal_iff (by linarith) zero_le_one] at h0
+    linarith
   by_cases hxa : x ≤ ENNReal.ofReal a
-  · sorry
-  exact h_iff.mp ⟨h, ⟨not_le.mp hxa, not_le.mp hxb⟩⟩
+  · exfalso
+    set y : ℝ := (max a 0 + 1) / 2 with hy_def
+    have hmax : max a 0 < 1 := max_lt ha zero_lt_one
+    have hy0 : 0 < y := by rw [hy_def]; positivity
+    have hy1 : y < 1 := by rw [hy_def]; linarith
+    have hay : a < y := by rw [hy_def]; have := le_max_left a 0; linarith
+    have hy_mem : ENNReal.ofReal y ∈ Ioo (ENNReal.ofReal a) (ENNReal.ofReal b) :=
+      ⟨ENNReal.ofReal_lt_ofReal_iff'.mpr ⟨hay, hy0⟩,
+        ENNReal.ofReal_lt_ofReal_iff'.mpr ⟨hy1.trans hb, by linarith⟩⟩
+    have hxy : x ≤ ENNReal.ofReal y := hxa.trans (ENNReal.ofReal_le_ofReal hay.le)
+    have h_le : f (ENNReal.ofReal y) ≤ f x :=
+      f.antitoneOn (hxy.trans (ENNReal.ofReal_le_one.mpr hy1.le))
+        (ENNReal.ofReal_le_one.mpr hy1.le) hxy
+    rw [h] at h_le
+    have h0 := (h_iff _).mp ⟨le_antisymm h_le (by simp), hy_mem⟩
+    rw [← ENNReal.ofReal_one, ENNReal.ofReal_eq_ofReal_iff hy0.le zero_le_one] at h0
+    linarith
+  exact (h_iff x).mp ⟨h, ⟨not_le.mp hxa, not_le.mp hxb⟩⟩
 
 end RealFun
 

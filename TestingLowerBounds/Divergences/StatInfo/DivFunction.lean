@@ -30,13 +30,25 @@ def statInfoDivFun (β γ : ℝ) : DivFunction :=
     (statInfoFun β γ) ((convexOn_statInfoFun β γ).subset (subset_univ _) (convex_Ioi 0))
     statInfoFun_apply_one
 
-lemma measurable_statInfoDivFun :
-    Measurable (Function.uncurry fun (a : ℝ × ℝ) x ↦ statInfoDivFun a.1 a.2 ((∂μ/∂ν) x)) := by
-  have h_meas := stronglyMeasurable_statInfoFun.measurable.comp
-    (f := fun ((a, b), x) ↦ ((a, b), ((∂μ/∂ν) x).toReal)) (measurable_fst.prodMk (by fun_prop))
-  unfold statInfoDivFun
-  -- convert h_meas
-  sorry
+lemma statInfoDivFun_apply_of_ne_top {x : ℝ≥0∞} (hx : x ≠ ∞) :
+    statInfoDivFun β γ x = ENNReal.ofReal (statInfoFun β γ x.toReal) :=
+  DivFunction.ofReal_apply_of_continuousWithinAt continuous_statInfoFun.continuousWithinAt hx
+
+/-- The integral of `statInfoDivFun β γ` against `ν` of the Radon-Nikodym derivative is a
+measurable function of the parameters `(β, γ)`. -/
+lemma measurable_lintegral_statInfoDivFun [SigmaFinite μ] [SFinite ν] :
+    Measurable fun p : ℝ × ℝ ↦ ∫⁻ x, statInfoDivFun p.1 p.2 ((∂μ/∂ν) x) ∂ν := by
+  have h_meas : Measurable fun q : (ℝ × ℝ) × α ↦
+      ENNReal.ofReal (statInfoFun q.1.1 q.1.2 ((∂μ/∂ν) q.2).toReal) :=
+    ENNReal.measurable_ofReal.comp (measurable_statInfoFun.comp
+      (measurable_fst.prodMk ((Measure.measurable_rnDeriv _ _).ennreal_toReal.comp measurable_snd)))
+  have h_eq (p : ℝ × ℝ) : ∫⁻ x, statInfoDivFun p.1 p.2 ((∂μ/∂ν) x) ∂ν
+      = ∫⁻ x, ENNReal.ofReal (statInfoFun p.1 p.2 ((∂μ/∂ν) x).toReal) ∂ν := by
+    refine lintegral_congr_ae ?_
+    filter_upwards [μ.rnDeriv_ne_top ν] with x hx
+    exact statInfoDivFun_apply_of_ne_top hx
+  simp_rw [h_eq]
+  exact h_meas.lintegral_prod_right'
 
 section derivAtTop
 

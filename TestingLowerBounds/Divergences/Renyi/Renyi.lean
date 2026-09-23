@@ -432,9 +432,16 @@ lemma renyiDiv_zero_measure_left (ha_nonneg : 0 ≤ a) (ha : a ≠ 1) (ν : Meas
     [IsFiniteMeasure ν] :
     renyiDiv a 0 ν = if a < 1 then ∞ else 0 := by
   by_cases ha_zero : a = 0
-  · simp only [ha_zero, renyiDiv_zero, zero_lt_one, ↓reduceIte, EReal.toENNReal_eq_top_iff,
-      EReal.neg_eq_top_iff, ENNReal.log_eq_bot_iff, ENNReal.div_eq_zero_iff, measure_ne_top, or_false]
-    sorry
+  · subst ha_zero
+    rw [renyiDiv_zero, ite_eq_left zero_lt_one]
+    have h_set : ν {x | 0 < (∂(0 : Measure α)/∂ν) x} = 0 := by
+      have : {x | 0 < (∂(0 : Measure α)/∂ν) x} = {x | ¬ (∂(0 : Measure α)/∂ν) x = 0} :=
+        Set.ext fun x ↦ show 0 < (∂(0 : Measure α)/∂ν) x ↔ ¬ (∂(0 : Measure α)/∂ν) x = 0 from
+          pos_iff_ne_zero
+      rw [this, ← ae_iff]
+      filter_upwards [ν.rnDeriv_zero] with x hx
+      simp [hx]
+    rw [h_set, ENNReal.zero_div, ENNReal.log_zero, EReal.neg_bot, EReal.toENNReal_top]
   rw [renyiDiv_of_ne_one ha_zero ha]
   simp only [EReal.coe_add, EReal.coe_mul, EReal.coe_sub, EReal.coe_one, ne_eq, measure_ne_top,
     not_false_eq_true, ENNReal.toReal_toEReal_of_ne_top, Measure.coe_zero, Pi.zero_apply,
@@ -540,9 +547,13 @@ lemma renyiDiv_eq_top_iff_mutuallySingular_of_lt_one (ha_nonneg : 0 ≤ a) (ha :
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     renyiDiv a μ ν = ∞ ↔ μ ⟂ₘ ν := by
   by_cases ha_zero : a = 0
-  · simp only [ha_zero, renyiDiv_zero, EReal.toENNReal_eq_top_iff, EReal.neg_eq_top_iff,
-      ENNReal.log_eq_bot_iff, ENNReal.div_eq_zero_iff, measure_ne_top, or_false]
-    sorry
+  · subst ha_zero
+    rw [renyiDiv_zero, EReal.toENNReal_eq_top_iff, EReal.neg_eq_top_iff, ENNReal.log_eq_bot_iff,
+      ENNReal.div_eq_zero_iff, or_iff_left (measure_ne_top _ _)]
+    have : {x | 0 < (∂μ/∂ν) x} = {x | ¬ (∂μ/∂ν) x = 0} :=
+      Set.ext fun x ↦ show 0 < (∂μ/∂ν) x ↔ ¬ (∂μ/∂ν) x = 0 from pos_iff_ne_zero
+    rw [this, ← ae_iff]
+    exact Measure.rnDeriv_eq_zero μ ν
   rw [renyiDiv_of_lt_one (ha_nonneg.lt_of_ne' ha_zero) ha]
   simp
 
@@ -619,7 +630,17 @@ lemma toReal_renyiDiv_symm (ha_pos : 0 < a) (ha_lt : a < 1)
 lemma renyiDiv_symm (ha_pos : 0 < a) (ha : a < 1)
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     ENNReal.ofReal (1 - a) * renyiDiv a μ ν = ENNReal.ofReal a * renyiDiv (1 - a) ν μ := by
-  sorry
+  by_cases h_ms : μ ⟂ₘ ν
+  · rw [(renyiDiv_eq_top_iff_mutuallySingular_of_lt_one ha_pos.le ha).mpr h_ms,
+      (renyiDiv_eq_top_iff_mutuallySingular_of_lt_one (by linarith) (by linarith)).mpr h_ms.symm,
+      ENNReal.mul_top (by simp [ha]), ENNReal.mul_top (by simp [ha_pos])]
+  · have h1 : renyiDiv a μ ν ≠ ∞ := by
+      rwa [ne_eq, renyiDiv_eq_top_iff_mutuallySingular_of_lt_one ha_pos.le ha]
+    have h2 : renyiDiv (1 - a) ν μ ≠ ∞ := by
+      rw [ne_eq, renyiDiv_eq_top_iff_mutuallySingular_of_lt_one (by linarith) (by linarith)]
+      exact fun h ↦ h_ms h.symm
+    rw [← ENNReal.ofReal_toReal h1, ← ENNReal.ofReal_toReal h2, ← ENNReal.ofReal_mul (by linarith),
+      ← ENNReal.ofReal_mul ha_pos.le, toReal_renyiDiv_symm ha_pos ha]
 
 section Scaling
 

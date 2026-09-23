@@ -25,7 +25,7 @@ namespace ProbabilityTheory
 
 variable {α : Type*} {mα : MeasurableSpace α} {μ ν ν' : Measure α} {s : Set α}
 
-lemma measure_llr_gt_renyiDiv_le_exp [NeZero μ] [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+lemma measure_llr_gt_renyiDiv_le_exp [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
     {a : ℝ} (ha : 0 < a) (c : ℝ) (h : renyiDiv (1 + a) μ ν ≠ ∞) :
     (μ {x | (renyiDiv (1 + a) μ ν).toReal + c < llr μ ν x}).toReal ≤ exp (-a * c) := by
   have hμν : μ ≪ ν := by
@@ -44,12 +44,11 @@ lemma measure_llr_gt_renyiDiv_le_exp [NeZero μ] [IsFiniteMeasure μ] [IsFiniteM
         · rw [integrable_rpow_rnDeriv_iff hμν ha]
           exact h.1
   _ = exp (-a * c) := by
-        congr
-        sorry
-        -- rw [cgf_llr' ha h.1 h.2]
-        --ring
+        rw [cgf_llr' ha h.1 h.2]
+        congr 1
+        ring
 
-lemma measure_sub_le_measure_mul_exp_renyiDiv [NeZero μ] [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+lemma measure_sub_le_measure_mul_exp_renyiDiv [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
     (s : Set α) {a : ℝ} (ha : 0 < a) (c : ℝ) (h : renyiDiv (1 + a) μ ν ≠ ∞) :
     (μ s).toReal - exp (- a * c) ≤ (ν s).toReal * exp ((renyiDiv (1 + a) μ ν).toReal + c) := by
   have hμν : μ ≪ ν := by
@@ -61,7 +60,7 @@ lemma measure_sub_le_measure_mul_exp_renyiDiv [NeZero μ] [IsFiniteMeasure μ] [
   exact measure_llr_gt_renyiDiv_le_exp ha c h
 
 lemma one_sub_exp_le_add_measure_mul_exp_max_renyiDiv [IsProbabilityMeasure μ]
-    [IsFiniteMeasure ν] [IsFiniteMeasure ν'] (s : Set α)
+    [IsProbabilityMeasure ν] [IsProbabilityMeasure ν'] (s : Set α)
     {a : ℝ} (ha : 0 < a) (c : ℝ)
     (hν : renyiDiv (1 + a) μ ν ≠ ⊤) (hν' : renyiDiv (1 + a) μ ν' ≠ ∞) :
     1 - 2 * exp (- a * c)
@@ -88,7 +87,7 @@ lemma one_sub_exp_le_add_measure_mul_exp_max_renyiDiv [IsProbabilityMeasure μ]
         rw [max_add_add_right]
 
 lemma exp_neg_max_renyiDiv_le_add_measure [IsProbabilityMeasure μ]
-    [IsFiniteMeasure ν] [IsFiniteMeasure ν'] (s : Set α)
+    [IsProbabilityMeasure ν] [IsProbabilityMeasure ν'] (s : Set α)
     {a : ℝ} (ha : 0 < a) (hν : renyiDiv (1 + a) μ ν ≠ ∞) (hν' : renyiDiv (1 + a) μ ν' ≠ ∞) :
     2⁻¹ * exp (- max (renyiDiv (1 + a) μ ν).toReal (renyiDiv (1 + a) μ ν').toReal - log 4 / a)
       ≤ (ν s).toReal + (ν' sᶜ).toReal := by

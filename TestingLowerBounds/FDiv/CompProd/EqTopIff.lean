@@ -246,44 +246,22 @@ lemma f_rnDeriv_le_add [CountableOrCountablyGenerated α β]
 lemma f_rnDeriv_ae_le_lintegral [CountableOrCountablyGenerated α β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : Kernel α β) [IsFiniteKernel κ] [IsMarkovKernel η]
-    (h_int : ∫⁻ p, f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) p) ∂(ν ⊗ₘ η) ≠ ∞)
     (hκη : ∀ᵐ a ∂μ, κ a ≪ η a) :
     (fun a ↦ f ((∂μ/∂ν) a * κ a .univ))
       ≤ᵐ[ν] fun a ↦ ∫⁻ b, f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) (a, b)) ∂(η a) := by
   have h_compProd := Kernel.rnDeriv_measure_compProd' μ ν κ η
-  have h_lt_top := Measure.ae_ae_of_ae_compProd <| (μ ⊗ₘ κ).rnDeriv_lt_top (ν ⊗ₘ η)
-  have h_int' := integrable_realFun_rnDeriv h_int
-  have := Measure.integrable_toReal_rnDeriv (μ := μ ⊗ₘ κ) (ν := ν ⊗ₘ η)
-  rw [Measure.integrable_compProd_iff] at this
-  swap
-  · refine (Measurable.stronglyMeasurable ?_).aestronglyMeasurable
-    exact (Measure.measurable_rnDeriv _ _).ennreal_toReal
   have hκη' : ∀ᵐ a ∂ν, (∂μ/∂ν) a ≠ 0 → κ a ≪ η a := Measure.ae_rnDeriv_ne_zero_imp_of_ae ν hκη
-  filter_upwards [hκη', h_compProd, h_lt_top, this.1, h_int'.compProd_mk_left_ae']
-    with a h_ac h_eq h_lt_top h_rnDeriv_int h_int'
-  calc f ((∂μ/∂ν) a * κ a .univ)
-    = f ((∂μ/∂ν) a * ∫⁻ b, (∂κ a/∂η a) b ∂η a) := by
-        by_cases h0 : (∂μ/∂ν) a = 0
-        · simp [h0]
-        · rw [Measure.lintegral_rnDeriv (h_ac h0)]
-  _ = f (∫⁻ b,(∂μ/∂ν) a * (∂κ a/∂η a) b ∂η a) := by
-        rw [lintegral_const_mul _ ((κ a).measurable_rnDeriv _)]
-  _ = f (∫⁻ b, (∂μ ⊗ₘ κ/∂ν ⊗ₘ η) (a, b) ∂η a) := by rw [lintegral_congr_ae h_eq]
-  _ = f (ENNReal.ofReal (∫ b, ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) (a, b)).toReal ∂η a)) := by
-        rw [integral_toReal _ h_lt_top]
-        · sorry
-        · exact ((Measure.measurable_rnDeriv _ _).comp measurable_prodMk_left).aemeasurable
-  _ = ENNReal.ofReal (f.realFun (∫ b, ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) (a, b)).toReal ∂η a)) := by
-        rw [DivFunction.realFun, ENNReal.ofReal_toReal]
-        sorry
-  _ ≤ ENNReal.ofReal (∫ b, f.realFun ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) (a, b)).toReal ∂η a) := by
-        rw [← average_eq_integral, ← average_eq_integral]
-        refine ENNReal.ofReal_le_ofReal ?_
-        refine ConvexOn.map_average_le ?_ ?_ (isClosed_Ici (a := 0)) ?_ h_rnDeriv_int h_int'
-        · sorry
-        · sorry
-        · exact ae_of_all _ fun _ ↦ ENNReal.toReal_nonneg
-  _ = ∫⁻ b, f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) (a, b)) ∂η a := sorry
+  filter_upwards [hκη', h_compProd, μ.rnDeriv_lt_top ν] with a h_ac h_eq h_lt_top
+  have h_int : ∫⁻ b, (∂μ ⊗ₘ κ/∂ν ⊗ₘ η) (a, b) ∂η a = (∂μ/∂ν) a * κ a .univ := by
+    rw [lintegral_congr_ae h_eq, lintegral_const_mul _ ((κ a).measurable_rnDeriv _)]
+    by_cases h0 : (∂μ/∂ν) a = 0
+    · simp [h0]
+    · rw [Measure.lintegral_rnDeriv (h_ac h0)]
+  rw [← h_int]
+  refine f.map_lintegral_le
+    ((Measure.measurable_rnDeriv _ _).comp measurable_prodMk_left).aemeasurable ?_
+  rw [h_int]
+  exact ENNReal.mul_ne_top h_lt_top.ne (measure_ne_top _ _)
 
 lemma integrable_f_rnDeriv_mul_kernel [CountableOrCountablyGenerated α β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
@@ -291,7 +269,7 @@ lemma integrable_f_rnDeriv_mul_kernel [CountableOrCountablyGenerated α β]
     (h_int : ∫⁻ p, f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) p) ∂(ν ⊗ₘ η) ≠ ∞)
     (hκη : ∀ᵐ a ∂μ, κ a ≪ η a) :
     ∫⁻ a, f ((∂μ/∂ν) a * κ a .univ) ∂ν ≠ ∞ := by
-  have h_int_le := lintegral_mono_ae (f_rnDeriv_ae_le_lintegral μ ν κ η h_int hκη)
+  have h_int_le := lintegral_mono_ae (f_rnDeriv_ae_le_lintegral (f := f) μ ν κ η hκη)
   refine (h_int_le.trans_lt (lt_top_iff_ne_top.mpr ?_)).ne
   rwa [Measure.lintegral_compProd measurable_divFunction_rnDeriv] at h_int
 

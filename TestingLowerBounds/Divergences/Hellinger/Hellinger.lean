@@ -25,6 +25,7 @@ import Mathlib.Analysis.SpecialFunctions.Pow.Deriv
 * `hellingerDiv_comp_le_compProd`, `hellingerDiv_comp_right_le`: data-processing inequalities.
 * `toReal_hellingerDiv_smul_left`, `toReal_hellingerDiv_smul_right`: behaviour under scaling of
   the measures.
+* `sqHellinger`: the squared Hellinger distance, half of the Hellinger divergence of order `2⁻¹`.
 
 -/
 
@@ -678,5 +679,31 @@ lemma le_log_integral_rpow_rnDeriv_of_one_lt (ha : 1 < a)
   exact Real.log_le_log (by positivity) (rpow_mul_rpow_le_integral_rpow_rnDeriv_of_one_lt ha h)
 
 end Scaling
+
+section SqHellinger
+
+/-- Squared Hellinger distance between two measures. For finite measures with `μ ≪ ν`, it is
+`ENNReal.ofReal (2⁻¹ * ∫ x, (1 - √((∂μ/∂ν) x).toReal) ^ 2 ∂ν)`
+(`sqHellinger_eq_ofReal_integral_of_ac`). In general, it is half of the Hellinger divergence of
+order `2⁻¹`. -/
+noncomputable def sqHellinger (μ ν : Measure α) : ℝ≥0∞ := 2⁻¹ * hellingerDiv 2⁻¹ μ ν
+
+lemma hellingerFun_inv_two {x : ℝ} (hx : 0 ≤ x) : hellingerFun 2⁻¹ x = (1 - √x) ^ 2 := by
+  rw [hellingerFun_of_ne_zero_of_ne_one (by norm_num) (by norm_num), Real.sqrt_eq_rpow, one_div]
+  show (2⁻¹ - 1)⁻¹ * (x ^ (2⁻¹ : ℝ) - 1 - 2⁻¹ * (x - 1)) = (1 - x ^ (2⁻¹ : ℝ)) ^ 2
+  have hs : (x ^ (2⁻¹ : ℝ)) ^ (2 : ℕ) = x := by
+    rw [← Real.rpow_natCast, ← Real.rpow_mul hx]
+    norm_num
+  linear_combination (-1 : ℝ) * hs
+
+lemma sqHellinger_eq_ofReal_integral_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hμν : μ ≪ ν) :
+    sqHellinger μ ν = ENNReal.ofReal (2⁻¹ * ∫ x, (1 - √((∂μ/∂ν) x).toReal) ^ 2 ∂ν) := by
+  rw [sqHellinger, hellingerDiv_eq_ofReal_integral_of_integrable_of_ac (by norm_num) ?_ hμν,
+    ENNReal.ofReal_mul (by norm_num), ENNReal.ofReal_inv_of_pos two_pos, ENNReal.ofReal_ofNat]
+  · simp_rw [hellingerFun_inv_two ENNReal.toReal_nonneg]
+  · rw [integrable_hellingerFun_iff_integrable_rpow (by norm_num)]
+    exact integrable_rpow_rnDeriv_of_lt_one (by norm_num) (by norm_num)
+
+end SqHellinger
 
 end ProbabilityTheory

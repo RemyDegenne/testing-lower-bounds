@@ -59,30 +59,21 @@ end Conditional
 lemma integral_f_rnDeriv_mul_le_integral [CountableOrCountablyGenerated α β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : Kernel α β) [IsFiniteKernel κ] [IsMarkovKernel η]
-    (h_int : ∫⁻ p, f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) p) ∂(ν ⊗ₘ η) ≠ ∞)
     (hκη : ∀ᵐ a ∂μ, κ a ≪ η a) :
     ∫⁻ x, f ((∂μ/∂ν) x * κ x .univ) ∂ν ≤ ∫⁻ x, f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) x) ∂(ν ⊗ₘ η) := by
   rw [Measure.lintegral_compProd measurable_divFunction_rnDeriv]
-  exact lintegral_mono_ae (f_rnDeriv_ae_le_lintegral μ ν κ η h_int hκη)
+  exact lintegral_mono_ae (f_rnDeriv_ae_le_lintegral μ ν κ η hκη)
 
 lemma integral_f_rnDeriv_mul_withDensity_le_integral [CountableOrCountablyGenerated α β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (κ η : Kernel α β) [IsFiniteKernel κ] [IsMarkovKernel η]
-    (h_int : ∫⁻ p, f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) p) ∂(ν ⊗ₘ η) ≠ ∞) :
+    (κ η : Kernel α β) [IsFiniteKernel κ] [IsMarkovKernel η] :
     ∫⁻ x, f ((∂μ/∂ν) x * η.withDensity (κ.rnDeriv η) x .univ) ∂ν
       ≤ ∫⁻ x, f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) x) ∂(ν ⊗ₘ η) := by
   calc ∫⁻ x, f ((∂μ/∂ν) x * η.withDensity (κ.rnDeriv η) x .univ) ∂ν
     ≤ ∫⁻ x, f ((∂μ ⊗ₘ (η.withDensity (κ.rnDeriv η))/∂ν ⊗ₘ η) x)
       ∂(ν ⊗ₘ η) := by
-        refine integral_f_rnDeriv_mul_le_integral μ ν (η.withDensity (κ.rnDeriv η))
-          η ?_ ?_
-        · suffices ∫⁻ p, f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) p) ∂ν ⊗ₘ η
-              = ∫⁻ p, f ((∂μ ⊗ₘ η.withDensity (κ.rnDeriv η)/∂ν ⊗ₘ η) p) ∂ν ⊗ₘ η by
-            rwa [← this]
-          refine lintegral_congr_ae ?_
-          filter_upwards [Measure.rnDeriv_measure_compProd_Kernel_withDensity μ ν κ η] with x hx
-          rw [hx]
-        · exact ae_of_all _ (fun _ ↦ Kernel.withDensity_absolutelyContinuous _ _)
+        exact integral_f_rnDeriv_mul_le_integral μ ν (η.withDensity (κ.rnDeriv η)) η
+          (ae_of_all _ fun _ ↦ Kernel.withDensity_absolutelyContinuous _ _)
   _ = ∫⁻ x, f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) x) ∂(ν ⊗ₘ η) := by
         refine lintegral_congr_ae ?_
         filter_upwards [Measure.rnDeriv_measure_compProd_Kernel_withDensity μ ν κ η] with x hx
@@ -91,7 +82,6 @@ lemma integral_f_rnDeriv_mul_withDensity_le_integral [CountableOrCountablyGenera
 lemma integral_f_rnDeriv_le_integral_add [CountableOrCountablyGenerated α β]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : Kernel α β) [IsMarkovKernel κ] [IsMarkovKernel η]
-    (h_int : ∫⁻ p, f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) p) ∂(ν ⊗ₘ η) ≠ ∞)
     (h_deriv : f.derivAtTop = ∞ → ∀ᵐ a ∂μ, κ a ≪ η a) :
     ∫⁻ x, f ((∂μ/∂ν) x) ∂ν
       ≤ ∫⁻ x, f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) x) ∂(ν ⊗ₘ η)
@@ -101,7 +91,7 @@ lemma integral_f_rnDeriv_le_integral_add [CountableOrCountablyGenerated α β]
         + f.derivAtTop * ∫⁻ a, (∂μ/∂ν) a * κ.singularPart η a .univ ∂ν by
     refine this.trans ?_
     gcongr
-    exact integral_f_rnDeriv_mul_withDensity_le_integral μ ν κ η h_int
+    exact integral_f_rnDeriv_mul_withDensity_le_integral μ ν κ η
   let κ' := η.withDensity (κ.rnDeriv η)
   have h : ∀ᵐ a ∂ν, f ((∂μ/∂ν) a)
       ≤ f ((∂μ/∂ν) a * κ' a .univ) + f.derivAtTop * (∂μ/∂ν) a * κ.singularPart η a .univ :=
@@ -122,7 +112,6 @@ lemma le_fDiv_compProd [CountableOrCountablyGenerated α β] (μ ν : Measure α
   by_cases h_top : fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ η) = ∞
   · simp [h_top]
   rw [fDiv, fDiv]
-  obtain h_int := (fDiv_ne_top_iff.mp h_top).1
   rw [← ne_eq, fDiv_compProd_ne_top_iff] at h_top
   obtain ⟨_, h2⟩ := h_top
   calc ∫⁻ x, f ((∂μ/∂ν) x) ∂ν + f.derivAtTop * μ.singularPart ν .univ
@@ -130,7 +119,7 @@ lemma le_fDiv_compProd [CountableOrCountablyGenerated α β] (μ ν : Measure α
       + f.derivAtTop * ∫⁻ a, (∂μ/∂ν) a * κ.singularPart η a .univ ∂ν
       + f.derivAtTop * μ.singularPart ν .univ := by
         gcongr
-        exact integral_f_rnDeriv_le_integral_add μ ν κ η h_int (fun h ↦ (h2 h).2)
+        exact integral_f_rnDeriv_le_integral_add μ ν κ η (fun h ↦ (h2 h).2)
   _ = ∫⁻ x, f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) x) ∂(ν ⊗ₘ η)
       + f.derivAtTop * ((ν.withDensity (∂μ/∂ν)) ⊗ₘ κ).singularPart (ν ⊗ₘ η) .univ
       + f.derivAtTop * μ.singularPart ν .univ := by

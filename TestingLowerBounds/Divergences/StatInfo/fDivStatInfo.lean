@@ -31,18 +31,17 @@ section StatInfoFun
 
 open Set Filter ConvexOn
 
-lemma measurable_fDiv_statInfoFun (μ ν : Measure 𝒳) [SFinite ν] :
+lemma measurable_fDiv_statInfoFun (μ ν : Measure 𝒳) [SigmaFinite μ] [SFinite ν] :
     Measurable (Function.uncurry fun β γ ↦ fDiv (statInfoDivFun β γ) μ ν) := by
   simp_rw [fDiv]
   · refine Measurable.add ?_ ?_
-    · refine Measurable.lintegral_prod_right ?_
-      exact measurable_statInfoDivFun
+    · exact measurable_lintegral_statInfoDivFun
     simp_rw [derivAtTop_statInfoDivFun_eq]
     refine Measurable.mul_const ?_ _
     apply Measurable.ite (measurableSet_le measurable_const measurable_fst)
       <;> refine Measurable.ite (measurableSet_le measurable_snd measurable_fst) ?_ ?_ <;> fun_prop
 
-lemma stronglyMeasurable_fDiv_statInfoFun (μ ν : Measure 𝒳) [SFinite ν] :
+lemma stronglyMeasurable_fDiv_statInfoFun (μ ν : Measure 𝒳) [SigmaFinite μ] [SFinite ν] :
     StronglyMeasurable (Function.uncurry fun β γ ↦ fDiv (statInfoDivFun β γ) μ ν) :=
   (measurable_fDiv_statInfoFun μ ν).stronglyMeasurable
 
