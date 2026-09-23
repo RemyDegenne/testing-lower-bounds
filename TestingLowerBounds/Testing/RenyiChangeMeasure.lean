@@ -7,16 +7,13 @@ import TestingLowerBounds.Divergences.Chernoff
 import TestingLowerBounds.Testing.ChangeMeasure
 
 /-!
-
 # Change of measure inequalities involving Rényi divergences
-
-## Main definitions
-
-* `FooBar`
 
 ## Main statements
 
-* `fooBar_unique`
+* `measure_sub_le_measure_mul_exp_renyiDiv`, `one_sub_exp_le_add_measure_mul_exp_max_renyiDiv`:
+  change of measure inequalities in which the log-likelihood ratio is controlled through
+  a Rényi divergence.
 
 -/
 

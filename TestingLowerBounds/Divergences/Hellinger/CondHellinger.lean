@@ -11,15 +11,15 @@ import TestingLowerBounds.Divergences.Hellinger.Hellinger
 
 ## Main definitions
 
-* `FooBar`
+* `condHellingerDiv a κ η μ`: the conditional Hellinger divergence of order `a` between the
+  kernels `κ` and `η` with respect to `μ`, defined as the conditional f-divergence for the
+  divergence function `hellingerDivFun a`.
 
 ## Main statements
 
-* `fooBar_unique`
-
-## Notation
-
-## Implementation details
+* `hellingerDiv_compProd_left`: `hellingerDiv a (μ ⊗ₘ κ) (μ ⊗ₘ η) = condHellingerDiv a κ η μ`.
+* `hellingerDiv_comp_left_le`: `hellingerDiv a (κ ∘ₘ μ) (η ∘ₘ μ) ≤ condHellingerDiv a κ η μ`.
+* `condHellingerDiv_one`: the conditional Hellinger divergence of order `1` is `condKL`.
 
 -/
 

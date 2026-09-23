@@ -10,11 +10,13 @@ import TestingLowerBounds.Divergences.Renyi.Renyi
 
 ## Main definitions
 
-* `chernoffDiv`
+* `chernoffDiv a μ ν`: the Chernoff divergence, `⨅ ξ, max (klDiv ξ μ) (klDiv ξ ν)` over
+  probability measures `ξ`.
 
 ## Main statements
 
-* `fooBar_unique`
+* `chernoffDiv_one`: the Chernoff divergence of order `1` as an infimum of Kullback-Leibler
+  divergences.
 
 -/
 

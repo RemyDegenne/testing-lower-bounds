@@ -3,7 +3,6 @@ import Mathlib.MeasureTheory.Measure.LogLikelihoodRatio
 import Mathlib.InformationTheory.KullbackLeibler.ChainRule
 import TestingLowerBounds.FDiv.CompProd.CompProd
 import TestingLowerBounds.FDiv.Measurable
-import TestingLowerBounds.FDiv.CompProd.OldEqTopIff
 
 open Real MeasureTheory MeasurableSpace
 

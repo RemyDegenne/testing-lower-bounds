@@ -10,40 +10,33 @@ import TestingLowerBounds.ForMathlib.RadonNikodym
 import Mathlib.MeasureTheory.Measure.Decomposition.IntegralRNDeriv
 
 /-!
-
 # f-Divergences
 
 ## Main definitions
 
-* `FooBar`
+* `fDiv f μ ν`: the f-divergence between the measures `μ` and `ν` for the divergence function
+  `f : DivFunction`, defined as `∫⁻ x, f (∂μ/∂ν x) ∂ν + f.derivAtTop * μ.singularPart ν univ`.
 
 ## Main statements
 
-* `fooBar_unique`
-
-## Notation
+* `fDiv_of_absolutelyContinuous`, `fDiv_of_mutuallySingular`: values of `fDiv` in the two extreme
+  cases of the Lebesgue decomposition.
+* `fDiv_eq_add_withDensity_derivAtTop`, `fDiv_add_eq_add_withDensity_singularPart`:
+  decompositions of `fDiv` according to the Lebesgue decomposition of `μ` with respect to `ν`.
+* `fDiv_eq_top_iff`, `fDiv_ne_top_iff`: finiteness of `fDiv`.
+* `le_fDiv_of_ac`: Jensen-type lower bound, `f (μ univ / ν univ) * ν univ ≤ fDiv f μ ν`.
+* `fDiv_eq_zero_iff`: for a strictly convex divergence function with infinite derivative at
+  infinity, `fDiv f μ ν = 0 ↔ μ = ν`.
+* `fDiv_map_measurableEmbedding`: invariance under measurable embeddings.
 
 ## Implementation details
 
-The most natural type for `f` is `ℝ≥0∞ → EReal` since we apply it to an `ℝ≥0∞`-valued RN derivative,
-and its value can be in general both positive or negative, and potentially +∞.
-However, we use `ℝ → ℝ` instead, for the following reasons:
-* domain: convexity results like `ConvexOn.map_average_le` don't work for `ℝ≥0∞` because they
-  require a normed space with scalars in `ℝ`, but `ℝ≥0∞` is a module over `ℝ≥0`.
-  Also, the RN derivative is almost everywhere finite for σ-finite measures, so losing ∞ in the
-  domain is not an issue.
-* codomain: `EReal` is underdeveloped, and all functions we will actually use are finite anyway.
+The divergence function `f` is a `DivFunction`: a function `ℝ≥0∞ → ℝ≥0∞` which is convex,
+continuous and vanishes at `1`. We use `ℝ≥0∞ → ℝ≥0∞` so that `fDiv` can be defined with a
+Lebesgue integral, without integrability conditions, and takes values in `ℝ≥0∞`.
+The results that need derivatives or the convexity lemmas of Mathlib use the real function
+`f.realFun : ℝ → ℝ` instead.
 
-Most results will require these conditions on `f`:
-`(hf_cvx : ConvexOn ℝ (Ici 0) f) (hf_cont : ContinuousOn f (Ici 0)) (hf_one : f 1 = 0)`
-
-## References
-
-* [F. Bar, *Quuxes*][bibkey]
-
-## Tags
-
-Foobars, barfoos
 -/
 
 open Real MeasureTheory Filter Set MeasurableSpace
@@ -544,5 +537,104 @@ lemma fDiv_restrict (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν]
   rw [lintegral_congr_ae h]
   rw [lintegral_piecewise measurable_divFunction_rnDeriv.aemeasurable hs, lintegral_const]
   simp only [MeasurableSet.univ, Measure.restrict_apply, univ_inter]
+
+section OfReal
+
+/-! ### f-divergences for a `DivFunction` given by `DivFunction.ofReal` -/
+
+variable {f : ℝ → ℝ} {hf : ConvexOn ℝ (Ioi 0) f} {hf_one : f 1 = 0}
+
+lemma fDiv_ofReal_of_not_integrable [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (hf_nonneg : ∀ x, 0 ≤ x → 0 ≤ f x)
+    (h : ¬ Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) :
+    fDiv (.ofReal f hf hf_one) μ ν = ∞ :=
+  fDiv_of_lintegral_eq_top <|
+    DivFunction.lintegral_ofReal_eq_top_of_not_integrable hf_nonneg h
+
+lemma fDiv_ofReal_eq_integral_add [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (hf_nonneg : ∀ x, 0 ≤ x → 0 ≤ f x) (h_cont : ContinuousWithinAt f (Ioi 0) 0)
+    (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) :
+    fDiv (.ofReal f hf hf_one) μ ν
+      = ENNReal.ofReal (∫ x, f ((∂μ/∂ν) x).toReal ∂ν)
+        + (DivFunction.ofReal f hf hf_one).derivAtTop * μ.singularPart ν univ := by
+  rw [fDiv, DivFunction.lintegral_ofReal_eq_integral_of_continuous hf_nonneg h_cont h_int]
+
+lemma fDiv_ofReal_eq_top_iff_of_derivAtTop_eq_top [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (hf_nonneg : ∀ x, 0 ≤ x → 0 ≤ f x) (h_cont : ContinuousWithinAt f (Ioi 0) 0)
+    (h_top : (DivFunction.ofReal f hf hf_one).derivAtTop = ∞) :
+    fDiv (.ofReal f hf hf_one) μ ν = ∞
+      ↔ ¬ Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν ∨ ¬ μ ≪ ν := by
+  by_cases h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν
+  · simp only [fDiv_ofReal_eq_integral_add hf_nonneg h_cont h_int, h_top, ENNReal.add_eq_top,
+      ENNReal.ofReal_ne_top, ENNReal.mul_eq_top, ne_eq, ENNReal.top_ne_zero, not_false_eq_true,
+      measure_ne_top, and_false, Measure.measure_univ_eq_zero, true_and, false_or, h_int,
+      not_true_eq_false, Measure.singularPart_eq_zero]
+  · simp [h_int, fDiv_ofReal_of_not_integrable hf_nonneg h_int]
+
+lemma fDiv_ofReal_ne_top' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (h_zero : Function.rightLim (fun x ↦ ENNReal.ofReal (f x)) 0 ≠ ∞)
+    (h_top : (DivFunction.ofReal f hf hf_one).derivAtTop ≠ ∞) :
+    fDiv (.ofReal f hf hf_one) μ ν ≠ ∞ := by
+  refine fDiv_ne_top_of_derivAtTop_ne_top ?_ h_top
+  simp [h_zero]
+
+lemma fDiv_ofReal_ne_top [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (hf_nonneg : ∀ x, 0 ≤ x → 0 ≤ f x)
+    (h_zero : Function.rightLim (fun x ↦ ENNReal.ofReal (f x)) 0 ≠ ∞)
+    (h_top : limsup (fun x ↦ ENNReal.ofReal (rightDeriv f x)) atTop ≠ ∞) :
+    fDiv (.ofReal f hf hf_one) μ ν ≠ ∞ :=
+  fDiv_ofReal_ne_top' h_zero
+    (DivFunction.derivAtTop_ofReal_ne_top (fun x hx ↦ hf_nonneg x hx.le) h_top)
+
+lemma fDiv_ofReal_eq_integral_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (hf_nonneg : ∀ x, 0 ≤ x → 0 ≤ f x) (h_cont : ContinuousWithinAt f (Ioi 0) 0)
+    (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) (hμν : μ ≪ ν) :
+    fDiv (.ofReal f hf hf_one) μ ν = ENNReal.ofReal (∫ x, f ((∂μ/∂ν) x).toReal ∂ν) := by
+  rw [fDiv_ofReal_eq_integral_add hf_nonneg h_cont h_int, Measure.singularPart_eq_zero_of_ac hμν]
+  simp
+
+lemma fDiv_ofReal_eq_lintegral_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (hf_nonneg : ∀ x, 0 ≤ x → 0 ≤ f x) (h_cont : ContinuousWithinAt f (Ioi 0) 0)
+    (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) (hμν : μ ≪ ν) :
+    fDiv (.ofReal f hf hf_one) μ ν
+      = ∫⁻ x, ENNReal.ofReal (f ((∂μ/∂ν) x).toReal) ∂ν := by
+  rw [fDiv_ofReal_eq_integral_of_ac hf_nonneg h_cont h_int hμν,
+    ofReal_integral_eq_lintegral_ofReal h_int]
+  exact ae_of_all _ fun x ↦ hf_nonneg _ ENNReal.toReal_nonneg
+
+lemma toReal_fDiv_ofReal_eq_integral_add' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (hf_nonneg : ∀ x, 0 ≤ x → 0 ≤ f x) (h_cont : ContinuousWithinAt f (Ioi 0) 0)
+    (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
+    (h_ne : (DivFunction.ofReal f hf hf_one).derivAtTop ≠ ∞) :
+    (fDiv (.ofReal f hf hf_one) μ ν).toReal
+      = ∫ x, f ((∂μ/∂ν) x).toReal ∂ν
+        + (DivFunction.ofReal f hf hf_one).derivAtTop.toReal * (μ.singularPart ν univ).toReal := by
+  rw [fDiv_ofReal_eq_integral_add hf_nonneg h_cont h_int, ENNReal.toReal_add, ENNReal.toReal_mul,
+    ENNReal.toReal_ofReal]
+  · exact integral_nonneg (fun _ ↦ hf_nonneg _ ENNReal.toReal_nonneg)
+  · exact ENNReal.ofReal_ne_top
+  · exact ENNReal.mul_ne_top h_ne (measure_ne_top _ _)
+
+lemma toReal_fDiv_ofReal_eq_integral_add_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (hf_nonneg : ∀ x, 0 ≤ x → 0 ≤ f x) (h_cont : ContinuousWithinAt f (Ioi 0) 0)
+    (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
+    (h_ac : μ ≪ ν) :
+    (fDiv (.ofReal f hf hf_one) μ ν).toReal = ∫ x, f ((∂μ/∂ν) x).toReal ∂ν := by
+  rw [fDiv_ofReal_eq_integral_add hf_nonneg h_cont h_int]
+  simp only [Measure.singularPart_eq_zero_of_ac h_ac, Measure.coe_zero, Pi.zero_apply, mul_zero,
+    add_zero, ENNReal.toReal_ofReal_eq_iff]
+  exact integral_nonneg fun x ↦ hf_nonneg _ ENNReal.toReal_nonneg
+
+lemma toReal_fDiv_ofReal_eq_integral_add [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (hf_nonneg : ∀ x, 0 ≤ x → 0 ≤ f x) (h_cont : ContinuousWithinAt f (Ioi 0) 0)
+    (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
+    (h_ne : limsup (fun x ↦ ENNReal.ofReal (rightDeriv f x)) atTop ≠ ∞) :
+    (fDiv (.ofReal f hf hf_one) μ ν).toReal
+      = ∫ x, f ((∂μ/∂ν) x).toReal ∂ν
+        + (DivFunction.ofReal f hf hf_one).derivAtTop.toReal * (μ.singularPart ν univ).toReal := by
+  rw [toReal_fDiv_ofReal_eq_integral_add' hf_nonneg h_cont h_int]
+  exact DivFunction.derivAtTop_ofReal_ne_top (fun x hx ↦ hf_nonneg x hx.le) h_ne
+
+end OfReal
 
 end ProbabilityTheory

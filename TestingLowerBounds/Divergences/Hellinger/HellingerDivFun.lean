@@ -6,21 +6,18 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 import TestingLowerBounds.Divergences.Hellinger.HellingerFun
 
 /-!
-# Hellinger divergence
+# The divergence function of the Hellinger divergence
 
 ## Main definitions
 
-* `FooBar`
+* `hellingerDivFun a`: the `DivFunction` of the Hellinger divergence of order `a`, obtained from
+  `hellingerFun a` for `0 < a` (it is `klDivFun` for `a = 1`), and equal to `0` for `a ≤ 0`.
 
 ## Main statements
 
-* `fooBar_unique`
-
-## Notation
-
-
-
-## Implementation details
+* `hellingerDivFun_one`: `hellingerDivFun 1 = klDivFun`.
+* `derivAtTop_hellingerDivFun_of_one_le`, `derivAtTop_hellingerDivFun_of_lt_one`: the derivative
+  at infinity is `∞` for `1 ≤ a` and `a / (1 - a)` for `a < 1`.
 
 -/
 
@@ -32,6 +29,10 @@ namespace ProbabilityTheory
 
 variable {α : Type*} {mα : MeasurableSpace α} {μ ν : Measure α} {a : ℝ}
 
+/-- The divergence function of the Hellinger divergence of order `a`: for `0 < a`, it is the
+`DivFunction` obtained from `hellingerFun a` (which is `klFun` for `a = 1`). For `a ≤ 0` it is `0`:
+`hellingerFun a` is not convex for `a < 0`, and for `a = 0` the value of a `DivFunction` at `0` is
+determined by continuity, so the indicator of `{0}` cannot be used. -/
 noncomputable
 def hellingerDivFun (a : ℝ) : DivFunction :=
   if ha : a ≤ 0 then 0

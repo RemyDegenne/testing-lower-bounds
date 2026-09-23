@@ -13,15 +13,15 @@ import Mathlib.Analysis.SpecialFunctions.Log.ENNRealLog
 
 ## Main definitions
 
-* `FooBar`
+* `renyiDiv a μ ν`: the Rényi divergence of order `a`, defined from the Hellinger divergence for
+  `a ∉ {0, 1}` and separately for `a = 0` and `a = 1` (where it is the Kullback-Leibler divergence).
 
 ## Main statements
 
-* `fooBar_unique`
-
-## Notation
-
-## Implementation details
+* `renyiDiv_zero`, `renyiDiv_one`: the special cases.
+* `renyiDiv_eq_top_iff_mutuallySingular_of_lt_one`: for `a < 1`, the divergence is infinite iff the
+  measures are mutually singular.
+* `renyiDiv_comp_le_compProd`, `renyiDiv_comp_right_le`: data-processing inequalities.
 
 -/
 

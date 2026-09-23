@@ -24,10 +24,8 @@ import TestingLowerBounds.ErealLLR
 import TestingLowerBounds.FDiv.Basic
 import TestingLowerBounds.FDiv.CompProd.CompProd
 import TestingLowerBounds.FDiv.CompProd.EqTopIff
-import TestingLowerBounds.FDiv.CompProd.OldEqTopIff
 import TestingLowerBounds.FDiv.CondFDiv
 import TestingLowerBounds.FDiv.CondFDivCompProdMeasure
-import TestingLowerBounds.FDiv.CondFDivOfReal
 import TestingLowerBounds.FDiv.DPIJensen
 import TestingLowerBounds.FDiv.DivFunction.Basic
 import TestingLowerBounds.FDiv.DivFunction.CurvatureMeasure
@@ -36,7 +34,6 @@ import TestingLowerBounds.FDiv.DivFunction.OfReal
 import TestingLowerBounds.FDiv.DivFunction.RightDeriv
 import TestingLowerBounds.FDiv.ERealStieltjes
 import TestingLowerBounds.FDiv.FDivEqIntegral
-import TestingLowerBounds.FDiv.FDivOfReal
 import TestingLowerBounds.FDiv.IntegralRnDerivSingularPart
 import TestingLowerBounds.FDiv.Measurable
 import TestingLowerBounds.FDiv.Trim

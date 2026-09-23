@@ -7,20 +7,14 @@ import Mathlib.Analysis.InnerProductSpace.Basic
 import TestingLowerBounds.ForMathlib.LeftRightDeriv
 
 /-!
-
 # Properties of convex functions
-
-## Main definitions
-
-* `FooBar`
 
 ## Main statements
 
-* `fooBar_unique`
-
-## Notation
-
-## Implementation details
+* `ConvexOn.affine_le_of_mem_interior`: a convex function is above its tangent line (with slope
+  the right derivative) at any interior point of its domain.
+* `ConvexOn.exists_affine_le`: a convex function on a convex set is bounded below by an affine
+  function.
 
 -/
 

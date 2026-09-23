@@ -5,7 +5,7 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import TestingLowerBounds.Divergences.Hellinger.HellingerDivFun
 import TestingLowerBounds.Divergences.KullbackLeibler.KullbackLeibler
-import TestingLowerBounds.FDiv.FDivOfReal
+import TestingLowerBounds.FDiv.Basic
 import Mathlib.Analysis.Convex.SpecificFunctions.Pow
 import Mathlib.Analysis.SpecialFunctions.Pow.Deriv
 
@@ -14,15 +14,15 @@ import Mathlib.Analysis.SpecialFunctions.Pow.Deriv
 
 ## Main definitions
 
-* `FooBar`
+* `hellingerDiv a μ ν`: the Hellinger divergence of order `a`, the f-divergence for the divergence
+  function `hellingerDivFun a`.
 
 ## Main statements
 
-* `fooBar_unique`
-
-## Notation
-
-## Implementation details
+* `hellingerDiv_one`: the Hellinger divergence of order `1` is the Kullback-Leibler divergence.
+* `hellingerDiv_of_nonpos`: `hellingerDiv a μ ν = 0` for `a ≤ 0`.
+* `hellingerDiv_ne_top_of_lt_one`, `hellingerDiv_eq_top_iff`: finiteness of the divergence.
+* `hellingerDiv_comp_le_compProd`, `hellingerDiv_comp_right_le`: data-processing inequalities.
 
 -/
 
@@ -34,44 +34,14 @@ namespace ProbabilityTheory
 
 variable {α : Type*} {mα : MeasurableSpace α} {μ ν : Measure α} {a : ℝ}
 
--- TODO: with the refactor, we loose `hellingerDiv 0 μ ν = ν {x | (∂μ/∂ν) x = 0}` and get
--- the zero divergence instead.
-
-/-- Hellinger divergence of order `a`.
-The cases `a = 0` and `a = 1` are defined separately inside the definition of the Hellinger
-function, so that in the case `a = 0` we have `hellingerDiv 0 μ ν = ν {x | (∂μ/∂ν) x = 0}`, and in
-the case `a = 1` the Hellinger divergence coincides with the KL divergence. -/
+/-- Hellinger divergence of order `a`, the f-divergence for the function `hellingerDivFun a`.
+For `a = 1` the Hellinger divergence coincides with the Kullback-Leibler divergence.
+For `a ≤ 0` the divergence function is `0`, hence `hellingerDiv a μ ν = 0`.
+In particular `hellingerDiv 0 μ ν = 0`: the value `ν {x | (∂μ/∂ν) x = 0}` that is sometimes used as
+Hellinger divergence of order `0` in the literature is not the f-divergence of a `DivFunction`,
+since such a function has to be continuous at `0`. The Rényi divergence of order `0` is defined
+separately (see `renyiDiv`). -/
 noncomputable def hellingerDiv (a : ℝ) (μ ν : Measure α) : ℝ≥0∞ := fDiv (hellingerDivFun a) μ ν
-
-/- TODO (ℝ≥0∞ refactor): the commented-out declarations below are pre-refactor statements about
-real- or `EReal`-valued divergences. They are kept as a porting backlog. -/
--- lemma hellingerDiv_zero' (μ ν : Measure α) [SigmaFinite μ] :
---     hellingerDiv 0 μ ν = ν {x | (∂μ/∂ν) x = 0} := by
---   rw [hellingerDiv_zero]
---   norm_cast
---   refine measure_congr <| eventuallyEq_set.mpr ?_
---   filter_upwards [μ.rnDeriv_lt_top ν] with x hx
---   simp [ENNReal.toReal_eq_zero_iff, hx.ne]
-
--- lemma hellingerDiv_zero'' (μ ν : Measure α) [SigmaFinite μ] [IsFiniteMeasure ν] :
---     hellingerDiv 0 μ ν = ν .univ - ν {x | 0 < (∂μ/∂ν) x} := by
---   have h : {x | μ.rnDeriv ν x = 0} = {x | 0 < μ.rnDeriv ν x}ᶜ := by
---     ext x
---     simp only [Set.mem_ofPred_eq, Set.mem_compl_iff, not_lt, nonpos_iff_eq_zero, eq_comm]
---   rw [hellingerDiv_zero', h,
---     measure_compl (measurableSet_lt measurable_const (μ.measurable_rnDeriv _)) (measure_ne_top _ _),
---     ENNReal.toEReal_sub (measure_ne_top _ _) (measure_mono _)]
---   exact fun _ _ ↦ trivial
-
--- lemma hellingerDiv_zero_toReal (μ ν : Measure α) [SigmaFinite μ] [IsFiniteMeasure ν] :
---     (hellingerDiv 0 μ ν).toReal = (ν .univ).toReal - (ν {x | 0 < (∂μ/∂ν) x}).toReal := by
---   rw [hellingerDiv_zero'', EReal.toReal_sub]
---   all_goals simp [measure_ne_top]
-
--- lemma hellingerDiv_zero_ne_top (μ ν : Measure α) [IsFiniteMeasure ν] :
---     hellingerDiv 0 μ ν ≠ ⊤ := by
---   rw [hellingerDiv_zero, ne_eq, EReal.coe_ennreal_eq_top_iff]
---   exact measure_ne_top _ _
 
 @[simp] lemma hellingerDiv_of_nonpos (ha : a ≤ 0) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     hellingerDiv a μ ν = 0 := by
@@ -197,6 +167,8 @@ lemma hellingerDiv_ne_top_of_lt_one (ha : a < 1) (μ ν : Measure α)
   rw [hellingerDiv_eq_integral_of_lt_one ha0 ha]
   simp
 
+/- TODO (ℝ≥0∞ refactor): the commented-out declarations below are pre-refactor statements about
+real- or `EReal`-valued divergences. They are kept as a porting backlog. -/
 -- /--If `a ≤ 1` use `hellingerDiv_eq_integral_of_integrable_of_le_one` or
 -- `hellingerDiv_eq_integral_of_le_one`, as they have fewer hypotheses.-/
 -- lemma hellingerDiv_eq_integral_of_integrable_of_ac
@@ -561,13 +533,6 @@ lemma hellingerDiv_eq_add_measure_univ_iff_of_lt_one (ha_pos : 0 < a) (ha : a < 
 --     max_eq_left ENNReal.toReal_nonneg, ← mul_sub, ← mul_assoc, mul_inv_cancel₀ _]
 --   ring_nf
 --   exact sub_ne_zero_of_ne ha_ne_one
-
--- lemma meas_univ_add_mul_hellingerDiv_zero_eq (ha : a = 0) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
---     ↑(ν .univ) + (a - 1) * hellingerDiv a μ ν = ν {x | 0 < (∂μ/∂ν) x} := by
---   simp only [ha, EReal.coe_zero, zero_sub, hellingerDiv_zero'', neg_mul, one_mul, rpow_zero,
---     integral_const, smul_eq_mul, mul_one]
---   rw [EReal.neg_sub, ← add_assoc, ← sub_eq_add_neg, EReal.sub_self, zero_add]
---   all_goals simp [measure_ne_top]
 
 -- lemma meas_univ_add_mul_hellingerDiv_nonneg_of_le_one (ha_nonneg : 0 ≤ a) (ha : a ≤ 1)
 --     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :

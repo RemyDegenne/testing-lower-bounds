@@ -11,7 +11,7 @@ import TestingLowerBounds.Divergences.StatInfo.StatInfo
 import TestingLowerBounds.Divergences.StatInfo.DivFunction
 import TestingLowerBounds.FDiv.Measurable
 import TestingLowerBounds.FDiv.DivFunction.CurvatureMeasure
-import TestingLowerBounds.FDiv.FDivOfReal
+import TestingLowerBounds.FDiv.Basic
 
 /-!
 # fDiv and StatInfo

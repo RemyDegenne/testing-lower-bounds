@@ -7,20 +7,19 @@ import TestingLowerBounds.ForMathlib.EReal
 import TestingLowerBounds.ForMathlib.LeftRightDeriv
 
 /-!
-
-# DerivAtTop
+# Derivative at infinity of a real function
 
 ## Main definitions
 
-* `FooBar`
+* `derivAtTop f`: the limit at `+∞` of the right derivative of `f : ℝ → ℝ`, as an `EReal`.
+  It is defined as a `limsup`, so that it is always defined.
 
 ## Main statements
 
-* `fooBar_unique`
-
-## Notation
-
-## Implementation details
+* `MonotoneOn.tendsto_derivAtTop`, `ConvexOn.tendsto_derivAtTop`: for a function with monotone right
+  derivative (in particular a convex function), the right derivative tends to `derivAtTop f`.
+* `slope_le_derivAtTop`, `le_add_derivAtTop`: for a convex function, slopes are bounded by
+  `derivAtTop f`, hence `f y ≤ f x + derivAtTop f * (y - x)`.
 
 -/
 

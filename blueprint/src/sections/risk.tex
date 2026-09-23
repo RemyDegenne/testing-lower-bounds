@@ -40,8 +40,8 @@ Let $\hat{\mu}_\theta$ be the law of $\hat{y}(\theta)$. That is, $\hat{\mu} : \m
 
 \begin{definition}[Risk]
   \label{def:risk}
-  \lean{ProbabilityTheory.risk}
-  \leanok
+  %\lean{}
+  %\leanok
   \uses{lem:kernel_properties}
   The risk of an estimator $\hat{y}$ on the estimation problem $(P, y, \ell')$ at $\theta \in \Theta$ is $r^P_\theta(\hat{y}) = (\hat{y} \circ P)(\theta)\left[z \mapsto \ell'(y(\theta), z)\right]$~.
 \end{definition}
@@ -51,7 +51,7 @@ Let $\hat{\mu}_\theta$ be the law of $\hat{y}(\theta)$. That is, $\hat{\mu} : \m
 
 \begin{definition}[Bayesian risk]
   \label{def:bayesianRisk}
-  \lean{ProbabilityTheory.bayesianRisk}
+  \lean{ProbabilityTheory.avgRisk}
   \leanok
   \uses{def:risk}
   The Bayesian risk of an estimator $\hat{y}$ on $(P, y, \ell')$ for a prior $\pi \in \mathcal M(\Theta)$ is $R^P_\pi(\hat{y}) = \pi\left[\theta \mapsto r^P_\theta(\hat{y})\right]$~. It can also be expanded as $R^P_\pi(\hat{y}) = (\pi \otimes (\hat{y} \circ P))\left[ (\theta, z) \mapsto \ell'(y(\theta), z) \right]$~.
@@ -111,7 +111,7 @@ TODO: ``often'', $\mathcal R^*_B = \mathcal R^*$.
 
 \begin{lemma}
   \label{lem:bayesRisk_le_const}
-  \lean{ProbabilityTheory.bayesRiskPrior_le_inf}
+  \lean{ProbabilityTheory.bayesRisk_le_iInf}
   \leanok
   \uses{def:bayesRisk}
   The Bayes risk of a prior $\pi \in \mathcal M(\Theta)$ on $(P, y, \ell')$ with $P$ a Markov kernel satisfies
@@ -164,7 +164,7 @@ Let $\xi$ be the measure such that $P(\theta) = \xi$ for all $\theta$.
 
 \begin{theorem}[Data-processing inequality]
   \label{thm:data_proc_bayesRisk}
-  \lean{ProbabilityTheory.bayesRiskPrior_le_bayesRiskPrior_comp}
+  \lean{ProbabilityTheory.bayesRisk_le_bayesRisk_comp}
   \leanok
   \uses{def:bayesRisk}
   For $P : \Theta \rightsquigarrow \mathcal X$ and $\kappa : \mathcal X \rightsquigarrow \mathcal X'$ a Markov kernel, $\mathcal R^{\kappa \circ P}_\pi \ge \mathcal R^{P}_\pi$ (where the estimation problems differ only in the kernel).
@@ -187,7 +187,7 @@ The inequality is due to taking an infimum over a larger set: $\{\hat{y} \circ \
 
 \begin{lemma}
   \label{lem:bayesRisk_compProd_le_fst}
-  \lean{ProbabilityTheory.bayesRiskPrior_compProd_le_bayesRiskPrior}
+  \lean{ProbabilityTheory.bayesRisk_compProd_le_bayesRisk}
   \leanok
   \uses{def:bayesRisk}
   For $P : \Theta \rightsquigarrow \mathcal X$ and $\kappa : \Theta \times \mathcal X \rightsquigarrow \mathcal X'$ a Markov kernel, $\mathcal R^{P \otimes \kappa}_\pi \le \mathcal R^{P}_\pi$~.
@@ -244,7 +244,7 @@ TODO: can we build kernels such that this lemma is a consequence of one of the l
 
 \begin{lemma}
   \label{lem:bayesianRisk_bayesInv}
-  \lean{ProbabilityTheory.bayesianRisk_eq_lintegral_bayesInv_prod}
+  \lean{ProbabilityTheory.avgRisk_eq_lintegral_posterior_prod}
   \leanok
   \uses{def:bayesianRisk, def:bayesInv}
   The Bayesian risk of a Markov kernel $\hat{y} : \mathcal X \rightsquigarrow \mathcal Z$ with respect to a prior $\pi \in \mathcal M(\Theta)$ on $(P, y, \ell')$ satisfies
@@ -272,7 +272,7 @@ Use the main property of the Bayesian inverse.
 
 \begin{lemma}
   \label{lem:bayesianRisk_ge_inf_bayesInv}
-  \lean{ProbabilityTheory.bayesianRisk_ge_lintegral_iInf_bayesInv}
+  \lean{ProbabilityTheory.lintegral_iInf_posterior_le_avgRisk}
   \leanok
   \uses{def:bayesianRisk, def:bayesInv}
   The Bayesian risk of a Markov kernel $\hat{y} : \mathcal X \rightsquigarrow \mathcal Z$ with respect to a prior $\pi \in \mathcal M(\Theta)$ on $(P, y, \ell')$ satisfies
@@ -300,7 +300,7 @@ R^P_\pi(\hat{y})
 
 \begin{definition}[Generalized Bayes estimator]
   \label{def:genBayesEstimator}
-  \lean{ProbabilityTheory.IsGenBayesEstimator}
+  \lean{ProbabilityTheory.IsArgminEstimator}
   \leanok
   \uses{def:risk}
   The generalized Bayes estimator for prior $\pi \in \mathcal P(\Theta)$ on $(P, y, \ell')$ is the deterministic estimator $\mathcal X \to \mathcal Z$ given by
@@ -313,7 +313,7 @@ R^P_\pi(\hat{y})
 
 \begin{lemma}
   \label{lem:bayesianRisk_genBayesEstimator}
-  \lean{ProbabilityTheory.bayesianRisk_of_isGenBayesEstimator}
+  \lean{ProbabilityTheory.IsArgminEstimator.avgRisk_eq_lintegral_iInf}
   \leanok
   \uses{def:bayesianRisk, def:genBayesEstimator}
   The Bayesian risk of the generalized Bayes estimator $\hat{y}_B$ is
@@ -330,7 +330,7 @@ Start from the equality of Lemma~\ref{lem:bayesianRisk_bayesInv} and use the def
 
 \begin{theorem}
   \label{thm:isBayesEstimator_genBayesEstimator}
-  \lean{ProbabilityTheory.isBayesEstimator_of_isGenBayesEstimator, ProbabilityTheory.bayesRiskPrior_eq_of_hasGenBayesEstimator}
+  \lean{ProbabilityTheory.IsArgminEstimator.isBayesEstimator, ProbabilityTheory.HasArgminEstimator.bayesRisk_eq}
   \leanok
   \uses{def:bayesEstimator, def:genBayesEstimator, def:bayesRisk}
   When the generalized Bayes estimator is well defined, it is a Bayes estimator. The value of the Bayes risk with respect to the prior $\pi \in \mathcal M(\Theta)$ is then
@@ -446,7 +446,7 @@ The following is a new definition, which is a natural generalization of the DeGr
 
 \begin{definition}
   \label{def:riskIncrease}
-  \lean{ProbabilityTheory.bayesRiskIncrease}
+  \lean{ProbabilityTheory.riskIncrease}
   \leanok
   \uses{def:bayesRisk}
   The Bayes risk increase $I^P_{\pi}(\kappa)$ of a kernel $\kappa : \mathcal X \rightsquigarrow \mathcal X'$ with respect to the estimation problem $(P, y, \ell')$ and the prior $\pi \in \mathcal M(\Theta)$ is the difference of the Bayes risk of $(\kappa \circ P, y, \ell')$ and that of $(P, y, \ell')$. That is,
@@ -479,14 +479,14 @@ Use Theorem~\ref{thm:data_proc_bayesRisk}.
 
 \begin{lemma}
   \label{lem:riskIncrease_comp}
-  \lean{ProbabilityTheory.bayesRiskIncrease_comp}
-  \leanok
+  %\lean{}
+  %\leanok
   \uses{def:riskIncrease}
   For $\kappa : \mathcal X \rightsquigarrow \mathcal X'$ and $\eta : \mathcal X' \rightsquigarrow \mathcal X''$ two Markov kernels,
   $I^P_\pi(\eta \circ \kappa) = I^P_\pi(\kappa) + I^{\kappa \circ P}_\pi(\eta)$~.
 \end{lemma}
 
-\begin{proof}\leanok
+\begin{proof}%\leanok
 \uses{}
 \begin{align*}
 I^P_\pi(\kappa) + I^{\kappa \circ P}_\pi(\eta)
@@ -501,7 +501,7 @@ I^P_\pi(\kappa) + I^{\kappa \circ P}_\pi(\eta)
 
 \begin{lemma}[Data-processing inequality]
   \label{lem:riskIncrease_comp_del}
-  \lean{ProbabilityTheory.bayesRiskIncrease_discard_comp_le_bayesRiskIncrease}
+  \lean{ProbabilityTheory.riskIncrease_comp_le}
   \leanok
   \uses{def:riskIncrease}
   For any measurable space $\mathcal X$, let $d_{\mathcal X} : \mathcal X \rightsquigarrow *$ be the Markov kernel to the point space.
@@ -532,7 +532,7 @@ In this section, for a measure $\xi$ on $\{0,1\}$, we write $\xi_0$ for $\xi(\{0
 
 \begin{lemma}
   \label{lem:bayesInv_binary}
-  \lean{ProbabilityTheory.bayesInv_twoHypKernel}
+  \lean{ProbabilityTheory.posterior_boolKernel_apply_true, ProbabilityTheory.posterior_boolKernel_apply_false}
   \leanok
   \uses{def:bayesInv}
   The Bayesian inverse of a kernel $P : \{0,1\} \rightsquigarrow \mathcal X$ with respect to a prior $\xi \in \mathcal M(\{0,1\})$ is $P_\xi^\dagger(x) = \left(\xi_0\frac{d P(0)}{d(P \circ \xi)}(x), \xi_1\frac{d P(1)}{d(P \circ \xi)}(x)\right)$ (almost surely w.r.t. $P \circ \xi = \xi_0 P(0) + \xi_1 P(1)$).
@@ -545,7 +545,7 @@ In this section, for a measure $\xi$ on $\{0,1\}$, we write $\xi_0$ for $\xi(\{0
 
 \begin{lemma}
   \label{lem:bayesRisk_binary}
-  \lean{ProbabilityTheory.bayesRiskPrior_eq_of_hasGenBayesEstimator_binary}
+  \lean{ProbabilityTheory.bayesRisk_boolKernel_eq_lintegral_iInf}
   \leanok
   \uses{def:bayesRisk}
   For $\Theta = \{0,1\}$, the Bayes risk of a prior $\xi \in \mathcal M(\{0,1\})$ is
@@ -698,7 +698,7 @@ Then applying the DPI (Theorem~\ref{thm:data_proc_bayesBinaryRisk}), followed by
 
 \begin{lemma}
   \label{lem:genBayesEstimator_bayesBinaryRisk}
-  \lean{ProbabilityTheory.binaryGenBayesEstimator_isGenBayesEstimator}
+  \lean{ProbabilityTheory.isArgminEstimator_binaryGenBayesEstimator}
   \leanok
   \uses{def:genBayesEstimator, def:bayesBinaryRisk}
   The generalized Bayes estimator for the Bayes binary risk with prior $\xi \in \mathcal M(\{0,1\})$ is $x \mapsto \text{if } \xi_1\frac{d \nu}{d(P \circ \xi)}(x) \le \xi_0\frac{d \mu}{d(P \circ \xi)}(x) \text{ then } 0 \text{ else } 1$, i.e. it is equal to $\mathbb{I}_E$ for $E = \{x \mid \xi_1\frac{d \nu}{d(P \circ \xi)}(x) > \xi_0\frac{d \mu}{d(P \circ \xi)}(x)\}$~.

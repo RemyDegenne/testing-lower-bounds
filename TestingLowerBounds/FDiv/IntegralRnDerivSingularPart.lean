@@ -6,20 +6,10 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 import TestingLowerBounds.CompProd
 
 /-!
+# Integrals of Radon-Nikodym derivatives against singular parts of composition-products
 
-# f-Divergences
-
-## Main definitions
-
-* `FooBar`
-
-## Main statements
-
-* `fooBar_unique`
-
-## Notation
-
-## Implementation details
+Results about `∫⁻ (∂μ/∂ν) * g ∂(ν.withDensity ...)` and integrals against the singular part of a
+composition-product of a measure and a kernel, used for f-divergences of composition-products.
 
 -/
 

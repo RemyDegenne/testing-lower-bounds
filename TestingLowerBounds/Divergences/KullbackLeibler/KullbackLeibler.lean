@@ -5,7 +5,7 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 import Mathlib.InformationTheory.KullbackLeibler.DataProcessing
 import TestingLowerBounds.Divergences.KullbackLeibler.KLDivFun
-import TestingLowerBounds.FDiv.FDivOfReal
+import TestingLowerBounds.FDiv.Basic
 
 /-!
 # Kullback-Leibler divergence

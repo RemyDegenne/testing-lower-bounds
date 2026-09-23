@@ -11,15 +11,13 @@ import TestingLowerBounds.Divergences.Renyi.Renyi
 
 ## Main definitions
 
-* `FooBar`
+* `condRenyiDiv a κ η μ`: the conditional Rényi divergence of order `a` between the kernels `κ`
+  and `η` with respect to `μ`, defined as `renyiDiv a (μ ⊗ₘ κ) (μ ⊗ₘ η)`.
 
 ## Main statements
 
-* `fooBar_unique`
-
-## Notation
-
-## Implementation details
+* `condRenyiDiv_zero`, `condRenyiDiv_one`: the special cases.
+* `renyiDiv_comp_left_le`: `renyiDiv a (κ ∘ₘ μ) (η ∘ₘ μ) ≤ condRenyiDiv a κ η μ`.
 
 -/
 

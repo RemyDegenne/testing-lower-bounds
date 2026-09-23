@@ -14,23 +14,26 @@ import TestingLowerBounds.Divergences.KullbackLeibler.KullbackLeibler
 import TestingLowerBounds.IntegrableFRNDeriv
 
 /-!
-# Hellinger divergence
+# The real function of the Hellinger divergence
 
 ## Main definitions
 
-* `FooBar`
+* `hellingerFun a`: the real function `x ↦ (a - 1)⁻¹ * (x ^ a - 1 - a * (x - 1))`, with special
+  cases at `a = 0` (indicator of `{0}`) and `a = 1` (`x * log x + 1 - x`, the function of the
+  Kullback-Leibler divergence).
 
 ## Main statements
 
-* `fooBar_unique`
-
-## Notation
+* `convexOn_hellingerFun`: `hellingerFun a` is convex on `[0, ∞)` for `0 ≤ a`.
+* `derivAtTop_hellingerFun_of_one_le`, `derivAtTop_hellingerFun_of_lt_one`: the derivative at
+  infinity is `⊤` for `1 ≤ a` and `a / (1 - a)` for `a < 1`.
+* `integrable_hellingerFun_iff_integrable_rpow`: integrability of `hellingerFun a (∂μ/∂ν)` is
+  equivalent to integrability of `(∂μ/∂ν) ^ a`.
 
 ## Implementation details
 
 How to define a `DivFunction` from a real function `f`:
-- prove that the function is convex, that `f 1 = 0` and `rightDeriv f 1 = 0`.
-  For the right derivative, consider proving that the derivative is 0, if it exists.
+- prove that the function is convex on `(0, ∞)` and that `f 1 = 0`
 - if applicable, prove that `f` is continuous at zero
 - find the limit of `f` at +∞
 - useful lemma: `f` is nonnegative
@@ -376,7 +379,7 @@ lemma rightDeriv_hellingerFun_one :
 
 lemma hellingerFun_nonneg (ha : 0 ≤ a) {x : ℝ} (hx : 0 ≤ x) : 0 ≤ hellingerFun a x := by
   rcases hx.eq_or_lt with rfl | hx; · simp
-  refine ConvexOn.nonneg_of_todo ?_ hellingerFun_apply_one_eq_zero rightDeriv_hellingerFun_one hx
+  refine ConvexOn.nonneg_of_rightDeriv_one_eq_zero ?_ hellingerFun_apply_one_eq_zero rightDeriv_hellingerFun_one hx
   exact (convexOn_hellingerFun ha).subset (Set.Ioi_subset_Ici le_rfl) (convex_Ioi _)
 
 lemma tendsto_rightDeriv_hellingerFun_atTop_of_one_lt (ha : 1 < a) :

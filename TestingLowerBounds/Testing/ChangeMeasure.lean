@@ -7,16 +7,12 @@ import Mathlib.MeasureTheory.Measure.LogLikelihoodRatio
 import Mathlib.MeasureTheory.Measure.Decomposition.IntegralRNDeriv
 
 /-!
-
 # Change of measure inequalities
-
-## Main definitions
-
-* `FooBar`
 
 ## Main statements
 
-* `fooBar_unique`
+* `measure_sub_le_measure_mul_exp`, `one_sub_le_add_measure_mul_exp`: inequalities relating the
+  measures of a set under `μ` and `ν` through the log-likelihood ratio.
 
 ## TODO
 

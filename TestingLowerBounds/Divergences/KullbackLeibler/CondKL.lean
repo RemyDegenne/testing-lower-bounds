@@ -8,15 +8,20 @@ import TestingLowerBounds.FDiv.CondFDivCompProdMeasure
 import TestingLowerBounds.ForMathlib.LogLikelihoodRatioCompProd
 
 /-!
-# Kullback-Leibler divergence
+# Conditional Kullback-Leibler divergence
 
 ## Main definitions
 
-* `FooBar`
+* `condKL κ η μ`: the conditional Kullback-Leibler divergence of the kernels `κ` and `η` with
+  respect to `μ`, `∫⁻ a, klDiv (κ a) (η a) ∂μ`.
 
 ## Main statements
 
-* `fooBar_unique`
+* `condKL_ne_top_iff`: finiteness of the conditional divergence.
+* `klDiv_compProd_eq_add_condKL`, `klDiv_fst_add_condKL`: chain rules for the Kullback-Leibler
+  divergence.
+* `condKL_compProd_kernel`: chain rule for the conditional divergence.
+* `klDiv_prod_two`, `klDiv_pi`: tensorization.
 
 -/
 
@@ -334,7 +339,7 @@ lemma klDivFun_mul {x y : ℝ≥0∞} (hx : x ≠ ∞) (hy : y ≠ ∞) :
   · simp [ENNReal.toReal_eq_zero_iff, hx0, hx]
   · simp [ENNReal.toReal_eq_zero_iff, hy0, hy]
 
-lemma todo1 {x y : ℝ≥0∞} (hx : x ≠ ∞) (hy : y ≠ ∞) :
+private lemma klDivFun_mul_aux₁ {x y : ℝ≥0∞} (hx : x ≠ ∞) (hy : y ≠ ∞) :
     x ≤ x * klDivFun y + y * klDivFun x + 1 + x * y := by
   by_cases hx0 : x = 0
   · simp [hx0]
@@ -381,7 +386,7 @@ lemma todo1 {x y : ℝ≥0∞} (hx : x ≠ ∞) (hy : y ≠ ∞) :
   · positivity
   · positivity
 
-lemma todo2 {x y : ℝ≥0∞} (hx : x ≠ ∞) (hy : y ≠ ∞) :
+private lemma klDivFun_mul_aux₂ {x y : ℝ≥0∞} (hx : x ≠ ∞) (hy : y ≠ ∞) :
     y ≤ x * klDivFun y + y * klDivFun x + 1 + x * y - x := by
   by_cases hx0 : x = 0
   · simp [hx0]
@@ -450,12 +455,12 @@ lemma lintegral_klDivFun_mul [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
   · exact measurable_const
   · simp [hx]
   · filter_upwards [h_ne_top] with a ha
-    exact todo1 hx ha
+    exact klDivFun_mul_aux₁ hx ha
   · exact μ.measurable_rnDeriv ν
   · rw [Measure.lintegral_rnDeriv hμν]
     simp
   · filter_upwards [h_ne_top] with a ha
-    exact todo2 hx ha
+    exact klDivFun_mul_aux₂ hx ha
 
 lemma lintegral_klDivFun_compProd [CountableOrCountablyGenerated α β]
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] [IsMarkovKernel κ] [IsMarkovKernel η]

@@ -145,7 +145,7 @@ lemma rightLim_rightLim_of_tendsto {β : Type*}
 
 namespace ConvexOn
 
-lemma nonneg_of_todo {f : ℝ → ℝ} (hf : ConvexOn ℝ (Ioi 0) f)
+lemma nonneg_of_rightDeriv_one_eq_zero {f : ℝ → ℝ} (hf : ConvexOn ℝ (Ioi 0) f)
     (hf_one : f 1 = 0) (hf_deriv : rightDeriv f 1 = 0) {x : ℝ} (hx : 0 < x) :
     0 ≤ f x := by
   calc 0
@@ -153,7 +153,7 @@ lemma nonneg_of_todo {f : ℝ → ℝ} (hf : ConvexOn ℝ (Ioi 0) f)
   _ ≤ f x := hf.affine_le_of_mem_interior
     ((interior_Ioi (a := (0 : ℝ))).symm ▸ mem_Ioi.mpr zero_lt_one) hx
 
-lemma nonneg_of_todo' {f : ℝ → ℝ} (hf : ConvexOn ℝ (Ioi 0) f)
+lemma nonneg_of_leftDeriv_one_nonpos_of_rightDeriv_one_nonneg {f : ℝ → ℝ} (hf : ConvexOn ℝ (Ioi 0) f)
     (hf_one : f 1 = 0) (hf_ld : leftDeriv f 1 ≤ 0) (hf_rd : 0 ≤ rightDeriv f 1)
     {x : ℝ} (hx : 0 < x) :
     0 ≤ f x := by

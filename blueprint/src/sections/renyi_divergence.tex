@@ -47,8 +47,8 @@
 
 \begin{lemma}
   \label{lem:renyi_eq_log_integral}
-  \lean{ProbabilityTheory.renyiDiv_eq_log_integral}
-  \leanok
+  %\lean{}
+  %\leanok
   \uses{def:Renyi}
   For $\alpha \in (0,1)\cup(1, \infty)$ and finite measures $\mu, \nu$, if 
   $\left(\frac{d \mu}{d \nu}\right)^\alpha$ is integrable with respect to $\nu$ and $\mu \ll \nu$ then
@@ -58,15 +58,15 @@
   \end{align*}
 \end{lemma}
 
-\begin{proof}\leanok
+\begin{proof}%\leanok
 \uses{lem:hellingerAlpha_eq_integral}
 \end{proof}
 
 
 \begin{lemma}
   \label{lem:renyi_eq_log_integral'}
-  \lean{ProbabilityTheory.renyiDiv_eq_log_integral'}
-  \leanok
+  %\lean{}
+  %\leanok
   \uses{def:Renyi}
   For $\alpha \in (0,1)\cup(1, \infty)$ and finite measures $\mu, \nu$, if 
   $\left(\frac{d \mu}{d \nu}\right)^\alpha$ is integrable with respect to $\nu$ and $\mu \ll \nu$ then
@@ -76,21 +76,21 @@
   \end{align*}
 \end{lemma}
 
-\begin{proof}\leanok
+\begin{proof}%\leanok
 \uses{lem:renyi_eq_log_integral, lem:integral_rpow_rnDeriv}
 \end{proof}
 
 
 \begin{lemma}
   \label{lem:renyi_symm}
-  \lean{ProbabilityTheory.renyiDiv_symm'}
-  \leanok
+  %\lean{}
+  %\leanok
   \uses{def:Renyi}
   For $\alpha \in (0, 1)$ and finite measures $\mu, \nu$ with $\mu(\mathcal X) = \nu(\mathcal X)$, 
   \[(1 - \alpha) R_\alpha(\mu, \nu) = \alpha R_{1 - \alpha}(\nu, \mu) \: .\]
 \end{lemma}
 
-\begin{proof}\leanok
+\begin{proof}%\leanok
 \uses{lem:hellingerAlpha_symm}
 Use Lemma~\ref{lem:hellingerAlpha_symm}.
 \end{proof}
@@ -98,13 +98,13 @@ Use Lemma~\ref{lem:hellingerAlpha_symm}.
 
 \begin{lemma}
   \label{lem:renyi_cgf}
-  \lean{ProbabilityTheory.cgf_llr_of_lt_one}
-  \leanok
+  %\lean{}
+  %\leanok
   \uses{def:Renyi}
   The cumulant generating function of $\log\frac{d\mu}{d\nu}$ under $\nu$ is $\alpha \mapsto (\alpha - 1) R_\alpha(\mu, \nu)$.
 \end{lemma}
 
-\begin{proof}\leanok
+\begin{proof}%\leanok
 \uses{lem:renyi_eq_log_integral}
 Unfold the definitions, using Lemma~\ref{lem:renyi_eq_log_integral} for the Rényi divergence.
 \end{proof}
@@ -112,13 +112,13 @@ Unfold the definitions, using Lemma~\ref{lem:renyi_eq_log_integral} for the Rén
 
 \begin{lemma}
   \label{lem:renyi_cgf_2}
-  \lean{ProbabilityTheory.cgf_llr'}
-  \leanok
+  %\lean{}
+  %\leanok
   \uses{def:Renyi}
   Set $\alpha > 0$. If $R_{1+\alpha}(\mu, \nu) < \infty$, the cumulant generating function of $\log\frac{d\mu}{d\nu}$ under $\mu$ has value $\alpha R_{1+\alpha}(\mu, \nu)$ at $\alpha$.
 \end{lemma}
 
-\begin{proof}\leanok
+\begin{proof}%\leanok
 \uses{lem:renyi_eq_log_integral'}
 Unfold the definitions, using Lemma~\ref{lem:renyi_eq_log_integral'} for the Rényi divergence.
 \end{proof}
@@ -240,8 +240,8 @@ By Corollary~\ref{cor:data_proc_event}, $D_f(\mu, \nu) \ge D_f(\mu_E, \nu_E)$, h
 
 \begin{definition}
   \label{def:renyiMeasure}
-  \lean{ProbabilityTheory.renyiMeasure}
-  \leanok
+  %\lean{}
+  %\leanok
   \uses{def:Renyi}
   Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\alpha \in (0, +\infty) \backslash \{1\}$. Let $p = \frac{d \mu}{d (\mu + \nu)}$ and $q = \frac{d \nu}{d (\mu + \nu)}$. We define a measure $\mu^{(\alpha, \nu)}$, absolutely continuous with respect to $\mu + \nu$ with density
   \begin{align*}
