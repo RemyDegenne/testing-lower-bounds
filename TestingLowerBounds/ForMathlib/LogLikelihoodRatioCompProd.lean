@@ -1,8 +1,18 @@
+/-
+Copyright (c) 2024 Rémy Degenne. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Rémy Degenne, Lorenzo Luccioli
+-/
 import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
 import Mathlib.MeasureTheory.Measure.LogLikelihoodRatio
 import Mathlib.InformationTheory.KullbackLeibler.ChainRule
 import TestingLowerBounds.FDiv.CompProd.CompProd
 import TestingLowerBounds.FDiv.Measurable
+
+/-! # Log-likelihood ratio of composition-products
+
+Integrability of the log-likelihood ratio of `μ ⊗ₘ κ` with respect to `ν ⊗ₘ η`.
+-/
 
 open Real MeasureTheory MeasurableSpace
 
@@ -145,9 +155,11 @@ lemma Kernel.integrable_llr_compProd_iff [CountableOrCountablyGenerated β γ]
   simp_rw [Kernel.compProd_apply_eq_compProd_sectR,
     ProbabilityTheory.integrable_llr_compProd_iff h_ac, Kernel.sectR_apply]
   by_cases h_int₁ : Integrable (llr (κ₁ a) (η₁ a)) (κ₁ a)
-  swap; tauto
+  swap
+  · tauto
   by_cases h_int₂ : ∀ᵐ b ∂κ₁ a, Integrable (llr (κ₂ (a, b)) (η₂ (a, b))) (κ₂ (a, b))
-  swap; tauto
+  swap
+  · tauto
   simp only [h_int₁, true_and, h_int₂, and_true]
 
 /- this lemma actually doesn't pertain the compProd, but for now I am still leaving it here,

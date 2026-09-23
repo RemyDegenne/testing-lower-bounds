@@ -64,7 +64,7 @@ lemma eqOn_klDivFun_realFun : EqOn klDivFun.realFun (fun x ↦ x * log x + 1 - x
 lemma strictConvexOn_klDivFun : StrictConvexOn ℝ (Ici 0) klDivFun.realFun :=
   StrictConvexOn.congr strictConvexOn_klFun eqOn_klDivFun_realFun.symm
 
-lemma lintegral_klDivFun_rnDeriv [SigmaFinite μ] [SigmaFinite ν] :
+lemma lintegral_klDivFun_rnDeriv [SigmaFinite μ] :
     ∫⁻ x, klDivFun (μ.rnDeriv ν x) ∂ν
       = ∫⁻ x, ENNReal.ofReal ((μ.rnDeriv ν x).toReal * log (μ.rnDeriv ν x).toReal
         + 1 - (μ.rnDeriv ν x).toReal) ∂ν := by

@@ -22,14 +22,14 @@ variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
 section Conditional
 
 /-- Equivalence between two possible versions of the first condition for the finiteness of the
-conditional f divergence, the second version is the preferred one.-/
+conditional f divergence, the second version is the preferred one. -/
 lemma fDiv_ae_ne_top_iff [IsFiniteKernel κ] [IsFiniteKernel η] :
     (∀ᵐ a ∂μ, fDiv f (κ a) (η a) ≠ ∞)
     ↔ (∀ᵐ a ∂μ, ∫⁻ x, f ((∂κ a/∂η a) x) ∂η a ≠ ∞) ∧ (f.derivAtTop = ∞ → ∀ᵐ a ∂μ, κ a ≪ η a) := by
   simp_rw [fDiv_ne_top_iff, eventually_and, eventually_all]
 
 /-- Equivalence between two possible versions of the second condition for the finiteness of the
-conditional f divergence, the second version is the preferred one.-/
+conditional f divergence, the second version is the preferred one. -/
 lemma integrable_fDiv_iff [CountableOrCountablyGenerated α β] [IsFiniteMeasure μ] [IsFiniteKernel κ]
     [IsFiniteKernel η]
     (h_ac : f.derivAtTop = ∞ → ∀ᵐ a ∂μ, κ a ≪ η a) :
@@ -180,8 +180,8 @@ lemma fDiv_comp_le_compProd [Nonempty α] [StandardBorelSpace α]
   simp_rw [← Measure.snd_compProd]
   exact fDiv_snd_le _ _
 
-/--The **Data Processing Inequality** for the f-divergence. -/
-lemma fDiv_comp_right_le [Nonempty α] [StandardBorelSpace α] [CountableOrCountablyGenerated α β]
+/-- The **Data Processing Inequality** for the f-divergence. -/
+lemma fDiv_comp_right_le [Nonempty α] [StandardBorelSpace α]
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ : Kernel α β) [IsMarkovKernel κ] :
     fDiv f (κ ∘ₘ μ) (κ ∘ₘ ν) ≤ fDiv f μ ν := by

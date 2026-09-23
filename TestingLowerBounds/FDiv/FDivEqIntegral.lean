@@ -199,7 +199,8 @@ lemma lintegral_derivAtTop_statInfoDivFun_eq_toENNReal :
 
 lemma lintegral_derivAtTop_statInfoDivFun' (hfderiv_one : rightDeriv f.realFun 1 = 0) :
     ∫⁻ x, (statInfoDivFun 1 x).derivAtTop ∂f.curvatureMeasureReal = f.derivAtTop := by
-  rw [lintegral_derivAtTop_statInfoDivFun_eq_toENNReal, DivFunction.rightDerivStieltjes_one, hfderiv_one]
+  rw [lintegral_derivAtTop_statInfoDivFun_eq_toENNReal, DivFunction.rightDerivStieltjes_one,
+    hfderiv_one]
   simp
 
 /-- General form of `lintegral_derivAtTop_statInfoDivFun'`: without the assumption
@@ -233,9 +234,10 @@ lemma fDiv_eq_lintegral_fDiv_statInfoFun' [IsFiniteMeasure μ] [IsFiniteMeasure 
 /-! ### The integral representation of `fDiv` without the assumption `rightDeriv f.realFun 1 = 0`
 
 For a general `DivFunction`, the Taylor formula at `1` carries a linear term
-`rightDeriv f.realFun 1 * (x - 1)`, hence the identity `fDiv f μ ν = ∫ fDiv (statInfoDivFun 1 x) μ ν`
-only holds up to the term `rightDeriv f.realFun 1 * (μ univ - ν univ)`, which we move to the
-appropriate side to stay in `ℝ≥0∞`. -/
+`rightDeriv f.realFun 1 * (x - 1)`, hence the identity
+`fDiv f μ ν = ∫ fDiv (statInfoDivFun 1 x) μ ν` only holds up to the term
+`rightDeriv f.realFun 1 * (μ univ - ν univ)`, which we move to the appropriate side to stay in
+`ℝ≥0∞`. -/
 
 lemma lintegral_statInfoFun_curvatureMeasureReal_add {t : ℝ≥0∞} (ht_ne : t ≠ ∞) :
     ∫⁻ y, ENNReal.ofReal (statInfoFun 1 y t.toReal) ∂f.curvatureMeasureReal

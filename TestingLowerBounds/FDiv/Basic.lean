@@ -583,7 +583,7 @@ lemma fDiv_ofReal_of_not_integrable [IsFiniteMeasure μ] [IsFiniteMeasure ν]
   fDiv_of_lintegral_eq_top <|
     DivFunction.lintegral_ofReal_eq_top_of_not_integrable hf_nonneg h
 
-lemma fDiv_ofReal_eq_integral_add [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+lemma fDiv_ofReal_eq_integral_add [IsFiniteMeasure μ]
     (hf_nonneg : ∀ x, 0 ≤ x → 0 ≤ f x) (h_cont : ContinuousWithinAt f (Ioi 0) 0)
     (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) :
     fDiv (.ofReal f hf hf_one) μ ν
@@ -618,14 +618,14 @@ lemma fDiv_ofReal_ne_top [IsFiniteMeasure μ] [IsFiniteMeasure ν]
   fDiv_ofReal_ne_top' h_zero
     (DivFunction.derivAtTop_ofReal_ne_top (fun x hx ↦ hf_nonneg x hx.le) h_top)
 
-lemma fDiv_ofReal_eq_integral_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+lemma fDiv_ofReal_eq_integral_of_ac [IsFiniteMeasure μ]
     (hf_nonneg : ∀ x, 0 ≤ x → 0 ≤ f x) (h_cont : ContinuousWithinAt f (Ioi 0) 0)
     (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) (hμν : μ ≪ ν) :
     fDiv (.ofReal f hf hf_one) μ ν = ENNReal.ofReal (∫ x, f ((∂μ/∂ν) x).toReal ∂ν) := by
   rw [fDiv_ofReal_eq_integral_add hf_nonneg h_cont h_int, Measure.singularPart_eq_zero_of_ac hμν]
   simp
 
-lemma fDiv_ofReal_eq_lintegral_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+lemma fDiv_ofReal_eq_lintegral_of_ac [IsFiniteMeasure μ]
     (hf_nonneg : ∀ x, 0 ≤ x → 0 ≤ f x) (h_cont : ContinuousWithinAt f (Ioi 0) 0)
     (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν) (hμν : μ ≪ ν) :
     fDiv (.ofReal f hf hf_one) μ ν
@@ -634,7 +634,7 @@ lemma fDiv_ofReal_eq_lintegral_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     ofReal_integral_eq_lintegral_ofReal h_int]
   exact ae_of_all _ fun x ↦ hf_nonneg _ ENNReal.toReal_nonneg
 
-lemma toReal_fDiv_ofReal_eq_integral_add' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+lemma toReal_fDiv_ofReal_eq_integral_add' [IsFiniteMeasure μ]
     (hf_nonneg : ∀ x, 0 ≤ x → 0 ≤ f x) (h_cont : ContinuousWithinAt f (Ioi 0) 0)
     (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
     (h_ne : (DivFunction.ofReal f hf hf_one).derivAtTop ≠ ∞) :
@@ -647,7 +647,7 @@ lemma toReal_fDiv_ofReal_eq_integral_add' [IsFiniteMeasure μ] [IsFiniteMeasure 
   · exact ENNReal.ofReal_ne_top
   · exact ENNReal.mul_ne_top h_ne (measure_ne_top _ _)
 
-lemma toReal_fDiv_ofReal_eq_integral_add_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+lemma toReal_fDiv_ofReal_eq_integral_add_of_ac [IsFiniteMeasure μ]
     (hf_nonneg : ∀ x, 0 ≤ x → 0 ≤ f x) (h_cont : ContinuousWithinAt f (Ioi 0) 0)
     (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
     (h_ac : μ ≪ ν) :
@@ -657,7 +657,7 @@ lemma toReal_fDiv_ofReal_eq_integral_add_of_ac [IsFiniteMeasure μ] [IsFiniteMea
     add_zero, ENNReal.toReal_ofReal_eq_iff]
   exact integral_nonneg fun x ↦ hf_nonneg _ ENNReal.toReal_nonneg
 
-lemma toReal_fDiv_ofReal_eq_integral_add [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+lemma toReal_fDiv_ofReal_eq_integral_add [IsFiniteMeasure μ]
     (hf_nonneg : ∀ x, 0 ≤ x → 0 ≤ f x) (h_cont : ContinuousWithinAt f (Ioi 0) 0)
     (h_int : Integrable (fun x ↦ f ((∂μ/∂ν) x).toReal) ν)
     (h_ne : limsup (fun x ↦ ENNReal.ofReal (rightDeriv f x)) atTop ≠ ∞) :

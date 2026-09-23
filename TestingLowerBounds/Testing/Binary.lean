@@ -300,7 +300,8 @@ lemma toReal_bayesBinaryRisk_eq_integral_min (μ ν : Measure 𝒳) [IsFiniteMea
     [IsFiniteMeasure ν] (π : Measure Bool) [IsFiniteMeasure π] :
     (bayesBinaryRisk μ ν π).toReal
       = ∫ x, min (π {false} * μ.rnDeriv (Kernel.boolKernel μ ν ∘ₘ π) x).toReal
-        (π {true} * ν.rnDeriv (Kernel.boolKernel μ ν ∘ₘ π) x).toReal ∂(Kernel.boolKernel μ ν ∘ₘ π) := by
+        (π {true} * ν.rnDeriv (Kernel.boolKernel μ ν ∘ₘ π) x).toReal
+          ∂(Kernel.boolKernel μ ν ∘ₘ π) := by
   rw [bayesBinaryRisk_eq_lintegral_min, integral_eq_lintegral_of_nonneg_ae]
   rotate_left
   · filter_upwards with x; positivity
@@ -325,7 +326,8 @@ lemma toReal_bayesBinaryRisk_eq_integral_abs (μ ν : Measure 𝒳) [IsFiniteMea
     (bayesBinaryRisk μ ν π).toReal
       = 2⁻¹ * (((Kernel.boolKernel μ ν ∘ₘ π) .univ).toReal
         - ∫ x, |(π {false} * μ.rnDeriv (Kernel.boolKernel μ ν ∘ₘ π) x).toReal
-          - (π {true} * ν.rnDeriv (Kernel.boolKernel μ ν ∘ₘ π) x).toReal| ∂(Kernel.boolKernel μ ν ∘ₘ π)) := by
+          - (π {true} * ν.rnDeriv (Kernel.boolKernel μ ν ∘ₘ π) x).toReal|
+            ∂(Kernel.boolKernel μ ν ∘ₘ π)) := by
   simp_rw [toReal_bayesBinaryRisk_eq_integral_min, min_eq_add_sub_abs_sub, integral_const_mul]
   congr
   have hμ_int : Integrable (fun x ↦ (π {false} * μ.rnDeriv (Kernel.boolKernel μ ν ∘ₘ π) x).toReal)
@@ -336,8 +338,10 @@ lemma toReal_bayesBinaryRisk_eq_integral_abs (μ ν : Measure 𝒳) [IsFiniteMea
       (Kernel.boolKernel μ ν ∘ₘ π) := by
     simp_rw [ENNReal.toReal_mul]
     exact Integrable.const_mul Measure.integrable_toReal_rnDeriv _
-  have h_int_abs : Integrable (fun x ↦ |(π {false} * μ.rnDeriv (Kernel.boolKernel μ ν ∘ₘ π) x).toReal
-      - (π {true} * ν.rnDeriv (Kernel.boolKernel μ ν ∘ₘ π) x).toReal|) (Kernel.boolKernel μ ν ∘ₘ π) :=
+  have h_int_abs : Integrable
+      (fun x ↦ |(π {false} * μ.rnDeriv (Kernel.boolKernel μ ν ∘ₘ π) x).toReal
+        - (π {true} * ν.rnDeriv (Kernel.boolKernel μ ν ∘ₘ π) x).toReal|)
+      (Kernel.boolKernel μ ν ∘ₘ π) :=
     hμ_int.sub hν_int |>.abs
   rw [integral_sub (by exact hμ_int.add hν_int) h_int_abs, integral_add hμ_int hν_int]
   simp only [ENNReal.toReal_mul, sub_left_inj, integral_const_mul]
@@ -366,7 +370,8 @@ lemma bayesBinaryRisk_eq_lintegral_ennnorm (μ ν : Measure 𝒳) [IsFiniteMeasu
     [IsFiniteMeasure ν] (π : Measure Bool) [IsFiniteMeasure π] :
     bayesBinaryRisk μ ν π = 2⁻¹ * (((Kernel.boolKernel μ ν ∘ₘ π) .univ)
         - ∫⁻ x, ‖(π {false} * (∂μ/∂(Kernel.boolKernel μ ν ∘ₘ π)) x).toReal
-          - (π {true} * (∂ν/∂(Kernel.boolKernel μ ν ∘ₘ π)) x).toReal‖₊ ∂(Kernel.boolKernel μ ν ∘ₘ π)) := by
+          - (π {true} * (∂ν/∂(Kernel.boolKernel μ ν ∘ₘ π)) x).toReal‖₊
+            ∂(Kernel.boolKernel μ ν ∘ₘ π)) := by
   rw [← ENNReal.ofReal_toReal (bayesBinaryRisk_ne_top μ ν π),
     toReal_bayesBinaryRisk_eq_integral_abs, ENNReal.ofReal_mul (inv_nonneg.mpr zero_le_two),
     ENNReal.ofReal_inv_of_pos zero_lt_two, ENNReal.ofReal_ofNat,
@@ -377,14 +382,19 @@ lemma bayesBinaryRisk_eq_lintegral_ennnorm (μ ν : Measure 𝒳) [IsFiniteMeasu
     simp_rw [HasFiniteIntegral, Real.enorm_abs]
     calc
       _ ≤ ∫⁻ a, ‖(π {false} * (∂μ/∂Kernel.boolKernel μ ν ∘ₘ π) a).toReal‖ₑ +
-          ‖(π {true} * (∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) a).toReal‖ₑ ∂(Kernel.boolKernel μ ν ∘ₘ π) := by
+          ‖(π {true} * (∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) a).toReal‖ₑ
+            ∂(Kernel.boolKernel μ ν ∘ₘ π) := by
         gcongr
         exact enorm_sub_le
-      _ = ∫⁻ a, ‖(π {false} * (∂μ/∂Kernel.boolKernel μ ν ∘ₘ π) a).toReal‖ₑ ∂(Kernel.boolKernel μ ν ∘ₘ π) +
-          ∫⁻ a, ‖(π {true} * (∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) a).toReal‖ₑ ∂(Kernel.boolKernel μ ν ∘ₘ π) :=
+      _ = ∫⁻ a, ‖(π {false} * (∂μ/∂Kernel.boolKernel μ ν ∘ₘ π) a).toReal‖ₑ
+        ∂(Kernel.boolKernel μ ν ∘ₘ π) +
+          ∫⁻ a, ‖(π {true} * (∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) a).toReal‖ₑ
+            ∂(Kernel.boolKernel μ ν ∘ₘ π) :=
         lintegral_add_left (by fun_prop) _
-      _ ≤ π {false} * ∫⁻ a, ‖((∂μ/∂Kernel.boolKernel μ ν ∘ₘ π) a).toReal‖ₑ ∂(Kernel.boolKernel μ ν ∘ₘ π) +
-          π {true} * ∫⁻ a, ‖((∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) a).toReal‖ₑ ∂(Kernel.boolKernel μ ν ∘ₘ π) := by
+      _ ≤ π {false} * ∫⁻ a, ‖((∂μ/∂Kernel.boolKernel μ ν ∘ₘ π) a).toReal‖ₑ
+        ∂(Kernel.boolKernel μ ν ∘ₘ π) +
+          π {true} * ∫⁻ a, ‖((∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) a).toReal‖ₑ
+            ∂(Kernel.boolKernel μ ν ∘ₘ π) := by
         simp_rw [ENNReal.toReal_mul, enorm_mul]
         rw [lintegral_const_mul _ (by fun_prop), lintegral_const_mul _ (by fun_prop)]
         gcongr <;>

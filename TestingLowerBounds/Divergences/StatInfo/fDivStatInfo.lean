@@ -147,8 +147,8 @@ lemma integral_max_eq_integral_abs [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     Measure.integrable_toReal_rnDeriv.const_mul _
   have h_int' : Integrable (fun x ↦ γ - β * ((∂μ/∂ν) x).toReal) ν := (integrable_const γ).sub h_int
   rw [integral_add h_int', integral_sub (integrable_const γ) h_int, integral_const, smul_eq_mul,
-    mul_comm, integral_const_mul, add_comm, add_sub_assoc, add_assoc, sub_eq_add_neg, sub_eq_add_neg,
-    add_assoc, ← mul_neg, ← mul_neg, ← mul_add]
+    mul_comm, integral_const_mul, add_comm, add_sub_assoc, add_assoc, sub_eq_add_neg,
+    sub_eq_add_neg, add_assoc, ← mul_neg, ← mul_neg, ← mul_add]
   swap; · exact (integrable_add_const_iff.mpr h_int).abs
   congr
   nth_rw 2 [μ.haveLebesgueDecomposition_add ν]
@@ -265,8 +265,8 @@ lemma fDiv_statInfoFun_eq_StatInfo_of_nonneg [IsFiniteMeasure μ] [IsFiniteMeasu
         + 2⁻¹ * (|β * (μ univ).toReal - γ * (ν univ).toReal|
         + (if γ ≤ β then -1 else 1) * (β * (μ univ).toReal - γ * (ν univ).toReal)) := by
   rcases le_or_gt γ β with (hβγ | hβγ)
-  · rw [fDiv_statInfoFun_eq_StatInfo_of_nonneg_of_le hβ hγ hβγ, ite_eq_left hβγ, neg_one_mul, neg_sub,
-      sub_eq_add_neg, add_assoc, ← sub_eq_add_neg]
+  · rw [fDiv_statInfoFun_eq_StatInfo_of_nonneg_of_le hβ hγ hβγ, ite_eq_left hβγ, neg_one_mul,
+      neg_sub, sub_eq_add_neg, add_assoc, ← sub_eq_add_neg]
   · rw [fDiv_statInfoFun_eq_StatInfo_of_nonneg_of_gt hβ hγ hβγ, ite_eq_right hβγ.not_ge, one_mul,
       add_sub_assoc]
 

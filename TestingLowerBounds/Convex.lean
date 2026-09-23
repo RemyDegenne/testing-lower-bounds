@@ -26,7 +26,8 @@ variable {f g : ℝ → ℝ} {s : Set ℝ} {x : ℝ}
 
 namespace ConvexOn
 
--- maybe this could be called `affine_rightDeriv_le_of_mem_interior` and the next lemma `affine_leftDeriv_le_of_mem_interior`
+-- maybe this could be called `affine_rightDeriv_le_of_mem_interior` and the next lemma
+-- `affine_leftDeriv_le_of_mem_interior`
 lemma affine_le_of_mem_interior (hf : ConvexOn ℝ s f) {x y : ℝ} (hx : x ∈ interior s) (hy : y ∈ s) :
     rightDeriv f x * y + (f x - rightDeriv f x * x) ≤ f y := by
   rw [add_comm]
@@ -45,7 +46,8 @@ lemma affine_le_of_mem_interior (hf : ConvexOn ℝ s f) {x y : ℝ} (hx : x ∈ 
     rwa [div_le_iff₀ (by simp [hyx]), sub_le_iff_le_add, mul_sub, ← sub_le_iff_le_add',
       sub_sub_eq_add_sub, add_sub_right_comm] at this
 
-lemma affine_le_of_mem_interior' (hf : ConvexOn ℝ s f) {x y : ℝ} (hx : x ∈ interior s) (hy : y ∈ s) :
+lemma affine_le_of_mem_interior' (hf : ConvexOn ℝ s f) {x y : ℝ} (hx : x ∈ interior s)
+    (hy : y ∈ s) :
     leftDeriv f x * y + (f x - leftDeriv f x * x) ≤ f y := by
   rw [add_comm]
   rcases lt_trichotomy x y with hxy | h_eq | hyx

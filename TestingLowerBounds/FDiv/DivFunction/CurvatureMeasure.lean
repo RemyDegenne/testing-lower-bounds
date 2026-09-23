@@ -9,6 +9,13 @@ import Mathlib.MeasureTheory.Integral.IntervalIntegral.FundThmCalculus
 import TestingLowerBounds.ForMathlib.LeftRightDeriv
 import TestingLowerBounds.FDiv.DivFunction.RightDeriv
 
+/-! # Curvature measure of a divergence function
+
+The curvature measure of a `DivFunction` `f` is the Lebesgue-Stieltjes measure associated to its
+right derivative. Its main use is the Taylor formula expressing `f x` as an integral against the
+curvature measure (`convex_taylor_one_right'`, `convex_taylor_one_left'`).
+-/
+
 open MeasureTheory Set StieltjesFunction Function Filter
 
 open scoped ENNReal Topology
@@ -406,7 +413,8 @@ theorem convex_taylor_one_left' {b : ℝ≥0∞} (hb : b ≤ 1) :
     have ht_pos : ∀ n, 0 < t n := fun n ↦ ENNReal.ofReal_pos.mpr Nat.one_div_pos_of_nat
     have ht_le : ∀ n, t n ≤ 1 := fun n ↦ by
       rw [ht_def, ENNReal.ofReal_le_one]
-      exact (div_le_one (Nat.cast_add_one_pos n)).mpr (by linarith [(Nat.cast_nonneg n : (0 : ℝ) ≤ n)])
+      exact (div_le_one (Nat.cast_add_one_pos n)).mpr
+        (by linarith [(Nat.cast_nonneg n : (0 : ℝ) ≤ n)])
     have ht_anti : Antitone t := fun n m hnm ↦ ENNReal.ofReal_le_ofReal
       (one_div_le_one_div_of_le (Nat.cast_add_one_pos n)
         (by exact_mod_cast Nat.add_le_add_right hnm 1))
@@ -494,6 +502,7 @@ theorem convex_taylor_one_left (hf : rightDeriv f.realFun 1 = 0) {b : ℝ≥0∞
   have h := f.convex_taylor_one_left' hb
   rwa [hf, ENNReal.ofReal_zero, zero_mul, add_zero] at h
 
+/-- The curvature measure of `f`, pushed forward to `ℝ` by `ENNReal.toReal`. -/
 noncomputable
 def curvatureMeasureReal (f : DivFunction) : Measure ℝ := f.curvatureMeasure.map ENNReal.toReal
 

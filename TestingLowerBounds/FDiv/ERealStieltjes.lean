@@ -141,7 +141,7 @@ lemma add_apply_of_eq_top_left {f g : ERealStieltjes} {x : ℝ} (hfx : f x = ⊤
     (f + g) x = ⊤ := by
   simp [add_apply, hfx]
 
-lemma add_apply_of_eq_top_right {f g : ERealStieltjes} {x : ℝ}  (hgx : g x = ⊤) :
+lemma add_apply_of_eq_top_right {f g : ERealStieltjes} {x : ℝ} (hgx : g x = ⊤) :
     (f + g) x = ⊤ := by
   simp [add_apply, hgx]
 
@@ -240,8 +240,10 @@ theorem countable_leftLim_ne (f : ERealStieltjes) : Set.Countable { x | leftLim 
 
 section EffectiveDomain
 
+/-- Lower bound of the set on which `f` is not `⊥`. -/
 def xmin : ℝ := sInf {y | f y ≠ ⊥}
 
+/-- Upper bound of the set on which `f` is not `⊤`. -/
 def xmax : ℝ := sSup {y | f y ≠ ⊤}
 
 end EffectiveDomain
@@ -413,9 +415,9 @@ theorem outer_Ioc_of_ne_bot (a b : ℝ) (ha : f a ≠ ⊥) :
     have hq'' : (f q'' - f p'').toENNReal < f.length (s i) + ↑(ε' i) := by
       unfold p'' q''
       split_ifs with h_empty
-      rw [EReal.sub_self ha_top ha]
-      · simp only [ne_eq, EReal.zero_ne_top, not_false_eq_true, EReal.toENNReal_of_ne_top,
-        EReal.toReal_zero, ofReal_zero, add_pos_iff, ENNReal.coe_pos]
+      · rw [EReal.sub_self ha_top ha]
+        simp only [ne_eq, EReal.zero_ne_top, not_false_eq_true, EReal.toENNReal_of_ne_top,
+          EReal.toReal_zero, ofReal_zero, add_pos_iff, ENNReal.coe_pos]
         exact .inr (ε'0 i)
       · exact hq'
     have : ContinuousWithinAt (fun r => (f r - f p'').toENNReal) (Ioi q'') q'' := by
@@ -522,7 +524,7 @@ lemma outer_Ioc_eq_top_aux2 {a b : ℝ} (ha' : ∀ x < b, f x = ⊥) (hb : f b �
 theorem outer_Ioc (a b : ℝ) : f.outer (Ioc a b) = (f b - f a).toENNReal := by
   by_cases ha_bot : f a = ⊥
   swap; · exact outer_Ioc_of_ne_bot f a b ha_bot
-  simp [ha_bot, sub_eq_add_neg]
+  simp only [ha_bot, sub_eq_add_neg, EReal.neg_bot]
   by_cases hb : f b = ⊥
   · simp [hb, outer_Ioc_of_eq_bot]
   rw [EReal.add_top_of_ne_bot hb, EReal.toENNReal_top]
@@ -564,8 +566,8 @@ theorem measurableSet_Ioi {c : ℝ} : MeasurableSet[f.outer.caratheodory] (Ioi c
       max_eq_right, min_eq_left, Ioc_sdiff_Ioi, f.length_empty, zero_add, not_lt]
   · simp only [Ioc_inter_Ioi, hac, sup_of_le_right, length_Ioc, Ioc_sdiff_Ioi, hbc, min_eq_right]
     rw [EReal.toENNReal_sub_add_cancel (f.mono hac) (f.mono hbc)]
-  · simp only [hbc, le_refl, Ioc_eq_empty, Ioc_inter_Ioi, min_eq_left, Ioc_sdiff_Ioi, f.length_empty,
-      zero_add, or_true, le_sup_iff, f.length_Ioc, not_lt]
+  · simp only [hbc, le_refl, Ioc_eq_empty, Ioc_inter_Ioi, min_eq_left, Ioc_sdiff_Ioi,
+      f.length_empty, zero_add, or_true, le_sup_iff, f.length_Ioc, not_lt]
   · simp only [hac, hbc, Ioc_inter_Ioi, Ioc_sdiff_Ioi, f.length_Ioc, min_eq_right,
       le_refl, Ioc_eq_empty, add_zero, max_eq_left, f.length_empty, not_lt]
 
@@ -634,7 +636,7 @@ lemma leftLim_toENNReal_sub_left (a b : ℝ) :
     · rw [EReal.sub_nonpos]
       exact f.mono hx.le
   by_cases hfa : f a = ⊥
-  · simp [hfa, sub_eq_add_neg]
+  · simp only [hfa, sub_eq_add_neg, EReal.neg_bot]
     by_cases h_lim : leftLim f b = ⊥
     · simp only [h_lim, EReal.bot_add, ne_eq, bot_ne_top, not_false_eq_true,
         EReal.toENNReal_of_ne_top, EReal.toReal_bot, ofReal_zero]
@@ -670,7 +672,8 @@ lemma leftLim_toENNReal_sub_right (a : ℝ) (c : EReal)
   swap
   · refine leftLim_eq_of_tendsto ?_
     refine (tendsto_congr' ?_).mpr tendsto_const_nhds
-    have : ∀ᶠ x in 𝓝[<] a, c < f x := Filter.Tendsto.eventually_const_lt hab (f.mono.tendsto_leftLim _)
+    have : ∀ᶠ x in 𝓝[<] a, c < f x :=
+      Filter.Tendsto.eventually_const_lt hab (f.mono.tendsto_leftLim _)
     filter_upwards [this] with x hx
     rw [EReal.toENNReal_of_nonpos, EReal.toENNReal_of_nonpos]
     · rw [EReal.sub_nonpos]
@@ -1063,7 +1066,8 @@ lemma measure_Iio_eq_zero_of_forall_lt_eq_bot {c : ℝ} (h : ∀ x, x < c → f 
       · have : (m : ℝ) ≤ max n m := by exact_mod_cast le_max_right n m
         linarith
       · have : (1 : ℝ) / (max n m + 1) ≤ 1 / (n + 1) :=
-          one_div_le_one_div_of_le (by positivity) (by exact_mod_cast Nat.add_le_add_right (le_max_left n m) 1)
+          one_div_le_one_div_of_le (by positivity)
+            (by exact_mod_cast Nat.add_le_add_right (le_max_left n m) 1)
         linarith
     · rintro ⟨n, _, hy⟩
       have : (0 : ℝ) < 1 / (n + 1) := by positivity
@@ -1086,7 +1090,8 @@ lemma measure_Ioi_eq_zero_of_forall_gt_eq_top {d : ℝ} (h : ∀ x, d < x → f 
       obtain ⟨m, hm⟩ := exists_nat_gt (y - d)
       refine ⟨max n m, ?_, ?_⟩
       · have : (1 : ℝ) / (max n m + 1) ≤ 1 / (n + 1) :=
-          one_div_le_one_div_of_le (by positivity) (by exact_mod_cast Nat.add_le_add_right (le_max_left n m) 1)
+          one_div_le_one_div_of_le (by positivity)
+            (by exact_mod_cast Nat.add_le_add_right (le_max_left n m) 1)
         linarith
       · have : (m : ℝ) ≤ max n m := by exact_mod_cast le_max_right n m
         linarith

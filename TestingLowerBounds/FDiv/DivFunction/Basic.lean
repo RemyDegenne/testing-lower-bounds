@@ -175,7 +175,8 @@ lemma nonneg_of_rightDeriv_one_eq_zero {f : ℝ → ℝ} (hf : ConvexOn ℝ (Ioi
   _ ≤ f x := hf.affine_le_of_mem_interior
     ((interior_Ioi (a := (0 : ℝ))).symm ▸ mem_Ioi.mpr zero_lt_one) hx
 
-lemma nonneg_of_leftDeriv_one_nonpos_of_rightDeriv_one_nonneg {f : ℝ → ℝ} (hf : ConvexOn ℝ (Ioi 0) f)
+lemma nonneg_of_leftDeriv_one_nonpos_of_rightDeriv_one_nonneg {f : ℝ → ℝ}
+    (hf : ConvexOn ℝ (Ioi 0) f)
     (hf_one : f 1 = 0) (hf_ld : leftDeriv f 1 ≤ 0) (hf_rd : 0 ≤ rightDeriv f 1)
     {x : ℝ} (hx : 0 < x) :
     0 ≤ f x := by
@@ -219,7 +220,10 @@ namespace ProbabilityTheory
 
 variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {μ ν : Measure α}
 
+/-- A divergence function: a convex and continuous function `ℝ≥0∞ → ℝ≥0∞` with value `0` at `1`.
+These are the functions used to define f-divergences. -/
 structure DivFunction where
+  /-- The underlying function `ℝ≥0∞ → ℝ≥0∞`. -/
   toFun : ℝ≥0∞ → ℝ≥0∞
   one : toFun 1 = 0
   convexOn' : ConvexOn ℝ≥0 univ toFun
@@ -248,6 +252,7 @@ lemma continuous : Continuous f := f.continuous'
 
 lemma measurable : Measurable f := f.continuous.measurable
 
+/-- The real function `x ↦ (f (ENNReal.ofReal x)).toReal` associated with a `DivFunction`. -/
 noncomputable
 def realFun (f : DivFunction) : ℝ → ℝ := (fun x : ℝ ↦ (f (ENNReal.ofReal x)).toReal)
 
@@ -895,12 +900,14 @@ variable {f g : DivFunction}
 
 section Module
 
+/-- The zero divergence function. -/
 protected def zero : DivFunction where
   toFun := 0
   one := rfl
   convexOn' := convexOn_const _ convex_univ
   continuous' := continuous_const
 
+/-- Sum of two divergence functions. -/
 protected noncomputable def add (f g : DivFunction) : DivFunction where
   toFun := fun x ↦ f x + g x
   one := by simp

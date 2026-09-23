@@ -24,7 +24,7 @@ lemma rnDeriv_eq_zero_ae_of_zero_measure (ν : Measure α) {s : Set α} (hs : Me
   rw [← setLIntegral_eq_zero_iff hs (μ.measurable_rnDeriv ν)]
   exact le_antisymm (hμ ▸ Measure.setLIntegral_rnDeriv_le s) zero_le
 
-/--Singular part set of μ with respect to ν.-/
+/-- Singular part set of μ with respect to ν. -/
 def singularPartSet (μ ν : Measure α) := {x | ν.rnDeriv (μ + ν) x = 0}
 
 lemma measurableSet_singularPartSet : MeasurableSet (singularPartSet μ ν) :=

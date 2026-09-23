@@ -53,11 +53,12 @@ lemma exp_mul_llr' [SigmaFinite μ] [SigmaFinite ν] (hμν : μ ≪ ν) :
   have h_pos : 0 < ((∂μ/∂ν) x).toReal :=  ENNReal.toReal_pos hx_pos.ne' hx_lt_top.ne
   rw [← log_rpow h_pos, exp_log (rpow_pos_of_pos h_pos _)]
 
+/-- Weighted average `(1 - a) * ν univ + a * μ univ` of the masses of `μ` and `ν`, as a real
+number. -/
 noncomputable
 abbrev avgMass (a : ℝ) (μ ν : Measure α) : ℝ := (1 - a) * (ν .univ).toReal + a * (μ .univ).toReal
 
-lemma avgMass_nonneg_of_lt_one (ha_nonneg : 0 ≤ a) (ha_le : a ≤ 1)
-    [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
+lemma avgMass_nonneg_of_lt_one (ha_nonneg : 0 ≤ a) (ha_le : a ≤ 1) :
     0 ≤ avgMass a μ ν :=
   add_nonneg (mul_nonneg (sub_nonneg_of_le ha_le) ENNReal.toReal_nonneg)
     (mul_nonneg ha_nonneg ENNReal.toReal_nonneg)
@@ -83,8 +84,7 @@ noncomputable def renyiDiv (a : ℝ) (μ ν : Measure α) : ℝ≥0∞ :=
       - (a - 1)⁻¹ * (a * Real.log (μ .univ).toReal
         + (1 - a) * Real.log (ν .univ).toReal)).toENNReal
 
-lemma avgMass_add_mul_hellingerDiv_eq_ofReal [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (h : hellingerDiv a μ ν ≠ ∞) :
+lemma avgMass_add_mul_hellingerDiv_eq_ofReal (h : hellingerDiv a μ ν ≠ ∞) :
     (avgMass a μ ν : EReal) + (a - 1) * (hellingerDiv a μ ν)
       = (avgMass a μ ν + (a - 1) * (hellingerDiv a μ ν).toReal : ℝ) := by
   rw [← EReal.coe_ennreal_toReal h]
@@ -533,12 +533,14 @@ lemma renyiDiv_eq_top_iff_hellingerDiv_eq_top_of_one_le (ha : 1 ≤ a)
   · exact renyiDiv_eq_top_iff_hellingerDiv_eq_top_of_one_lt
       (lt_of_le_of_ne ha fun h ↦ ha_one h.symm)
 
-lemma renyiDiv_eq_top_iff_of_one_lt (ha : 1 < a) [NeZero μ] [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
+lemma renyiDiv_eq_top_iff_of_one_lt (ha : 1 < a) [NeZero μ]
+    [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     renyiDiv a μ ν = ∞ ↔ ¬ Integrable (fun x ↦ ((∂μ/∂ν) x).toReal ^ a) ν ∨ ¬ μ ≪ ν := by
   simp_rw [renyiDiv_eq_top_iff_hellingerDiv_eq_top_of_one_le ha.le,
     hellingerDiv_eq_top_iff_of_one_lt ha]
 
-lemma renyiDiv_ne_top_iff_of_one_lt (ha : 1 < a) [NeZero μ] [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
+lemma renyiDiv_ne_top_iff_of_one_lt (ha : 1 < a) [NeZero μ]
+    [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     renyiDiv a μ ν ≠ ∞ ↔ Integrable (fun x ↦ ((∂μ/∂ν) x).toReal ^ a) ν ∧ μ ≪ ν := by
   rw [ne_eq, renyiDiv_eq_top_iff_of_one_lt ha]
   simp
@@ -916,7 +918,7 @@ lemma renyiDiv_comp_le_compProd (ha_pos : 0 < a)
   le_renyiDiv_of_le_hellingerDiv ha_pos (Measure.snd_compProd μ κ ▸ Measure.snd_univ)
     (Measure.snd_compProd ν η ▸ Measure.snd_univ) (hellingerDiv_comp_le_compProd μ ν κ η)
 
-/--The Data Processing Inequality for the Renyi divergence. -/
+/-- The Data Processing Inequality for the Renyi divergence. -/
 lemma renyiDiv_comp_right_le (ha_pos : 0 < a)
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ : Kernel α β) [IsMarkovKernel κ] :

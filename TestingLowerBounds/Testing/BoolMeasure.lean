@@ -5,6 +5,11 @@ Authors: Lorenzo Luccioli
 -/
 import Mathlib.MeasureTheory.Measure.WithDensity
 
+/-! # Measures on `Bool`
+
+Lemmas about measures on `Bool` and integrals over `Bool`.
+-/
+
 open MeasureTheory
 
 open scoped ENNReal NNReal

@@ -38,14 +38,14 @@ section Conditional
 
 variable {β γ : Type*} {mβ : MeasurableSpace β} {mγ : MeasurableSpace γ} {κ η : Kernel α β}
 
-/--Equivalence between two possible versions of the first condition for the finiteness of the
-conditional KL divergence, the second version is the preferred one.-/
+/-- Equivalence between two possible versions of the first condition for the finiteness of the
+conditional KL divergence, the second version is the preferred one. -/
 lemma klDiv_ae_ne_top_iff : (∀ᵐ a ∂μ, klDiv (κ a) (η a) ≠ ∞) ↔
     (∀ᵐ a ∂μ, κ a ≪ η a) ∧ (∀ᵐ a ∂μ, Integrable (llr (κ a) (η a)) (κ a)) := by
   simp_rw [klDiv_ne_top_iff, eventually_and]
 
-/--Equivalence between two possible versions of the second condition for the finiteness of the
-conditional KL divergence, the first version is the preferred one.-/
+/-- Equivalence between two possible versions of the second condition for the finiteness of the
+conditional KL divergence, the first version is the preferred one. -/
 lemma integrable_klDiv_iff [IsMarkovKernel κ] [IsMarkovKernel η] (h_ac : ∀ᵐ a ∂μ, κ a ≪ η a) :
     Integrable (fun a ↦ (klDiv (κ a) (η a)).toReal) μ
       ↔ Integrable (fun a ↦ ∫ x, llr (κ a) (η a) x ∂(κ a)) μ := by
@@ -151,7 +151,8 @@ lemma condKL_of_not_ae_integrable [CountableOrCountablyGenerated α β]
 
 @[simp]
 lemma condKL_of_not_integrable [CountableOrCountablyGenerated α β]
-    [IsFiniteKernel κ] [IsFiniteKernel η] (h : ¬ Integrable (fun a ↦ (klDiv (κ a) (η a)).toReal) μ) :
+    [IsFiniteKernel κ] [IsFiniteKernel η]
+    (h : ¬ Integrable (fun a ↦ (klDiv (κ a) (η a)).toReal) μ) :
     condKL κ η μ = ∞ := by
   by_cases h_top : ∀ᵐ x ∂μ, klDiv (κ x) (η x) ≠ ⊤
   swap; · exact condKL_of_not_ae_ne_top h_top
@@ -215,12 +216,11 @@ lemma condKL_self (κ : Kernel α β) (μ : Measure α) [IsFiniteKernel κ] : co
   simp [condKL]
 
 @[simp]
-lemma condKL_zero_left [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η] :
+lemma condKL_zero_left [IsFiniteKernel η] :
     condKL 0 η μ = ∫⁻ a, η a Set.univ ∂μ := by simp [condKL_eq_condFDiv]
 
-@[simp]
 lemma condKL_zero_right [CountableOrCountablyGenerated α β]
-    [IsFiniteKernel κ] [IsFiniteKernel η] (h : ∃ᵐ a ∂μ, κ a ≠ 0) :
+    [IsFiniteKernel κ] (h : ∃ᵐ a ∂μ, κ a ≠ 0) :
     condKL κ 0 μ = ∞ := by
   rw [condKL_of_not_ae_ac]
   simp [h]
@@ -236,7 +236,7 @@ lemma condKL_isEmpty_left [IsEmpty α] : condKL κ η μ = 0 := by
   exact h ▸ condKL_zero_measure
 
 @[simp]
-lemma condKL_const {ξ : Measure β} [IsFiniteMeasure ξ] [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
+lemma condKL_const {ξ : Measure β} [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     condKL (Kernel.const β μ) (Kernel.const β ν) ξ = (klDiv μ ν) * ξ .univ := by
   rw [condKL_eq_condFDiv, klDiv_eq_fDiv]
   exact condFDiv_const
@@ -263,8 +263,8 @@ lemma le_klDiv_compProd [CountableOrCountablyGenerated α β] (μ ν : Measure �
 only used to prove that
 `Integrable (fun x ↦ ∫ (y : β), ‖EReal.toReal (klDiv (κ (x, y)) (η (x, y)))‖ ∂ξ x) μ` is true,
 given that `Integrable (fun x ↦ ∫ (y : β), EReal.toReal (klDiv (κ (x, y)) (η (x, y))) ∂ξ x` but if
-the kernels are finite then the klDiv is bounded from below, so it should be still possible to conclude
-the integrability of the first function, this would however require more work. -/
+the kernels are finite then the klDiv is bounded from below, so it should be still possible to
+conclude the integrability of the first function, this would however require more work. -/
 /-- This is to handle the case in `condKL_compProd_meas` when the lhs is ⊤, in this case the rhs is
 'morally' also ⊤, so the equality holds, but actually in Lean the equality is not true, because of
 how we handle the infinities in the integrals, so we have to make a separate lemma for this case. -/
@@ -311,7 +311,7 @@ lemma klDivFun_mul {x y : ℝ≥0∞} (hx : x ≠ ∞) (hy : y ≠ ∞) :
         - ENNReal.ofReal x.toReal - ENNReal.ofReal y.toReal by
     simp_rw [hx_real.symm, hy_real.symm] at this
     exact this
-  rw [log_mul]
+  rw [log_mul (ENNReal.toReal_ne_zero.mpr ⟨hx0, hx⟩) (ENNReal.toReal_ne_zero.mpr ⟨hy0, hy⟩)]
   rw [← ENNReal.ofReal_mul, ← ENNReal.ofReal_mul, ← ENNReal.ofReal_mul, ← ENNReal.ofReal_add,
     ← ENNReal.ofReal_one, ← ENNReal.ofReal_add, ← ENNReal.ofReal_add, ← ENNReal.ofReal_sub,
     ← ENNReal.ofReal_sub]
@@ -335,8 +335,6 @@ lemma klDivFun_mul {x y : ℝ≥0∞} (hx : x ≠ ∞) (hy : y ≠ ∞) :
   · positivity
   · positivity
   · positivity
-  · simp [ENNReal.toReal_eq_zero_iff, hx0, hx]
-  · simp [ENNReal.toReal_eq_zero_iff, hy0, hy]
 
 private lemma klDivFun_mul_aux₁ {x y : ℝ≥0∞} (hx : x ≠ ∞) (hy : y ≠ ∞) :
     x ≤ x * klDivFun y + y * klDivFun x + 1 + x * y := by
@@ -485,9 +483,9 @@ lemma lintegral_klDivFun_compProd [CountableOrCountablyGenerated α β]
   · simp [h_zero]
   · rw [lintegral_klDivFun_mul (h_ac h_zero) ha, add_comm]
 
-/--The **chain rule** for the KL divergence.-/
-lemma klDiv_compProd_eq_add_condKL [CountableOrCountablyGenerated α β] [IsMarkovKernel κ] [IsMarkovKernel η]
-    [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
+/-- The **chain rule** for the KL divergence. -/
+lemma klDiv_compProd_eq_add_condKL [CountableOrCountablyGenerated α β]
+    [IsMarkovKernel κ] [IsMarkovKernel η] [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     klDiv (μ ⊗ₘ κ) (ν ⊗ₘ η) = klDiv μ ν + condKL κ η μ := by
   by_cases h_prod : (μ ⊗ₘ κ) ≪ (ν ⊗ₘ η)
   swap
@@ -511,7 +509,7 @@ lemma klDiv_compProd_eq_add_condKL [CountableOrCountablyGenerated α β] [IsMark
   · exact (measurable_lintegral_f_rnDeriv κ η).aemeasurable
   · exact measurable_divFunction_rnDeriv
 
-/--The **chain rule** for the KL divergence.-/
+/-- The **chain rule** for the KL divergence. -/
 lemma klDiv_fst_add_condKL [StandardBorelSpace β] [Nonempty β] {μ ν : Measure (α × β)}
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     klDiv μ.fst ν.fst + condKL μ.condKernel ν.condKernel μ.fst = klDiv μ ν := by
@@ -577,20 +575,24 @@ lemma condKL_compProd_kernel_eq_top [CountableOrCountablyGenerated α β]
     <;> have h_ac' := h_ac
     <;> simp only [Kernel.absolutelyContinuous_compProd_iff, eventually_and, not_and_or] at h_ac'
     <;> simp only [h_ac, h_ac', not_false_eq_true, true_or, not_true, true_iff, false_or]
-  swap; tauto
+  swap
+  · tauto
   rw [← Measure.ae_compProd_iff (κ₂.measurableSet_absolutelyContinuous _)] at h_ac'
   by_cases h_ae_int : ∀ᵐ a ∂μ, Integrable (llr ((κ₁ ⊗ₖ κ₂) a) ((η₁ ⊗ₖ η₂) a)) ((κ₁ ⊗ₖ κ₂) a)
     <;> have h_ae_int' := h_ae_int
-    <;> simp only [eventually_congr (h_ac.mono (fun a h ↦ (Kernel.integrable_llr_compProd_iff' a h))),
+    <;> simp only [eventually_congr
+      (h_ac.mono (fun a h ↦ (Kernel.integrable_llr_compProd_iff' a h))),
       eventually_and, not_and_or] at h_ae_int'
     <;> simp only [h_ae_int, h_ae_int', not_false_eq_true, true_or, true_and, not_true, true_iff,
       false_or, not_and_or, ae_compProd_integrable_llr_iff h_ac'.2, Measure.integrable_compProd_iff
       (measurable_klDiv _ _).ennreal_toReal.stronglyMeasurable.aestronglyMeasurable]
   swap
   · by_cases h_int₁ : ∀ᵐ x ∂μ, Integrable (llr (κ₁ x) (η₁ x)) (κ₁ x)
-    swap; tauto
+    swap
+    · tauto
     by_cases h_int₂ : ∀ᵐ a ∂μ, ∀ᵐ b ∂κ₁ a, Integrable (llr (κ₂ (a, b)) (η₂ (a, b))) (κ₂ (a, b))
-    swap; tauto
+    swap
+    · tauto
     simp only [h_int₁, h_int₂, not_true_eq_false, false_or, or_false] at h_ae_int'
     right; right; left
     exact h_ae_int'
@@ -652,11 +654,11 @@ section Tensorization
 variable {β : Type*} {mβ : MeasurableSpace β}
 
 lemma klDiv_prod_two' [CountableOrCountablyGenerated α β] {ξ ψ : Measure β} [IsProbabilityMeasure ξ]
-    [IsProbabilityMeasure ψ] [IsFiniteMeasure μ] [IsFiniteMeasure ν]:
+    [IsProbabilityMeasure ψ] [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     klDiv (μ.prod ξ) (ν.prod ψ) = klDiv μ ν + klDiv ξ ψ * (μ .univ) := by
   simp only [← condKL_const, ← klDiv_compProd_eq_add_condKL, Measure.compProd_const]
 
-/--Tensorization property for KL divergence-/
+/-- Tensorization property for KL divergence -/
 lemma klDiv_prod_two [CountableOrCountablyGenerated α β] {ξ ψ : Measure β} [IsProbabilityMeasure ξ]
     [IsProbabilityMeasure ψ] [IsProbabilityMeasure μ] [IsFiniteMeasure ν] :
     klDiv (μ.prod ξ) (ν.prod ψ) = klDiv μ ν + klDiv ξ ψ := by
@@ -673,19 +675,19 @@ lemma klDiv_pi {ι : Type*} [hι : Fintype ι] {β : ι → Type*} [∀ i, Measu
     [∀ (i : ι), IsProbabilityMeasure (ν i)],
     klDiv (Measure.pi μ) (Measure.pi ν) = ∑ i : ι, klDiv (μ i) (ν i) ) ?_ ?_ ?_ ι
   · intro ι ι' hι' e h β _ _ μ ν _ _
-    specialize h (β := fun i ↦ β (e i)) (μ := fun i ↦ μ (e i)) (ν := fun i ↦ ν (e i))
     let hι : Fintype ι := Fintype.ofEquiv _ e.symm
-    rw [Fintype.sum_equiv e.symm _ (fun i ↦ klDiv (μ (e i)) (ν (e i))), ← h, klDiv_eq_fDiv, klDiv_eq_fDiv]
+    specialize h (β := fun i ↦ β (e i)) (μ := fun i ↦ μ (e i)) (ν := fun i ↦ ν (e i))
+    rw [Fintype.sum_equiv e.symm _ (fun i ↦ klDiv (μ (e i)) (ν (e i)))
+      (fun i ↦ by rw [Equiv.apply_symm_apply]), ← h, klDiv_eq_fDiv, klDiv_eq_fDiv]
     let e_meas : ((b : ι) → β (e b)) ≃ᵐ ((a : ι') → β a) :=
       MeasurableEquiv.piCongrLeft (fun i ↦ β i) e
     have me := MeasurableEquiv.measurableEmbedding e_meas.symm
     convert (fDiv_map_measurableEmbedding me).symm
       <;> try {rw [← Measure.pi_map_piCongrLeft e, MeasurableEquiv.map_symm_map]}
       <;> infer_instance
-    intro i
-    rw [Equiv.apply_symm_apply]
   · intro β _ _ μ ν _ _
-    rw [Measure.pi_of_empty, Measure.pi_of_empty, klDiv_self, Finset.univ_eq_empty, Finset.sum_empty]
+    rw [Measure.pi_of_empty, Measure.pi_of_empty, klDiv_self, Finset.univ_eq_empty,
+      Finset.sum_empty]
   · intro ι hι ind_h β _ _ μ ν _ _
     specialize ind_h (β := fun i ↦ β i) (μ := fun i ↦ μ i) (ν := fun i ↦ ν i)
     have h : klDiv (Measure.pi μ) (Measure.pi ν) = klDiv ((Measure.pi (fun (i : ι) ↦ μ i)).prod

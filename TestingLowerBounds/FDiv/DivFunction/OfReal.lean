@@ -114,7 +114,7 @@ lemma continuous_ofRealFun (hf : ConvexOn ℝ (Ioi 0) f) (hf_one : f 1 = 0) :
       · filter_upwards [self_mem_nhdsWithin,
           mem_nhdsWithin_of_mem_nhds (Iio_mem_nhds ENNReal.zero_lt_top)] with y hy hy_top
         exact ENNReal.toReal_pos hy.ne' hy_top.ne
-    show Tendsto (ofRealFun f) (𝓝[>] 0) (𝓝 (ofRealFun f 0))
+    change Tendsto (ofRealFun f) (𝓝[>] 0) (𝓝 (ofRealFun f 0))
     refine ((tendsto_ofReal_comp_nhdsGT_zero hf hf_one).comp h_toReal).congr' ?_
     filter_upwards [self_mem_nhdsWithin,
       mem_nhdsWithin_of_mem_nhds (Iio_mem_nhds ENNReal.zero_lt_top)] with y hy hy_top
@@ -132,7 +132,7 @@ lemma continuous_ofRealFun (hf : ConvexOn ℝ (Ioi 0) f) (hf_one : f 1 = 0) :
       filter_upwards [self_mem_nhdsWithin,
         mem_nhdsWithin_of_mem_nhds (Ioi_mem_nhds ENNReal.ofReal_lt_top)] with y hy hy_gt
       exact (ENNReal.ofReal_le_iff_le_toReal hy.ne).mp hy_gt.le
-    show Tendsto (ofRealFun f) (𝓝[<] ∞) (𝓝 (ofRealFun f ∞))
+    change Tendsto (ofRealFun f) (𝓝[<] ∞) (𝓝 (ofRealFun f ∞))
     refine ((tendsto_ofReal_comp_atTop hf hf_one).comp h_toReal).congr' ?_
     filter_upwards [self_mem_nhdsWithin,
       mem_nhdsWithin_of_mem_nhds (Ioi_mem_nhds ENNReal.zero_lt_top)] with y hy hy_pos
@@ -189,7 +189,8 @@ lemma convexOn_ofRealFun (hf : ConvexOn ℝ (Ioi 0) f) (hf_one : f 1 = 0) :
     refine isClosed_le ?_ ?_
     · exact h_cont.comp (((ENNReal.continuous_const_mul ENNReal.coe_ne_top).comp continuous_fst).add
         ((ENNReal.continuous_const_mul ENNReal.coe_ne_top).comp continuous_snd))
-    · exact ((ENNReal.continuous_const_mul ENNReal.coe_ne_top).comp (h_cont.comp continuous_fst)).add
+    · exact Continuous.add
+        ((ENNReal.continuous_const_mul ENNReal.coe_ne_top).comp (h_cont.comp continuous_fst))
         ((ENNReal.continuous_const_mul ENNReal.coe_ne_top).comp (h_cont.comp continuous_snd))
   have h_subset : Ioo (0 : ℝ≥0∞) ∞ ×ˢ Ioo (0 : ℝ≥0∞) ∞ ⊆ {p : ℝ≥0∞ × ℝ≥0∞ |
       ofRealFun f (a • p.1 + b • p.2) ≤ a • ofRealFun f p.1 + b • ofRealFun f p.2} :=
@@ -341,7 +342,7 @@ lemma lintegral_ofReal_eq_top_of_not_integrable [SigmaFinite μ] [IsFiniteMeasur
       simp only [mem_ofPred_eq] at hx
       simp [hx]
     · exact μ.measurable_rnDeriv ν (measurableSet_singleton 0)
-  simp [h_int_zero] at h_int
+  simp only [ne_eq, h_int_zero, and_true] at h_int
   convert h_int using 1
   refine integrableOn_congr_fun_ae ((ae_restrict_iff' ?_).mpr ?_)
   · exact (μ.measurable_rnDeriv ν (measurableSet_singleton 0)).compl
@@ -349,7 +350,7 @@ lemma lintegral_ofReal_eq_top_of_not_integrable [SigmaFinite μ] [IsFiniteMeasur
   rw [DivFunction.realFun_ofReal_apply fun x hx ↦ hf_nonneg x hx.le]
   exact ENNReal.toReal_pos hx_zero hx_top
 
-lemma lintegral_ofReal' [SigmaFinite μ] [SigmaFinite ν] (h : ν {x | μ.rnDeriv ν x = 0} ≠ ∞) :
+lemma lintegral_ofReal' [SigmaFinite μ] (h : ν {x | μ.rnDeriv ν x = 0} ≠ ∞) :
     ∫⁻ x, ofReal f hf hf_one (μ.rnDeriv ν x) ∂ν
       = ∫⁻ x, ENNReal.ofReal (f (μ.rnDeriv ν x).toReal) ∂ν
         - ENNReal.ofReal (f 0) * ν {x | μ.rnDeriv ν x = 0}
@@ -392,7 +393,7 @@ lemma lintegral_ofReal [SigmaFinite μ] [IsFiniteMeasure ν] :
         + Function.rightLim (fun x ↦ ENNReal.ofReal (f x)) 0 * ν {x | μ.rnDeriv ν x = 0} :=
   DivFunction.lintegral_ofReal' (measure_ne_top _ _)
 
-lemma lintegral_ofReal_of_continuous [SigmaFinite μ] [SigmaFinite ν]
+lemma lintegral_ofReal_of_continuous [SigmaFinite μ]
     (hf_cont : ContinuousWithinAt f (Ioi 0) 0) :
     ∫⁻ x, DivFunction.ofReal f hf hf_one (μ.rnDeriv ν x) ∂ν
       = ∫⁻ x, ENNReal.ofReal (f (μ.rnDeriv ν x).toReal) ∂ν := by
@@ -421,7 +422,7 @@ lemma lintegral_ofReal_of_continuous [SigmaFinite μ] [SigmaFinite ν]
     rw [setLIntegral_const]
   rw [h1, h2, h3]
 
-lemma lintegral_ofReal_eq_integral_of_continuous [SigmaFinite μ] [SigmaFinite ν]
+lemma lintegral_ofReal_eq_integral_of_continuous [SigmaFinite μ]
     (hf_nonneg : ∀ x, 0 ≤ x → 0 ≤ f x)
     (hf_cont : ContinuousWithinAt f (Ioi 0) 0)
     (h_int : Integrable (fun x ↦ f (μ.rnDeriv ν x).toReal) ν) :
@@ -431,7 +432,7 @@ lemma lintegral_ofReal_eq_integral_of_continuous [SigmaFinite μ] [SigmaFinite �
     ofReal_integral_eq_lintegral_ofReal h_int]
   refine ae_of_all _ fun x ↦ hf_nonneg _ ENNReal.toReal_nonneg
 
-lemma measurable_comp_rnDeriv_of_convexOn_of_continuous [SigmaFinite μ] [SigmaFinite ν]
+lemma measurable_comp_rnDeriv_of_convexOn_of_continuous
     {f : ℝ → ℝ} (hf : ConvexOn ℝ (Ioi 0) f) (h_cont : ContinuousWithinAt f (Ioi 0) 0) :
     Measurable (fun x ↦ f (μ.rnDeriv ν x).toReal) := by
   have : (fun x ↦ f (μ.rnDeriv ν x).toReal)
@@ -452,7 +453,7 @@ lemma measurable_comp_rnDeriv_of_convexOn_of_continuous [SigmaFinite μ] [SigmaF
       exact Ioi_mem_nhds (lt_of_le_of_ne hx (Ne.symm h0))
   exact h1.comp (μ.measurable_rnDeriv ν).ennreal_toReal.subtype_mk
 
-lemma lintegral_ofReal_ne_top_iff_integrable_of_continuous [SigmaFinite μ] [IsFiniteMeasure ν]
+lemma lintegral_ofReal_ne_top_iff_integrable_of_continuous [SigmaFinite μ]
     (hf_nonneg : ∀ x, 0 ≤ x → 0 ≤ f x)
     (h_cont : ContinuousWithinAt f (Ioi 0) 0) :
     ∫⁻ x, ofReal f hf hf_one (μ.rnDeriv ν x) ∂ν ≠ ∞
@@ -462,7 +463,7 @@ lemma lintegral_ofReal_ne_top_iff_integrable_of_continuous [SigmaFinite μ] [IsF
     exact measurable_comp_rnDeriv_of_convexOn_of_continuous hf h_cont
   · exact ae_of_all _ fun x ↦ hf_nonneg _ ENNReal.toReal_nonneg
 
-lemma lintegral_ofReal_eq_top_iff_not_integrable_of_continuous [SigmaFinite μ] [IsFiniteMeasure ν]
+lemma lintegral_ofReal_eq_top_iff_not_integrable_of_continuous [SigmaFinite μ]
     (hf_nonneg : ∀ x, 0 ≤ x → 0 ≤ f x)
     (h_cont : ContinuousWithinAt f (Ioi 0) 0) :
     ∫⁻ x, ofReal f hf hf_one (μ.rnDeriv ν x) ∂ν = ∞
@@ -505,7 +506,8 @@ lemma _root_.ConvexOn.sub_one_nonneg (hf : ConvexOn ℝ (Ioi 0) f) {x : ℝ} (hx
   nlinarith
 
 lemma rightDeriv_sub_one_apply (hf : ConvexOn ℝ (Ioi 0) f) {x : ℝ} (hx : 0 < x) :
-    rightDeriv (fun y ↦ f y - f 1 - rightDeriv f 1 * (y - 1)) x = rightDeriv f x - rightDeriv f 1 := by
+    rightDeriv (fun y ↦ f y - f 1 - rightDeriv f 1 * (y - 1)) x
+      = rightDeriv f x - rightDeriv f 1 := by
   have h_eq : (fun y ↦ f y - f 1 - rightDeriv f 1 * (y - 1))
       = fun y ↦ f y + (- rightDeriv f 1) * y + (- f 1 + rightDeriv f 1) := by ext; ring
   have hd : DifferentiableWithinAt ℝ f (Ioi x) x :=

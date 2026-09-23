@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2024 Rémy Degenne. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Rémy Degenne, Lorenzo Luccioli
+-/
 import Mathlib.Tactic.Basic
 import Mathlib.Tactic.Bound.Init
 import Mathlib.Util.CompileInductive
@@ -5,6 +10,11 @@ import Mathlib.Algebra.Order.Group.Unbundled.Abs
 import Mathlib.Tactic.Ring.RingNF
 import Mathlib.Algebra.Order.Monoid.Unbundled.MinMax
 import Mathlib.Algebra.Order.Ring.Defs
+
+/-! # `max` and `min` in terms of the absolute value
+
+`max a b = 2⁻¹ * (a + b + |a - b|)` and `min a b = 2⁻¹ * (a + b - |a - b|)`.
+-/
 
 --PR this to mathlib
 --the hp LinearOrderedField may not be optimal

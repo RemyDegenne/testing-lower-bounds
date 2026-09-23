@@ -7,6 +7,12 @@ import Mathlib.MeasureTheory.Integral.IntegrableOn
 import Mathlib.MeasureTheory.Measure.Regular
 import TestingLowerBounds.DerivAtTop
 
+/-! # The functions `statInfoFun β γ`
+
+Properties of the functions `statInfoFun β γ : ℝ → ℝ`, the building blocks of the integral
+representation of f-divergences in terms of statistical informations.
+-/
+
 open MeasureTheory Set Filter Topology StieltjesFunction
 
 open scoped ENNReal NNReal Interval
@@ -49,7 +55,9 @@ lemma statInfoFun_neg_neg (h : β ≠ γ) : statInfoFun (-β) (-γ) = statInfoFu
   rcases lt_or_gt_of_ne h with (hγβ | hγβ)
     <;> simp [statInfoFun, sub_eq_add_neg, hγβ.le, hγβ.not_ge, add_comm]
 
---TODO: for now I will leave the continuity assumption in some lemmas, it should be derived from the convexity but the lemma is not yet in mathlib, when it gets there we can remove this assumption
+-- TODO: for now I will leave the continuity assumption in some lemmas, it should be derived from
+-- the convexity but the lemma is not yet in mathlib, when it gets there we can remove this
+-- assumption
 
 section Measurability
 

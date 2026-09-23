@@ -21,14 +21,12 @@ namespace ProbabilityTheory
 variable {α β γ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {mγ : MeasurableSpace γ}
   {μ : Measure α} {f : DivFunction}
 
-lemma condFDiv_sectR [CountableOrCountablyGenerated β γ] {ξ : Kernel α β}
-    [IsFiniteKernel ξ] {κ η : Kernel (α × β) γ} [IsFiniteKernel κ] [IsFiniteKernel η]
-    {a : α} :
+lemma condFDiv_sectR {ξ : Kernel α β} {κ η : Kernel (α × β) γ} {a : α} :
     condFDiv f (κ.sectR a) (η.sectR a) (ξ a) = ∫⁻ b, (fDiv f (κ (a, b)) (η (a, b))) ∂ξ a := by
   simp [condFDiv, Kernel.sectR_apply]
 
 lemma condFDiv_kernel_sectR_integrable_iff [CountableOrCountablyGenerated (α × β) γ]
-    [IsFiniteMeasure μ] {ξ : Kernel α β}  [IsFiniteKernel ξ]
+    [IsFiniteMeasure μ] {ξ : Kernel α β} [IsFiniteKernel ξ]
     {κ η : Kernel (α × β) γ} [IsMarkovKernel κ] [IsMarkovKernel η]
     (h_ac : f.derivAtTop = ∞ → ∀ᵐ a ∂μ, ∀ᵐ b ∂ξ a, κ (a, b) ≪ η (a, b)) :
     ∫⁻ a, condFDiv f (κ.sectR a) (η.sectR a) (ξ a) ∂μ ≠ ∞ ↔
@@ -74,7 +72,7 @@ lemma condFDiv_kernel_sectR_integrable_iff [CountableOrCountablyGenerated (α ×
     _ < ∞ := ENNReal.mul_lt_top (ξ.bound_lt_top) (by simp)
 
 lemma condFDiv_kernel_sectR_eq_top_iff [CountableOrCountablyGenerated (α × β) γ]
-    [IsFiniteMeasure μ] {ξ : Kernel α β}  [IsFiniteKernel ξ]
+    [IsFiniteMeasure μ] {ξ : Kernel α β} [IsFiniteKernel ξ]
     {κ η : Kernel (α × β) γ} [IsMarkovKernel κ] [IsMarkovKernel η]
     (h_ac : f.derivAtTop = ∞ → ∀ᵐ a ∂μ, ∀ᵐ b ∂ξ a, κ (a, b) ≪ η (a, b)) :
     ∫⁻ a, condFDiv f (κ.sectR a) (η.sectR a) (ξ a) ∂μ = ∞ ↔

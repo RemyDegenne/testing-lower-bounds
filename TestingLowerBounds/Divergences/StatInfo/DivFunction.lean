@@ -23,6 +23,7 @@ namespace ProbabilityTheory
 variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
   {μ ν : Measure α} {p : ℝ≥0∞} {π : Measure Bool} {f : DivFunction} {β γ x t : ℝ}
 
+/-- The `DivFunction` associated with the convex function `statInfoFun β γ`. -/
 noncomputable
 def statInfoDivFun (β γ : ℝ) : DivFunction :=
   DivFunction.ofReal

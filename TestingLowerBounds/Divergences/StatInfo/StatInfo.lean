@@ -137,7 +137,8 @@ lemma toReal_statInfo_eq_min_sub_integral (μ ν : Measure 𝒳) [IsFiniteMeasur
     (π : Measure Bool) [IsFiniteMeasure π] :
     (statInfo μ ν π).toReal = min (π {false} * μ univ).toReal (π {true} * ν univ).toReal
       - ∫ x, min (π {false} * μ.rnDeriv (Kernel.boolKernel μ ν ∘ₘ π) x).toReal
-      (π {true} * ν.rnDeriv (Kernel.boolKernel μ ν ∘ₘ π) x).toReal ∂(Kernel.boolKernel μ ν ∘ₘ π) := by
+      (π {true} * ν.rnDeriv (Kernel.boolKernel μ ν ∘ₘ π) x).toReal
+        ∂(Kernel.boolKernel μ ν ∘ₘ π) := by
   have hμ : π {false} * μ univ ≠ ⊤ := ENNReal.mul_ne_top (measure_ne_top π _) (measure_ne_top μ _)
   have hν : π {true} * ν univ ≠ ⊤ := ENNReal.mul_ne_top (measure_ne_top π _) (measure_ne_top ν _)
   rw [statInfo_eq_min_sub, ENNReal.toReal_sub_of_le (bayesBinaryRisk_le_min μ ν π)]
@@ -153,7 +154,9 @@ lemma toReal_statInfo_eq_integral_max_of_le [IsFiniteMeasure μ] [IsFiniteMeasur
   by_cases h_false : π {false} = 0
   · simp [statInfo, h_false, bayesBinaryRisk_of_measure_false_eq_zero]
   by_cases h_true : π {true} = 0
-  · simp [statInfo, h_true, bayesBinaryRisk_of_measure_true_eq_zero] at h ⊢
+  · simp only [h_true, zero_mul, nonpos_iff_eq_zero, mul_eq_zero, Measure.measure_univ_eq_zero,
+      statInfo, Measure.discard_comp, bayesBinaryRisk_of_measure_true_eq_zero, tsub_self,
+      ENNReal.toReal_zero, ENNReal.toReal_mul, sub_zero] at h ⊢
     rcases h with (h | h)
     · simp [h]
     · rw [integral_congr_ae (g := 0)]
@@ -173,7 +176,8 @@ lemma toReal_statInfo_eq_integral_max_of_le [IsFiniteMeasure μ] [IsFiniteMeasur
     _ = (π {false} * μ univ).toReal
         - ∫ x, (π {false} * (∂μ/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal
           + min 0 ((π {true} * (∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal
-            - (π {false} * (∂μ/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal) ∂Kernel.boolKernel μ ν ∘ₘ π := by
+            - (π {false} * (∂μ/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal)
+              ∂Kernel.boolKernel μ ν ∘ₘ π := by
       congr with x
       nth_rw 1 [← add_zero (π _ * _).toReal, ← add_sub_cancel_left
         (π {false} * (∂μ/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal (π {true} * _).toReal]
@@ -181,14 +185,16 @@ lemma toReal_statInfo_eq_integral_max_of_le [IsFiniteMeasure μ] [IsFiniteMeasur
     _ = (π {false} * μ univ).toReal
         - (∫ x, (π {false} * (∂μ/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal ∂Kernel.boolKernel μ ν ∘ₘ π
         + ∫ x, min 0 ((π {true} * (∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal
-            - (π {false} * (∂μ/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal) ∂Kernel.boolKernel μ ν ∘ₘ π) := by
+            - (π {false} * (∂μ/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal)
+              ∂Kernel.boolKernel μ ν ∘ₘ π) := by
       simp_rw [ENNReal.toReal_mul]
       congr
       refine integral_add (Integrable.const_mul Measure.integrable_toReal_rnDeriv _) ?_
       refine (integrable_zero _ _ _).inf (Integrable.sub ?_ ?_) <;>
       · exact Measure.integrable_toReal_rnDeriv.const_mul _
     _ = - ∫ x, min 0 ((π {true} * (∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal
-          - (π {false} * (∂μ/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal) ∂Kernel.boolKernel μ ν ∘ₘ π := by
+          - (π {false} * (∂μ/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal)
+            ∂Kernel.boolKernel μ ν ∘ₘ π := by
       simp_rw [ENNReal.toReal_mul, ← sub_sub, sub_eq_neg_self, sub_eq_zero, integral_const_mul,
         Measure.integral_toReal_rnDeriv hμac, ← measureReal_def]
     _ = ∫ x, max 0 ((π {false} * (∂μ/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal
@@ -197,7 +203,8 @@ lemma toReal_statInfo_eq_integral_max_of_le [IsFiniteMeasure μ] [IsFiniteMeasur
     _ = ∫ x in s, max 0 ((π {false} * (∂μ/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal
           - (π {true} * (∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal) ∂Kernel.boolKernel μ ν ∘ₘ π
         + ∫ x in sᶜ, max 0 ((π {false} * (∂μ/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal
-          - (π {true} * (∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal) ∂Kernel.boolKernel μ ν ∘ₘ π := by
+          - (π {true} * (∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal)
+            ∂Kernel.boolKernel μ ν ∘ₘ π := by
       simp_rw [ENNReal.toReal_mul]
       refine integral_add_compl hs ((integrable_zero _ _ _).sup (Integrable.sub ?_ ?_)) |>.symm <;>
       · exact Measure.integrable_toReal_rnDeriv.const_mul _
@@ -209,7 +216,8 @@ lemma toReal_statInfo_eq_integral_max_of_le [IsFiniteMeasure μ] [IsFiniteMeasur
       congr 1
       · apply setIntegral_congr_ae hs
         filter_upwards [μ.rnDeriv_eq_zero_ae_of_singularPartSet ν _,
-          (μ.singularPart ν).rnDeriv_add' (ν.withDensity (μ.rnDeriv ν)) (Kernel.boolKernel μ ν ∘ₘ π),
+          (μ.singularPart ν).rnDeriv_add' (ν.withDensity (μ.rnDeriv ν))
+            (Kernel.boolKernel μ ν ∘ₘ π),
           Measure.rnDeriv_withDensity_left_of_absolutelyContinuous hνac
           (μ.measurable_rnDeriv ν).aemeasurable] with x hx1 hx2 hx3
         intro hxs
@@ -287,7 +295,8 @@ lemma toReal_statInfo_eq_integral_max_of_ge [IsFiniteMeasure μ] [IsFiniteMeasur
     _ = (π {true} * ν univ).toReal
         - ∫ x, (π {true} * (∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal
           + min 0 ((π {false} * (∂μ/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal
-            - (π {true} * (∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal) ∂Kernel.boolKernel μ ν ∘ₘ π := by
+            - (π {true} * (∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal)
+              ∂Kernel.boolKernel μ ν ∘ₘ π := by
       congr with x
       nth_rw 1 [min_comm, ← add_zero (π _ * _).toReal, ← add_sub_cancel_left
         (π {true} * (∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal (π {false} * _).toReal]
@@ -295,14 +304,16 @@ lemma toReal_statInfo_eq_integral_max_of_ge [IsFiniteMeasure μ] [IsFiniteMeasur
     _ = (π {true} * ν univ).toReal
         - (∫ x, (π {true} * (∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal ∂Kernel.boolKernel μ ν ∘ₘ π
         + ∫ x, min 0 ((π {false} * (∂μ/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal
-            - (π {true} * (∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal) ∂Kernel.boolKernel μ ν ∘ₘ π) := by
+            - (π {true} * (∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal)
+              ∂Kernel.boolKernel μ ν ∘ₘ π) := by
       simp_rw [ENNReal.toReal_mul]
       congr
       refine integral_add (Integrable.const_mul Measure.integrable_toReal_rnDeriv _) ?_
       refine (integrable_zero _ _ _).inf (Integrable.sub ?_ ?_) <;>
       · exact Measure.integrable_toReal_rnDeriv.const_mul _
     _ = - ∫ x, min 0 ((π {false} * (∂μ/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal
-          - (π {true} * (∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal) ∂Kernel.boolKernel μ ν ∘ₘ π := by
+          - (π {true} * (∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal)
+            ∂Kernel.boolKernel μ ν ∘ₘ π := by
       simp_rw [ENNReal.toReal_mul, ← sub_sub, sub_eq_neg_self, sub_eq_zero, integral_const_mul,
         Measure.integral_toReal_rnDeriv hνac, ← measureReal_def]
     _ = ∫ x, max 0 ((π {true} * (∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal
@@ -311,7 +322,8 @@ lemma toReal_statInfo_eq_integral_max_of_ge [IsFiniteMeasure μ] [IsFiniteMeasur
     _ = ∫ x in s, max 0 ((π {true} * (∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal
           - (π {false} * (∂μ/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal) ∂Kernel.boolKernel μ ν ∘ₘ π
         + ∫ x in sᶜ, max 0 ((π {true} * (∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal
-          - (π {false} * (∂μ/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal) ∂Kernel.boolKernel μ ν ∘ₘ π := by
+          - (π {false} * (∂μ/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal)
+            ∂Kernel.boolKernel μ ν ∘ₘ π := by
       simp_rw [ENNReal.toReal_mul]
       refine integral_add_compl hs ((integrable_zero _ _ _).sup (Integrable.sub ?_ ?_)) |>.symm <;>
       · exact Measure.integrable_toReal_rnDeriv.const_mul _
@@ -323,7 +335,8 @@ lemma toReal_statInfo_eq_integral_max_of_ge [IsFiniteMeasure μ] [IsFiniteMeasur
       congr 1
       · apply setIntegral_congr_ae hs
         filter_upwards [μ.rnDeriv_eq_zero_ae_of_singularPartSet ν _,
-          (μ.singularPart ν).rnDeriv_add' (ν.withDensity (μ.rnDeriv ν)) (Kernel.boolKernel μ ν ∘ₘ π),
+          (μ.singularPart ν).rnDeriv_add' (ν.withDensity (μ.rnDeriv ν))
+            (Kernel.boolKernel μ ν ∘ₘ π),
           Measure.rnDeriv_withDensity_left_of_absolutelyContinuous hνac
           (μ.measurable_rnDeriv ν).aemeasurable] with x hx1 hx2 hx3 hxs
         nth_rw 2 [← μ.singularPart_add_rnDeriv ν]
@@ -354,7 +367,7 @@ lemma toReal_statInfo_eq_integral_max_of_ge [IsFiniteMeasure μ] [IsFiniteMeasur
       rw [setIntegral_measure_zero _ (μ.measure_singularPartSet ν), zero_add]
 
 lemma toReal_statInfo_eq_integral_abs (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    {π : Measure Bool} [IsFiniteMeasure π]  :
+    {π : Measure Bool} [IsFiniteMeasure π] :
     (statInfo μ ν π).toReal
       = 2⁻¹ * (-|(π {false} * μ univ).toReal - (π {true} * ν univ).toReal|
         + ∫ x, |(π {false} * (∂μ/∂ν) x).toReal - (π {true}).toReal| ∂ν

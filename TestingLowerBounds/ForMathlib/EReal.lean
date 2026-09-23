@@ -1,4 +1,14 @@
+/-
+Copyright (c) 2024 Rémy Degenne. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Rémy Degenne, Lorenzo Luccioli
+-/
 import Mathlib.MeasureTheory.Constructions.BorelSpace.Real
+
+/-! # Lemmas about `EReal`
+
+Results about `EReal` (continuity of subtraction, `toENNReal`, ...) that could be moved to Mathlib.
+-/
 
 open scoped ENNReal NNReal Topology
 open Filter Set
@@ -70,7 +80,7 @@ lemma continuousAt_sub {p : EReal × EReal} (h : p.1 ≠ ⊤ ∨ p.2 ≠ ⊤) (h
 lemma continuousAt_const_sub {c x : EReal} (h' : x ≠ ⊤ ∨ c ≠ ⊤) :
     ContinuousAt (fun x : EReal ↦ c - x) x := by
   by_cases hc_top : c = ⊥
-  · simp [hc_top]
+  · simp only [hc_top, bot_sub]
     exact continuous_const.continuousAt
   change ContinuousAt ((fun p : EReal × EReal ↦ p.1 - p.2) ∘ (fun x ↦ (c, x))) x
   exact (EReal.continuousAt_sub h'.symm (Or.inl hc_top)).comp (by fun_prop)
@@ -78,7 +88,7 @@ lemma continuousAt_const_sub {c x : EReal} (h' : x ≠ ⊤ ∨ c ≠ ⊤) :
 lemma continuousAt_sub_const {c x : EReal} (h' : x ≠ ⊥ ∨ c ≠ ⊥) :
     ContinuousAt (fun x : EReal ↦ x - c) x := by
   by_cases hc_top : c = ⊤
-  · simp [hc_top]
+  · simp only [hc_top, sub_top]
     exact continuous_const.continuousAt
   change ContinuousAt ((fun p : EReal × EReal ↦ p.1 - p.2) ∘ (fun x ↦ (x, c))) x
   exact (EReal.continuousAt_sub (Or.inr hc_top) h').comp (by fun_prop)

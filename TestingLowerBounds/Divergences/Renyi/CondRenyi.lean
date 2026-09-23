@@ -38,8 +38,7 @@ def condRenyiDiv (a : ℝ) (κ η : Kernel α β) (μ : Measure α) : ℝ≥0∞
 
 /-Maybe this can be stated in a nicer way, but I didn't find a way to do it. It's probably good
 enough to use `condRenyiDiv_of_lt_one`.-/
-lemma condRenyiDiv_zero (κ η : Kernel α β) (μ : Measure α)
-    [IsFiniteKernel κ] [IsMarkovKernel η] [IsFiniteMeasure μ] :
+lemma condRenyiDiv_zero (κ η : Kernel α β) (μ : Measure α) [IsMarkovKernel η] [IsFiniteMeasure μ] :
     condRenyiDiv 0 κ η μ
       = (- ENNReal.log ((μ ⊗ₘ η) {x | 0 < (∂μ ⊗ₘ κ/∂μ ⊗ₘ η) x} / μ .univ)).toENNReal := by
   rw [condRenyiDiv, renyiDiv_zero, Measure.compProd_apply_univ]

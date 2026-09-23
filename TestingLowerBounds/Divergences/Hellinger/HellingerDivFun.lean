@@ -128,7 +128,6 @@ lemma derivAtTop_hellingerDivFun_of_one_le (ha_le : 1 ≤ a) :
 lemma derivAtTop_hellingerDivFun_one : (hellingerDivFun 1).derivAtTop = ∞ :=
   derivAtTop_hellingerDivFun_of_one_le le_rfl
 
-@[simp]
 lemma derivAtTop_hellingerDivFun_eq_top_iff : (hellingerDivFun a).derivAtTop = ∞ ↔ 1 ≤ a := by
   simp only [derivAtTop_hellingerDivFun]
   split_ifs with h1 h2

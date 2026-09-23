@@ -253,7 +253,8 @@ lemma tendsto_integral_rpow_rnDeriv_sub_div [IsFiniteMeasure μ] [IsFiniteMeasur
       =ᶠ[𝓝[<] (1:ℝ)]
         fun a ↦ ∫ x, (a - 1)⁻¹ * (((∂μ/∂ν) x).toReal ^ a - ((∂μ/∂ν) x).toReal) ∂ν := by
     filter_upwards [h_ev] with a ha
-    rw [integral_const_mul, integral_sub (integrable_rpow_rnDeriv_of_lt_one (by linarith [ha.1]) ha.2)
+    rw [integral_const_mul,
+      integral_sub (integrable_rpow_rnDeriv_of_lt_one (by linarith [ha.1]) ha.2)
       Measure.integrable_toReal_rnDeriv, Measure.integral_toReal_rnDeriv hμν, measureReal_def]
   refine Tendsto.congr' h_eq.symm ?_
   refine tendsto_integral_filter_of_dominated_convergence
@@ -336,10 +337,10 @@ end IntegralRPowRnDeriv
 
 section HellingerFun
 
-/--Hellinger function, defined as `x ↦ (a - 1)⁻¹ * (x ^ a - 1)` for `a ∈ (0, 1) ∪ (1, + ∞)`.
+/-- Hellinger function, defined as `x ↦ (a - 1)⁻¹ * (x ^ a - 1)` for `a ∈ (0, 1) ∪ (1, + ∞)`.
 At `0` the function is obtained by contiuity and is the indicator function of `{0}`. At `1` it is
 defined as `x ↦ x * log x`, because in this way we obtain that the Hellinger divergence at `1`
-conincides with the KL divergence, which is natural for continuity reasons.-/
+conincides with the KL divergence, which is natural for continuity reasons. -/
 noncomputable
 def hellingerFun (a : ℝ) : ℝ → ℝ :=
   if a = 0 then fun x ↦ if x = 0 then 1 else 0
@@ -480,7 +481,8 @@ lemma rightDeriv_hellingerFun_one :
 
 lemma hellingerFun_nonneg (ha : 0 ≤ a) {x : ℝ} (hx : 0 ≤ x) : 0 ≤ hellingerFun a x := by
   rcases hx.eq_or_lt with rfl | hx; · simp
-  refine ConvexOn.nonneg_of_rightDeriv_one_eq_zero ?_ hellingerFun_apply_one_eq_zero rightDeriv_hellingerFun_one hx
+  refine ConvexOn.nonneg_of_rightDeriv_one_eq_zero ?_ hellingerFun_apply_one_eq_zero
+    rightDeriv_hellingerFun_one hx
   exact (convexOn_hellingerFun ha).subset (Set.Ioi_subset_Ici le_rfl) (convex_Ioi _)
 
 lemma tendsto_rightDeriv_hellingerFun_atTop_of_one_lt (ha : 1 < a) :

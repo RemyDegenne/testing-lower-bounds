@@ -8,6 +8,12 @@ import Mathlib.Analysis.Convex.Deriv
 import Mathlib.MeasureTheory.Measure.Stieltjes
 
 
+/-! # Left and right derivatives of convex functions
+
+Properties of `leftDeriv` and `rightDeriv` of convex functions on `ℝ`, and of the Stieltjes
+function `rightDerivStieltjes` associated to the right derivative.
+-/
+
 open Set Filter Topology
 
 open scoped ENNReal NNReal
@@ -17,7 +23,7 @@ variable {f : ℝ → ℝ} {x : ℝ}
 namespace ConvexOn
 
 lemma comp_neg {𝕜 F β : Type*} [Field 𝕜] [LinearOrder 𝕜] [AddCommGroup F]
-    [AddCommMonoid β] [PartialOrder β] [IsOrderedAddMonoid β]
+    [AddCommMonoid β] [PartialOrder β]
     [Module 𝕜 F] [SMul 𝕜 β] {f : F → β} {s : Set F}
     (hf : ConvexOn 𝕜 s f) :
     ConvexOn 𝕜 (-s) (fun x ↦ f (-x)) := by
@@ -303,7 +309,9 @@ lemma hasRightDerivAt' (hfc : ConvexOn ℝ (Ici 0) f) (hx : 0 < x) :
     HasDerivWithinAt f (sInf (slope f x '' Ioi x)) (Ioi x) x := by
   have h := hfc.hasDerivWithinAt_sInf_slope_of_mem_interior (x := x) (by simpa using hx)
   rwa [show {y ∈ Ici (0 : ℝ) | x < y} = Ioi x by
-    ext z; simp only [mem_ofPred_eq, mem_Ici, mem_Ioi]; exact ⟨fun h ↦ h.2, fun h ↦ ⟨(hx.trans h).le, h⟩⟩]
+    ext z
+    simp only [mem_ofPred_eq, mem_Ici, mem_Ioi]
+    exact ⟨fun h ↦ h.2, fun h ↦ ⟨(hx.trans h).le, h⟩⟩]
     at h
 
 lemma differentiableWithinAt_Ioi (hfc : ConvexOn ℝ univ f) (x : ℝ) :
@@ -379,7 +387,8 @@ def rightDerivStieltjes {f : ℝ → ℝ} (hf : ConvexOn ℝ univ f) :
 lemma rightDerivStieltjes_eq_rightDeriv (hf : ConvexOn ℝ univ f) :
     rightDerivStieltjes hf = rightDeriv f := rfl
 
-lemma rightDerivStieltjes_const (c : ℝ) : rightDerivStieltjes (convexOn_const c convex_univ) = 0 := by
+lemma rightDerivStieltjes_const (c : ℝ) :
+    rightDerivStieltjes (convexOn_const c convex_univ) = 0 := by
   ext x
   simp_rw [rightDerivStieltjes_eq_rightDeriv, rightDeriv_const]
   rfl

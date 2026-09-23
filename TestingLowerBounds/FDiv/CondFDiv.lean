@@ -99,7 +99,7 @@ lemma toReal_condFDiv_eq_integral [IsFiniteKernel κ] [IsFiniteKernel η]
   rw [condFDiv, integral_toReal (measurable_fDiv _ _).aemeasurable]
   exact ae_lt_top (measurable_fDiv _ _) h
 
-lemma condFDiv_eq_add [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η] :
+lemma condFDiv_eq_add [IsFiniteKernel κ] [IsFiniteKernel η] :
     condFDiv f κ η μ = ∫⁻ a, ∫⁻ y, f ((∂κ a/∂η a) y) ∂η a ∂μ
       + f.derivAtTop * ∫⁻ a, (κ a).singularPart (η a) .univ ∂μ := by
   simp_rw [condFDiv, fDiv]
@@ -108,8 +108,8 @@ lemma condFDiv_eq_add [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel �
   rw [lintegral_const_mul]
   exact (Measure.measurable_coe .univ).comp (κ.measurable_singularPart η)
 
-lemma condFDiv_of_derivAtTop_eq_top [IsFiniteMeasure μ]
-    [IsFiniteKernel κ] [IsFiniteKernel η] (h_ac : ∀ᵐ a ∂μ, κ a ≪ η a) :
+lemma condFDiv_of_derivAtTop_eq_top [IsFiniteKernel κ] [IsFiniteKernel η]
+    (h_ac : ∀ᵐ a ∂μ, κ a ≪ η a) :
     condFDiv f κ η μ = ∫⁻ a, ∫⁻ y, f ((∂κ a/∂η a) y) ∂η a ∂μ := by
   rw [condFDiv_eq_add]
   suffices ∫⁻ a, ((κ a).singularPart (η a)) univ ∂μ = 0 by simp [this]
@@ -127,7 +127,7 @@ lemma condFDiv_self (κ : Kernel α β) (μ : Measure α) [IsFiniteKernel κ] :
   simp [condFDiv, fDiv_self]
 
 @[simp]
-lemma condFDiv_zero_left [IsFiniteMeasure μ] [IsFiniteKernel η] :
+lemma condFDiv_zero_left :
     condFDiv f 0 η μ = f 0 * ∫⁻ a, ((η a) .univ) ∂μ := by
   rw [condFDiv]
   simp only [zero_apply, fDiv_zero_measure_left]
@@ -259,7 +259,7 @@ lemma integrable_fDiv_ofReal_iff_of_ne_top [CountableOrCountablyGenerated α β]
   · rw [lintegral_singularPart _ _ _ .univ]
     simp
 
-lemma integrable_fDiv_ofReal_iff_of_ac [IsFiniteKernel κ] [IsFiniteKernel η]
+lemma integrable_fDiv_ofReal_iff_of_ac [IsFiniteKernel κ]
     {f : ℝ → ℝ} {hf : ConvexOn ℝ (Set.Ioi 0) f} {hf_one : f 1 = 0}
     (hf_nonneg : ∀ x, 0 ≤ x → 0 ≤ f x) (h_cont : ContinuousWithinAt f (Set.Ioi 0) 0)
     (h_int : ∀ᵐ a ∂μ, Integrable (fun x ↦ f ((∂κ a/∂η a) x).toReal) (η a))

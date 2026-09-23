@@ -23,6 +23,7 @@ namespace DivFunction
 
 variable {f g : DivFunction}
 
+/-- Limit at `+∞` of the right derivative of `f`, as an element of `ℝ≥0∞`. -/
 noncomputable
 def derivAtTop (f : DivFunction) : ℝ≥0∞ := (limsup f.rightDerivStieltjes atTop).toENNReal
 
@@ -82,9 +83,11 @@ lemma derivAtTop_congr (h : (f : ℝ≥0∞ → ℝ≥0∞) =ᶠ[𝓝[<] ∞] g)
     by_cases hz_top : z = ∞
     · subst hz_top
       have h_mem : ENNReal.ofReal x + 1 ∈ {z | f z ≠ ∞} := by
-        rw [mem_ofPred_eq, h_eq _ (hcx.trans (ENNReal.lt_add_right ENNReal.ofReal_ne_top one_ne_zero))
+        rw [mem_ofPred_eq,
+          h_eq _ (hcx.trans (ENNReal.lt_add_right ENNReal.ofReal_ne_top one_ne_zero))
           (ENNReal.add_ne_top.mpr ⟨ENNReal.ofReal_ne_top, ENNReal.one_ne_top⟩)]
-        exact ne_top_of_le_ne_top hz (g.monotoneOn (mem_Ici.mpr le_add_self) (mem_Ici.mpr le_top) le_top)
+        exact ne_top_of_le_ne_top hz
+          (g.monotoneOn (mem_Ici.mpr le_add_self) (mem_Ici.mpr le_top) le_top)
       exact absurd ((le_sSup h_mem).trans hf)
         (not_le.mpr (ENNReal.lt_add_right ENNReal.ofReal_ne_top one_ne_zero))
     · have h_mem : z ∈ {z | f z ≠ ∞} := by
@@ -313,7 +316,8 @@ lemma tendsto_div_nhdsLT_top : Tendsto (fun y ↦ f y / y) (𝓝[<] ∞) (𝓝 f
         (Or.inr hx_top) (a := x)
       simpa [div_eq_mul_inv] using this
     have h2 : Tendsto (fun y ↦ D * (1 - x / y)) (𝓝[<] ∞) (𝓝 D) := by
-      have := ENNReal.Tendsto.const_mul (ENNReal.Tendsto.sub tendsto_const_nhds h1 (Or.inl ENNReal.one_ne_top))
+      have := ENNReal.Tendsto.const_mul
+        (ENNReal.Tendsto.sub tendsto_const_nhds h1 (Or.inl ENNReal.one_ne_top))
         (Or.inl (by simp)) (a := D)
       simpa using this
     have h_eq : ∀ᶠ y in 𝓝[<] ∞, D * (1 - x / y) = D * (y - x) / y := by

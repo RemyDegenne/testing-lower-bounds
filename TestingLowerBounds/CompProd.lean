@@ -253,7 +253,7 @@ lemma f_compProd_congr_left (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteM
   rw [hb]
 
 lemma integral_f_compProd_left_congr (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (κ : Kernel α β) [IsFiniteKernel κ]  :
+    (κ : Kernel α β) [IsFiniteKernel κ] :
     (fun a ↦ ∫ b, f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ κ) (a, b)).toReal ∂(κ a))
       =ᵐ[ν] fun a ↦ (κ a .univ).toReal * f ((∂μ/∂ν) a).toReal := by
   filter_upwards [f_compProd_congr_left μ ν κ] with a ha

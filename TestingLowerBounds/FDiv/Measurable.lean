@@ -30,9 +30,9 @@ lemma measurableSet_integrable_f_kernel_rnDeriv (κ η ξ : Kernel α β) [IsSFi
 lemma measurableSet_integrable_f_rnDeriv (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
     MeasurableSet {a | ∫⁻ x, f ((∂κ a/∂η a) x) ∂(η a) ≠ ∞} := by
   convert measurableSet_integrable_f_kernel_rnDeriv κ η η using 3 with a
-  rw [lintegral_congr_ae ?_]
-  filter_upwards [κ.rnDeriv_eq_rnDeriv_measure] with b hb
-  rw [hb]
+  · rw [lintegral_congr_ae ?_]
+    filter_upwards [κ.rnDeriv_eq_rnDeriv_measure] with b hb
+    rw [hb]
 
 lemma measurable_lintegral_f_kernel_rnDeriv (κ η ξ : Kernel α β) [IsSFiniteKernel ξ] :
     Measurable fun a ↦ ∫⁻ x, f (κ.rnDeriv η a x) ∂(ξ a) := by
@@ -42,9 +42,9 @@ lemma measurable_lintegral_f_kernel_rnDeriv (κ η ξ : Kernel α β) [IsSFinite
 lemma measurable_lintegral_f_rnDeriv (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
     Measurable fun a ↦ ∫⁻ x, f ((∂κ a/∂η a) x) ∂(η a) := by
   convert measurable_lintegral_f_kernel_rnDeriv κ η η using 2 with a
-  rw [lintegral_congr_ae ?_]
-  filter_upwards [κ.rnDeriv_eq_rnDeriv_measure] with b hb
-  rw [hb]
+  · rw [lintegral_congr_ae ?_]
+    filter_upwards [κ.rnDeriv_eq_rnDeriv_measure] with b hb
+    rw [hb]
 
 lemma measurable_fDiv (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
     Measurable (fun a ↦ fDiv f (κ a) (η a)) := by
