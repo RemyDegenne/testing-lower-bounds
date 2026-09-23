@@ -7,8 +7,4 @@ For a detailed presentation, see the blueprint at https://remydegenne.github.io/
 ### Contents
 - Definitions of divergences between measures: f-divergence, Kullback-Leibler (or relative entropy), Rényi, TV, DeGroot statistical information
 - Definition of an estimation task and its risk
-- Proofs of the data-processing inequality for f-divergences (in progress)
-
-### Technical note
-
-To do a Mathlib bump without breaking the blueprint, use `lake -R -Kenv=dev update`
+- Proofs of the data-processing inequality for f-divergences
