@@ -8,6 +8,7 @@ import TestingLowerBounds.Divergences.KullbackLeibler.KullbackLeibler
 import TestingLowerBounds.FDiv.Basic
 import Mathlib.Analysis.Convex.SpecificFunctions.Pow
 import Mathlib.Analysis.SpecialFunctions.Pow.Deriv
+import TestingLowerBounds.FDiv.DPIJensen
 
 /-!
 # Hellinger divergence
@@ -353,29 +354,24 @@ lemma le_hellingerDiv_compProd [CountableOrCountablyGenerated α β]
     hellingerDiv a μ ν ≤ hellingerDiv a (μ ⊗ₘ κ) (ν ⊗ₘ η) :=
   le_fDiv_compProd μ ν κ η
 
-lemma hellingerDiv_fst_le [Nonempty β] [StandardBorelSpace β]
-    (μ ν : Measure (α × β)) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
+lemma hellingerDiv_fst_le (μ ν : Measure (α × β)) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     hellingerDiv a μ.fst ν.fst ≤ hellingerDiv a μ ν :=
-  fDiv_fst_le _ _
+  fDiv_fst_le'' _ _
 
-lemma hellingerDiv_snd_le [Nonempty α] [StandardBorelSpace α]
-    (μ ν : Measure (α × β)) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
+lemma hellingerDiv_snd_le (μ ν : Measure (α × β)) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     hellingerDiv a μ.snd ν.snd ≤ hellingerDiv a μ ν :=
-  fDiv_snd_le _ _
+  fDiv_snd_le'' _ _
 
-lemma hellingerDiv_comp_le_compProd [Nonempty α] [StandardBorelSpace α]
-    (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+lemma hellingerDiv_comp_le_compProd (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
     hellingerDiv a (κ ∘ₘ μ) (η ∘ₘ ν) ≤ hellingerDiv a (μ ⊗ₘ κ) (ν ⊗ₘ η) :=
-  fDiv_comp_le_compProd μ ν κ η
+  fDiv_comp_le_compProd'' μ ν κ η
 
 /--The Data Processing Inequality for the Hellinger divergence. -/
-lemma hellingerDiv_comp_right_le [Nonempty α] [StandardBorelSpace α]
-    [CountableOrCountablyGenerated α β]
-    (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+lemma hellingerDiv_comp_right_le (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ : Kernel α β) [IsMarkovKernel κ] :
     hellingerDiv a (κ ∘ₘ μ) (κ ∘ₘ ν) ≤ hellingerDiv a μ ν :=
-  fDiv_comp_right_le μ ν κ
+  fDiv_comp_right_le'' μ ν κ
 
 end DataProcessingInequality
 

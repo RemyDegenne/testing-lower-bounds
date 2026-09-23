@@ -6,6 +6,7 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 import Mathlib.InformationTheory.KullbackLeibler.DataProcessing
 import TestingLowerBounds.Divergences.KullbackLeibler.KLDivFun
 import TestingLowerBounds.FDiv.Basic
+import TestingLowerBounds.FDiv.DPIJensen
 
 /-!
 # Kullback-Leibler divergence
@@ -170,12 +171,11 @@ section DataProcessingInequality
 
 variable {β : Type*} {mβ : MeasurableSpace β} {κ η : Kernel α β}
 
-lemma klDiv_comp_le_compProd [Nonempty α] [StandardBorelSpace α]
-    (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+lemma klDiv_comp_le_compProd (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
     klDiv (κ ∘ₘ μ) (η ∘ₘ ν) ≤ klDiv (μ ⊗ₘ κ) (ν ⊗ₘ η) := by
   simp_rw [klDiv_eq_fDiv]
-  exact fDiv_comp_le_compProd μ ν κ η
+  exact fDiv_comp_le_compProd'' μ ν κ η
 
 end DataProcessingInequality
 

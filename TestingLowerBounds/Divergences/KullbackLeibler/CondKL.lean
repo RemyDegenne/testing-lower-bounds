@@ -6,6 +6,7 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 import TestingLowerBounds.Divergences.KullbackLeibler.KullbackLeibler
 import TestingLowerBounds.FDiv.CondFDivCompProdMeasure
 import TestingLowerBounds.ForMathlib.LogLikelihoodRatioCompProd
+import TestingLowerBounds.FDiv.DPIJensen
 
 /-!
 # Conditional Kullback-Leibler divergence
@@ -240,17 +241,15 @@ lemma condKL_const {ξ : Measure β} [IsFiniteMeasure ξ] [IsFiniteMeasure μ] [
   rw [condKL_eq_condFDiv, klDiv_eq_fDiv]
   exact condFDiv_const
 
-lemma klDiv_fst_le [Nonempty β] [StandardBorelSpace β]
-    (μ ν : Measure (α × β)) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
+lemma klDiv_fst_le (μ ν : Measure (α × β)) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     klDiv μ.fst ν.fst ≤ klDiv μ ν := by
   simp_rw [klDiv_eq_fDiv]
-  exact fDiv_fst_le _ _
+  exact fDiv_fst_le'' _ _
 
-lemma klDiv_snd_le [Nonempty α] [StandardBorelSpace α]
-    (μ ν : Measure (α × β)) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
+lemma klDiv_snd_le (μ ν : Measure (α × β)) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     klDiv μ.snd ν.snd ≤ klDiv μ ν := by
   simp_rw [klDiv_eq_fDiv]
-  exact fDiv_snd_le _ _
+  exact fDiv_snd_le'' _ _
 
 section CompProd
 
@@ -639,7 +638,7 @@ section DataProcessingInequality
 
 variable {β : Type*} {mβ : MeasurableSpace β} {κ η : Kernel α β}
 
-lemma klDiv_comp_left_le [Nonempty α] [StandardBorelSpace α] [CountableOrCountablyGenerated α β]
+lemma klDiv_comp_left_le [CountableOrCountablyGenerated α β]
     (μ : Measure α) [IsFiniteMeasure μ]
     (κ η : Kernel α β) [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] :
     klDiv (κ ∘ₘ μ) (η ∘ₘ μ) ≤ condKL κ η μ := by

@@ -152,8 +152,7 @@ section DataProcessingInequality
 
 variable {β : Type*} {mβ : MeasurableSpace β} {κ η : Kernel α β}
 
-lemma renyiDiv_comp_left_le [Nonempty α] [StandardBorelSpace α]
-    (ha_pos : 0 < a) (μ : Measure α) [IsFiniteMeasure μ]
+lemma renyiDiv_comp_left_le (ha_pos : 0 < a) (μ : Measure α) [IsFiniteMeasure μ]
     (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
     renyiDiv a (κ ∘ₘ μ) (η ∘ₘ μ) ≤ condRenyiDiv a κ η μ :=
   le_renyiDiv_of_le_hellingerDiv ha_pos (Measure.snd_compProd μ κ ▸ Measure.snd_univ)

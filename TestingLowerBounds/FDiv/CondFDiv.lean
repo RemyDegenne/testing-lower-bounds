@@ -8,6 +8,7 @@ import Mathlib.Probability.Kernel.Integral
 import TestingLowerBounds.FDiv.CompProd.CompProd
 import TestingLowerBounds.FDiv.Measurable
 import Mathlib.MeasureTheory.MeasurableSpace.CountablyGenerated
+import TestingLowerBounds.FDiv.DPIJensen
 
 /-!
 
@@ -220,12 +221,12 @@ end
 
 end CompProd
 
-lemma fDiv_comp_left_le [Nonempty α] [StandardBorelSpace α] [CountableOrCountablyGenerated α β]
+lemma fDiv_comp_left_le [CountableOrCountablyGenerated α β]
     (μ : Measure α) [IsFiniteMeasure μ]
     (κ η : Kernel α β) [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] :
     fDiv f (κ ∘ₘ μ) (η ∘ₘ μ) ≤ condFDiv f κ η μ := by
   calc fDiv f (κ ∘ₘ μ) (η ∘ₘ μ)
-    ≤ fDiv f (μ ⊗ₘ κ) (μ ⊗ₘ η) := fDiv_comp_le_compProd μ μ κ η
+    ≤ fDiv f (μ ⊗ₘ κ) (μ ⊗ₘ η) := fDiv_comp_le_compProd'' μ μ κ η
   _ = condFDiv f κ η μ := fDiv_compProd_left μ κ η
 
 end Conditional

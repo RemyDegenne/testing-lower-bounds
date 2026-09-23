@@ -899,17 +899,17 @@ lemma le_renyiDiv_compProd [CountableOrCountablyGenerated α β] (ha_pos : 0 < a
   le_renyiDiv_of_le_hellingerDiv ha_pos Measure.compProd_apply_univ.symm
     Measure.compProd_apply_univ.symm (le_hellingerDiv_compProd μ ν κ η)
 
-lemma renyiDiv_fst_le [Nonempty β] [StandardBorelSpace β] (ha_pos : 0 < a)
+lemma renyiDiv_fst_le (ha_pos : 0 < a)
     (μ ν : Measure (α × β)) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     renyiDiv a μ.fst ν.fst ≤ renyiDiv a μ ν :=
   le_renyiDiv_of_le_hellingerDiv ha_pos Measure.fst_univ Measure.fst_univ (hellingerDiv_fst_le μ ν)
 
-lemma renyiDiv_snd_le [Nonempty α] [StandardBorelSpace α] (ha_pos : 0 < a)
+lemma renyiDiv_snd_le (ha_pos : 0 < a)
     (μ ν : Measure (α × β)) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     renyiDiv a μ.snd ν.snd ≤ renyiDiv a μ ν :=
   le_renyiDiv_of_le_hellingerDiv ha_pos Measure.snd_univ Measure.snd_univ (hellingerDiv_snd_le μ ν)
 
-lemma renyiDiv_comp_le_compProd [Nonempty α] [StandardBorelSpace α] (ha_pos : 0 < a)
+lemma renyiDiv_comp_le_compProd (ha_pos : 0 < a)
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
     renyiDiv a (κ ∘ₘ μ) (η ∘ₘ ν) ≤ renyiDiv a (μ ⊗ₘ κ) (ν ⊗ₘ η) :=
@@ -917,8 +917,7 @@ lemma renyiDiv_comp_le_compProd [Nonempty α] [StandardBorelSpace α] (ha_pos : 
     (Measure.snd_compProd ν η ▸ Measure.snd_univ) (hellingerDiv_comp_le_compProd μ ν κ η)
 
 /--The Data Processing Inequality for the Renyi divergence. -/
-lemma renyiDiv_comp_right_le [Nonempty α] [StandardBorelSpace α] (ha_pos : 0 < a)
-    [CountableOrCountablyGenerated α β]
+lemma renyiDiv_comp_right_le (ha_pos : 0 < a)
     (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ : Kernel α β) [IsMarkovKernel κ] :
     renyiDiv a (κ ∘ₘ μ) (κ ∘ₘ ν) ≤ renyiDiv a μ ν :=

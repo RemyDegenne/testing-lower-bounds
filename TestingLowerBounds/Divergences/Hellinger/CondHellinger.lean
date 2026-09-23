@@ -49,8 +49,8 @@ lemma hellingerDiv_compProd_left [CountableOrCountablyGenerated α β]
     hellingerDiv a (μ ⊗ₘ κ) (μ ⊗ₘ η) = condHellingerDiv a κ η μ := by
   rw [hellingerDiv, condHellingerDiv, fDiv_compProd_left _ _ _]
 
-lemma hellingerDiv_comp_left_le [Nonempty α] [StandardBorelSpace α]
-    [CountableOrCountablyGenerated α β] (μ : Measure α) [IsFiniteMeasure μ]
+lemma hellingerDiv_comp_left_le [CountableOrCountablyGenerated α β] (μ : Measure α)
+    [IsFiniteMeasure μ]
     (κ η : Kernel α β) [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] :
     hellingerDiv a (κ ∘ₘ μ) (η ∘ₘ μ) ≤ condHellingerDiv a κ η μ :=
   fDiv_comp_left_le μ κ η
