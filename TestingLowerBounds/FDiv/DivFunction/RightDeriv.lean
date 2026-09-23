@@ -5,7 +5,10 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 module
 
+public import TestingLowerBounds.DerivAtTop
 public import TestingLowerBounds.FDiv.DivFunction.Basic
+public import TestingLowerBounds.FDiv.ERealStieltjes
+public import TestingLowerBounds.ForMathlib.RnDeriv
 
 /-!
 
@@ -19,6 +22,18 @@ open Real MeasureTheory Filter Set MeasurableSpace
 
 open scoped ENNReal NNReal Topology
 
+@[simp] lemma Function.leftLim_const {α β : Type*} [LinearOrder α] [TopologicalSpace α]
+    [OrderTopology α] [TopologicalSpace β] [T2Space β] {a : α} {x : β} :
+    Function.leftLim (fun _ ↦ x) a = x := by
+  rcases (𝓝[<] a).eq_or_neBot with h | h
+  · exact leftLim_eq_of_eq_bot _ h
+  · exact leftLim_eq_of_tendsto tendsto_const_nhds
+
+@[simp] lemma Function.rightLim_const {α β : Type*} [LinearOrder α] [TopologicalSpace α]
+    [OrderTopology α] [TopologicalSpace β] [T2Space β] {a : α} {x : β} :
+    Function.rightLim (fun _ ↦ x) a = x :=
+  Function.leftLim_const (α := αᵒᵈ)
+
 namespace ProbabilityTheory
 
 variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {μ ν : Measure α}
@@ -28,55 +43,6 @@ namespace DivFunction
 variable {f g : DivFunction}
 
 section RightDeriv
-
-section Domain
-
-lemma isOpen_toReal_Ioo (f : DivFunction) : IsOpen (ENNReal.toReal '' Ioo f.xmin f.xmax) := by
-  by_cases h_top : f.xmax = ∞
-  · simp only [h_top, ENNReal.toReal_Ioo_top xmin_ne_top]
-    exact isOpen_Ioi
-  · simp only [ENNReal.toReal_Ioo xmin_ne_top h_top]
-    exact isOpen_Ioo
-
-lemma mem_toReal_Ioo_iff {x : ℝ} :
-    x ∈ ENNReal.toReal '' Ioo f.xmin f.xmax
-      ↔ f.xmin < ENNReal.ofReal x ∧ ENNReal.ofReal x < f.xmax := by
-  constructor
-  · rintro ⟨y, hy, rfl⟩
-    rwa [ENNReal.ofReal_toReal (ne_top_of_lt hy.2)]
-  · rintro ⟨h1, h2⟩
-    refine ⟨ENNReal.ofReal x, ⟨h1, h2⟩, ENNReal.toReal_ofReal ?_⟩
-    by_contra hx
-    rw [ENNReal.ofReal_of_nonpos (not_le.mp hx).le] at h1
-    exact ENNReal.not_lt_zero h1
-
-lemma xmin_toReal_lt_one : f.xmin.toReal < 1 := by
-  rw [← ENNReal.lt_ofReal_iff_toReal_lt xmin_ne_top, ENNReal.ofReal_one]
-  exact xmin_lt_one
-
-lemma xmin_eq_zero (hf : ∀ x, 0 < x → x ≠ ∞ → f x ≠ ∞) : f.xmin = 0 := by
-  refine le_antisymm ?_ zero_le
-  refine le_of_forall_gt_imp_ge_of_dense fun x hx ↦ ?_
-  by_cases hx_top : x = ∞
-  · exact hx_top ▸ le_top
-  exact sInf_le (hf x hx hx_top)
-
-lemma xmax_eq_top (hf : ∀ x, 0 < x → x ≠ ∞ → f x ≠ ∞) : f.xmax = ∞ := by
-  rw [xmax, sSup_eq_top]
-  intro b hb
-  refine ⟨b + 1, hf _ (zero_lt_one.trans_le le_add_self)
-    (ENNReal.add_ne_top.mpr ⟨hb.ne, ENNReal.one_ne_top⟩), ENNReal.lt_add_right hb.ne one_ne_zero⟩
-
-end Domain
-
-lemma rightDeriv_mono (f : DivFunction) {x y : ℝ} (hxy : x ≤ y)
-    (hx : f.xmin < ENNReal.ofReal x) (hy : ENNReal.ofReal y < f.xmax) :
-    rightDeriv f.realFun x ≤ rightDeriv f.realFun y := by
-  have h := f.convexOn_Ioo_realFun.monotoneOn_rightDeriv
-  rw [f.isOpen_toReal_Ioo.interior_eq] at h
-  refine h ?_ ?_ hxy
-  · exact mem_toReal_Ioo_iff.mpr ⟨hx, (ENNReal.ofReal_le_ofReal hxy).trans_lt hy⟩
-  · exact mem_toReal_Ioo_iff.mpr ⟨hx.trans_le (ENNReal.ofReal_le_ofReal hxy), hy⟩
 
 lemma continuousWithinAt_rightDeriv (f : DivFunction) {x : ℝ}
     (hx : f.xmin < ENNReal.ofReal x) (hx' : ENNReal.ofReal x < f.xmax) :
@@ -270,11 +236,8 @@ lemma rightDeriv_realFun_add {x : ℝ} (hxf : x ∈ ENNReal.toReal '' Ioo f.xmin
     (hxg : x ∈ ENNReal.toReal '' Ioo g.xmin g.xmax) :
     rightDeriv (f + g).realFun x = rightDeriv f.realFun x + rightDeriv g.realFun x := by
   rw [(realFun_add_eventuallyEq hxf hxg).rightDeriv_eq_nhds]
-  have hx0 : 0 ≤ x := by
-    obtain ⟨y, _, rfl⟩ := hxf
-    exact ENNReal.toReal_nonneg
-  exact rightDeriv_add_apply' (f.differentiableWithinAt hx0 (mem_toReal_Ioo_iff.mp hxf))
-    (g.differentiableWithinAt hx0 (mem_toReal_Ioo_iff.mp hxg))
+  exact rightDeriv_add_apply' (f.differentiableWithinAt (mem_toReal_Ioo_iff.mp hxf))
+    (g.differentiableWithinAt (mem_toReal_Ioo_iff.mp hxg))
 
 lemma rightDerivStieltjes_add :
     (f + g).rightDerivStieltjes = f.rightDerivStieltjes + g.rightDerivStieltjes := by

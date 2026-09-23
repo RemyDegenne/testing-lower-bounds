@@ -40,7 +40,7 @@ lemma limsup_rightDerivStieltjes_atTop_nonneg :
 lemma tendsto_rightDerivStieltjes_atTop :
     Tendsto f.rightDerivStieltjes atTop (𝓝 f.derivAtTop) := by
   rw [derivAtTop, EReal.coe_toENNReal limsup_rightDerivStieltjes_atTop_nonneg]
-  obtain ⟨y, hy⟩ := EReal.tendsto_of_monotone f.rightDerivStieltjes.mono
+  have hy := tendsto_atTop_iSup f.rightDerivStieltjes.mono
   rwa [hy.limsup_eq]
 
 lemma rightDerivStieltjes_le_derivAtTop (x : ℝ) : f.rightDerivStieltjes x ≤ f.derivAtTop :=

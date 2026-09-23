@@ -31,26 +31,12 @@ open Real MeasureTheory Filter Set
 
 open scoped ENNReal NNReal Topology
 
-lemma EReal.tendsto_of_monotone {ι : Type*} [Preorder ι] {f : ι → EReal} (hf : Monotone f) :
+/-- A function to a complete linear order which is monotone on `[x, ∞)` has a limit at `atTop`. -/
+lemma MonotoneOn.exists_tendsto_atTop {ι α : Type*} [SemilatticeSup ι] [CompleteLinearOrder α]
+    [TopologicalSpace α] [OrderTopology α] {x : ι} {f : ι → α} (hf : MonotoneOn f (Ici x)) :
     ∃ y, Tendsto f atTop (𝓝 y) :=
-  ⟨_, tendsto_atTop_ciSup hf (OrderTop.bddAbove _)⟩
-
-lemma EReal.tendsto_of_monotoneOn {ι : Type*} [SemilatticeSup ι] [Nonempty ι] {x : ι}
-    {f : ι → EReal} (hf : MonotoneOn f (Ici x)) :
-    ∃ y, Tendsto f atTop (𝓝 y) := by
-  classical
-  suffices ∃ y, Tendsto (fun z ↦ if x ≤ z then f z else f x) atTop (𝓝 y) by
-    obtain ⟨y, hy⟩ := this
-    refine ⟨y, ?_⟩
-    refine (tendsto_congr' ?_).mp hy
-    rw [EventuallyEq, eventually_atTop]
-    exact ⟨x, fun z hz ↦ ite_eq_left hz⟩
-  refine EReal.tendsto_of_monotone (fun y z hyz ↦ ?_)
-  split_ifs with hxy hxz hxz
-  · exact hf hxy hxz hyz
-  · exact absurd (hxy.trans hyz) hxz
-  · exact hf le_rfl hxz hxz
-  · exact le_rfl
+  ⟨_, (tendsto_atTop_iSup fun _ _ hyz ↦ hf le_sup_left le_sup_left (sup_le_sup_left hyz x)).congr'
+    ((eventually_ge_atTop x).mono fun _ hz ↦ by simp [sup_of_le_right hz])⟩
 
 lemma Real.monotone_toEReal : Monotone toEReal := Monotone.of_map_inf fun _ ↦ congrFun rfl
 
@@ -141,7 +127,7 @@ lemma MonotoneOn.tendsto_derivAtTop (hf : MonotoneOn (rightDeriv f) (Ioi 0)) :
   have hf_coe : MonotoneOn (fun x ↦ (rightDeriv f x : EReal)) (Ici 1) :=
     Real.monotone_toEReal.comp_monotoneOn (hf.mono (Ici_subset_Ioi.mpr zero_lt_one))
   obtain ⟨z, hz⟩ : ∃ z, Tendsto (fun x ↦ (rightDeriv f x : EReal)) atTop (𝓝 z) :=
-    EReal.tendsto_of_monotoneOn hf_coe
+    hf_coe.exists_tendsto_atTop
   rwa [derivAtTop_of_tendsto hz]
 
 lemma ConvexOn.tendsto_derivAtTop (hf : ConvexOn ℝ (Ici 0) f) :

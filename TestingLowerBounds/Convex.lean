@@ -100,4 +100,26 @@ lemma exists_affine_le (hf : ConvexOn ℝ s f) (hs : Convex ℝ s) :
     refine ⟨rightDeriv f x, f x - rightDeriv f x * x, fun y hy ↦ ?_⟩
     exact affine_le_of_mem_interior hf hx hy
 
+lemma leftDeriv_nonpos_of_isMinOn (hf : ConvexOn ℝ s f) {x₀ : ℝ} (hx₀ : IsMinOn f s x₀)
+    (h_mem : x₀ ∈ interior s) :
+    leftDeriv f x₀ ≤ 0 := by
+  rw [leftDeriv_def, leftDeriv_eq_sSup_slope_of_mem_interior hf h_mem]
+  refine csSup_le ?_ fun a ⟨x, ⟨hxs, hxx₀⟩, hax⟩ ↦ ?_
+  · obtain ⟨x, hxx₀, hxs⟩ := mem_nhdsLE_iff_exists_Icc_subset.mp <|
+      mem_nhdsWithin_of_mem_nhds <| mem_interior_iff_mem_nhds.mp h_mem
+    exact Set.Nonempty.image _ ⟨x, hxs <| Set.mem_Icc.mpr ⟨le_rfl, hxx₀.le⟩, hxx₀⟩
+  · rw [← hax, slope, vsub_eq_sub, smul_eq_mul, mul_comm, ← division_def, div_nonpos_iff]
+    exact Or.inl ⟨sub_nonneg.mpr <| hx₀ hxs, sub_nonpos.mpr hxx₀.le⟩
+
+lemma rightDeriv_nonneg_of_isMinOn (hf : ConvexOn ℝ s f) {x₀ : ℝ} (hx₀ : IsMinOn f s x₀)
+    (h_mem : x₀ ∈ interior s) :
+    0 ≤ rightDeriv f x₀ := by
+  rw [rightDeriv_def, rightDeriv_eq_sInf_slope_of_mem_interior hf h_mem]
+  refine le_csInf ?_ fun a ⟨x, ⟨hxs, hxx₀⟩, hax⟩ ↦ ?_
+  · obtain ⟨x, hxx₀, hxs⟩ := mem_nhdsGE_iff_exists_Icc_subset.mp <|
+      mem_nhdsWithin_of_mem_nhds <| mem_interior_iff_mem_nhds.mp h_mem
+    exact Set.Nonempty.image _ ⟨x, hxs <| Set.mem_Icc.mpr ⟨hxx₀.le, le_rfl⟩, hxx₀⟩
+  · rw [← hax, slope, vsub_eq_sub, smul_eq_mul, mul_comm, ← division_def, div_nonneg_iff]
+    exact Or.inl ⟨sub_nonneg.mpr <| hx₀ hxs, sub_nonneg.mpr hxx₀.le⟩
+
 end ConvexOn

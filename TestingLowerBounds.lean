@@ -42,6 +42,7 @@ public import TestingLowerBounds.FDiv.Measurable
 public import TestingLowerBounds.FDiv.Properties
 public import TestingLowerBounds.FDiv.Trim
 public import TestingLowerBounds.ForMathlib.AbsolutelyContinuous
+public import TestingLowerBounds.ForMathlib.ENNReal
 public import TestingLowerBounds.ForMathlib.EReal
 public import TestingLowerBounds.ForMathlib.LeftRightDeriv
 public import TestingLowerBounds.ForMathlib.LogLikelihoodRatioCompProd

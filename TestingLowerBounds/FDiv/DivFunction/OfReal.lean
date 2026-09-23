@@ -96,7 +96,7 @@ lemma tendsto_ofReal_comp_nhdsGT_zero (hf : ConvexOn ℝ (Ioi 0) f) (hf_one : f 
 lemma tendsto_ofReal_comp_atTop (hf : ConvexOn ℝ (Ioi 0) f) (hf_one : f 1 = 0) :
     Tendsto (fun x ↦ ENNReal.ofReal (f x)) atTop (𝓝 (ofRealFun f ∞)) := by
   rw [ofRealFun_top]
-  obtain ⟨y, hy⟩ := ENNReal.tendsto_of_monotoneOn (hf.monotoneOn_ofReal_comp hf_one)
+  obtain ⟨y, hy⟩ := (hf.monotoneOn_ofReal_comp hf_one).exists_tendsto_atTop
   rw [hy.limsup_eq]
   exact hy
 

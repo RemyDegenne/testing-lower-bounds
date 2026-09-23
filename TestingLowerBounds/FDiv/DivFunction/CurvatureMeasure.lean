@@ -119,11 +119,7 @@ lemma continuousOn_realFun_Icc {a b : ℝ} (ha : f.xmin < ENNReal.ofReal a)
 lemma hasDerivWithinAt_realFun {x : ℝ} (hx : f.xmin < ENNReal.ofReal x)
     (hx' : ENNReal.ofReal x < f.xmax) :
     HasDerivWithinAt f.realFun (rightDeriv f.realFun x) (Ioi x) x := by
-  have hx0 : 0 ≤ x := by
-    by_contra h
-    rw [ENNReal.ofReal_of_nonpos (not_le.mp h).le] at hx
-    exact ENNReal.not_lt_zero hx
-  exact (f.differentiableWithinAt hx0 ⟨hx, hx'⟩).hasDerivWithinAt
+  exact (f.differentiableWithinAt ⟨hx, hx'⟩).hasDerivWithinAt
 
 lemma intervalIntegrable_rightDeriv_realFun {a b : ℝ} (hab : a ≤ b)
     (ha : f.xmin < ENNReal.ofReal a) (hb : ENNReal.ofReal b < f.xmax) :
