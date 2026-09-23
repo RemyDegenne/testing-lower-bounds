@@ -144,13 +144,13 @@ Linearity (Lemmas~\ref{lem:fDiv_add} and~\ref{lem:fDiv_mul}), then Lemma~\ref{le
 
 \begin{lemma}
   \label{lem:fDiv_symm}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDiv_conj}
+  \leanok
   \uses{def:fDiv}
   $D_f(\mu, \nu) = D_{x \mapsto xf(1/x)}(\nu, \mu)$~.
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{}
 
 \end{proof}
@@ -158,26 +158,26 @@ Linearity (Lemmas~\ref{lem:fDiv_add} and~\ref{lem:fDiv_mul}), then Lemma~\ref{le
 
 \begin{lemma}
   \label{lem:fDiv_add_smul_left}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDiv_smul_add_smul_left}
+  \leanok
   \uses{def:fDiv}
-  $(\mu, \nu) \mapsto D_f(a \mu + b \nu, \nu)$ is an $f$-divergence for the function $x \mapsto f(ax + b)$
+  For $a, b \ge 0$ with $a + b = 1$, $(\mu, \nu) \mapsto D_f(a \mu + b \nu, \nu)$ is an $f$-divergence for the function $x \mapsto f(ax + b)$
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{}
 \end{proof}
 
 
 \begin{lemma}
   \label{lem:fDiv_add_smul_right}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDiv_smul_add_smul_right}
+  \leanok
   \uses{def:fDiv}
-  $(\mu, \nu) \mapsto D_f(\mu, a \mu + b \nu)$ is an $f$-divergence for the function $x \mapsto (ax+b)f\left(\frac{x}{ax+b}\right)$~.
+  For $a, b \ge 0$ with $a + b = 1$, $(\mu, \nu) \mapsto D_f(\mu, a \mu + b \nu)$ is an $f$-divergence for the function $x \mapsto (ax+b)f\left(\frac{x}{ax+b}\right)$~.
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{lem:fDiv_symm, lem:fDiv_add_smul_left}
 We use Lemma~\ref{lem:fDiv_symm}, then Lemma~\ref{lem:fDiv_add_smul_left} and finally Lemma~\ref{lem:fDiv_symm} again:
 \begin{align*}
@@ -195,13 +195,13 @@ D_f(\mu, a \mu + b \nu)
 
 \begin{lemma}
   \label{lem:fDiv_add_smul_right'}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDiv_smul_add_smul_right'}
+  \leanok
   \uses{def:fDiv}
-  $(\mu, \nu) \mapsto D_f(\nu, a \mu + b \nu)$ is an $f$-divergence for the function $x \mapsto (ax+b)f\left(\frac{1}{ax+b}\right)$~.
+  For $a, b \ge 0$ with $a + b = 1$, $(\mu, \nu) \mapsto D_f(\nu, a \mu + b \nu)$ is an $f$-divergence for the function $x \mapsto (ax+b)f\left(\frac{1}{ax+b}\right)$~.
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{lem:fDiv_add_smul_right, lem:fDiv_symm}
 We use Lemma~\ref{lem:fDiv_add_smul_right}, then Lemma~\ref{lem:fDiv_symm}.
 \begin{align*}
@@ -865,14 +865,14 @@ D_f(\mu \otimes \kappa, \nu \otimes \kappa)
 
 \begin{corollary}
   \label{cor:fDiv_prod_right_1}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDiv_prod_right}
+  \leanok
   \uses{def:fDiv}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\xi$ be a measure on $\mathcal Y$.
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\xi$ be a probability measure on $\mathcal Y$.
   Then $D_f(\mu \times \xi, \nu \times \xi) = D_f(\mu, \nu)$.
 \end{corollary}
 
-\begin{proof}
+\begin{proof}\leanok
 \uses{thm:fDiv_compProd_right_1}
 Apply Lemma~\ref{thm:fDiv_compProd_right_1} with $\kappa$ the constant kernel with value $\xi$.
 \end{proof}
@@ -1203,14 +1203,14 @@ We can apply Theorem~\ref{thm:fDiv_map_le}.
 
 \begin{lemma}
   \label{lem:fDiv_map_eq_fDiv_trim_of_ac}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDiv_map_eq_fDiv_trim_of_ac}
+  \leanok
   \uses{def:fDiv}
   Let $\mu, \nu \in \mathcal M(\mathcal X)$ be finite measures with $\mu \ll \nu$ and let $g : \mathcal X \to \mathcal Y$ be a measurable function. Denote by $g^* \mathcal Y$ the comap of the $\sigma$-algebra on $\mathcal Y$ by $g$. Then
   $D_f(g_* \mu, g_* \nu) = D_f(\mu_{| g^* \mathcal Y}, \nu_{| g^* \mathcal Y})$~.
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{lem:rnDeriv_map_eq_rnDeriv_trim}
 Using Lemma~\ref{lem:rnDeriv_map_eq_rnDeriv_trim},
 \begin{align*}
@@ -1318,13 +1318,13 @@ The results are both applications of the data-processing inequality, Theorem~\re
 
 \begin{lemma}
   \label{lem:fDiv_compProd_prod_eq}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDiv_comp_eq_of_fst}
+  \leanok
   \uses{def:fDiv}
-  Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow (\mathcal X \times \mathcal Y)$ be a Markov kernel such that for all $x$, $(\kappa(x))_X = \delta_x$. Then $D_f(\kappa \circ \mu, \kappa \circ \nu) = D_f(\mu, \nu)$.
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow (\mathcal X \times \mathcal Y)$ be a Markov kernel such that for all $x$, $(\kappa(x))_X = \delta_x$. Then $D_f(\kappa \circ \mu, \kappa \circ \nu) = D_f(\mu, \nu)$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof}\leanok
 \uses{thm:fDiv_data_proc_2, thm:fDiv_fst_le_2}
 $D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu, \nu)$ by Theorem~\ref{thm:fDiv_data_proc_2}.
 For the other inequality, remark that $\mu = (\kappa \circ \mu)_X$ (and similarly for $\nu$). Hence by Theorem~\ref{thm:fDiv_fst_le_2} $D_f(\mu, \nu) \le D_f(\kappa \circ \mu, \kappa \circ \nu)$.
@@ -1338,13 +1338,13 @@ In this section $d_f(p, q)$ denotes the $f$-divergence between two Bernoulli dis
 
 \begin{corollary}
   \label{cor:data_proc_event}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDiv_boolMeasure_le}
+  \leanok
   \uses{def:fDiv}
   Let $\mu, \nu$ be two measures on $\mathcal X$ and let $E$ be an event. Then $D_f(\mu, \nu) \ge d_f(\mu(E), \nu(E))$.
 \end{corollary}
 
-\begin{proof}
+\begin{proof}\leanok
 \uses{thm:fDiv_data_proc_2}
 Use the deterministic kernel $\kappa : \mathcal X \rightsquigarrow \{0, 1\}$ with $\kappa(x) = \delta_1 \mathbb{I}\{x \in E\} + \delta_0 \mathbb{I}\{x \notin E\}$ in Theorem~\ref{thm:fDiv_data_proc_2}.
 \end{proof}
@@ -1470,13 +1470,13 @@ This concludes the proof for $\mathcal R_\pi^Q \ge \mathcal R_\xi^P$. If that in
 
 \begin{theorem}[Joint convexity]
   \label{thm:fDiv_convex}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDiv_convex}
+  \leanok
   \uses{def:fDiv}
   The function $(\mu, \nu) \mapsto D_f(\mu, \nu)$ is convex.
 \end{theorem}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{thm:fDiv_comp_le_condFDiv_2}
 Let $\mu_0, \mu_1, \nu_0, \nu_1$ be four measures. Let $\lambda \in [0,1]$. Let $\xi$ be the probability measure on $\{0,1\}$ with $\xi(\{1\}) = \lambda$.
 Let $\kappa$ be the kernel $\{0,1\} \rightsquigarrow \mathcal X$ defined by $\kappa(0) = \mu_0$ and $\kappa(1) = \mu_1$.
@@ -1509,13 +1509,13 @@ Specific divergences are discussed in the next sections.
 
 \begin{lemma}
   \label{lem:fDiv_mono_fun}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDiv_mono}
+  \leanok
   \uses{def:fDiv}
   If $f \le g$, then $D_f(\mu, \nu) \le D_g(\mu, \nu)$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof}\leanok
 Monotonicity of the integral and of $f \mapsto f'(\infty)$.
 \end{proof}
 
@@ -1590,8 +1590,8 @@ As $\varepsilon \to 0$, $\alpha$ also tends to 0 and
 
 \begin{theorem}
   \label{thm:bh_fDiv}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.apply_one_add_tv_add_apply_one_sub_tv_le_fDiv, ProbabilityTheory.conj_one_add_tv_add_conj_one_sub_tv_le_fDiv}
+  \leanok
   \uses{def:fDiv, def:TV}
   Let $\mu, \nu \in \mathcal P(\mathcal X)$. If $f(1) = 0$,
   \begin{align*}
@@ -1605,7 +1605,7 @@ As $\varepsilon \to 0$, $\alpha$ also tends to 0 and
   \end{align*}
 \end{theorem}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{lem:tv_eq_integral}
 Let $V: x \mapsto \max\left\{0, \frac{d\mu}{d\nu}(x) - 1\right\}$ and $W: x \mapsto \max\left\{0, 1 - \frac{d\mu}{d\nu}(x)\right\}$~.
 Then one of $1+V$ and $1-W$ is equal to $\frac{d\mu}{d\nu}$ and the other is equal to 1.
@@ -1626,13 +1626,13 @@ D_f(\mu, \nu)
 \end{align*}
 By Lemma~\ref{lem:tv_eq_integral}, $\nu[V] + \mu_{\perp \nu}(\mathcal X) = \nu[W] = \TV(\mu, \nu)$. We obtain the first equality.
 
-To get the second equality, remark that $D_f(\mu, \nu) = D_{x\mapsto xf(1/x)}(\nu, \mu)$ (Theorem TODO), apply the first inequality to that function and use the symmetry of $\TV$.
+To get the second equality, remark that $D_f(\mu, \nu) = D_{x\mapsto xf(1/x)}(\nu, \mu)$ (Lemma~\ref{lem:fDiv_symm}), apply the first inequality to that function and use the symmetry of $\TV$.
 \end{proof}
 
 \begin{corollary}[Bretagnolle-Huber inequality]
   \label{cor:bh_kl}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.neg_log_one_sub_sq_tv_le_klDiv}
+  \leanok
   \uses{def:KL, def:TV}
   TODO: move this somewhere after the definition of $KL$.
 
@@ -1648,7 +1648,7 @@ To get the second equality, remark that $D_f(\mu, \nu) = D_{x\mapsto xf(1/x)}(\n
   \end{align*}
 \end{corollary}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{thm:bh_fDiv}
 Use the second inequality of Theorem~\ref{thm:bh_fDiv}, for $f: x \mapsto x \log x$~.
 \end{proof}
@@ -1691,13 +1691,13 @@ TODO \cite{harremoes2011pairs}
 
 \begin{lemma}
   \label{lem:statInfo_eq_fDiv}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.statInfo_eq_fDiv}
+  \leanok
   \uses{def:statInfo, def:fDiv}
   On probability measures, the statistical information $\mathcal I_\xi$ is an $f$-divergence for the function $\phi_{\xi_0, \xi_1}$ of Definition~\ref{def:statInfoFun}.
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{thm:statInfo_eq_integral}
 This is a reformulation of Theorem~\ref{thm:statInfo_eq_integral}.
 \end{proof}
@@ -1730,13 +1730,13 @@ This is a reformulation of Theorem~\ref{thm:statInfo_eq_integral}.
 
 \begin{lemma}
   \label{lem:tv_eq_fDiv}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.fDiv_tvDivFun, ProbabilityTheory.tv_eq_fDiv_tvDivFun}
+  \leanok
   \uses{def:TV, def:fDiv}
   On probability measures, the total variation distance $\TV$ is an $f$-divergence for the function $x \mapsto \frac{1}{2}\vert x - 1 \vert$.
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{lem:tv_eq_integral_abs}
 This is a reformulation of Lemma~\ref{lem:tv_eq_integral_abs}.
 \end{proof}

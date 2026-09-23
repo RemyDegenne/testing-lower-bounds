@@ -6,18 +6,27 @@ Authors: Rémy Degenne
 module
 
 public import TestingLowerBounds.FDiv.Basic
+public import TestingLowerBounds.FDiv.DivFunction.CompAffine
 public import TestingLowerBounds.FDiv.DivFunction.Conj
 
 /-! # f-Divergence of the conjugate divergence function
 
 The main result is `fDiv_conj`: `fDiv f.conj μ ν = fDiv f ν μ`.
+
+We then describe the f-divergences involving mixtures `a • μ + b • ν` (with `a + b = 1`) as
+f-divergences between `μ` and `ν` for modified divergence functions:
+* `fDiv_smul_add_smul_left`: `fDiv f (a • μ + b • ν) ν = fDiv (f.compAffine a b _) μ ν`.
+* `fDiv_smul_add_smul_right`: `fDiv f μ (a • μ + b • ν)`, for the function
+  `x ↦ (a * x + b) * f (x / (a * x + b))`.
+* `fDiv_smul_add_smul_right'`: `fDiv f ν (a • μ + b • ν)`, for the function
+  `x ↦ (a * x + b) * f (1 / (a * x + b))`.
 -/
 
 @[expose] public section
 
 open MeasureTheory Set
 
-open scoped ENNReal
+open scoped ENNReal NNReal
 
 namespace ProbabilityTheory
 
@@ -87,5 +96,71 @@ lemma fDiv_conj (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν] :
       one_mul]
   rw [fDiv, fDiv, DivFunction.derivAtTop_conj, h_left, h_right, h_key]
   ring
+
+section Mixture
+
+variable {a b : ℝ≥0}
+
+/-- `fDiv f (a • μ + b • ν) ν` is the f-divergence between `μ` and `ν` for the function
+`x ↦ f (a * x + b)`. -/
+lemma fDiv_smul_add_smul_left (hab : a + b = 1) (μ ν : Measure α) [SigmaFinite μ]
+    [SigmaFinite ν] :
+    fDiv f (a • μ + b • ν) ν = fDiv (f.compAffine a b hab) μ ν := by
+  have h_rn : (fun x ↦ f ((∂(a • μ + b • ν)/∂ν) x)) =ᵐ[ν] fun x ↦ f (a * (∂μ/∂ν) x + b) := by
+    filter_upwards [Measure.rnDeriv_add' (a • μ) (b • ν) ν, Measure.rnDeriv_smul_left' μ ν a,
+      Measure.rnDeriv_smul_left' ν ν b, ν.rnDeriv_self] with x h1 h2 h3 h4
+    rw [h1, Pi.add_apply, h2, h3, Pi.smul_apply, Pi.smul_apply, h4]
+    simp [ENNReal.smul_def]
+  have h_sing : (a • μ + b • ν).singularPart ν = a • μ.singularPart ν := by
+    rw [Measure.singularPart_add, Measure.singularPart_smul, Measure.singularPart_smul,
+      Measure.singularPart_self, smul_zero, add_zero]
+  rw [fDiv, fDiv, lintegral_congr_ae h_rn, h_sing, DivFunction.derivAtTop_compAffine]
+  simp only [DivFunction.compAffine_apply, Measure.coe_nnreal_smul_apply]
+  ring
+
+/-- `fDiv f ν (a • μ + b • ν)` is the f-divergence between `μ` and `ν` for the function
+`x ↦ (a * x + b) * f (1 / (a * x + b))`. -/
+lemma fDiv_smul_add_smul_right' (hab : a + b = 1) (μ ν : Measure α) [SigmaFinite μ]
+    [SigmaFinite ν] :
+    fDiv f ν (a • μ + b • ν) = fDiv (f.conj.compAffine a b hab) μ ν := by
+  rw [← fDiv_conj, fDiv_smul_add_smul_left]
+
+/-- `fDiv f μ (a • μ + b • ν)` is the f-divergence between `μ` and `ν` for the function
+`x ↦ (a * x + b) * f (x / (a * x + b))`. -/
+lemma fDiv_smul_add_smul_right (hab : a + b = 1) (μ ν : Measure α) [SigmaFinite μ]
+    [SigmaFinite ν] :
+    fDiv f μ (a • μ + b • ν)
+      = fDiv (f.conj.compAffine b a (by rwa [add_comm])).conj μ ν := by
+  rw [← fDiv_conj, add_comm, fDiv_smul_add_smul_left, fDiv_conj]
+
+lemma smul_add_ne_zero (hab : a + b = 1) {x : ℝ≥0∞} (hx0 : x ≠ 0) : (a : ℝ≥0∞) * x + b ≠ 0 := by
+  intro h
+  rw [add_eq_zero, mul_eq_zero] at h
+  obtain ⟨ha | hx, hb⟩ := h
+  · simp_all
+  · exact hx0 hx
+
+/-- Value of the divergence function of `fDiv_smul_add_smul_right'` away from `0`. -/
+lemma conj_compAffine_apply (hab : a + b = 1) {x : ℝ≥0∞} (hx0 : x ≠ 0) :
+    f.conj.compAffine a b hab x = (a * x + b) * f (a * x + b)⁻¹ := by
+  rw [DivFunction.compAffine_apply, DivFunction.conj_of_ne_zero (smul_add_ne_zero hab hx0)]
+
+/-- Value of the divergence function of `fDiv_smul_add_smul_right` away from `0` and `∞`. -/
+lemma conj_compAffine_conj_apply (hab : a + b = 1) {x : ℝ≥0∞} (hx0 : x ≠ 0) (hx : x ≠ ∞) :
+    (f.conj.compAffine b a (by rwa [add_comm])).conj x = (a * x + b) * f (x / (a * x + b)) := by
+  have hx_inv : x⁻¹ ≠ 0 := ENNReal.inv_ne_zero.2 hx
+  have hx_inv' : x⁻¹ ≠ ∞ := ENNReal.inv_ne_top.2 hx0
+  have h_eq : (b : ℝ≥0∞) * x⁻¹ + a = x⁻¹ * (a * x + b) := by
+    rw [mul_add, ← mul_assoc, mul_comm x⁻¹, mul_assoc, ENNReal.inv_mul_cancel hx0 hx, mul_one,
+      add_comm, mul_comm]
+  have h0 : (b : ℝ≥0∞) * x⁻¹ + a ≠ 0 := by
+    rw [h_eq]
+    exact mul_ne_zero hx_inv (smul_add_ne_zero hab hx0)
+  rw [DivFunction.conj_of_ne_zero hx0, DivFunction.compAffine_apply,
+    DivFunction.conj_of_ne_zero h0, h_eq, ← mul_assoc, ← mul_assoc,
+    ENNReal.mul_inv_cancel hx0 hx, one_mul, ENNReal.mul_inv (Or.inl hx_inv) (Or.inl hx_inv'),
+    inv_inv, div_eq_mul_inv]
+
+end Mixture
 
 end ProbabilityTheory

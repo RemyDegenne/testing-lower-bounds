@@ -29,6 +29,7 @@ public import TestingLowerBounds.FDiv.CondFDivCompProdMeasure
 public import TestingLowerBounds.FDiv.Conj
 public import TestingLowerBounds.FDiv.DPIJensen
 public import TestingLowerBounds.FDiv.DivFunction.Basic
+public import TestingLowerBounds.FDiv.DivFunction.CompAffine
 public import TestingLowerBounds.FDiv.DivFunction.Conj
 public import TestingLowerBounds.FDiv.DivFunction.CurvatureMeasure
 public import TestingLowerBounds.FDiv.DivFunction.DerivAtTop
@@ -38,6 +39,7 @@ public import TestingLowerBounds.FDiv.ERealStieltjes
 public import TestingLowerBounds.FDiv.FDivEqIntegral
 public import TestingLowerBounds.FDiv.IntegralRnDerivSingularPart
 public import TestingLowerBounds.FDiv.Measurable
+public import TestingLowerBounds.FDiv.Properties
 public import TestingLowerBounds.FDiv.Trim
 public import TestingLowerBounds.ForMathlib.AbsolutelyContinuous
 public import TestingLowerBounds.ForMathlib.EReal

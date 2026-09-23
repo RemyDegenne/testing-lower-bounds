@@ -337,6 +337,12 @@ lemma tendsto_div_nhdsLT_top : Tendsto (fun y ↦ f y / y) (𝓝[<] ∞) (𝓝 f
     rw [ENNReal.div_le_iff (zero_lt_one.trans hy.1).ne' hy.2.ne]
     exact f.apply_le_derivAtTop_mul hy.1.le
 
+/-- `derivAtTop` is monotone: if `f ≤ g` pointwise, then `f.derivAtTop ≤ g.derivAtTop`. -/
+lemma derivAtTop_mono (hfg : ∀ x, f x ≤ g x) : f.derivAtTop ≤ g.derivAtTop := by
+  have : (𝓝[<] (∞ : ℝ≥0∞)).NeBot := nhdsLT_neBot_of_exists_lt ⟨0, ENNReal.zero_lt_top⟩
+  exact le_of_tendsto_of_tendsto' f.tendsto_div_nhdsLT_top g.tendsto_div_nhdsLT_top
+    fun y ↦ ENNReal.div_le_div_right (hfg y) y
+
 lemma lintegral_comp_rnDeriv_ne_top (μ ν : Measure α) [IsFiniteMeasure μ]
     [IsFiniteMeasure ν] (hf_zero : f 0 ≠ ∞) (hf_deriv : f.derivAtTop ≠ ∞) :
     ∫⁻ x, f (μ.rnDeriv ν x) ∂ν ≠ ∞ := by

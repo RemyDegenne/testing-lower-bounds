@@ -515,11 +515,13 @@ lemma fDiv_mono'' (hfg : f ≤ᵐ[ν.map (∂μ/∂ν)] g)
     exact ae_of_ae_map (μ.measurable_rnDeriv ν).aemeasurable hfg
   · gcongr
 
-/- The hypothesis `hfg'` can probably be removed if we ask for the functions to be convex,
-since then it is true that `derivAtTop` is monotone. -/
 lemma fDiv_mono' (hfg : ∀ x, f x ≤ g x) (hfg' : f.derivAtTop ≤ g.derivAtTop) :
     fDiv f μ ν ≤ fDiv g μ ν :=
   fDiv_mono'' (.of_forall hfg) hfg'
+
+/-- If `f ≤ g` then `fDiv f μ ν ≤ fDiv g μ ν`. -/
+lemma fDiv_mono (hfg : ∀ x, f x ≤ g x) : fDiv f μ ν ≤ fDiv g μ ν :=
+  fDiv_mono' hfg (DivFunction.derivAtTop_mono hfg)
 
 lemma fDiv_eq_zero_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (hf_deriv : f.derivAtTop = ∞) (hf_cvx : StrictConvexOn ℝ (Ioi 0) f.realFun) :
