@@ -47,11 +47,9 @@ lemma condRenyiDiv_zero (κ η : Kernel α β) (μ : Measure α)
 @[simp]
 lemma condRenyiDiv_one [CountableOrCountablyGenerated α β] (κ η : Kernel α β) (μ : Measure α)
     [IsMarkovKernel κ] [IsMarkovKernel η] [IsFiniteMeasure μ] [NeZero μ] :
-    condRenyiDiv 1 κ η μ = condKL κ η μ := by
-  rw [condRenyiDiv, renyiDiv_one, klDiv_compProd_eq_condKL]
-  simp only [Measure.compProd_apply_univ, ne_eq, measure_ne_top, not_false_eq_true,
-    ENNReal.toReal_toEReal_of_ne_top]
-  sorry
+    condRenyiDiv 1 κ η μ = (μ .univ)⁻¹ * condKL κ η μ := by
+  rw [condRenyiDiv, renyiDiv_one, Measure.compProd_apply_univ, Measure.compProd_apply_univ,
+    klDiv_smul_same' (ENNReal.inv_ne_top.mpr (NeZero.ne _)), klDiv_compProd_eq_condKL]
 
 lemma integrable_rpow_rnDeriv_compProd_right_iff [CountableOrCountablyGenerated α β]
     (ha_pos : 0 < a) (ha_ne : a ≠ 1) (κ η : Kernel α β) (μ : Measure α)
@@ -143,7 +141,8 @@ lemma condRenyiDiv_of_ne_zero [CountableOrCountablyGenerated α β] (ha_zero : a
     [IsFiniteKernel η] [IsFiniteMeasure μ] :
     condRenyiDiv a κ η μ = ((a - 1)⁻¹ * ENNReal.log
       (((avgMass a (μ ⊗ₘ κ) (μ ⊗ₘ η) : EReal) + (a - 1) * condHellingerDiv a κ η μ).toENNReal)
-      - (a - 1)⁻¹ * Real.log (avgMass a (μ ⊗ₘ κ) (μ ⊗ₘ η))).toENNReal := by
+      - (a - 1)⁻¹ * (a * Real.log ((μ ⊗ₘ κ) .univ).toReal
+        + (1 - a) * Real.log ((μ ⊗ₘ η) .univ).toReal)).toENNReal := by
   rw [condRenyiDiv, renyiDiv_of_ne_one ha_zero ha_ne_one, hellingerDiv_compProd_left μ κ η]
 
 end TopAndBounds

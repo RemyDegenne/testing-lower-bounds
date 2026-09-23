@@ -108,6 +108,21 @@ lemma fDiv_smul (c : ℝ≥0) (μ ν : Measure α) : fDiv (c • f) μ ν = c * 
   simp only [DivFunction.smul_apply, DivFunction.derivAtTop_smul]
   rw [lintegral_const_mul _ measurable_divFunction_rnDeriv, fDiv, mul_add, ← mul_assoc]
 
+/-- Scaling the second measure by `c ≠ 0` is the same as scaling the first by `c⁻¹` and
+multiplying the divergence by `c`. -/
+lemma fDiv_smul_right [SigmaFinite μ] [SigmaFinite ν] (c : ℝ≥0) (hc : c ≠ 0) :
+    fDiv f μ (c • ν) = c * fDiv f (c⁻¹ • μ) ν := by
+  have h : (fun x ↦ f ((∂μ/∂(c • ν)) x)) =ᵐ[ν] fun x ↦ f ((∂(c⁻¹ • μ)/∂ν) x) := by
+    filter_upwards [Measure.rnDeriv_smul_right' μ ν hc, Measure.rnDeriv_smul_left' μ ν c⁻¹]
+      with x hx hy
+    rw [hx, hy]
+  rw [fDiv, fDiv, lintegral_smul_measure, lintegral_congr_ae h,
+    Measure.singularPart_smul_right _ _ _ hc, Measure.singularPart_smul,
+    Measure.coe_nnreal_smul_apply, mul_add, ENNReal.smul_def, smul_eq_mul, ENNReal.coe_inv hc]
+  congr 1
+  rw [mul_left_comm (c : ℝ≥0∞), ← mul_assoc (c : ℝ≥0∞),
+    ENNReal.mul_inv_cancel (by exact_mod_cast hc) ENNReal.coe_ne_top, one_mul]
+
 lemma fDiv_add : fDiv (f + g) μ ν = fDiv f μ ν + fDiv g μ ν := by
   simp only [fDiv, DivFunction.add_apply, DivFunction.derivAtTop_add]
   rw [lintegral_add_left measurable_divFunction_rnDeriv]

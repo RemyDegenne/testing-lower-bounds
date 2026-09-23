@@ -37,13 +37,9 @@ noncomputable def chernoffDiv (a : ℝ) (μ ν : Measure α) : ℝ≥0∞ :=
 lemma chernoffDiv_one [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
     chernoffDiv 1 μ ν
       = ⨅ (ξ : Measure α) (_hξ : IsProbabilityMeasure ξ), max (klDiv ξ μ) (klDiv ξ ν) := by
-  simp_rw [chernoffDiv, renyiDiv_one]
+  simp_rw [chernoffDiv]
   congr with ξ
   congr with hξ
-  simp only [measure_univ, ENNReal.toReal_one, EReal.coe_one, inv_one, one_mul, ne_eq, one_ne_zero,
-    not_false_eq_true, div_self, log_one, EReal.coe_zero, sub_zero]
-  have : (1 : EReal) = ((1 : ℝ) : EReal) := rfl
-  simp_rw [this, EReal.add_sub_cancel_right]
-  simp
+  rw [renyiDiv_one_of_isProbabilityMeasure, renyiDiv_one_of_isProbabilityMeasure]
 
 end ProbabilityTheory

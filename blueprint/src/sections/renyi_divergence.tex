@@ -5,15 +5,18 @@
   \lean{ProbabilityTheory.renyiDiv}
   \leanok
   \uses{def:KL, def:hellingerAlpha, lem:hellingerAlpha_properties}
-  Let $\mu, \nu$ be two measures on $\mathcal X$. The Rényi divergence of order $\alpha \in \mathbb{R}$ between $\mu$ and $\nu$ is
+  Let $\mu, \nu$ be two finite measures on $\mathcal X$. The Rényi divergence of order $\alpha \in \mathbb{R}$ between $\mu$ and $\nu$ is
   \begin{align*}
   R_\alpha(\mu, \nu) = \left\{
  \begin{array}{ll}
-  \KL(\mu, \nu) & \text{for } \alpha = 1
+  - \log \left( \nu\{x \mid \frac{d \mu}{d \nu}(x) > 0\} / \nu(\mathcal X) \right) & \text{for } \alpha = 0
   \\
-  \frac{1}{\alpha - 1} \log (\nu(\mathcal X)  + (\alpha - 1) \He_\alpha(\mu, \nu)) & \text{for } \alpha \neq 1
+  \KL(\mu / \mu(\mathcal X), \nu / \nu(\mathcal X)) & \text{for } \alpha = 1
+  \\
+  \frac{1}{\alpha - 1} \log \left( \frac{(1 - \alpha) \nu(\mathcal X) + \alpha \mu(\mathcal X) + (\alpha - 1) \He_\alpha(\mu, \nu)}{\mu(\mathcal X)^\alpha \nu(\mathcal X)^{1 - \alpha}} \right) & \text{for } \alpha \notin \{0, 1\}
   \end{array}\right.
   \end{align*}
+  It is the Rényi divergence of the normalized measures $\mu / \mu(\mathcal X)$ and $\nu / \nu(\mathcal X)$. For $\alpha \notin \{0, 1\}$, the numerator inside the logarithm is $\int \left(\frac{d \mu}{d \nu}\right)^\alpha d\nu$.
 \end{definition}
 
 
