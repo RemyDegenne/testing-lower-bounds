@@ -8,7 +8,6 @@ module
 public import Mathlib.Probability.Kernel.Disintegration.StandardBorel
 public import TestingLowerBounds.FDiv.Basic
 public import TestingLowerBounds.CompProd
-public import TestingLowerBounds.MeasureCompProd
 
 /-!
 # f-Divergences of composition-products

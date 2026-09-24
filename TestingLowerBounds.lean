@@ -37,7 +37,6 @@ public import TestingLowerBounds.FDiv.FDivEqIntegral
 public import TestingLowerBounds.FDiv.Measurable
 public import TestingLowerBounds.FDiv.Properties
 public import TestingLowerBounds.FDiv.Trim
-public import TestingLowerBounds.ForMathlib.AbsolutelyContinuous
 public import TestingLowerBounds.ForMathlib.ENNReal
 public import TestingLowerBounds.ForMathlib.EReal
 public import TestingLowerBounds.ForMathlib.ERealStieltjes
@@ -47,7 +46,6 @@ public import TestingLowerBounds.ForMathlib.MaxMinEqAbs
 public import TestingLowerBounds.ForMathlib.RadonNikodym
 public import TestingLowerBounds.ForMathlib.RnDeriv
 public import TestingLowerBounds.IntegrableFRNDeriv
-public import TestingLowerBounds.MeasureCompProd
 public import TestingLowerBounds.Testing.Binary
 public import TestingLowerBounds.Testing.BoolMeasure
 public import TestingLowerBounds.Testing.ChangeMeasure

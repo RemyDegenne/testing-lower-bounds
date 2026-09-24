@@ -108,12 +108,18 @@ lemma continuous_coe_mul {c : ℝ} : Continuous (fun x : EReal ↦ c * x) := by
   refine h_cont.comp ?_
   fun_prop
 
+lemma toENNReal_coe_mul_sub {c : ℝ≥0∞} (hc : c ≠ ∞) (x y : EReal) :
+    ((c : EReal) * x - c * y).toENNReal = c * (x - y).toENNReal := by
+  rw [sub_eq_add_neg, sub_eq_add_neg, ← mul_neg, ← left_distrib_of_nonneg_of_ne_top
+    (coe_ennreal_nonneg c) fun h ↦ hc (coe_ennreal_eq_top_iff.mp h),
+    toENNReal_mul (coe_ennreal_nonneg c), toENNReal_coe]
+
 end EReal
 
 namespace ENNReal
 
 @[simp]
-lemma toReal_toEReal_of_ne_top {x : ℝ≥0∞} (hx : x ≠ ⊤) : x.toReal.toEReal = x.toEReal :=
+lemma toReal_toEReal_of_ne_top {x : ℝ≥0∞} (hx : x ≠ ∞) : x.toReal.toEReal = x.toEReal :=
   EReal.coe_ennreal_toReal hx
 
 end ENNReal

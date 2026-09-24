@@ -565,29 +565,34 @@ The main references for this part are \cite{liese2006divergences} and \cite{lies
 
 \begin{lemma}
   \label{lem:curvatureMeasure_mul}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.DivFunction.curvatureMeasure_smul}
+  \leanok
   \uses{def:curvatureMeasure}
-  For $a \ge 0$ and $f: \mathbb{R} \to \mathbb{R}$ a convex function, the curvature measure of $af$ is $\gamma_{af} = a \gamma_f$~.
+  For $a > 0$ and $f$ a convex function, the curvature measure of $af$ is $\gamma_{af} = a \gamma_f$~.
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{}
+The right derivative of $af$ is $a f'_+$ (with values in $[-\infty, +\infty]$), hence $\gamma_{af}((x,y]) = a f'_+(y) - a f'_+(x) = a \gamma_f((x,y])$. The equality of the measures is obtained at the level of the outer measures, which are built from these interval lengths.
 
+For $f: \mathbb{R} \to \mathbb{R}$, the case $a = 0$ is trivial. It fails in the Lean formalization, where the right derivative is $-\infty$ to the left of the domain of $f$: $0 \cdot f$ is the zero function on $[0, +\infty)$, whose right derivative jumps from $-\infty$ to $0$ at $0$, so that $\gamma_{0 \cdot f}$ has an infinite atom at $0$.
 \end{proof}
 
 
 \begin{lemma}
   \label{lem:curvatureMeasure_add}
-  %\lean{}
-  %\leanok
+  \lean{ProbabilityTheory.DivFunction.curvatureMeasure_add}
+  \leanok
   \uses{def:curvatureMeasure}
-  For $f,g: \mathbb{R} \to \mathbb{R}$ two convex functions, the curvature measure of $f+g$ is $\gamma_{f+g} = \gamma_f + \gamma_g$~.
+  Let $f,g$ be two convex functions whose effective domains have the same endpoints $a \le b$, and such that the right derivatives $f'_+$ and $g'_+$ either both tend to $-\infty$ at $a$ or both have a finite limit at $a$. Then the curvature measure of $f+g$ is $\gamma_{f+g} = \gamma_f + \gamma_g$~.
+  In particular, this holds for $f,g: \mathbb{R} \to \mathbb{R}$ two convex functions.
 \end{lemma}
 
-\begin{proof}%\leanok
+\begin{proof}\leanok
 \uses{}
+The right derivative of $f+g$ is $f'_+ + g'_+$, seen as functions with values in $[-\infty, +\infty]$ ($-\infty$ below the domain, $+\infty$ above it). By the assumptions, $f'_+$ and $g'_+$ are equal to $-\infty$ at the same points and equal to $+\infty$ at the same points. On the region where both are finite, $\gamma_{f+g}((x,y]) = \gamma_f((x,y]) + \gamma_g((x,y])$. The region where $f'_+$ and $g'_+$ are $-\infty$, and the region above the first point where they are $+\infty$, are null for the three measures. At $a$ and $b$, the three measures have the same atoms (equal to $0$ or $+\infty$).
 
+The assumption at $a$ is needed: if $f'_+(x) \to -\infty$ as $x \downarrow a$ but $g'_+$ has a finite limit at $a$, then $\gamma_g$ has an infinite atom at $a$ but $\gamma_{f+g}$ does not.
 \end{proof}
 
 

@@ -6,7 +6,6 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 module
 
 public import Mathlib.Probability.Kernel.Composition.RadonNikodym
-public import TestingLowerBounds.ForMathlib.AbsolutelyContinuous
 public import TestingLowerBounds.ForMathlib.RnDeriv
 
 /-!

@@ -17,7 +17,7 @@ representation of f-divergences in terms of statistical informations.
 
 @[expose] public section
 
-open MeasureTheory Set Filter Topology StieltjesFunction
+open MeasureTheory Set Filter Topology
 
 open scoped ENNReal NNReal Interval
 

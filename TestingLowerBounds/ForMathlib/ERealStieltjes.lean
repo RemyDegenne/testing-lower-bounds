@@ -22,9 +22,12 @@ corresponding measure, giving mass `f b - f a` to the interval `(a, b]`.
 * `ERealStieltjes` is a structure containing a function from `ℝ → EReal`, together with the
 assertions that it is monotone and right-continuous. To `f : ERealStieltjes`, one associates
 a Borel measure `f.measure`.
-* `f.measure_Ioc` asserts that `f.measure (Ioc a b) = ofReal (f b - f a)`
-* `f.measure_Ioo` asserts that `f.measure (Ioo a b) = ofReal (leftLim f b - f a)`.
+* `f.measure_Ioc` asserts that `f.measure (Ioc a b) = (f b - f a).toENNReal`
+* `f.measure_Ioo` asserts that `f.measure (Ioo a b) = (leftLim f b - f a).toENNReal`.
 * `f.measure_Icc` and `f.measure_Ico` are analogous.
+* `measure_add`: `(f + g).measure` is `f.measure + g.measure` restricted to the region where
+  `f + g` is finite, together with the point where `f + g` jumps to `⊤`.
+* `measure_smul`: `(c • f).measure = c • f.measure`.
 -/
 
 @[expose] public section
@@ -148,6 +151,24 @@ lemma add_apply_of_eq_top_left {f g : ERealStieltjes} {x : ℝ} (hfx : f x = ⊤
 lemma add_apply_of_eq_top_right {f g : ERealStieltjes} {x : ℝ} (hgx : g x = ⊤) :
     (f + g) x = ⊤ := by
   simp [add_apply, hgx]
+
+lemma add_apply_eq_top_iff {f g : ERealStieltjes} {x : ℝ} :
+    (f + g) x = ⊤ ↔ f x = ⊤ ∨ g x = ⊤ := by
+  refine ⟨fun h ↦ ?_, fun h ↦ h.elim add_apply_of_eq_top_left add_apply_of_eq_top_right⟩
+  by_contra! h'
+  rw [add_apply_of_ne_top h'.1 h'.2, EReal.add_eq_top_iff] at h
+  tauto
+
+lemma ne_top_of_add_ne_top {f g : ERealStieltjes} {x : ℝ} (h : (f + g) x ≠ ⊤) :
+    f x ≠ ⊤ ∧ g x ≠ ⊤ :=
+  ⟨fun hf ↦ h (add_apply_of_eq_top_left hf), fun hg ↦ h (add_apply_of_eq_top_right hg)⟩
+
+lemma ne_bot_of_add_ne_bot {f g : ERealStieltjes} {x : ℝ} (h_bot : (f + g) x ≠ ⊥)
+    (h_top : (f + g) x ≠ ⊤) :
+    f x ≠ ⊥ ∧ g x ≠ ⊥ := by
+  obtain ⟨hf, hg⟩ := ne_top_of_add_ne_top h_top
+  rw [add_apply_of_ne_top hf hg, ne_eq, EReal.add_eq_bot_iff, not_or] at h_bot
+  exact h_bot
 
 instance : AddZeroClass ERealStieltjes where
   zero_add _ := by ext; simp [add_apply]
@@ -281,6 +302,10 @@ theorem length_Ioc (a b : ℝ) : f.length (Ioc a b) = (f b - f a).toENNReal := b
 theorem length_mono {s₁ s₂ : Set ℝ} (h : s₁ ⊆ s₂) : f.length s₁ ≤ f.length s₂ :=
   iInf_mono fun _ ↦ biInf_mono fun _ ↦ h.trans
 
+lemma length_smul {c : ℝ≥0} (hc : c ≠ 0) (s : Set ℝ) : (c • f).length s = c * f.length s := by
+  simp_rw [length, ENNReal.mul_iInf_of_ne (ENNReal.coe_ne_zero.mpr hc) ENNReal.coe_ne_top,
+    smul_apply, EReal.toENNReal_coe_mul_sub ENNReal.coe_ne_top]
+
 open MeasureTheory
 
 open Classical in
@@ -293,10 +318,7 @@ lemma outer_def : f.outer = OuterMeasure.ofFunction f.length f.length_empty := r
 theorem outer_le_length (s : Set ℝ) : f.outer s ≤ f.length s :=
   OuterMeasure.ofFunction_le _
 
--- todo: generalize to ofFunction_mono
-lemma outer_mono {s t : Set ℝ} (hst : s ⊆ t) : f.outer s ≤ f.outer t := by
-  rw [outer_def, OuterMeasure.ofFunction_apply, OuterMeasure.ofFunction_apply]
-  exact le_iInf₂ (fun ts hts ↦ iInf₂_le ts (hst.trans hts))
+lemma outer_mono {s t : Set ℝ} (hst : s ⊆ t) : f.outer s ≤ f.outer t := measure_mono hst
 
 /-- If a compact interval `[a, b]` is covered by a union of open interval `(c i, d i)`, then
 `f b - f a ≤ ∑ f (d i) - f (c i)`. This is an auxiliary technical statement to prove the same
@@ -620,6 +642,9 @@ theorem measure_Ioc (a b : ℝ) : f.measure (Ioc a b) = (f b - f a).toENNReal :=
   rw [ERealStieltjes.measure]
   exact f.outer_Ioc a b
 
+lemma measure_Ioc_ne_top {a b : ℝ} (ha : f a ≠ ⊥) (hb : f b ≠ ⊤) : f.measure (Ioc a b) ≠ ∞ := by
+  simp [measure_Ioc, sub_eq_add_neg, EReal.add_eq_top_iff, ha, hb]
+
 lemma antitone_toENNReal_const_sub (a : ℝ) :
     Antitone (fun x ↦ (f a - f x).toENNReal) :=
   fun _ _ hxy ↦ EReal.toENNReal_le_toENNReal (EReal.sub_le_sub le_rfl (f.mono hxy))
@@ -762,6 +787,11 @@ theorem measure_singleton (a : ℝ) :
     simp only [measure_Ioc]
     exact hu_tendsto_sub
   exact tendsto_nhds_unique L1 L2
+
+lemma measure_singleton_eq_top {x : ℝ} (h : ∀ y < x, f x - f y = ⊤) : f.measure {x} = ∞ := by
+  rw [measure_singleton]
+  refine leftLim_eq_of_tendsto ((tendsto_congr' ?_).mpr tendsto_const_nhds)
+  exact eventually_nhdsWithin_of_forall fun y hy ↦ by simp [h y hy]
 
 -- This is different from `(f b - leftLim f a).toENNReal` iff `f b = ⊤`, `leftLim f a = ⊤` but
 -- `∀ x < a, f x < ⊤`.
@@ -1032,6 +1062,17 @@ lemma measure_Ioi_of_tendsto_atTop_atTop (hf : Tendsto f atTop atTop) (x : ℝ) 
 @[simp]
 lemma measure_zero : (0 : ERealStieltjes).measure = 0 := measure_const 0
 
+lemma measure_smul (c : ℝ≥0) : (c • f).measure = c • f.measure := by
+  rcases eq_or_ne c 0 with rfl | hc
+  · rw [zero_smul, zero_smul, measure_zero]
+  refine Measure.toOuterMeasure_injective ?_
+  rw [Measure.smul_toOuterMeasure, measure_def, measure_def]
+  change (c • f).outer = (c : ℝ≥0∞) • f.outer
+  rw [outer_def, outer_def, OuterMeasure.smul_ofFunction ENNReal.coe_ne_top]
+  congr 1
+  ext s
+  exact length_smul f hc s
+
 section SFinite
 
 lemma measure_Ioc_eq_zero_of_eq_bot {a b : ℝ} (ha : f a = ⊥) (hb : f b = ⊥) :
@@ -1108,6 +1149,43 @@ lemma measure_Ioi_eq_zero_of_forall_gt_eq_top {d : ℝ} (h : ∀ x, d < x → f 
     linarith
   · have : (0 : ℝ) ≤ n + 1 := by positivity
     linarith
+
+/-- The region where `f = ⊥` is `f.measure`-null. -/
+lemma measure_setOf_eq_bot : f.measure {x | f x = ⊥} = 0 := by
+  have h_Iic {x : ℝ} (hx : f x = ⊥) : f.measure (Iic x) = 0 := by
+    have h_tendsto : Tendsto f atBot (𝓝 ⊥) := tendsto_const_nhds.congr'
+      ((eventually_le_atBot x).mono fun y hy ↦ (eq_bot_mono (f.mono hy) hx).symm)
+    rw [f.measure_Iic h_tendsto, hx, EReal.bot_sub, EReal.toENNReal_bot]
+  -- the points where `f = ⊥` that are not below a rational where `f = ⊥`
+  have h_sub : {x | f x = ⊥ ∧ ∀ y, x < y → f y ≠ ⊥}.Subsingleton := by
+    intro x hx y hy
+    by_contra hxy
+    rcases lt_or_gt_of_ne hxy with h | h
+    · exact hx.2 y h hy.1
+    · exact hy.2 x h hx.1
+  refine measure_mono_null (t := (⋃ (q : ℚ) (_ : f q = ⊥), Iic (q : ℝ))
+    ∪ {x | f x = ⊥ ∧ ∀ y, x < y → f y ≠ ⊥}) (fun x hx ↦ ?_) (measure_union_null
+      (measure_iUnion_null fun q ↦ measure_iUnion_null fun hq ↦ h_Iic hq) ?_)
+  · by_cases h : ∀ y, x < y → f y ≠ ⊥
+    · exact Or.inr ⟨hx, h⟩
+    push Not at h
+    obtain ⟨y, hxy, hy⟩ := h
+    obtain ⟨q, hxq, hqy⟩ := exists_rat_btwn hxy
+    exact Or.inl (mem_iUnion₂.mpr ⟨q, eq_bot_mono (f.mono hqy.le) hy, hxq.le⟩)
+  · rcases h_sub.eq_empty_or_singleton with h | ⟨m, hm⟩
+    · simp [h]
+    · have hm' : f m = ⊥ := (hm.symm ▸ mem_singleton m : m ∈ {x | f x = ⊥ ∧ _}).1
+      rw [hm]
+      exact measure_mono_null (singleton_subset_iff.mpr (mem_Iic.mpr le_rfl)) (h_Iic hm')
+
+/-- The region strictly above the first point where `f = ⊤` is `f.measure`-null. -/
+lemma measure_setOf_exists_lt_eq_top : f.measure {x | ∃ y < x, f y = ⊤} = 0 := by
+  refine measure_mono_null (t := ⋃ (q : ℚ) (_ : f q = ⊤), Ioi (q : ℝ)) ?_
+    (measure_iUnion_null fun q ↦ measure_iUnion_null fun hq ↦
+      f.measure_Ioi_eq_zero_of_forall_gt_eq_top fun x hx ↦ eq_top_mono (f.mono hx.le) hq)
+  rintro x ⟨y, hyx, hy⟩
+  obtain ⟨q, hyq, hqx⟩ := exists_rat_btwn hyx
+  exact mem_iUnion₂.mpr ⟨q, eq_top_mono (f.mono hyq.le) hy, hqx⟩
 
 /-- The restriction of `f.measure` to the region where `f` is `⊥`, together with its right
 endpoint, is s-finite: that region is null except possibly for an infinite atom at its endpoint. -/
@@ -1277,34 +1355,179 @@ lemma eq_of_measure_of_tendsto_atBot (g : ERealStieltjes) {l : ℝ}
   · rw [EReal.sub_nonneg (.inr (EReal.coe_ne_top _)) (.inr (EReal.coe_ne_bot _))]
     exact Monotone.le_of_tendsto f.mono hfl x
 
-lemma EReal.toENNReal_toEReal (x : ℝ) : EReal.toENNReal x = ENNReal.ofReal x := rfl
+section Add
 
--- this is not enough. We need to remove hf and hg and deal with those issues properly.
--- The measure is then not locally finite because of the possible infinite diracs at xmin and xmax,
--- but we can cut the measure into several pieces to isolate the difficulties.
-lemma measure_add (f g : ERealStieltjes) (hf : ∀ x, f x ≠ ⊥ ∧ f x ≠ ⊤)
-    (hg : ∀ x, g x ≠ ⊥ ∧ g x ≠ ⊤) :
-    (f + g).measure = f.measure + g.measure := by
-  have hfg x : (f + g) x ≠ ⊥ ∧ (f + g) x ≠ ⊤ := by
-    rw [add_apply_of_ne_top (hf x).2 (hg x).2]
-    simp [EReal.add_eq_top_iff, hf x, hg x]
-  have := ERealStieltjes.isLocallyFiniteMeasure _ hfg
-  refine Measure.ext_of_Ioc _ _ (fun a b h ↦ ?_)
-  simp only [measure_Ioc, Pi.add_apply, Measure.coe_add]
-  rw [add_apply_of_ne_top (hf b).2 (hg b).2, add_apply_of_ne_top (hf a).2 (hg a).2]
-  have hfab : f a ≤ f b := f.mono h.le
-  have hgab : g a ≤ g b := g.mono h.le
-  lift (f a) to ℝ using (hf a).symm with fa
-  lift (f b) to ℝ using (hf b).symm with fb
-  lift (g a) to ℝ using (hg a).symm with ga
-  lift (g b) to ℝ using (hg b).symm with gb
-  norm_cast
-  simp_rw [EReal.toENNReal_toEReal]
-  rw [← ENNReal.ofReal_add (sub_nonneg_of_le ?_) (sub_nonneg_of_le ?_)]
-  rotate_left
-  · exact mod_cast hfab
-  · exact mod_cast hgab
+lemma measure_Ioc_add {f g : ERealStieltjes} {a b : ℝ} (hab : a ≤ b)
+    (hfa : f a ≠ ⊥) (hfb : f b ≠ ⊤) (hga : g a ≠ ⊥) (hgb : g b ≠ ⊤) :
+    (f + g).measure (Ioc a b) = f.measure (Ioc a b) + g.measure (Ioc a b) := by
+  have hfab : f a ≤ f b := f.mono hab
+  have hgab : g a ≤ g b := g.mono hab
+  simp only [measure_Ioc]
+  rw [add_apply_of_ne_top hfb hgb, add_apply_of_ne_top (ne_top_of_le_ne_top hfb hfab)
+    (ne_top_of_le_ne_top hgb hgab)]
+  lift f a to ℝ using ⟨ne_top_of_le_ne_top hfb hfab, hfa⟩ with fa
+  lift f b to ℝ using ⟨hfb, ne_bot_of_le_ne_bot hfa hfab⟩ with fb
+  lift g a to ℝ using ⟨ne_top_of_le_ne_top hgb hgab, hga⟩ with ga
+  lift g b to ℝ using ⟨hgb, ne_bot_of_le_ne_bot hga hgab⟩ with gb
+  norm_cast at hfab hgab ⊢
+  change ENNReal.ofReal (fb + gb - (fa + ga)) = ENNReal.ofReal (fb - fa) + ENNReal.ofReal (gb - ga)
+  rw [← ENNReal.ofReal_add (sub_nonneg_of_le hfab) (sub_nonneg_of_le hgab)]
   congr 1
   ring
+
+/-- The measure of a sum of `ERealStieltjes` functions. `(f + g) x` is `⊤` as soon as `f x` or
+`g x` is `⊤`, and `⊥` if one of them is `⊥` and none is `⊤`. The measure `(f + g).measure` sees only
+the region where `f + g` is finite, together with the point at which it jumps to `⊤`, and it agrees
+with `f.measure + g.measure` there. -/
+lemma measure_add (f g : ERealStieltjes) :
+    (f + g).measure
+      = (f.measure + g.measure).restrict {x | (f + g) x ≠ ⊥ ∧ ∀ y < x, (f + g) y ≠ ⊤} := by
+  set φ := f + g with hφ
+  set S := {x | φ x ≠ ⊥ ∧ ∀ y < x, φ y ≠ ⊤} with hS
+  -- `φ.measure` is concentrated on `S`
+  have h_ae : ∀ᵐ x ∂φ.measure, x ∈ S := by
+    rw [ae_iff]
+    refine measure_mono_null (fun x hx ↦ ?_)
+      (measure_union_null φ.measure_setOf_eq_bot φ.measure_setOf_exists_lt_eq_top)
+    simp only [hS, mem_ofPred_eq, not_and_or, ne_eq, not_not, not_forall, exists_prop] at hx
+    exact hx
+  rw [← Measure.restrict_eq_self_of_ae_mem h_ae]
+  -- decompose `S` into intervals `Ioc p q` on which `φ` is finite, the point where `φ` jumps from
+  -- `⊥` to a finite value, and the point where `φ` jumps to `⊤`
+  set F := {x | φ x ≠ ⊥ ∧ φ x ≠ ⊤}
+  set I := {p : ℚ × ℚ | (p.1 : ℝ) ∈ F ∧ (p.2 : ℝ) ∈ F}
+  set L := {x | x ∈ F ∧ ∀ y < x, φ y = ⊥}
+  set D := {x | φ x = ⊤ ∧ ∀ y < x, φ y ≠ ⊤}
+  have hS_eq : S = (⋃ p ∈ I, Ioc (p.1 : ℝ) p.2) ∪ (L ∪ D) := by
+    ext x
+    refine ⟨fun ⟨hx_bot, hx_lt⟩ ↦ ?_, fun hx ↦ ?_⟩
+    · by_cases hx_top : φ x = ⊤
+      · exact Or.inr (Or.inr ⟨hx_top, hx_lt⟩)
+      by_cases hx_L : ∀ y < x, φ y = ⊥
+      · exact Or.inr (Or.inl ⟨⟨hx_bot, hx_top⟩, hx_L⟩)
+      push Not at hx_L
+      obtain ⟨y, hyx, hy⟩ := hx_L
+      obtain ⟨p, hyp, hpx⟩ := exists_rat_btwn hyx
+      obtain ⟨z, hxz, hz⟩ : ∃ z, x < z ∧ φ z < ⊤ :=
+        (((φ.right_continuous x).eventually (eventually_lt_nhds (lt_top_iff_ne_top.mpr hx_top))
+          ).filter_mono (nhdsWithin_mono _ Ioi_subset_Ici_self)).and self_mem_nhdsWithin
+          |>.exists.imp fun _ h ↦ ⟨h.2, h.1⟩
+      obtain ⟨q, hxq, hqz⟩ := exists_rat_btwn hxz
+      refine Or.inl (mem_iUnion₂.mpr ⟨(p, q), ⟨?_, ?_⟩, hpx, hxq.le⟩)
+      · exact ⟨ne_bot_of_le_ne_bot hy (φ.mono hyp.le), hx_lt p hpx⟩
+      · exact ⟨ne_bot_of_le_ne_bot hx_bot (φ.mono hxq.le),
+          (lt_of_le_of_lt (φ.mono hqz.le) hz).ne⟩
+    · rcases hx with hx | hx | hx
+      · obtain ⟨p, hp, hxp⟩ := mem_iUnion₂.mp hx
+        exact ⟨ne_bot_of_le_ne_bot hp.1.1 (φ.mono hxp.1.le),
+          fun y hy ↦ ne_top_of_le_ne_top hp.2.2 (φ.mono (hy.le.trans hxp.2))⟩
+      · exact ⟨hx.1.1, fun y hy ↦ ne_top_of_le_ne_top hx.1.2 (φ.mono hy.le)⟩
+      · exact ⟨by simp [hx.1], hx.2⟩
+  have hL_sub : L.Subsingleton := by
+    intro x hx y hy
+    by_contra hxy
+    rcases lt_or_gt_of_ne hxy with h | h
+    · exact hx.1.1 (hy.2 x h)
+    · exact hy.1.1 (hx.2 y h)
+  have hD_sub : D.Subsingleton := by
+    intro x hx y hy
+    by_contra hxy
+    rcases lt_or_gt_of_ne hxy with h | h
+    · exact hy.2 x h hx.1
+    · exact hx.2 y h hy.1
+  rw [hS_eq, Measure.restrict_union_congr, Measure.restrict_biUnion_congr I.to_countable,
+    ← biUnion_of_singleton (L ∪ D),
+    Measure.restrict_biUnion_congr (hL_sub.finite.union hD_sub.finite).countable]
+  refine ⟨fun p ⟨hp, hq⟩ ↦ ?_, fun x hx ↦ ?_⟩
+  · -- on `Ioc p q`, all functions are finite and the measures are finite
+    obtain ⟨hfp, hgp⟩ := ne_bot_of_add_ne_bot hp.1 hp.2
+    obtain ⟨hfq, hgq⟩ := ne_top_of_add_ne_top hq.2
+    set a : ℝ := (p.1 : ℝ)
+    set b : ℝ := (p.2 : ℝ)
+    rcases le_or_gt b a with hba | hab
+    · simp [Ioc_eq_empty_of_le hba]
+    have : IsFiniteMeasure (φ.measure.restrict (Ioc a b)) := by
+      refine isFiniteMeasure_restrict.mpr ?_
+      rw [measure_Ioc_add hab.le hfp hfq hgp hgq]
+      exact ENNReal.add_ne_top.mpr ⟨f.measure_Ioc_ne_top hfp hfq, g.measure_Ioc_ne_top hgp hgq⟩
+    refine Measure.ext_of_Ioc_finite _ _ ?_ fun x y hxy ↦ ?_
+    · simp only [Measure.restrict_apply_univ, Measure.coe_add, Pi.add_apply]
+      exact measure_Ioc_add hab.le hfp hfq hgp hgq
+    · simp only [Measure.restrict_apply measurableSet_Ioc, Measure.coe_add, Pi.add_apply,
+        Ioc_inter_Ioc]
+      rcases le_or_gt (min y b) (max x a) with h | h
+      · simp [Ioc_eq_empty_of_le h]
+      exact measure_Ioc_add h.le (ne_bot_of_le_ne_bot hfp (f.mono (le_max_right _ _)))
+        (ne_top_of_le_ne_top hfq (f.mono (min_le_right _ _)))
+        (ne_bot_of_le_ne_bot hgp (g.mono (le_max_right _ _)))
+        (ne_top_of_le_ne_top hgq (g.mono (min_le_right _ _)))
+  · -- at the two jump points, both measures have an infinite atom
+    rw [Measure.restrict_singleton, Measure.restrict_singleton]
+    congr 1
+    rw [Measure.coe_add, Pi.add_apply]
+    rcases hx with hx | hx
+    · rw [φ.measure_singleton_eq_top fun y hy ↦ by rw [hx.2 y hy, EReal.sub_bot hx.1.1],
+        eq_comm, ENNReal.add_eq_top]
+      obtain ⟨hfx_bot, hgx_bot⟩ := ne_bot_of_add_ne_bot hx.1.1 hx.1.2
+      obtain ⟨hfx_top, hgx_top⟩ := ne_top_of_add_ne_top hx.1.2
+      by_contra! h
+      obtain ⟨y₁, hy₁, hfy₁⟩ : ∃ y < x, f y ≠ ⊥ := by
+        by_contra! h'
+        exact h.1 (f.measure_singleton_eq_top fun y hy ↦ by rw [h' y hy, EReal.sub_bot hfx_bot])
+      obtain ⟨y₂, hy₂, hgy₂⟩ : ∃ y < x, g y ≠ ⊥ := by
+        by_contra! h'
+        exact h.2 (g.measure_singleton_eq_top fun y hy ↦ by rw [h' y hy, EReal.sub_bot hgx_bot])
+      have hy : max y₁ y₂ < x := max_lt hy₁ hy₂
+      have hfy : f (max y₁ y₂) ≠ ⊤ := ne_top_of_le_ne_top hfx_top (f.mono hy.le)
+      have hgy : g (max y₁ y₂) ≠ ⊤ := ne_top_of_le_ne_top hgx_top (g.mono hy.le)
+      have h_bot := hx.2 _ hy
+      rw [hφ, add_apply_of_ne_top hfy hgy, EReal.add_eq_bot_iff] at h_bot
+      rcases h_bot with h_bot | h_bot
+      · exact hfy₁ (eq_bot_mono (f.mono (le_max_left _ _)) h_bot)
+      · exact hgy₂ (eq_bot_mono (g.mono (le_max_right _ _)) h_bot)
+    · rw [φ.measure_singleton_eq_top fun y hy ↦ by rw [hx.1, EReal.top_sub (hx.2 y hy)],
+        eq_comm, ENNReal.add_eq_top]
+      have hfg : f x = ⊤ ∨ g x = ⊤ := by
+        by_contra! h
+        have h_top := hx.1
+        rw [hφ, add_apply_of_ne_top h.1 h.2, EReal.add_eq_top_iff] at h_top
+        tauto
+      rcases hfg with hfx | hgx
+      · refine Or.inl (f.measure_singleton_eq_top fun y hy ↦ ?_)
+        rw [hfx, EReal.top_sub fun hfy ↦ hx.2 y hy (add_apply_of_eq_top_left hfy)]
+      · refine Or.inr (g.measure_singleton_eq_top fun y hy ↦ ?_)
+        rw [hgx, EReal.top_sub fun hgy ↦ hx.2 y hy (add_apply_of_eq_top_right hgy)]
+
+/-- If `f` and `g` are `⊥` at the same points and `⊤` at the same points, then
+`(f + g).measure = f.measure + g.measure`. -/
+lemma measure_add_of_eq_bot_iff_of_eq_top_iff (f g : ERealStieltjes)
+    (h_bot : ∀ x, f x = ⊥ ↔ g x = ⊥) (h_top : ∀ x, f x = ⊤ ↔ g x = ⊤) :
+    (f + g).measure = f.measure + g.measure := by
+  -- outside of the set in `measure_add`, `f` and `g` are both `⊥`, or both `⊤` at a point below
+  have h x (hx : ¬ ((f + g) x ≠ ⊥ ∧ ∀ y < x, (f + g) y ≠ ⊤)) :
+      (f x = ⊥ ∧ g x = ⊥) ∨ ∃ y < x, f y = ⊤ ∧ g y = ⊤ := by
+    simp only [not_and_or, ne_eq, not_not, not_forall, exists_prop] at hx
+    rcases hx with hx | ⟨y, hyx, hy⟩
+    · obtain ⟨hf, hg⟩ : f x ≠ ⊤ ∧ g x ≠ ⊤ := by
+        rw [← not_or, ← add_apply_eq_top_iff, hx]
+        exact bot_ne_top
+      rw [add_apply_of_ne_top hf hg, EReal.add_eq_bot_iff] at hx
+      exact Or.inl (hx.elim (fun h ↦ ⟨h, (h_bot x).mp h⟩) fun h ↦ ⟨(h_bot x).mpr h, h⟩)
+    · refine Or.inr ⟨y, hyx, ?_⟩
+      rcases add_apply_eq_top_iff.mp hy with h | h
+      exacts [⟨h, (h_top y).mp h⟩, ⟨(h_top y).mpr h, h⟩]
+  rw [measure_add, Measure.restrict_eq_self_of_ae_mem]
+  rw [ae_iff, Measure.coe_add, Pi.add_apply, add_eq_zero]
+  constructor
+  · refine measure_mono_null (fun x hx ↦ ?_)
+      (measure_union_null f.measure_setOf_eq_bot f.measure_setOf_exists_lt_eq_top)
+    rcases h x hx with h | ⟨y, hyx, hy⟩
+    exacts [Or.inl h.1, Or.inr ⟨y, hyx, hy.1⟩]
+  · refine measure_mono_null (fun x hx ↦ ?_)
+      (measure_union_null g.measure_setOf_eq_bot g.measure_setOf_exists_lt_eq_top)
+    rcases h x hx with h | ⟨y, hyx, hy⟩
+    exacts [Or.inl h.2, Or.inr ⟨y, hyx, hy.2⟩]
+
+end Add
 
 end ERealStieltjes

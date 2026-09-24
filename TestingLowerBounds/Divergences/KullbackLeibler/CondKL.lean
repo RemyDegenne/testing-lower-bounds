@@ -5,9 +5,9 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 -/
 module
 
+public import Mathlib.InformationTheory.KullbackLeibler.ChainRule
 public import TestingLowerBounds.Divergences.KullbackLeibler.KullbackLeibler
 public import TestingLowerBounds.FDiv.CondFDiv
-public import TestingLowerBounds.ForMathlib.LogLikelihoodRatioCompProd
 public import TestingLowerBounds.FDiv.DPIJensen
 
 /-!

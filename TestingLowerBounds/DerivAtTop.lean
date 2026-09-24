@@ -27,7 +27,7 @@ public import TestingLowerBounds.ForMathlib.LeftRightDeriv
 
 @[expose] public section
 
-open Real MeasureTheory Filter Set
+open Real Filter Set
 
 open scoped ENNReal NNReal Topology
 
@@ -38,27 +38,7 @@ lemma MonotoneOn.exists_tendsto_atTop {ι α : Type*} [SemilatticeSup ι] [Compl
   ⟨_, (tendsto_atTop_iSup fun _ _ hyz ↦ hf le_sup_left le_sup_left (sup_le_sup_left hyz x)).congr'
     ((eventually_ge_atTop x).mono fun _ hz ↦ by simp [sup_of_le_right hz])⟩
 
-lemma Real.monotone_toEReal : Monotone toEReal := Monotone.of_map_inf fun _ ↦ congrFun rfl
-
-variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
-  {μ ν : Measure α} {f g : ℝ → ℝ} {x : ℝ}
-
-lemma ite_bot_ae_eq_atTop (f : ℝ → EReal) :
-    (fun x ↦ if 1 ≤ x then f x else ⊥) =ᶠ[atTop] f := by
-  rw [Filter.EventuallyEq, eventually_atTop]
-  exact ⟨1, fun x hx ↦ by simp [hx]⟩
-
--- The constant 1 chosen here is an arbitrary number greater than 0.
-lemma MonotoneOn.monotone_ite_bot (hf : MonotoneOn (rightDeriv f) (Ioi 0)) :
-    Monotone (fun x ↦ if 1 ≤ x then (rightDeriv f x : EReal) else ⊥) := by
-  intro x y hxy
-  cases le_or_gt 1 x with
-  | inl hx =>
-    simp only [hx, hx.trans hxy, ↓reduceIte]
-    norm_cast
-    exact (hf.mono (Ici_subset_Ioi.mpr zero_lt_one)) hx (hx.trans hxy) hxy
-  | inr hx =>
-    simp only [not_le.mpr hx, ↓reduceIte, bot_le]
+variable {f g : ℝ → ℝ} {x : ℝ}
 
 /-- Limsup of the right derivative at infinity. -/
 noncomputable
@@ -68,24 +48,6 @@ lemma derivAtTop_congr (h : f =ᶠ[atTop] g) : derivAtTop f = derivAtTop g := by
   simp_rw [derivAtTop]
   refine limsup_congr ?_
   filter_upwards [rightDeriv_congr_atTop h] with x hx
-  rw [hx]
-
-lemma derivAtTop_congr_nonneg (h : ∀ x, 0 ≤ x → f x = g x) : derivAtTop f = derivAtTop g := by
-  refine derivAtTop_congr ?_
-  rw [Filter.EventuallyEq, eventually_atTop]
-  exact ⟨0, h⟩
-
-lemma derivAtTop_eq_limsup_extendBotLtOne :
-    derivAtTop f = limsup (fun x ↦ if 1 ≤ x then (rightDeriv f x : EReal) else ⊥) atTop := by
-  refine limsup_congr ?_
-  filter_upwards [ite_bot_ae_eq_atTop (fun x ↦ (rightDeriv f x : EReal))] with x hx
-  rw [hx]
-
-lemma tendsto_extendBotLtOne_rightDeriv_iff {y : EReal} :
-    Tendsto (fun x ↦ if 1 ≤ x then (rightDeriv f x : EReal) else ⊥) atTop (𝓝 y)
-      ↔ Tendsto (fun x ↦ (rightDeriv f x : EReal)) atTop (𝓝 y) := by
-  refine tendsto_congr' ?_
-  filter_upwards [ite_bot_ae_eq_atTop (fun x ↦ (rightDeriv f x : EReal))] with x hx
   rw [hx]
 
 lemma derivAtTop_of_tendsto {y : EReal}
@@ -125,7 +87,7 @@ lemma derivAtTop_const (c : ℝ) : derivAtTop (fun _ ↦ c) = 0 := by
 lemma MonotoneOn.tendsto_derivAtTop (hf : MonotoneOn (rightDeriv f) (Ioi 0)) :
     Tendsto (fun x ↦ (rightDeriv f x : EReal)) atTop (𝓝 (derivAtTop f)) := by
   have hf_coe : MonotoneOn (fun x ↦ (rightDeriv f x : EReal)) (Ici 1) :=
-    Real.monotone_toEReal.comp_monotoneOn (hf.mono (Ici_subset_Ioi.mpr zero_lt_one))
+    EReal.coe_strictMono.monotone.comp_monotoneOn (hf.mono (Ici_subset_Ioi.mpr zero_lt_one))
   obtain ⟨z, hz⟩ : ∃ z, Tendsto (fun x ↦ (rightDeriv f x : EReal)) atTop (𝓝 z) :=
     hf_coe.exists_tendsto_atTop
   rwa [derivAtTop_of_tendsto hz]
@@ -155,10 +117,10 @@ lemma ConvexOn.derivAtTop_eq_top_iff (hf : ConvexOn ℝ (Ici 0) f) :
   hf.rightDeriv_mono'.derivAtTop_eq_top_iff
 
 lemma MonotoneOn.derivAtTop_ne_bot (hf : MonotoneOn (rightDeriv f) (Ioi 0)) : derivAtTop f ≠ ⊥ := by
-  intro h_eq
-  rw [hf.derivAtTop_eq_iff, ← tendsto_extendBotLtOne_rightDeriv_iff] at h_eq
-  have h_le := hf.monotone_ite_bot.ge_of_tendsto h_eq 1
-  simp at h_le
+  refine ne_bot_of_le_ne_bot (EReal.coe_ne_bot (rightDeriv f 1))
+    (ge_of_tendsto hf.tendsto_derivAtTop ?_)
+  filter_upwards [eventually_ge_atTop 1] with x hx
+  exact EReal.coe_le_coe_iff.mpr (hf (by simp) (zero_lt_one.trans_le hx) hx)
 
 lemma ConvexOn.derivAtTop_ne_bot (hf : ConvexOn ℝ (Ici 0) f) : derivAtTop f ≠ ⊥ :=
   hf.rightDeriv_mono'.derivAtTop_ne_bot
@@ -286,24 +248,3 @@ lemma le_add_derivAtTop' (h_cvx : ConvexOn ℝ (Ici 0) f)
   · rwa [mul_le_iff_le_one_right]
     exact hx.lt_of_ne' hx0
   rwa [mul_assoc, mul_sub, mul_one]
-
-lemma toReal_le_add_derivAtTop (hf_cvx : ConvexOn ℝ (Ici 0) f) {a b : ENNReal}
-    (ha : a ≠ ⊤) (hb : b ≠ ⊤) :
-    f ((a + b).toReal) ≤ f a.toReal + derivAtTop f * b := by
-  by_cases hf_top : derivAtTop f = ⊤
-  · rw [hf_top]
-    by_cases hb_zero : b = 0
-    · simp [hb_zero]
-    · rw [EReal.top_mul_coe_ennreal hb_zero, EReal.coe_add_top]
-      exact le_top
-  · have h_le : a.toReal ≤ (a + b).toReal := by
-      gcongr
-      · simp [ha, hb]
-      · simp
-    have h := le_add_derivAtTop hf_cvx hf_top (ENNReal.toReal_nonneg : 0 ≤ a.toReal) h_le
-    lift derivAtTop f to ℝ using ⟨hf_top, hf_cvx.derivAtTop_ne_bot⟩ with df
-    rw [← EReal.coe_ennreal_toReal hb]
-    norm_cast
-    refine h.trans_eq ?_
-    congr
-    rw [sub_eq_iff_eq_add, ← ENNReal.toReal_add hb ha, add_comm]

@@ -7,13 +7,12 @@ module
 
 public import Mathlib.Analysis.Calculus.Deriv.Shift
 public import Mathlib.Analysis.Convex.Deriv
-public import Mathlib.MeasureTheory.Measure.Stieltjes
 
 
 /-! # Left and right derivatives of convex functions
 
-Properties of `leftDeriv` and `rightDeriv` of convex functions on `ℝ`, and of the Stieltjes
-function `rightDerivStieltjes` associated to the right derivative.
+Definitions of the one-sided derivatives `leftDeriv` and `rightDeriv` of a function `ℝ → ℝ`, and
+their properties for convex functions on `ℝ`.
 -/
 
 @[expose] public section
@@ -97,11 +96,6 @@ lemma rightDeriv_congr_atTop {g : ℝ → ℝ} (h : f =ᶠ[atTop] g) :
     have h_ge : ∀ᶠ x in 𝓝 b, a ≤ x := eventually_ge_nhds ((lt_add_one _).trans_le hab)
     filter_upwards [h_ge] using ha
   filter_upwards [h'] with a ha using ha.rightDeriv_eq_nhds
-
-lemma rightDeriv_congr_nhdsGE {g : ℝ → ℝ} (h : f =ᶠ[𝓝[≥] x] g) :
-    rightDeriv f x = rightDeriv g x :=
-  Filter.EventuallyEq.derivWithin_eq (h.filter_mono (nhdsWithin_mono _ Ioi_subset_Ici_self))
-    (h.eq_of_nhdsWithin Set.self_mem_Ici)
 
 lemma rightDeriv_of_hasDerivAt {f : ℝ → ℝ} {f' : ℝ} {x : ℝ} (h : HasDerivAt f f' x) :
     rightDeriv f x = f' := by
@@ -331,7 +325,7 @@ lemma differentiableWithinAt_Ioi' (hfc : ConvexOn ℝ (Ici 0) f) (hx : 0 < x) :
     DifferentiableWithinAt ℝ f (Ioi x) x :=
   hfc.differentiableWithinAt_Ioi_of_mem_interior (by simpa using hx)
 
-lemma hadDerivWithinAt_rightDeriv (hfc : ConvexOn ℝ univ f) (x : ℝ) :
+lemma hasDerivWithinAt_rightDeriv (hfc : ConvexOn ℝ univ f) (x : ℝ) :
     HasDerivWithinAt f (rightDeriv f x) (Ioi x) x :=
   hfc.hasDerivWithinAt_rightDeriv_of_mem_interior (by simp)
 
@@ -344,7 +338,7 @@ lemma differentiableWithinAt_Iio (hfc : ConvexOn ℝ univ f) (x : ℝ) :
     DifferentiableWithinAt ℝ f (Iio x) x :=
   hfc.differentiableWithinAt_Iio_of_mem_interior (by simp)
 
-lemma hadDerivWithinAt_leftDeriv (hfc : ConvexOn ℝ univ f) (x : ℝ) :
+lemma hasDerivWithinAt_leftDeriv (hfc : ConvexOn ℝ univ f) (x : ℝ) :
     HasDerivWithinAt f (leftDeriv f x) (Iio x) x :=
   hfc.hasDerivWithinAt_leftDeriv_of_mem_interior (by simp)
 
@@ -384,39 +378,5 @@ lemma leftDeriv_left_continuous (hfc : ConvexOn ℝ univ f) (w : ℝ) :
   hfc.leftDeriv_left_continuous_of_mem_interior (by simp)
 
 end Univ
-
-/-- The right derivative of a convex real function is a Stieltjes function. -/
-noncomputable
-def rightDerivStieltjes {f : ℝ → ℝ} (hf : ConvexOn ℝ univ f) :
-    StieltjesFunction ℝ where
-  toFun := rightDeriv f
-  mono' _ _ := fun h ↦ hf.rightDeriv_mono h
-  right_continuous' _ := hf.rightDeriv_right_continuous _
-
-lemma rightDerivStieltjes_eq_rightDeriv (hf : ConvexOn ℝ univ f) :
-    rightDerivStieltjes hf = rightDeriv f := rfl
-
-lemma rightDerivStieltjes_const (c : ℝ) :
-    rightDerivStieltjes (convexOn_const c convex_univ) = 0 := by
-  ext x
-  simp_rw [rightDerivStieltjes_eq_rightDeriv, rightDeriv_const]
-  rfl
-
-lemma rightDerivStieltjes_linear (a : ℝ) :
-    rightDerivStieltjes (ConvexOn.const_mul_id a) = StieltjesFunction.const ℝ a := by
-  ext x
-  simp_rw [rightDerivStieltjes_eq_rightDeriv, rightDeriv_const_mul a, rightDeriv_id', mul_one]
-  rfl
-
-lemma rightDerivStieltjes_add {f g : ℝ → ℝ} (hf : ConvexOn ℝ univ f) (hg : ConvexOn ℝ univ g) :
-    rightDerivStieltjes (hf.add hg) = rightDerivStieltjes hf + rightDerivStieltjes hg := by
-  ext x
-  simp_rw [StieltjesFunction.add_apply, rightDerivStieltjes_eq_rightDeriv, rightDeriv_add_apply
-    (hf.differentiableWithinAt_Ioi x) (hg.differentiableWithinAt_Ioi x)]
-
-lemma rightDerivStieltjes_add_const (hf : ConvexOn ℝ univ f) (c : ℝ) :
-    rightDerivStieltjes (hf.add (convexOn_const c convex_univ)) = rightDerivStieltjes hf := by
-  rw [rightDerivStieltjes_add hf (convexOn_const c convex_univ), rightDerivStieltjes_const,
-    add_zero]
 
 end ConvexOn

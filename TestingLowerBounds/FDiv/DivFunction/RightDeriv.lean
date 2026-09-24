@@ -23,6 +23,8 @@ interior of the effective domain of `f`.
 * `rightDerivStieltjes_of_mem_interior`: in the interior of the effective domain,
   `f.rightDerivStieltjes x = rightDeriv f.realFun x`.
 * `rightDerivStieltjes_eq_top_iff`: `f.rightDerivStieltjes x = ⊤ ↔ f.xmax ≤ ENNReal.ofReal x`.
+* `rightDerivStieltjes_xmin_eq_bot_iff`: `f.rightDerivStieltjes` is `⊥` at `f.xmin` iff the right
+  derivative of `f.realFun` tends to `-∞` there.
 * `rightDerivStieltjes_add`, `rightDerivStieltjes_smul`: compatibility with the module structure.
 
 -/
@@ -152,6 +154,22 @@ lemma rightDerivStieltjes_eq_top_iff {x : ℝ} :
   ⟨fun h ↦ not_lt.mp fun hx ↦ rightDerivStieltjes_ne_top_of_lt_xmax hx h,
     rightDerivStieltjes_of_ge_xmax⟩
 
+lemma rightDerivStieltjes_ne_bot_of_xmin_lt {x : ℝ} (hx : f.xmin.toReal < x) :
+    f.rightDerivStieltjes x ≠ ⊥ := by
+  refine ne_bot_of_le_ne_bot ?_ (f.monotone_rightDerivAux.le_rightLim le_rfl)
+  simp only [rightDerivAux, not_le.mpr hx, ↓reduceIte]
+  split_ifs <;> simp
+
+/-- `f.rightDerivStieltjes` is `⊥` at `f.xmin` iff the right derivative of `f` tends to `-∞` at
+`f.xmin`. -/
+lemma rightDerivStieltjes_xmin_eq_bot_iff :
+    f.rightDerivStieltjes f.xmin.toReal = ⊥
+      ↔ Tendsto (rightDeriv f.realFun) (𝓝[>] f.xmin.toReal) atBot := by
+  have h := f.tendsto_rightDeriv_realFun_nhdsGT le_rfl
+    (by rw [ENNReal.ofReal_toReal xmin_ne_top]; exact xmin_lt_xmax)
+  rw [← EReal.tendsto_coe_nhds_bot_iff]
+  exact ⟨fun h_eq ↦ h_eq ▸ h, fun h_bot ↦ tendsto_nhds_unique h h_bot⟩
+
 @[simp]
 lemma rightDerivStieltjes_one : f.rightDerivStieltjes 1 = rightDeriv f.realFun 1 :=
   rightDerivStieltjes_of_mem_interior (by simpa using xmin_lt_one) (by simpa using one_lt_xmax)
@@ -218,6 +236,16 @@ lemma rightDerivStieltjes_add :
   filter_upwards [rightDerivAux_eventuallyEq hxfg hx_lt, f.eventually_mem_toReal_Ioo hxf hxf_lt,
     g.eventually_mem_toReal_Ioo hxg hxg_lt] with y hy hyf hyg
   simp only [hy, rightDeriv_realFun_add hyf hyg, EReal.coe_add]
+
+lemma rightDerivStieltjes_eq_bot_iff_of_xmin_eq (hxmin : f.xmin = g.xmin)
+    (h : Tendsto (rightDeriv f.realFun) (𝓝[>] f.xmin.toReal) atBot
+      ↔ Tendsto (rightDeriv g.realFun) (𝓝[>] g.xmin.toReal) atBot) (x : ℝ) :
+    f.rightDerivStieltjes x = ⊥ ↔ g.rightDerivStieltjes x = ⊥ := by
+  rcases lt_trichotomy x f.xmin.toReal with hx | rfl | hx
+  · simp [rightDerivStieltjes_of_lt_xmin hx, rightDerivStieltjes_of_lt_xmin (hxmin ▸ hx)]
+  · rw [rightDerivStieltjes_xmin_eq_bot_iff, h, ← rightDerivStieltjes_xmin_eq_bot_iff, hxmin]
+  · simp [rightDerivStieltjes_ne_bot_of_xmin_lt hx,
+      rightDerivStieltjes_ne_bot_of_xmin_lt (hxmin ▸ hx : g.xmin.toReal < x)]
 
 lemma rightDerivAux_smul {c : ℝ≥0} (hc : c ≠ 0) :
     (c • f).rightDerivAux = fun x ↦ ((c : ℝ) : EReal) * f.rightDerivAux x := by

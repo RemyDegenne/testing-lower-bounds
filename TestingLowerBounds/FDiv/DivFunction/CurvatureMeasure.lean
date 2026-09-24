@@ -15,13 +15,17 @@ public import TestingLowerBounds.FDiv.DivFunction.RightDeriv
 The curvature measure of a `DivFunction` `f` is the Lebesgue-Stieltjes measure associated to its
 right derivative. Its main use is the Taylor formula expressing `f x` as an integral against the
 curvature measure (`convex_taylor_one_right'`, `convex_taylor_one_left'`).
+
+The curvature measure is additive under assumptions on the boundary of the effective domains
+(`curvatureMeasure_add`), and `(c • f).curvatureMeasure = c • f.curvatureMeasure` for `c ≠ 0`
+(`curvatureMeasure_smul`).
 -/
 
 @[expose] public section
 
 open MeasureTheory Set StieltjesFunction Function Filter
 
-open scoped ENNReal Topology
+open scoped ENNReal NNReal Topology
 
 /-- Tonelli: `∫⁻ x in Ioc a t, (t - x) ∂μ = ∫⁻ s in Ioc a t, μ (Ioc a s)`. -/
 lemma setLIntegral_Ioc_ofReal_const_sub (μ : Measure ℝ) [SFinite μ] (a t : ℝ) :
@@ -99,7 +103,7 @@ namespace ProbabilityTheory
 
 namespace DivFunction
 
-variable {f : DivFunction}
+variable {f g : DivFunction}
 
 /-- The curvature measure induced by a convex function. It is defined as the only measure that has
 the right derivative of the function as a CDF. -/
@@ -135,6 +139,29 @@ lemma curvatureMeasure_Ioo_top_eq_curvatureMeasure_Ioi {a : ℝ≥0∞} (ha : a 
     · simp [Ne.lt_top hx, hx]
   rw [this, measure_union _ (measurableSet_singleton _), curvatureMeasure_singleton_top, add_zero]
   simp
+
+/-- The curvature measure of `f + g` is the sum of the curvature measures of `f` and `g`, provided
+that `f` and `g` have effective domains with the same endpoints, and that their right derivatives
+both tend to `-∞` at the left endpoint or both have a finite limit there. Without the last
+assumption, one of the two curvature measures would have an infinite atom at `f.xmin` while the
+curvature measure of `f + g` has none. -/
+lemma curvatureMeasure_add (hxmin : f.xmin = g.xmin) (hxmax : f.xmax = g.xmax)
+    (h_deriv : Tendsto (rightDeriv f.realFun) (𝓝[>] f.xmin.toReal) atBot
+      ↔ Tendsto (rightDeriv g.realFun) (𝓝[>] g.xmin.toReal) atBot) :
+    (f + g).curvatureMeasure = f.curvatureMeasure + g.curvatureMeasure := by
+  simp_rw [curvatureMeasure]
+  rw [rightDerivStieltjes_add, ERealStieltjes.measure_add_of_eq_bot_iff_of_eq_top_iff _ _
+    (rightDerivStieltjes_eq_bot_iff_of_xmin_eq hxmin h_deriv)
+    fun x ↦ by rw [rightDerivStieltjes_eq_top_iff, rightDerivStieltjes_eq_top_iff, hxmax],
+    Measure.map_add _ _ ENNReal.measurable_ofReal]
+
+/-- The curvature measure of `c • f` is `c` times the curvature measure of `f`, for `c ≠ 0`. For
+`c = 0`, `0 • f = 0` and the curvature measure of `0` is not `0`: it has an infinite atom at `0`. -/
+lemma curvatureMeasure_smul {c : ℝ≥0} (hc : c ≠ 0) :
+    (c • f).curvatureMeasure = c • f.curvatureMeasure := by
+  simp_rw [curvatureMeasure]
+  rw [rightDerivStieltjes_smul hc, ERealStieltjes.measure_smul,
+    Measure.map_smul _ ENNReal.measurable_ofReal.aemeasurable]
 
 section ConvexTaylor
 

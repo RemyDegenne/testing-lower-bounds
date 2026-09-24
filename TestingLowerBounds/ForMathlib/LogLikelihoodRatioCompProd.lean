@@ -8,12 +8,15 @@ module
 public import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
 public import Mathlib.MeasureTheory.Measure.LogLikelihoodRatio
 public import Mathlib.InformationTheory.KullbackLeibler.ChainRule
-public import TestingLowerBounds.FDiv.CompProd
-public import TestingLowerBounds.FDiv.Measurable
+public import TestingLowerBounds.CompProd
 
 /-! # Log-likelihood ratio of composition-products
 
-Integrability of the log-likelihood ratio of `μ ⊗ₘ κ` with respect to `ν ⊗ₘ η`.
+Integrability of the log-likelihood ratio of `μ ⊗ₘ κ` with respect to `ν ⊗ₘ η`, in terms of the
+log-likelihood ratios of `μ` with respect to `ν` and of `κ a` with respect to `η a`
+(`integrable_llr_compProd_iff`). Compare with Mathlib's
+`InformationTheory.integrable_llr_compProd_iff`, which is stated with the log-likelihood ratio of
+`μ ⊗ₘ κ` with respect to `μ ⊗ₘ η`.
 -/
 
 @[expose] public section
@@ -146,62 +149,5 @@ lemma integrable_llr_compProd_iff [CountableOrCountablyGenerated α β] [IsMarko
     integrable_integral_llr_of_integrable_llr_compProd h_ac h⟩,
     ae_integrable_llr_of_integrable_llr_compProd h_ac h⟩,
     fun h ↦ integrable_llr_compProd_of_integrable_llr h_ac h.1.1 h.1.2 h.2⟩
-
-lemma Kernel.integrable_llr_compProd_iff [CountableOrCountablyGenerated β γ]
-    {κ₁ η₁ : Kernel α β} [IsFiniteKernel κ₁] [IsFiniteKernel η₁]
-    {κ₂ η₂ : Kernel (α × β) γ} [IsMarkovKernel κ₂] [IsMarkovKernel η₂]
-    (a : α) (h_ac : (κ₁ ⊗ₖ κ₂) a ≪ (η₁ ⊗ₖ η₂) a) :
-    Integrable (llr ((κ₁ ⊗ₖ κ₂) a) ((η₁ ⊗ₖ η₂) a)) ((κ₁ ⊗ₖ κ₂) a)
-      ↔ Integrable (llr (κ₁ a) (η₁ a)) (κ₁ a)
-        ∧ Integrable (fun b ↦ ∫ x, (llr (κ₂ (a, b)) (η₂ (a, b)) x) ∂(κ₂ (a, b))) (κ₁ a)
-        ∧ ∀ᵐ b ∂κ₁ a, Integrable (llr (κ₂ (a, b)) (η₂ (a, b))) (κ₂ (a, b)) := by
-  simp_rw [Kernel.compProd_apply_eq_compProd_sectR] at h_ac
-  simp_rw [Kernel.compProd_apply_eq_compProd_sectR,
-    ProbabilityTheory.integrable_llr_compProd_iff h_ac, Kernel.sectR_apply]
-  by_cases h_int₁ : Integrable (llr (κ₁ a) (η₁ a)) (κ₁ a)
-  swap
-  · tauto
-  by_cases h_int₂ : ∀ᵐ b ∂κ₁ a, Integrable (llr (κ₂ (a, b)) (η₂ (a, b))) (κ₂ (a, b))
-  swap
-  · tauto
-  simp only [h_int₁, true_and, h_int₂, and_true]
-
-/- this lemma actually doesn't pertain the compProd, but for now I am still leaving it here,
-maybe when we put things in mathlib this could go in the basic file about llr,
-or maybe it still needs to go in a separate file, since it needs the definition of kernel,
-which now is not imported in the llr file -/
-lemma measurableSet_integrable_llr [CountableOrCountablyGenerated α β]
-    (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
-    MeasurableSet {a | Integrable (fun b ↦ ((∂κ a/∂η a) b).toReal * llr (κ a) (η a) b) (η a)} := by
-  simp_rw [llr_def]
-  suffices MeasurableSet {a |
-      Integrable (fun b ↦ (κ.rnDeriv η a b).toReal * log (κ.rnDeriv η a b).toReal) (η a)} by
-    convert this using 3
-    refine integrable_congr ?_
-    filter_upwards [κ.rnDeriv_eq_rnDeriv_measure] with b hb
-    rw [hb]
-  refine measurableSet_kernel_integrable ?_
-  exact continuous_mul_log.stronglyMeasurable.comp_measurable
-    (κ.measurable_rnDeriv η).ennreal_toReal
-
-lemma ae_compProd_integrable_llr_iff [CountableOrCountablyGenerated (α × β) γ] [SFinite μ]
-    {ξ : Kernel α β} [IsSFiniteKernel ξ]
-    {κ η : Kernel (α × β) γ} [IsFiniteKernel κ] [IsFiniteKernel η]
-    (h_ac : ∀ᵐ (x : α × β) ∂μ ⊗ₘ ξ, κ x ≪ η x) :
-    (∀ᵐ (x : α × β) ∂μ ⊗ₘ ξ, Integrable (llr (κ x) (η x)) (κ x))
-      ↔ ∀ᵐ a ∂μ, ∀ᵐ b ∂ξ a, Integrable (llr (κ (a, b)) (η (a, b))) (κ (a, b)) :=
-  calc (∀ᵐ x ∂μ ⊗ₘ ξ, Integrable (llr (κ x) (η x)) (κ x))
-  _ ↔ ∀ᵐ a ∂μ ⊗ₘ ξ, Integrable (fun x ↦ ((∂κ a/∂η a) x).toReal * llr (κ a) (η a) x) (η a) := by
-    apply Filter.eventually_congr
-    filter_upwards [h_ac] with a ha using (integrable_rnDeriv_smul_iff ha).symm
-  _ ↔ ∀ᵐ a ∂μ, ∀ᵐ b ∂ξ a, Integrable
-      (fun x ↦ ((∂κ (a, b)/∂η (a, b)) x).toReal * llr (κ (a, b)) (η (a, b)) x) (η (a, b)) :=
-    Kernel.ae_compProd_iff (measurableSet_integrable_llr κ η)
-  _ ↔ ∀ᵐ a ∂μ, ∀ᵐ b ∂ξ a, Integrable (llr (κ (a, b)) (η (a, b))) (κ (a, b)) := by
-    apply Filter.eventually_congr
-    rw [Measure.ae_compProd_iff (κ.measurableSet_absolutelyContinuous _)] at h_ac
-    filter_upwards [h_ac] with a ha
-    apply Filter.eventually_congr
-    filter_upwards [ha] with b hb using (integrable_rnDeriv_smul_iff hb)
 
 end ProbabilityTheory

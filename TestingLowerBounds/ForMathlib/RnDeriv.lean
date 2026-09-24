@@ -6,11 +6,17 @@ Authors: Rémy Degenne, Lorenzo Luccioli
 module
 
 public import Mathlib.MeasureTheory.Measure.Decomposition.RadonNikodym
-public import Mathlib.MeasureTheory.Function.ConditionalExpectation.Basic
-public import Mathlib.MeasureTheory.Function.ConditionalExpectation.RadonNikodym
 public import Mathlib.MeasureTheory.Measure.LogLikelihoodRatio
 
 /-!
+# Radon-Nikodym derivatives and Lebesgue decomposition
+
+* `singularPartSet μ ν`: a measurable set on which the singular part of `μ` with respect to `ν` is
+  concentrated, and which is `ν`-null (`restrict_singularPartSet_eq_singularPart`,
+  `measure_singularPartSet`).
+* `rnDeriv_eq_inv_rnDeriv_of_ne_zero`, `lintegral_eq_add_singularPart_withDensity`: change of
+  measure between `μ` and `ν`, used to exchange the roles of the two measures.
+* `exp_mul_llr_of_ac`, `exp_mul_llr_of_ac'`: `exp (a * llr μ ν) = (∂μ/∂ν) ^ a` almost everywhere.
 
 -/
 
@@ -83,16 +89,6 @@ lemma restrict_compl_singularPartSet_eq_withDensity
     zero_add]
   refine restrict_eq_self_of_ae_mem ?_
   exact compl_mem_ae_iff.2 (withDensity_absolutelyContinuous ν _ (measure_singularPartSet μ ν))
-
-lemma measure_inter_compl_singularPartSet (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν]
-    {t : Set α} (ht : MeasurableSet t) :
-    μ (t ∩ (singularPartSet μ ν)ᶜ) = ∫⁻ x in t, μ.rnDeriv ν x ∂ν := by
-  rw [← restrict_apply ht, restrict_compl_singularPartSet_eq_withDensity, withDensity_apply _ ht]
-
-example [SigmaFinite μ] [SigmaFinite ν] :
-    μ (singularPartSet μ ν) = μ.singularPart ν .univ := by
-  rw [← restrict_singularPartSet_eq_singularPart]
-  simp only [MeasurableSet.univ, restrict_apply, Set.univ_inter]
 
 lemma rnDeriv_eq_zero_ae_of_singularPartSet (μ ν ξ : Measure α) [SigmaFinite μ] [SigmaFinite ν] :
     ∀ᵐ x ∂ξ, x ∈ μ.singularPartSet ν → (ν.rnDeriv ξ) x = 0 :=

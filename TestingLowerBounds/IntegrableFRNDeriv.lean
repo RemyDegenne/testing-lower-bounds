@@ -11,7 +11,11 @@ public import TestingLowerBounds.ForMathlib.RnDeriv
 public import Mathlib.MeasureTheory.Measure.Decomposition.IntegralRNDeriv
 
 /-!
-# An integrability lemma
+# Integrability of `f ∘ ∂μ/∂ν`
+
+For finite measures `μ, ν` and a convex function `f` on `[0, ∞)` with `derivAtTop f ≠ ⊤`, the
+function `x ↦ f (∂μ/∂ν x).toReal` is `ν`-integrable (`integrable_f_rnDeriv_of_derivAtTop_ne_top`):
+it lies between an affine function of `∂μ/∂ν` and `f 0 + (derivAtTop f).toReal * ∂μ/∂ν`.
 
 -/
 
