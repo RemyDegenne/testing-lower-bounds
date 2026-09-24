@@ -8,7 +8,11 @@ module
 public import TestingLowerBounds.FDiv.FDivEqIntegral
 
 /-!
-# fDiv and StatInfo
+# Data processing inequality for f-divergences, through the statistical information
+
+The DPI for the statistical information gives the DPI for the f-divergences of the functions
+`statInfoDivFun β γ`, hence for every f-divergence through the integral representation
+`fDiv_eq_lintegral_fDiv_statInfoFun`. The main result is `fDiv_comp_right_le'`.
 
 -/
 
@@ -42,7 +46,7 @@ lemma fDiv_statInfoFun_comp_right_le [IsFiniteMeasure μ] [IsFiniteMeasure ν]
   exact toReal_fDiv_statInfoFun_comp_right_le η hβ
 
 -- The name is `fDiv_comp_right_le'`, since there is already `fDiv_comp_right_le`
--- in the `fDiv.CompProd` file.
+-- in the `FDiv.CompProd` file.
 /-- **Data processing inequality** for the f-divergence. -/
 theorem fDiv_comp_right_le' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (η : Kernel 𝒳 𝒳') [IsMarkovKernel η] :
@@ -74,21 +78,14 @@ lemma le_fDiv_compProd' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
   nth_rw 1 [← Measure.fst_compProd μ κ, ← Measure.fst_compProd ν η]
   exact fDiv_fst_le' _ _
 
-lemma fDiv_compProd_right' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (κ : Kernel 𝒳 𝒳') [IsMarkovKernel κ] :
-    fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ κ) = fDiv f μ ν := by
-  refine le_antisymm ?_ (le_fDiv_compProd' κ κ)
-  simp_rw [Measure.compProd_eq_comp_prod]
-  exact fDiv_comp_right_le' _
-
 lemma fDiv_comp_le_compProd' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (κ η : Kernel 𝒳 𝒳') [IsMarkovKernel κ] [IsMarkovKernel η] :
+    (κ η : Kernel 𝒳 𝒳') [IsFiniteKernel κ] [IsFiniteKernel η] :
     fDiv f (κ ∘ₘ μ) (η ∘ₘ ν) ≤ fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ η) := by
   nth_rw 1 [← Measure.snd_compProd μ κ, ← Measure.snd_compProd ν η]
   exact fDiv_snd_le' _ _
 
 lemma fDiv_comp_le_compProd_right' [IsFiniteMeasure μ]
-    (κ η : Kernel 𝒳 𝒳') [IsMarkovKernel κ] [IsMarkovKernel η] :
+    (κ η : Kernel 𝒳 𝒳') [IsFiniteKernel κ] [IsFiniteKernel η] :
     fDiv f (κ ∘ₘ μ) (η ∘ₘ μ) ≤ fDiv f (μ ⊗ₘ κ) (μ ⊗ₘ η) :=
   fDiv_comp_le_compProd' κ η
 

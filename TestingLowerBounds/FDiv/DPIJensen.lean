@@ -5,7 +5,7 @@ Authors: Rémy Degenne
 -/
 module
 
-public import TestingLowerBounds.FDiv.CompProd.CompProd
+public import TestingLowerBounds.FDiv.CompProd
 public import TestingLowerBounds.FDiv.Trim
 
 /-!
@@ -56,29 +56,12 @@ lemma fDiv_comp_le_compProd'' (μ ν : Measure α) [IsFiniteMeasure μ] [IsFinit
   simp_rw [← Measure.snd_compProd]
   exact fDiv_snd_le'' _ _
 
-lemma fDiv_comp_le_compProd_right (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (κ : Kernel α β) [IsFiniteKernel κ] :
-    fDiv f (κ ∘ₘ μ) (κ ∘ₘ ν) ≤ fDiv f (μ ⊗ₘ κ) (ν ⊗ₘ κ) :=
-  fDiv_comp_le_compProd'' μ ν κ κ
-
 /-- The **Data Processing Inequality** for the f-divergence, proved through Jensen's inequality
 for conditional expectations. Compare with `fDiv_comp_right_le`, which is proved through the
 disintegration of the composition-product and needs `StandardBorelSpace α`. -/
 theorem fDiv_comp_right_le'' (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ : Kernel α β) [IsMarkovKernel κ] :
     fDiv f (κ ∘ₘ μ) (κ ∘ₘ ν) ≤ fDiv f μ ν :=
-  (fDiv_comp_le_compProd_right μ ν κ).trans_eq (fDiv_compProd_right μ ν κ)
-
--- todo: unused.
-/-- To prove the DPI for an f-divergence, it suffices to prove it under an absolute continuity
-hypothesis. -/
-lemma fDiv_comp_le_of_comp_le_of_ac [IsFiniteMeasure ν] (κ : Kernel α β) [IsMarkovKernel κ]
-    (h : ∀ μ : Measure α, IsFiniteMeasure μ → μ ≪ ν → fDiv f (κ ∘ₘ μ) (κ ∘ₘ ν) ≤ fDiv f μ ν)
-    (μ : Measure α) [IsFiniteMeasure μ] :
-    fDiv f (κ ∘ₘ μ) (κ ∘ₘ ν) ≤ fDiv f μ ν := by
-  conv_lhs => rw [← Measure.rnDeriv_add_singularPart μ ν, Measure.comp_add]
-  refine (fDiv_add_measure_le _ _ _).trans ?_
-  rw [fDiv_eq_add_withDensity_derivAtTop μ ν, Measure.comp_apply_univ]
-  exact add_le_add (h _ inferInstance (withDensity_absolutelyContinuous _ _)) le_rfl
+  (fDiv_comp_le_compProd'' μ ν κ κ).trans_eq (fDiv_compProd_left μ ν κ)
 
 end ProbabilityTheory

@@ -529,59 +529,6 @@ lemma setIntegral_Ioc_curvatureMeasureReal {E : Type*} [NormedAddCommGroup E] [N
       = ∫ x in Ioc (ENNReal.ofReal a) (ENNReal.ofReal b), g x.toReal ∂f.curvatureMeasure := by
   rw [setIntegral_curvatureMeasureReal f hg measurableSet_Ioc, ENNReal.preimage_toReal_Ioc h]
 
-lemma integrable_curvatureMeasureReal_sub_iff_ne_top_of_ge (hf : rightDeriv f.realFun 1 = 0)
-    {b : ℝ} (hb : 1 ≤ b) :
-    IntegrableOn (fun x ↦ b - x) (Ioc 1 b) f.curvatureMeasureReal ↔ f (ENNReal.ofReal b) ≠ ∞ := by
-  have : EqOn (fun x ↦ b - x) (fun x ↦ (ENNReal.ofReal b - ENNReal.ofReal x).toReal)
-      (Ioc 1 b) := by
-    intro x hx
-    simp only
-    rw [ENNReal.toReal_sub_of_le _ ENNReal.ofReal_ne_top, ENNReal.toReal_ofReal,
-      ENNReal.toReal_ofReal]
-    · exact zero_le_one.trans hx.1.le
-    · positivity
-    · exact ENNReal.ofReal_le_ofReal hx.2
-  rw [integrableOn_congr_fun this measurableSet_Ioc, IntegrableOn, integrable_toReal_iff]
-  rotate_left
-  · exact Measurable.aemeasurable (by fun_prop)
-  · refine ae_of_all _ fun x ↦ (tsub_le_self.trans_lt ENNReal.ofReal_lt_top).ne
-  rw [setLIntegral_Ioc_curvatureMeasureReal f (by fun_prop) zero_le_one, ENNReal.ofReal_one]
-  have : ∫⁻ x in Ioc 1 (ENNReal.ofReal b),
-        ENNReal.ofReal b - ENNReal.ofReal x.toReal ∂f.curvatureMeasure
-      = ∫⁻ x in Ioc 1 (ENNReal.ofReal b), ENNReal.ofReal b - x ∂f.curvatureMeasure := by
-    refine setLIntegral_congr_fun_ae measurableSet_Ioc <| ae_of_all _ fun x hx ↦ ?_
-    rw [ENNReal.ofReal_toReal]
-    refine (hx.2.trans_lt ?_).ne
-    exact ENNReal.ofReal_lt_top
-  rw [this, convex_taylor_one_right hf (ENNReal.one_le_ofReal.mpr hb) ENNReal.ofReal_ne_top]
-
-lemma integrable_curvatureMeasureReal_sub_iff_ne_top_of_le (hf : rightDeriv f.realFun 1 = 0)
-    {b : ℝ} (hb_nonneg : 0 ≤ b) (hb : b ≤ 1) :
-    IntegrableOn (fun x ↦ x - b) (Ioc b 1) f.curvatureMeasureReal ↔ f (ENNReal.ofReal b) ≠ ∞ := by
-  have : EqOn (fun x ↦ x - b) (fun x ↦ (ENNReal.ofReal x - ENNReal.ofReal b).toReal)
-      (Ioc b 1) := by
-    intro x hx
-    simp only
-    rw [ENNReal.toReal_sub_of_le _ ENNReal.ofReal_ne_top, ENNReal.toReal_ofReal,
-      ENNReal.toReal_ofReal]
-    · positivity
-    · exact hb_nonneg.trans hx.1.le
-    · exact ENNReal.ofReal_le_ofReal hx.1.le
-  rw [integrableOn_congr_fun this measurableSet_Ioc, IntegrableOn, integrable_toReal_iff]
-  rotate_left
-  · exact Measurable.aemeasurable (by fun_prop)
-  · refine ae_of_all _ fun x ↦ (tsub_le_self.trans_lt ENNReal.ofReal_lt_top).ne
-  rw [setLIntegral_Ioc_curvatureMeasureReal f (by fun_prop) hb_nonneg, ENNReal.ofReal_one]
-  have : ∫⁻ x in Ioc (ENNReal.ofReal b) 1,
-        ENNReal.ofReal x.toReal - ENNReal.ofReal b ∂f.curvatureMeasure
-      = ∫⁻ x in Ioc (ENNReal.ofReal b) 1, x - ENNReal.ofReal b ∂f.curvatureMeasure := by
-    refine setLIntegral_congr_fun_ae measurableSet_Ioc <| ae_of_all _ fun x hx ↦ ?_
-    rw [ENNReal.ofReal_toReal]
-    refine (hx.2.trans_lt ?_).ne
-    exact ENNReal.one_lt_top
-  rw [this, convex_taylor_one_left hf]
-  simp [hb]
-
 theorem convex_taylor_one_right_real (hf : rightDeriv f.realFun 1 = 0) {b : ℝ} (hb : 1 ≤ b) :
     f.realFun b = ∫ x in Ioc 1 b, b - x ∂f.curvatureMeasureReal := by
   rw [← ENNReal.ofReal_eq_ofReal_iff]

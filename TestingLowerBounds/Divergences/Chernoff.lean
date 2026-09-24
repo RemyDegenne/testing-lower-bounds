@@ -12,8 +12,8 @@ public import TestingLowerBounds.Divergences.Renyi.Renyi
 
 ## Main definitions
 
-* `chernoffDiv a μ ν`: the Chernoff divergence, `⨅ ξ, max (klDiv ξ μ) (klDiv ξ ν)` over
-  probability measures `ξ`.
+* `chernoffDiv a μ ν`: the Chernoff divergence of order `a`,
+  `⨅ ξ, max (renyiDiv a ξ μ) (renyiDiv a ξ ν)` over probability measures `ξ`.
 
 ## Main statements
 

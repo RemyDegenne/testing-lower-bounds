@@ -176,7 +176,7 @@ def conj (f : DivFunction) : DivFunction where
   convexOn' := convexOn_conjFun
   continuous' := continuous_conjFun
 
-@[simp] lemma conj_apply (f : DivFunction) (x : ℝ≥0∞) :
+lemma conj_apply (f : DivFunction) (x : ℝ≥0∞) :
     f.conj x = if x = 0 then f.derivAtTop else x * f x⁻¹ := rfl
 
 lemma conj_of_ne_zero {x : ℝ≥0∞} (hx : x ≠ 0) : f.conj x = x * f x⁻¹ := conjFun_of_ne_zero hx

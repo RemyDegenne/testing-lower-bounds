@@ -80,4 +80,11 @@ lemma exists_nnreal_smul_add_eq {x y z : ℝ≥0∞} (hy : y ≠ ∞) (hxz : x �
     field_simp
     ring
 
+/-- The truncated subtraction of finite extended nonnegative reals, as a real number. -/
+lemma toReal_sub_eq_max_zero {a b : ℝ≥0∞} (ha : a ≠ ∞) (hb : b ≠ ∞) :
+    (a - b).toReal = max 0 (a.toReal - b.toReal) := by
+  rcases le_total a b with h | h
+  · rw [tsub_eq_zero_of_le h, toReal_zero, max_eq_left (sub_nonpos.2 (toReal_mono hb h))]
+  · rw [toReal_sub_of_le h ha, max_eq_right (sub_nonneg.2 (toReal_mono ha h))]
+
 end ENNReal

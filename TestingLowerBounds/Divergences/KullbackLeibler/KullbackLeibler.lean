@@ -9,6 +9,7 @@ public import Mathlib.InformationTheory.KullbackLeibler.DataProcessing
 public import TestingLowerBounds.Divergences.KullbackLeibler.KLDivFun
 public import TestingLowerBounds.FDiv.Basic
 public import TestingLowerBounds.FDiv.DPIJensen
+public import TestingLowerBounds.FDiv.Measurable
 
 /-!
 # Kullback-Leibler divergence
@@ -19,6 +20,8 @@ This file relates it to the f-divergence for the divergence function `klDivFun`.
 ## Main statements
 
 * `klDiv_eq_fDiv`: `klDiv μ ν = fDiv klDivFun μ ν`
+* `klDiv_fst_le`, `klDiv_snd_le`, `le_klDiv_compProd`, `klDiv_comp_le_compProd`: data-processing
+  inequalities, from Mathlib's `klDiv_map_le`.
 
 -/
 
@@ -32,26 +35,11 @@ namespace ProbabilityTheory
 
 variable {α : Type*} {mα : MeasurableSpace α} {μ ν : Measure α}
 
-lemma fDiv_klDivFun_eq_top_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
-    fDiv klDivFun μ ν = ∞ ↔ μ ≪ ν → ¬ Integrable (llr μ ν) μ := by
-  rw [fDiv_eq_top_iff]
-  simp only [derivAtTop_klDivFun, true_and]
-  by_cases hμν : μ ≪ ν
-  · rw [lintegral_klDivFun_eq_top_iff hμν]
-    tauto
-  · simp [hμν]
-
 lemma klDiv_eq_fDiv [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     klDiv μ ν = fDiv klDivFun μ ν := by
   classical
-  by_cases hμν : μ ≪ ν
-  swap; · rw [fDiv_of_not_ac derivAtTop_klDivFun hμν, klDiv_of_not_ac hμν]
-  by_cases h_int : Integrable (llr μ ν) μ
-  · rw [fDiv_of_derivAtTop_eq_top derivAtTop_klDivFun, klDiv_of_ac_of_integrable hμν h_int,
-      ite_eq_left hμν]
-    exact (lintegral_klDivFun_eq_integral hμν h_int).symm
-  · rw [klDiv_of_not_integrable h_int, fDiv_of_lintegral_eq_top]
-    exact lintegral_klDivFun_of_not_integrable hμν h_int
+  rw [klDiv_eq_lintegral_klFun, fDiv_of_derivAtTop_eq_top derivAtTop_klDivFun,
+    lintegral_klDivFun_rnDeriv]
 
 lemma measurable_klDiv {β : Type*} [MeasurableSpace β] [CountableOrCountablyGenerated α β]
     (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
@@ -175,11 +163,23 @@ section DataProcessingInequality
 
 variable {β : Type*} {mβ : MeasurableSpace β} {κ η : Kernel α β}
 
+lemma klDiv_fst_le (μ ν : Measure (α × β)) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
+    klDiv μ.fst ν.fst ≤ klDiv μ ν :=
+  klDiv_map_le μ ν measurable_fst
+
+lemma klDiv_snd_le (μ ν : Measure (α × β)) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
+    klDiv μ.snd ν.snd ≤ klDiv μ ν :=
+  klDiv_map_le μ ν measurable_snd
+
+lemma le_klDiv_compProd (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (κ η : Kernel α β) [IsMarkovKernel κ] [IsMarkovKernel η] :
+    klDiv μ ν ≤ klDiv (μ ⊗ₘ κ) (ν ⊗ₘ η) := by
+  simpa using klDiv_fst_le (μ ⊗ₘ κ) (ν ⊗ₘ η)
+
 lemma klDiv_comp_le_compProd (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
     klDiv (κ ∘ₘ μ) (η ∘ₘ ν) ≤ klDiv (μ ⊗ₘ κ) (ν ⊗ₘ η) := by
-  simp_rw [klDiv_eq_fDiv]
-  exact fDiv_comp_le_compProd'' μ ν κ η
+  simpa using klDiv_snd_le (μ ⊗ₘ κ) (ν ⊗ₘ η)
 
 end DataProcessingInequality
 

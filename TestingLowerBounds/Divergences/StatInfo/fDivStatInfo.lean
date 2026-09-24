@@ -15,7 +15,10 @@ public import TestingLowerBounds.FDiv.DivFunction.CurvatureMeasure
 public import TestingLowerBounds.FDiv.Basic
 
 /-!
-# fDiv and StatInfo
+# f-divergences of the functions `statInfoDivFun β γ`
+
+The f-divergence for the function `statInfoDivFun β γ` is, up to an explicit correction term, the
+statistical information for the prior `boolMeasure β γ` (`fDiv_statInfoFun_eq_StatInfo_of_nonneg`).
 
 -/
 
@@ -44,10 +47,6 @@ lemma measurable_fDiv_statInfoFun (μ ν : Measure 𝒳) [SigmaFinite μ] [SFini
     apply Measurable.ite (measurableSet_le measurable_const measurable_fst)
       <;> refine Measurable.ite (measurableSet_le measurable_snd measurable_fst) ?_ ?_ <;> fun_prop
 
-lemma stronglyMeasurable_fDiv_statInfoFun (μ ν : Measure 𝒳) [SigmaFinite μ] [SFinite ν] :
-    StronglyMeasurable (Function.uncurry fun β γ ↦ fDiv (statInfoDivFun β γ) μ ν) :=
-  (measurable_fDiv_statInfoFun μ ν).stronglyMeasurable
-
 section FDivStatInfo
 
 lemma fDiv_statInfoFun_eq_integral_add [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
@@ -59,12 +58,6 @@ lemma fDiv_statInfoFun_eq_integral_add [IsFiniteMeasure μ] [IsFiniteMeasure ν]
   · exact fun _ _ ↦ statInfoFun_nonneg _ _ _
   · exact continuousWithinAt_statInfoFun_zero
   · exact integrable_statInfoFun_rnDeriv _ _ _ _
-
-lemma fDiv_statInfoFun_eq_integral_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hμν : μ ≪ ν) :
-    fDiv (statInfoDivFun β γ) μ ν
-      = ENNReal.ofReal (∫ x, statInfoFun β γ ((∂μ/∂ν) x).toReal ∂ν) := by
-  rw [fDiv_statInfoFun_eq_integral_add, Measure.singularPart_eq_zero_of_ac hμν]
-  simp
 
 lemma fDiv_statInfoFun_eq_lintegral_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hμν : μ ≪ ν) :
     fDiv (statInfoDivFun β γ) μ ν
@@ -80,7 +73,7 @@ lemma toReal_fDiv_statInfoFun_eq_integral_add [IsFiniteMeasure μ] [IsFiniteMeas
       = ∫ x, statInfoFun β γ ((∂μ/∂ν) x).toReal ∂ν
         + (statInfoDivFun β γ).derivAtTop.toReal * (μ.singularPart ν univ).toReal := by
   unfold statInfoDivFun
-  rw [toReal_fDiv_ofReal_eq_integral_add']
+  rw [toReal_fDiv_ofReal_eq_integral_add]
   · exact fun _ _ ↦ statInfoFun_nonneg _ _ _
   · exact continuousWithinAt_statInfoFun_zero
   · exact integrable_statInfoFun_rnDeriv _ _ _ _

@@ -60,8 +60,8 @@ variable {α : Type*} {mα : MeasurableSpace α} {μ ν : Measure α} {a : ℝ}
 
 section IntegralRPowRnDeriv
 
--- todo: rename and move.
-lemma integral_rpow_rnDeriv (ha_pos : 0 < a) (ha : a ≠ 1) [SigmaFinite μ] [SigmaFinite ν] :
+/-- Symmetry of the Hellinger integral: `∫ (∂μ/∂ν)^a ∂ν = ∫ (∂ν/∂μ)^(1 - a) ∂μ`. -/
+lemma integral_rpow_rnDeriv_symm (ha_pos : 0 < a) (ha : a ≠ 1) [SigmaFinite μ] [SigmaFinite ν] :
     ∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν = ∫ x, ((∂ν/∂μ) x).toReal ^ (1 - a) ∂μ := by
   let p := ∂μ/∂(μ + ν)
   let q := ∂ν/∂(μ + ν)
@@ -204,6 +204,45 @@ lemma integral_rpow_rnDeriv_smul_right [SigmaFinite μ] [SigmaFinite ν] (c : �
   rw [rpow_sub, rpow_one, div_eq_mul_inv]
   exact NNReal.coe_pos.mpr <| pos_iff_ne_zero.mpr hc
 
+lemma integral_rpow_rnDeriv_eq_integral_rpow_sub_one (ha_pos : 0 < a) (ha_ne : a ≠ 1)
+    [SigmaFinite μ] [SigmaFinite ν] (h_ac : μ ≪ ν) :
+    ∫ x, (μ.rnDeriv ν x).toReal ^ a ∂ν = ∫ x, (μ.rnDeriv ν x).toReal ^ (a - 1) ∂μ := by
+  rw [integral_rpow_rnDeriv_symm ha_pos ha_ne]
+  refine integral_congr_ae ?_
+  filter_upwards [Measure.inv_rnDeriv h_ac] with x hx
+  rw [← hx, Pi.inv_apply, ENNReal.toReal_inv, inv_rpow ENNReal.toReal_nonneg,
+    ← rpow_neg ENNReal.toReal_nonneg, neg_sub]
+
+lemma integral_rpow_rnDeriv_smul_left' [SigmaFinite μ] [SigmaFinite ν] {c : ℝ≥0∞} (hc : c ≠ ∞) :
+    ∫ x, ((∂(c • μ)/∂ν) x).toReal ^ a ∂ν = c.toReal ^ a * ∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν := by
+  lift c to ℝ≥0 using hc
+  rw [← ENNReal.smul_def, ENNReal.coe_toReal]
+  exact integral_rpow_rnDeriv_smul_left c
+
+lemma integral_rpow_rnDeriv_smul_right' [SigmaFinite μ] [SigmaFinite ν] {c : ℝ≥0∞} (hc : c ≠ ∞)
+    (ha : c = 0 → a ≠ 1) :
+    ∫ x, ((∂μ/∂(c • ν)) x).toReal ^ a ∂(c • ν)
+      = c.toReal ^ (1 - a) * ∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν := by
+  lift c to ℝ≥0 using hc
+  rw [← ENNReal.smul_def, ENNReal.coe_toReal]
+  exact integral_rpow_rnDeriv_smul_right c fun h ↦ ha (by simp [h])
+
+/-- `∫ (∂μ/∂ν)^a ∂ν` is `μ(univ)^a * ν(univ)^(1 - a)` times its value for the normalized
+measures. -/
+lemma integral_rpow_rnDeriv_eq_mul_integral_rpow_rnDeriv_inv_smul (ha_ne : a ≠ 1)
+    [IsFiniteMeasure μ] [IsFiniteMeasure ν] [NeZero μ] [NeZero ν] :
+    ∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν
+      = (μ .univ).toReal ^ a * (ν .univ).toReal ^ (1 - a)
+        * ∫ x, ((∂((μ .univ)⁻¹ • μ)/∂((ν .univ)⁻¹ • ν)) x).toReal ^ a ∂((ν .univ)⁻¹ • ν) := by
+  have hm : 0 < (μ .univ).toReal := ENNReal.toReal_pos (NeZero.ne _) (measure_ne_top _ _)
+  have hn : 0 < (ν .univ).toReal := ENNReal.toReal_pos (NeZero.ne _) (measure_ne_top _ _)
+  rw [integral_rpow_rnDeriv_smul_right' (ENNReal.inv_ne_top.mpr (NeZero.ne _)) (fun _ ↦ ha_ne),
+    integral_rpow_rnDeriv_smul_left' (ENNReal.inv_ne_top.mpr (NeZero.ne _)),
+    ENNReal.toReal_inv, ENNReal.toReal_inv, inv_rpow hn.le, inv_rpow hm.le]
+  have h1 : (μ .univ).toReal ^ a ≠ 0 := (rpow_pos_of_pos hm a).ne'
+  have h2 : (ν .univ).toReal ^ (1 - a) ≠ 0 := (rpow_pos_of_pos hn _).ne'
+  field_simp
+
 /-- Slope of `a ↦ x ^ a` between `a` and `1` is bounded by `2 + x * |log x|`, for `a ∈ [1/2, 1)`. -/
 lemma abs_mul_rpow_sub_le {x : ℝ} (hx : 0 ≤ x) (ha : 2⁻¹ ≤ a) (ha1 : a < 1) :
     |(a - 1)⁻¹ * (x ^ a - x)| ≤ 2 + x * |log x| := by
@@ -326,17 +365,6 @@ lemma tendsto_mul_log_integral_rpow_rnDeriv [IsProbabilityMeasure μ] [IsProbabi
       (𝓝 (∫ x, llr μ ν x ∂μ)) := by
   simpa using tendsto_mul_log_integral_rpow_rnDeriv' hμν h_int
 
-lemma tendsto_mul_log_integral_rpow_rnDeriv'' [IsFiniteMeasure μ] [IsFiniteMeasure ν] [NeZero μ]
-    (hμν : μ ≪ ν) (h_int : Integrable (llr μ ν) μ) :
-    Tendsto (fun a ↦ (a - 1)⁻¹ * log (∫ x, ((∂μ/∂ν) x).toReal ^ a ∂ν)
-                    - (a - 1)⁻¹ * (a * log (μ .univ).toReal + (1 - a) * log (ν .univ).toReal))
-      (𝓝[<] 1)
-      (𝓝 ((μ .univ).toReal⁻¹ * ((klDiv μ ν).toReal + (μ .univ).toReal - (ν .univ).toReal)
-            - log ((μ .univ).toReal / (ν .univ).toReal))) := by
-  rw [toReal_klDiv hμν h_int, measureReal_def, measureReal_def]
-  convert tendsto_mul_log_integral_rpow_rnDeriv' hμν h_int
-  ring
-
 end IntegralRPowRnDeriv
 
 section HellingerFun
@@ -356,10 +384,6 @@ lemma hellingerFun_zero : hellingerFun 0 = fun x ↦ if x = 0 then 1 else 0 := b
   ext x
   simp [hellingerFun]
 
-lemma hellingerFun_zero' : hellingerFun 0 = fun x ↦ 0 ^ x := by
-  ext x
-  by_cases h : x = 0 <;> simp [hellingerFun, h]
-
 lemma hellingerFun_zero'' : hellingerFun 0 = Set.indicator {0} 1 := by
   ext x
   by_cases h : x = 0 <;> simp [hellingerFun_zero, h]
@@ -373,10 +397,6 @@ lemma hellingerFun_of_ne_zero_of_ne_one (ha_zero : a ≠ 0) (ha_one : a ≠ 1) :
     hellingerFun a = fun x ↦ (a - 1)⁻¹ * (x ^ a - 1 - a * (x - 1)) := by
   ext x
   simp [hellingerFun, ha_zero, ha_one]
-
-lemma continuous_rpow_const (ha_nonneg : 0 ≤ a) : Continuous fun (x : ℝ) ↦ x ^ a := by
-  rw [continuous_iff_continuousAt]
-  exact fun _ ↦ continuousAt_rpow_const _ _ (Or.inr ha_nonneg)
 
 lemma continuous_hellingerFun (ha_pos : 0 < a) : Continuous (hellingerFun a) := by
   by_cases ha_eq : a = 1
@@ -550,12 +570,6 @@ lemma derivAtTop_hellingerFun_of_lt_one (ha : a < 1) :
     derivAtTop (hellingerFun a) = (a * (1 - a)⁻¹) :=
   derivAtTop_of_tendsto_nhds <| tendsto_rightDeriv_hellingerFun_atTop_of_lt_one ha
 
-lemma integrable_hellingerFun_one_iff [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hμν : μ ≪ ν) :
-    Integrable (fun x ↦ hellingerFun 1 ((∂μ/∂ν) x).toReal) ν
-      ↔ Integrable (llr μ ν) μ := by
-  simp only [hellingerFun_one]
-  exact integrable_klFun_rnDeriv_iff hμν
-
 lemma integrable_hellingerFun_iff_integrable_rpow (ha_one : a ≠ 1)
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     Integrable (fun x ↦ hellingerFun a ((∂μ/∂ν) x).toReal) ν
@@ -573,11 +587,6 @@ lemma integrable_hellingerFun_iff_integrable_rpow (ha_one : a ≠ 1)
   rw [integrable_add_iff_integrable_left']
   refine (integrable_const _).add (((Integrable.sub ?_ (integrable_const _)).const_mul _).neg)
   exact Measure.integrable_toReal_rnDeriv
-
-lemma integrable_hellingerFun_zero [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
-    Integrable (fun x ↦ hellingerFun 0 ((∂μ/∂ν) x).toReal) ν := by
-  simp_rw [integrable_hellingerFun_iff_integrable_rpow zero_ne_one, rpow_zero]
-  exact integrable_const _
 
 lemma integrable_hellingerFun_rnDeriv_of_lt_one (ha_nonneg : 0 ≤ a) (ha : a < 1)
     [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
@@ -627,35 +636,6 @@ lemma integral_hellingerFun_of_pos_of_lt_one [IsFiniteMeasure μ] [IsFiniteMeasu
         + (ν .univ).toReal + (1 - a)⁻¹ * a * ∫ x, (μ.rnDeriv ν x).toReal ∂ν :=
   integral_hellingerFun_of_pos_of_ne_one_of_integrable ha_pos ha_lt.ne
     (integrable_rpow_rnDeriv_of_lt_one ha_pos.le ha_lt)
-
-lemma integral_hellingerFun_of_pos_of_lt_one_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (ha_pos : 0 < a) (ha_lt : a < 1) (hμν : μ ≪ ν) :
-    ∫ x, hellingerFun a (μ.rnDeriv ν x).toReal ∂ν
-     = (a - 1)⁻¹ * ∫ x, (μ.rnDeriv ν x).toReal ^ a ∂ν
-        + (ν .univ).toReal + (1 - a)⁻¹ * a * (μ .univ).toReal := by
-  rw [integral_hellingerFun_of_pos_of_lt_one ha_pos ha_lt,
-    Measure.integral_toReal_rnDeriv hμν, measureReal_def]
-
--- todo name
--- rewriting of `0 ≤ ∫ x, hellingerFun a (μ.rnDeriv ν x).toReal ∂ν`.
-lemma integral_hellingerFun_rnDeriv_nonneg [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (ha_pos : 0 < a) (ha_lt : a < 1) :
-    0 ≤ (a - 1)⁻¹ * ∫ x, (μ.rnDeriv ν x).toReal ^ a ∂ν
-        + (ν .univ).toReal + (1 - a)⁻¹ * a * ∫ x, (μ.rnDeriv ν x).toReal ∂ν := by
-  calc 0
-  _ ≤ ∫ x, hellingerFun a (μ.rnDeriv ν x).toReal ∂ν := by
-    refine integral_nonneg fun x ↦ hellingerFun_nonneg ha_pos.le ENNReal.toReal_nonneg
-  _ = (a - 1)⁻¹ * ∫ x, (μ.rnDeriv ν x).toReal ^ a ∂ν
-      + (ν .univ).toReal + (1 - a)⁻¹ * a * ∫ x, (μ.rnDeriv ν x).toReal ∂ν :=
-    integral_hellingerFun_of_pos_of_lt_one ha_pos ha_lt
-
--- todo name
-lemma integral_hellingerFun_rnDeriv_nonneg_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (ha_pos : 0 < a) (ha_lt : a < 1) (hμν : μ ≪ ν) :
-    0 ≤ (a - 1)⁻¹ * ∫ x, (μ.rnDeriv ν x).toReal ^ a ∂ν
-        + (ν .univ).toReal + (1 - a)⁻¹ * a * (μ .univ).toReal := by
-  refine (integral_hellingerFun_rnDeriv_nonneg ha_pos ha_lt (μ := μ) (ν := ν)).trans_eq ?_
-  rw [Measure.integral_toReal_rnDeriv hμν, measureReal_def]
 
 end HellingerFun
 

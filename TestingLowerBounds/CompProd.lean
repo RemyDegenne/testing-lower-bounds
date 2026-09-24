@@ -11,8 +11,16 @@ public import Mathlib.Probability.Kernel.Composition.IntegralCompProd
 public import Mathlib.MeasureTheory.Measure.Decomposition.IntegralRNDeriv
 
 /-!
+# Composition-products of measures and kernels: singular parts and integrability
 
-# TODO
+## Main statements
+
+* `singularPart_compProd_left`, `singularPart_compProd_right`, `singularPart_compProd`: singular
+  part of `μ ⊗ₘ κ` with respect to `ν ⊗ₘ η`.
+* `lintegral_singularPart`, `lintegral_rnDeriv_mul_singularPart`: integrals of the singular parts
+  of kernels, written as singular parts of composition-products.
+* `integrable_f_rnDeriv_compProd_iff`: integrability of `f ((∂μ ⊗ₘ κ/∂ν ⊗ₘ η) x)` in terms of the
+  integrability of its sections.
 
 -/
 
@@ -42,6 +50,15 @@ lemma singularPart_compProd_left (μ ν : Measure α) [IsFiniteMeasure μ] [IsFi
   rw [Measure.singularPart_eq_self]
   refine Measure.MutuallySingular.compProd_of_left ?_ κ κ
   exact Measure.mutuallySingular_singularPart _ _
+
+private lemma lintegral_apply_prodMk_preimage {f : α → Set β → ℝ≥0∞} (hf : ∀ a, f a ∅ = 0)
+    {s : Set α} (hs : MeasurableSet s) (t : Set β) :
+    ∫⁻ a, f a (Prod.mk a ⁻¹' s ×ˢ t) ∂μ = ∫⁻ a in s, f a t ∂μ := by
+  rw [← lintegral_indicator hs _]
+  congr with a
+  classical
+  rw [Set.indicator_apply]
+  split_ifs with ha <;> simp [ha, hf]
 
 variable [CountableOrCountablyGenerated α β]
 
@@ -94,6 +111,60 @@ lemma singularPart_compProd_right (μ : Measure α) [IsFiniteMeasure μ]
     (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
     (μ ⊗ₘ κ).singularPart (μ ⊗ₘ η) = μ ⊗ₘ κ.singularPart η := by
   rw [singularPart_compProd, Measure.singularPart_self, Measure.compProd_zero_left, zero_add]
+
+lemma setLIntegral_rnDeriv_mul_singularPart
+    (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
+    {s : Set α} (hs : MeasurableSet s) {t : Set β} (ht : MeasurableSet t) :
+    ∫⁻ a in s, (∂μ/∂ν) a * (κ a).singularPart (η a) t ∂ν
+      = ((ν.withDensity (∂μ/∂ν)) ⊗ₘ κ).singularPart (ν ⊗ₘ η) (s ×ˢ t) := by
+  rw [singularPart_compProd', Measure.coe_add, Pi.add_apply, Measure.compProd_apply (hs.prod ht),
+    Measure.compProd_apply (hs.prod ht), lintegral_apply_prodMk_preimage (by simp) hs,
+    lintegral_apply_prodMk_preimage (by simp) hs, ν.singularPart_withDensity]
+  simp only [Measure.restrict_zero, lintegral_zero_measure, zero_add]
+  have : ν.withDensity (∂ν.withDensity (∂μ/∂ν)/∂ν) = ν.withDensity (∂μ/∂ν) :=
+    withDensity_congr_ae (ν.rnDeriv_withDensity (μ.measurable_rnDeriv _))
+  rw [this, ← setLIntegral_rnDeriv_mul (μ := ν.withDensity (∂μ/∂ν)) (ν := ν)
+    (withDensity_absolutelyContinuous _ _) (Kernel.measurable_coe _ ht).aemeasurable hs]
+  refine setLIntegral_congr_fun_ae hs ?_
+  filter_upwards [ν.rnDeriv_withDensity (μ.measurable_rnDeriv ν)] with x hx _
+  rw [hx, Kernel.singularPart_eq_singularPart_measure]
+
+lemma lintegral_rnDeriv_mul_singularPart (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
+    {t : Set β} (ht : MeasurableSet t) :
+    ∫⁻ a, (∂μ/∂ν) a * (κ a).singularPart (η a) t ∂ν
+      = ((ν.withDensity (∂μ/∂ν)) ⊗ₘ κ).singularPart (ν ⊗ₘ η) (.univ ×ˢ t) := by
+  rw [← setLIntegral_rnDeriv_mul_singularPart _ _ _ _ .univ ht, setLIntegral_univ]
+
+lemma setLIntegral_singularPart (μ : Measure α) [IsFiniteMeasure μ]
+    (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
+    {s : Set α} (hs : MeasurableSet s) {t : Set β} (ht : MeasurableSet t) :
+    ∫⁻ a in s, (κ a).singularPart (η a) t ∂μ = (μ ⊗ₘ κ).singularPart (μ ⊗ₘ η) (s ×ˢ t) := by
+  rw [singularPart_compProd_right, Measure.compProd_apply (hs.prod ht)]
+  simp only [Kernel.singularPart_eq_singularPart_measure]
+  rw [lintegral_apply_prodMk_preimage (fun _ ↦ by simp) hs]
+
+lemma lintegral_singularPart (μ : Measure α) [IsFiniteMeasure μ]
+    (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η]
+    {s : Set β} (hs : MeasurableSet s) :
+    ∫⁻ a, (κ a).singularPart (η a) s ∂μ = (μ ⊗ₘ κ).singularPart (μ ⊗ₘ η) (.univ ×ˢ s) := by
+  rw [← setLIntegral_univ, setLIntegral_singularPart _ _ _ .univ hs]
+
+/-- Replacing `κ` by the absolutely continuous part `η.withDensity (κ.rnDeriv η)` does not change
+the Radon-Nikodym derivative of `μ ⊗ₘ κ` with respect to `ν ⊗ₘ η`. -/
+lemma rnDeriv_measure_compProd_withDensity_rnDeriv (μ ν : Measure α) [IsFiniteMeasure μ]
+    [IsFiniteMeasure ν] (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
+    (∂μ ⊗ₘ (η.withDensity (κ.rnDeriv η))/∂ν ⊗ₘ η) =ᵐ[ν ⊗ₘ η] (∂μ ⊗ₘ κ/∂ν ⊗ₘ η) := by
+  let κ' := η.withDensity (κ.rnDeriv η)
+  have h_ae : ∀ᵐ p ∂(ν ⊗ₘ η), κ'.rnDeriv η p.1 p.2 = κ.rnDeriv η p.1 p.2 := by
+    refine Kernel.ENNReal.ae_eq_compProd_of_forall_ae_eq ν η ?_ ?_ ?_
+    · exact κ'.measurable_rnDeriv _
+    · exact κ.measurable_rnDeriv _
+    · exact fun a ↦ η.rnDeriv_withDensity (κ.measurable_rnDeriv _) a
+  filter_upwards [rnDeriv_measure_compProd μ ν κ η,
+      rnDeriv_measure_compProd μ ν κ' η, h_ae] with p h1 h2 h3
+  rw [h1, h2, h3]
 
 end SingularPart
 

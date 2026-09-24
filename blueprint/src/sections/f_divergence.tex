@@ -66,13 +66,14 @@ $\frac{d \mu}{d \mu}(x) = 1$ almost everywhere and $f(1) = 0$.
   \lean{ProbabilityTheory.fDiv_eq_zero_iff}
   \leanok
   \uses{def:fDiv}
-  Let $\mu, \nu$ be two probability measures. Assume $f'(\infty) = + \infty$ and $f(1) = 0$. Then $D_f(\mu, \nu) = 0$ if and only if $\mu = \nu$.
+  Let $\mu, \nu$ be two finite measures. Assume that $f$ is strictly convex on $(0, +\infty)$ and $f(1) = 0$. Then $D_f(\mu, \nu) = 0$ if and only if $\mu = \nu$.
 \end{lemma}
 
 \begin{proof}\leanok
 \uses{lem:fDiv_self}
 If $\mu = \nu$ then $D_f(\mu, \nu) = 0$ by Lemma~\ref{lem:fDiv_self}.
-For the other direction use the strict version of Jensen's inequality.
+For the other direction, since $f \ge 0$ is strictly convex with $f(1) = 0$, $f(x) = 0$ only for $x = 1$, and $f'(\infty) > 0$ (since $f(2) \le 2 f'(\infty)$ and $f(2) > 0$).
+$D_f(\mu, \nu) = 0$ then implies $\mu_{\perp \nu}(\mathcal X) = 0$, hence $\mu \ll \nu$, and $f(\frac{d\mu}{d\nu}) = 0$ $\nu$-almost everywhere, hence $\frac{d\mu}{d\nu} = 1$ $\nu$-almost everywhere.
 \end{proof}
 
 
@@ -296,16 +297,16 @@ Apply Lemma~\ref{lem:fDiv_absolutelyContinuous_add_mutuallySingular} to $\frac{d
   \lean{ProbabilityTheory.le_fDiv_of_ac}
   \leanok
   \uses{def:fDiv}
-  Let $\mu$ be a finite measure and $\nu$ be a probability measure on the same space $\mathcal X$, such that $\mu \ll \nu$. Then $f(\mu(\mathcal X)) \le D_f(\mu, \nu)$.
+  Let $\mu, \nu$ be two finite measures on the same space $\mathcal X$, such that $\mu \ll \nu$. Then $\nu(\mathcal X) f(\mu(\mathcal X)/\nu(\mathcal X)) \le D_f(\mu, \nu)$.
 \end{lemma}
 
 \begin{proof}\leanok
-Since $\mu \ll \nu$ the $f$-divergence is only the integral part. Then by Jensen's inequality,
+Since $\mu \ll \nu$ the $f$-divergence is only the integral part. If $\nu = 0$ there is nothing to prove. Otherwise, by Jensen's inequality for the probability measure $\nu / \nu(\mathcal X)$,
 \begin{align*}
 D_f(\mu, \nu)
-&= \nu\left[ f\left( \frac{d\mu}{d\nu} \right) \right]
-\ge f\left( \nu\left[\frac{d\mu}{d\nu} \right] \right)
-= f(\mu(\mathcal X))
+&= \nu(\mathcal X) \frac{1}{\nu(\mathcal X)}\nu\left[ f\left( \frac{d\mu}{d\nu} \right) \right]
+\ge \nu(\mathcal X) f\left( \frac{1}{\nu(\mathcal X)}\nu\left[\frac{d\mu}{d\nu} \right] \right)
+= \nu(\mathcal X) f(\mu(\mathcal X)/\nu(\mathcal X))
 \: .
 \end{align*}
 
@@ -317,15 +318,15 @@ D_f(\mu, \nu)
   \lean{ProbabilityTheory.le_fDiv}
   \leanok
   \uses{def:fDiv}
-  Let $\mu$ be a finite measure and $\nu$ be a probability measure on the same space $\mathcal X$. Then $f(\mu(\mathcal X)) \le D_f(\mu, \nu)$.
+  Let $\mu, \nu$ be two finite measures on the same space $\mathcal X$. Then $\nu(\mathcal X) f(\mu(\mathcal X)/\nu(\mathcal X)) \le D_f(\mu, \nu)$. In particular, if $\nu$ is a probability measure, $f(\mu(\mathcal X)) \le D_f(\mu, \nu)$.
 \end{lemma}
 
 \begin{proof}\leanok
 \uses{lem:fDiv_eq_add_withDensity_derivAtTop, lem:le_fDiv_of_ac}
 By convexity, then Lemma~\ref{lem:le_fDiv_of_ac} and finally Lemma~\ref{lem:fDiv_eq_add_withDensity_derivAtTop},
 \begin{align*}
-f(\mu(\mathcal X))
-&\le f(\frac{d\mu}{d\nu}\cdot \nu (\mathcal X)) + f'(\infty)\mu_{\perp}(\mathcal X)
+\nu(\mathcal X) f(\mu(\mathcal X)/\nu(\mathcal X))
+&\le \nu(\mathcal X) f(\frac{d\mu}{d\nu}\cdot \nu (\mathcal X)/\nu(\mathcal X)) + f'(\infty)\mu_{\perp}(\mathcal X)
 \\
 &\le D_f(\frac{d\mu}{d\nu}\cdot \nu , \nu) + f'(\infty)\mu_{\perp}(\mathcal X)
 \\
@@ -482,45 +483,39 @@ TODO
   \lean{ProbabilityTheory.condFDiv_ne_top_iff_fDiv_compProd_ne_top}
   \leanok
   \uses{def:fDiv, def:condFDiv}
-  Let $\mu$ be a finite measure on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels, such that $\kappa(x) \ne 0$ for all $x$.
+  Let $\mu$ be a finite measure on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels.
   Then $D_f(\mu \otimes \kappa, \mu \otimes \eta) \ne \infty \iff D_f(\kappa, \eta \mid \mu) \ne \infty$.
 \end{lemma}
 
 \begin{proof} \leanok
-\uses{lem:integrable_fDiv_compProd_iff, lem:condFDiv_ne_top_iff}
+\uses{lem:fDiv_compProd_right}
+Immediate from Lemma~\ref{lem:fDiv_compProd_right}.
 \end{proof}
 
 
 \begin{lemma}
-  \label{lem:fDiv_compProd_left}
-  \lean{ProbabilityTheory.fDiv_compProd_left}
+  \label{lem:fDiv_compProd_right}
+  \lean{ProbabilityTheory.fDiv_compProd_right}
   \leanok
   \uses{def:fDiv, def:condFDiv}
-  Let $\mu$ be a finite measure on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels, such that $\kappa(x) \ne 0$ for all $x$.
+  Let $\mu$ be a finite measure on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels.
   Then $D_f(\mu \otimes \kappa, \mu \otimes \eta) = D_f(\kappa, \eta \mid \mu)$.
 \end{lemma}
 
 \begin{proof} \leanok
-\uses{cor:rnDeriv_compProd_right, cor:rnDeriv_value, lem:fDiv_compProd_ne_top_iff, lem:condFDiv_ne_top_iff}
-By Lemma~\ref{lem:fDiv_compProd_ne_top_iff}, the conditions on which the two divergences are finite are the same. We then assume integrability properties such that both are finite (given by Lemma~\ref{lem:condFDiv_ne_top_iff}).
-
-TODO: the following proof assumes $\kappa(x) \ll \eta(x)$ for $\nu$-almost all $x$. Describe the general case.
-
-By Lemma~\ref{cor:rnDeriv_compProd_right} and Corollary~\ref{cor:rnDeriv_value},
+\uses{cor:rnDeriv_compProd_right, cor:rnDeriv_value}
+The singular part of $\mu \otimes \kappa$ with respect to $\mu \otimes \eta$ is $\mu \otimes \kappa_{\perp \eta}$, hence $(\mu \otimes \kappa)_{\perp (\mu \otimes \eta)}(\mathcal X \times \mathcal Y) = \mu\left[x \mapsto \kappa(x)_{\perp \eta(x)}(\mathcal Y)\right]$.
+For the integral part, by Lemma~\ref{cor:rnDeriv_compProd_right} and Corollary~\ref{cor:rnDeriv_value},
 \begin{align*}
-D_f(\mu \otimes \kappa, \mu \otimes \eta)
-&= \int_{p} f\left(\frac{d (\mu \otimes \kappa)}{d (\mu \otimes \eta)}(p)\right) \partial(\mu \otimes \eta)
-\\
+\int_{p} f\left(\frac{d (\mu \otimes \kappa)}{d (\mu \otimes \eta)}(p)\right) \partial(\mu \otimes \eta)
 &= \int_{p} f\left(\frac{d \kappa}{d \eta}(p)\right) \partial(\mu \otimes \eta)
 \\
 &= \int_x \int_y f\left(\frac{d \kappa}{d \eta}(x, y)\right) \partial \eta(x) \partial \mu
 \\
 &= \int_x \int_y f\left(\frac{d \kappa(x)}{d \eta(x)}(y)\right) \partial \eta(x) \partial \mu
-\\
-&= \mu\left[D_f(\kappa(x), \eta(x))\right]
-= D_f(\kappa, \eta \mid \mu)
 \: .
 \end{align*}
+Adding $f'(\infty)$ times the singular parts gives $D_f(\mu \otimes \kappa, \mu \otimes \eta) = \mu\left[D_f(\kappa(x), \eta(x))\right] = D_f(\kappa, \eta \mid \mu)$.
 \end{proof}
 
 
@@ -541,7 +536,7 @@ TODO: find a way to hide the following dummy lemma
   lem:condFDiv_const,
   lem:condFDiv_ne_top_iff,
   lem:fDiv_compProd_ne_top_iff,
-  lem:fDiv_compProd_left
+  lem:fDiv_compProd_right
 }
 \end{proof}
 
@@ -832,8 +827,8 @@ The next Lemma implies that in order to prove the DPI, it is sufficient to prove
 
 
 \begin{lemma}[Composition-product with a kernel]
-  \label{thm:fDiv_compProd_right_1}
-  \lean{ProbabilityTheory.fDiv_compProd_right}
+  \label{thm:fDiv_compProd_left_1}
+  \lean{ProbabilityTheory.fDiv_compProd_left}
   \leanok
   \uses{def:fDiv}
   Let $\mu, \nu$ be two measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.
@@ -864,8 +859,8 @@ D_f(\mu \otimes \kappa, \nu \otimes \kappa)
 
 
 \begin{corollary}
-  \label{cor:fDiv_prod_right_1}
-  \lean{ProbabilityTheory.fDiv_prod_right}
+  \label{cor:fDiv_prod_left_1}
+  \lean{ProbabilityTheory.fDiv_prod_left}
   \leanok
   \uses{def:fDiv}
   Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\xi$ be a probability measure on $\mathcal Y$.
@@ -873,8 +868,8 @@ D_f(\mu \otimes \kappa, \nu \otimes \kappa)
 \end{corollary}
 
 \begin{proof}\leanok
-\uses{thm:fDiv_compProd_right_1}
-Apply Lemma~\ref{thm:fDiv_compProd_right_1} with $\kappa$ the constant kernel with value $\xi$.
+\uses{thm:fDiv_compProd_left_1}
+Apply Lemma~\ref{thm:fDiv_compProd_left_1} with $\kappa$ the constant kernel with value $\xi$.
 \end{proof}
 
 
@@ -936,10 +931,10 @@ This is equal to $D_f(\mu, \nu)$.
 \end{theorem}
 
 \begin{proof}\leanok
-\uses{thm:fDiv_compProd_right_1, thm:fDiv_map_le}
+\uses{thm:fDiv_compProd_left_1, thm:fDiv_map_le}
 Let $\pi_Y : \mathcal X \times \mathcal Y \to \mathcal Y$ be the projection $\pi_Y((x,y)) = y$.
 Then $\kappa \circ \mu = \pi_{Y*}(\mu \otimes \kappa)$ and similarly for $\nu$.
-We can use the DPI for that function (Theorem~\ref{thm:fDiv_map_le}), then Lemma~\ref{thm:fDiv_compProd_right_1},
+We can use the DPI for that function (Theorem~\ref{thm:fDiv_map_le}), then Lemma~\ref{thm:fDiv_compProd_left_1},
 \begin{align*}
 D_f(\kappa \circ \mu, \kappa \circ \nu)
 &= D_f(\pi_{Y*}(\mu \otimes \kappa), \pi_{Y*}(\nu \otimes \kappa))
@@ -1048,13 +1043,13 @@ By definition, $\kappa \circ \mu$ is the marginal of $\mu \otimes \kappa$ (a mea
   \lean{ProbabilityTheory.fDiv_comp_left_le}
   \leanok
   \uses{def:fDiv, def:condFDiv}
-  Let $\mu$ be a measure on a standard Borel space $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels, such that $\kappa(x) \ne 0$ for all $x$.
+  Let $\mu$ be a finite measure on $\mathcal X$ and let $\kappa, \eta : \mathcal X \rightsquigarrow \mathcal Y$ be two finite kernels.
   Then $D_f(\kappa \circ \mu, \eta \circ \mu) \le D_f(\mu \otimes \kappa, \mu \otimes \eta) = D_f(\kappa, \eta \mid \mu)$
 \end{theorem}
 
 \begin{proof}\leanok
-\uses{lem:fDiv_comp_le_compProd_1, lem:fDiv_compProd_left}
-By Lemma~\ref{lem:fDiv_comp_le_compProd_1}, $D_f(\kappa \circ \mu, \eta \circ \mu) \le D_f(\mu \otimes \kappa, \mu \otimes \eta)$. This is equal to $D_f(\kappa, \eta \mid \mu)$ by Lemma~\ref{lem:fDiv_compProd_left}.
+\uses{lem:fDiv_comp_le_compProd_1, lem:fDiv_compProd_right}
+By Lemma~\ref{lem:fDiv_comp_le_compProd_1}, $D_f(\kappa \circ \mu, \eta \circ \mu) \le D_f(\mu \otimes \kappa, \mu \otimes \eta)$. This is equal to $D_f(\kappa, \eta \mid \mu)$ by Lemma~\ref{lem:fDiv_compProd_right}.
 \end{proof}
 
 
@@ -1068,8 +1063,8 @@ By Lemma~\ref{lem:fDiv_comp_le_compProd_1}, $D_f(\kappa \circ \mu, \eta \circ \m
 \end{theorem}
 
 \begin{proof}\leanok
-\uses{lem:fDiv_comp_le_compProd_1, thm:fDiv_compProd_right_1}
-By Lemma~\ref{lem:fDiv_comp_le_compProd_1}, $D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \kappa)$. Then the latter is equal to $D_f(\mu, \nu)$ by Lemma~\ref{thm:fDiv_compProd_right_1}.
+\uses{lem:fDiv_comp_le_compProd_1, thm:fDiv_compProd_left_1}
+By Lemma~\ref{lem:fDiv_comp_le_compProd_1}, $D_f(\kappa \circ \mu, \kappa \circ \nu) \le D_f(\mu \otimes \kappa, \nu \otimes \kappa)$. Then the latter is equal to $D_f(\mu, \nu)$ by Lemma~\ref{thm:fDiv_compProd_left_1}.
 \end{proof}
 
 
@@ -1269,8 +1264,8 @@ The result is then an application of the data-processing inequality, Theorem~\re
 % Commented out because identical to something above
 %
 % \begin{lemma}[Composition-product with a kernel]
-%   \label{thm:fDiv_compProd_right_2}
-%   \lean{ProbabilityTheory.fDiv_compProd_right'}
+%   \label{thm:fDiv_compProd_left_2}
+%   \lean{ProbabilityTheory.fDiv_compProd_left'}
 %   \leanok
 %   \uses{def:fDiv}
 %   Let $\mu, \nu$ be two finite measures on $\mathcal X$ and let $\kappa : \mathcal X \rightsquigarrow \mathcal Y$ be a Markov kernel.

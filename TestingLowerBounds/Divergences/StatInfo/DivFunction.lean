@@ -12,7 +12,17 @@ public import TestingLowerBounds.Divergences.StatInfo.StatInfo
 public import TestingLowerBounds.FDiv.Measurable
 
 /-!
-# fDiv and StatInfo
+# The divergence functions of the statistical information
+
+## Main definitions
+
+* `statInfoDivFun β γ`: the `DivFunction` obtained from the hockey-stick function
+  `statInfoFun β γ`.
+
+## Main statements
+
+* `derivAtTop_statInfoDivFun_eq`: the derivative at infinity of `statInfoDivFun β γ`.
+* `measurable_lintegral_statInfoDivFun`: measurability in the parameters `(β, γ)`.
 
 -/
 

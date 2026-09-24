@@ -8,7 +8,17 @@ module
 public import TestingLowerBounds.Divergences.StatInfo.fDivStatInfo
 
 /-!
-# fDiv and StatInfo
+# Integral representation of f-divergences
+
+Every f-divergence is an integral of the f-divergences of the functions `statInfoDivFun 1 x`
+(which are statistical informations), against the curvature measure of `f`.
+
+## Main statements
+
+* `fDiv_eq_lintegral_fDiv_statInfoFun`: `fDiv f μ ν + f'(1) ν(X) = ∫ fDiv (statInfoDivFun 1 x) μ ν
+  ∂γ_f + f'(1) μ(X)`, where `f'(1)` is the right derivative of `f.realFun` at `1` and `γ_f` the
+  curvature measure of `f`.
+* `fDiv_eq_lintegral_fDiv_statInfoFun'`: the same, for `f` with `f'(1) = 0`.
 
 -/
 
@@ -27,144 +37,10 @@ section StatInfoFun
 
 open Set Filter ConvexOn
 
-lemma integrable_statInfoFun_one_curvatureMeasureReal_iff
-    (hfderiv_one : rightDeriv f.realFun 1 = 0) {x : ℝ} (hx_nonneg : 0 ≤ x) :
-    Integrable (fun γ ↦ statInfoFun 1 γ x) f.curvatureMeasureReal ↔ f (ENNReal.ofReal x) ≠ ∞ := by
-  rcases le_total 1 x with hx | hx
-  · rw [integrable_statInfoFun_one_iff_of_ge hx,
-      f.integrable_curvatureMeasureReal_sub_iff_ne_top_of_ge hfderiv_one hx]
-  · rw [integrable_statInfoFun_one_iff_of_le hx,
-      f.integrable_curvatureMeasureReal_sub_iff_ne_top_of_le hfderiv_one hx_nonneg hx]
-
-lemma integral_statInfoFun_curvatureMeasure' (hfderiv_one : rightDeriv f.realFun 1 = 0)
-    (ht : 0 ≤ t) :
-    ∫ y, statInfoFun 1 y t ∂f.curvatureMeasureReal = f.realFun t := by
-  have : f.realFun t = ∫ x in (1)..t, t - x ∂f.curvatureMeasureReal :=
-    f.convex_taylor_one hfderiv_one ht
-  rcases le_total t 1 with (ht | ht)
-  · simp_rw [this, statInfoFun_of_one_of_right_le_one ht, integral_indicator measurableSet_Ioc,
-      intervalIntegral.integral_of_ge ht, ← integral_neg, neg_sub]
-  · simp_rw [this, statInfoFun_of_one_of_one_le_right ht, integral_indicator measurableSet_Ioc,
-      intervalIntegral.integral_of_le ht]
-
-lemma integral_statInfoFun_curvatureMeasure'' (hfderiv_one : rightDeriv f.realFun 1 = 0)
-    {t : ℝ≥0∞} (ht_ne : t ≠ ∞) (ht : f t ≠ ∞) :
-    ENNReal.ofReal (∫ y, statInfoFun 1 y t.toReal ∂f.curvatureMeasureReal) = f t := by
-  rw [← ENNReal.ofReal_toReal ht, ← f.realFun_toReal ht_ne,
-    integral_statInfoFun_curvatureMeasure' hfderiv_one ENNReal.toReal_nonneg]
-
-lemma lintegral_statInfoFun_curvatureMeasureReal (hfderiv_one : rightDeriv f.realFun 1 = 0)
-    {t : ℝ≥0∞} (ht_ne : t ≠ ∞) :
-    ∫⁻ y, ENNReal.ofReal (statInfoFun 1 y t.toReal) ∂f.curvatureMeasureReal = f t := by
-  by_cases ht : f t = ∞
-  · rw [ht]
-    by_contra h_ne
-    have h_int : Integrable (fun y ↦ statInfoFun 1 y t.toReal) f.curvatureMeasureReal :=
-      (lintegral_ofReal_ne_top_iff_integrable measurable_statInfoFun2.aestronglyMeasurable
-        (ae_of_all _ fun x ↦ statInfoFun_nonneg _ _ _)).mp h_ne
-    rw [integrable_statInfoFun_one_curvatureMeasureReal_iff hfderiv_one ENNReal.toReal_nonneg,
-      ENNReal.ofReal_toReal ht_ne] at h_int
-    exact h_int ht
-  rw [← ofReal_integral_eq_lintegral_ofReal]
-  rotate_left
-  · rw [integrable_statInfoFun_one_curvatureMeasureReal_iff hfderiv_one ENNReal.toReal_nonneg,
-      ENNReal.ofReal_toReal ht_ne]
-    exact ht
-  · exact ae_of_all _ fun x ↦ statInfoFun_nonneg _ _ _
-  exact integral_statInfoFun_curvatureMeasure'' hfderiv_one ht_ne ht
-
-lemma lintegral_statInfoFun_curvatureMeasure (hfderiv_one : rightDeriv f.realFun 1 = 0)
-    {t : ℝ≥0∞} (ht_ne : t ≠ ∞) :
-    ∫⁻ y, ENNReal.ofReal (statInfoFun 1 y.toReal t.toReal) ∂f.curvatureMeasure = f t := by
-  rw [← lintegral_statInfoFun_curvatureMeasureReal hfderiv_one ht_ne,
-    f.lintegral_curvatureMeasureReal measurable_statInfoFun2.ennreal_ofReal]
-
-lemma lintegral_f_rnDeriv_eq_lintegralfDiv_statInfoFun_of_absolutelyContinuous
-    [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hfderiv_one : rightDeriv f.realFun 1 = 0)
-    (h_ac : μ ≪ ν) :
-    ∫⁻ x, f ((∂μ/∂ν) x) ∂ν = ∫⁻ x, fDiv (statInfoDivFun 1 x.toReal) μ ν ∂f.curvatureMeasure := by
-  have h_meas : Measurable (fun x γ ↦ statInfoFun 1 γ ((∂μ/∂ν) x).toReal).uncurry :=
-    measurable_statInfoFun.comp <|
-      (measurable_const.prodMk measurable_snd).prodMk <|
-      ((μ.measurable_rnDeriv ν).comp measurable_fst).ennreal_toReal
-  classical
-  simp_rw [fDiv_statInfoFun_eq_lintegral_of_ac h_ac]
-  have : ∫⁻ x, f ((∂μ/∂ν) x) ∂ν
-      = ∫⁻ x, ∫⁻ y, ENNReal.ofReal (statInfoFun 1 y ((∂μ/∂ν) x).toReal)
-          ∂f.curvatureMeasureReal ∂ν := by
-    refine lintegral_congr_ae ?_
-    filter_upwards [μ.rnDeriv_ne_top ν] with x hx_ne
-    rw [lintegral_statInfoFun_curvatureMeasureReal hfderiv_one hx_ne]
-  rw [this, lintegral_lintegral_swap, DivFunction.lintegral_curvatureMeasureReal]
-  · exact Measurable.lintegral_prod_left h_meas.ennreal_ofReal
-  · exact h_meas.ennreal_ofReal.aemeasurable
-
-lemma fDiv_ne_top_iff_lintegral_fDiv_statInfoFun_ne_top_of_ac'
-    [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (hfderiv_one : rightDeriv f.realFun 1 = 0) (h_ac : μ ≪ ν) :
-    fDiv f μ ν ≠ ∞ ↔ ∫⁻ x, fDiv (statInfoDivFun 1 x.toReal) μ ν ∂f.curvatureMeasure ≠ ∞ := by
-  rw [fDiv_ne_top_iff]
-  simp only [h_ac, implies_true, and_true]
-  rw [lintegral_f_rnDeriv_eq_lintegralfDiv_statInfoFun_of_absolutelyContinuous hfderiv_one h_ac]
-
 lemma measurable_fDiv_statInfoFun_right [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     Measurable fun y ↦ fDiv (statInfoDivFun 1 y) μ ν := by
   change Measurable ((fun p : ℝ × ℝ ↦ fDiv (statInfoDivFun p.1 p.2) μ ν) ∘ (fun x ↦ (1, x)))
   exact (measurable_fDiv_statInfoFun _ _).comp measurable_prodMk_left
-
-lemma lintegral_fDiv_statInfoDivFun_curvatureMeasureReal_ne_top_iff
-    [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
-    ∫⁻ x, fDiv (statInfoDivFun 1 x) μ ν ∂f.curvatureMeasureReal ≠ ∞ ↔
-    Integrable (fun x ↦ (fDiv (statInfoDivFun 1 x) μ ν).toReal) f.curvatureMeasureReal := by
-  rw [integrable_toReal_iff]
-  · exact measurable_fDiv_statInfoFun_right.aemeasurable
-  · exact ae_of_all _ fun x ↦ fDiv_statInfoDivFun_ne_top
-
-lemma fDiv_ne_top_iff_integrable_fDiv_statInfoFun_of_absolutelyContinuous'
-    [IsFiniteMeasure μ] [IsFiniteMeasure ν] (hfderiv_one : rightDeriv f.realFun 1 = 0)
-    (h_ac : μ ≪ ν) :
-    fDiv f μ ν ≠ ⊤
-      ↔ Integrable (fun x ↦ (fDiv (statInfoDivFun 1 x) μ ν).toReal) f.curvatureMeasureReal := by
-  rw [fDiv_ne_top_iff_lintegral_fDiv_statInfoFun_ne_top_of_ac' hfderiv_one h_ac,
-    ← f.lintegral_curvatureMeasureReal (g := fun y ↦ fDiv (statInfoDivFun 1 y) μ ν),
-    lintegral_fDiv_statInfoDivFun_curvatureMeasureReal_ne_top_iff]
-  exact measurable_fDiv_statInfoFun_right
-
-lemma fDiv_eq_integral_fDiv_statInfoFun_of_absolutelyContinuous'
-    [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (hfderiv_one : rightDeriv f.realFun 1 = 0) (h_ac : μ ≪ ν) :
-    fDiv f μ ν = ∫⁻ x, fDiv (statInfoDivFun 1 x) μ ν ∂f.curvatureMeasureReal := by
-  classical
-  rw [fDiv_of_absolutelyContinuous h_ac,
-    lintegral_f_rnDeriv_eq_lintegralfDiv_statInfoFun_of_absolutelyContinuous hfderiv_one h_ac,
-    f.lintegral_curvatureMeasureReal measurable_fDiv_statInfoFun_right]
-
-lemma lintegral_statInfoFun_one_zero' (hfderiv_one : rightDeriv f.realFun 1 = 0) :
-    ∫⁻ x, ENNReal.ofReal (statInfoFun 1 x 0) ∂f.curvatureMeasureReal = f 0 := by
-  norm_cast
-  have := f.convex_taylor_one_left hfderiv_one zero_le_one
-  simp only [tsub_zero] at this
-  rw [this, f.lintegral_curvatureMeasureReal measurable_statInfoFun2.ennreal_ofReal]
-  rw [← lintegral_indicator measurableSet_Ioc _]
-  refine lintegral_congr fun x ↦ ?_
-  simp_rw [statInfoFun_one_zero_right, indicator_apply]
-  by_cases hx_top : x = ∞
-  · simp [hx_top]
-  have h_iff: x ∈ Ioc 0 1 ↔ x.toReal ∈ Ioc 0 1 := by
-    simp only [mem_Ioc, ← ENNReal.ofReal_lt_iff_lt_toReal le_rfl hx_top,
-        ← ENNReal.toReal_one, ENNReal.toReal_le_toReal hx_top ENNReal.one_ne_top,
-        ENNReal.ofReal_zero]
-  by_cases hx_mem : x ∈ Ioc 0 1
-  · have hx_mem' : x.toReal ∈ Ioc 0 1 := h_iff.mp hx_mem
-    simp [hx_mem, hx_mem', hx_top]
-  · have hx_mem' : x.toReal ∉ Ioc 0 1 := fun h ↦ hx_mem (h_iff.mpr h)
-    simp [hx_mem, hx_mem']
-
-lemma lintegral_statInfoDivFun_one_zero' (hfderiv_one : rightDeriv f.realFun 1 = 0) :
-    ∫⁻ x, statInfoDivFun 1 x 0 ∂f.curvatureMeasureReal = f 0 := by
-  simp_rw [statInfoDivFun,
-    DivFunction.ofReal_apply_zero_of_continuousWithinAt continuousWithinAt_statInfoFun_zero]
-  exact lintegral_statInfoFun_one_zero' hfderiv_one
 
 lemma measurable_derivAtTop_statInfoDivFun :
     Measurable fun x : ℝ ↦ (statInfoDivFun 1 x).derivAtTop := by
@@ -201,15 +77,8 @@ lemma lintegral_derivAtTop_statInfoDivFun_eq_toENNReal :
     ENNReal.toReal_one]
   rw [ERealStieltjes.measure_Ioi f.rightDerivStieltjes f.tendsto_rightDerivStieltjes_atTop]
 
-lemma lintegral_derivAtTop_statInfoDivFun' (hfderiv_one : rightDeriv f.realFun 1 = 0) :
-    ∫⁻ x, (statInfoDivFun 1 x).derivAtTop ∂f.curvatureMeasureReal = f.derivAtTop := by
-  rw [lintegral_derivAtTop_statInfoDivFun_eq_toENNReal, DivFunction.rightDerivStieltjes_one,
-    hfderiv_one]
-  simp
-
-/-- General form of `lintegral_derivAtTop_statInfoDivFun'`: without the assumption
-`rightDeriv f.realFun 1 = 0`, the integral of the `derivAtTop` of the `statInfoDivFun`
-misses the right derivative of `f` at `1`. -/
+/-- The integral of the `derivAtTop` of the `statInfoDivFun 1 x` against the curvature measure of
+`f` is `f.derivAtTop`, up to the right derivative of `f` at `1`. -/
 lemma lintegral_derivAtTop_statInfoDivFun :
     ∫⁻ x, (statInfoDivFun 1 x).derivAtTop ∂f.curvatureMeasureReal
       + ENNReal.ofReal (rightDeriv f.realFun 1) = f.derivAtTop := by
@@ -223,25 +92,6 @@ lemma lintegral_derivAtTop_statInfoDivFun :
       EReal.toENNReal_of_ne_top (EReal.coe_ne_top _), EReal.toReal_coe,
       ← ENNReal.ofReal_add (sub_nonneg.mpr h_le) f.rightDeriv_one_nonneg, sub_add_cancel,
       ENNReal.ofReal_toReal h_top]
-
-lemma fDiv_eq_lintegral_fDiv_statInfoFun' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (hfderiv_one : rightDeriv f.realFun 1 = 0) :
-    fDiv f μ ν = ∫⁻ x, fDiv (statInfoDivFun 1 x) μ ν ∂f.curvatureMeasureReal := by
-  rw [fDiv_eq_add_withDensity_derivAtTop,
-    fDiv_eq_integral_fDiv_statInfoFun_of_absolutelyContinuous' hfderiv_one
-      (withDensity_absolutelyContinuous _ _),
-    ← lintegral_derivAtTop_statInfoDivFun' hfderiv_one,
-    ← lintegral_mul_const _ measurable_derivAtTop_statInfoDivFun,
-    ← lintegral_add_right _ (measurable_derivAtTop_statInfoDivFun.mul_const _)]
-  simp_rw [← fDiv_eq_add_withDensity_derivAtTop]
-
-/-! ### The integral representation of `fDiv` without the assumption `rightDeriv f.realFun 1 = 0`
-
-For a general `DivFunction`, the Taylor formula at `1` carries a linear term
-`rightDeriv f.realFun 1 * (x - 1)`, hence the identity
-`fDiv f μ ν = ∫ fDiv (statInfoDivFun 1 x) μ ν` only holds up to the term
-`rightDeriv f.realFun 1 * (μ univ - ν univ)`, which we move to the appropriate side to stay in
-`ℝ≥0∞`. -/
 
 lemma lintegral_statInfoFun_curvatureMeasureReal_add {t : ℝ≥0∞} (ht_ne : t ≠ ∞) :
     ∫⁻ y, ENNReal.ofReal (statInfoFun 1 y t.toReal) ∂f.curvatureMeasureReal
@@ -317,10 +167,10 @@ lemma lintegral_f_rnDeriv_add_eq_lintegral_fDiv_statInfoFun_add_of_absolutelyCon
   exact Measurable.lintegral_prod_left h_meas.ennreal_ofReal
 
 /-- Integral representation of `fDiv f μ ν` in terms of the f-divergences of the
-`statInfoDivFun 1 x` and the curvature measure of `f`. Compared to
-`fDiv_eq_lintegral_fDiv_statInfoFun'`, no assumption is made on the right derivative of `f` at `1`,
-at the price of the correction term `rightDeriv f.realFun 1 * (μ univ - ν univ)`, split here on
-both sides of the equality to stay in `ℝ≥0∞`. -/
+`statInfoDivFun 1 x` and the curvature measure of `f`. The Taylor formula at `1` carries a linear
+term, hence the correction term `rightDeriv f.realFun 1 * (μ univ - ν univ)`, split here on both
+sides of the equality to stay in `ℝ≥0∞`. See `fDiv_eq_lintegral_fDiv_statInfoFun'` for the case
+`rightDeriv f.realFun 1 = 0`. -/
 theorem fDiv_eq_lintegral_fDiv_statInfoFun [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
     fDiv f μ ν + ENNReal.ofReal (rightDeriv f.realFun 1) * ν univ
       = ∫⁻ x, fDiv (statInfoDivFun 1 x) μ ν ∂f.curvatureMeasureReal
@@ -357,6 +207,13 @@ theorem fDiv_eq_lintegral_fDiv_statInfoFun [IsFiniteMeasure μ] [IsFiniteMeasure
             * μ.singularPart ν univ
           + ENNReal.ofReal (rightDeriv f.realFun 1) * μ.singularPart ν univ) := by rw [h2]
     _ = _ := by ring
+
+/-- Integral representation of `fDiv f μ ν` in terms of the f-divergences of the
+`statInfoDivFun 1 x` and the curvature measure of `f`, for `f` with `rightDeriv f.realFun 1 = 0`. -/
+lemma fDiv_eq_lintegral_fDiv_statInfoFun' [IsFiniteMeasure μ] [IsFiniteMeasure ν]
+    (hfderiv_one : rightDeriv f.realFun 1 = 0) :
+    fDiv f μ ν = ∫⁻ x, fDiv (statInfoDivFun 1 x) μ ν ∂f.curvatureMeasureReal := by
+  simpa [hfderiv_one] using fDiv_eq_lintegral_fDiv_statInfoFun (f := f) (μ := μ) (ν := ν)
 
 end StatInfoFun
 

@@ -7,7 +7,7 @@ module
 
 public import TestingLowerBounds.DerivAtTop
 public import TestingLowerBounds.FDiv.DivFunction.Basic
-public import TestingLowerBounds.FDiv.ERealStieltjes
+public import TestingLowerBounds.ForMathlib.ERealStieltjes
 public import TestingLowerBounds.ForMathlib.RnDeriv
 
 /-!

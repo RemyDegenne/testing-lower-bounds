@@ -13,15 +13,12 @@ public import Mathlib.Probability.Distributions.Bernoulli
 
 ## Main definitions
 
-* `deGrootInfo`
+* `deGrootInfo μ ν p hp`: the DeGroot statistical information, the statistical information for
+  the Bernoulli prior of parameter `p`.
 
 ## Main statements
 
-* `deGrootInfo_comp_le`
-
-## Notation
-
-## Implementation details
+* `deGrootInfo_comp_le`: data-processing inequality.
 
 -/
 

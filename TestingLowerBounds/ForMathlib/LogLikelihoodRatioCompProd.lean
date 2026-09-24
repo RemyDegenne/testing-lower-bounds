@@ -8,7 +8,7 @@ module
 public import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
 public import Mathlib.MeasureTheory.Measure.LogLikelihoodRatio
 public import Mathlib.InformationTheory.KullbackLeibler.ChainRule
-public import TestingLowerBounds.FDiv.CompProd.CompProd
+public import TestingLowerBounds.FDiv.CompProd
 public import TestingLowerBounds.FDiv.Measurable
 
 /-! # Log-likelihood ratio of composition-products

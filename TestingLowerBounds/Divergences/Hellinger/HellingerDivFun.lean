@@ -40,7 +40,6 @@ determined by continuity, so the indicator of `{0}` cannot be used. -/
 noncomputable
 def hellingerDivFun (a : ℝ) : DivFunction :=
   if ha : a ≤ 0 then 0
-  else if a = 1 then klDivFun  -- todo: absorb into the next case?
   else DivFunction.ofReal (hellingerFun a)
     ((convexOn_hellingerFun (not_le.mp ha).le).subset (Ioi_subset_Ici le_rfl) (convex_Ioi _))
     hellingerFun_apply_one_eq_zero
@@ -50,35 +49,24 @@ lemma hellingerDivFun_of_nonpos (ha : a ≤ 0) : hellingerDivFun a = 0 := dite_e
 
 lemma hellingerDivFun_zero : hellingerDivFun 0 = 0 := dite_eq_left le_rfl
 
-@[simp]
-lemma hellingerDivFun_one : hellingerDivFun 1 = klDivFun := by
-  rw [hellingerDivFun, dite_eq_right (not_le.mpr zero_lt_one), ite_eq_left rfl]
-
-lemma hellingerDivFun_of_pos_of_ne_one (ha_pos : 0 < a) (ha_one : a ≠ 1) :
-    hellingerDivFun a = DivFunction.ofReal (hellingerFun a)
-      ((convexOn_hellingerFun ha_pos.le).subset (Ioi_subset_Ici le_rfl) (convex_Ioi _))
-      hellingerFun_apply_one_eq_zero := by
-  rw [hellingerDivFun, dite_eq_right (not_le.mpr ha_pos), ite_eq_right ha_one]
-
 lemma hellingerDivFun_of_pos (ha_pos : 0 < a) :
     hellingerDivFun a = DivFunction.ofReal (hellingerFun a)
       ((convexOn_hellingerFun ha_pos.le).subset (Ioi_subset_Ici le_rfl) (convex_Ioi _))
-      hellingerFun_apply_one_eq_zero := by
-  by_cases ha_one : a = 1
-  · subst ha_one
-    rw [hellingerDivFun_one, klDivFun]
-    congr 1
-    ext x
-    simp [hellingerFun_one, InformationTheory.klFun_apply]
-  · exact hellingerDivFun_of_pos_of_ne_one ha_pos ha_one
+      hellingerFun_apply_one_eq_zero :=
+  dite_eq_right (not_le.mpr ha_pos)
+
+@[simp]
+lemma hellingerDivFun_one : hellingerDivFun 1 = klDivFun := by
+  rw [hellingerDivFun_of_pos zero_lt_one, klDivFun]
+  congr 1
+  ext x
+  simp [hellingerFun_one, InformationTheory.klFun_apply]
 
 lemma hellingerDivFun_apply_zero_of_pos (ha_pos : 0 < a) : hellingerDivFun a 0 = 1 := by
-  by_cases ha_one : a = 1
-  · simp [ha_one]
-  rw [hellingerDivFun_of_pos_of_ne_one ha_pos ha_one,
-    DivFunction.ofReal_apply_zero_of_continuousWithinAt]
-  · simp
-  · exact (continuous_hellingerFun ha_pos).continuousWithinAt
+  rw [hellingerDivFun_of_pos ha_pos,
+    DivFunction.ofReal_apply_zero_of_continuousWithinAt
+      (continuous_hellingerFun ha_pos).continuousWithinAt]
+  simp
 
 @[simp]
 lemma hellingerDivFun_apply_zero :
@@ -90,7 +78,7 @@ lemma hellingerDivFun_apply_zero :
 lemma hellingerDivFun_apply_of_pos_of_ne_one (ha_pos : 0 < a) (ha_one : a ≠ 1)
     {x : ℝ≥0∞} (hx : x ≠ ∞) :
     hellingerDivFun a x = ENNReal.ofReal ((a - 1)⁻¹ * (x.toReal ^ a - 1 - a * (x.toReal - 1))) := by
-  rw [hellingerDivFun_of_pos_of_ne_one ha_pos ha_one]
+  rw [hellingerDivFun_of_pos ha_pos]
   by_cases hx0 : x = 0
   · rw [hx0, DivFunction.ofReal_apply_zero_of_continuousWithinAt]
     · simp only [hellingerFun_apply_zero, ENNReal.ofReal_one, ENNReal.toReal_zero, ne_eq,
@@ -108,14 +96,14 @@ lemma derivAtTop_hellingerDivFun :
       else ∞ := by
   split_ifs with h h_one
   · simp [h]
-  · rw [hellingerDivFun_of_pos_of_ne_one (not_le.mp h) h_one.ne]
+  · rw [hellingerDivFun_of_pos (not_le.mp h)]
     rw [DivFunction.derivAtTop_ofReal fun x hx ↦ hellingerFun_nonneg (not_le.mp h).le hx.le]
     refine Tendsto.limsup_eq ?_
     refine ENNReal.tendsto_ofReal ?_
     exact tendsto_rightDeriv_hellingerFun_atTop_of_lt_one h_one
   · by_cases ha_one : a = 1
     · simp [ha_one]
-    rw [hellingerDivFun_of_pos_of_ne_one (not_le.mp h) ha_one]
+    rw [hellingerDivFun_of_pos (not_le.mp h)]
     refine DivFunction.derivAtTop_ofReal_of_tendsto_atTop
       (fun x hx ↦ hellingerFun_nonneg (not_le.mp h).le hx.le) ?_
     exact tendsto_rightDeriv_hellingerFun_atTop_of_one_lt
@@ -128,9 +116,6 @@ lemma derivAtTop_hellingerDivFun_of_lt_one (ha_pos : 0 < a) (ha_lt : a < 1) :
 lemma derivAtTop_hellingerDivFun_of_one_le (ha_le : 1 ≤ a) :
     (hellingerDivFun a).derivAtTop = ∞ := by
   simp [derivAtTop_hellingerDivFun, not_le.mpr (zero_lt_one.trans_le ha_le), ha_le]
-
-lemma derivAtTop_hellingerDivFun_one : (hellingerDivFun 1).derivAtTop = ∞ :=
-  derivAtTop_hellingerDivFun_of_one_le le_rfl
 
 lemma derivAtTop_hellingerDivFun_eq_top_iff : (hellingerDivFun a).derivAtTop = ∞ ↔ 1 ≤ a := by
   simp only [derivAtTop_hellingerDivFun]
@@ -147,7 +132,7 @@ lemma lintegral_hellingerDivFun_of_pos_of_ne_one_of_integrable
         + (ν .univ).toReal + (1 - a)⁻¹ * a * ∫ x, (μ.rnDeriv ν x).toReal ∂ν) := by
   calc ∫⁻ x, hellingerDivFun a (μ.rnDeriv ν x) ∂ν
   _ = ∫⁻ x, ENNReal.ofReal (hellingerFun a (μ.rnDeriv ν x).toReal) ∂ν := by
-    rw [hellingerDivFun_of_pos_of_ne_one ha_pos ha_ne]
+    rw [hellingerDivFun_of_pos ha_pos]
     exact DivFunction.lintegral_ofReal_of_continuous
       (continuous_hellingerFun ha_pos).continuousWithinAt
   _ = ENNReal.ofReal (∫ x, hellingerFun a (μ.rnDeriv ν x).toReal ∂ν) := by
@@ -166,22 +151,6 @@ lemma lintegral_hellingerDivFun_of_pos_of_ne_one_of_integrable_of_ac
       = ENNReal.ofReal ((a - 1)⁻¹ * ∫ x, (μ.rnDeriv ν x).toReal ^ a ∂ν
         + (ν .univ).toReal + (1 - a)⁻¹ * a * (μ univ).toReal) := by
   rw [lintegral_hellingerDivFun_of_pos_of_ne_one_of_integrable ha_pos ha_ne h_int,
-    Measure.integral_toReal_rnDeriv hμν, measureReal_def]
-
-lemma lintegral_hellingerDivFun_of_pos_of_lt_one [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (ha_pos : 0 < a) (ha_lt : a < 1) :
-    ∫⁻ x, hellingerDivFun a (μ.rnDeriv ν x) ∂ν
-      = ENNReal.ofReal ((a - 1)⁻¹ * ∫ x, (μ.rnDeriv ν x).toReal ^ a ∂ν
-        + (ν .univ).toReal + (1 - a)⁻¹ * a * ∫ x, (μ.rnDeriv ν x).toReal ∂ν) :=
-  lintegral_hellingerDivFun_of_pos_of_ne_one_of_integrable ha_pos ha_lt.ne
-    (integrable_rpow_rnDeriv_of_lt_one ha_pos.le ha_lt)
-
-lemma lintegral_hellingerDivFun_of_pos_of_lt_one_of_ac [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (ha_pos : 0 < a) (ha_lt : a < 1) (hμν : μ ≪ ν) :
-    ∫⁻ x, hellingerDivFun a (μ.rnDeriv ν x) ∂ν
-      = ENNReal.ofReal ((a - 1)⁻¹ * ∫ x, (μ.rnDeriv ν x).toReal ^ a ∂ν
-        + (ν univ).toReal + (1 - a)⁻¹ * a * (μ univ).toReal) := by
-  rw [lintegral_hellingerDivFun_of_pos_of_lt_one ha_pos ha_lt,
     Measure.integral_toReal_rnDeriv hμν, measureReal_def]
 
 end ProbabilityTheory

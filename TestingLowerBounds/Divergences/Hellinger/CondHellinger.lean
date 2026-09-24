@@ -19,7 +19,7 @@ public import TestingLowerBounds.Divergences.Hellinger.Hellinger
 
 ## Main statements
 
-* `hellingerDiv_compProd_left`: `hellingerDiv a (μ ⊗ₘ κ) (μ ⊗ₘ η) = condHellingerDiv a κ η μ`.
+* `hellingerDiv_compProd_right`: `hellingerDiv a (μ ⊗ₘ κ) (μ ⊗ₘ η) = condHellingerDiv a κ η μ`.
 * `hellingerDiv_comp_left_le`: `hellingerDiv a (κ ∘ₘ μ) (η ∘ₘ μ) ≤ condHellingerDiv a κ η μ`.
 * `condHellingerDiv_one`: the conditional Hellinger divergence of order `1` is `condKL`.
 
@@ -37,25 +37,19 @@ variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
   {μ ν : Measure α} {κ η : Kernel α β}
   {a : ℝ}
 
-lemma hellingerDiv_ae_ne_top_iff'' (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
-    (∀ᵐ x ∂μ, hellingerDiv a (κ x) (η x) ≠ ∞)
-      ↔ (∀ᵐ x ∂μ, ∫⁻ b, hellingerDivFun a ((∂κ x/∂η x) b) ∂(η x) ≠ ∞)
-        ∧ (1 ≤ a → ∀ᵐ x ∂μ, (κ x) ≪ (η x)) := by
-  simp_rw [hellingerDiv_ne_top_iff, eventually_and, eventually_all]
-
 /-- Conditional Hellinger divergence of order `a`. -/
 noncomputable def condHellingerDiv (a : ℝ) (κ η : Kernel α β) (μ : Measure α) : ℝ≥0∞ :=
   condFDiv (hellingerDivFun a) κ η μ
 
-lemma hellingerDiv_compProd_left [CountableOrCountablyGenerated α β]
+lemma hellingerDiv_compProd_right [CountableOrCountablyGenerated α β]
     (μ : Measure α) [IsFiniteMeasure μ]
-    (κ η : Kernel α β) [IsFiniteKernel κ] [∀ x, NeZero (κ x)] [IsFiniteKernel η] :
+    (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
     hellingerDiv a (μ ⊗ₘ κ) (μ ⊗ₘ η) = condHellingerDiv a κ η μ := by
-  rw [hellingerDiv, condHellingerDiv, fDiv_compProd_left _ _ _]
+  rw [hellingerDiv, condHellingerDiv, fDiv_compProd_right _ _ _]
 
 lemma hellingerDiv_comp_left_le [CountableOrCountablyGenerated α β] (μ : Measure α)
     [IsFiniteMeasure μ]
-    (κ η : Kernel α β) [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] :
+    (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
     hellingerDiv a (κ ∘ₘ μ) (η ∘ₘ μ) ≤ condHellingerDiv a κ η μ :=
   fDiv_comp_left_le μ κ η
 
@@ -76,24 +70,14 @@ lemma condHellingerDiv_one [IsFiniteKernel κ] [IsFiniteKernel η] :
     condHellingerDiv 1 κ η μ = condKL κ η μ := by
   rw [condHellingerDiv, hellingerDivFun_one, condKL_eq_condFDiv]
 
-lemma condHellingerDiv_of_not_ae_finite [CountableOrCountablyGenerated α β]
-    [IsFiniteKernel κ] [IsFiniteKernel η]
-    (h_ae : ¬ ∀ᵐ x ∂μ, hellingerDiv a (κ x) (η x) ≠ ∞) :
-    condHellingerDiv a κ η μ = ∞ := by
-  rw [condHellingerDiv]
-  exact condFDiv_of_not_ae_finite h_ae
-
 lemma hellingerDiv_ae_ne_top_iff [IsFiniteKernel κ] [IsFiniteKernel η]
     (ha_pos : 0 < a) (ha_ne : a ≠ 1) :
     (∀ᵐ x ∂μ, hellingerDiv a (κ x) (η x) ≠ ∞)
       ↔ (∀ᵐ x ∂μ, Integrable (fun b ↦ ((∂κ x/∂η x) b).toReal ^ a) (η x))
         ∧ (1 ≤ a → ∀ᵐ x ∂μ, κ x ≪ η x) := by
-  rw [hellingerDiv_ae_ne_top_iff'']
+  simp_rw [hellingerDiv]
+  rw [fDiv_ae_ne_top_iff, derivAtTop_hellingerDivFun_eq_top_iff]
   simp_rw [lintegral_hellingerDivFun_ne_top_iff ha_pos ha_ne]
-
-lemma hellingerDiv_ae_ne_top_of_lt_one [IsFiniteKernel κ] [IsFiniteKernel η] (ha : a < 1) :
-    ∀ᵐ x ∂μ, hellingerDiv a (κ x) (η x) ≠ ∞ :=
-  ae_of_all _ fun _ ↦ hellingerDiv_ne_top_of_lt_one ha _ _
 
 lemma integrable_toReal_hellingerDiv_iff [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η]
     (ha_pos : 0 < a) (ha_ne : a ≠ 1) (h_ae : ∀ᵐ x ∂μ, hellingerDiv a (κ x) (η x) ≠ ∞) :
@@ -104,9 +88,12 @@ lemma integrable_toReal_hellingerDiv_iff [IsFiniteMeasure μ] [IsFiniteKernel κ
         + ((η x) .univ).toReal + (1 - a)⁻¹ * a * ((κ x) .univ).toReal := by
     filter_upwards [h_ae] with x hx
     exact toReal_hellingerDiv_eq_integral_of_ne_top ha_pos ha_ne hx
-  rw [integrable_congr h,
-    integrable_add_iff_integrable_left' ((Integrable.Kernel _ .univ).const_mul _),
-    integrable_add_iff_integrable_left' (Integrable.Kernel _ .univ),
+  have hκ : Integrable (fun x ↦ ((κ x) .univ).toReal) μ :=
+    Kernel.IsFiniteKernel.integrable _ _ .univ
+  have hη : Integrable (fun x ↦ ((η x) .univ).toReal) μ :=
+    Kernel.IsFiniteKernel.integrable _ _ .univ
+  rw [integrable_congr h, integrable_add_iff_integrable_left' (hκ.const_mul _),
+    integrable_add_iff_integrable_left' hη,
     integrable_const_mul_iff (isUnit_iff_ne_zero.mpr (inv_ne_zero (sub_ne_zero.mpr ha_ne)))]
 
 lemma condHellingerDiv_ne_top_iff [CountableOrCountablyGenerated α β] [IsFiniteMeasure μ]
@@ -170,24 +157,10 @@ lemma condHellingerDiv_eq_top_iff_of_lt_one [CountableOrCountablyGenerated α β
       ↔ ¬ Integrable (fun x ↦ ∫ b, ((∂κ x/∂η x) b).toReal ^ a ∂η x) μ := by
   rw [← not_not (a := _ = ∞), ← ne_eq, condHellingerDiv_ne_top_iff_of_lt_one ha_pos ha_lt]
 
-lemma condHellingerDiv_of_not_ae_integrable [CountableOrCountablyGenerated α β]
-    [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η] (ha_pos : 0 < a) (ha_ne : a ≠ 1)
-    (h_int : ¬ ∀ᵐ x ∂μ, Integrable (fun b ↦ ((∂κ x/∂η x) b).toReal ^ a) (η x)) :
-    condHellingerDiv a κ η μ = ∞ :=
-  (condHellingerDiv_eq_top_iff ha_pos ha_ne).mpr (Or.inl h_int)
-
 lemma condHellingerDiv_of_not_ae_ac_of_one_le [CountableOrCountablyGenerated α β]
     [IsFiniteKernel κ] [IsFiniteKernel η] (ha : 1 ≤ a) (h_ac : ¬ ∀ᵐ x ∂μ, κ x ≪ η x) :
-    condHellingerDiv a κ η μ = ∞ := by
-  apply condHellingerDiv_of_not_ae_finite
-  rw [hellingerDiv_ae_ne_top_iff'']
-  tauto
-
-lemma condHellingerDiv_of_not_integrable [CountableOrCountablyGenerated α β]
-    [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η] (ha_pos : 0 < a) (ha_ne : a ≠ 1)
-    (h_int : ¬ Integrable (fun x ↦ ∫ b, ((∂κ x/∂η x) b).toReal ^ a ∂η x) μ) :
     condHellingerDiv a κ η μ = ∞ :=
-  (condHellingerDiv_eq_top_iff ha_pos ha_ne).mpr (Or.inr (Or.inr h_int))
+  condFDiv_of_not_ae_ac (derivAtTop_hellingerDivFun_eq_top_iff.mpr ha) h_ac
 
 lemma toReal_condHellingerDiv_eq_integral [CountableOrCountablyGenerated α β]
     [IsFiniteKernel κ] [IsFiniteKernel η] (h : condHellingerDiv a κ η μ ≠ ∞) :
@@ -216,9 +189,9 @@ lemma toReal_condHellingerDiv_eq_integral' [CountableOrCountablyGenerated α β]
     rw [integral_add, integral_add, integral_const_mul, integral_const_mul,
       Measure.compProd_univ_toReal, Measure.compProd_univ_toReal]
     · exact h_int'.const_mul _
-    · exact Integrable.Kernel _ .univ
-    · exact (h_int'.const_mul _).add (Integrable.Kernel _ .univ)
-    · exact (Integrable.Kernel _ .univ).const_mul _
+    · exact Kernel.IsFiniteKernel.integrable _ _ .univ
+    · exact (h_int'.const_mul _).add (Kernel.IsFiniteKernel.integrable _ _ .univ)
+    · exact (Kernel.IsFiniteKernel.integrable _ _ .univ).const_mul _
 
 end CondHellingerEq
 

@@ -16,14 +16,12 @@ public import TestingLowerBounds.Testing.BoolMeasure
 
 ## Main statements
 
-* `fDiv_eq_fDiv_restrict_add_fDiv_restrict_compl`: an f-divergence splits along any measurable set.
-* `fDiv_prod_right`: `fDiv f (μ.prod ξ) (ν.prod ξ) = fDiv f μ ν` for a probability measure `ξ`.
 * `fDiv_comp_eq_of_fst`: a Markov kernel `κ : α → α × β` whose first marginal is `δ_x` at every
   `x` preserves f-divergences.
 * `fDiv_boolMeasure_le`: data-processing inequality for the indicator of an event.
-* `fDiv_add_add_le`, `fDiv_smul_smul`, `fDiv_convex`: joint convexity of f-divergences.
-* `statInfo_eq_fDiv`, `tv_eq_fDiv`: on probability measures, the statistical information and the
-  total variation distance are f-divergences.
+* `fDiv_add_add_le`, `fDiv_convex`: joint convexity of f-divergences.
+* `statInfo_eq_fDiv`, `tv_eq_fDiv`, `tv_eq_fDiv_tvDivFun`: on probability measures, the
+  statistical information and the total variation distance are f-divergences.
 * `apply_one_add_tv_add_apply_one_sub_tv_le_fDiv`, `conj_one_add_tv_add_conj_one_sub_tv_le_fDiv`:
   Bretagnolle-Huber type lower bounds on f-divergences in terms of the total variation distance.
 * `neg_log_one_sub_sq_tv_le_klDiv`: the **Bretagnolle-Huber inequality**
@@ -44,53 +42,7 @@ namespace ProbabilityTheory
 variable {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
   {μ ν : Measure α} {f : DivFunction}
 
-section Restrict
-
-lemma _root_.MeasureTheory.Measure.rnDeriv_restrict_restrict (μ ν : Measure α) [SigmaFinite μ]
-    [SigmaFinite ν] {s : Set α} (hs : MeasurableSet s) :
-    (μ.restrict s).rnDeriv (ν.restrict s) =ᵐ[ν.restrict s] μ.rnDeriv ν := by
-  refine (Measure.eq_rnDeriv (μ := μ.restrict s) (ν := ν.restrict s)
-    (s := (μ.singularPart ν).restrict s) (Measure.measurable_rnDeriv μ ν)
-    (((Measure.mutuallySingular_singularPart μ ν).restrict s).symm.restrict s).symm ?_).symm
-  conv_lhs => rw [μ.haveLebesgueDecomposition_add ν]
-  rw [Measure.restrict_add, restrict_withDensity hs]
-
-lemma _root_.MeasureTheory.Measure.singularPart_restrict_restrict (μ ν : Measure α)
-    [SigmaFinite μ] [SigmaFinite ν] {s : Set α} (hs : MeasurableSet s) :
-    (μ.restrict s).singularPart (ν.restrict s) = (μ.singularPart ν).restrict s := by
-  refine (Measure.eq_singularPart (μ := μ.restrict s) (ν := ν.restrict s)
-    (Measure.measurable_rnDeriv μ ν)
-    (((Measure.mutuallySingular_singularPart μ ν).restrict s).symm.restrict s).symm ?_).symm
-  conv_lhs => rw [μ.haveLebesgueDecomposition_add ν]
-  rw [Measure.restrict_add, restrict_withDensity hs]
-
-lemma fDiv_restrict_restrict (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν]
-    {s : Set α} (hs : MeasurableSet s) :
-    fDiv f (μ.restrict s) (ν.restrict s)
-      = ∫⁻ x in s, f ((∂μ/∂ν) x) ∂ν + f.derivAtTop * μ.singularPart ν s := by
-  rw [fDiv, Measure.singularPart_restrict_restrict μ ν hs, Measure.restrict_apply_univ,
-    lintegral_congr_ae ?_]
-  filter_upwards [Measure.rnDeriv_restrict_restrict μ ν hs] with x hx
-  rw [hx]
-
-/-- An f-divergence splits as the sum of the divergences of the restrictions to a measurable set
-and to its complement. -/
-lemma fDiv_eq_fDiv_restrict_add_fDiv_restrict_compl (μ ν : Measure α) [SigmaFinite μ]
-    [SigmaFinite ν] {s : Set α} (hs : MeasurableSet s) :
-    fDiv f μ ν = fDiv f (μ.restrict s) (ν.restrict s) + fDiv f (μ.restrict sᶜ) (ν.restrict sᶜ) := by
-  rw [fDiv_restrict_restrict μ ν hs, fDiv_restrict_restrict μ ν hs.compl, add_add_add_comm,
-    lintegral_add_compl _ hs, ← mul_add, measure_add_measure_compl hs, fDiv]
-
-end Restrict
-
 section DataProcessing
-
-/-- The f-divergence is invariant under taking the product with a probability measure. -/
-lemma fDiv_prod_right (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
-    (ξ : Measure β) [IsProbabilityMeasure ξ] :
-    fDiv f (μ.prod ξ) (ν.prod ξ) = fDiv f μ ν := by
-  simpa [Measure.compProd_const] using fDiv_compProd_right' (f := f) (μ := μ) (ν := ν)
-    (Kernel.const α ξ)
 
 /-- A Markov kernel `κ : α → α × β` such that the first marginal of `κ x` is `δ_x` for all `x`
 preserves f-divergences. -/
@@ -112,14 +64,7 @@ lemma fDiv_boolMeasure_le (μ ν : Measure α) [IsFiniteMeasure μ] [IsFiniteMea
     {s : Set α} (hs : MeasurableSet s) :
     fDiv f (Bool.boolMeasure (μ sᶜ) (μ s)) (Bool.boolMeasure (ν sᶜ) (ν s)) ≤ fDiv f μ ν := by
   classical
-  have hg : Measurable (fun x ↦ decide (x ∈ s)) := measurable_to_countable' fun b ↦ by
-    cases b
-    · convert hs.compl using 1
-      ext x
-      simp
-    · convert hs using 1
-      ext x
-      simp
+  have hg : Measurable (fun x ↦ decide (x ∈ s)) := measurable_to_bool (by simp [preimage, hs])
   have h_map (ξ : Measure α) : ξ.map (fun x ↦ decide (x ∈ s))
       = Bool.boolMeasure (ξ sᶜ) (ξ s) := by
     refine Measure.ext_of_singleton fun b ↦ ?_
@@ -168,13 +113,6 @@ theorem fDiv_add_add_le (μ₀ μ₁ ν₀ ν₁ : Measure α) [IsFiniteMeasure 
       fDiv_map_measurableEmbedding (measurableEmbedding_prodMk_left false),
       fDiv_map_measurableEmbedding (measurableEmbedding_prodMk_left true)]
 
-/-- Scaling both measures by the same constant scales the f-divergence. -/
-lemma fDiv_smul_smul (c : ℝ≥0) (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν] :
-    fDiv f (c • μ) (c • ν) = c * fDiv f μ ν := by
-  rcases eq_or_ne c 0 with rfl | hc
-  · simp
-  rw [fDiv_smul_right _ hc, smul_smul, inv_mul_cancel₀ hc, one_smul]
-
 /-- **Joint convexity** of f-divergences. -/
 theorem fDiv_convex (μ₀ μ₁ ν₀ ν₁ : Measure α) [IsFiniteMeasure μ₀] [IsFiniteMeasure μ₁]
     [IsFiniteMeasure ν₀] [IsFiniteMeasure ν₁] (a b : ℝ≥0) :
@@ -213,31 +151,93 @@ lemma tv_eq_fDiv (μ ν : Measure α) [IsProbabilityMeasure μ] [IsProbabilityMe
   rw [tv, statInfo_eq_fDiv]
   simp
 
+/-- The divergence function `x ↦ |x - 1| / 2`, which defines the total variation distance on
+probability measures (see `fDiv_tvDivFun`). -/
+noncomputable
+def tvDivFun : DivFunction :=
+  DivFunction.ofReal (fun x ↦ 2⁻¹ * |x - 1|)
+    (by
+      have h1 : ConvexOn ℝ univ (fun x : ℝ ↦ x - 1) :=
+        (convexOn_id convex_univ).sub (concaveOn_const 1 convex_univ)
+      have h2 : ConvexOn ℝ univ (fun x : ℝ ↦ 1 - x) :=
+        (convexOn_const 1 convex_univ).sub (concaveOn_id convex_univ)
+      have h := (h1.sup h2).smul (by norm_num : (0 : ℝ) ≤ 2⁻¹)
+      refine (h.subset (subset_univ _) (convex_Ioi 0)).congr fun x _ ↦ ?_
+      simp [abs_eq_max_neg])
+    (by simp)
+
+lemma tvDivFun_apply {x : ℝ≥0∞} (hx : x ≠ ∞) : tvDivFun x = 2⁻¹ * ((x - 1) + (1 - x)) := by
+  rw [tvDivFun, DivFunction.ofReal_apply_of_continuousWithinAt (by fun_prop) hx,
+    ENNReal.ofReal_mul (by norm_num), ENNReal.ofReal_inv_of_pos (by norm_num), ENNReal.ofReal_ofNat]
+  congr 1
+  rcases le_total x 1 with h | h
+  · have h' : x.toReal ≤ 1 := ENNReal.toReal_le_of_le_ofReal zero_le_one (by simpa using h)
+    rw [abs_of_nonpos (sub_nonpos.2 h'), tsub_eq_zero_of_le h, zero_add, neg_sub,
+      ENNReal.ofReal_sub _ ENNReal.toReal_nonneg, ENNReal.ofReal_one, ENNReal.ofReal_toReal hx]
+  · have h' : 1 ≤ x.toReal := by
+      rw [← ENNReal.toReal_one]
+      exact ENNReal.toReal_mono hx h
+    rw [abs_of_nonneg (sub_nonneg.2 h'), tsub_eq_zero_of_le h, add_zero,
+      ENNReal.ofReal_sub _ zero_le_one, ENNReal.ofReal_one, ENNReal.ofReal_toReal hx]
+
+@[simp] lemma derivAtTop_tvDivFun : tvDivFun.derivAtTop = 2⁻¹ := by
+  have : (𝓝[<] (∞ : ℝ≥0∞)).NeBot := nhdsLT_neBot_of_exists_lt ⟨0, ENNReal.zero_lt_top⟩
+  refine tendsto_nhds_unique tvDivFun.tendsto_div_nhdsLT_top ?_
+  have h_inv : Tendsto (fun y : ℝ≥0∞ ↦ y⁻¹) (𝓝[<] ∞) (𝓝 0) := by
+    simpa using (continuous_inv.tendsto (∞ : ℝ≥0∞)).mono_left nhdsWithin_le_nhds
+  have h := ENNReal.Tendsto.const_mul
+    (ENNReal.Tendsto.sub tendsto_const_nhds h_inv (Or.inl ENNReal.one_ne_top))
+    (a := 2⁻¹) (Or.inr (by simp))
+  rw [tsub_zero, mul_one] at h
+  refine h.congr' ?_
+  filter_upwards [Ioo_mem_nhdsLT ENNReal.one_lt_top] with y hy
+  have hy0 : y ≠ 0 := (zero_lt_one.trans hy.1).ne'
+  rw [tvDivFun_apply hy.2.ne, tsub_eq_zero_of_le hy.1.le, add_zero, mul_div_assoc,
+    ENNReal.sub_div (fun _ _ ↦ hy0), ENNReal.div_self hy0 hy.2.ne, one_div]
+
+/-- On probability measures, the total variation distance is the f-divergence for the function
+`x ↦ |x - 1| / 2`. -/
+lemma fDiv_tvDivFun (μ ν : Measure α) [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
+    fDiv tvDivFun μ ν = ENNReal.ofReal (tv μ ν) := by
+  set T := ENNReal.ofReal (tv μ ν)
+  have hT := lintegral_one_sub_rnDeriv_eq_tv μ ν
+  have hr : Measurable (∂μ/∂ν) := Measure.measurable_rnDeriv μ ν
+  -- `∫⁻ (r - 1) ∂ν + μ⊥(X) = T`
+  have h_sub : ∫⁻ x, (∂μ/∂ν) x - 1 ∂ν + μ.singularPart ν univ = T := by
+    have h_univ : μ univ = μ.singularPart ν univ + ∫⁻ x, (∂μ/∂ν) x ∂ν := by
+      conv_lhs => rw [μ.haveLebesgueDecomposition_add ν]
+      rw [Measure.add_apply, withDensity_apply _ MeasurableSet.univ, Measure.restrict_univ]
+    have h_eq x : (∂μ/∂ν) x + (1 - (∂μ/∂ν) x) = 1 + ((∂μ/∂ν) x - 1) := by
+      rcases le_total ((∂μ/∂ν) x) 1 with h | h
+      · rw [add_tsub_cancel_of_le h, tsub_eq_zero_of_le h, add_zero]
+      · rw [tsub_eq_zero_of_le h, add_zero, add_tsub_cancel_of_le h]
+    have h_int := lintegral_congr (μ := ν) h_eq
+    rw [lintegral_add_left hr, lintegral_add_left measurable_const, lintegral_const,
+      measure_univ, one_mul, hT] at h_int
+    have h_total : 1 + (∫⁻ x, (∂μ/∂ν) x - 1 ∂ν + μ.singularPart ν univ) = 1 + T := by
+      rw [← add_assoc, ← h_int, add_right_comm, add_comm (∫⁻ x, (∂μ/∂ν) x ∂ν), ← h_univ,
+        measure_univ]
+    exact (ENNReal.add_right_inj ENNReal.one_ne_top).mp h_total
+  have h_ae : (fun x ↦ tvDivFun ((∂μ/∂ν) x))
+      =ᵐ[ν] fun x ↦ 2⁻¹ * (((∂μ/∂ν) x - 1) + (1 - (∂μ/∂ν) x)) := by
+    filter_upwards [μ.rnDeriv_ne_top ν] with x hx
+    rw [tvDivFun_apply hx]
+  have h_meas₁ : Measurable fun x ↦ (∂μ/∂ν) x - 1 := hr.sub measurable_const
+  have h_meas₂ : Measurable fun x ↦ ((∂μ/∂ν) x - 1) + (1 - (∂μ/∂ν) x) :=
+    h_meas₁.add (measurable_const.sub hr)
+  rw [fDiv, lintegral_congr_ae h_ae, lintegral_const_mul _ h_meas₂, lintegral_add_left h_meas₁, hT,
+    derivAtTop_tvDivFun, ← mul_add, add_right_comm, h_sub, ← two_mul, ← mul_assoc,
+    ENNReal.inv_mul_cancel (by norm_num) (by norm_num), one_mul]
+
+/-- On probability measures, the total variation distance is the f-divergence for the function
+`x ↦ |x - 1| / 2`. -/
+lemma tv_eq_fDiv_tvDivFun (μ ν : Measure α) [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
+    tv μ ν = (fDiv tvDivFun μ ν).toReal := by
+  rw [fDiv_tvDivFun, ENNReal.toReal_ofReal tv_nonneg]
+
 end StatisticalDivergences
 
 section BretagnolleHuber
-
-lemma tv_symm (μ ν : Measure α) : tv μ ν = tv ν μ := by
-  rw [tv, tv, statInfo_symm]
-  congr 2
-  refine Measure.ext_of_singleton fun b ↦ ?_
-  rw [Measure.map_apply (measurable_of_countable _) (measurableSet_singleton b)]
-  cases b <;> simp [preimage]
-
-lemma lintegral_one_sub_rnDeriv_eq_tv (μ ν : Measure α) [IsProbabilityMeasure μ]
-    [IsProbabilityMeasure ν] :
-    ∫⁻ x, 1 - (∂μ/∂ν) x ∂ν = ENNReal.ofReal (tv μ ν) := by
-  have h := toReal_statInfo_eq_integral_max_of_ge (μ := μ) (ν := ν) (π := Bool.boolMeasure 1 1)
-    (by simp)
-  simp only [Bool.boolMeasure_apply_true, Bool.boolMeasure_apply_false, ENNReal.toReal_one,
-    one_mul] at h
-  rw [tv, h, ofReal_integral_eq_lintegral_ofReal]
-  · refine lintegral_congr_ae ?_
-    filter_upwards [μ.rnDeriv_ne_top ν] with x hx
-    rw [ENNReal.ofReal_max, ENNReal.ofReal_zero, zero_max,
-      ENNReal.ofReal_sub _ ENNReal.toReal_nonneg, ENNReal.ofReal_one, ENNReal.ofReal_toReal hx]
-  · exact (integrable_zero _ _ _).sup ((integrable_const _).sub Measure.integrable_toReal_rnDeriv)
-  · exact ae_of_all _ fun _ ↦ le_max_left _ _
 
 /-- **Bretagnolle-Huber** type lower bound on an f-divergence in terms of the total variation
 distance. -/
@@ -332,90 +332,6 @@ theorem neg_log_one_sub_sq_tv_le_klDiv (μ ν : Measure α) [IsProbabilityMeasur
   rw [show 1 - tv μ ν ^ 2 = (1 + tv μ ν) * (1 - tv μ ν) by ring,
     Real.log_mul (by linarith) (by linarith)]
   ring
-
-/-- The divergence function `x ↦ |x - 1| / 2`, which defines the total variation distance on
-probability measures (see `fDiv_tvDivFun`). -/
-noncomputable
-def tvDivFun : DivFunction :=
-  DivFunction.ofReal (fun x ↦ 2⁻¹ * |x - 1|)
-    (by
-      have h1 : ConvexOn ℝ univ (fun x : ℝ ↦ x - 1) :=
-        (convexOn_id convex_univ).sub (concaveOn_const 1 convex_univ)
-      have h2 : ConvexOn ℝ univ (fun x : ℝ ↦ 1 - x) :=
-        (convexOn_const 1 convex_univ).sub (concaveOn_id convex_univ)
-      have h := (h1.sup h2).smul (by norm_num : (0 : ℝ) ≤ 2⁻¹)
-      refine (h.subset (subset_univ _) (convex_Ioi 0)).congr fun x _ ↦ ?_
-      simp [abs_eq_max_neg])
-    (by simp)
-
-lemma tvDivFun_apply {x : ℝ≥0∞} (hx : x ≠ ∞) : tvDivFun x = 2⁻¹ * ((x - 1) + (1 - x)) := by
-  rw [tvDivFun, DivFunction.ofReal_apply_of_continuousWithinAt (by fun_prop) hx,
-    ENNReal.ofReal_mul (by norm_num), ENNReal.ofReal_inv_of_pos (by norm_num), ENNReal.ofReal_ofNat]
-  congr 1
-  rcases le_total x 1 with h | h
-  · have h' : x.toReal ≤ 1 := ENNReal.toReal_le_of_le_ofReal zero_le_one (by simpa using h)
-    rw [abs_of_nonpos (sub_nonpos.2 h'), tsub_eq_zero_of_le h, zero_add, neg_sub,
-      ENNReal.ofReal_sub _ ENNReal.toReal_nonneg, ENNReal.ofReal_one, ENNReal.ofReal_toReal hx]
-  · have h' : 1 ≤ x.toReal := by
-      rw [← ENNReal.toReal_one]
-      exact ENNReal.toReal_mono hx h
-    rw [abs_of_nonneg (sub_nonneg.2 h'), tsub_eq_zero_of_le h, add_zero,
-      ENNReal.ofReal_sub _ zero_le_one, ENNReal.ofReal_one, ENNReal.ofReal_toReal hx]
-
-@[simp] lemma derivAtTop_tvDivFun : tvDivFun.derivAtTop = 2⁻¹ := by
-  have : (𝓝[<] (∞ : ℝ≥0∞)).NeBot := nhdsLT_neBot_of_exists_lt ⟨0, ENNReal.zero_lt_top⟩
-  refine tendsto_nhds_unique tvDivFun.tendsto_div_nhdsLT_top ?_
-  have h_inv : Tendsto (fun y : ℝ≥0∞ ↦ y⁻¹) (𝓝[<] ∞) (𝓝 0) := by
-    simpa using (continuous_inv.tendsto (∞ : ℝ≥0∞)).mono_left nhdsWithin_le_nhds
-  have h := ENNReal.Tendsto.const_mul
-    (ENNReal.Tendsto.sub tendsto_const_nhds h_inv (Or.inl ENNReal.one_ne_top))
-    (a := 2⁻¹) (Or.inr (by simp))
-  rw [tsub_zero, mul_one] at h
-  refine h.congr' ?_
-  filter_upwards [Ioo_mem_nhdsLT ENNReal.one_lt_top] with y hy
-  have hy0 : y ≠ 0 := (zero_lt_one.trans hy.1).ne'
-  rw [tvDivFun_apply hy.2.ne, tsub_eq_zero_of_le hy.1.le, add_zero, mul_div_assoc,
-    ENNReal.sub_div (fun _ _ ↦ hy0), ENNReal.div_self hy0 hy.2.ne, one_div]
-
-/-- On probability measures, the total variation distance is the f-divergence for the function
-`x ↦ |x - 1| / 2`. -/
-lemma fDiv_tvDivFun (μ ν : Measure α) [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
-    fDiv tvDivFun μ ν = ENNReal.ofReal (tv μ ν) := by
-  set T := ENNReal.ofReal (tv μ ν)
-  have hT := lintegral_one_sub_rnDeriv_eq_tv μ ν
-  have hr : Measurable (∂μ/∂ν) := Measure.measurable_rnDeriv μ ν
-  -- `∫⁻ (r - 1) ∂ν + μ⊥(X) = T`
-  have h_sub : ∫⁻ x, (∂μ/∂ν) x - 1 ∂ν + μ.singularPart ν univ = T := by
-    have h_univ : μ univ = μ.singularPart ν univ + ∫⁻ x, (∂μ/∂ν) x ∂ν := by
-      conv_lhs => rw [μ.haveLebesgueDecomposition_add ν]
-      rw [Measure.add_apply, withDensity_apply _ MeasurableSet.univ, Measure.restrict_univ]
-    have h_eq x : (∂μ/∂ν) x + (1 - (∂μ/∂ν) x) = 1 + ((∂μ/∂ν) x - 1) := by
-      rcases le_total ((∂μ/∂ν) x) 1 with h | h
-      · rw [add_tsub_cancel_of_le h, tsub_eq_zero_of_le h, add_zero]
-      · rw [tsub_eq_zero_of_le h, add_zero, add_tsub_cancel_of_le h]
-    have h_int := lintegral_congr (μ := ν) h_eq
-    rw [lintegral_add_left hr, lintegral_add_left measurable_const, lintegral_const,
-      measure_univ, one_mul, hT] at h_int
-    have h_total : 1 + (∫⁻ x, (∂μ/∂ν) x - 1 ∂ν + μ.singularPart ν univ) = 1 + T := by
-      rw [← add_assoc, ← h_int, add_right_comm, add_comm (∫⁻ x, (∂μ/∂ν) x ∂ν), ← h_univ,
-        measure_univ]
-    exact (ENNReal.add_right_inj ENNReal.one_ne_top).mp h_total
-  have h_ae : (fun x ↦ tvDivFun ((∂μ/∂ν) x))
-      =ᵐ[ν] fun x ↦ 2⁻¹ * (((∂μ/∂ν) x - 1) + (1 - (∂μ/∂ν) x)) := by
-    filter_upwards [μ.rnDeriv_ne_top ν] with x hx
-    rw [tvDivFun_apply hx]
-  have h_meas₁ : Measurable fun x ↦ (∂μ/∂ν) x - 1 := hr.sub measurable_const
-  have h_meas₂ : Measurable fun x ↦ ((∂μ/∂ν) x - 1) + (1 - (∂μ/∂ν) x) :=
-    h_meas₁.add (measurable_const.sub hr)
-  rw [fDiv, lintegral_congr_ae h_ae, lintegral_const_mul _ h_meas₂, lintegral_add_left h_meas₁, hT,
-    derivAtTop_tvDivFun, ← mul_add, add_right_comm, h_sub, ← two_mul, ← mul_assoc,
-    ENNReal.inv_mul_cancel (by norm_num) (by norm_num), one_mul]
-
-/-- On probability measures, the total variation distance is the f-divergence for the function
-`x ↦ |x - 1| / 2`. -/
-lemma tv_eq_fDiv_tvDivFun (μ ν : Measure α) [IsProbabilityMeasure μ] [IsProbabilityMeasure ν] :
-    tv μ ν = (fDiv tvDivFun μ ν).toReal := by
-  rw [fDiv_tvDivFun, ENNReal.toReal_ofReal tv_nonneg]
 
 end BretagnolleHuber
 

@@ -59,10 +59,6 @@ lemma statInfoFun_neg_neg (h : β ≠ γ) : statInfoFun (-β) (-γ) = statInfoFu
   rcases lt_or_gt_of_ne h with (hγβ | hγβ)
     <;> simp [statInfoFun, sub_eq_add_neg, hγβ.le, hγβ.not_ge, add_comm]
 
--- TODO: for now I will leave the continuity assumption in some lemmas, it should be derived from
--- the convexity but the lemma is not yet in mathlib, when it gets there we can remove this
--- assumption
-
 section Measurability
 
 lemma measurable_statInfoFun : Measurable statInfoFun.uncurry.uncurry := by
@@ -72,19 +68,6 @@ lemma measurable_statInfoFun : Measurable statInfoFun.uncurry.uncurry := by
   · exact measurableSet_le (by fun_prop) (by fun_prop)
   · fun_prop
   · fun_prop
-
-lemma stronglyMeasurable_statInfoFun : StronglyMeasurable statInfoFun.uncurry.uncurry := by
-  apply Measurable.stronglyMeasurable
-  change Measurable (fun (p : (ℝ × ℝ) × ℝ) ↦ if p.1.2 ≤ p.1.1 then max 0 (p.1.2 - p.1.1 * p.2)
-    else max 0 (p.1.1 * p.2 - p.1.2))
-  apply Measurable.ite
-  · exact measurableSet_le (by fun_prop) (by fun_prop)
-  · fun_prop
-  · fun_prop
-
-lemma measurable_statInfoFun2 : Measurable fun γ ↦ statInfoFun β γ x := by
-  change Measurable (statInfoFun.uncurry.uncurry ∘ (fun (γ : ℝ) ↦ ((β, γ), x)))
-  exact measurable_statInfoFun.comp (by fun_prop)
 
 lemma stronglyMeasurable_statInfoFun3 : StronglyMeasurable (statInfoFun β γ) := by
   change StronglyMeasurable (statInfoFun.uncurry.uncurry ∘ (fun (x : ℝ) ↦ ((β, γ), x)))
@@ -105,72 +88,20 @@ lemma statInfoFun_of_gt (h : γ > β) : statInfoFun β γ x = max 0 (β * x - γ
 lemma statInfoFun_of_gt' (h : γ > β) : statInfoFun β γ = fun x ↦ max 0 (β * x - γ) := by
   ext; exact statInfoFun_of_gt h
 
-lemma statInfoFun_of_pos_of_le_of_le (hβ : 0 < β) (hγ : γ ≤ β) (hx : x ≤ γ / β) :
-    statInfoFun β γ x = γ - β * x :=
-  statInfoFun_of_le hγ ▸ max_eq_right_iff.mpr <| sub_nonneg.mpr <| (le_div_iff₀' hβ).mp hx
-
-lemma statInfoFun_of_pos_of_le_of_ge (hβ : 0 < β) (hγ : γ ≤ β) (hx : x ≥ γ / β) :
-    statInfoFun β γ x = 0 :=
-  statInfoFun_of_le hγ ▸ max_eq_left_iff.mpr <| sub_nonpos.mpr <| (div_le_iff₀' hβ).mp hx
-
-lemma statInfoFun_of_pos_of_gt_of_le (hβ : 0 < β) (hγ : γ > β) (hx : x ≤ γ / β) :
-    statInfoFun β γ x = 0 :=
-  statInfoFun_of_gt hγ ▸ max_eq_left_iff.mpr <| sub_nonpos.mpr <| (le_div_iff₀' hβ).mp hx
-
 lemma statInfoFun_of_pos_of_gt_of_ge (hβ : 0 < β) (hγ : γ > β) (hx : x ≥ γ / β) :
     statInfoFun β γ x = β * x - γ :=
   statInfoFun_of_gt hγ ▸ max_eq_right_iff.mpr <| sub_nonneg.mpr <| (div_le_iff₀' hβ).mp hx
-
-lemma statInfoFun_of_neg_of_le_of_le (hβ : β < 0) (hγ : γ ≤ β) (hx : x ≤ γ / β) :
-    statInfoFun β γ x = 0 :=
-  statInfoFun_of_le hγ ▸  max_eq_left_iff.mpr <| sub_nonpos.mpr <| (le_div_iff_of_neg' hβ).mp hx
 
 lemma statInfoFun_of_neg_of_le_of_ge (hβ : β < 0) (hγ : γ ≤ β) (hx : x ≥ γ / β) :
     statInfoFun β γ x = γ - β * x :=
   statInfoFun_of_le hγ ▸ max_eq_right_iff.mpr <| sub_nonneg.mpr <| (div_le_iff_of_neg' hβ).mp hx
 
-lemma statInfoFun_of_neg_of_gt_of_le (hβ : β < 0) (hγ : γ > β) (hx : x ≤ γ / β) :
-    statInfoFun β γ x = β * x - γ :=
-  statInfoFun_of_gt hγ ▸ max_eq_right_iff.mpr <| sub_nonneg.mpr <| (le_div_iff_of_neg' hβ).mp hx
-
-lemma statInfoFun_of_neg_of_gt_of_ge (hβ : β < 0) (hγ : γ > β) (hx : x ≥ γ / β) :
-    statInfoFun β γ x = 0 :=
-  statInfoFun_of_gt hγ ▸ max_eq_left_iff.mpr <| sub_nonpos.mpr <| (div_le_iff_of_neg' hβ).mp hx
-
-lemma statInfoFun_of_one_of_le_one (h : γ ≤ 1) : statInfoFun 1 γ x = max 0 (γ - x) :=
-  statInfoFun_one ▸ ite_eq_left h
-
-lemma statInfoFun_of_one_of_one_lt (h : 1 < γ) : statInfoFun 1 γ x = max 0 (x - γ) :=
-  statInfoFun_one ▸ ite_eq_right h.not_ge
-
-lemma statInfoFun_of_one_of_le_one_of_le (h : γ ≤ 1) (hx : x ≤ γ) : statInfoFun 1 γ x = γ - x :=
-  statInfoFun_of_one_of_le_one h ▸ max_eq_right_iff.mpr (sub_nonneg.mpr hx)
-
-lemma statInfoFun_of_one_of_le_one_of_ge (h : γ ≤ 1) (hx : x ≥ γ) : statInfoFun 1 γ x = 0 :=
-  statInfoFun_of_one_of_le_one h ▸ max_eq_left_iff.mpr (sub_nonpos.mpr hx)
-
-lemma statInfoFun_of_one_of_one_lt_of_le (h : 1 < γ) (hx : x ≤ γ) : statInfoFun 1 γ x = 0 :=
-  statInfoFun_of_one_of_one_lt h ▸ max_eq_left_iff.mpr (sub_nonpos.mpr hx)
-
-lemma statInfoFun_of_one_of_one_lt_of_ge (h : 1 < γ) (hx : x ≥ γ) : statInfoFun 1 γ x = x - γ :=
-  statInfoFun_of_one_of_one_lt h ▸ max_eq_right_iff.mpr (sub_nonneg.mpr hx)
-
 @[simp]
 lemma statInfoFun_apply_one : statInfoFun β γ 1 = 0 := by
-  rcases lt_trichotomy β 0 with hβ | rfl | hβ
-  · rcases le_or_gt γ β with hγ | hγ
-    · refine statInfoFun_of_neg_of_le_of_le hβ hγ ?_
-      rwa [one_le_div_of_neg hβ]
-    · refine statInfoFun_of_neg_of_gt_of_ge hβ hγ ?_
-      rw [ge_iff_le, div_le_one_of_neg hβ]
-      exact hγ.le
-  · simp
-  · rcases le_or_gt γ β with hγ | hγ
-    · refine statInfoFun_of_pos_of_le_of_ge hβ hγ ?_
-      rwa [ge_iff_le, div_le_one hβ]
-    · refine statInfoFun_of_pos_of_gt_of_le hβ hγ ?_
-      rw [one_le_div hβ]
-      exact hγ.le
+  unfold statInfoFun
+  split_ifs with h
+  · simp [h]
+  · simp [(not_le.mp h).le]
 
 lemma convexOn_statInfoFun (β γ : ℝ) : ConvexOn ℝ univ (statInfoFun β γ) := by
   unfold statInfoFun
@@ -188,164 +119,9 @@ lemma continuous_statInfoFun : Continuous (statInfoFun β γ) := by
   · rw [statInfoFun_of_gt' hγ]
     exact continuous_const.max ((continuous_const.mul continuous_id).sub continuous_const)
 
-lemma continuousAt_statInfoFun : ContinuousAt (statInfoFun β γ) x :=
-  continuous_statInfoFun.continuousAt
-
-lemma continuousAt_statInfoFun_zero : ContinuousAt (statInfoFun β γ) 0 :=
-  continuousAt_statInfoFun
-
 lemma continuousWithinAt_statInfoFun_zero :
     ContinuousWithinAt (statInfoFun β γ) (Ioi 0) 0 :=
   continuous_statInfoFun.continuousWithinAt
-
-section rightDeriv
-
-lemma _root_.rightDeriv_congr_nhdsGE {f g : ℝ → ℝ} {x : ℝ} (h : f =ᶠ[𝓝[≥] x] g) :
-    rightDeriv f x = rightDeriv g x :=
-  Filter.EventuallyEq.derivWithin_eq (h.filter_mono (nhdsWithin_mono _ Ioi_subset_Ici_self))
-    (h.eq_of_nhdsWithin Set.self_mem_Ici)
-
-lemma rightDeriv_max_zero_const_sub_of_le (h : ∀ᶠ y in 𝓝[≥] x, β * y ≤ γ) :
-    rightDeriv (fun y ↦ max 0 (γ - β * y)) x = -β := by
-  rw [rightDeriv_congr_nhdsGE (g := fun y ↦ γ - β * y) (h.mono fun y hy ↦ ?_),
-    rightDeriv_of_hasDerivAt (((hasDerivAt_id' x).const_mul β).const_sub γ), mul_one]
-  exact max_eq_right (sub_nonneg.mpr hy)
-
-lemma rightDeriv_max_zero_const_sub_of_ge (h : ∀ᶠ y in 𝓝[≥] x, γ ≤ β * y) :
-    rightDeriv (fun y ↦ max 0 (γ - β * y)) x = 0 := by
-  rw [rightDeriv_congr_nhdsGE (g := fun _ ↦ 0) (h.mono fun y hy ↦ ?_), rightDeriv_const,
-    Pi.zero_apply]
-  exact max_eq_left (sub_nonpos.mpr hy)
-
-lemma rightDeriv_max_zero_sub_const_of_ge (h : ∀ᶠ y in 𝓝[≥] x, γ ≤ β * y) :
-    rightDeriv (fun y ↦ max 0 (β * y - γ)) x = β := by
-  rw [rightDeriv_congr_nhdsGE (g := fun y ↦ β * y - γ) (h.mono fun y hy ↦ ?_),
-    rightDeriv_of_hasDerivAt (((hasDerivAt_id' x).const_mul β).sub_const γ), mul_one]
-  exact max_eq_right (sub_nonneg.mpr hy)
-
-lemma rightDeriv_max_zero_sub_const_of_le (h : ∀ᶠ y in 𝓝[≥] x, β * y ≤ γ) :
-    rightDeriv (fun y ↦ max 0 (β * y - γ)) x = 0 := by
-  rw [rightDeriv_congr_nhdsGE (g := fun _ ↦ 0) (h.mono fun y hy ↦ ?_), rightDeriv_const,
-    Pi.zero_apply]
-  exact max_eq_left (sub_nonpos.mpr hy)
-
-lemma eventually_mul_lt_of_pos_of_lt (hβ : 0 < β) (hx : x < γ / β) :
-    ∀ᶠ y in 𝓝[≥] x, β * y < γ := by
-  filter_upwards [nhdsWithin_le_nhds (Iio_mem_nhds hx)] with y (hy : y < γ / β)
-  rw [mul_comm]
-  exact (lt_div_iff₀ hβ).mp hy
-
-lemma eventually_le_mul_of_pos_of_ge (hβ : 0 < β) (hx : x ≥ γ / β) :
-    ∀ᶠ y in 𝓝[≥] x, γ ≤ β * y := by
-  refine eventually_nhdsWithin_of_forall fun y (hy : x ≤ y) ↦ ?_
-  rw [mul_comm]
-  exact (div_le_iff₀ hβ).mp (hx.trans hy)
-
-lemma eventually_lt_mul_of_neg_of_lt (hβ : β < 0) (hx : x < γ / β) :
-    ∀ᶠ y in 𝓝[≥] x, γ < β * y := by
-  filter_upwards [nhdsWithin_le_nhds (Iio_mem_nhds hx)] with y (hy : y < γ / β)
-  rw [mul_comm]
-  exact (lt_div_iff_of_neg hβ).mp hy
-
-lemma eventually_mul_le_of_neg_of_ge (hβ : β < 0) (hx : x ≥ γ / β) :
-    ∀ᶠ y in 𝓝[≥] x, β * y ≤ γ := by
-  refine eventually_nhdsWithin_of_forall fun y (hy : x ≤ y) ↦ ?_
-  rw [mul_comm]
-  exact (div_le_iff_of_neg hβ).mp (hx.trans hy)
-
-lemma rightDeriv_statInfoFun_of_pos_of_le_of_lt (hβ : 0 < β) (hγ : γ ≤ β) (hx : x < γ / β) :
-    rightDeriv (statInfoFun β γ) x = - β := by
-  rw [statInfoFun_of_le' hγ]
-  exact rightDeriv_max_zero_const_sub_of_le
-    ((eventually_mul_lt_of_pos_of_lt hβ hx).mono fun _ h ↦ h.le)
-
-lemma rightDeriv_statInfoFun_of_pos_of_le_of_ge (hβ : 0 < β) (hγ : γ ≤ β) (hx : x ≥ γ / β) :
-    rightDeriv (statInfoFun β γ) x = 0 := by
-  rw [statInfoFun_of_le' hγ]
-  exact rightDeriv_max_zero_const_sub_of_ge (eventually_le_mul_of_pos_of_ge hβ hx)
-
-lemma rightDeriv_one_statInfoFun_of_pos_of_le_ (hβ : 0 < β) (hγ : γ ≤ β) :
-    rightDeriv (statInfoFun β γ) 1 = 0 := by
-  refine rightDeriv_statInfoFun_of_pos_of_le_of_ge hβ hγ ?_
-  rwa [ge_iff_le, div_le_one hβ]
-
-lemma rightDeriv_statInfoFun_of_pos_of_gt_of_lt (hβ : 0 < β) (hγ : γ > β) (hx : x < γ / β) :
-    rightDeriv (statInfoFun β γ) x = 0 := by
-  rw [statInfoFun_of_gt' hγ]
-  exact rightDeriv_max_zero_sub_const_of_le
-    ((eventually_mul_lt_of_pos_of_lt hβ hx).mono fun _ h ↦ h.le)
-
-lemma rightDeriv_statInfoFun_of_pos_of_gt_of_ge (hβ : 0 < β) (hγ : γ > β) (hx : x ≥ γ / β) :
-    rightDeriv (statInfoFun β γ) x = β := by
-  rw [statInfoFun_of_gt' hγ]
-  exact rightDeriv_max_zero_sub_const_of_ge (eventually_le_mul_of_pos_of_ge hβ hx)
-
-lemma rightDeriv_one_statInfoFun_of_pos_of_gt (hβ : 0 < β) (hγ : γ > β) :
-    rightDeriv (statInfoFun β γ) 1 = 0 := by
-  refine rightDeriv_statInfoFun_of_pos_of_gt_of_lt hβ hγ ?_
-  rwa [one_lt_div hβ]
-
-lemma rightDeriv_statInfoFun_of_neg_of_le_of_lt (hβ : β < 0) (hγ : γ ≤ β) (hx : x < γ / β) :
-    rightDeriv (statInfoFun β γ) x = 0 := by
-  rw [statInfoFun_of_le' hγ]
-  exact rightDeriv_max_zero_const_sub_of_ge
-    ((eventually_lt_mul_of_neg_of_lt hβ hx).mono fun _ h ↦ h.le)
-
-lemma rightDeriv_statInfoFun_of_neg_of_le_of_ge (hβ : β < 0) (hγ : γ ≤ β) (hx : x ≥ γ / β) :
-    rightDeriv (statInfoFun β γ) x = - β := by
-  rw [statInfoFun_of_le' hγ]
-  exact rightDeriv_max_zero_const_sub_of_le (eventually_mul_le_of_neg_of_ge hβ hx)
-
-lemma rightDeriv_one_statInfoFun_of_neg_of_eq (hβ : β < 0) :
-    rightDeriv (statInfoFun β β) 1 = - β := by
-  refine rightDeriv_statInfoFun_of_neg_of_le_of_ge hβ le_rfl ?_
-  simp [hβ.ne]
-
-lemma rightDeriv_one_statInfoFun_of_neg_of_lt (hβ : β < 0) (hγ : γ < β) :
-    rightDeriv (statInfoFun β γ) 1 = 0 := by
-  refine rightDeriv_statInfoFun_of_neg_of_le_of_lt hβ hγ.le ?_
-  rwa [one_lt_div_of_neg hβ]
-
-lemma rightDeriv_statInfoFun_of_neg_of_gt_of_lt (hβ : β < 0) (hγ : γ > β) (hx : x < γ / β) :
-    rightDeriv (statInfoFun β γ) x = β := by
-  rw [statInfoFun_of_gt' hγ]
-  exact rightDeriv_max_zero_sub_const_of_ge
-    ((eventually_lt_mul_of_neg_of_lt hβ hx).mono fun _ h ↦ h.le)
-
-lemma rightDeriv_statInfoFun_of_neg_of_gt_of_ge (hβ : β < 0) (hγ : γ > β) (hx : x ≥ γ / β) :
-    rightDeriv (statInfoFun β γ) x = 0 := by
-  rw [statInfoFun_of_gt' hγ]
-  exact rightDeriv_max_zero_sub_const_of_le (eventually_mul_le_of_neg_of_ge hβ hx)
-
-lemma rightDeriv_one_statInfoFun_of_neg_of_gt (hβ : β < 0) (hγ : γ > β) :
-    rightDeriv (statInfoFun β γ) 1 = 0 := by
-  refine rightDeriv_statInfoFun_of_neg_of_gt_of_ge hβ hγ ?_
-  rw [ge_iff_le, div_le_one_of_neg hβ]
-  exact hγ.le
-
-lemma rightDeriv_statInfoFun_one_of_le_one_of_le (h : γ ≤ 1) (hx : x < γ) :
-    rightDeriv (statInfoFun 1 γ) x = -1 :=
-  rightDeriv_statInfoFun_of_pos_of_le_of_lt one_pos h (by rwa [div_one])
-
-lemma rightDeriv_statInfoFun_one_of_le_one_of_ge (h : γ ≤ 1) (hx : x ≥ γ) :
-    rightDeriv (statInfoFun 1 γ) x = 0 :=
-  rightDeriv_statInfoFun_of_pos_of_le_of_ge one_pos h (by rwa [div_one])
-
-lemma rightDeriv_statInfoFun_one_of_one_lt_of_lt (h : 1 < γ) (hx : x < γ) :
-    rightDeriv (statInfoFun 1 γ) x = 0 :=
-  rightDeriv_statInfoFun_of_pos_of_gt_of_lt one_pos h (by rwa [div_one])
-
-lemma rightDeriv_statInfoFun_one_of_one_lt_of_ge (h : 1 < γ) (hx : x ≥ γ) :
-    rightDeriv (statInfoFun 1 γ) x = 1 :=
-  rightDeriv_statInfoFun_of_pos_of_gt_of_ge one_pos h (by rwa [div_one])
-
-lemma rightDeriv_one_statInfoFun_one :
-    rightDeriv (statInfoFun 1 γ) 1 = 0 := by
-  rcases le_or_gt γ 1 with h | h
-  · exact rightDeriv_statInfoFun_one_of_le_one_of_ge h h
-  · exact rightDeriv_statInfoFun_one_of_one_lt_of_lt h h
-
-end rightDeriv
 
 section derivAtTop
 
@@ -411,23 +187,10 @@ lemma derivAtTop_statInfoFun_of_nonpos_of_gt (hβ : β ≤ 0) (hγ : γ > β) :
   simp only [Pi.zero_apply, max_eq_left_iff, tsub_le_iff_right, zero_add]
   rwa [div_le_iff_of_neg hβ, mul_comm] at hx
 
-lemma derivAtTop_statInfoFun_eq :
-    derivAtTop (fun x ↦ statInfoFun β γ x)
-      = if 0 ≤ β then (if γ ≤ β then 0 else β) else if γ ≤ β then -β else 0 := by
-  by_cases hβ : 0 ≤ β <;> by_cases hγ : γ ≤ β <;> simp [derivAtTop_statInfoFun_of_nonneg_of_le,
-    derivAtTop_statInfoFun_of_nonneg_of_gt, derivAtTop_statInfoFun_of_nonpos_of_le,
-    derivAtTop_statInfoFun_of_nonpos_of_gt, hβ, hγ, lt_of_not_ge, le_of_lt (lt_of_not_ge _)]
-
 lemma derivAtTop_statInfoFun_ne_top (β γ : ℝ) : derivAtTop (fun x ↦ statInfoFun β γ x) ≠ ⊤ := by
   rcases le_total 0 β with (hβ | hβ) <;> rcases le_or_gt γ β with (hγ | hγ) <;>
     simp [derivAtTop_statInfoFun_of_nonneg_of_le, derivAtTop_statInfoFun_of_nonneg_of_gt,
       derivAtTop_statInfoFun_of_nonpos_of_le, derivAtTop_statInfoFun_of_nonpos_of_gt, hβ, hγ]
-
-lemma derivAtTop_statInfoFun_nonneg (β γ : ℝ) : 0 ≤ derivAtTop (fun x ↦ statInfoFun β γ x) := by
-  rcases le_total 0 β with (hβ | hβ) <;> rcases le_or_gt γ β with (hγ | hγ) <;>
-    simp [derivAtTop_statInfoFun_of_nonneg_of_le, derivAtTop_statInfoFun_of_nonneg_of_gt,
-      ← EReal.coe_neg, derivAtTop_statInfoFun_of_nonpos_of_le,
-      derivAtTop_statInfoFun_of_nonpos_of_gt, hβ, hγ]
 
 end derivAtTop
 
@@ -453,29 +216,6 @@ lemma statInfoFun_of_nonneg_of_one_le_right (hβ : 0 ≤ β) (hx : 1 ≤ x) :
     · simp [statInfoFun, hγβ, hγβx, lt_of_not_ge hγβ]
     · simp [statInfoFun, hγβ, hγβx, le_of_not_ge hγβx]
 
-lemma statInfoFun_of_nonpos_of_right_le_one (hβ : β ≤ 0) (hx : x ≤ 1) :
-    statInfoFun β γ x = (Ioc β (β * x)).indicator (fun y ↦ β * x - y) γ := by
-  by_cases hγβ : γ ≤ β
-  · simp only [statInfoFun, hγβ, ↓reduceIte, indicator, mem_Ioc, hγβ.not_gt, false_and,
-      max_eq_left_iff, tsub_le_iff_right, zero_add]
-    suffices -β * x ≤ -γ from by simpa only [neg_mul, neg_le_neg_iff]
-    exact (mul_le_of_le_one_right (neg_nonneg.mpr hβ) hx).trans (neg_le_neg_iff.mpr hγβ)
-  · by_cases hγβx : γ ≤ β * x
-    · simp [statInfoFun, hγβx, lt_of_not_ge hγβ]
-    · simp [statInfoFun, hγβ, hγβx, le_of_not_ge hγβx]
-
-lemma statInfoFun_of_nonpos_of_one_le_right (hβ : β ≤ 0) (hx : 1 ≤ x) :
-    statInfoFun β γ x = (Ioc (β * x) β).indicator (fun y ↦ y - β * x) γ := by
-  by_cases hγβ : γ ≤ β
-  · by_cases hβxγ : β * x < γ
-    · simp [statInfoFun, indicator, hβxγ, hβxγ.le]
-    · simp [statInfoFun, hγβ, hβxγ, (le_of_not_gt hβxγ)]
-  · simp only [statInfoFun, hγβ, ↓reduceIte, mem_Ioc, and_false, not_false_eq_true,
-      indicator_of_notMem, max_eq_left_iff, tsub_le_iff_right, zero_add]
-    suffices -β * x ≥ -γ from by simpa only [neg_mul, neg_le_neg_iff]
-    exact ((neg_lt_neg_iff.mpr (lt_of_not_ge hγβ)).trans_le
-      ((le_mul_of_one_le_right (neg_nonneg.mpr hβ) hx))).le
-
 lemma statInfoFun_of_one_of_one_le_right (h : 1 ≤ x) :
     statInfoFun 1 γ x = (Ioc 1 x).indicator (fun y ↦ x - y) γ := by
   convert statInfoFun_of_nonneg_of_one_le_right _ h <;> simp
@@ -483,116 +223,6 @@ lemma statInfoFun_of_one_of_one_le_right (h : 1 ≤ x) :
 lemma statInfoFun_of_one_of_right_le_one (h : x ≤ 1) :
     statInfoFun 1 γ x = (Ioc x 1).indicator (fun y ↦ y - x) γ := by
   convert statInfoFun_of_nonneg_of_right_le_one _ h <;> simp
-
-lemma statInfoFun_one_zero_right : statInfoFun 1 γ 0 = (Ioc 0 1).indicator id γ := by
-  rw [statInfoFun_of_one_of_right_le_one zero_le_one]
-  simp only [sub_zero]
-  rfl
-
-lemma statInfoFun_le_of_nonneg_of_right_le_one (hβ : 0 ≤ β) (hx : x ≤ 1) :
-    statInfoFun β γ x ≤ (Ioc (β * x) β).indicator (fun _ ↦ β - β * x) γ := by
-  rw [statInfoFun_of_nonneg_of_right_le_one hβ hx]
-  refine indicator_rel_indicator le_rfl fun ⟨_, hγ⟩ ↦ ?_
-  simp [hγ]
-
-lemma statInfoFun_le_of_nonneg_of_one_le_right (hβ : 0 ≤ β) (hx : 1 ≤ x) :
-    statInfoFun β γ x ≤ (Ioc β (β * x)).indicator (fun _ ↦ β * x - β) γ := by
-  rw [statInfoFun_of_nonneg_of_one_le_right hβ hx]
-  refine indicator_rel_indicator le_rfl fun ⟨hβγ, _⟩ ↦ ?_
-  simp only [sub_eq_add_neg, add_le_add_iff_left, neg_le_neg_iff, hβγ.le]
-
-lemma statInfoFun_le_of_nonpos_of_right_le_one (hβ : β ≤ 0) (hx : x ≤ 1) :
-    statInfoFun β γ x ≤ (Ioc β (β * x)).indicator (fun _ ↦ β * x - β) γ := by
-  rw [statInfoFun_of_nonpos_of_right_le_one hβ hx]
-  refine indicator_rel_indicator le_rfl fun ⟨hγβ, _⟩ ↦ ?_
-  simp only [sub_eq_add_neg, add_le_add_iff_left, neg_le_neg_iff, hγβ.le]
-
-lemma statInfoFun_le_of_nonpos_of_one_le_right (hβ : β ≤ 0) (hx : 1 ≤ x) :
-    statInfoFun β γ x ≤ (Ioc (β * x) β).indicator (fun _ ↦ β - β * x) γ := by
-  rw [statInfoFun_of_nonpos_of_one_le_right hβ hx]
-  refine indicator_rel_indicator le_rfl fun ⟨_, hγ⟩ ↦ ?_
-  simp [hγ]
-
-lemma lintegral_nnnorm_statInfoFun_le {μ : Measure ℝ} (β x : ℝ) :
-    ∫⁻ γ, ↑‖statInfoFun β γ x‖₊ ∂μ ≤ (μ (uIoc (β * x) β)) * (ENNReal.ofReal |β - β * x|) := by
-  simp_rw [Real.nnnorm_of_nonneg (statInfoFun_nonneg _ _ _),
-    ← ENNReal.ofReal_eq_coe_nnreal (statInfoFun_nonneg _ _ _)]
-  rcases le_total β 0 with (hβ | hβ) <;> rcases le_total x 1 with (hx | hx)
-  · have hββx : β ≤ β * x := by exact le_mul_of_le_one_right hβ hx
-    calc
-      _ ≤ ∫⁻ γ, ENNReal.ofReal ((Ioc β (β * x)).indicator (fun _ ↦ β * x - β) γ) ∂μ :=
-        lintegral_mono fun _ ↦ ENNReal.ofReal_le_ofReal <|
-          statInfoFun_le_of_nonpos_of_right_le_one hβ hx
-      _ = ∫⁻ γ,  ((Ioc β (β * x)).indicator (fun _ ↦ ENNReal.ofReal (β * x - β)) γ) ∂μ := by
-        simp [Set.comp_indicator]
-      _ ≤ ENNReal.ofReal (β * x - β) * μ (Ioc β (β * x)) := lintegral_indicator_const_le _ _
-      _ = μ (Ι (β * x) β) * ENNReal.ofReal |β - β * x| := by
-        rw [uIoc_of_ge hββx, mul_comm, abs_sub_comm, abs_of_nonneg (sub_nonneg.mpr hββx)]
-  · have hβxβ : β * x ≤ β := by exact mul_le_of_one_le_right hβ hx
-    calc
-      _ ≤ ∫⁻ γ, ENNReal.ofReal ((Ioc (β * x) β).indicator (fun _ ↦ β - β * x) γ) ∂μ :=
-        lintegral_mono fun _ ↦ ENNReal.ofReal_le_ofReal <|
-          statInfoFun_le_of_nonpos_of_one_le_right hβ hx
-      _ = ∫⁻ γ,  ((Ioc (β * x) β).indicator (fun _ ↦ ENNReal.ofReal (β - β * x)) γ) ∂μ := by
-        simp [Set.comp_indicator]
-      _ ≤ ENNReal.ofReal (β - β * x) * μ (Ioc (β * x) β) := lintegral_indicator_const_le _ _
-      _ = μ (Ι (β * x) β) * ENNReal.ofReal |β - β * x| := by
-        rw [uIoc_comm, uIoc_of_ge hβxβ, abs_of_nonneg (sub_nonneg.mpr hβxβ), mul_comm]
-  · have hββx : β * x ≤ β := by exact mul_le_of_le_one_right hβ hx
-    calc
-      _ ≤ ∫⁻ γ, ENNReal.ofReal ((Ioc (β * x) β).indicator (fun _ ↦ β - β * x) γ) ∂μ :=
-        lintegral_mono fun _ ↦ ENNReal.ofReal_le_ofReal <|
-          statInfoFun_le_of_nonneg_of_right_le_one hβ hx
-      _ = ∫⁻ γ,  ((Ioc (β * x) β).indicator (fun _ ↦ ENNReal.ofReal (β - β * x)) γ) ∂μ := by
-        simp [Set.comp_indicator]
-      _ ≤ ENNReal.ofReal (β - β * x) * μ (Ioc (β * x) β) := lintegral_indicator_const_le _ _
-      _ = μ (Ι (β * x) β) * ENNReal.ofReal |β - β * x| := by
-        rw [uIoc_comm, uIoc_of_ge hββx, abs_of_nonneg (sub_nonneg.mpr hββx), mul_comm]
-  · have hβxβ : β ≤ β * x := by exact le_mul_of_one_le_right hβ hx
-    calc
-      _ ≤ ∫⁻ γ, ENNReal.ofReal ((Ioc β (β * x)).indicator (fun _ ↦ β * x - β) γ) ∂μ :=
-        lintegral_mono fun _ ↦ ENNReal.ofReal_le_ofReal <|
-          statInfoFun_le_of_nonneg_of_one_le_right hβ hx
-      _ = ∫⁻ γ,  ((Ioc β (β * x)).indicator (fun _ ↦ ENNReal.ofReal (β * x - β)) γ) ∂μ := by
-        simp [Set.comp_indicator]
-      _ ≤ ENNReal.ofReal (β * x - β) * μ (Ioc β (β * x)) := lintegral_indicator_const_le _ _
-      _ = μ (Ι (β * x) β) * ENNReal.ofReal |β - β * x| := by
-        rw [uIoc_of_ge hβxβ, mul_comm, abs_sub_comm, abs_of_nonneg (sub_nonneg.mpr hβxβ)]
-
-lemma integrable_statInfoFun {μ : Measure ℝ} [IsLocallyFiniteMeasure μ] (β x : ℝ) :
-    Integrable (fun γ ↦ statInfoFun β γ x) μ := by
-  refine ⟨measurable_statInfoFun2.stronglyMeasurable.aestronglyMeasurable, ?_⟩
-  refine ((lintegral_nnnorm_statInfoFun_le _ _).trans_lt ?_)
-  refine ENNReal.mul_lt_top ?_ ENNReal.ofReal_lt_top
-  exact (measure_mono uIoc_subset_uIcc).trans_lt isCompact_uIcc.measure_lt_top
-
-lemma integrable_statInfoFun_one_iff_of_ge {μ : Measure ℝ} {x : ℝ} (hx : 1 ≤ x) :
-    Integrable (fun γ ↦ statInfoFun 1 γ x) μ ↔ IntegrableOn (fun y ↦ x - y) (Ioc 1 x) μ := by
-  simp_rw [statInfoFun_of_one_of_one_le_right hx]
-  rw [integrable_indicator_iff]
-  exact measurableSet_Ioc
-
-lemma integrable_statInfoFun_one_iff_of_le {μ : Measure ℝ} {x : ℝ} (hx : x ≤ 1) :
-    Integrable (fun γ ↦ statInfoFun 1 γ x) μ ↔ IntegrableOn (fun y ↦ y - x) (Ioc x 1) μ := by
-  simp_rw [statInfoFun_of_one_of_right_le_one hx]
-  rw [integrable_indicator_iff]
-  exact measurableSet_Ioc
-
-lemma integrable_statInfoFun_one_iff {μ : Measure ℝ} (x : ℝ) :
-    Integrable (fun γ ↦ statInfoFun 1 γ x) μ ↔ IntegrableOn (fun y ↦ y - x) (uIoc 1 x) μ := by
-  rcases le_total 1 x with hx | hx
-  · simp only [hx, uIoc_of_le]
-    have : (-fun y ↦ x - y) = (fun y ↦ y - x) := by ext; simp
-    rw [integrable_statInfoFun_one_iff_of_ge hx, IntegrableOn, IntegrableOn, ← this,
-      integrable_neg_iff]
-  · rw [integrable_statInfoFun_one_iff_of_le hx]
-    simp [hx]
-
-lemma integrable_statInfoFun_one_iff' {μ : Measure ℝ} (x : ℝ) :
-    Integrable (fun γ ↦ statInfoFun 1 γ x) μ ↔ IntegrableOn (fun y ↦ x - y) (uIoc 1 x) μ := by
-  have : (-fun y ↦ x - y) = (fun y ↦ y - x) := by ext; simp
-  rw [integrable_statInfoFun_one_iff, IntegrableOn, IntegrableOn, ← this,
-      integrable_neg_iff]
 
 end statInfoFun_γ
 

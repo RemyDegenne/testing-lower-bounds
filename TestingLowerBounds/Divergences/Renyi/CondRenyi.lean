@@ -40,8 +40,6 @@ noncomputable
 def condRenyiDiv (a : ℝ) (κ η : Kernel α β) (μ : Measure α) : ℝ≥0∞ :=
   renyiDiv a (μ ⊗ₘ κ) (μ ⊗ₘ η)
 
-/-Maybe this can be stated in a nicer way, but I didn't find a way to do it. It's probably good
-enough to use `condRenyiDiv_of_lt_one`.-/
 lemma condRenyiDiv_zero (κ η : Kernel α β) (μ : Measure α) [IsMarkovKernel η] [IsFiniteMeasure μ] :
     condRenyiDiv 0 κ η μ
       = (- ENNReal.log ((μ ⊗ₘ η) {x | 0 < (∂μ ⊗ₘ κ/∂μ ⊗ₘ η) x} / μ .univ)).toENNReal := by
@@ -70,9 +68,12 @@ lemma integrable_rpow_rnDeriv_compProd_right_iff [CountableOrCountablyGenerated 
         + ((η x) .univ).toReal + (1 - a)⁻¹ * a * ((κ x) .univ).toReal := by
     filter_upwards [h_int, h_ac] with x hx_int hx_ac
     exact integral_hellingerFun_of_pos_of_ne_one_of_integrable_of_ac ha_pos ha_ne hx_int hx_ac
-  rw [integrable_congr h,
-    integrable_add_iff_integrable_left' ((Integrable.Kernel _ .univ).const_mul _),
-    integrable_add_iff_integrable_left' (Integrable.Kernel _ .univ),
+  have hκ : Integrable (fun x ↦ ((κ x) .univ).toReal) μ :=
+    Kernel.IsFiniteKernel.integrable _ _ .univ
+  have hη : Integrable (fun x ↦ ((η x) .univ).toReal) μ :=
+    Kernel.IsFiniteKernel.integrable _ _ .univ
+  rw [integrable_congr h, integrable_add_iff_integrable_left' (hκ.const_mul _),
+    integrable_add_iff_integrable_left' hη,
     integrable_const_mul_iff (isUnit_iff_ne_zero.mpr (inv_ne_zero (sub_ne_zero.mpr ha_ne)))]
 
 section TopAndBounds
@@ -80,7 +81,7 @@ section TopAndBounds
 lemma condRenyiDiv_eq_top_iff_of_one_lt [CountableOrCountablyGenerated α β] (ha : 1 < a)
     (κ η : Kernel α β) (μ : Measure α) [IsMarkovKernel κ] [IsFiniteKernel η] [IsFiniteMeasure μ]
     [NeZero μ] :
-    condRenyiDiv a κ η μ = ⊤
+    condRenyiDiv a κ η μ = ∞
       ↔ ¬ (∀ᵐ x ∂μ, Integrable (fun b ↦ ((∂κ x/∂η x) b).toReal ^ a) (η x))
         ∨ ¬ Integrable (fun x ↦ ∫ b, ((∂κ x/∂η x) b).toReal ^ a ∂η x) μ
         ∨ ¬ ∀ᵐ x ∂μ, κ x ≪ η x := by
@@ -98,7 +99,7 @@ lemma condRenyiDiv_eq_top_iff_of_one_lt [CountableOrCountablyGenerated α β] (h
 lemma condRenyiDiv_ne_top_iff_of_one_lt [CountableOrCountablyGenerated α β] (ha : 1 < a)
     (κ η : Kernel α β) (μ : Measure α) [IsMarkovKernel κ] [IsFiniteKernel η] [IsFiniteMeasure μ]
     [NeZero μ] :
-    condRenyiDiv a κ η μ ≠ ⊤
+    condRenyiDiv a κ η μ ≠ ∞
       ↔ (∀ᵐ x ∂μ, Integrable (fun b ↦ ((∂κ x/∂η x) b).toReal ^ a) (η x))
         ∧ Integrable (fun x ↦ ∫ b, ((∂κ x/∂η x) b).toReal ^ a ∂η x) μ
         ∧ ∀ᵐ x ∂μ, κ x ≪ η x := by
@@ -109,45 +110,9 @@ lemma condRenyiDiv_ne_top_iff_of_one_lt [CountableOrCountablyGenerated α β] (h
 lemma condRenyiDiv_eq_top_iff_of_lt_one [CountableOrCountablyGenerated α β]
     (ha_nonneg : 0 ≤ a) (ha : a < 1)
     (κ η : Kernel α β) (μ : Measure α) [IsFiniteKernel κ] [IsFiniteKernel η] [IsFiniteMeasure μ] :
-    condRenyiDiv a κ η μ = ⊤ ↔ ∀ᵐ x ∂μ, κ x ⟂ₘ η x := by
+    condRenyiDiv a κ η μ = ∞ ↔ ∀ᵐ x ∂μ, κ x ⟂ₘ η x := by
   rw [condRenyiDiv, renyiDiv_eq_top_iff_mutuallySingular_of_lt_one ha_nonneg ha,
     Measure.mutuallySingular_compProd_right_iff]
-
-lemma condRenyiDiv_of_not_ae_integrable_of_one_lt [CountableOrCountablyGenerated α β] (ha : 1 < a)
-    [IsMarkovKernel κ] [IsFiniteKernel η] [IsFiniteMeasure μ] [NeZero μ]
-    (h_int : ¬ (∀ᵐ x ∂μ, Integrable (fun b ↦ ((∂κ x/∂η x) b).toReal ^ a) (η x))) :
-    condRenyiDiv a κ η μ = ⊤ := by
-  rw [condRenyiDiv_eq_top_iff_of_one_lt ha]
-  exact Or.inl h_int
-
-lemma condRenyiDiv_of_not_integrable_of_one_lt [CountableOrCountablyGenerated α β] (ha : 1 < a)
-    [IsMarkovKernel κ] [IsFiniteKernel η] [IsFiniteMeasure μ] [NeZero μ]
-    (h_int : ¬ Integrable (fun x ↦ ∫ b, ((∂κ x/∂η x) b).toReal ^ a ∂η x) μ) :
-    condRenyiDiv a κ η μ = ⊤ := by
-  rw [condRenyiDiv_eq_top_iff_of_one_lt ha]
-  exact Or.inr (Or.inl h_int)
-
-lemma condRenyiDiv_of_not_ac_of_one_lt [CountableOrCountablyGenerated α β] (ha : 1 < a)
-    [IsMarkovKernel κ] [IsFiniteKernel η] [IsFiniteMeasure μ] [NeZero μ]
-    (h_ac : ¬ ∀ᵐ x ∂μ, κ x ≪ η x) :
-    condRenyiDiv a κ η μ = ⊤ := by
-  rw [condRenyiDiv_eq_top_iff_of_one_lt ha]
-  exact Or.inr (Or.inr h_ac)
-
-lemma condRenyiDiv_of_mutuallySingular_of_lt_one [CountableOrCountablyGenerated α β]
-    (ha_nonneg : 0 ≤ a) (ha : a < 1) [IsFiniteKernel κ] [IsFiniteKernel η] [IsFiniteMeasure μ]
-    (h_ms : ∀ᵐ x ∂μ, κ x ⟂ₘ η x) :
-    condRenyiDiv a κ η μ = ⊤ :=
-  (condRenyiDiv_eq_top_iff_of_lt_one ha_nonneg ha κ η μ).mpr h_ms
-
-lemma condRenyiDiv_of_ne_zero [CountableOrCountablyGenerated α β] (ha_zero : a ≠ 0)
-    (ha_ne_one : a ≠ 1) (κ η : Kernel α β) (μ : Measure α) [IsFiniteKernel κ] [∀ x, NeZero (κ x)]
-    [IsFiniteKernel η] [IsFiniteMeasure μ] :
-    condRenyiDiv a κ η μ = ((a - 1)⁻¹ * ENNReal.log
-      (((avgMass a (μ ⊗ₘ κ) (μ ⊗ₘ η) : EReal) + (a - 1) * condHellingerDiv a κ η μ).toENNReal)
-      - (a - 1)⁻¹ * (a * Real.log ((μ ⊗ₘ κ) .univ).toReal
-        + (1 - a) * Real.log ((μ ⊗ₘ η) .univ).toReal)).toENNReal := by
-  rw [condRenyiDiv, renyiDiv_of_ne_one ha_zero ha_ne_one, hellingerDiv_compProd_left μ κ η]
 
 end TopAndBounds
 

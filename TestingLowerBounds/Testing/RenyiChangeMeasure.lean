@@ -44,7 +44,7 @@ lemma measure_llr_gt_renyiDiv_le_exp [IsProbabilityMeasure μ] [IsProbabilityMea
   _ ≤ exp (-a * ((renyiDiv (1 + a) μ ν).toReal + c) + cgf (llr μ ν) μ a) := by
         refine measure_ge_le_exp_cgf (X := llr μ ν) (μ := μ) ((renyiDiv (1 + a) μ ν).toReal + c)
           ha.le ?_
-        rw [integrable_congr (exp_mul_llr' hμν)]
+        rw [integrable_congr (exp_mul_llr_of_ac hμν)]
         · rw [integrable_rpow_rnDeriv_iff hμν ha]
           exact h.1
   _ = exp (-a * c) := by

@@ -8,20 +8,21 @@ module
 public import TestingLowerBounds.IntegrableFRNDeriv
 public import TestingLowerBounds.Divergences.StatInfo.StatInfoFun
 public import TestingLowerBounds.Testing.Binary
+public import TestingLowerBounds.ForMathlib.ENNReal
 /-!
 # Statistical information
 
 ## Main definitions
 
-* `statInfo`
+* `statInfo μ ν π`: the statistical information of the measures `μ` and `ν` with respect to the
+  prior `π` on `Bool`, the difference between the Bayes risks of the testing problem without and
+  with observations.
 
 ## Main statements
 
-* `statInfo_comp_le`: data-processing inequality
-
-## Notation
-
-## Implementation details
+* `statInfo_comp_le`: data-processing inequality.
+* `toReal_statInfo_eq_integral_max_of_le`, `toReal_statInfo_eq_integral_max_of_ge`,
+  `toReal_statInfo_eq_integral_abs`: integral forms of the statistical information.
 
 -/
 
@@ -63,7 +64,7 @@ lemma statInfo_le_min : statInfo μ ν π ≤ min (π {false} * μ univ) (π {tr
   statInfo_eq_min_sub μ ν π ▸ tsub_le_self
 
 lemma statInfo_ne_top [IsFiniteMeasure μ] [IsFiniteMeasure π] :
-    statInfo μ ν π ≠ ⊤ :=
+    statInfo μ ν π ≠ ∞ :=
   (statInfo_le_min.trans_lt <| min_lt_iff.mpr <| Or.inl
     <| ENNReal.mul_lt_top (measure_lt_top π _) (measure_lt_top μ _)).ne
 
@@ -83,14 +84,6 @@ lemma statInfo_comp_le (μ ν : Measure 𝒳) (π : Measure Bool) (η : Kernel �
     statInfo (η ∘ₘ μ) (η ∘ₘ ν) π ≤ statInfo μ ν π := by
   refine tsub_le_tsub ?_ (bayesBinaryRisk_le_bayesBinaryRisk_comp _ _ _ _)
   simp [Measure.bind_apply .univ (Kernel.measurable _).aemeasurable]
-
-lemma toReal_statInfo_eq_toReal_sub [IsFiniteMeasure ν] [IsFiniteMeasure π] :
-    (statInfo μ ν π).toReal = (min (π {false} * μ univ) (π {true} * ν univ)).toReal
-      - (bayesBinaryRisk μ ν π).toReal := by
-  rw [statInfo_eq_min_sub, ENNReal.toReal_sub_of_le]
-  · exact bayesBinaryRisk_le_min _ _ _
-  · simp only [ne_eq, min_eq_top, not_and]
-    exact fun _ ↦  ENNReal.mul_ne_top (measure_ne_top π _) (measure_ne_top ν _)
 
 lemma statInfo_boolMeasure_le_statInfo {E : Set 𝒳} (hE : MeasurableSet E) :
     statInfo (Bool.boolMeasure (μ Eᶜ) (μ E)) (Bool.boolMeasure (ν Eᶜ) (ν E)) π
@@ -270,105 +263,67 @@ lemma toReal_statInfo_eq_integral_max_of_le [IsFiniteMeasure μ] [IsFiniteMeasur
           ((Measure.integrable_toReal_rnDeriv.const_mul _).sub (integrable_const _))
       rw [setIntegral_measure_zero _ (μ.measure_singularPartSet ν), zero_add]
 
-/- TODO: Try to prove `toReal_statInfo_eq_integral_max_of_gt` using the previous lemma and the
-symmetry of the statInfo. This should be faster than the current proof, and avoid a lot of code
-duplication. To finish the proof we would need something like `∂μ/∂ν * ∂ν/∂μ =ᵐ[μ] 1`, at least
-when `∂ν/∂μ ≠ 0`, and also that `∂μ/∂ν =ᵐ[ν.simgularPart μ] 0`, if we have this we can split `ν`
-using the Lebesgue decomposition and we should be done quite easily.
--/
+/-- Integral form of the statistical information, when `π {true} * ν univ ≤ π {false} * μ univ`.
+It follows from `toReal_statInfo_eq_integral_max_of_le` applied to `ν`, `μ` and the swapped prior,
+through the Lebesgue decomposition of `ν` with respect to `μ`. -/
 lemma toReal_statInfo_eq_integral_max_of_ge [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     [IsFiniteMeasure π] (h : π {true} * ν univ ≤ π {false} * μ univ) :
     (statInfo μ ν π).toReal
       = ∫ x, max 0 ((π {true}).toReal - (π {false} * (∂μ/∂ν) x).toReal) ∂ν := by
-  by_cases h_false : π {false} = 0
-  · simp only [h_false, zero_mul, nonpos_iff_eq_zero, mul_eq_zero, Measure.measure_univ_eq_zero]
-      at h
-    rcases h with (h | h)
-    · simp [show π = 0 from Measure.measure_bool_ext h_false h]
-    · simp [h]
-  by_cases h_true : π {true} = 0
-  · have (x : 𝒳) : 0 ≥ -((π {false}).toReal * ((∂μ/∂ν) x).toReal) := neg_nonpos.mpr (by positivity)
-    simp [statInfo, h_true, bayesBinaryRisk_of_measure_true_eq_zero, max_eq_left (this _)]
-  have hνac : ν ≪ (Kernel.boolKernel μ ν ∘ₘ π) :=
-    absolutelyContinuous_boolKernel_comp_right μ ν h_true
-  rw [toReal_statInfo_eq_min_sub_integral, min_eq_right ((ENNReal.toReal_le_toReal _ _).mpr h)]
-    <;> try simp only [ne_eq, measure_ne_top _ _, not_false_eq_true, ENNReal.mul_ne_top]
-  let s := μ.singularPartSet ν
-  have hs : MeasurableSet s := Measure.measurableSet_singularPartSet
-  calc
-    _ = (π {true} * ν univ).toReal
-        - ∫ x, (π {true} * (∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal
-          + min 0 ((π {false} * (∂μ/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal
-            - (π {true} * (∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal)
-              ∂Kernel.boolKernel μ ν ∘ₘ π := by
-      congr with x
-      nth_rw 1 [min_comm, ← add_zero (π _ * _).toReal, ← add_sub_cancel_left
-        (π {true} * (∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal (π {false} * _).toReal]
-      rw [add_sub_assoc, min_add_add_left]
-    _ = (π {true} * ν univ).toReal
-        - (∫ x, (π {true} * (∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal ∂Kernel.boolKernel μ ν ∘ₘ π
-        + ∫ x, min 0 ((π {false} * (∂μ/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal
-            - (π {true} * (∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal)
-              ∂Kernel.boolKernel μ ν ∘ₘ π) := by
-      simp_rw [ENNReal.toReal_mul]
-      congr
-      refine integral_add (Integrable.const_mul Measure.integrable_toReal_rnDeriv _) ?_
-      refine (integrable_zero _ _ _).inf (Integrable.sub ?_ ?_) <;>
-      · exact Measure.integrable_toReal_rnDeriv.const_mul _
-    _ = - ∫ x, min 0 ((π {false} * (∂μ/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal
-          - (π {true} * (∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal)
-            ∂Kernel.boolKernel μ ν ∘ₘ π := by
-      simp_rw [ENNReal.toReal_mul, ← sub_sub, sub_eq_neg_self, sub_eq_zero, integral_const_mul,
-        Measure.integral_toReal_rnDeriv hνac, ← measureReal_def]
-    _ = ∫ x, max 0 ((π {true} * (∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal
-        - (π {false} * (∂μ/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal) ∂Kernel.boolKernel μ ν ∘ₘ π := by
-      simp [← integral_neg, neg_inf]
-    _ = ∫ x in s, max 0 ((π {true} * (∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal
-          - (π {false} * (∂μ/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal) ∂Kernel.boolKernel μ ν ∘ₘ π
-        + ∫ x in sᶜ, max 0 ((π {true} * (∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal
-          - (π {false} * (∂μ/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal)
-            ∂Kernel.boolKernel μ ν ∘ₘ π := by
-      simp_rw [ENNReal.toReal_mul]
-      refine integral_add_compl hs ((integrable_zero _ _ _).sup (Integrable.sub ?_ ?_)) |>.symm <;>
-      · exact Measure.integrable_toReal_rnDeriv.const_mul _
-    _ = ∫ x in s, max 0 (-(π {false} * (∂(μ.singularPart ν)/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal)
-          ∂Kernel.boolKernel μ ν ∘ₘ π
-        + ∫ x in sᶜ, (max 0
-            ((π {true}).toReal - (π {false} * (∂μ.restrict (μ.singularPartSet ν)ᶜ/∂ν) x).toReal))
-          * ((∂ν/∂Kernel.boolKernel μ ν ∘ₘ π) x).toReal ∂Kernel.boolKernel μ ν ∘ₘ π := by
-      congr 1
-      · apply setIntegral_congr_ae hs
-        filter_upwards [μ.rnDeriv_eq_zero_ae_of_singularPartSet ν _,
-          (μ.singularPart ν).rnDeriv_add' (ν.withDensity (μ.rnDeriv ν))
-            (Kernel.boolKernel μ ν ∘ₘ π),
-          Measure.rnDeriv_withDensity_left_of_absolutelyContinuous hνac
-          (μ.measurable_rnDeriv ν).aemeasurable] with x hx1 hx2 hx3 hxs
-        nth_rw 2 [← μ.singularPart_add_rnDeriv ν]
-        simp_rw [hx2, Pi.add_apply, hx3, hx1 hxs, mul_zero, ENNReal.toReal_zero, zero_sub, add_zero]
-      · apply setIntegral_congr_ae hs.compl
-        filter_upwards [μ.rnDeriv_restrict (Kernel.boolKernel μ ν ∘ₘ π) hs.compl,
-          Measure.rnDeriv_mul_rnDeriv
-          (μ.absolutelyContinuous_restrict_compl_singularPartSet ν)] with x hx1 hx2 hxs
-        rw [max_mul_of_nonneg _ _ ENNReal.toReal_nonneg, zero_mul, sub_mul]
-        rw [Set.indicator_of_mem hxs] at hx1
-        simp only [s] at hx1
-        simp_rw [ENNReal.toReal_mul, mul_assoc, ← hx1, ← hx2, Pi.mul_apply, ENNReal.toReal_mul]
-    _ = ∫ x in sᶜ, max 0 ((π {true}).toReal
-          - (π {false} * (∂μ.restrict (μ.singularPartSet ν)ᶜ/∂ν) x).toReal) ∂ν := by
-      simp_rw [max_eq_left (neg_nonpos.mpr ENNReal.toReal_nonneg),
-        mul_comm _ ((∂ν/∂_ ∘ₘ _) _).toReal, ← smul_eq_mul, setIntegral_rnDeriv_smul hνac hs.compl]
-      simp
-    _ = ∫ x in sᶜ, (max 0 ((π {true}).toReal - (π {false} * (∂μ/∂ν) x).toReal)) ∂ν := by
-      apply setIntegral_congr_ae hs.compl
-      filter_upwards [μ.rnDeriv_restrict ν hs.compl] with x hx1 hxs
-      rw [hx1, indicator_of_mem hxs]
-    _ = ∫ x, (max 0 ((π {true}).toReal - (π {false} * (∂μ/∂ν) x).toReal)) ∂ν := by
-      simp_rw [ENNReal.toReal_mul]
-      nth_rw 2 [← integral_add_compl hs]
-      swap
-      · exact (integrable_zero _ _ _).sup
-          ((integrable_const _).sub (Measure.integrable_toReal_rnDeriv.const_mul _))
-      rw [setIntegral_measure_zero _ (μ.measure_singularPartSet ν), zero_add]
+  have h_false : π.map Bool.not {false} = π {true} := by
+    rw [Measure.map_apply (measurable_of_countable _) (measurableSet_singleton _)]
+    simp [Set.preimage]
+  have h_true : π.map Bool.not {true} = π {false} := by
+    rw [Measure.map_apply (measurable_of_countable _) (measurableSet_singleton _)]
+    simp [Set.preimage]
+  rw [statInfo_symm, toReal_statInfo_eq_integral_max_of_le (by rwa [h_false, h_true]), h_false,
+    h_true]
+  set t := π {true}
+  set f := π {false}
+  have ht : t ≠ ∞ := measure_ne_top _ _
+  have hf : f ≠ ∞ := measure_ne_top _ _
+  have h_meas_left : Measurable fun x ↦ t * (∂ν/∂μ) x - f :=
+    ((ν.measurable_rnDeriv μ).const_mul _).sub measurable_const
+  have h_meas_right : Measurable fun x ↦ t - f * (∂μ/∂ν) x :=
+    measurable_const.sub ((μ.measurable_rnDeriv ν).const_mul _)
+  -- both integrals are integrals of truncated differences in `ℝ≥0∞`
+  have h_left : ∫ x, max 0 ((t * (∂ν/∂μ) x).toReal - f.toReal) ∂μ
+      = (∫⁻ x, t * (∂ν/∂μ) x - f ∂μ).toReal := by
+    rw [← integral_toReal h_meas_left.aemeasurable]
+    · refine integral_congr_ae ?_
+      filter_upwards [ν.rnDeriv_ne_top μ] with x hx
+      rw [ENNReal.toReal_sub_eq_max_zero (by finiteness) hf]
+    · filter_upwards [ν.rnDeriv_ne_top μ] with x hx
+      exact tsub_le_self.trans_lt (by finiteness)
+  have h_right : ∫ x, max 0 (t.toReal - (f * (∂μ/∂ν) x).toReal) ∂ν
+      = (∫⁻ x, t - f * (∂μ/∂ν) x ∂ν).toReal := by
+    rw [← integral_toReal h_meas_right.aemeasurable]
+    · refine integral_congr_ae ?_
+      filter_upwards [μ.rnDeriv_ne_top ν] with x hx
+      rw [ENNReal.toReal_sub_eq_max_zero ht (by finiteness)]
+    · exact ae_of_all _ fun _ ↦ tsub_le_self.trans_lt ht.lt_top
+  -- decomposition of `ν` with respect to `μ`: `∂μ/∂ν = 0` on the singular part, and
+  -- `∂μ/∂ν = (∂ν/∂μ)⁻¹` on the absolutely continuous part
+  have h_key : ∫⁻ x, t - f * (∂μ/∂ν) x ∂ν
+      = ∫⁻ x, t * (∂ν/∂μ) x - f ∂μ + t * ν.singularPart μ univ := by
+    rw [lintegral_eq_add_singularPart_withDensity μ ν h_meas_right, add_comm]
+    congr 1
+    · refine lintegral_congr_ae ?_
+      filter_upwards [Measure.rnDeriv_eq_inv_rnDeriv_of_ne_zero ν μ, ν.rnDeriv_ne_top μ]
+        with x hx hx_top
+      by_cases h0 : (∂ν/∂μ) x = 0
+      · simp [h0]
+      rw [hx h0, ENNReal.mul_sub (fun _ _ ↦ hx_top), mul_comm ((∂ν/∂μ) x) t, mul_left_comm,
+        ENNReal.mul_inv_cancel h0 hx_top, mul_one]
+    · rw [← lintegral_const]
+      refine lintegral_congr_ae ?_
+      filter_upwards [Measure.rnDeriv_eq_zero_ae_singularPart μ ν] with x hx
+      simp [hx]
+  have h_fin : ∫⁻ x, t * (∂ν/∂μ) x - f ∂μ ≠ ∞ := by
+    refine ne_top_of_le_ne_top ?_ (lintegral_mono fun _ ↦ tsub_le_self)
+    rw [lintegral_const_mul _ (ν.measurable_rnDeriv μ)]
+    exact ENNReal.mul_ne_top ht (Measure.lintegral_rnDeriv_lt_top ν μ).ne
+  rw [h_left, h_right, h_key, ENNReal.toReal_add h_fin (by finiteness)]
 
 lemma toReal_statInfo_eq_integral_abs (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFiniteMeasure ν]
     {π : Measure Bool} [IsFiniteMeasure π] :

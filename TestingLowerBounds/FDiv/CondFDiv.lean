@@ -7,7 +7,7 @@ module
 
 public import Mathlib.MeasureTheory.Order.Group.Lattice
 public import Mathlib.Probability.Kernel.Integral
-public import TestingLowerBounds.FDiv.CompProd.CompProd
+public import TestingLowerBounds.FDiv.CompProd
 public import TestingLowerBounds.FDiv.Measurable
 public import Mathlib.MeasureTheory.MeasurableSpace.CountablyGenerated
 public import TestingLowerBounds.FDiv.DPIJensen
@@ -15,6 +15,19 @@ public import TestingLowerBounds.FDiv.DPIJensen
 /-!
 
 # Conditional f-divergence
+
+## Main definitions
+
+* `condFDiv f κ η μ`: the conditional f-divergence `∫⁻ x, fDiv f (κ x) (η x) ∂μ` between the
+  kernels `κ` and `η` with respect to the measure `μ`.
+
+## Main statements
+
+* `condFDiv_ne_top_iff`, `condFDiv_eq_top_iff`: finiteness of the conditional f-divergence.
+* `fDiv_compProd_right`: `fDiv f (μ ⊗ₘ κ) (μ ⊗ₘ η) = condFDiv f κ η μ`.
+* `fDiv_comp_left_le`: `fDiv f (κ ∘ₘ μ) (η ∘ₘ μ) ≤ condFDiv f κ η μ`.
+* `condFDiv_measure_compProd`: the conditional f-divergence with respect to a
+  composition-product `μ ⊗ₘ ξ` is an iterated conditional f-divergence.
 
 -/
 
@@ -36,31 +49,51 @@ noncomputable
 def condFDiv (f : DivFunction) (κ η : Kernel α β) (μ : Measure α) : ℝ≥0∞ :=
   ∫⁻ x, fDiv f (κ x) (η x) ∂μ
 
+/-- Equivalence between two possible versions of the first condition for the finiteness of the
+conditional f divergence, the second version is the preferred one. -/
+lemma fDiv_ae_ne_top_iff [IsFiniteKernel κ] [IsFiniteKernel η] :
+    (∀ᵐ a ∂μ, fDiv f (κ a) (η a) ≠ ∞)
+    ↔ (∀ᵐ a ∂μ, ∫⁻ x, f ((∂κ a/∂η a) x) ∂η a ≠ ∞) ∧ (f.derivAtTop = ∞ → ∀ᵐ a ∂μ, κ a ≪ η a) := by
+  simp_rw [fDiv_ne_top_iff, eventually_and, eventually_all]
+
 section CondFDivEq
 
 variable [CountableOrCountablyGenerated α β]
 
+/-- Equivalence between two possible versions of the second condition for the finiteness of the
+conditional f divergence, the second version is the preferred one. -/
+lemma lintegral_fDiv_ne_top_iff [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η]
+    (h_ac : f.derivAtTop = ∞ → ∀ᵐ a ∂μ, κ a ≪ η a) :
+    ∫⁻ x, fDiv f (κ x) (η x) ∂μ ≠ ∞ ↔ ∫⁻ a, ∫⁻ b, f ((∂κ a/∂η a) b) ∂η a ∂μ ≠ ∞ := by
+  by_cases h_top : f.derivAtTop = ∞
+  · rw [lintegral_congr_ae]
+    filter_upwards [h_ac h_top] with a ha
+    rw [fDiv_of_absolutelyContinuous ha]
+  · simp_rw [fDiv]
+    rw [lintegral_add_right]
+    swap
+    · simp_rw [← Kernel.singularPart_eq_singularPart_measure]
+      exact (Kernel.measurable_coe _ .univ).const_mul _
+    simp only [ne_eq, ENNReal.add_eq_top, not_or, and_iff_left_iff_imp]
+    intro _
+    rw [lintegral_const_mul]
+    swap
+    · simp_rw [← Kernel.singularPart_eq_singularPart_measure]
+      exact Kernel.measurable_coe _ .univ
+    refine ENNReal.mul_ne_top h_top ?_
+    rw [lintegral_singularPart _ _ _ .univ]
+    simp
+
 @[simp]
 lemma condFDiv_of_not_ae_finite [IsFiniteKernel κ] [IsFiniteKernel η]
-    (h : ¬ ∀ᵐ a ∂μ, fDiv f (κ a) (η a) ≠ ⊤) :
+    (h : ¬ ∀ᵐ a ∂μ, fDiv f (κ a) (η a) ≠ ∞) :
     condFDiv f κ η μ = ∞ := by
   rw [condFDiv]
   by_contra h_not
-  refine h ?_
-  have h_meas : Measurable (fun x ↦ fDiv f (κ x) (η x)) := measurable_fDiv κ η
-  filter_upwards [ae_lt_top h_meas h_not] with a ha
-  exact ha.ne
+  exact h <| (ae_lt_top (measurable_fDiv κ η) h_not).mono fun _ ha ↦ ha.ne
 
 @[simp]
-lemma condFDiv_of_not_ae_integrable [IsFiniteKernel κ] [IsFiniteKernel η]
-    (h : ¬ ∀ᵐ a ∂μ, ∫⁻ x, f ((∂κ a/∂η a) x) ∂(η a) ≠ ∞) :
-    condFDiv f κ η μ = ∞ := by
-  apply condFDiv_of_not_ae_finite
-  rw [fDiv_ae_ne_top_iff]
-  tauto
-
-@[simp]
-lemma condFDiv_of_not_ae_ac [IsFiniteKernel κ] [IsFiniteKernel η] (h_top : f.derivAtTop = ⊤)
+lemma condFDiv_of_not_ae_ac [IsFiniteKernel κ] [IsFiniteKernel η] (h_top : f.derivAtTop = ∞)
     (h : ¬ ∀ᵐ a ∂μ, κ a ≪ η a) :
     condFDiv f κ η μ = ∞ := by
   apply condFDiv_of_not_ae_finite
@@ -68,27 +101,22 @@ lemma condFDiv_of_not_ae_ac [IsFiniteKernel κ] [IsFiniteKernel η] (h_top : f.d
   tauto
 
 @[simp]
-lemma condFDiv_of_not_integrable' [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η]
+lemma condFDiv_of_lintegral_eq_top [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η]
     (hf : ∫⁻ a, ∫⁻ b, f ((∂κ a/∂η a) b) ∂η a ∂μ = ∞) :
     condFDiv f κ η μ = ∞ := by
   by_cases h_top : ∀ᵐ a ∂μ, fDiv f (κ a) (η a) ≠ ∞
   swap; · exact condFDiv_of_not_ae_finite h_top
-  rwa [condFDiv, ← not_not (a := ∫⁻ x, fDiv f (κ x) (η x) ∂μ = ⊤), ← ne_eq, integrable_fDiv_iff,
-    ne_eq, not_not]
-  rw [fDiv_ae_ne_top_iff] at h_top
-  exact h_top.2
+  by_contra h_ne
+  exact (lintegral_fDiv_ne_top_iff (fDiv_ae_ne_top_iff.mp h_top).2).mp h_ne hf
 
 lemma condFDiv_ne_top_iff [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η] :
     condFDiv f κ η μ ≠ ∞ ↔
       ∫⁻ a, ∫⁻ b, f ((∂κ a/∂η a) b) ∂(η a) ∂μ ≠ ∞
         ∧ (f.derivAtTop = ∞ → ∀ᵐ a ∂μ, κ a ≪ η a) := by
-  refine ⟨fun h ↦ ⟨?_, ?_⟩, fun ⟨h1, h2⟩ ↦ ?_⟩
-  · exact fun h_eq ↦ h (condFDiv_of_not_integrable' h_eq)
-  · intro h_eq_top
-    by_contra h_not
-    exact h <| condFDiv_of_not_ae_ac h_eq_top h_not
-  · rw [condFDiv]
-    rwa [integrable_fDiv_iff h2]
+  refine ⟨fun h ↦ ⟨fun h_eq ↦ h (condFDiv_of_lintegral_eq_top h_eq), fun h_eq_top ↦ ?_⟩,
+    fun ⟨h1, h2⟩ ↦ (lintegral_fDiv_ne_top_iff h2).mpr h1⟩
+  by_contra h_not
+  exact h <| condFDiv_of_not_ae_ac h_eq_top h_not
 
 lemma condFDiv_eq_top_iff [IsFiniteMeasure μ] [IsFiniteKernel κ] [IsFiniteKernel η] :
     condFDiv f κ η μ = ∞ ↔
@@ -112,8 +140,7 @@ lemma condFDiv_eq_add [IsFiniteKernel κ] [IsFiniteKernel η] :
   rw [lintegral_const_mul]
   exact (Measure.measurable_coe .univ).comp (κ.measurable_singularPart η)
 
-lemma condFDiv_of_derivAtTop_eq_top [IsFiniteKernel κ] [IsFiniteKernel η]
-    (h_ac : ∀ᵐ a ∂μ, κ a ≪ η a) :
+lemma condFDiv_of_ae_ac [IsFiniteKernel κ] [IsFiniteKernel η] (h_ac : ∀ᵐ a ∂μ, κ a ≪ η a) :
     condFDiv f κ η μ = ∫⁻ a, ∫⁻ y, f ((∂κ a/∂η a) y) ∂η a ∂μ := by
   rw [condFDiv_eq_add]
   suffices ∫⁻ a, ((κ a).singularPart (η a)) univ ∂μ = 0 by simp [this]
@@ -138,21 +165,12 @@ lemma condFDiv_zero_left :
   rw [lintegral_const_mul]
   exact Kernel.measurable_coe _ .univ
 
-lemma condFDiv_zero_left' [IsProbabilityMeasure μ] [IsMarkovKernel η] :
-    condFDiv f 0 η μ = f 0 := by
-  simp
-
---I also wanted to add something like condKL_zero_right, but it turns out it's not so
---straightforward to state and prove, and since we don't really need it for now I will leave it out.
-
 @[simp]
 lemma condFDiv_zero_measure : condFDiv f κ η 0 = 0 := by simp [condFDiv]
 
 @[simp]
 lemma condFDiv_of_isEmpty_left [IsEmpty α] : condFDiv f κ η μ = 0 := by
-  suffices μ = 0 from this ▸ condFDiv_zero_measure
-  ext s
-  exact s.eq_empty_of_isEmpty ▸ measure_empty
+  simp [condFDiv]
 
 @[simp]
 lemma condFDiv_of_isEmpty_right [IsEmpty β] [IsFiniteKernel κ] :
@@ -168,70 +186,50 @@ lemma condFDiv_const {ξ : Measure β} :
 
 section CompProd
 
-/-! We show that the integrability of the functions used in `fDiv f (μ ⊗ₘ κ) (μ ⊗ₘ η)`
-and in `condFDiv f κ η μ` are equivalent. -/
-
-section
-
 variable [CountableOrCountablyGenerated α β]
-
-lemma condFDiv_ne_top_iff_fDiv_compProd_ne_top [IsFiniteMeasure μ]
-    [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] :
-    condFDiv f κ η μ ≠ ∞ ↔ fDiv f (μ ⊗ₘ κ) (μ ⊗ₘ η) ≠ ∞ := by
-  rw [condFDiv_ne_top_iff, fDiv_compProd_right_ne_top_iff]
-
-lemma condFDiv_eq_top_iff_fDiv_compProd_eq_top [IsFiniteMeasure μ]
-    [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] :
-    condFDiv f κ η μ = ∞ ↔ fDiv f (μ ⊗ₘ κ) (μ ⊗ₘ η) = ∞ := by
-  rw [← not_iff_not]
-  exact condFDiv_ne_top_iff_fDiv_compProd_ne_top
 
 /-- For f-divergences, the divergence between two composition-products with same first measure is
 equal to the conditional divergence. -/
-theorem fDiv_compProd_left (μ : Measure α) [IsFiniteMeasure μ]
-    (κ η : Kernel α β) [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] :
+theorem fDiv_compProd_right (μ : Measure α) [IsFiniteMeasure μ]
+    (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
     fDiv f (μ ⊗ₘ κ) (μ ⊗ₘ η) = condFDiv f κ η μ := by
-  by_cases hf_top : condFDiv f κ η μ = ∞
-  · rwa [hf_top, ← condFDiv_eq_top_iff_fDiv_compProd_eq_top]
-  rw [← ne_eq, condFDiv_ne_top_iff] at hf_top
-  rcases hf_top with ⟨_, h2⟩
-  rw [fDiv, condFDiv_eq_add, Measure.lintegral_compProd]
-  swap; · exact measurable_divFunction_rnDeriv
-  have : ∫⁻ a, ∫⁻ b, f ((∂μ ⊗ₘ κ/∂μ ⊗ₘ η) (a, b)) ∂η a ∂μ
-      = ∫⁻ a, ∫⁻ b, f ((∂κ a/∂η a) b) ∂η a ∂μ := by
-    have h_eq := Kernel.rnDeriv_measure_compProd_right' μ κ η
-    refine lintegral_congr_ae ?_
-    filter_upwards [h_eq] with x hx
-    refine lintegral_congr_ae ?_
-    filter_upwards [hx] with y hy
-    rw [hy]
-  rw [this]
+  rw [fDiv, condFDiv_eq_add, Measure.lintegral_compProd measurable_divFunction_rnDeriv,
+    lintegral_singularPart _ _ _ .univ, univ_prod_univ]
   congr 1
-  by_cases h_deriv : f.derivAtTop = ∞
-  · rw [h_deriv]
-    have h1 : (μ ⊗ₘ κ).singularPart (μ ⊗ₘ η) = 0 := by
-      rw [Measure.singularPart_eq_zero, Measure.absolutelyContinuous_compProd_right_iff]
-      exact h2 h_deriv
-    have h2 : ∫⁻ a, ((κ a).singularPart (η a)) univ ∂μ = 0 := by
-      rw [lintegral_eq_zero_iff]
-      swap; · exact (Measure.measurable_coe .univ).comp (κ.measurable_singularPart η)
-      filter_upwards [h2 h_deriv] with x hx
-      simp only [Pi.zero_apply, Measure.measure_univ_eq_zero]
-      exact Measure.singularPart_eq_zero_of_ac hx
-    simp [h1, h2]
-  · rw [lintegral_singularPart _ _ _ .univ, Set.univ_prod_univ]
+  refine lintegral_congr_ae ?_
+  filter_upwards [Kernel.rnDeriv_measure_compProd_right' μ κ η] with a ha
+  refine lintegral_congr_ae ?_
+  filter_upwards [ha] with b hb
+  rw [hb]
 
-end
+lemma condFDiv_ne_top_iff_fDiv_compProd_ne_top [IsFiniteMeasure μ]
+    [IsFiniteKernel κ] [IsFiniteKernel η] :
+    condFDiv f κ η μ ≠ ∞ ↔ fDiv f (μ ⊗ₘ κ) (μ ⊗ₘ η) ≠ ∞ := by
+  rw [fDiv_compProd_right]
 
-end CompProd
-
-lemma fDiv_comp_left_le [CountableOrCountablyGenerated α β]
-    (μ : Measure α) [IsFiniteMeasure μ]
-    (κ η : Kernel α β) [IsFiniteKernel κ] [∀ a, NeZero (κ a)] [IsFiniteKernel η] :
+lemma fDiv_comp_left_le (μ : Measure α) [IsFiniteMeasure μ]
+    (κ η : Kernel α β) [IsFiniteKernel κ] [IsFiniteKernel η] :
     fDiv f (κ ∘ₘ μ) (η ∘ₘ μ) ≤ condFDiv f κ η μ := by
   calc fDiv f (κ ∘ₘ μ) (η ∘ₘ μ)
     ≤ fDiv f (μ ⊗ₘ κ) (μ ⊗ₘ η) := fDiv_comp_le_compProd'' μ μ κ η
-  _ = condFDiv f κ η μ := fDiv_compProd_left μ κ η
+  _ = condFDiv f κ η μ := fDiv_compProd_right μ κ η
+
+end CompProd
+
+section CompProdMeasure
+
+variable {γ : Type*} {mγ : MeasurableSpace γ}
+
+/-- The conditional f-divergence with respect to a composition-product `μ ⊗ₘ ξ` is an iterated
+conditional f-divergence. -/
+lemma condFDiv_measure_compProd [CountableOrCountablyGenerated (α × β) γ] [SFinite μ]
+    {ξ : Kernel α β} [IsSFiniteKernel ξ]
+    {κ η : Kernel (α × β) γ} [IsFiniteKernel κ] [IsFiniteKernel η] :
+    condFDiv f κ η (μ ⊗ₘ ξ) = ∫⁻ x, condFDiv f (κ.sectR x) (η.sectR x) (ξ x) ∂μ := by
+  rw [condFDiv, Measure.lintegral_compProd (measurable_fDiv _ _)]
+  rfl
+
+end CompProdMeasure
 
 end Conditional
 
@@ -254,7 +252,7 @@ lemma integrable_fDiv_ofReal_iff_of_ne_top [CountableOrCountablyGenerated α β]
         + (DivFunction.ofReal f hf hf_one).derivAtTop.toReal
           * ((κ a).singularPart (η a) .univ).toReal := by
     filter_upwards [h_int] with a h_int
-    exact toReal_fDiv_ofReal_eq_integral_add' hf_nonneg h_cont h_int h_ne
+    exact toReal_fDiv_ofReal_eq_integral_add hf_nonneg h_cont h_int h_ne
   rw [integrable_congr h, integrable_add_iff_integrable_left']
   refine Integrable.const_mul ?_ _
   refine integrable_toReal_of_lintegral_ne_top ?_ ?_
@@ -270,11 +268,9 @@ lemma integrable_fDiv_ofReal_iff_of_ac [IsFiniteKernel κ]
     (hμη : ∀ᵐ a ∂μ, κ a ≪ η a) :
     Integrable (fun a ↦ (fDiv (.ofReal f hf hf_one) (κ a) (η a)).toReal) μ
       ↔ Integrable (fun a ↦ ∫ x, f ((∂κ a/∂η a) x).toReal ∂(η a)) μ := by
-  have h : ∀ᵐ a ∂μ, (fDiv (.ofReal f hf hf_one) (κ a) (η a)).toReal
-      = ∫ x, f ((∂κ a/∂η a) x).toReal ∂(η a) := by
-    filter_upwards [h_int, hμη] with a h_int hμη
-    exact toReal_fDiv_ofReal_eq_integral_add_of_ac hf_nonneg h_cont h_int hμη
-  rw [integrable_congr h]
+  refine integrable_congr ?_
+  filter_upwards [h_int, hμη] with a h_int hμη
+  exact toReal_fDiv_ofReal_eq_integral_add_of_ac hf_nonneg h_cont h_int hμη
 
 end OfReal
 

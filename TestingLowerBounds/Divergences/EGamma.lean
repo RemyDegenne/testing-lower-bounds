@@ -12,15 +12,12 @@ public import TestingLowerBounds.Divergences.StatInfo.StatInfo
 
 ## Main definitions
 
-* `deGrootInfo`
+* `eGamma μ ν γ`: the hockey-stick divergence, the statistical information for the prior
+  `δ_false + γ δ_true`.
 
 ## Main statements
 
-* `deGrootInfo_comp_le`
-
-## Notation
-
-## Implementation details
+* `eGamma_comp_le`: data-processing inequality.
 
 -/
 
