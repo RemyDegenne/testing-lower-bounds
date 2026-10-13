@@ -513,7 +513,7 @@ lemma fDiv_restrict (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν]
     rw [ha]
     by_cases has : a ∈ s <;> simp [has]
   rw [fDiv, μ.singularPart_restrict ν hs, Measure.restrict_apply_univ, lintegral_congr_ae h,
-    lintegral_piecewise hs, setLIntegral_const]
+    lintegral_piecewise hs.nullMeasurableSet, setLIntegral_const]
 
 lemma fDiv_restrict_restrict (μ ν : Measure α) [SigmaFinite μ] [SigmaFinite ν]
     {s : Set α} (hs : MeasurableSet s) :

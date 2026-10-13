@@ -7,6 +7,7 @@ module
 
 public import TestingLowerBounds.Testing.BoolMeasure
 public import TestingLowerBounds.Divergences.StatInfo.StatInfo
+public import Mathlib.MeasureTheory.Measure.TotalVariation.Basic
 
 /-!
 # Total variation distance
@@ -16,11 +17,18 @@ public import TestingLowerBounds.Divergences.StatInfo.StatInfo
 * `tv μ ν`: the total variation distance between `μ` and `ν`, defined as the statistical
   information `statInfo μ ν π` for the uniform prior `π` on `Bool`.
 
+Mathlib defines another total variation distance, `MeasureTheory.tvDist μ ν`, as the total mass of
+the variation of `μ - ν`. It takes values in `[0, 2]` on probability measures, while `tv` takes
+values in `[0, 1]`. The two are related by `tv_eq_tvDist_sub_abs`.
+
 ## Main statements
 
 * `tv_le`: `tv μ ν ≤ min (μ univ) (ν univ)`.
 * `lintegral_one_sub_rnDeriv_eq_tv`: `∫⁻ x, 1 - (∂μ/∂ν) x ∂ν = tv μ ν` for probability measures.
 * `tv_comp_le`: data-processing inequality.
+* `tv_eq_tvDist_sub_abs`: `tv μ ν = (tvDist μ ν - |μ univ - ν univ|) / 2` for finite measures.
+* `tv_eq_tvDist_div_two`: `tv μ ν = tvDist μ ν / 2` for finite measures with the same mass,
+  in particular for probability measures.
 
 -/
 
@@ -35,7 +43,10 @@ namespace ProbabilityTheory
 variable {𝒳 𝒳' : Type*} {m𝒳 : MeasurableSpace 𝒳} {m𝒳' : MeasurableSpace 𝒳'}
   {μ ν : Measure 𝒳}
 
-/-- Total variation distance between two measures. -/
+/-- Total variation distance between two measures.
+
+On finite measures with the same mass this is half of Mathlib's `MeasureTheory.tvDist`:
+see `tv_eq_tvDist_div_two`. -/
 noncomputable def tv (μ ν : Measure 𝒳) : ℝ :=
   (statInfo μ ν (boolMeasure 1 1)).toReal
 
@@ -83,5 +94,33 @@ lemma lintegral_one_sub_rnDeriv_eq_tv (μ ν : Measure 𝒳) [IsProbabilityMeasu
       ENNReal.ofReal_sub _ ENNReal.toReal_nonneg, ENNReal.ofReal_one, ENNReal.ofReal_toReal hx]
   · exact (integrable_zero _ _ _).sup ((integrable_const _).sub Measure.integrable_toReal_rnDeriv)
   · exact ae_of_all _ fun _ ↦ le_max_left _ _
+
+section TvDist
+
+/-! ### Link with Mathlib's `MeasureTheory.tvDist` -/
+
+/-- The total variation distance `tv` in terms of Mathlib's `tvDist`, which is the total mass of
+the variation of `μ - ν`. -/
+lemma tv_eq_tvDist_sub_abs (μ ν : Measure 𝒳) [IsFiniteMeasure μ] [IsFiniteMeasure ν] :
+    tv μ ν = (tvDist μ ν - |μ.real .univ - ν.real .univ|) / 2 := by
+  rw [tv, toReal_statInfo_eq_integral_abs, tvDist_eq_integral_abs_rnDeriv_add_singularPart]
+  simp only [boolMeasure_apply_false, boolMeasure_apply_true, one_mul, ENNReal.toReal_one,
+    Measure.real, abs_sub_comm _ (1 : ℝ)]
+  ring
+
+/-- For finite measures with the same mass, in particular probability measures, Mathlib's `tvDist`
+is twice the total variation distance `tv`. -/
+lemma tvDist_eq_two_mul_tv [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h : μ .univ = ν .univ) :
+    tvDist μ ν = 2 * tv μ ν := by
+  have h' : μ.real .univ = ν.real .univ := by rw [measureReal_def, h, measureReal_def]
+  rw [tv_eq_tvDist_sub_abs, h', sub_self, abs_zero, sub_zero, mul_div_cancel₀ _ two_ne_zero]
+
+/-- For finite measures with the same mass, in particular probability measures, the total variation
+distance `tv` is half of Mathlib's `tvDist`. -/
+lemma tv_eq_tvDist_div_two [IsFiniteMeasure μ] [IsFiniteMeasure ν] (h : μ .univ = ν .univ) :
+    tv μ ν = tvDist μ ν / 2 := by
+  rw [tvDist_eq_two_mul_tv h, mul_div_cancel_left₀ _ two_ne_zero]
+
+end TvDist
 
 end ProbabilityTheory

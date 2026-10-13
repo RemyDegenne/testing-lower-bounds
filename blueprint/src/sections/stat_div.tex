@@ -627,6 +627,59 @@ Apply Corollary~\ref{cor:statInfo_eq_integral_abs}.
 \end{proof}
 
 
+\begin{definition}[Total variation distance of Mathlib]
+  \label{def:tvDist}
+  \lean{MeasureTheory.tvDist}
+  \mathlibok
+  For finite measures $\mu$ and $\nu$, Mathlib defines the total variation distance as $\vert \mu - \nu \vert(\mathcal X)$, the total mass of the variation of the signed measure $\mu - \nu$.
+  On probability measures it takes values in $[0, 2]$, while $\TV$ takes values in $[0, 1]$.
+\end{definition}
+
+
+\begin{lemma}
+  \label{lem:tvDist_eq_integral_abs}
+  \lean{MeasureTheory.tvDist_eq_integral_abs_rnDeriv_add_singularPart}
+  \mathlibok
+  \uses{def:tvDist}
+  For finite measures $\mu, \nu$,
+  \begin{align*}
+  \vert \mu - \nu \vert(\mathcal X)
+  &= \nu\left[ x \mapsto \left\vert 1 - \frac{d \mu}{d\nu}(x) \right\vert \right] + \mu_{\perp \nu}(\mathcal X)
+  \: .
+  \end{align*}
+\end{lemma}
+
+\begin{proof}\mathlibok
+
+\end{proof}
+
+
+\begin{lemma}
+  \label{lem:tv_eq_tvDist}
+  \lean{ProbabilityTheory.tv_eq_tvDist_sub_abs, ProbabilityTheory.tvDist_eq_two_mul_tv, ProbabilityTheory.tv_eq_tvDist_div_two}
+  \leanok
+  \uses{def:TV, def:tvDist}
+  For finite measures $\mu, \nu$,
+  \begin{align*}
+  \TV(\mu, \nu)
+  &= \frac{1}{2} \left( \vert \mu - \nu \vert(\mathcal X) - \left\vert \mu(\mathcal X) - \nu(\mathcal X)\right\vert \right)
+  \: .
+  \end{align*}
+  In particular, if $\mu(\mathcal X) = \nu(\mathcal X)$ (for example for probability measures) then $\TV(\mu, \nu) = \frac{1}{2} \vert \mu - \nu \vert(\mathcal X)$.
+\end{lemma}
+
+\begin{proof}\leanok
+\uses{cor:statInfo_eq_integral_abs, lem:tvDist_eq_integral_abs}
+Corollary~\ref{cor:statInfo_eq_integral_abs} for $\xi = (1,1)$ gives
+\begin{align*}
+\TV(\mu, \nu)
+&= -\frac{1}{2} \left\vert \mu(\mathcal X) - \nu(\mathcal X)\right\vert + \frac{1}{2}\left( \nu\left[ x \mapsto \left\vert \frac{d \mu}{d\nu}(x) - 1 \right\vert \right]  + \mu_{\perp \nu}(\mathcal X)\right)
+\: ,
+\end{align*}
+and the term in parentheses is $\vert \mu - \nu \vert(\mathcal X)$ by Lemma~\ref{lem:tvDist_eq_integral_abs}.
+\end{proof}
+
+
 \begin{lemma}
   \label{lem:tv_eq_sub_inf_event}
   %\lean{}
